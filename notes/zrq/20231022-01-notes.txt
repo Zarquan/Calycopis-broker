@@ -1,0 +1,67 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2023, ROE (http://www.roe.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on the CIRASA-planner project.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Aim is to create a generic API.
+
+    For a single project, it is fine to develop a local implementation.
+
+    For a single project, it is OK to develop a Python module.
+    Standard client, plugins for K8s, Slurm, Celery ..
+
+    For a global project, need an abstract interface that hides the implementation.
+    Remote service implements the standard web-service API.
+    How they implement it is up to them.
+
+    Markus's concerns - the same execution platform behind.
+    Just an abstract interface.
+
+    Adapt to changes in available software.
+    New types of job scheduler, wrap in the same interface.
+    Old types of job scheduler, wrap in the same interface.
+
+    Easier to get international agreement on a standard web-service API.
+    Limited API, minimum we need to fulfill our use cases.
+    Designed from science user's perspective.
+
+    Is it worth the time ?
+    https://xkcd.com/1205/
+
+    Standards
+    https://xkcd.com/927/
+
+
+
+
+
+
+

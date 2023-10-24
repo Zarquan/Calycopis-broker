@@ -1,0 +1,49 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on the CIRASA-planner project.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    CIRASA
+    Collaborative and Integrated platform for Radio Astronomical Source Analysis
+
+    Visual analytic platform (CIRASA)
+    CAESAR source finder
+    ViaLactea Visual Analytic (VLVA)
+    ViaLactea Knowledge Base (VLKB)
+
+
+    Some of the provided features
+    (e.g. source extraction and analysis algorithms)
+    are, however, general purpose and may well serve the broader astronomical community
+    in other wavelength domains (e.g. infrared, optical or gamma).
+
+
+
