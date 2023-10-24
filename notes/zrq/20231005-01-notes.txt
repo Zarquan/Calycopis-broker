@@ -1,0 +1,49 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on the CIRASA-planner project.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Core aim is to use the CIRASA visualization tools as a use-case for the ExecutionPlanner service.
+    Develop a simple "can I do this" implementation of the ExecutionPlanner API that can run the CIRASA visualization tools.
+
+    Initial step is to create a poster describing the work.
+    Needs some nice diagrams to fill out the poster.
+
+    Step #1
+    Setup a GitHub project to work on it together ..
+
+        IVOA/CIRASA-planner
+
+        Dave and Sara as developers ..
+
+
+
+
