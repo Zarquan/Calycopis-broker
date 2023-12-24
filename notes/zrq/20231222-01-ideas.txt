@@ -1,0 +1,348 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experimenting with SpringBoot stuff ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Getting Started with SpringBoot
+    https://spring.io/guides/gs/spring-boot/
+
+    Project initializer
+    https://start.spring.io/
+
+    Initializer config asks for Java version, 17 or 21.
+    Desktop has JDK 19 installed, latert Fedora has 21.
+    Leave it at 17 until we upgrade our desktop (TODO).
+
+    Select package as a war, and initializer adds webapp startup code.
+
+    Group: uk.co.metagrid
+    Artifact: pandak
+    Name: Pandak
+    Package: uk.co.metagrid.pandak
+
+# -----------------------------------------------------
+
+    Followed the GettingStarted instructions ...
+    Needed to set the Java version by setting the alternatives symlink for java and javac.
+
+    sudo alternatives  --config java
+
+--START--
+There is 3 program that provides 'java'.
+
+  Selection    Command
+-----------------------------------------------
+   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/jre/bin/java)
+*  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/java)
+ + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/java)
+
+Enter to keep the current selection[+], or type selection number:
+--END--
+
+
+    sudo alternatives  --config javac
+
+--START--
+There is 3 program that provides 'javac'.
+
+  Selection    Command
+-----------------------------------------------
+   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/bin/javac)
+*  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/javac)
+ + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/javac)
+
+Enter to keep the current selection[+], or type selection number:
+--END--
+
+# -----------------------------------------------------
+
+    ./mvnw spring-boot:run
+
+--START--
+....
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.1)
+
+2023-12-22T23:03:26.565Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 299920 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak)
+2023-12-22T23:03:26.569Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+2023-12-22T23:03:27.623Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+2023-12-22T23:03:27.703Z  INFO 299920 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-12-22T23:03:27.705Z  INFO 299920 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1063 ms
+2023-12-22T23:03:28.088Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2023-12-22T23:03:28.100Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 1.949 seconds (process running for 2.293)
+....
+--END--
+
+--START--
+....
+2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-12-22T23:03:58.682Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+....
+--END--
+
+
+    curl http://localhost:8080
+
+--START--
+Greetings from Spring Boot!
+--END--
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Various experiments with content type and accepts headers.
+    To generate YAML based on the accepts header, we need to register the Jackson converter.
+
+    https://rm3l.org/handling-yaml-in-spring-rest-apis/
+    Approach #2: Inject an HTTP Message Converter
+
+    Only a specific subset are registered by default.
+    https://github.com/spring-projects/spring-framework/tree/main/spring-web/src/main/java/org/springframework/http/converter
+
+    @Component
+    class YamlConverter extends AbstractJackson2HttpMessageConverter {
+
+        // Registers com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+        // for a set of content types including "application/yaml"
+
+        }
+
+    Result is we can produce all three formats ....
+
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/json" \
+        http://localhost:8080/appleblert \
+    | jq '.'
+
+--START--
+{
+  "text": "Example result"
+}
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/appleblert \
+    | yq '.'
+
+--START--
+---
+text: "Example result"
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/xml" \
+        http://localhost:8080/appleblert \
+    | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<TextResponse>
+  <text>Example result</text>
+</TextResponse>
+--END--
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Can we also read different data formats ?
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/json" \
+        --header "Content-Type: application/json" \
+        --data '{"text":"gramparleck"}' \
+        http://localhost:8080/ponditak \
+    | jq '.'
+
+--START--
+{
+  "text": "gramparleck"
+}
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/xml" \
+        --header "Content-Type: application/json" \
+        --data '{"text":"gramparleck"}' \
+        http://localhost:8080/ponditak \
+    | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<TextResponse>
+  <text>gramparleck</text>
+</TextResponse>
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/xml" \
+        --header "Content-Type: application/xml" \
+        --data '<text>Example result</text>' \
+        http://localhost:8080/ponditak \
+
+--START--
+....
+2023-12-23T03:03:11.418Z  WARN 320438 --- [nio-8080-exec-9] .w.s.m.s.DefaultHandlerExceptionResolver :
+    Resolved [
+        org.springframework.web.HttpMediaTypeNotSupportedException:
+            Content-Type 'application/xml' is not supported
+            ]
+....
+--END--
+
+
+cat > frog.yml << EOF
+---
+text: "Example result"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/yaml" \
+        --header "Content-Type: application/yaml" \
+        --data-binary @frog.yml \
+        http://localhost:8080/ponditak \
+    | yq '.'
+
+--START--
+---
+text: "Example result"
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/json" \
+        --header "Content-Type: application/yaml" \
+        --data-binary @frog.yml \
+        http://localhost:8080/ponditak \
+    | jq '.'
+
+--START--
+{
+  "text": "Example result"
+}
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/xml" \
+        --header "Content-Type: application/yaml" \
+        --data-binary @frog.yml \
+        http://localhost:8080/ponditak \
+    | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<TextResponse>
+  <text>Example result</text>
+</TextResponse>
+--END--
+
+
+cat > frog.xml << EOF
+<?xml version="1.0"?>
+<RequestBody>
+  <text>Example result</text>
+</RequestBody>
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Accept: application/json" \
+        --header "Content-Type: application/xml" \
+        --data-binary @frog.xml \
+        http://localhost:8080/ponditak \
+    | jq '.'
+
+--START--
+{
+  "text": "Example result"
+}
+--END--
+
+    #
+    # Yep, we can send and receive in all three formats :-)
+    #
+    # Not quite a round trip ..
+    # Some differences in the data structure with XML though.
+    #
+
+https://rm3l.org/handling-yaml-in-spring-rest-apis/
+https://www.baeldung.com/spring-request-response-body
+
+
+
+
+

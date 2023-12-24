@@ -1,0 +1,63 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#zrq-notes-zeppelin
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    https://www.optaplanner.org/
+    OptaPlanner optimizes plans and schedules with hard constraints and soft constraints.
+
+    OptaPlanner is a lightweight, embeddable planning engine.
+    It enables everyday programmers to solve optimization problems efficiently.
+    Constraints apply on plain domain objects and can call existing code.
+    It is Object Oriented Programming (OOP) and Functional Programming (FP) friendly.
+    There’s no need to input constraints as mathematical equations.
+
+    School timetable
+    https://github.com/kiegroup/optaplanner-quickstarts/tree/stable/hello-world/src/main/java/org/acme/schooltimetabling
+
+    Host it in the cloud
+    Host it on OpenShift (Kubernetes)
+    1) Get a free Developer Sandbox account for OpenShift and launch the Developer Sandbox.
+       https://developers.redhat.com/developer-sandbox
+
+    Very interesting ...
+    Why all the messing around in hyper-space.
+
+
+
