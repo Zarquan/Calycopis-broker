@@ -41,10 +41,10 @@
 
     cat > "${HOME:?}/pandak.env" << 'EOF'
 source "${HOME:?}/projects.env"
-PANDAK_REPO='git@github.com:Zarquan/pandak.git'
+PANDAK_REPO='git@github.com:Zarquan/CIRASA-planner.git'
 PANDAK_HOME="${PROJECTS_ROOT}/IVOA/ivoa/CIRASA-planner"
 PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
-
+EOF
 
 # -----------------------------------------------------
 # ....
@@ -57,9 +57,227 @@ PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
 
         newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
 
-        git checkout master
+        git checkout main
 
         git checkout -b "${newbranch:?}"
 
+        git add .
+        git commit -m "Notes and ideas"
+
         git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    popd
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+
+            ./mvnw spring-boot:run
+
+--START--
+....
+2023-12-24T05:12:50.321Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 344262 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak)
+2023-12-24T05:12:50.325Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+2023-12-24T05:12:51.648Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+2023-12-24T05:12:51.718Z  INFO 344262 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-12-24T05:12:51.720Z  INFO 344262 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1331 ms
+2023-12-24T05:12:52.349Z  INFO 344262 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2023-12-24T05:12:52.417Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2023-12-24T05:12:52.438Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.518 seconds (process running for 2.85)
+....
+--END--
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+
+            mkdir data
+            pushd data
+
+                mkdir temp
+                pushd temp
+
+                    testname=test-001
+
+                    formats=(
+                        json
+                        yaml
+                        xml
+                        )
+
+                    informat=json
+
+                    for outformat in ${formats[*]}
+                    do
+                        echo ""
+                        echo ""
+                        echo "Format [$outformat]"
+
+                        curl \
+                            --silent \
+                            --show-error \
+                            --request POST \
+                            --header "Content-Type: application/${informat}" \
+                            --data "{\"text\":\"$(date)\"}" \
+                            --header "Accept: application/${outformat}" \
+                            http://localhost:8080/ponditak \
+                        | tee "${testname}.${outformat}"
+                    done
+
+--START--
+Format [json]
+{"text":"Sun 24 Dec 05:28:06 GMT 2023"}
+--END--
+
+--START--
+Format [yaml]
+---
+text: "Sun 24 Dec 05:28:06 GMT 2023"
+--END--
+
+--START--
+Format [xml]
+<TextResponse><text>Sun 24 Dec 05:28:06 GMT 2023</text></TextResponse>
+--END--
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+            pushd data/temp
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request GET \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-get \
+                | yq '.'
+
+--START--
+---
+executable:
+  name: "test-name"
+  type: "test-type"
+--END--
+
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request GET \
+                    --header "Accept: application/json" \
+                    http://localhost:8080/pandak-get \
+                | jq '.'
+
+--START--
+{
+  "executable": {
+    "name": "test-name",
+    "type": "test-type"
+  }
+}
+--END--
+
+
+cat > test-001.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "test-001"
+EOF
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-001.yaml \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-post \
+                | yq '.'
+
+--START--
+---
+executable:
+  name: "test-001"
+  type: "test-001"
+--END--
+
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-001.yaml \
+                    --header "Accept: application/json" \
+                    http://localhost:8080/pandak-post \
+                | jq '.'
+
+--START--
+{
+  "executable": {
+    "name": "test-001",
+    "type": "test-001"
+  }
+}
+--END--
+
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-001.yaml \
+                    --header "Accept: application/xml" \
+                    http://localhost:8080/pandak-post \
+                | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<Request>
+  <executable>
+    <name>test-001</name>
+    <type>test-001</type>
+  </executable>
+</Request>
+--END--
+
+    #
+    # Including the root node in XML but not in JSON or YAML is probably related to this:
+    #
+    # https://www.tutorialspoint.com/jackson_annotations/jackson_annotations_jsonrootname.htm
+    # https://stackoverflow.com/questions/2435527/use-class-name-as-root-key-for-json-jackson-serialization
+    # http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.2.0/index.html?com/fasterxml/jackson/dataformat/xml/annotation/JacksonXmlElementWrapper.html
+    # https://www.baeldung.com/jackson-xml-serialization-and-deserialization#bd-serialize-list
+    # https://www.baeldung.com/spring-boot-customize-jackson-objectmapper
+    #
+
+    #
+    # Lots of confusing config properties, which will become very messy very quickly.
+    # Ignore it for now ...
+    #
+
+
 

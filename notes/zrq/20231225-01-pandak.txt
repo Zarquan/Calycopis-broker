@@ -1,0 +1,151 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Explore Jackson inheritance
+
+        How to dynamically choose an object type based on a JSON string value with Jackson library in Java?
+        https://stackoverflow.com/questions/71416065/how-to-dynamically-choose-an-object-type-based-on-a-json-string-value-with-jacks
+
+        Jackson inheritance
+        https://www.baeldung.com/jackson-inheritance
+
+        Jackson polymorphism specified dynamically -- without @JsonSubTypes
+        https://stackoverflow.com/questions/60748322/jackson-polymorphism-specified-dynamically-without-jsonsubtypes
+
+        Python
+        https://github.com/kashifrazzaqui/json-streamer
+
+        Alternative to Jackson @JsonSubTypes in python?
+        https://stackoverflow.com/questions/71716302/alternative-to-jackson-jsonsubtypes-in-python
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+            pushd data/temp
+
+cat > test-001.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "test-001"
+EOF
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-001.yaml \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-post \
+                | yq '.'
+
+--START--
+---
+executable:
+  name: "test-001"
+  type: "test-001"
+  spec: null
+--END--
+
+
+cat > test-001.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "foo:red"
+  spec:
+    size: 7
+EOF
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-001.yaml \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-post \
+                | yq '.'
+
+--START--
+---
+executable:
+  name: "test-001"
+  type: "foo:red"
+  spec:
+    size: 7
+--END--
+
+
+
+cat > test-002.yaml  << EOF
+executable:
+  name: "test-002"
+  type: "foo:green"
+  spec:
+    text: "$(date)"
+EOF
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-002.yaml \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-post \
+                | yq '.'
+
+--START--
+---
+executable:
+  name: "test-002"
+  type: "foo:green"
+  spec:
+    text: "Mon 25 Dec 06:21:55 GMT 2023"
+--END--
+
+    #
+    # Yay - success.
+    #
+    # Next steps, add more detail to the spec.
+    # See if we can add classes to the list dynamically.
+    #
+
+
