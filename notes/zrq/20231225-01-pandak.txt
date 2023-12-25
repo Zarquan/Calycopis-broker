@@ -146,6 +146,9 @@ executable:
     #
     # Next steps, add more detail to the spec.
     # See if we can add classes to the list dynamically.
+    # We may end up writing our own JsonDeserializer ..
+    # https://stackoverflow.com/questions/8210538/dynamic-polymorphic-type-handling-with-jackson
+    # or can we load the list from a config file rather than an annotation ?
     #
 
 
