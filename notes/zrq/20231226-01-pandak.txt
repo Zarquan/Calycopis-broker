@@ -87,22 +87,18 @@ EOF
                     http://localhost:8080/pandak-post \
                 | yq '.'
 
---START--
-....
-2023-12-26T04:33:30.429Z  WARN 365466 --- [nio-8080-exec-4]
-    .w.s.m.s.DefaultHandlerExceptionResolver :
-        Resolved [
-            org.springframework.http.converter.HttpMessageNotReadableException:
-                JSON parse error:
-                    Unrecognized field "frog" (class uk.co.metagrid.pandak.PandakController$GreenSpec), not marked as ignorable
-                    ]
-....
---END--
+    >   ....
+    >   2023-12-26T04:33:30.429Z  WARN 365466 --- [nio-8080-exec-4]
+    >       .w.s.m.s.DefaultHandlerExceptionResolver :
+    >           Resolved [
+    >               org.springframework.http.converter.HttpMessageNotReadableException:
+    >                   JSON parse error:
+    >                       Unrecognized field "frog" (class uk.co.metagrid.pandak.PandakController$GreenSpec), not marked as ignorable
+    >                       ]
+    >   ....
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 # -----------------------------------------------------
 # ....
@@ -127,13 +123,11 @@ EOF
             http://localhost:8080/pandak-post \
         | yq '.'
 
---START--
-title: "Unrecognized property"
-messages:
-  - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
-  - "Property [frog]"
-  - "Path : [executable][frog]"
---END--
+    >   title: "Unrecognized property"
+    >   messages:
+    >     - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
+    >     - "Property [frog]"
+    >     - "Path : [executable][frog]"
 
     #
     # Getting there, but it missed some steps.

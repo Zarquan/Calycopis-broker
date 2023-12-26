@@ -76,13 +76,11 @@ EOF
                     http://localhost:8080/pandak-post \
                 | yq '.'
 
---START--
----
-executable:
-  name: "test-001"
-  type: "test-001"
-  spec: null
---END--
+    >   ---
+    >   executable:
+    >     name: "test-001"
+    >     type: "test-001"
+    >     spec: null
 
 
 cat > test-001.yaml  << EOF
@@ -103,14 +101,12 @@ EOF
                     http://localhost:8080/pandak-post \
                 | yq '.'
 
---START--
----
-executable:
-  name: "test-001"
-  type: "foo:red"
-  spec:
-    size: 7
---END--
+    >   ---
+    >   executable:
+    >     name: "test-001"
+    >     type: "foo:red"
+    >     spec:
+    >       size: 7
 
 
 
@@ -132,14 +128,12 @@ EOF
                     http://localhost:8080/pandak-post \
                 | yq '.'
 
---START--
----
-executable:
-  name: "test-002"
-  type: "foo:green"
-  spec:
-    text: "Mon 25 Dec 06:21:55 GMT 2023"
---END--
+    >   ---
+    >   executable:
+    >     name: "test-002"
+    >     type: "foo:green"
+    >     spec:
+    >       text: "Mon 25 Dec 06:21:55 GMT 2023"
 
     #
     # Yay - success.

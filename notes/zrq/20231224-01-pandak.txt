@@ -80,20 +80,18 @@ EOF
 
             ./mvnw spring-boot:run
 
---START--
-....
-2023-12-24T05:12:50.321Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 344262 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak)
-2023-12-24T05:12:50.325Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
-2023-12-24T05:12:51.648Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
-2023-12-24T05:12:51.718Z  INFO 344262 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2023-12-24T05:12:51.720Z  INFO 344262 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1331 ms
-2023-12-24T05:12:52.349Z  INFO 344262 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
-2023-12-24T05:12:52.417Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
-2023-12-24T05:12:52.438Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.518 seconds (process running for 2.85)
-....
---END--
+    >   ....
+    >   2023-12-24T05:12:50.321Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 344262 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/pandak)
+    >   2023-12-24T05:12:50.325Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+    >   2023-12-24T05:12:51.648Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+    >   2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2023-12-24T05:12:51.665Z  INFO 344262 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+    >   2023-12-24T05:12:51.718Z  INFO 344262 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2023-12-24T05:12:51.720Z  INFO 344262 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1331 ms
+    >   2023-12-24T05:12:52.349Z  INFO 344262 --- [main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+    >   2023-12-24T05:12:52.417Z  INFO 344262 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+    >   2023-12-24T05:12:52.438Z  INFO 344262 --- [main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.518 seconds (process running for 2.85)
+    >   ....
 
 
 # -----------------------------------------------------
@@ -138,21 +136,15 @@ EOF
                         | tee "${testname}.${outformat}"
                     done
 
---START--
-Format [json]
-{"text":"Sun 24 Dec 05:28:06 GMT 2023"}
---END--
+    >   Format [json]
+    >   {"text":"Sun 24 Dec 05:28:06 GMT 2023"}
 
---START--
-Format [yaml]
----
-text: "Sun 24 Dec 05:28:06 GMT 2023"
---END--
+    >   Format [yaml]
+    >   ---
+    >   text: "Sun 24 Dec 05:28:06 GMT 2023"
 
---START--
-Format [xml]
-<TextResponse><text>Sun 24 Dec 05:28:06 GMT 2023</text></TextResponse>
---END--
+    >   Format [xml]
+    >   <TextResponse><text>Sun 24 Dec 05:28:06 GMT 2023</text></TextResponse>
 
 
 # -----------------------------------------------------
@@ -174,12 +166,10 @@ Format [xml]
                     http://localhost:8080/pandak-get \
                 | yq '.'
 
---START--
----
-executable:
-  name: "test-name"
-  type: "test-type"
---END--
+    >   ---
+    >   executable:
+    >     name: "test-name"
+    >     type: "test-type"
 
 
                 curl \
@@ -190,14 +180,12 @@ executable:
                     http://localhost:8080/pandak-get \
                 | jq '.'
 
---START--
-{
-  "executable": {
-    "name": "test-name",
-    "type": "test-type"
-  }
-}
---END--
+    >   {
+    >     "executable": {
+    >       "name": "test-name",
+    >       "type": "test-type"
+    >     }
+    >   }
 
 
 cat > test-001.yaml  << EOF
@@ -216,12 +204,10 @@ EOF
                     http://localhost:8080/pandak-post \
                 | yq '.'
 
---START--
----
-executable:
-  name: "test-001"
-  type: "test-001"
---END--
+    >   ---
+    >   executable:
+    >     name: "test-001"
+    >     type: "test-001"
 
 
                 curl \
@@ -234,14 +220,12 @@ executable:
                     http://localhost:8080/pandak-post \
                 | jq '.'
 
---START--
-{
-  "executable": {
-    "name": "test-001",
-    "type": "test-001"
-  }
-}
---END--
+    >   {
+    >     "executable": {
+    >       "name": "test-001",
+    >       "type": "test-001"
+    >     }
+    >   }
 
 
                 curl \
@@ -254,15 +238,13 @@ executable:
                     http://localhost:8080/pandak-post \
                 | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<Request>
-  <executable>
-    <name>test-001</name>
-    <type>test-001</type>
-  </executable>
-</Request>
---END--
+    >   <?xml version="1.0"?>
+    >   <Request>
+    >     <executable>
+    >       <name>test-001</name>
+    >       <type>test-001</type>
+    >     </executable>
+    >   </Request>
 
     #
     # Including the root node in XML but not in JSON or YAML is probably related to this:

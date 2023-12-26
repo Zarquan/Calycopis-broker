@@ -61,73 +61,63 @@
 
     sudo alternatives  --config java
 
---START--
-There is 3 program that provides 'java'.
-
-  Selection    Command
------------------------------------------------
-   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/jre/bin/java)
-*  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/java)
- + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/java)
-
-Enter to keep the current selection[+], or type selection number:
---END--
+    >   There is 3 program that provides 'java'.
+    >   
+    >     Selection    Command
+    >   -----------------------------------------------
+    >      1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/jre/bin/java)
+    >   *  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/java)
+    >    + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/java)
+    >   
+    >   Enter to keep the current selection[+], or type selection number:
 
 
     sudo alternatives  --config javac
 
---START--
-There is 3 program that provides 'javac'.
-
-  Selection    Command
------------------------------------------------
-   1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/bin/javac)
-*  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/javac)
- + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/javac)
-
-Enter to keep the current selection[+], or type selection number:
---END--
+    >   There is 3 program that provides 'javac'.
+    >   
+    >     Selection    Command
+    >   -----------------------------------------------
+    >      1           java-1.8.0-openjdk.x86_64 (/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.352.b08-2.fc35.x86_64/bin/javac)
+    >   *  2           java-11-openjdk.x86_64 (/usr/lib/jvm/java-11-openjdk-11.0.17.0.8-2.fc35.x86_64/bin/javac)
+    >    + 3           java-latest-openjdk.x86_64 (/usr/lib/jvm/java-19-openjdk-19.0.1.0.10-2.rolling.fc35.x86_64/bin/javac)
+    >   
+    >   Enter to keep the current selection[+], or type selection number:
 
 # -----------------------------------------------------
 
     ./mvnw spring-boot:run
 
---START--
-....
-  .   ____          _            __ _ _
- /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
-( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
- \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-  '  |____| .__|_| |_|_| |_\__, | / / / /
- =========|_|==============|___/=/_/_/_/
- :: Spring Boot ::                (v3.2.1)
+    >   ....
+    >     .   ____          _            __ _ _
+    >    /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+    >   ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+    >    \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+    >     '  |____| .__|_| |_|_| |_\__, | / / / /
+    >    =========|_|==============|___/=/_/_/_/
+    >    :: Spring Boot ::                (v3.2.1)
+    >   
+    >   2023-12-22T23:03:26.565Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 299920 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak)
+    >   2023-12-22T23:03:26.569Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+    >   2023-12-22T23:03:27.623Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+    >   2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+    >   2023-12-22T23:03:27.703Z  INFO 299920 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2023-12-22T23:03:27.705Z  INFO 299920 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1063 ms
+    >   2023-12-22T23:03:28.088Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+    >   2023-12-22T23:03:28.100Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 1.949 seconds (process running for 2.293)
+    >   ....
 
-2023-12-22T23:03:26.565Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 299920 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/001/pandak)
-2023-12-22T23:03:26.569Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
-2023-12-22T23:03:27.623Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2023-12-22T23:03:27.649Z  INFO 299920 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
-2023-12-22T23:03:27.703Z  INFO 299920 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2023-12-22T23:03:27.705Z  INFO 299920 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1063 ms
-2023-12-22T23:03:28.088Z  INFO 299920 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
-2023-12-22T23:03:28.100Z  INFO 299920 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 1.949 seconds (process running for 2.293)
-....
---END--
-
---START--
-....
-2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2023-12-22T23:03:58.682Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-....
---END--
+    >   ....
+    >   2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2023-12-22T23:03:58.681Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2023-12-22T23:03:58.682Z  INFO 299920 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   ....
 
 
     curl http://localhost:8080
 
---START--
-Greetings from Spring Boot!
---END--
+    >   Greetings from Spring Boot!
 
 # -----------------------------------------------------
 # -----------------------------------------------------
@@ -158,11 +148,9 @@ Greetings from Spring Boot!
         http://localhost:8080/appleblert \
     | jq '.'
 
---START--
-{
-  "text": "Example result"
-}
---END--
+    >   {
+    >     "text": "Example result"
+    >   }
 
 
     curl \
@@ -172,10 +160,8 @@ Greetings from Spring Boot!
         http://localhost:8080/appleblert \
     | yq '.'
 
---START--
----
-text: "Example result"
---END--
+    >   ---
+    >   text: "Example result"
 
 
     curl \
@@ -185,12 +171,10 @@ text: "Example result"
         http://localhost:8080/appleblert \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<TextResponse>
-  <text>Example result</text>
-</TextResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <TextResponse>
+    >     <text>Example result</text>
+    >   </TextResponse>
 
 # -----------------------------------------------------
 # -----------------------------------------------------
@@ -207,11 +191,9 @@ text: "Example result"
         http://localhost:8080/ponditak \
     | jq '.'
 
---START--
-{
-  "text": "gramparleck"
-}
---END--
+    >   {
+    >     "text": "gramparleck"
+    >   }
 
 
     curl \
@@ -224,12 +206,10 @@ text: "Example result"
         http://localhost:8080/ponditak \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<TextResponse>
-  <text>gramparleck</text>
-</TextResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <TextResponse>
+    >     <text>gramparleck</text>
+    >   </TextResponse>
 
 
     curl \
@@ -241,15 +221,13 @@ text: "Example result"
         --data '<text>Example result</text>' \
         http://localhost:8080/ponditak \
 
---START--
-....
-2023-12-23T03:03:11.418Z  WARN 320438 --- [nio-8080-exec-9] .w.s.m.s.DefaultHandlerExceptionResolver :
-    Resolved [
-        org.springframework.web.HttpMediaTypeNotSupportedException:
-            Content-Type 'application/xml' is not supported
-            ]
-....
---END--
+    >   ....
+    >   2023-12-23T03:03:11.418Z  WARN 320438 --- [nio-8080-exec-9] .w.s.m.s.DefaultHandlerExceptionResolver :
+    >       Resolved [
+    >           org.springframework.web.HttpMediaTypeNotSupportedException:
+    >               Content-Type 'application/xml' is not supported
+    >               ]
+    >   ....
 
 
 cat > frog.yml << EOF
@@ -267,10 +245,8 @@ EOF
         http://localhost:8080/ponditak \
     | yq '.'
 
---START--
----
-text: "Example result"
---END--
+    >   ---
+    >   text: "Example result"
 
 
     curl \
@@ -283,11 +259,9 @@ text: "Example result"
         http://localhost:8080/ponditak \
     | jq '.'
 
---START--
-{
-  "text": "Example result"
-}
---END--
+    >   {
+    >     "text": "Example result"
+    >   }
 
 
     curl \
@@ -300,12 +274,10 @@ text: "Example result"
         http://localhost:8080/ponditak \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<TextResponse>
-  <text>Example result</text>
-</TextResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <TextResponse>
+    >     <text>Example result</text>
+    >   </TextResponse>
 
 
 cat > frog.xml << EOF
@@ -326,11 +298,9 @@ EOF
         http://localhost:8080/ponditak \
     | jq '.'
 
---START--
-{
-  "text": "Example result"
-}
---END--
+    >   {
+    >     "text": "Example result"
+    >   }
 
     #
     # Yep, we can send and receive in all three formats :-)
