@@ -1,0 +1,6 @@
+executable:
+  name: "test-002"
+  type: "foo:green"
+  spec:
+    text: "Tue 26 Dec 04:33:30 GMT 2023"
+    frog: "extra field"

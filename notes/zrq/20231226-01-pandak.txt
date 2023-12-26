@@ -1,0 +1,142 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        What about values we don't expect ..
+        https://stackoverflow.com/questions/27141454/spring-mvc-jackson-exception-handling
+        https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc/
+        https://www.baeldung.com/exception-handling-for-rest-with-spring
+        https://stackoverflow.com/questions/51519381/catching-handling-jackson-exceptions-with-a-custom-message
+        https://fasterxml.github.io/jackson-databind/javadoc/2.8/com/fasterxml/jackson/databind/JsonMappingException.html
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    POST
+    http://.../request
+        request:
+
+    =>  response:
+          ....
+          offers:
+          - ident: xxxx
+
+
+    A class for a request to this service.
+    Including things it knows about.
+
+    What about things it doesn't know about ?
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+            pushd data/temp
+
+
+cat > test-003.yaml  << EOF
+executable:
+  name: "test-003"
+  type: "foo:green"
+  spec:
+    text: "$(date)"
+    frog: "extra field"
+EOF
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/yaml" \
+                    --data-binary @test-003.yaml \
+                    --header "Accept: application/yaml" \
+                    http://localhost:8080/pandak-post \
+                | yq '.'
+
+--START--
+....
+2023-12-26T04:33:30.429Z  WARN 365466 --- [nio-8080-exec-4]
+    .w.s.m.s.DefaultHandlerExceptionResolver :
+        Resolved [
+            org.springframework.http.converter.HttpMessageNotReadableException:
+                JSON parse error:
+                    Unrecognized field "frog" (class uk.co.metagrid.pandak.PandakController$GreenSpec), not marked as ignorable
+                    ]
+....
+--END--
+
+--START--
+....
+....
+--END--
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+cat > test-003.yaml  << EOF
+executable:
+  name: "test-003"
+  type: "foo:green"
+  spec:
+    text: "$(date)"
+    frog: "extra field"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --request POST \
+            --header "Content-Type: application/yaml" \
+            --data-binary @test-003.yaml \
+            --header "Accept: application/yaml" \
+            http://localhost:8080/pandak-post \
+        | yq '.'
+
+--START--
+title: "Unrecognized property"
+messages:
+  - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
+  - "Property [frog]"
+  - "Path : [executable][frog]"
+--END--
+
+    #
+    # Getting there, but it missed some steps.
+    # Path should actually be [executable][spec][frog].
+    #
+

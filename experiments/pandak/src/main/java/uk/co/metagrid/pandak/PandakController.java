@@ -25,15 +25,22 @@ package uk.co.metagrid.pandak;
 
 //import javax.xml.bind.annotation.*;
 
-import org.springframework.http.MediaType;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
+
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @RestController
 public class PandakController {
@@ -227,5 +234,86 @@ public class PandakController {
 	            )
 	        );
 	    }
+
+
+    public static class JacksonErrorResponse {
+
+        public JacksonErrorResponse(final String title)
+            {
+            this.title = title;
+            }
+
+        private String title;
+        public String getTitle()
+            {
+            return this.title;
+            }
+        private List<String> messages = new ArrayList<String>();
+        public List<String> getMessages()
+            {
+            return this.messages;
+            }
+        public void addMessage(final String message)
+            {
+            this.messages.add(
+                message
+                );
+            }
+        }
+
+    @ExceptionHandler(
+        JsonMappingException.class
+        )
+    @ResponseBody
+    public JacksonErrorResponse jacksonError(JsonMappingException ouch)
+        {
+        JacksonErrorResponse response = new JacksonErrorResponse(
+            "jackson error response"
+            );
+        response.addMessage(
+            ouch.getMessage()
+            );
+        response.addMessage(
+            ouch.getClass().getName()
+            );
+        return response;
+        }
+
+    @ExceptionHandler(
+        UnrecognizedPropertyException.class
+        )
+    @ResponseBody
+    public JacksonErrorResponse jacksonError(UnrecognizedPropertyException ouch)
+        {
+        JacksonErrorResponse response = new JacksonErrorResponse(
+            "Unrecognized property"
+            );
+        response.addMessage(
+            "Class [%s]".formatted(
+                ouch.getReferringClass().getName()
+                )
+            );
+        response.addMessage(
+            "Property [%s]".formatted(
+                ouch.getPropertyName()
+                )
+            );
+
+        StringBuilder builder = new StringBuilder("Path : ");
+        ouch.getPath().forEach(
+            pathref -> {
+                builder.append(
+                    "[%s]".formatted(
+                        pathref.getFieldName()
+                        )
+                    );
+                }
+            );
+        response.addMessage(
+            builder.toString()
+            );
+
+        return response;
+        }
     }
 
