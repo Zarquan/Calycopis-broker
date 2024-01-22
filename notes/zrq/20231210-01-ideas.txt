@@ -1,0 +1,95 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#zrq-notes-zeppelin
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    parse input as a stream
+    events
+        handler.handle(<event>)
+
+    name
+    description
+    type
+
+    handler = handlers.get(type)
+    if (handler == nul)
+        {
+        exception unknown type
+        }
+    else {
+        subthing = handler.parse(stream)
+        }
+
+
+    A class and handler for each type of executable that we accept
+
+        ExTypeOne
+        ExTypeOne.Factory
+
+        ExTypeTwo
+        ExTypeTwo.Factory
+
+        Map factorymap = new HashMap<String, TypeFactory>();
+        factorymap.put(
+            ExTypeTwo.Factory.TypeURI,
+            ExTypeTwo.Factory
+            )
+
+        ExType handle(stream)
+            "ident" :
+                ident = getvalue()
+            "name" :
+                name = getvalue()
+            "description" :
+                text = getvalue()
+            "type" :
+                typefactory = factorymap.get(getvalue())
+                if (null == typefactory)
+                    {
+                    exception
+                    }
+                else {
+                    return typefactory.process(
+                        ident,
+                        name,
+                        text,
+                        stream
+                        )
+                    }
+
+

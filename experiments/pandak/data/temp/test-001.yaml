@@ -1,0 +1,5 @@
+executable:
+  name: "test-001"
+  type: "foo:red"
+  spec:
+    size: 7

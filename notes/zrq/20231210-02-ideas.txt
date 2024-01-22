@@ -1,0 +1,173 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2023 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#zrq-notes-zeppelin
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    SELECT
+        date,
+        date.day,
+        date.hour,
+        SUM(cores),
+        SUM(memory)
+    FROM
+    WHERE
+        (
+        date >= date
+        AND
+        date < (date + span)
+        )
+    AND (
+        status = accepted, active
+        OR
+            (
+            status = offered
+            AND
+            expiry > (date + span)
+            )
+        )
+    GROUP BY
+        date, hour
+    ORDER BY
+        date, hour
+
+
+-------------------------------------------
+
+    request
+                   start + span
+    --------------- |<----------->| ------------
+
+    offers
+       start + span
+        |<---->|
+
+       start + span
+        |<--------------->|
+
+                    start + span
+                     |<---->|
+
+                         start + span
+                         |<--------------->|
+
+                                    start + span
+                                     |<---->|
+
+    offer.start < (request.start + request.span)
+    AND
+    (offer.start + offer.span) > request.start
+
+    DB query needs to be inclusive
+    it can get some that don't match
+    it mustn't miss any that do match
+
+    Java code can eliminate the fails
+
+-------------------------------------------
+
+    what we are looking for :
+        the sets of hours that have enough room for the request
+        the sets of hours that start within the request range and have enough room for the request
+
+
+
+        find all the active offers that fall between the requested start and end
+        find all the active resources that fall between the requested start and end
+
+            start range + defaults
+            duration + defaults
+
+            iterate through the request start range
+                select active offers between start and (start + duration)
+                select active resources between start and (start + duration)
+
+-------------------------------------------
+
+    request
+        start.datetime
+        start.range
+        minduration
+        maxduration
+
+    defaults
+        start.datetime = now
+        start.range    = 24H
+        minduration    = 1H
+        maxduration    = min
+
+-------------------------------------------
+
+    request total span
+
+           start + range + maxduration
+        ---- |<----------->|<----------->| ----
+
+    for each step in [request total span]
+
+        select sum(cpu,mem) of all the active offers
+        select sum(cpu,mem) of all the active resources
+        select the first/largest block where (resources >= offers) AND (length >= minduration)
+
+-------------------------------------------
+
+    Can we handle the executable type ?
+        Are the executable params valid ?
+
+    Can we access the data ?
+
+    Can we provide the resources ?
+
+        If we don't handle timespans.
+            If the request specifies a timespan, reject it.
+            Check the available resource types.
+            Create an offer with a default timespan.
+                Start now with no range and no maximum duration.
+
+        If we handle timespans.
+            If the request specifies a timespan
+            For each timespan in the request.
+            Check the available resources and timespan.
+            Create an offer for the timespan.
+
+
+
+
+
+
+
+
