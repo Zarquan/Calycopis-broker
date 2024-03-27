@@ -1,0 +1,130 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        What next.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    ExecutionPlanner
+
+        Change the name of the specification.
+        ExecutionPlanner -> ExecutionInterface
+
+    ExecutionInterface
+
+        Give Yan and Padney a link to the current version.
+        .. don't panic, 90% of this is beyods the scope of 0.1
+        However, it would be good to follow the design unless we have a good reason not to
+
+        Everything is there for a reason
+        Start with a simple service that can run a Docker or Singularity container and build from there.
+        Include a simple hardware spec of cores and memory, but no dates or times yet.
+
+        Implementation that can only do one, Docker or Singularity.
+        Implementation that can do both.
+
+        Include SKAO specific data references ..
+
+    CIRASA-planner
+
+        Use the current code to experiment with OpenAPI fields.
+        Generate examples of dates, times and periods etc.
+        Can we add regular expression filters to OpenAPI values.
+
+    New project
+
+        Develop a Java/Spring prototype for the ExecutionInterface
+        Start with the Java classes.
+        Use them to generate the OpenAPI description.
+
+        Test the service and get a feel for what it does.
+        Generate the OpenAPI description from the service.
+        Publish the OpenAPI description.
+
+        Can we use the OpenAPI description to create a Spring webapp ?
+
+        Can we use the OpenAPI description to create a FastAPI webapp ?
+
+        Concentrate on JSON and YAML.
+        Leave XML for another day ...
+
+        Build a prototype for the REST API fairly quickly.
+        With basic offers and state machine.
+        Then work on some test task types.
+
+            # Simple wait function.
+            # @param duration the number of seconds to wait.
+            type: test-wait
+            spec:
+                duration: 10s
+
+        Add references to data.
+            http://
+            s3://
+            skao://
+            rucio://
+            vos://
+
+        Add a simple data manipulation task.
+
+            # File hash function.
+            # @param delay.before number of seconds to wait before executing the task.
+            # @param delay.after  number of seconds to wait after executing the task.
+            # @param algorithm the hashing algorithm to use
+            # @param inputfile the target file to checksum.
+            # @param outputfile the file to write the results, default <stdout>.
+            # @param format the output format, json|yaml, default json.
+            # The execution environment is responsible for managing the input and output files.
+            type: test-hash
+            spec:
+                delay:
+                  before: 10s
+                  after: 10s
+                algorithm: md5sum|sha256sum|sha512sum
+                inputfile:  "...."
+                outputfile: "...."
+                outputformat: json|yaml
+
+        Add a Docker container task.
+            ....
+
+        Add a Singularity container task.
+            ....
+
+        Add a virtual machine task.
+            ....
+
+
+
+
+
+
+
