@@ -1,0 +1,101 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (C) 2024 by Wizzard Solutions Ltd, wizzard@metagrid.co.uk
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-time
+#zrq-notes-indent
+#zrq-notes-crypto
+#zrq-notes-ansible
+#zrq-notes-osformat
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on compute resources required for the project.
+
+        Preparing for Zoom meeting with colleagues from INAF.
+            ExecutionPlanner & CIRASA
+            Wednesday 31 Jan 2024 10:00 – 12:00
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Units of 'desktop'
+
+        desktop
+        4 cores
+        16G memory
+        250G disc
+
+        * 2
+        8 cores
+        32G memory
+        512G disc
+
+        * 4
+        16 cores
+        64G memory
+        1T disc
+
+
+# -----------------------------------------------------
+
+    Agree with Simone, we can use the already available CIRASA Slurm cluster.
+    Setting up a Slurm cluster is complicated.
+
+    - Kubernetes namespace for the caesar-rest components
+      - Flask rest app
+      - MongoDB
+      - job monitor
+
+    - Slurm cluster to run user jobs
+      - Agree with Simone, use the existing CIRASA Slurm cluster
+
+    - Kubernetes cluster to run user jobs
+      - Separate from the caesar-rest cluster ?
+      - Can we get space on an existing cluster ?
+
+    The reason for using ExecutionPlanner is to support a range of different execution platforms
+    each execution platform has an ExecutionPlanner to act as it's agent
+
+    To invoke a vote between competing platforms we need to have more than one ExecutionPlanner.
+
+    We can 'fake' virtual execution platforms by having different accounts on the
+    physical execution platforms.
+    e.g.
+    slurm-account-001 has a set of quota and limits
+    slurm-account-002 has different quota and limits
+    slurm-account-003 has different quota and limits
+
+    k8s-namespace-001 has a set of quota and limits
+    k8s-namespace-002 has different quota and limits
+    k8s-namespace-003 has different quota and limits
+
+    Each virtual platform is fronted by a differemt ExecutionPlanner service.
+    The caesar-rest client calls all the ExecutionPlanner services,
+    collects offers and chooses the best one.
+
+
+
+

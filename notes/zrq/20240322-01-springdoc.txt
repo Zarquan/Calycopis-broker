@@ -1,0 +1,195 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Spring and OpenAPI
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    springdoc-openapi
+    https://springdoc.org/
+    https://github.com/springdoc/springdoc-openapi
+
+# -----------------------------------------------------
+
+    Documenting a Spring REST API Using OpenAPI 3.0
+    https://www.baeldung.com/spring-rest-openapi-documentation
+
+    Add the springdoc library to the dependencies.
+
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    </dependency>
+
+    http://localhost:8080/swagger-ui/index.html
+    http://localhost:8080/v3/api-docs
+
+# -----------------------------------------------------
+
+    Jackson polymorphism specified dynamically -- without @JsonSubTypes
+    https://stackoverflow.com/questions/60748322/jackson-polymorphism-specified-dynamically-without-jsonsubtypes
+
+    Add the types to a custom ObjectMapper.
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerSubtype("repo_folder", RepoFolder.class);
+    mapper.registerSubtype("repo_item", RepoItem.class);
+
+    See also ..
+
+    Json deserialization into other class hierarchy using Jackson
+    https://stackoverflow.com/questions/10329706/json-deserialization-into-other-class-hierarchy-using-jackson/13954871#13954871
+
+    Polymorphism and Inheritance with Jackson
+    https://blog.octoperf.com/polymorphism-and-inheritance-with-jackson/
+
+# -----------------------------------------------------
+
+    How to generate OpenApi 3.0 spec from existing Spring Boot App?
+    https://stackoverflow.com/questions/55938207/how-to-generate-openapi-3-0-spec-from-existing-spring-boot-app
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/pandak
+
+            ./mvnw spring-boot:run
+
+        popd
+    popd
+
+--START--
+....
+....
+2024-03-22T02:25:15.918Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 27663 (....)
+2024-03-22T02:25:15.922Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+2024-03-22T02:25:17.370Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+2024-03-22T02:25:17.443Z  INFO 27663 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2024-03-22T02:25:17.445Z  INFO 27663 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1463 ms
+2024-03-22T02:25:18.290Z  INFO 27663 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2024-03-22T02:25:18.358Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2024-03-22T02:25:18.381Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.871 seconds (process running for 3.246)
+Spring Boot - CommandLineRunner
+....
+....
+--END--
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+cat > test-003.yaml  << EOF
+executable:
+  name: "test-003"
+  type: "foo:green"
+  spec:
+    text: "$(date)"
+    frog: "extra field"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --request POST \
+            --header "Content-Type: application/yaml" \
+            --data-binary @test-003.yaml \
+            --header "Accept: application/yaml" \
+            http://localhost:8080/pandak-post \
+        | yq '.'
+
+--START--
+---
+title: "Unrecognized property"
+messages:
+  - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
+  - "Property [frog]"
+  - "Path : [executable][frog]"
+--END--
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+        curl \
+            --silent \
+            --show-error \
+            --request POST \
+            --header "Content-Type: application/yaml" \
+            --data-binary @test-003.yaml \
+            --header "Accept: application/json" \
+            http://localhost:8080/pandak-post \
+        | jq '.'
+
+--START--
+{
+  "title": "Unrecognized property",
+  "messages": [
+    "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]",
+    "Property [frog]",
+    "Path : [executable][frog]"
+  ]
+}
+--END--
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+        curl \
+            --silent \
+            --show-error \
+            --request POST \
+            --header "Content-Type: application/yaml" \
+            --data-binary @test-003.yaml \
+            --header "Accept: application/xml" \
+            http://localhost:8080/pandak-post \
+        | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<JacksonErrorResponse>
+  <title>Unrecognized property</title>
+  <messages>
+    <messages>Class [uk.co.metagrid.pandak.PandakController$GreenSpec]</messages>
+    <messages>Property [frog]</messages>
+    <messages>Path : [executable][frog]</messages>
+  </messages>
+</JacksonErrorResponse>
+--END--
+
