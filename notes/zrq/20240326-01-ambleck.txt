@@ -522,9 +522,18 @@ offers:
     pushd "${PANDAK_CODE}"
 
         git add .
+
         git commit -m "New experiment [ambleck]"
 
+        git push
+
     popd
+
+--START--
+....
+....
+--END--
+
 
 # -----------------------------------------------------
 
