@@ -19,6 +19,9 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * Using Jackson subtypes
+ * https://stacktobasics.com/jackson-sub-types
+ *
  */
 
 package uk.co.metagrid.ambleck;
@@ -50,21 +53,45 @@ public class AmbleckController {
         APPLICATION_YAML_VALUE
         };
 
-    public static class BaseExecutable {
+    @JsonSubTypes(
+            {
+            @JsonSubTypes.Type(
+                value = PingExecutable.class,
+                name = PingExecutable.TYPE_URL
+                ),
+            @JsonSubTypes.Type(
+                value = DelayExecutable.class,
+                name = DelayExecutable.TYPE_URL
+                )
+            }
+        )
+    public static abstract class BaseExecutable {
+
+        public static final String TYPE_URL = "urn:base-executable";
 
         public BaseExecutable()
             {
-            this(null, null);
+            this(TYPE_URL, null);
             }
 
-        public BaseExecutable(final String name)
+        public BaseExecutable(final String type)
             {
-            this(name, null);
+            this(type, null);
             }
 
-        public BaseExecutable(final String name, final String type)
+        public BaseExecutable(final String type, final String name)
             {
+            this.type = type;
             this.name = name;
+            }
+
+        private String type;
+        public  String getType()
+            {
+            return this.type;
+            }
+        public  void setType(final String type)
+            {
             this.type = type;
             }
 
@@ -78,19 +105,155 @@ public class AmbleckController {
             this.name = name;
             }
 
-        private String type;
-        public  String getType()
-            {
-            return this.type;
+        public static class BaseSpecific {
             }
-        public  void setType(final String type)
+
+        public abstract BaseSpecific getSpec();
+
+        }
+
+    public static class PingExecutable extends BaseExecutable {
+
+        public static final String TYPE_URL = "urn:ping-executable";
+
+        public static final String DEFAULT_NAME = "Ping test";
+        public static final String DEFAULT_TARGET = "localhost";
+
+        public PingExecutable()
             {
-            this.type = type;
+            super(TYPE_URL, DEFAULT_NAME);
+            }
+
+        public PingExecutable(final String target)
+            {
+            this(target, DEFAULT_NAME);
+            }
+
+        public PingExecutable(final String target, final String name)
+            {
+            super(TYPE_URL, name);
+            this.spec = new PingSpecific(
+                target
+                );
+            }
+
+        public static class PingSpecific extends BaseSpecific {
+
+            public PingSpecific()
+                {
+                super();
+                }
+
+            public PingSpecific(final String target)
+                {
+                super();
+                this.target = target ;
+                }
+
+            private String target ;
+            public String getTarget()
+                {
+                return this.target;
+                }
+            public void setTarget(final String target)
+                {
+                this.target = target;
+                }
+            }
+
+        private PingSpecific spec ;
+        public PingSpecific getSpec()
+            {
+            return this.spec;
+            }
+        public void setSpec(final PingSpecific spec)
+            {
+            this.spec = spec;
             }
         }
 
+
     public static class DelayExecutable extends BaseExecutable {
 
+        public static final String TYPE_URL = "urn:delay-executable";
+
+        public static final String  DEFAULT_NAME = "Delay test";
+        public static final Integer DEFAULT_DURATION = new Integer(20);
+
+        public DelayExecutable()
+            {
+            super(TYPE_URL, DEFAULT_NAME);
+            }
+
+        public DelayExecutable(final Integer duration)
+            {
+            this(duration, DEFAULT_NAME);
+            }
+
+        public DelayExecutable(final Integer duration, final String name)
+            {
+            super(TYPE_URL, name);
+            this.spec = new DelaySpecific(
+                duration
+                ) ;
+            }
+
+        public static class DelaySpecific extends BaseSpecific {
+
+            public DelaySpecific()
+                {
+                super();
+                }
+
+            public DelaySpecific(final Integer duration)
+                {
+                super();
+                this.duration = duration ;
+                }
+
+            private Integer duration ;
+            public Integer getDuration()
+                {
+                return this.duration ;
+                }
+            public void setDuration(final Integer duration)
+                {
+                this.duration = duration ;
+                }
+            }
+
+        private DelaySpecific spec ;
+        public DelaySpecific getSpec()
+            {
+            return this.spec;
+            }
+        public void setSpec(final DelaySpecific spec)
+            {
+            this.spec = spec;
+            }
+        }
+
+    public BaseExecutable process(BaseExecutable requested)
+        {
+        if (requested instanceof PingExecutable)
+            {
+            PingExecutable instance = (PingExecutable) requested;
+            return new PingExecutable(
+                instance.getSpec().getTarget(),
+                instance.getName()
+                );
+            }
+        else if (requested instanceof DelayExecutable)
+            {
+            DelayExecutable instance = (DelayExecutable) requested;
+            return new DelayExecutable(
+                instance.getSpec().getDuration(),
+                instance.getName()
+                );
+            }
+        else {
+            return null ;
+            }
         }
 
     public static class BaseResource {
@@ -148,6 +311,11 @@ public class AmbleckController {
             this.executable = executable;
             }
 
+        @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            property = "type",
+            defaultImpl = BaseExecutable.class
+            )
         private BaseExecutable executable;
         public BaseExecutable getExecutable()
             {
@@ -296,10 +464,9 @@ public class AmbleckController {
 
         for (int i = 0 ; i < 2 ; i++)
             {
-            BaseExecutable executable = new BaseExecutable(
-                request.getExecutable().getName(),
-                request.getExecutable().getType()
-	            );
+            BaseExecutable executable = process(
+                request.getExecutable()
+                );
 
             OfferObject offer = new OfferObject(
                 executable

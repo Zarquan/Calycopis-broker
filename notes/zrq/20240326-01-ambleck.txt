@@ -38,12 +38,10 @@
 
     cat "${HOME:?}/pandak.env"
 
---START--
-source "${HOME:?}/projects.env"
-PANDAK_REPO='git@github.com:Zarquan/CIRASA-planner.git'
-PANDAK_HOME="${PROJECTS_ROOT}/IVOA/ivoa/CIRASA-planner"
-PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
---END--
+    >   source "${HOME:?}/projects.env"
+    >   PANDAK_REPO='git@github.com:Zarquan/CIRASA-planner.git'
+    >   PANDAK_HOME="${PROJECTS_ROOT}/IVOA/ivoa/CIRASA-planner"
+    >   PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
 
 
 # -----------------------------------------------------
@@ -57,24 +55,22 @@ PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
 
     popd
 
---START--
-On branch main
-Your branch is up to date with 'origin/main'.
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   experiments/pandak/pom.xml
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	notes/zrq/20240122-01-tiger-team.txt
-	notes/zrq/20240124-01-resources.txt
-	notes/zrq/20240221-01-accept-header.txt
-    notes/zrq/20240322-01-springdoc.txt
-	notes/zrq/20240322-02-plans.txt
-	notes/zrq/20240326-01-restart.txt
---END--
+    >   On branch main
+    >   Your branch is up to date with 'origin/main'.
+    >   
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   experiments/pandak/pom.xml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20240122-01-tiger-team.txt
+    >   	notes/zrq/20240124-01-resources.txt
+    >   	notes/zrq/20240221-01-accept-header.txt
+    >       notes/zrq/20240322-01-springdoc.txt
+    >   	notes/zrq/20240322-02-plans.txt
+    >   	notes/zrq/20240326-01-restart.txt
 
 
 # -----------------------------------------------------
@@ -96,16 +92,14 @@ Untracked files:
 
     popd
 
---START--
-Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
-remote:
-remote: Create a pull request for '20240327-zrq-restart' on GitHub by visiting:
-remote:      https://github.com/Zarquan/CIRASA-planner/pull/new/20240327-zrq-restart
-remote:
-To github.com:Zarquan/CIRASA-planner.git
- * [new branch]      20240327-zrq-restart -> 20240327-zrq-restart
-branch '20240327-zrq-restart' set up to track 'origin/20240327-zrq-restart'.
---END--
+    >   Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   remote:
+    >   remote: Create a pull request for '20240327-zrq-restart' on GitHub by visiting:
+    >   remote:      https://github.com/Zarquan/CIRASA-planner/pull/new/20240327-zrq-restart
+    >   remote:
+    >   To github.com:Zarquan/CIRASA-planner.git
+    >    * [new branch]      20240327-zrq-restart -> 20240327-zrq-restart
+    >   branch '20240327-zrq-restart' set up to track 'origin/20240327-zrq-restart'.
 
 
 # -----------------------------------------------------
@@ -162,42 +156,34 @@ branch '20240327-zrq-restart' set up to track 'origin/20240327-zrq-restart'.
 
     popd
 
---START--
-Switched to branch 'main'
-Your branch is up to date with 'origin/main'.
---END--
+    >   Switched to branch 'main'
+    >   Your branch is up to date with 'origin/main'.
 
---START--
-remote: Enumerating objects: 1, done.
-remote: Counting objects: 100% (1/1), done.
-remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
-Unpacking objects: 100% (1/1), 892 bytes | 892.00 KiB/s, done.
-From github.com:ivoa/CIRASA-planner
-   0b5448e..1e2c43b  main       -> upstream/main
---END--
+    >   remote: Enumerating objects: 1, done.
+    >   remote: Counting objects: 100% (1/1), done.
+    >   remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   Unpacking objects: 100% (1/1), 892 bytes | 892.00 KiB/s, done.
+    >   From github.com:ivoa/CIRASA-planner
+    >      0b5448e..1e2c43b  main       -> upstream/main
 
---START--
-Updating 0b5448e..1e2c43b
-Fast-forward
- experiments/pandak/pom.xml              |  10 ++++
- notes/zrq/20240122-01-tiger-team.txt    | 152 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- notes/zrq/20240124-01-resources.txt     | 101 +++++++++++++++++++++++++++++++++++
- notes/zrq/20240221-01-accept-header.txt |  66 +++++++++++++++++++++++
- notes/zrq/20240322-01-springdoc.txt     | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- notes/zrq/20240322-02-plans.txt         | 130 +++++++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 654 insertions(+)
- create mode 100644 notes/zrq/20240122-01-tiger-team.txt
- create mode 100644 notes/zrq/20240124-01-resources.txt
- create mode 100644 notes/zrq/20240221-01-accept-header.txt
- create mode 100644 notes/zrq/20240322-01-springdoc.txt
- create mode 100644 notes/zrq/20240322-02-plans.txt
---END--
+    >   Updating 0b5448e..1e2c43b
+    >   Fast-forward
+    >    experiments/pandak/pom.xml              |  10 ++++
+    >    notes/zrq/20240122-01-tiger-team.txt    | 152 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240124-01-resources.txt     | 101 +++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240221-01-accept-header.txt |  66 +++++++++++++++++++++++
+    >    notes/zrq/20240322-01-springdoc.txt     | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240322-02-plans.txt         | 130 +++++++++++++++++++++++++++++++++++++++++++++
+    >    6 files changed, 654 insertions(+)
+    >    create mode 100644 notes/zrq/20240122-01-tiger-team.txt
+    >    create mode 100644 notes/zrq/20240124-01-resources.txt
+    >    create mode 100644 notes/zrq/20240221-01-accept-header.txt
+    >    create mode 100644 notes/zrq/20240322-01-springdoc.txt
+    >    create mode 100644 notes/zrq/20240322-02-plans.txt
 
---START--
-Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
-To github.com:Zarquan/CIRASA-planner.git
-   0b5448e..1e2c43b  main -> main
---END--
+    >   Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   To github.com:Zarquan/CIRASA-planner.git
+    >      0b5448e..1e2c43b  main -> main
 
 
 # -----------------------------------------------------
@@ -215,14 +201,10 @@ To github.com:Zarquan/CIRASA-planner.git
 
     popd
 
---START--
-  20240327-zrq-restart
-* main
---END--
+    >     20240327-zrq-restart
+    >   * main
 
---START--
-Deleted branch 20240327-zrq-restart (was 460dfc5).
---END--
+    >   Deleted branch 20240327-zrq-restart (was 460dfc5).
 
 
 # -----------------------------------------------------
@@ -244,10 +226,8 @@ Deleted branch 20240327-zrq-restart (was 460dfc5).
 
     popd
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -291,39 +271,37 @@ Deleted branch 20240327-zrq-restart (was 460dfc5).
         popd
     popd
 
---START--
-Archive:  ambleck.zip
-   creating: ambleck/
-  inflating: ambleck/HELP.md
-  inflating: ambleck/.gitignore
-  inflating: ambleck/mvnw
-  inflating: ambleck/mvnw.cmd
-   creating: ambleck/.mvn/
-   creating: ambleck/.mvn/wrapper/
-  inflating: ambleck/.mvn/wrapper/maven-wrapper.properties
-  inflating: ambleck/.mvn/wrapper/maven-wrapper.jar
-   creating: ambleck/src/
-   creating: ambleck/src/test/
-   creating: ambleck/src/test/java/
-   creating: ambleck/src/test/java/uk/
-   creating: ambleck/src/test/java/uk/co/
-   creating: ambleck/src/test/java/uk/co/metagrid/
-   creating: ambleck/src/test/java/uk/co/metagrid/ambleck/
-  inflating: ambleck/src/test/java/uk/co/metagrid/ambleck/AmbleckApplicationTests.java
-   creating: ambleck/src/main/
-   creating: ambleck/src/main/java/
-   creating: ambleck/src/main/java/uk/
-   creating: ambleck/src/main/java/uk/co/
-   creating: ambleck/src/main/java/uk/co/metagrid/
-   creating: ambleck/src/main/java/uk/co/metagrid/ambleck/
-  inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/ServletInitializer.java
-  inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/AmbleckApplication.java
-   creating: ambleck/src/main/resources/
-   creating: ambleck/src/main/resources/static/
-  inflating: ambleck/src/main/resources/application.properties
-   creating: ambleck/src/main/resources/templates/
-  inflating: ambleck/pom.xml
---END--
+    >   Archive:  ambleck.zip
+    >      creating: ambleck/
+    >     inflating: ambleck/HELP.md
+    >     inflating: ambleck/.gitignore
+    >     inflating: ambleck/mvnw
+    >     inflating: ambleck/mvnw.cmd
+    >      creating: ambleck/.mvn/
+    >      creating: ambleck/.mvn/wrapper/
+    >     inflating: ambleck/.mvn/wrapper/maven-wrapper.properties
+    >     inflating: ambleck/.mvn/wrapper/maven-wrapper.jar
+    >      creating: ambleck/src/
+    >      creating: ambleck/src/test/
+    >      creating: ambleck/src/test/java/
+    >      creating: ambleck/src/test/java/uk/
+    >      creating: ambleck/src/test/java/uk/co/
+    >      creating: ambleck/src/test/java/uk/co/metagrid/
+    >      creating: ambleck/src/test/java/uk/co/metagrid/ambleck/
+    >     inflating: ambleck/src/test/java/uk/co/metagrid/ambleck/AmbleckApplicationTests.java
+    >      creating: ambleck/src/main/
+    >      creating: ambleck/src/main/java/
+    >      creating: ambleck/src/main/java/uk/
+    >      creating: ambleck/src/main/java/uk/co/
+    >      creating: ambleck/src/main/java/uk/co/metagrid/
+    >      creating: ambleck/src/main/java/uk/co/metagrid/ambleck/
+    >     inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/ServletInitializer.java
+    >     inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/AmbleckApplication.java
+    >      creating: ambleck/src/main/resources/
+    >      creating: ambleck/src/main/resources/static/
+    >     inflating: ambleck/src/main/resources/application.properties
+    >      creating: ambleck/src/main/resources/templates/
+    >     inflating: ambleck/pom.xml
 
 
 # -----------------------------------------------------
@@ -337,26 +315,24 @@ Archive:  ambleck.zip
 
             ./mvnw spring-boot:run
 
---START--
-....
-....
-2024-03-27T05:51:56.276Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Starting AmbleckApplication using Java 19.0.1 with PID 9299 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck)
-2024-03-27T05:51:56.281Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : No active profile set, falling back to 1 default profile: "default"
-2024-03-27T05:51:57.237Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
-2024-03-27T05:51:57.334Z  INFO 9299 --- [Ambleck] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-03-27T05:51:57.336Z  INFO 9299 --- [Ambleck] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 986 ms
-2024-03-27T05:51:57.734Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
-2024-03-27T05:51:57.745Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Started AmbleckApplication in 1.913 seconds (process running for 2.266)
-....
-....
-2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2024-03-27T05:52:06.895Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
-....
-....
---END--
+    >   ....
+    >   ....
+    >   2024-03-27T05:51:56.276Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Starting AmbleckApplication using Java 19.0.1 with PID 9299 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck)
+    >   2024-03-27T05:51:56.281Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : No active profile set, falling back to 1 default profile: "default"
+    >   2024-03-27T05:51:57.237Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+    >   2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+    >   2024-03-27T05:51:57.334Z  INFO 9299 --- [Ambleck] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-03-27T05:51:57.336Z  INFO 9299 --- [Ambleck] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 986 ms
+    >   2024-03-27T05:51:57.734Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+    >   2024-03-27T05:51:57.745Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Started AmbleckApplication in 1.913 seconds (process running for 2.266)
+    >   ....
+    >   ....
+    >   2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-03-27T05:52:06.895Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -365,14 +341,12 @@ Archive:  ambleck.zip
 
     curl http://localhost:8080/
 
---START--
-{
-  "timestamp": "2024-03-27T05:52:33.706+00:00",
-  "status": 404,
-  "error": "Not Found",
-  "path": "/"
-}
---END--
+    >   {
+    >     "timestamp": "2024-03-27T05:52:33.706+00:00",
+    >     "status": 404,
+    >     "error": "Not Found",
+    >     "path": "/"
+    >   }
 
 
 # -----------------------------------------------------
@@ -410,14 +384,12 @@ EOF
         http://localhost:8080/ambleck-post \
     | yq '.'
 
---START--
----
-offers:
-  - executable:
-      name: "test-001"
-      type: "foo:green"
-    resources: []
---END--
+    >   ---
+    >   offers:
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources: []
 
 
 
@@ -442,26 +414,24 @@ EOF
         http://localhost:8080/ambleck-post \
     | yq '.'
 
---START--
----
-offers:
-  - executable:
-      name: "test-001"
-      type: "foo:green"
-    resources:
-      - name: "resource 001"
-        type: "test-resource"
-      - name: "resource 002"
-        type: "test-resource"
-  - executable:
-      name: "test-001"
-      type: "foo:green"
-    resources:
-      - name: "resource 001"
-        type: "test-resource"
-      - name: "resource 002"
-        type: "test-resource"
---END--
+    >   ---
+    >   offers:
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "test-resource"
+    >         - name: "resource 002"
+    >           type: "test-resource"
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "test-resource"
+    >         - name: "resource 002"
+    >           type: "test-resource"
 
 
     curl \
@@ -474,44 +444,42 @@ offers:
         http://localhost:8080/ambleck-post \
     | jq '.'
 
---START--
-{
-  "offers": [
-    {
-      "executable": {
-        "name": "test-001",
-        "type": "foo:green"
-      },
-      "resources": [
-        {
-          "name": "resource 001",
-          "type": "test-resource"
-        },
-        {
-          "name": "resource 002",
-          "type": "test-resource"
-        }
-      ]
-    },
-    {
-      "executable": {
-        "name": "test-001",
-        "type": "foo:green"
-      },
-      "resources": [
-        {
-          "name": "resource 001",
-          "type": "test-resource"
-        },
-        {
-          "name": "resource 002",
-          "type": "test-resource"
-        }
-      ]
-    }
-  ]
-}
---END--
+    >   {
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "name": "test-001",
+    >           "type": "foo:green"
+    >         },
+    >         "resources": [
+    >           {
+    >             "name": "resource 001",
+    >             "type": "test-resource"
+    >           },
+    >           {
+    >             "name": "resource 002",
+    >             "type": "test-resource"
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "executable": {
+    >           "name": "test-001",
+    >           "type": "foo:green"
+    >         },
+    >         "resources": [
+    >           {
+    >             "name": "resource 001",
+    >             "type": "test-resource"
+    >           },
+    >           {
+    >             "name": "resource 002",
+    >             "type": "test-resource"
+    >           }
+    >         ]
+    >       }
+    >     ]
+    >   }
 
 
 # -----------------------------------------------------
@@ -529,10 +497,8 @@ offers:
 
     popd
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
