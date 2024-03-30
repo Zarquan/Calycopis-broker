@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.ambleck;
+package uk.co.metagrid.ambleck.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -31,7 +31,7 @@ import org.springframework.http.converter.json.AbstractJackson2HttpMessageConver
 import org.springframework.stereotype.Component;
 
 @Component
-class YamlConverter extends AbstractJackson2HttpMessageConverter {
+public class YamlConverter extends AbstractJackson2HttpMessageConverter {
 
   YamlConverter() {
     super(new ObjectMapper(new YAMLFactory()),

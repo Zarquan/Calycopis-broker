@@ -20,18 +20,25 @@
  * </meta:header>
  *
  */
+package uk.co.metagrid.ambleck.datamodel.resource.compute;
 
-package uk.co.metagrid.ambleck;
+import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
 
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+public class ComputeResource extends AbstractResource {
 
-public class ServletInitializer extends SpringBootServletInitializer {
+    public static final String TYPE_URL = "urn:compute-resource";
 
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(
-		    AmbleckApplication.class
-		    );
-	    }
+    public ComputeResource()
+        {
+        super(TYPE_URL);
+        }
+
+    public ComputeResource(final String name)
+        {
+        super(name, TYPE_URL);
+        }
+
+
     }
+
+
