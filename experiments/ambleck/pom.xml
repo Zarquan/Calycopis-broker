@@ -67,6 +67,16 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <!--+
+            | Added springdoc-openapi to generate OpenAPI spec.
+            | https://stackoverflow.com/questions/55938207/how-to-generate-openapi-3-0-spec-from-existing-spring-boot-app
+            | https://www.baeldung.com/spring-rest-openapi-documentation
+            +-->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.4.0</version>
+        </dependency>
 	</dependencies>
 
 	<build>
