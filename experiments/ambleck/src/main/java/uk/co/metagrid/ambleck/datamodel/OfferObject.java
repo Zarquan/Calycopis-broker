@@ -19,42 +19,29 @@
  *   </meta:licence>
  * </meta:header>
  *
- * Using Jackson subtypes
- * https://stacktobasics.com/jackson-sub-types
  *
  */
-package uk.co.metagrid.ambleck.datamodel.executable;
+package uk.co.metagrid.ambleck.datamodel;
 
-import uk.co.metagrid.ambleck.datamodel.AbstractObject;
+import uk.co.metagrid.ambleck.datamodel.executable.AbstractExecutable;
+import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
 
-// https://stackoverflow.com/a/23743058
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JsonSubTypes(
+@JsonRootName("offer")
+public class OfferObject extends RequestObject {
+
+    public OfferObject()
         {
-        @JsonSubTypes.Type(
-            value = PingExecutable.class,
-            name  = PingExecutable.TYPE_URL
-            ),
-        @JsonSubTypes.Type(
-            value = DelayExecutable.class,
-            name  = DelayExecutable.TYPE_URL
-            )
-        }
-    )
-public abstract class AbstractExecutable extends AbstractObject {
-
-    public AbstractExecutable(final String type)
-        {
-        this(type, null);
+        super();
         }
 
-    public AbstractExecutable(final String type, final String name)
+    public OfferObject(final AbstractExecutable executable)
         {
-        super(type, name);
+        super(executable);
         }
+
+
 
     }
-
 

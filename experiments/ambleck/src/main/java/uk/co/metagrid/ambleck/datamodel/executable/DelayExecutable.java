@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.datamodel.executable;
 
+import uk.co.metagrid.ambleck.datamodel.AbstractObject;
+
 public class DelayExecutable extends AbstractExecutable {
 
     public static final String TYPE_URL = "urn:delay-executable";
@@ -47,7 +49,7 @@ public class DelayExecutable extends AbstractExecutable {
             ) ;
         }
 
-    public static class DelaySpecific extends AbstractExecutable.Specific {
+    public static class DelaySpecific extends AbstractObject.AbstractSpecific {
 
         public DelaySpecific()
             {

@@ -19,12 +19,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * https://yaml.org/spec/1.2.2/#tags
+ * https://stackoverflow.com/questions/74743065/unable-to-remove-tag-when-serializing-object-to-yaml-using-jackson-dataformat-ya
+ * https://stackoverflow.com/a/74747017
+ *
  */
 
 package uk.co.metagrid.ambleck.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
@@ -34,7 +40,12 @@ import org.springframework.stereotype.Component;
 public class YamlConverter extends AbstractJackson2HttpMessageConverter {
 
   YamlConverter() {
-    super(new ObjectMapper(new YAMLFactory()),
+    super(
+        new ObjectMapper(
+            new YAMLFactory()
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
+            ),
         new MediaType("application", "yaml", StandardCharsets.UTF_8),
         new MediaType("text", "yaml", StandardCharsets.UTF_8),
         new MediaType("application", "*+yaml", StandardCharsets.UTF_8),
@@ -42,7 +53,8 @@ public class YamlConverter extends AbstractJackson2HttpMessageConverter {
         new MediaType("application", "yml", StandardCharsets.UTF_8),
         new MediaType("text", "yml", StandardCharsets.UTF_8),
         new MediaType("application", "*+yaml", StandardCharsets.UTF_8),
-        new MediaType("text", "*+yaml", StandardCharsets.UTF_8));
+        new MediaType("text", "*+yaml", StandardCharsets.UTF_8)
+        );
   }
 
   @Override

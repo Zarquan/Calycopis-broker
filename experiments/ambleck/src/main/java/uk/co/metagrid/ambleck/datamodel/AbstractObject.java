@@ -23,37 +23,49 @@
  * https://stacktobasics.com/jackson-sub-types
  *
  */
-package uk.co.metagrid.ambleck.datamodel.executable;
+package uk.co.metagrid.ambleck.datamodel;
 
-import uk.co.metagrid.ambleck.datamodel.AbstractObject;
-
-// https://stackoverflow.com/a/23743058
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
-@JsonSubTypes(
-        {
-        @JsonSubTypes.Type(
-            value = PingExecutable.class,
-            name  = PingExecutable.TYPE_URL
-            ),
-        @JsonSubTypes.Type(
-            value = DelayExecutable.class,
-            name  = DelayExecutable.TYPE_URL
-            )
-        }
-    )
-public abstract class AbstractExecutable extends AbstractObject {
+public abstract class AbstractObject {
 
-    public AbstractExecutable(final String type)
+    public AbstractObject(final String type)
         {
         this(type, null);
         }
 
-    public AbstractExecutable(final String type, final String name)
+    public AbstractObject(final String type, final String name)
         {
-        super(type, name);
+        this.type = type;
+        this.name = name;
         }
+
+    @JsonIgnore
+    private String type;
+    public  String getType()
+        {
+        return this.type;
+        }
+    public  void setType(final String type)
+        {
+        this.type = type;
+        }
+
+    private String name;
+    public  String getName()
+        {
+        return this.name;
+        }
+    public  void setName(final String name)
+        {
+        this.name = name;
+        }
+
+
+    public static class AbstractSpecific {
+        }
+
+    public abstract AbstractSpecific getSpec();
 
     }
 

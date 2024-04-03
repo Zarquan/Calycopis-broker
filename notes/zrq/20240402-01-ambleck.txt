@@ -25,31 +25,29 @@
 
     Target:
 
-        Moved classes into separate packages.
+        Running the build on new laptop.
 
     Result:
 
         Work in progress ...
 
-        We get all of the abstract and base classes in the OpenAPI spec.
-        Need to check if they are all needed.
-        OpenAPI spec doesn't label the classes by package.
-        So if we have the same name in different places it could cause conflicts.
+# -----------------------------------------------------
+# Run the build on laptop.
+#[user@laptop]
 
-        The schemas are very tightly controlled.
-        Auto generating beans directly from the POST data means we can't have additional fields.
-        Which means that version control is very tight.
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
 
-        We probably need to allow extra properties as a Map<String, String>.
+        pushd experiments/ambleck
 
-        As far as I can see, neither Swagger or OpenAPI have a way of describing the mapping
-        between type URI and classes.
-        The JsonTypeInfo field for `executable` is reduced to a simple mapped of `oneOf`.
+            ./mvnw spring-boot:run
+
+
 
 
 # -----------------------------------------------------
 # Test the delay-executable with resources.
-#[user@desktop]
+#[user@laptop]
 
 cat > /tmp/test-004.yaml  << EOF
 executable:
@@ -98,4 +96,7 @@ EOF
     >           type: "urn:compute-resource"
     >         - name: "resource 002"
     >           type: "urn:compute-resource"
+
+
+
 

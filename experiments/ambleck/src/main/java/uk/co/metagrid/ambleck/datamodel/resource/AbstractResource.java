@@ -22,6 +22,10 @@
  */
 package uk.co.metagrid.ambleck.datamodel.resource;
 
+import uk.co.metagrid.ambleck.datamodel.AbstractObject;
+
+// https://stackoverflow.com/a/23743058
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
@@ -34,46 +38,20 @@ import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
             )
         }
     )
-public abstract class AbstractResource {
+public abstract class AbstractResource extends AbstractObject {
 
     public static final String TYPE_URL = "urn:abstract-resource";
 
-    public AbstractResource()
+
+    public AbstractResource(final String type)
         {
-        this(null, null);
+        this(type, null);
         }
 
-    public AbstractResource(final String name)
+    public AbstractResource(final String type, final String name)
         {
-        this(name, null);
+        super(type, name);
         }
-
-    public AbstractResource(final String name, final String type)
-        {
-        this.name = name;
-        this.type = type;
-        }
-
-    private String name;
-    public  String getName()
-        {
-        return this.name;
-        }
-    public  void setName(final String name)
-        {
-        this.name = name;
-        }
-
-    private String type;
-    public  String getType()
-        {
-        return this.type;
-        }
-    public  void setType(final String type)
-        {
-        this.type = type;
-        }
-
 
     }
 

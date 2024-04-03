@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.datamodel.executable;
 
+import uk.co.metagrid.ambleck.datamodel.AbstractObject;
+
 public class PingExecutable extends AbstractExecutable {
 
     public static final String TYPE_URL = "urn:ping-executable";
@@ -47,7 +49,7 @@ public class PingExecutable extends AbstractExecutable {
             );
         }
 
-    public static class PingSpecific extends AbstractExecutable.Specific {
+    public static class PingSpecific extends AbstractObject.AbstractSpecific {
 
         public PingSpecific()
             {

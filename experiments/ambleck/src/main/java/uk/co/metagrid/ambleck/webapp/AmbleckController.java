@@ -26,8 +26,6 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
-import java.util.List;
-import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -41,6 +39,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import uk.co.metagrid.ambleck.datamodel.OfferObject;
+import uk.co.metagrid.ambleck.datamodel.RequestObject;
+import uk.co.metagrid.ambleck.datamodel.ResponseObject;
 
 import uk.co.metagrid.ambleck.datamodel.executable.AbstractExecutable;
 import uk.co.metagrid.ambleck.datamodel.executable.PingExecutable;
@@ -82,152 +84,6 @@ public class AmbleckController {
             }
         }
 
-    @JsonRootName("request")
-    public static class RequestObject {
-
-        public RequestObject()
-            {
-            }
-
-        public RequestObject(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            property = "type",
-            defaultImpl = AbstractExecutable.class
-            )
-        private AbstractExecutable executable;
-        public AbstractExecutable getExecutable()
-            {
-            return this.executable;
-            }
-        public void setExecutable(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            property = "type",
-            defaultImpl = AbstractResource.class
-            )
-        private List<AbstractResource> resources = new ArrayList<AbstractResource>();
-        public List<AbstractResource> getResources()
-            {
-            return this.resources;
-            }
-        public void setResources(final List<AbstractResource> resources)
-            {
-            this.resources = resources;
-            }
-        public void addResource(final AbstractResource resource)
-            {
-            this.resources.add(
-                resource
-                );
-            }
-        }
-
-
-    @JsonRootName("offer")
-    public static class OfferObject {
-
-        public OfferObject()
-            {
-            }
-
-        public OfferObject(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        private AbstractExecutable executable;
-        public AbstractExecutable getExecutable()
-            {
-            return this.executable;
-            }
-        public void setExecutable(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        private List<AbstractResource> resources = new ArrayList<AbstractResource>();
-        public List<AbstractResource> getResources()
-            {
-            return this.resources;
-            }
-        public void setResources(final List<AbstractResource> resources)
-            {
-            this.resources = resources;
-            }
-        public void addResource(final AbstractResource resource)
-            {
-            this.resources.add(
-                resource
-                );
-            }
-        }
-
-    public static enum ResultCode {
-        YES,
-        NO
-        }
-
-    @JsonRootName("response")
-    public static class ResponseObject {
-
-        public ResponseObject()
-            {
-            this(null, null);
-            }
-
-        public ResponseObject(final ResultCode result)
-            {
-            this(result, null);
-            }
-
-        public ResponseObject(final ResultCode result, final List<OfferObject> offers)
-            {
-            this.result = result;
-            if (offers == null)
-                {
-                this.offers = new ArrayList<OfferObject>();
-                }
-            else {
-                this.offers = offers;
-                }
-            }
-
-        private ResultCode result ;
-        public ResultCode getResult()
-            {
-            return this.result ;
-            }
-        public void setResult(final ResultCode result)
-            {
-            this.result = result;
-            }
-
-        private List<OfferObject> offers;
-        public List<OfferObject> getOffers()
-            {
-            return this.offers;
-            }
-        public void setOffers(final List<OfferObject> offers)
-            {
-            this.offers = offers;
-            }
-        public void addOffer(final OfferObject offer)
-            {
-            this.offers.add(
-                offer
-                );
-            }
-        }
-
     @PostMapping(
         value = "/ambleck-post",
         consumes = {
@@ -247,7 +103,7 @@ public class AmbleckController {
 	    ) {
 
 	    ResponseObject response = new ResponseObject(
-	        ResultCode.YES
+	        ResponseObject.ResultCode.YES
 	        );
 
         for (int i = 0 ; i < 2 ; i++)
@@ -262,8 +118,11 @@ public class AmbleckController {
 
             for (AbstractResource requested : request.getResources())
                 {
-                AbstractResource offered = new ComputeResource(
+                ComputeResource offered = new ComputeResource(
                     requested.getName()
+                    );
+                offered.setSpec(
+                    ((ComputeResource)requested).getSpec()
                     );
                 offer.addResource(
                     offered
