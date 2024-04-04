@@ -25,7 +25,7 @@
 
     Target:
 
-        Next steps ...
+        Adding more detail to the data model ...
 
     Result:
 

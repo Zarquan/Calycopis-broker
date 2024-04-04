@@ -20,35 +20,43 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.datamodel.resource;
+package uk.co.metagrid.ambleck.datamodel.util;
 
-import uk.co.metagrid.ambleck.datamodel.AbstractObject;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-// https://stackoverflow.com/a/23743058
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+@JsonInclude(Include.NON_NULL)
+public class GenericMinMaxPair<Type> {
 
-import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
-
-@JsonSubTypes(
+    public GenericMinMaxPair()
         {
-        @JsonSubTypes.Type(
-            value = ComputeResource.class,
-            name  = ComputeResource.TYPE_URL
-            )
-        }
-    )
-public abstract class AbstractResource extends AbstractObject {
-
-    public AbstractResource(final String type)
-        {
-        this(type, null);
         }
 
-    public AbstractResource(final String type, final String name)
+    public GenericMinMaxPair(final Type min, final Type max)
         {
-        super(type, name);
+        this.min = min;
+        this.max = max;
         }
 
+    private Type min ;
+    public Type getMin()
+        {
+        return this.min ;
+        }
+    public void setMin(final Type min)
+        {
+        this.min = min;
+        }
+    private Type max ;
+    public Type getMax()
+        {
+        return this.max ;
+        }
+    public void setMax(final Type max)
+        {
+        this.max = max;
+        }
     }
+
+
 

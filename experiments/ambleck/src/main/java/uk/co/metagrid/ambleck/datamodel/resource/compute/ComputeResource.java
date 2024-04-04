@@ -22,8 +22,12 @@
  */
 package uk.co.metagrid.ambleck.datamodel.resource.compute;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import uk.co.metagrid.ambleck.datamodel.AbstractObject;
 import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
+import uk.co.metagrid.ambleck.datamodel.util.MinMaxFloat;
 
 public class ComputeResource extends AbstractResource {
 
@@ -39,46 +43,6 @@ public class ComputeResource extends AbstractResource {
         super(name, TYPE_URL);
         }
 
-    public static class MinMaxPair<Type> {
-
-        public MinMaxPair()
-            {
-            }
-
-        public MinMaxPair(final Type min, final Type max)
-            {
-            this.min = min;
-            this.max = max;
-            }
-
-        private Type min ;
-        public Type getMin()
-            {
-            return this.min ;
-            }
-        public void setMin(final Type min)
-            {
-            this.min = min;
-            }
-        private Type max ;
-        public Type getMax()
-            {
-            return this.max ;
-            }
-        public void setMax(final Type max)
-            {
-            this.max = max;
-            }
-        }
-
-    public static class MinMaxInteger extends MinMaxPair<Integer> {
-
-        }
-
-    public static class MinMaxFloat extends MinMaxPair<Float> {
-
-        }
-
     public static class ComputeSpecific extends AbstractObject.AbstractSpecific {
 
         public ComputeSpecific()
@@ -86,12 +50,14 @@ public class ComputeResource extends AbstractResource {
             super();
             }
 
-        public ComputeSpecific(final MinMaxFloat cores)
+        public ComputeSpecific(final MinMaxFloat cores, final MinMaxFloat memory)
             {
             super();
             this.cores = cores ;
+            this.memory = memory ;
             }
 
+        @JsonInclude(Include.NON_NULL)
         private MinMaxFloat cores;
         public MinMaxFloat getCores()
             {
@@ -101,6 +67,17 @@ public class ComputeResource extends AbstractResource {
             {
             this.cores = cores ;
             }
+
+        private MinMaxFloat memory;
+        public MinMaxFloat getMemory()
+            {
+            return this.memory ;
+            }
+        public void setMemory(final MinMaxFloat memory)
+            {
+            this.memory = memory ;
+            }
+
         }
 
     private ComputeSpecific spec ;

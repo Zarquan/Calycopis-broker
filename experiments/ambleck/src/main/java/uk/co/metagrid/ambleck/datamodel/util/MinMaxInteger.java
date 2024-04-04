@@ -20,35 +20,10 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.datamodel.resource;
+package uk.co.metagrid.ambleck.datamodel.util;
 
-import uk.co.metagrid.ambleck.datamodel.AbstractObject;
-
-// https://stackoverflow.com/a/23743058
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-
-import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
-
-@JsonSubTypes(
-        {
-        @JsonSubTypes.Type(
-            value = ComputeResource.class,
-            name  = ComputeResource.TYPE_URL
-            )
-        }
-    )
-public abstract class AbstractResource extends AbstractObject {
-
-    public AbstractResource(final String type)
-        {
-        this(type, null);
-        }
-
-    public AbstractResource(final String type, final String name)
-        {
-        super(type, name);
-        }
+public class MinMaxInteger extends GenericMinMaxPair<Integer>
+    {
 
     }
 
