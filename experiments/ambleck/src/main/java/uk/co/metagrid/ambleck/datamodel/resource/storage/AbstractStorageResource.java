@@ -19,28 +19,37 @@
  *   </meta:licence>
  * </meta:header>
  *
- *
  */
-package uk.co.metagrid.ambleck.datamodel;
+package uk.co.metagrid.ambleck.datamodel.resource.storage;
 
-import uk.co.metagrid.ambleck.datamodel.executable.AbstractExecutable;
+import uk.co.metagrid.ambleck.datamodel.AbstractObject;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 
-@JsonRootName("offer")
-public class OfferObject extends RequestObject {
-
-    public OfferObject()
+@JsonSubTypes(
         {
-        super();
+        @JsonSubTypes.Type(
+            value = SimpleStorageResource.class,
+            name  = SimpleStorageResource.TYPE_URL
+            )
+        }
+    )
+public abstract class AbstractStorageResource extends AbstractObject {
+
+    public AbstractStorageResource(final String type)
+        {
+        this(type, null);
         }
 
-    public OfferObject(final AbstractExecutable executable)
+    public AbstractStorageResource(final String type, final String name)
         {
-        super(executable);
+        super(type, name);
         }
 
-
+    public static class AbstractStorageSpecific extends AbstractSpecific
+        {}
+    public abstract AbstractStorageSpecific getSpec();
+    //public abstract void setSpec(final AbstractStorageSpecific spec);
 
     }
 

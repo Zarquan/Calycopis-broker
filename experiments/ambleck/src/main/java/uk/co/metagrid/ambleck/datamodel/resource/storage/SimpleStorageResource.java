@@ -20,77 +20,61 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.datamodel.resource.compute;
+package uk.co.metagrid.ambleck.datamodel.resource.storage;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-import uk.co.metagrid.ambleck.datamodel.AbstractObject;
-import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
-import uk.co.metagrid.ambleck.datamodel.util.MinMaxFloat;
+import uk.co.metagrid.ambleck.datamodel.util.MinMaxInteger;
 
-public class ComputeResource extends AbstractResource {
+public class SimpleStorageResource extends AbstractStorageResource {
 
-    public static final String TYPE_URL = "urn:compute-resource";
+    public static final String TYPE_URL = "urn:simple-storage-resource";
 
-    public ComputeResource()
+    public SimpleStorageResource()
         {
         super(TYPE_URL);
         }
 
-    public ComputeResource(final String name)
+    public SimpleStorageResource(final String name)
         {
-        super(name, TYPE_URL);
+        super(TYPE_URL, name);
         }
 
-    public static class ComputeSpecific extends AbstractObject.AbstractSpecific {
+    public static class SimpleStorageSpecific extends AbstractStorageSpecific {
 
-        public ComputeSpecific()
+        public SimpleStorageSpecific()
             {
             super();
             }
 
-        public ComputeSpecific(final MinMaxFloat cores, final MinMaxFloat memory)
+        public SimpleStorageSpecific(final MinMaxInteger size)
             {
             super();
-            this.cores = cores ;
-            this.memory = memory ;
+            this.size = size ;
             }
 
         @JsonInclude(Include.NON_NULL)
-        private MinMaxFloat cores;
-        public MinMaxFloat getCores()
+        private MinMaxInteger size;
+        public MinMaxInteger getSize()
             {
-            return this.cores ;
+            return this.size ;
             }
-        public void setCores(final MinMaxFloat cores)
+        public void setCores(final MinMaxInteger size)
             {
-            this.cores = cores ;
+            this.size = size ;
             }
-
-        private MinMaxFloat memory;
-        public MinMaxFloat getMemory()
-            {
-            return this.memory ;
-            }
-        public void setMemory(final MinMaxFloat memory)
-            {
-            this.memory = memory ;
-            }
-
         }
 
-    private ComputeSpecific spec ;
-    public ComputeSpecific getSpec()
+    private SimpleStorageSpecific spec ;
+    public SimpleStorageSpecific getSpec()
         {
         return this.spec;
         }
-    public void setSpec(final ComputeSpecific spec)
+    public void setSpec(final SimpleStorageSpecific spec)
         {
         this.spec = spec;
         }
-
-
     }
 
 

@@ -20,35 +20,36 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.datamodel.resource;
+package uk.co.metagrid.ambleck.datamodel.resource.compute;
 
 import uk.co.metagrid.ambleck.datamodel.AbstractObject;
 
-// https://stackoverflow.com/a/23743058
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-
-import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
 
 @JsonSubTypes(
         {
         @JsonSubTypes.Type(
-            value = ComputeResource.class,
-            name  = ComputeResource.TYPE_URL
+            value = SimpleComputeResource.class,
+            name  = SimpleComputeResource.TYPE_URL
             )
         }
     )
-public abstract class AbstractResource extends AbstractObject {
+public abstract class AbstractComputeResource extends AbstractObject {
 
-    public AbstractResource(final String type)
+    public AbstractComputeResource(final String type)
         {
         this(type, null);
         }
 
-    public AbstractResource(final String type, final String name)
+    public AbstractComputeResource(final String type, final String name)
         {
         super(type, name);
         }
+
+    public static class AbstractComputeSpecific extends AbstractSpecific
+        {}
+    public abstract AbstractComputeSpecific getSpec();
+    //public abstract void setSpec(final AbstractComputeSpecific spec);
 
     }
 

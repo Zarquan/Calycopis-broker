@@ -34,8 +34,14 @@ public class GenericMinMaxPair<Type> {
 
     public GenericMinMaxPair(final Type min, final Type max)
         {
+        this(min, max, null);
+        }
+
+    public GenericMinMaxPair(final Type min, final Type max, final String units)
+        {
         this.min = min;
         this.max = max;
+        this.units = units;
         }
 
     private Type min ;
@@ -47,6 +53,7 @@ public class GenericMinMaxPair<Type> {
         {
         this.min = min;
         }
+
     private Type max ;
     public Type getMax()
         {
@@ -55,6 +62,16 @@ public class GenericMinMaxPair<Type> {
     public void setMax(final Type max)
         {
         this.max = max;
+        }
+
+    private String units ;
+    public String getUnits()
+        {
+        return this.units ;
+        }
+    public void setUnits(final String units)
+        {
+        this.units = units;
         }
     }
 

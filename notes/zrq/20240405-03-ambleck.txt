@@ -1,0 +1,345 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Adding more detail to the data model ...
+
+    Result:
+
+        Work in progress ...
+
+        Add units to pairs, as a separate field ?
+
+              cores:
+                min: 4
+                units: m cores
+              memory:
+                min: 8
+                max: 12
+                units: Mi bytes
+
+        We could include the units in the value, but then we would need a separate parser.
+
+              cores:
+                min: 4 m cores
+              memory:
+                min: 8
+                max: 12 Mi bytes
+
+
+        How Kubernetes handles limits
+        https://sysdig.com/blog/kubernetes-limits-requests/
+
+            apiVersion: v1
+            kind: ResourceQuota
+            metadata:
+              name: mem-cpu-demo
+            spec:
+              hard:
+                requests.cpu: 2
+                requests.memory: 1Gi
+                limits.cpu: 3
+                limits.memory: 2Gi
+
+        We can map naturally between them.
+        What do we adpot as our default, cores or milli cores ?
+
+        Large compute jobs are 1000's of cores.
+        So setting the default to milli cores is a bit extreme.
+
+        Using float for cores - perhaps.
+        Using float for memory and disc doesn't make much sense.
+
+        Using int for both seems sensible.
+        If you want tiny number of cores set units to milli cores.
+
+# -----------------------------------------------------
+
+        Do we put all the resources in one liat ?
+        Or do we have separate lists for compoute and data resources?
+        In the document we have separate lists
+
+        compute:
+
+        storage:
+
+
+# -----------------------------------------------------
+# Run the build on laptop.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/ambleck
+
+            ./mvnw spring-boot:run
+
+
+
+# -----------------------------------------------------
+# Test the new properties.
+#[user@laptop]
+
+
+cat > /tmp/test-006.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  - name: "resource 001"
+    type: "urn:compute-resource"
+    spec:
+      cores:
+        min: 4
+        units: m cores
+      memory:
+        min: 8
+        max: 12
+        units: Mi bytes
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-006.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 4
+    >               units: "m cores"
+    >             memory:
+    >               min: 8
+    >               max: 12
+    >               units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 4
+    >               units: "m cores"
+    >             memory:
+    >               min: 8
+    >               max: 12
+    >               units: "Mi bytes"
+
+
+
+# -----------------------------------------------------
+# Test the new properties.
+#[user@laptop]
+
+
+cat > /tmp/test-007.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  compute:
+    - name: "compute 001"
+      type: "urn:simple-compute-resource"
+      spec:
+        cores:
+          min: 4
+          units: m cores
+        memory:
+          min: 8
+          max: 12
+          units: Mi bytes
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-007.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: "urn:simple-compute-resource"
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 units: "m cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: "urn:simple-compute-resource"
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 units: "m cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+
+
+# -----------------------------------------------------
+# Test the new properties.
+#[user@laptop]
+
+
+cat > /tmp/test-008.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  compute:
+    - name: "compute 001"
+      type: "urn:simple-compute-resource"
+      spec:
+        cores:
+          min: 4
+          units: cores
+        memory:
+          min: 8
+          max: 12
+          units: Mi bytes
+  storage:
+    - name: "storage 001"
+      type: "urn:simple-storage-resource"
+      spec:
+        size:
+          min: 1
+          max: 12
+          units: Mi bytes
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-008.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: "compute 001"
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: "storage 001"
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: "compute 001"
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: "storage 001"
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+

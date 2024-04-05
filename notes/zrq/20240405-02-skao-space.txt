@@ -1,0 +1,79 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Scribbles on an idea for a common URI syntax.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Have SKA already thought about using a specific URI prefix to identify SKA data ?
+
+Useful to have a common URI prefix for SKA data, with a URI structure that
+enables us to identify the storage node, the node version and the object identifier within that node.
+
+This would enable us to refer to specific data objects in a single URL, which can be put in a document, an email
+or a Slack message.
+
+The data registry contains metadata about where each piece of data is.
+If there are replicas, then the data registry can return more than one URL.
+
+skao:uksrc-0.1:[....]
+
+skao:uksrc-0.1:path:[....]
+skao:uksrc-0.1:object:[....]
+
+
+Opaque object identifier
+skao:uksrc-0.1:object:3525c2c5-24be-42be-b6b6-a7c2f9a53a93
+
+Path based identifier
+skao:uksrc-0.1:path:/user-data/dave/example.fits
+
+These are not access URL for fetching the data,
+they are data identifiers for passing to or between the nodes.
+
+So a client wouldn't directy download the data.
+The client uses the URI to ask the node to do something with the data.
+e.g. ExecutionPlanner execute <contaner> on <data>.
+It is up the node to resolve the data reference.
+
+Alternativley, if a client, or another node, wants to access the data,
+they post the URI to a resolving service.
+I guess this is similar to VOSpace ?
+
+Talking woth Paul about this - it would be good to avoid a registry step when resolving.
+so take the first part of the URI, replace the skao: with http: and you get a resolvable metadata file.
+
+
+
+
+
+
+

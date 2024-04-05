@@ -28,12 +28,19 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 
 import uk.co.metagrid.ambleck.datamodel.executable.AbstractExecutable;
-import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
+
+import uk.co.metagrid.ambleck.datamodel.resource.compute.AbstractComputeResource;
+import uk.co.metagrid.ambleck.datamodel.resource.compute.SimpleComputeResource;
+import uk.co.metagrid.ambleck.datamodel.resource.storage.AbstractStorageResource;
+import uk.co.metagrid.ambleck.datamodel.resource.storage.SimpleStorageResource;
+
 
 @JsonRootName("request")
 public class RequestObject {
@@ -49,8 +56,7 @@ public class RequestObject {
 
     @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "type",
-        defaultImpl = AbstractExecutable.class
+        property = "type"
         )
     private AbstractExecutable executable;
     public AbstractExecutable getExecutable()
@@ -62,30 +68,64 @@ public class RequestObject {
         this.executable = executable;
         }
 
-    @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-//      include = JsonTypeInfo.As.PROPERTY,
-//      include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
-//      visible = true,
-        defaultImpl = AbstractResource.class
-        )
-    @JacksonXmlProperty(localName = "resource")
-    @JacksonXmlElementWrapper(localName = "resources")
-    private List<AbstractResource> resources = new ArrayList<AbstractResource>();
-    public List<AbstractResource> getResources()
+    public class Resources {
+
+        public Resources()
+            {
+            }
+
+        @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            property = "type"
+            )
+        @JacksonXmlProperty(localName = "compute-resource")
+        @JacksonXmlElementWrapper(localName = "compute")
+        @JsonInclude(Include.NON_EMPTY)
+        private List<AbstractComputeResource> compute = new ArrayList<AbstractComputeResource>();
+        public List<AbstractComputeResource> getCompute()
+            {
+            return this.compute;
+            }
+        public void setCompute(final List<AbstractComputeResource> compute)
+            {
+            this.compute = compute;
+            }
+        public void addCompute(final AbstractComputeResource resource)
+            {
+            this.compute.add(
+                resource
+                );
+            }
+
+        @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            property = "type"
+            )
+        @JacksonXmlProperty(localName = "storage-resource")
+        @JacksonXmlElementWrapper(localName = "storage")
+        @JsonInclude(Include.NON_EMPTY)
+        private List<AbstractStorageResource> storage = new ArrayList<AbstractStorageResource>();
+        public List<AbstractStorageResource> getStorage()
+            {
+            return this.storage;
+            }
+        public void setStorage(final List<AbstractStorageResource> storage)
+            {
+            this.storage = storage;
+            }
+        public void addStorage(final AbstractStorageResource resource)
+            {
+            this.storage.add(
+                resource
+                );
+            }
+        }
+
+    @JacksonXmlProperty(localName = "resources")
+    private Resources resources = new Resources() ;
+    public Resources getResources()
         {
         return this.resources;
-        }
-    public void setResources(final List<AbstractResource> resources)
-        {
-        this.resources = resources;
-        }
-    public void addResource(final AbstractResource resource)
-        {
-        this.resources.add(
-            resource
-            );
         }
     }
 

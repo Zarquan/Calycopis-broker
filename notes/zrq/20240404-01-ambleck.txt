@@ -31,6 +31,10 @@
 
         Work in progress ...
 
+        Allow null or empty values in a pair.
+        Don't output null values.
+
+
 # -----------------------------------------------------
 # Run the build on laptop.
 #[user@laptop]
@@ -49,7 +53,7 @@
 #[user@laptop]
 
 
-cat > /tmp/test-006.yaml  << EOF
+cat > /tmp/test-007.yaml  << EOF
 executable:
   name: "test-001"
   type: "urn:delay-executable"
@@ -72,9 +76,39 @@ EOF
         --show-error \
         --request POST \
         --header "Content-Type: application/yaml" \
-        --data-binary @/tmp/test-006.yaml \
+        --data-binary @/tmp/test-007.yaml \
         --header "Accept: application/yaml" \
         http://localhost:8080/ambleck-post \
     | yq '.'
 
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 4.0
+    >             memory:
+    >               min: 8.0
+    >               max: 12.0
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 4.0
+    >             memory:
+    >               min: 8.0
+    >               max: 12.0
 

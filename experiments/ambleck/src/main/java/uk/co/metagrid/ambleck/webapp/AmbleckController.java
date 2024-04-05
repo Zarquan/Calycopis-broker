@@ -48,8 +48,10 @@ import uk.co.metagrid.ambleck.datamodel.executable.AbstractExecutable;
 import uk.co.metagrid.ambleck.datamodel.executable.PingExecutable;
 import uk.co.metagrid.ambleck.datamodel.executable.DelayExecutable;
 
-import uk.co.metagrid.ambleck.datamodel.resource.AbstractResource;
-import uk.co.metagrid.ambleck.datamodel.resource.compute.ComputeResource;
+import uk.co.metagrid.ambleck.datamodel.resource.compute.AbstractComputeResource;
+import uk.co.metagrid.ambleck.datamodel.resource.compute.SimpleComputeResource;
+import uk.co.metagrid.ambleck.datamodel.resource.storage.AbstractStorageResource;
+import uk.co.metagrid.ambleck.datamodel.resource.storage.SimpleStorageResource;
 
 @RestController
 public class AmbleckController {
@@ -116,15 +118,28 @@ public class AmbleckController {
                 executable
                 );
 
-            for (AbstractResource requested : request.getResources())
+            for (AbstractComputeResource requested : request.getResources().getCompute())
                 {
-                ComputeResource offered = new ComputeResource(
+                SimpleComputeResource offered = new SimpleComputeResource(
                     requested.getName()
                     );
                 offered.setSpec(
-                    ((ComputeResource)requested).getSpec()
+                    ((SimpleComputeResource)requested).getSpec()
                     );
-                offer.addResource(
+                offer.getResources().addCompute(
+                    offered
+                    );
+                }
+
+            for (AbstractStorageResource requested : request.getResources().getStorage())
+                {
+                SimpleStorageResource offered = new SimpleStorageResource(
+                    requested.getName()
+                    );
+                offered.setSpec(
+                    ((SimpleStorageResource)requested).getSpec()
+                    );
+                offer.getResources().addStorage(
                     offered
                     );
                 }
