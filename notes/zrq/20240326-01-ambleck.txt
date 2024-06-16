@@ -1,0 +1,526 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Start a new experiment.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# List the project environment settings.
+#[user@desktop]
+
+    cat "${HOME:?}/pandak.env"
+
+    >   source "${HOME:?}/projects.env"
+    >   PANDAK_REPO='git@github.com:Zarquan/CIRASA-planner.git'
+    >   PANDAK_HOME="${PROJECTS_ROOT}/IVOA/ivoa/CIRASA-planner"
+    >   PANDAK_CODE="${PANDAK_HOME:?}/github-zrq"
+
+
+# -----------------------------------------------------
+# Check for un-committed changes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git status
+
+    popd
+
+    >   On branch main
+    >   Your branch is up to date with 'origin/main'.
+    >   
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   experiments/pandak/pom.xml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20240122-01-tiger-team.txt
+    >   	notes/zrq/20240124-01-resources.txt
+    >   	notes/zrq/20240221-01-accept-header.txt
+    >       notes/zrq/20240322-01-springdoc.txt
+    >   	notes/zrq/20240322-02-plans.txt
+    >   	notes/zrq/20240326-01-restart.txt
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=restart
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    popd
+
+    >   Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   remote:
+    >   remote: Create a pull request for '20240327-zrq-restart' on GitHub by visiting:
+    >   remote:      https://github.com/Zarquan/CIRASA-planner/pull/new/20240327-zrq-restart
+    >   remote:
+    >   To github.com:Zarquan/CIRASA-planner.git
+    >    * [new branch]      20240327-zrq-restart -> 20240327-zrq-restart
+    >   branch '20240327-zrq-restart' set up to track 'origin/20240327-zrq-restart'.
+
+
+# -----------------------------------------------------
+# Add the changes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git add \
+	        notes/zrq/20240122-01-tiger-team.txt
+        git commit -m "Ideas for the Protocol Transitioning Tiger Team (P3T)."
+
+        git add \
+	        notes/zrq/20240124-01-resources.txt
+        git commit -m "Notes on compute resources required for the project."
+
+        git add \
+	        notes/zrq/20240221-01-accept-header.txt
+        git commit -m "Notes on using Accept header in Swagger/OpenAPI"
+
+        git add \
+	        notes/zrq/20240322-01-springdoc.txt \
+	        experiments/pandak/pom.xml
+        git commit -m "Spring and OpenAPI"
+
+        git add \
+	        notes/zrq/20240322-02-plans.txt
+        git commit -m "Next steps"
+
+        git push
+
+    popd
+
+# -----------------------------------------------------
+
+    Create a GitHub PullRequest and merge the branch.
+    https://github.com/ivoa/CIRASA-planner/pull/8
+
+# -----------------------------------------------------
+# Fetch upstream changes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git checkout main
+
+        git fetch upstream
+
+        git merge upstream/main
+
+        git push
+
+    popd
+
+    >   Switched to branch 'main'
+    >   Your branch is up to date with 'origin/main'.
+
+    >   remote: Enumerating objects: 1, done.
+    >   remote: Counting objects: 100% (1/1), done.
+    >   remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   Unpacking objects: 100% (1/1), 892 bytes | 892.00 KiB/s, done.
+    >   From github.com:ivoa/CIRASA-planner
+    >      0b5448e..1e2c43b  main       -> upstream/main
+
+    >   Updating 0b5448e..1e2c43b
+    >   Fast-forward
+    >    experiments/pandak/pom.xml              |  10 ++++
+    >    notes/zrq/20240122-01-tiger-team.txt    | 152 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240124-01-resources.txt     | 101 +++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240221-01-accept-header.txt |  66 +++++++++++++++++++++++
+    >    notes/zrq/20240322-01-springdoc.txt     | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    >    notes/zrq/20240322-02-plans.txt         | 130 +++++++++++++++++++++++++++++++++++++++++++++
+    >    6 files changed, 654 insertions(+)
+    >    create mode 100644 notes/zrq/20240122-01-tiger-team.txt
+    >    create mode 100644 notes/zrq/20240124-01-resources.txt
+    >    create mode 100644 notes/zrq/20240221-01-accept-header.txt
+    >    create mode 100644 notes/zrq/20240322-01-springdoc.txt
+    >    create mode 100644 notes/zrq/20240322-02-plans.txt
+
+    >   Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+    >   To github.com:Zarquan/CIRASA-planner.git
+    >      0b5448e..1e2c43b  main -> main
+
+
+# -----------------------------------------------------
+# Delete the branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git checkout main
+
+        git branch
+
+        git branch -d '20240327-zrq-restart'
+
+    popd
+
+    >     20240327-zrq-restart
+    >   * main
+
+    >   Deleted branch 20240327-zrq-restart (was 460dfc5).
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=ambleck
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new experiment.
+
+    Project initializer
+    https://start.spring.io/
+
+    Project: [x] Maven
+
+    Spring Boot: [x] 3.2.4
+
+    Group: uk.co.metagrid
+    Artifact: ambleck
+    Name: Ambleck
+    Package: uk.co.metagrid.pandak
+    Packaging: war
+
+    Java: [x] 17
+
+    Initializer config asks for Java version, 17 or 21.
+    Desktop has JDK 19 installed, latert Fedora has 21.
+    Leave it at 17 until we upgrade our desktop.
+
+    Download: experiments/ambleck.zip
+
+# -----------------------------------------------------
+# Start a new experiment.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments
+
+            unzip ambleck
+
+            rm ambleck.zip
+
+        popd
+    popd
+
+    >   Archive:  ambleck.zip
+    >      creating: ambleck/
+    >     inflating: ambleck/HELP.md
+    >     inflating: ambleck/.gitignore
+    >     inflating: ambleck/mvnw
+    >     inflating: ambleck/mvnw.cmd
+    >      creating: ambleck/.mvn/
+    >      creating: ambleck/.mvn/wrapper/
+    >     inflating: ambleck/.mvn/wrapper/maven-wrapper.properties
+    >     inflating: ambleck/.mvn/wrapper/maven-wrapper.jar
+    >      creating: ambleck/src/
+    >      creating: ambleck/src/test/
+    >      creating: ambleck/src/test/java/
+    >      creating: ambleck/src/test/java/uk/
+    >      creating: ambleck/src/test/java/uk/co/
+    >      creating: ambleck/src/test/java/uk/co/metagrid/
+    >      creating: ambleck/src/test/java/uk/co/metagrid/ambleck/
+    >     inflating: ambleck/src/test/java/uk/co/metagrid/ambleck/AmbleckApplicationTests.java
+    >      creating: ambleck/src/main/
+    >      creating: ambleck/src/main/java/
+    >      creating: ambleck/src/main/java/uk/
+    >      creating: ambleck/src/main/java/uk/co/
+    >      creating: ambleck/src/main/java/uk/co/metagrid/
+    >      creating: ambleck/src/main/java/uk/co/metagrid/ambleck/
+    >     inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/ServletInitializer.java
+    >     inflating: ambleck/src/main/java/uk/co/metagrid/ambleck/AmbleckApplication.java
+    >      creating: ambleck/src/main/resources/
+    >      creating: ambleck/src/main/resources/static/
+    >     inflating: ambleck/src/main/resources/application.properties
+    >      creating: ambleck/src/main/resources/templates/
+    >     inflating: ambleck/pom.xml
+
+
+# -----------------------------------------------------
+# Give it a go ...
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/ambleck
+
+            ./mvnw spring-boot:run
+
+    >   ....
+    >   ....
+    >   2024-03-27T05:51:56.276Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Starting AmbleckApplication using Java 19.0.1 with PID 9299 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/ambleck)
+    >   2024-03-27T05:51:56.281Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : No active profile set, falling back to 1 default profile: "default"
+    >   2024-03-27T05:51:57.237Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+    >   2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-03-27T05:51:57.273Z  INFO 9299 --- [Ambleck] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+    >   2024-03-27T05:51:57.334Z  INFO 9299 --- [Ambleck] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-03-27T05:51:57.336Z  INFO 9299 --- [Ambleck] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 986 ms
+    >   2024-03-27T05:51:57.734Z  INFO 9299 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+    >   2024-03-27T05:51:57.745Z  INFO 9299 --- [Ambleck] [           main] u.c.metagrid.ambleck.AmbleckApplication  : Started AmbleckApplication in 1.913 seconds (process running for 2.266)
+    >   ....
+    >   ....
+    >   2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-03-27T05:52:06.893Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-03-27T05:52:06.895Z  INFO 9299 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Give it a go ...
+#[user@desktop]
+
+    curl http://localhost:8080/
+
+    >   {
+    >     "timestamp": "2024-03-27T05:52:33.706+00:00",
+    >     "status": 404,
+    >     "error": "Not Found",
+    >     "path": "/"
+    >   }
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/ambleck
+
+            gedit src/main/java/uk/co/metagrid/ambleck/AmbleckController.java &
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Give it a go ...
+#[user@desktop]
+
+cat > /tmp/test-001.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "foo:green"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   ---
+    >   offers:
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources: []
+
+
+
+cat > /tmp/test-002.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "foo:green"
+resources:
+  - name: "resource 001"
+    type: "test-resource"
+  - name: "resource 002"
+    type: "test-resource"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-002.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   ---
+    >   offers:
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "test-resource"
+    >         - name: "resource 002"
+    >           type: "test-resource"
+    >     - executable:
+    >         name: "test-001"
+    >         type: "foo:green"
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "test-resource"
+    >         - name: "resource 002"
+    >           type: "test-resource"
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-002.yaml \
+        --header "Accept: application/json" \
+        http://localhost:8080/ambleck-post \
+    | jq '.'
+
+    >   {
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "name": "test-001",
+    >           "type": "foo:green"
+    >         },
+    >         "resources": [
+    >           {
+    >             "name": "resource 001",
+    >             "type": "test-resource"
+    >           },
+    >           {
+    >             "name": "resource 002",
+    >             "type": "test-resource"
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "executable": {
+    >           "name": "test-001",
+    >           "type": "foo:green"
+    >         },
+    >         "resources": [
+    >           {
+    >             "name": "resource 001",
+    >             "type": "test-resource"
+    >           },
+    >           {
+    >             "name": "resource 002",
+    >             "type": "test-resource"
+    >           }
+    >         ]
+    >       }
+    >     ]
+    >   }
+
+
+# -----------------------------------------------------
+# Commit the changes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git add .
+
+        git commit -m "New experiment [ambleck]"
+
+        git push
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+
+    Create a GitHub PullRequest and merge the branch.
+    https://github.com/ivoa/CIRASA-planner/pull/8
+
+# -----------------------------------------------------
+# Fetch upstream changes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        git checkout main
+
+        git fetch upstream
+
+        git merge upstream/main
+
+        git push
+
+    popd
+
+

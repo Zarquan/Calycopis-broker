@@ -1,0 +1,70 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Using Jackson Subtypes
+        https://stacktobasics.com/jackson-sub-types
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Give it a go ...
+#[user@desktop]
+
+
+cat > /tmp/test-003.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:ping-executable"
+  hostname: "test-host"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-003.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   ---
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "test-001"
+    >         name: "urn:ping-executable"
+    >       resources: []
+    >     - executable:
+    >         type: "test-001"
+    >         name: "urn:ping-executable"
+    >       resources: []
+
+
+

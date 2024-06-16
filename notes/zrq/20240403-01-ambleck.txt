@@ -1,0 +1,333 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Adding more detail to the data model ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Extend the data model to include more ...
+
+    Core
+
+        RequestObject
+
+            executable:
+            resources:
+            datetime:
+
+        OfferObject extebds RequestObject
+
+            ident:
+            status: [OFFERED, ACCEPTED, CANCELLED, COMPLETED]
+            expires: ISO date/time
+
+            executable:
+            resources:
+            datetime:
+
+    WebService
+
+        RequestObject
+
+
+        ResponseObject
+
+            result:
+            offers:
+                ....
+                ....
+
+    Add more executables
+
+        DockerContainer
+            repo:
+            image:
+            version:
+
+        JupyterNotebook
+            notebook:
+            requirements:
+
+        Repo2dockerExecutable
+            repo:
+
+    Add initial set of min/max fields to ComputeResource
+        cores
+        memory
+        storage (ephemeral)
+
+        extras:
+
+            GpuResource
+
+            Need to talk to an expert about how GPUs are used.
+
+
+
+    Add DataResource
+        FileResource - file:// URL that makes sense to the target platform ?
+
+        HttpResource - http:// URL plus method GET, PUT
+        S3Resource
+        RucioResource
+
+
+
+# -----------------------------------------------------
+# Test the new properties.
+#[user@laptop]
+
+
+cat > /tmp/test-005.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  - name: "resource 001"
+    type: "urn:compute-resource"
+    spec:
+      cores:
+        min: 1
+        max: 4
+  - name: "resource 002"
+    type: "urn:compute-resource"
+    spec:
+      cores:
+        min: 2.5
+        max: 5
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-005.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 1.0
+    >               max: 4.0
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 2.5
+    >               max: 5.0
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 1.0
+    >               max: 4.0
+    >         - type: "urn:compute-resource"
+    >           name: "urn:compute-resource"
+    >           spec:
+    >             cores:
+    >               min: 2.5
+    >               max: 5.0
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-005.yaml \
+        --header "Accept: application/json" \
+        http://localhost:8080/ambleck-post \
+    | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": [
+    >           {
+    >             "type": "urn:compute-resource",
+    >             "name": "urn:compute-resource",
+    >             "spec": {
+    >               "cores": {
+    >                 "min": 1,
+    >                 "max": 4
+    >               }
+    >             }
+    >           },
+    >           {
+    >             "type": "urn:compute-resource",
+    >             "name": "urn:compute-resource",
+    >             "spec": {
+    >               "cores": {
+    >                 "min": 2.5,
+    >                 "max": 5
+    >               }
+    >             }
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": [
+    >           {
+    >             "type": "urn:compute-resource",
+    >             "name": "urn:compute-resource",
+    >             "spec": {
+    >               "cores": {
+    >                 "min": 1,
+    >                 "max": 4
+    >               }
+    >             }
+    >           },
+    >           {
+    >             "type": "urn:compute-resource",
+    >             "name": "urn:compute-resource",
+    >             "spec": {
+    >               "cores": {
+    >                 "min": 2.5,
+    >                 "max": 5
+    >               }
+    >             }
+    >           }
+    >         ]
+    >       }
+    >     ]
+    >   }
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-005.yaml \
+        --header "Accept: application/xml" \
+        http://localhost:8080/ambleck-post \
+    | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <response>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <resource type="urn:compute-resource">
+    >             <name>urn:compute-resource</name>
+    >             <spec>
+    >               <cores>
+    >                 <min>1.0</min>
+    >                 <max>4.0</max>
+    >               </cores>
+    >             </spec>
+    >           </resource>
+    >           <resource type="urn:compute-resource">
+    >             <name>urn:compute-resource</name>
+    >             <spec>
+    >               <cores>
+    >                 <min>2.5</min>
+    >                 <max>5.0</max>
+    >               </cores>
+    >             </spec>
+    >           </resource>
+    >         </resources>
+    >       </offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <resource type="urn:compute-resource">
+    >             <name>urn:compute-resource</name>
+    >             <spec>
+    >               <cores>
+    >                 <min>1.0</min>
+    >                 <max>4.0</max>
+    >               </cores>
+    >             </spec>
+    >           </resource>
+    >           <resource type="urn:compute-resource">
+    >             <name>urn:compute-resource</name>
+    >             <spec>
+    >               <cores>
+    >                 <min>2.5</min>
+    >                 <max>5.0</max>
+    >               </cores>
+    >             </spec>
+    >           </resource>
+    >         </resources>
+    >       </offers>
+    >     </offers>
+    >   </response>
+

@@ -90,23 +90,21 @@
         popd
     popd
 
---START--
-....
-....
-2024-03-22T02:25:15.918Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 27663 (....)
-2024-03-22T02:25:15.922Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
-2024-03-22T02:25:17.370Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
-2024-03-22T02:25:17.443Z  INFO 27663 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2024-03-22T02:25:17.445Z  INFO 27663 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1463 ms
-2024-03-22T02:25:18.290Z  INFO 27663 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
-2024-03-22T02:25:18.358Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
-2024-03-22T02:25:18.381Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.871 seconds (process running for 3.246)
-Spring Boot - CommandLineRunner
-....
-....
---END--
+    >   ....
+    >   ....
+    >   2024-03-22T02:25:15.918Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Starting PandakApplication using Java 19.0.1 with PID 27663 (....)
+    >   2024-03-22T02:25:15.922Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : No active profile set, falling back to 1 default profile: "default"
+    >   2024-03-22T02:25:17.370Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+    >   2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-03-22T02:25:17.385Z  INFO 27663 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.17]
+    >   2024-03-22T02:25:17.443Z  INFO 27663 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-03-22T02:25:17.445Z  INFO 27663 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1463 ms
+    >   2024-03-22T02:25:18.290Z  INFO 27663 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+    >   2024-03-22T02:25:18.358Z  INFO 27663 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+    >   2024-03-22T02:25:18.381Z  INFO 27663 --- [           main] u.co.metagrid.pandak.PandakApplication   : Started PandakApplication in 2.871 seconds (process running for 3.246)
+    >   Spring Boot - CommandLineRunner
+    >   ....
+    >   ....
 
 # -----------------------------------------------------
 # ....
@@ -131,14 +129,12 @@ EOF
             http://localhost:8080/pandak-post \
         | yq '.'
 
---START--
----
-title: "Unrecognized property"
-messages:
-  - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
-  - "Property [frog]"
-  - "Path : [executable][frog]"
---END--
+    >   ---
+    >   title: "Unrecognized property"
+    >   messages:
+    >     - "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]"
+    >     - "Property [frog]"
+    >     - "Path : [executable][frog]"
 
 
 # -----------------------------------------------------
@@ -155,16 +151,14 @@ messages:
             http://localhost:8080/pandak-post \
         | jq '.'
 
---START--
-{
-  "title": "Unrecognized property",
-  "messages": [
-    "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]",
-    "Property [frog]",
-    "Path : [executable][frog]"
-  ]
-}
---END--
+    >   {
+    >     "title": "Unrecognized property",
+    >     "messages": [
+    >       "Class [uk.co.metagrid.pandak.PandakController$GreenSpec]",
+    >       "Property [frog]",
+    >       "Path : [executable][frog]"
+    >     ]
+    >   }
 
 
 # -----------------------------------------------------
@@ -181,15 +175,13 @@ messages:
             http://localhost:8080/pandak-post \
         | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<JacksonErrorResponse>
-  <title>Unrecognized property</title>
-  <messages>
-    <messages>Class [uk.co.metagrid.pandak.PandakController$GreenSpec]</messages>
-    <messages>Property [frog]</messages>
-    <messages>Path : [executable][frog]</messages>
-  </messages>
-</JacksonErrorResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <JacksonErrorResponse>
+    >     <title>Unrecognized property</title>
+    >     <messages>
+    >       <messages>Class [uk.co.metagrid.pandak.PandakController$GreenSpec]</messages>
+    >       <messages>Property [frog]</messages>
+    >       <messages>Path : [executable][frog]</messages>
+    >     </messages>
+    >   </JacksonErrorResponse>
 

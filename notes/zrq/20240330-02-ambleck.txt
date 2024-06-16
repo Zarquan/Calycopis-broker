@@ -1,0 +1,101 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Moved classes into separate packages.
+
+    Result:
+
+        Work in progress ...
+
+        We get all of the abstract and base classes in the OpenAPI spec.
+        Need to check if they are all needed.
+        OpenAPI spec doesn't label the classes by package.
+        So if we have the same name in different places it could cause conflicts.
+
+        The schemas are very tightly controlled.
+        Auto generating beans directly from the POST data means we can't have additional fields.
+        Which means that version control is very tight.
+
+        We probably need to allow extra properties as a Map<String, String>.
+
+        As far as I can see, neither Swagger or OpenAPI have a way of describing the mapping
+        between type URI and classes.
+        The JsonTypeInfo field for `executable` is reduced to a simple mapped of `oneOf`.
+
+
+# -----------------------------------------------------
+# Test the delay-executable with resources.
+#[user@desktop]
+
+cat > /tmp/test-004.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  - name: "resource 001"
+    type: "urn:compute-resource"
+  - name: "resource 002"
+    type: "urn:compute-resource"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-004.yaml \
+        --header "Accept: application/yaml" \
+        http://localhost:8080/ambleck-post \
+    | yq '.'
+
+
+    >   ---
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "urn:compute-resource"
+    >         - name: "resource 002"
+    >           type: "urn:compute-resource"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         - name: "resource 001"
+    >           type: "urn:compute-resource"
+    >         - name: "resource 002"
+    >           type: "urn:compute-resource"
+
