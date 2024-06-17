@@ -1,0 +1,364 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try creating Python FastAPI 'forward' or 'contract first' implementation.
+        Starting with a hand edited OpenAPI spec and using it to generate the server code.
+        http://mail.ivoa.net/pipermail/p3t/2024-February/000024.html
+
+    Resources:
+
+        https://medium.com/@georgedimitropulos/generate-python-fastapi-server-from-openapi-file-099bfa944d3b
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Manually edit the OpenAPI spec to add the discriminator.
+#[user@desktop]
+
+
+# -----------------------------------------------------
+# Install FastAPI and the FastAPI code generator
+#[user@desktop]
+
+    pip install fastapi-code-generator
+
+    >   Defaulting to user installation because normal site-packages is not writeable
+    >   Collecting fastapi-code-generator
+    >   ....
+    >   ....
+
+
+    pip install fastapi
+
+    >   Defaulting to user installation because normal site-packages is not writeable
+    >   Collecting fastapi
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Add a sym-link to our OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd fastapi
+
+                ln -s ../../../../ivoa/ ivoa
+
+            popd
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Generate the server code.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd fastapi
+
+                fastapi-codegen --input ./ivoa/parcolar-0.1.yaml --output app
+
+            popd
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Run the server.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd fastapi
+                pushd app
+
+                    uvicorn main:app --reload
+
+                popd
+            popd
+        popd
+    popd
+
+    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app']
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   INFO:     Started reloader process [198198] using WatchFiles
+    >   ....
+    >   ....
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app/main.py", line 9, in <module>
+    >       from .models import ParcolarRequest, ParcolarResponse
+    >   ImportError: attempted relative import with no known parent package
+
+    #
+    # Remove the '.' from the models import line.
+    #
+
+    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app']
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   INFO:     Started reloader process [198226] using WatchFiles
+    >   INFO:     Started server process [198228]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+
+    #
+    # Try a request ..
+    #
+    cat > /tmp/test-001.json  << EOF
+    {
+    "executable": {
+        "type": "urn:delay-executable",
+        "name": "test-001",
+        "spec": {
+            "duration": 21
+            }
+        },
+    "resources": {
+        "compute": [
+                {
+                "type": "urn:simple-compute-resource",
+                "name": null,
+                "spec": {
+                    "cores": {
+                        "min": 4,
+                        "max": null,
+                        "units": "cores"
+                        },
+                    "memory": {
+                        "min": 8,
+                        "max": 12,
+                        "units": "Mi bytes"
+                        }
+                    }
+                }
+            ],
+        "storage": [
+                {
+                "type": "urn:simple-storage-resource",
+                "name": null,
+                "spec": {
+                    "size": {
+                        "min": 1,
+                        "max": 12,
+                        "units": "Mi bytes"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+    EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/json" \
+        http://localhost:8000/ambleck
+
+    >   Internal Server Error
+
+    >   ....
+    >   ....
+    >     File "/home/Zarquan/.local/lib/python3.10/site-packages/fastapi/routing.py", line 155, in serialize_response
+    >       raise ResponseValidationError(
+    >   fastapi.exceptions.ResponseValidationError: 1 validation errors:
+    >     {'type': 'model_attributes_type', 'loc': ('response',), 'msg': 'Input should be a valid dictionary or object to extract fields from', 'input': None}
+
+    #
+    # We need to edit the maim class to return something.
+    #
+
+    >   ....
+    >   return {
+    >       "result": "YES",
+    >       "offers": [
+    >               {
+    >               "executable": {
+    >                   "type": "urn:delay-executable",
+    >                   "name": "test-001",
+    >                   "spec": {
+    >                       "duration": 21
+    >                       }
+    >                   },
+    >               "resources": {
+    >                   "compute": [],
+    >                   "storage": []
+    >                   }
+    >               }
+    >           ]
+    >       }
+    >   ....
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/json" \
+        http://localhost:8000/ambleck \
+    | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {}
+    >         },
+    >         "resources": {
+    >           "compute": [],
+    >           "storage": []
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/yaml" \
+        http://localhost:8000/ambleck \
+    | yq '.'
+
+    >   {"result": "YES", "offers": [{"executable": {"type": "urn:delay-executable", "name": "test-001", "spec": {}}, "resources": {"compute": [], "storage": []}}]}
+
+    #
+    # That looks like JSON again.
+    # It is ignoring the 'Accept' header.
+    #
+    # OMG it looks like we have to do content negotiation manually.
+    # https://medium.com/@denniskoko/implementing-content-negotiation-in-fastapi-371d03c59c02
+    #
+    # This looks like part of the way there.
+    # https://gist.github.com/erny/2569d6555bd9349e2afc110a63ffca1a
+    #
+    # Stumbling around trying various fixes from the internets ...
+    #
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/json" \
+        http://localhost:8000/ambleck \
+    | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [],
+    >           "storage": []
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/yaml" \
+        http://localhost:8000/ambleck \
+    | yq '.'
+
+    >   offers:
+    >     - executable:
+    >         name: test-001
+    >         spec:
+    >           duration: 21
+    >         type: urn:delay-executable
+    >       resources:
+    >         compute: []
+    >         storage: []
+    >   result: 'YES'
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/test-001.json \
+        --header "Accept: application/xml" \
+        http://localhost:8000/ambleck \
+   | xmlstarlet fo
+
+    >   <?xml version="1.0" encoding="UTF-8"?>
+    >   <Response>
+    >     <result>YES</result>
+    >     <offers>
+    >       <item>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute/>
+    >           <storage/>
+    >         </resources>
+    >       </item>
+    >     </offers>
+    >   </Response>
+
+

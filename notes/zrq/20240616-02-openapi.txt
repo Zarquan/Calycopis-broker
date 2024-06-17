@@ -25,13 +25,15 @@
 
     Target:
 
-        Try creating 'forward' or 'contract first' implementation.
+        Try creating Java Spring 'forward' or 'contract first' implementation.
         Starting with a hand edited OpenAPI spec and using it to generate the server code.
         http://mail.ivoa.net/pipermail/p3t/2024-February/000024.html
 
     Result:
 
-        Work in progress ...
+        Success ..
+        We have a Spring webapp that handles polymorphism and content negotiation.
+
 
 # -----------------------------------------------------
 # Manually edit the OpenAPI spec to add the discriminator.
@@ -202,7 +204,7 @@ EOF
     >   2024-06-17T05:01:42.264+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/yaml;charset=UTF-8" to [class ParcolarRequest {<EOL>    executable: class DelayExecutable {<EOL>        class AbstractExecutable {<EOL>  (truncated)...]
     >   2024-06-17T05:01:42.305+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null
     >   2024-06-17T05:01:42.307+01:00 ERROR 193312 --- [Ambleck] [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null] with root cause
-    >   
+    >
     >   java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null
     >   	at uk.co.metagrid.ambleck.webapp.ApiUtil.setExampleResponse(ApiUtil.java:12) ~[parcolar-openapi-0.0.1-SNAPSHOT.jar:na]
     >   	at uk.co.metagrid.ambleck.webapp.AmbleckApi.lambda$ambleckPost$0(AmbleckApi.java:86) ~[parcolar-openapi-0.0.1-SNAPSHOT.jar:na]
@@ -222,12 +224,12 @@ EOF
 
     >   ....
     >       private final NativeWebRequest request;
-    >   
+    >
     >       @Autowired
     >       public AmbleckApiDelegateImpl(NativeWebRequest request) {
     >           this.request = request;
     >       }
-    >   
+    >
     >       @Override
     >       public Optional<NativeWebRequest> getRequest() {
     >           return Optional.ofNullable(request);
@@ -238,43 +240,43 @@ EOF
     # Now everything 'just works'.
     #
 
-    >   cat > /tmp/test-001.yaml  << EOF
-    >   executable:
-    >     name: "test-001"
-    >     type: "urn:delay-executable"
-    >     spec:
-    >       duration: 21
-    >   resources:
-    >     compute:
-    >       - name: "compute 001"
-    >         type: "urn:simple-compute-resource"
-    >         spec:
-    >           cores:
-    >             min: 4
-    >             units: cores
-    >           memory:
-    >             min: 8
-    >             max: 12
-    >             units: Mi bytes
-    >     storage:
-    >       - name: "storage 001"
-    >         type: "urn:simple-storage-resource"
-    >         spec:
-    >           size:
-    >             min: 1
-    >             max: 12
-    >             units: Mi bytes
-    >   EOF
+   cat > /tmp/test-001.yaml  << EOF
+   executable:
+     name: "test-001"
+     type: "urn:delay-executable"
+     spec:
+       duration: 21
+   resources:
+     compute:
+       - name: "compute 001"
+         type: "urn:simple-compute-resource"
+         spec:
+           cores:
+             min: 4
+             units: cores
+           memory:
+             min: 8
+             max: 12
+             units: Mi bytes
+     storage:
+       - name: "storage 001"
+         type: "urn:simple-storage-resource"
+         spec:
+           size:
+             min: 1
+             max: 12
+             units: Mi bytes
+   EOF
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-001.yaml \
-    >           --header "Accept: application/yaml" \
-    >           http://localhost:8080/ambleck \
-    >       | yq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
 
     >   result: "YES"
     >   offers:
@@ -332,15 +334,15 @@ EOF
     >                 units: "Mi bytes"
 
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-001.yaml \
-    >           --header "Accept: application/json" \
-    >           http://localhost:8080/ambleck \
-    >       | jq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
 
     >   {
     >     "result": "YES",
@@ -433,15 +435,15 @@ EOF
     >   }
 
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-001.yaml \
-    >           --header "Accept: application/xml" \
-    >           http://localhost:8080/ambleck \
-    >       | xmlstarlet fo
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
 
     >   <?xml version="1.0"?>
     >   <ParcolarResponse>
@@ -529,60 +531,60 @@ EOF
     >   </ParcolarResponse>
 
 
-    >   cat > /tmp/test-001.json  << EOF
-    >   {
-    >   "executable": {
-    >       "type": "urn:delay-executable",
-    >       "name": "test-001",
-    >       "spec": {
-    >           "duration": 21
-    >           }
-    >       },
-    >   "resources": {
-    >       "compute": [
-    >               {
-    >               "type": "urn:simple-compute-resource",
-    >               "name": null,
-    >               "spec": {
-    >                   "cores": {
-    >                       "min": 4,
-    >                       "max": null,
-    >                       "units": "cores"
-    >                       },
-    >                   "memory": {
-    >                       "min": 8,
-    >                       "max": 12,
-    >                       "units": "Mi bytes"
-    >                       }
-    >                   }
-    >               }
-    >           ],
-    >       "storage": [
-    >               {
-    >               "type": "urn:simple-storage-resource",
-    >               "name": null,
-    >               "spec": {
-    >                   "size": {
-    >                       "min": 1,
-    >                       "max": 12,
-    >                       "units": "Mi bytes"
-    >                       }
-    >                   }
-    >               }
-    >           ]
-    >       }
-    >   }
-    >   EOF
+   cat > /tmp/test-001.json  << EOF
+   {
+   "executable": {
+       "type": "urn:delay-executable",
+       "name": "test-001",
+       "spec": {
+           "duration": 21
+           }
+       },
+   "resources": {
+       "compute": [
+               {
+               "type": "urn:simple-compute-resource",
+               "name": null,
+               "spec": {
+                   "cores": {
+                       "min": 4,
+                       "max": null,
+                       "units": "cores"
+                       },
+                   "memory": {
+                       "min": 8,
+                       "max": 12,
+                       "units": "Mi bytes"
+                       }
+                   }
+               }
+           ],
+       "storage": [
+               {
+               "type": "urn:simple-storage-resource",
+               "name": null,
+               "spec": {
+                   "size": {
+                       "min": 1,
+                       "max": 12,
+                       "units": "Mi bytes"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+   EOF
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-001.json \
-    >           --header "Accept: application/yaml" \
-    >           http://localhost:8080/ambleck \
-    >       | yq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
 
     >   result: "YES"
     >   offers:
@@ -640,15 +642,15 @@ EOF
     >                 units: "Mi bytes"
 
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-001.json \
-    >           --header "Accept: application/json" \
-    >           http://localhost:8080/ambleck \
-    >       | jq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
 
     >   {
     >     "result": "YES",
@@ -741,15 +743,15 @@ EOF
     >   }
 
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/json" \
-    >           --data-binary @/tmp/test-001.json \
-    >           --header "Accept: application/xml" \
-    >           http://localhost:8080/ambleck \
-    >       | xmlstarlet fo
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/json" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
 
     >   <?xml version="1.0"?>
     >   <ParcolarResponse>
@@ -837,60 +839,58 @@ EOF
     >   </ParcolarResponse>
 
 
-    >   cat > /tmp/test-001.xml  << EOF
-    >   <?xml version="1.0"?>
-    >   <ParcolarRequest>
-    >     <executable type="urn:delay-executable">
-    >       <name>test-001</name>
-    >       <spec>
-    >         <duration>21</duration>
-    >       </spec>
-    >     </executable>
-    >     <resources>
-    >       <compute>
-    >         <compute type="urn:simple-compute-resource">
-    >           <name/>
-    >           <spec>
-    >             <cores>
-    >               <min>4</min>
-    >               <max/>
-    >               <units>cores</units>
-    >             </cores>
-    >             <memory>
-    >               <min>8</min>
-    >               <max>12</max>
-    >               <units>Mi bytes</units>
-    >             </memory>
-    >           </spec>
-    >         </compute>
-    >       </compute>
-    >       <storage>
-    >         <storage type="urn:simple-storage-resource">
-    >           <name/>
-    >           <spec>
-    >             <size>
-    >               <min>1</min>
-    >               <max>12</max>
-    >               <units>Mi bytes</units>
-    >             </size>
-    >           </spec>
-    >         </storage>
-    >       </storage>
-    >     </resources>
-    >   </ParcolarRequest>
-    >   EOF
-    >   --END
-    >   
-    >   
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/xml" \
-    >           --data-binary @/tmp/test-001.xml \
-    >           --header "Accept: application/yaml" \
-    >           http://localhost:8080/ambleck \
-    >       | yq '.'
+   cat > /tmp/test-001.xml  << EOF
+   <?xml version="1.0"?>
+   <ParcolarRequest>
+     <executable type="urn:delay-executable">
+       <name>test-001</name>
+       <spec>
+         <duration>21</duration>
+       </spec>
+     </executable>
+     <resources>
+       <compute>
+         <compute type="urn:simple-compute-resource">
+           <name/>
+           <spec>
+             <cores>
+               <min>4</min>
+               <max/>
+               <units>cores</units>
+             </cores>
+             <memory>
+               <min>8</min>
+               <max>12</max>
+               <units>Mi bytes</units>
+             </memory>
+           </spec>
+         </compute>
+       </compute>
+       <storage>
+         <storage type="urn:simple-storage-resource">
+           <name/>
+           <spec>
+             <size>
+               <min>1</min>
+               <max>12</max>
+               <units>Mi bytes</units>
+             </size>
+           </spec>
+         </storage>
+       </storage>
+     </resources>
+   </ParcolarRequest>
+   EOF
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
 
     >   result: "YES"
     >   offers:
@@ -947,15 +947,15 @@ EOF
     >                 max: 12
     >                 units: "Mi bytes"
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/xml" \
-    >           --data-binary @/tmp/test-001.xml \
-    >           --header "Accept: application/json" \
-    >           http://localhost:8080/ambleck \
-    >       | jq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
 
     >   {
     >     "result": "YES",
@@ -1048,16 +1048,15 @@ EOF
     >   }
 
 
-
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/xml" \
-    >           --data-binary @/tmp/test-001.xml \
-    >           --header "Accept: application/xml" \
-    >           http://localhost:8080/ambleck \
-    >       | xmlstarlet fo
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
 
     >   <?xml version="1.0"?>
     >   <ParcolarResponse>
@@ -1145,32 +1144,32 @@ EOF
     >   </ParcolarResponse>
 
 
-    >   cat > /tmp/test-002.yaml  << EOF
-    >   executable:
-    >     name: "test-001"
-    >     type: "urn:ping-executable"
-    >     spec:
-    >       target: "www.example.org"
-    >   resources:
-    >     compute:
-    >       - name: "compute 001"
-    >         type: "urn:simple-compute-resource"
-    >         spec:
-    >           cores:
-    >             min: 1
-    >           memory:
-    >             min: 1
-    >   EOF
+   cat > /tmp/test-002.yaml  << EOF
+   executable:
+     name: "test-001"
+     type: "urn:ping-executable"
+     spec:
+       target: "www.example.org"
+   resources:
+     compute:
+       - name: "compute 001"
+         type: "urn:simple-compute-resource"
+         spec:
+           cores:
+             min: 1
+           memory:
+             min: 1
+   EOF
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-002.yaml \
-    >           --header "Accept: application/yaml" \
-    >           http://localhost:8080/ambleck \
-    >       | yq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
 
     >   result: "YES"
     >   offers:
@@ -1213,15 +1212,15 @@ EOF
     >                 units: null
     >         storage: []
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-002.yaml \
-    >           --header "Accept: application/json" \
-    >           http://localhost:8080/ambleck \
-    >       | jq '.'
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
 
     >   {
     >     "result": "YES",
@@ -1290,15 +1289,15 @@ EOF
     >   }
 
 
-    >       curl \
-    >           --silent \
-    >           --show-error \
-    >           --request POST \
-    >           --header "Content-Type: application/yaml" \
-    >           --data-binary @/tmp/test-002.yaml \
-    >           --header "Accept: application/xml" \
-    >           http://localhost:8080/ambleck \
-    >       | xmlstarlet fo
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
 
     >   <?xml version="1.0"?>
     >   <ParcolarResponse>
