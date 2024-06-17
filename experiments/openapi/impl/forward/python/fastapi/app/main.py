@@ -25,6 +25,9 @@ app = FastAPI(
 @app.post('/ambleck', response_model=ParcolarResponse, tags=['ambleck'])
 def ambleck_post(request: Request, body: ParcolarRequest) -> ParcolarResponse:
 
+    bodytype = request.headers.get("content-type")
+    print(bodytype)
+
     data = {
         "result": "YES",
         "offers": [
