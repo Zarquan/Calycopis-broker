@@ -179,6 +179,14 @@ components:
       properties:
         executable:
           $ref: '#/components/schemas/AbstractExecutable'
+#          oneOf:
+#            - $ref: '#/components/schemas/DelayExecutable'
+#            - $ref: '#/components/schemas/PingExecutable'
+#          discriminator:
+#            propertyName: type
+#            mapping:
+#              "urn:ping-executable":  '#/components/schemas/DelayExecutable'
+#              "urn:delay-executable": '#/components/schemas/PingExecutable'
         resources:
           $ref: '#/components/schemas/Resources'
 
@@ -187,6 +195,14 @@ components:
       properties:
         executable:
           $ref: '#/components/schemas/AbstractExecutable'
+#          oneOf:
+#            - $ref: '#/components/schemas/DelayExecutable'
+#            - $ref: '#/components/schemas/PingExecutable'
+#          discriminator:
+#            propertyName: type
+#            mapping:
+#              "urn:ping-executable":  '#/components/schemas/DelayExecutable'
+#              "urn:delay-executable": '#/components/schemas/PingExecutable'
         resources:
           $ref: '#/components/schemas/Resources'
 
