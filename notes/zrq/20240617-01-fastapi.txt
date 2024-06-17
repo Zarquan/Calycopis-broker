@@ -25,7 +25,7 @@
 
     Target:
 
-        Try creating Python FastAPI 'forward' or 'contract first' implementation.
+        Try creating a Python FastAPI 'forward' or 'contract first' implementation.
         Starting with a hand edited OpenAPI spec and using it to generate the server code.
         http://mail.ivoa.net/pipermail/p3t/2024-February/000024.html
 
@@ -89,7 +89,9 @@
         pushd experiments/openapi/impl/forward/python
             pushd fastapi
 
-                fastapi-codegen --input ./ivoa/parcolar-0.1.yaml --output app
+                fastapi-codegen \
+                    --input ./ivoa/parcolar-0.1.yaml \
+                    --output webapp
 
             popd
         popd
@@ -105,7 +107,7 @@
 
         pushd experiments/openapi/impl/forward/python
             pushd fastapi
-                pushd app
+                pushd webapp
 
                     uvicorn main:app --reload
 
@@ -114,12 +116,12 @@
         popd
     popd
 
-    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app']
+    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/webapp']
     >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
     >   INFO:     Started reloader process [198198] using WatchFiles
     >   ....
     >   ....
-    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app/main.py", line 9, in <module>
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/webapp/main.py", line 9, in <module>
     >       from .models import ParcolarRequest, ParcolarResponse
     >   ImportError: attempted relative import with no known parent package
 
@@ -127,7 +129,7 @@
     # Remove the '.' from the models import line.
     #
 
-    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/app']
+    >   INFO:     Will watch for changes in these directories: ['/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/fastapi/webapp']
     >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
     >   INFO:     Started reloader process [198226] using WatchFiles
     >   INFO:     Started server process [198228]
