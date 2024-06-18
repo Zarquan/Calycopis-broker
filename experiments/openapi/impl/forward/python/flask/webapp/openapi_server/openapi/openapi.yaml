@@ -47,10 +47,6 @@ components:
         mapping:
           urn:simple-compute-resource: '#/components/schemas/SimpleComputeResource'
         propertyName: type
-      example:
-        name: name
-        type: type
-        spec: "{}"
       properties:
         type:
           title: type
@@ -70,10 +66,6 @@ components:
         mapping:
           urn:simple-storage-resource: '#/components/schemas/SimpleStorageResource'
         propertyName: type
-      example:
-        name: name
-        type: type
-        spec: "{}"
       properties:
         type:
           title: type
@@ -94,10 +86,6 @@ components:
           urn:ping-executable: '#/components/schemas/PingExecutable'
           urn:delay-executable: '#/components/schemas/DelayExecutable'
         propertyName: type
-      example:
-        name: name
-        type: type
-        spec: "{}"
       properties:
         type:
           title: type
@@ -119,8 +107,16 @@ components:
           spec:
             $ref: '#/components/schemas/DelaySpecific'
         type: object
+      example:
+        name: name
+        type: type
+        spec:
+          duration: 0
+      title: DelayExecutable
       type: object
     DelaySpecific:
+      example:
+        duration: 0
       properties:
         duration:
           format: int32
@@ -135,6 +131,7 @@ components:
           spec:
             $ref: '#/components/schemas/PingSpecific'
         type: object
+      title: PingExecutable
       type: object
     PingSpecific:
       properties:
@@ -150,8 +147,30 @@ components:
           spec:
             $ref: '#/components/schemas/SimpleComputeSpecific'
         type: object
+      example:
+        name: name
+        type: type
+        spec:
+          cores:
+            min: 6
+            max: 1
+            units: units
+          memory:
+            min: 6
+            max: 1
+            units: units
+      title: SimpleComputeResource
       type: object
     SimpleComputeSpecific:
+      example:
+        cores:
+          min: 6
+          max: 1
+          units: units
+        memory:
+          min: 6
+          max: 1
+          units: units
       properties:
         cores:
           $ref: '#/components/schemas/MinMaxInteger'
@@ -166,14 +185,32 @@ components:
           spec:
             $ref: '#/components/schemas/SimpleStorageSpecific'
         type: object
+      example:
+        name: name
+        type: type
+        spec:
+          size:
+            min: 6
+            max: 1
+            units: units
+      title: SimpleStorageResource
       type: object
     SimpleStorageSpecific:
+      example:
+        size:
+          min: 6
+          max: 1
+          units: units
       properties:
         size:
           $ref: '#/components/schemas/MinMaxInteger'
       title: SimpleStorageSpecific
       type: object
     MinMaxInteger:
+      example:
+        min: 6
+        max: 1
+        units: units
       properties:
         min:
           format: int32
@@ -193,26 +230,58 @@ components:
         compute:
         - name: name
           type: type
-          spec: "{}"
+          spec:
+            cores:
+              min: 6
+              max: 1
+              units: units
+            memory:
+              min: 6
+              max: 1
+              units: units
         - name: name
           type: type
-          spec: "{}"
+          spec:
+            cores:
+              min: 6
+              max: 1
+              units: units
+            memory:
+              min: 6
+              max: 1
+              units: units
         storage:
         - name: name
           type: type
-          spec: "{}"
+          spec:
+            size:
+              min: 6
+              max: 1
+              units: units
         - name: name
           type: type
-          spec: "{}"
+          spec:
+            size:
+              min: 6
+              max: 1
+              units: units
       properties:
         compute:
+          discriminator:
+            mapping:
+              urn:simple-compute-resource: '#/components/schemas/SimpleComputeResource'
+            propertyName: type
           items:
-            $ref: '#/components/schemas/AbstractComputeResource'
+            $ref: '#/components/schemas/Resources_compute_inner'
           title: compute
           type: array
         storage:
+          discriminator:
+            mapping:
+              urn:simple-storage-resource: '#/components/schemas/SimpleStorageResource'
+            propertyName: type
           items:
-            $ref: '#/components/schemas/AbstractStorageResource'
+            $ref: '#/components/schemas/Resources_storage_inner'
           title: storage
           type: array
       title: Resources
@@ -223,24 +292,49 @@ components:
           compute:
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
           storage:
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
         executable:
           name: name
           type: type
-          spec: "{}"
+          spec:
+            duration: 0
       properties:
         executable:
-          $ref: '#/components/schemas/AbstractExecutable'
+          $ref: '#/components/schemas/ParcolarRequest_executable'
         resources:
           $ref: '#/components/schemas/Resources'
       title: ParcolarRequest
@@ -251,24 +345,49 @@ components:
           compute:
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
           storage:
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
           - name: name
             type: type
-            spec: "{}"
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
         executable:
           name: name
           type: type
-          spec: "{}"
+          spec:
+            duration: 0
       properties:
         executable:
-          $ref: '#/components/schemas/AbstractExecutable'
+          $ref: '#/components/schemas/ParcolarRequest_executable'
         resources:
           $ref: '#/components/schemas/Resources'
       title: ParcolarOffer
@@ -281,40 +400,90 @@ components:
             compute:
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
             storage:
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
           executable:
             name: name
             type: type
-            spec: "{}"
+            spec:
+              duration: 0
         - resources:
             compute:
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
             storage:
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
             - name: name
               type: type
-              spec: "{}"
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
           executable:
             name: name
             type: type
-            spec: "{}"
+            spec:
+              duration: 0
       properties:
         result:
           enum:
@@ -329,3 +498,21 @@ components:
           type: array
       title: ParcolarResponse
       type: object
+    Resources_compute_inner:
+      anyOf:
+      - $ref: '#/components/schemas/SimpleComputeResource'
+      title: Resources_compute_inner
+    Resources_storage_inner:
+      anyOf:
+      - $ref: '#/components/schemas/SimpleStorageResource'
+      title: Resources_storage_inner
+    ParcolarRequest_executable:
+      discriminator:
+        mapping:
+          urn:ping-executable: '#/components/schemas/DelayExecutable'
+          urn:delay-executable: '#/components/schemas/PingExecutable'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/DelayExecutable'
+      - $ref: '#/components/schemas/PingExecutable'
+      title: ParcolarRequest_executable

@@ -1,0 +1,231 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /ambleck:
+    post:
+      tags:
+        - ambleck
+      operationId: ambleckPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+components:
+  schemas:
+
+    AbstractSpecific:
+      type: object
+
+    AbstractComputeResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-compute-resource":  '#/components/schemas/SimpleComputeResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+
+    AbstractStorageResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-storage-resource":  '#/components/schemas/SimpleStorageResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+
+    AbstractExecutable:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:ping-executable":  '#/components/schemas/PingExecutable'
+          "urn:delay-executable": '#/components/schemas/DelayExecutable'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+
+    DelayExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/DelaySpecific'
+    DelaySpecific:
+      type: object
+      properties:
+        duration:
+          type: integer
+          format: int32
+
+    PingExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/PingSpecific'
+    PingSpecific:
+      type: object
+      properties:
+        target:
+          type: string
+
+    SimpleComputeResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComputeResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleComputeSpecific'
+    SimpleComputeSpecific:
+      type: object
+      properties:
+        cores:
+          $ref: '#/components/schemas/MinMaxInteger'
+        memory:
+          $ref: '#/components/schemas/MinMaxInteger'
+
+    SimpleStorageResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractStorageResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleStorageSpecific'
+    SimpleStorageSpecific:
+      type: object
+      properties:
+        size:
+          $ref: '#/components/schemas/MinMaxInteger'
+
+    MinMaxInteger:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+
+    Resources:
+      type: object
+      properties:
+        compute:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/SimpleComputeResource'
+          discriminator:
+            propertyName: type
+            mapping:
+              "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+        storage:
+          type: array
+          items:
+            anyOf:
+              - $ref: '#/components/schemas/SimpleStorageResource'
+          discriminator:
+            propertyName: type
+            mapping:
+              "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+
+    ParcolarRequest:
+      type: object
+      properties:
+        executable:
+#          $ref: '#/components/schemas/AbstractExecutable'
+          oneOf:
+            - $ref: '#/components/schemas/DelayExecutable'
+            - $ref: '#/components/schemas/PingExecutable'
+          discriminator:
+            propertyName: type
+            mapping:
+              "urn:ping-executable":  '#/components/schemas/DelayExecutable'
+              "urn:delay-executable": '#/components/schemas/PingExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+
+    ParcolarOffer:
+      type: object
+      properties:
+        executable:
+#          $ref: '#/components/schemas/AbstractExecutable'
+          oneOf:
+            - $ref: '#/components/schemas/DelayExecutable'
+            - $ref: '#/components/schemas/PingExecutable'
+          discriminator:
+            propertyName: type
+            mapping:
+              "urn:ping-executable":  '#/components/schemas/DelayExecutable'
+              "urn:delay-executable": '#/components/schemas/PingExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+
+    ParcolarResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - "YES"
+            - "NO"
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParcolarOffer'
+

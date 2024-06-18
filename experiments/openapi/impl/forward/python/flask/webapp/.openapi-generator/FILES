@@ -21,10 +21,13 @@ openapi_server/models/delay_specific.py
 openapi_server/models/min_max_integer.py
 openapi_server/models/parcolar_offer.py
 openapi_server/models/parcolar_request.py
+openapi_server/models/parcolar_request_executable.py
 openapi_server/models/parcolar_response.py
 openapi_server/models/ping_executable.py
 openapi_server/models/ping_specific.py
 openapi_server/models/resources.py
+openapi_server/models/resources_compute_inner.py
+openapi_server/models/resources_storage_inner.py
 openapi_server/models/simple_compute_resource.py
 openapi_server/models/simple_compute_specific.py
 openapi_server/models/simple_storage_resource.py

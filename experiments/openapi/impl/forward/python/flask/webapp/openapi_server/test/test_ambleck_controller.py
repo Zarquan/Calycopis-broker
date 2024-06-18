@@ -16,7 +16,7 @@ class TestAmbleckController(BaseTestCase):
 
         
         """
-        parcolar_request = {"resources":{"compute":[{"name":"name","type":"type","spec":"{}"},{"name":"name","type":"type","spec":"{}"}],"storage":[{"name":"name","type":"type","spec":"{}"},{"name":"name","type":"type","spec":"{}"}]},"executable":{"name":"name","type":"type","spec":"{}"}}
+        parcolar_request = {"resources":{"compute":[{"name":"name","type":"type","spec":{"cores":{"min":6,"max":1,"units":"units"},"memory":{"min":6,"max":1,"units":"units"}}},{"name":"name","type":"type","spec":{"cores":{"min":6,"max":1,"units":"units"},"memory":{"min":6,"max":1,"units":"units"}}}],"storage":[{"name":"name","type":"type","spec":{"size":{"min":6,"max":1,"units":"units"}}},{"name":"name","type":"type","spec":{"size":{"min":6,"max":1,"units":"units"}}}]},"executable":{"name":"name","type":"type","spec":{"duration":0}}}
         headers = { 
             'Accept': 'application/json',
             'Content-Type': 'application/json',

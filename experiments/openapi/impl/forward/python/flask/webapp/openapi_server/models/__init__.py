@@ -8,10 +8,13 @@ from openapi_server.models.delay_specific import DelaySpecific
 from openapi_server.models.min_max_integer import MinMaxInteger
 from openapi_server.models.parcolar_offer import ParcolarOffer
 from openapi_server.models.parcolar_request import ParcolarRequest
+from openapi_server.models.parcolar_request_executable import ParcolarRequestExecutable
 from openapi_server.models.parcolar_response import ParcolarResponse
 from openapi_server.models.ping_executable import PingExecutable
 from openapi_server.models.ping_specific import PingSpecific
 from openapi_server.models.resources import Resources
+from openapi_server.models.resources_compute_inner import ResourcesComputeInner
+from openapi_server.models.resources_storage_inner import ResourcesStorageInner
 from openapi_server.models.simple_compute_resource import SimpleComputeResource
 from openapi_server.models.simple_compute_specific import SimpleComputeSpecific
 from openapi_server.models.simple_storage_resource import SimpleStorageResource
