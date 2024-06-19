@@ -1,0 +1,633 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Ask ChatGPT how to use the generator tools to generate
+        the FastAPI webapp from an OpenAPI specification.
+
+    Result:
+
+        Fails for multiple reasons.
+        Generated code is crap.
+
+# -----------------------------------------------------
+# Prompt : "can you show me how the FastAPI code can be generated from the OpenAPI specification using the generator tools ?"
+
+To generate FastAPI code from an OpenAPI specification, you can use tools like `openapi-generator`.
+The `openapi-generator-cli` tool can generate server stubs, client libraries, API documentation,
+and more from an OpenAPI specification.
+
+Here’s how you can generate FastAPI code from an OpenAPI specification using `openapi-generator-cli`:
+
+### Step-by-Step Guide
+
+1. **Install `openapi-generator-cli`**
+
+   First, you need to install `openapi-generator-cli`. You can do this via npm:
+
+   ```bash
+   npm install @openapitools/openapi-generator-cli -g
+   ```
+
+   Alternatively, you can download the JAR file directly from the [OpenAPI Generator releases page](https://github.com/OpenAPITools/openapi-generator/releases) and run it using `java -jar`.
+
+2. **Prepare Your OpenAPI Specification**
+
+   Save your OpenAPI specification to a file, for example, `openapi.yaml`.
+
+3. **Generate FastAPI Code**
+
+   Use the following command to generate the FastAPI server stub from your OpenAPI specification:
+
+   ```bash
+   openapi-generator-cli generate -i openapi.yaml -g python-fastapi -o ./generated-server
+   ```
+
+   - `-i openapi.yaml`: Specifies the input OpenAPI specification file.
+   - `-g python-fastapi`: Specifies the generator to use (FastAPI).
+   - `-o ./generated-server`: Specifies the output directory for the generated code.
+
+### Example OpenAPI Specification
+
+Save this OpenAPI specification to a file named `openapi.yaml`:
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Item API
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      summary: Get a list of items
+      responses:
+        '200':
+          description: A list of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      summary: Add a new item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created
+components:
+  schemas:
+    Item:
+      type: object
+      discriminator:
+        propertyName: item_type
+      required:
+        - item_type
+      properties:
+        item_type:
+          type: string
+      oneOf:
+        - $ref: '#/components/schemas/Book'
+        - $ref: '#/components/schemas/Magazine'
+        - $ref: '#/components/schemas/DVD'
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            author:
+              type: string
+    Magazine:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            issue_number:
+              type: integer
+    DVD:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            duration:
+              type: integer
+```
+
+### Generated FastAPI Code
+
+After running the generator command, you will find the generated FastAPI code in the `./generated-server` directory. The generated code will include:
+
+- Models for `Book`, `Magazine`, `DVD`, and `Item`.
+- API endpoints defined in the OpenAPI specification.
+- Additional utility and configuration files.
+
+### Running the Generated Server
+
+1. Navigate to the generated server directory:
+
+   ```bash
+   cd ./generated-server
+   ```
+
+2. Install the required dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Start the FastAPI server:
+
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+This will start the FastAPI server based on the generated code.
+You can now interact with the API using the endpoints defined in your OpenAPI specification.
+The interactive API documentation will be available at `http://127.0.0.1:8000/docs`.
+
+By following these steps, you can automate the generation of FastAPI server stubs
+from your OpenAPI specification, saving time and ensuring consistency between your
+API documentation and implementation.
+
+
+# -----------------------------------------------------
+# Create the YAML file and run the generator as instructed.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            mkdir chatgpt
+            pushd chatgpt
+
+                gedit openapi.yaml
+                    ....
+                    ....
+
+                # Original command.
+                # openapi-generator-cli generate -i openapi.yaml -g python-fastapi -o ./generated-server
+
+                npx @openapitools/openapi-generator-cli \
+                    generate \
+                        --input-spec openapi.yaml \
+                        --generator-name python-fastapi \
+                        --output generated-server
+
+
+# -----------------------------------------------------
+# Install the requirements.
+#[user@desktop]
+
+                pushd generated-server
+
+                    pip install -r requirements.txt
+
+    >   ....
+    >   ....
+    >   WARNING: Discarding https://files.pythonhosted.org/packages/a0/a4/d63f2d7597e1a4b55aa3b4d6c5b029991d3b824b5bd331af8d4ab1ed687d/PyYAML-5.4.1.tar.gz#sha256=607774cbba28732bfa802b54baa7484215f530991055bb562efbed5b2f20a45e (from https://pypi.org/simple/pyyaml/) (requires-python:>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*). Command errored out with exit status 1: /usr/bin/python3 /usr/lib/python3.10/site-packages/pip/_vendor/pep517/in_process/_in_process.py get_requires_for_build_wheel /tmp/tmpz8amcnx_ Check the logs for full command output.
+    >   ERROR: Could not find a version that satisfies the requirement PyYAML==5.4.1 (from versions: 3.10, 3.11, 3.12, 3.13b1, 3.13rc1, 3.13, 4.2b1, 4.2b2, 4.2b4, 5.1b1, 5.1b3, 5.1b5, 5.1, 5.1.1, 5.1.2, 5.2b1, 5.2, 5.3b1, 5.3, 5.3.1, 5.4b1, 5.4b2, 5.4, 5.4.1, 6.0b1, 6.0, 6.0.1, 6.0.2rc1)
+    >   ERROR: No matching distribution found for PyYAML==5.4.1
+
+    #
+    # The generated requirements file is very strict,
+    # using '==' for all of the dependencies.
+    #
+    # Fix is to relax the PyYAML requirement from '==' to '>='.
+    #
+
+                    sed -i '
+                        s/^PyYAML==/PyYAML>=/
+                        ' requirements.txt
+
+                    pip install -r requirements.txt
+
+
+
+# -----------------------------------------------------
+# Run the generated server.
+#[user@desktop]
+
+                    uvicorn main:app --reload
+
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   INFO:     Started reloader process [270362] using watchgod
+    >   ERROR:    Error loading ASGI app. Could not import module "main".
+
+    #
+    # Fails because main.py is two levels down in a subdirectory.
+    #
+
+                    pushd src/openapi_server/
+
+                        uvicorn main:app --reload
+
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   INFO:     Started reloader process [270447] using watchgod
+    >   Process SpawnProcess-1:
+    >   Traceback (most recent call last):
+    >   ....
+    >   ....
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/openapi_server/./main.py", line 17, in <module>
+    >       from openapi_server.apis.default_api import router as DefaultApiRouter
+    >   ModuleNotFoundError: No module named 'openapi_server'
+
+    #
+    # Fails because all the import paths contain 'openapi_server',
+    # even though we are already in 'openapi_server'.
+    #
+    # from openapi_server.apis ....
+    # from openapi_server.models ....
+    #
+
+                        for filename in $(find . -name '*.py')
+                        do
+                            echo "-----------"
+                            echo "File [${filename}]"
+                            sed -n '
+                                /^from openapi_server/ {
+                                    p
+                                    }
+                                ' "${filename}"
+                        done
+
+    >   -----------
+    >   File [./models/book.py]
+    >   from openapi_server.models.item import Item
+    >   -----------
+    >   File [./models/dvd.py]
+    >   from openapi_server.models.item import Item
+    >   -----------
+    >   File [./models/item.py]
+    >   from openapi_server.models.book import Book
+    >   from openapi_server.models.dvd import DVD
+    >   from openapi_server.models.magazine import Magazine
+    >   -----------
+    >   File [./models/magazine.py]
+    >   from openapi_server.models.item import Item
+    >   -----------
+    >   File [./models/extra_models.py]
+    >   -----------
+    >   File [./models/__init__.py]
+    >   -----------
+    >   File [./apis/default_api.py]
+    >   from openapi_server.apis.default_api_base import BaseDefaultApi
+    >   from openapi_server.models.extra_models import TokenModel  # noqa: F401
+    >   from openapi_server.models.item import Item
+    >   -----------
+    >   File [./apis/default_api_base.py]
+    >   from openapi_server.models.item import Item
+    >   -----------
+    >   File [./apis/__init__.py]
+    >   -----------
+    >   File [./main.py]
+    >   from openapi_server.apis.default_api import router as DefaultApiRouter
+    >   -----------
+    >   File [./security_api.py]
+    >   from openapi_server.models.extra_models import TokenModel
+    >   -----------
+    >   File [./impl/__init__.py]
+
+    #
+    # Simplest fix is to move main.py up one level.
+    #
+
+                        mv main.py ..
+                        cd ..
+
+                        uvicorn main:app --reload
+
+    >   ....
+    >   ....
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./main.py", line 17, in <module>
+    >       from openapi_server.apis.default_api import router as DefaultApiRouter
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/apis/default_api.py", line 7, in <module>
+    >       from openapi_server.apis.default_api_base import BaseDefaultApi
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/apis/default_api_base.py", line 5, in <module>
+    >       from openapi_server.models.item import Item
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/models/item.py", line 25, in <module>
+    >       from openapi_server.models.book import Book
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/models/book.py", line 25, in <module>
+    >       from openapi_server.models.item import Item
+    >   ImportError: cannot import name 'Item' from partially initialized module 'openapi_server.models.item' (most likely due to a circular import)
+    >   (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/models/item.py)
+
+    #
+    # Using 'from' in the import statements causes a loop.
+    # from openapi_server.models.item import Item
+    #
+
+    #
+    # Possible fix is to import the module file not the classs.
+    # https://stackoverflow.com/a/746067
+    # https://stackoverflow.com/a/7336880
+    #
+
+                        for filename in $(find . -name '*.py')
+                        do
+                            echo "-----------"
+                            echo "File [${filename}]"
+                            sed -n '
+                                /^from openapi_server/ {
+                                    p
+                                    s/^from \(.*\) import \(.*\)/import \1/
+                                    p
+                                    }
+                                ' "${filename}"
+                        done
+
+    >   -----------
+    >   File [./openapi_server/models/book.py]
+    >   from openapi_server.models.item import Item
+    >   import openapi_server.models.item
+    >   -----------
+    >   File [./openapi_server/models/dvd.py]
+    >   from openapi_server.models.item import Item
+    >   import openapi_server.models.item
+    >   -----------
+    >   File [./openapi_server/models/item.py]
+    >   from openapi_server.models.book import Book
+    >   import openapi_server.models.book
+    >   from openapi_server.models.dvd import DVD
+    >   import openapi_server.models.dvd
+    >   from openapi_server.models.magazine import Magazine
+    >   import openapi_server.models.magazine
+    >   -----------
+    >   File [./openapi_server/models/magazine.py]
+    >   from openapi_server.models.item import Item
+    >   import openapi_server.models.item
+    >   -----------
+    >   File [./openapi_server/models/extra_models.py]
+    >   -----------
+    >   File [./openapi_server/models/__init__.py]
+    >   -----------
+    >   File [./openapi_server/apis/default_api.py]
+    >   from openapi_server.apis.default_api_base import BaseDefaultApi
+    >   import openapi_server.apis.default_api_base
+    >   from openapi_server.models.extra_models import TokenModel  # noqa: F401
+    >   import openapi_server.models.extra_models
+    >   from openapi_server.models.item import Item
+    >   import openapi_server.models.item
+    >   -----------
+    >   File [./openapi_server/apis/default_api_base.py]
+    >   from openapi_server.models.item import Item
+    >   import openapi_server.models.item
+    >   -----------
+    >   File [./openapi_server/apis/__init__.py]
+    >   -----------
+    >   File [./openapi_server/security_api.py]
+    >   from openapi_server.models.extra_models import TokenModel
+    >   import openapi_server.models.extra_models
+    >   -----------
+    >   File [./openapi_server/impl/__init__.py]
+    >   -----------
+    >   File [./main.py]
+    >   from openapi_server.apis.default_api import router as DefaultApiRouter
+    >   import openapi_server.apis.default_api
+
+    #
+    # Possible fix is to import the module file not the classs.
+    # https://stackoverflow.com/a/746067
+    # https://stackoverflow.com/a/7336880
+    #
+
+                        for filename in $(find . -name '*.py')
+                        do
+                            echo "-----------"
+                            echo "File [${filename}]"
+                            sed -i '
+                                /^from openapi_server/ {
+                                    s/^from \(.*\) import \(.*\)/import \1/
+                                    }
+                                ' "${filename}"
+                        done
+
+    >   -----------
+    >   File [./openapi_server/models/book.py]
+    >   -----------
+    >   File [./openapi_server/models/dvd.py]
+    >   -----------
+    >   File [./openapi_server/models/item.py]
+    >   -----------
+    >   File [./openapi_server/models/magazine.py]
+    >   -----------
+    >   File [./openapi_server/models/extra_models.py]
+    >   -----------
+    >   File [./openapi_server/models/__init__.py]
+    >   -----------
+    >   File [./openapi_server/apis/default_api.py]
+    >   -----------
+    >   File [./openapi_server/apis/default_api_base.py]
+    >   -----------
+    >   File [./openapi_server/apis/__init__.py]
+    >   -----------
+    >   File [./openapi_server/security_api.py]
+    >   -----------
+    >   File [./openapi_server/impl/__init__.py]
+    >   -----------
+    >   File [./main.py]
+
+
+                        uvicorn main:app --reload
+
+    >   ....
+    >   ....
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./main.py", line 17, in <module>
+    >       from openapi_server.apis.default_api import router as DefaultApiRouter
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/apis/default_api.py", line 7, in <module>
+    >       from openapi_server.apis.default_api_base import BaseDefaultApi
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/apis/default_api_base.py", line 5, in <module>
+    >       from openapi_server.models.item import Item
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/models/item.py", line 25, in <module>
+    >       import openapi_server.models.book
+    >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/generated-server/src/./openapi_server/models/book.py", line 31, in <module>
+    >       class Book(Item):
+    >   NameError: name 'Item' is not defined
+
+    #
+    # Nope, that does't work either.
+    #
+
+
+# -----------------------------------------------------
+# Generate a clean set and combine all of the model files into one.
+# (crappy for the long term, but might work once)
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                rm -rf generated-server
+
+                npx @openapitools/openapi-generator-cli \
+                    generate \
+                        --input-spec openapi.yaml \
+                        --generator-name python-fastapi \
+                        --output generated-server
+
+
+                pushd generated-server
+
+                    # Reduce the strict requirements criteria
+                    sed -i '
+                        s/^PyYAML==/PyYAML>=/
+                        ' requirements.txt
+
+                    pip install -r requirements.txt
+
+                    pushd src/openapi_server/
+
+                        # Remove the top directory from the import paths.
+                        for filename in $(find . -name '*.py')
+                        do
+                            echo "-----------"
+                            echo "File [${filename}]"
+                            sed -i '
+                                /^from openapi_server\./ {
+                                    s/^from openapi_server\./from /
+                                    }
+                                ' "${filename}"
+                        done
+
+                        pushd models
+
+                            cat dvd.py >> item.py
+                            cat book.py >> item.py
+                            cat magazine.py >> item.py
+
+                            gedit item.py &
+                                ....
+                                ....
+
+remove 'openapi_server'
+import openapi_server.impl
+ns_pkg = openapi_server.impl
+
+add
+from pydantic import ConfigDict, StrictInt, StrictStr
+from typing import Any, ClassVar, Dict, List, Optional
+
+
+
+                        popd
+
+                        uvicorn main:app --reload
+
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   INFO:     Started reloader process [302584] using watchgod
+    >   INFO:     Started server process [302586]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Do some testing ....
+#[user@desktop]
+
+    firefox \
+        http://127.0.0.1:8000/docs
+
+# -----------------------------------------------------
+# Do some testing ....
+#[user@desktop]
+
+   - `GET /items`: Retrieves the list of books.
+   - `POST /items`: Adds a new book to the list.
+   - `GET /items/id}`: Retrieves a book by its ID.
+
+    curl \
+        --silent \
+        --show-error \
+        --request GET \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   []
+
+
+cat > /tmp/test-001.json << EOF
+{
+"item_type": "Book",
+"author": "author-001"
+}
+EOF
+
+    jq '.' /tmp/test-001.json
+
+    >   {
+    >     "item_type": "Book",
+    >     "author": "author-001"
+    >   }
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --data-binary @/tmp/test-001.json \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   {
+    >     "detail": [
+    >       {
+    >         "type": "model_attributes_type",
+    >         "loc": [
+    >           "body"
+    >         ],
+    >         "msg": "Input should be a valid dictionary or object to extract fields from",
+    >         "input": "{\"item_type\": \"Book\",\"author\": \"author-001\"}",
+    >         "url": "https://errors.pydantic.dev/2.7/v/model_attributes_type"
+    >       }
+    >     ]
+    >   }
+
+    #
+    # So it doesn't work.
+    # OK, let's go back to a simpler example and build it up ..
+    #
+
+
+
+
+
+
