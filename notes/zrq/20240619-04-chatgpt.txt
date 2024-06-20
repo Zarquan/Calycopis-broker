@@ -1,0 +1,331 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Let's see if ChatGPT can interpret an OpenAPI spec.
+
+    Result:
+
+        A working polymorphic webapp :-)
+        ChatGPT writes better code than openapi-generator :-)
+
+        Note the uploaded spec didn't include a common 'title' property
+        and it didn't define a discriminator mapping.
+
+
+# -----------------------------------------------------
+# Prompt
+
+    Given the following OpenAPI specification, can you generate the code for a FastAPI webapp ?
+
+# -----------------------------------------------------
+# Response
+
+Sure, I'd be happy to help generate a FastAPI webapp based on your OpenAPI specification.
+Please provide the OpenAPI specification, and I will create the corresponding FastAPI code for you.
+
+# -----------------------------------------------------
+# Prompt
+
+openapi: 3.0.0
+info:
+  title: Item API
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      summary: Get a list of items
+      responses:
+        '200':
+          description: A list of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      summary: Add a new item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created
+components:
+  schemas:
+    Item:
+      type: object
+      discriminator:
+        propertyName: item_type
+      required:
+        - item_type
+      properties:
+        item_type:
+          type: string
+      oneOf:
+        - $ref: '#/components/schemas/Book'
+        - $ref: '#/components/schemas/Magazine'
+        - $ref: '#/components/schemas/DVD'
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            author:
+              type: string
+    Magazine:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            issue_number:
+              type: integer
+    DVD:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            duration:
+              type: integer
+
+# -----------------------------------------------------
+# Response
+
+Based on the provided OpenAPI specification, here's the code for a FastAPI webapp:
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, Field
+from typing import List, Union
+
+app = FastAPI(
+    title="Item API",
+    version="1.0.0"
+)
+
+# Define the models based on the OpenAPI spec
+class Item(BaseModel):
+    item_type: str
+
+class Book(Item):
+    author: str
+
+class Magazine(Item):
+    issue_number: int
+
+class DVD(Item):
+    duration: int
+
+# Union type for different item types
+ItemUnion = Union[Book, Magazine, DVD]
+
+# In-memory storage for items
+items = []
+
+@app.get("/items", response_model=List[ItemUnion], summary="Get a list of items")
+async def get_items():
+    return items
+
+@app.post("/items", response_model=ItemUnion, status_code=201, summary="Add a new item")
+async def add_item(item: ItemUnion):
+    items.append(item)
+    return item
+
+# Add the following lines to start the server if running directly
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+# -----------------------------------------------------
+# Copy the code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            mkdir chatgpt
+            pushd chatgpt
+
+                gedit main.py
+                    ....
+                    ....
+
+                uvicorn main:app
+
+    >   INFO:     Started server process [315286]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    curl \
+        --silent \
+        --show-error \
+        --request GET \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   []
+
+
+cat > /tmp/test-001.json << EOF
+{
+  "id": "chatgpt-001",
+  "item_type": "book",
+  "author": "ChatGPT"
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data @/tmp/test-001.json \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   {
+    >     "item_type": "book",
+    >     "author": "ChatGPT"
+    >   }
+
+
+cat > /tmp/test-002.json << EOF
+{
+  "item_type": "book",
+  "author": "ChatGPT"
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data @/tmp/test-002.json \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   {
+    >     "item_type": "book",
+    >     "author": "ChatGPT"
+    >   }
+
+
+cat > /tmp/test-003.json << EOF
+{
+  "item_type": "dvd",
+  "duration": 35
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data @/tmp/test-003.json \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   {
+    >     "item_type": "dvd",
+    >     "duration": 35
+    >   }
+
+
+cat > /tmp/test-004.json << EOF
+{
+  "item_type": "magazine",
+  "issue_number": 4
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data @/tmp/test-004.json \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   {
+    >     "item_type": "magazine",
+    >     "issue_number": 4
+    >   }
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request GET \
+        http://127.0.0.1:8000/items \
+    | jq '.'
+
+    >   [
+    >     {
+    >       "item_type": "book",
+    >       "author": "ChatGPT"
+    >     },
+    >     {
+    >       "item_type": "book",
+    >       "author": "ChatGPT"
+    >     },
+    >     {
+    >       "item_type": "dvd",
+    >       "duration": 35
+    >     },
+    >     {
+    >       "item_type": "magazine",
+    >       "issue_number": 4
+    >     }
+    >   ]
+
+    #
+    # It works :-)
+    # ChatGPT writes better code than openapi-generator :-)
+    #

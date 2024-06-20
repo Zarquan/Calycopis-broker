@@ -1,0 +1,1367 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try creating Java Spring 'forward' or 'contract first' implementation.
+        Starting with a hand edited OpenAPI spec and using it to generate the server code.
+        http://mail.ivoa.net/pipermail/p3t/2024-February/000024.html
+
+    Result:
+
+        Success ..
+        We have a Spring webapp that handles polymorphism and content negotiation.
+
+
+# -----------------------------------------------------
+# Manually edit the OpenAPI spec to add the discriminator.
+#[user@desktop]
+
+
+
+# -----------------------------------------------------
+# Generate the model classes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            pushd spring-openapi
+                ./mvnw clean
+                ./mvnw install
+            popd
+
+        popd
+    popd
+
+# -----------------------------------------------------
+# Generate the server classes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            pushd ../spring-openapi ; ./mvnw clean install ; popd
+
+            pushd spring-webapp
+                ./mvnw clean
+                ./mvnw spring-boot:run
+            popd
+
+        popd
+    popd
+
+# -----------------------------------------------------
+# Test our service.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml  << EOF
+executable:
+  name: "test-001"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  compute:
+    - name: "compute 001"
+      type: "urn:simple-compute-resource"
+      spec:
+        cores:
+          min: 4
+          units: cores
+        memory:
+          min: 8
+          max: 12
+          units: Mi bytes
+  storage:
+    - name: "storage 001"
+      type: "urn:simple-storage-resource"
+      spec:
+        size:
+          min: 1
+          max: 12
+          units: Mi bytes
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/json" \
+        http://localhost:8080/ambleck-post \
+    | jq '.'
+
+    #
+    # There isn't anything mapped to the /ambleck-post path.
+    # We just get a 404 response.
+    #
+
+    #
+    # According to this blog post it should 'just work'.
+    # https://blog.palo-it.com/en/spring-boot-client-and-server-code-generation-using-openapi-3-specs
+    #
+
+
+
+    #
+    # Healthy webapp ..
+    #
+
+    >   ....
+    >   2024-06-17T04:16:09.330+01:00  INFO 190765 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   2024-06-17T04:16:09.350+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : POST "/ambleck-post", parameters={}
+    >   2024-06-17T04:16:09.359+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to uk.co.metagrid.ambleck.webapp.AmbleckController#ambleckPost(RequestObject)
+    >   2024-06-17T04:16:09.520+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Read "application/yaml;charset=UTF-8" to [uk.co.metagrid.ambleck.datamodel.RequestObject@4c4b2fe2]
+    >   2024-06-17T04:16:09.529+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Using 'application/yaml', given [application/yaml] and supported [application/yaml]
+    >   2024-06-17T04:16:09.542+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] m.m.a.RequestResponseBodyMethodProcessor : Writing [uk.co.metagrid.ambleck.datamodel.ResponseObject@472175a6]
+    >   2024-06-17T04:16:09.567+01:00 DEBUG 190765 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 200 OK
+    >   ....
+
+    #
+    # Unhealthy webapp ..
+    #
+
+    >   ....
+    >   2024-06-17T04:13:56.311+01:00  INFO 190512 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+    >   2024-06-17T04:13:56.329+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : POST "/ambleck", parameters={}
+    >   2024-06-17T04:13:56.348+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+    >   2024-06-17T04:13:56.352+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.r.ResourceHttpRequestHandler     : Resource not found
+    >   2024-06-17T04:13:56.361+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource ambleck.]
+    >   2024-06-17T04:13:56.362+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 404 NOT_FOUND
+    >   2024-06-17T04:13:56.370+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+    >   2024-06-17T04:13:56.372+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+    >   2024-06-17T04:13:56.418+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/yaml;charset=UTF-8', given [application/yaml] and supported [application/yaml;charset=UTF-8, text/yaml;charset=UTF-8, application/*+yaml;charset=UTF-8, text/*+yaml;charset=UTF-8, application/yml;charset=UTF-8, text/yml;charset=UTF-8, application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+    >   2024-06-17T04:13:56.421+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Mon Jun 17 04:13:56 BST 2024, status=404, error=Not Found, path=/ambleck}]
+    >   2024-06-17T04:13:56.477+01:00 DEBUG 190512 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 404
+    >   ....
+
+    #
+    # Changed the package for the generated classes, and we get a result.
+    #
+
+    >   ....
+    >   2024-06-17T04:55:08.542+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : POST "/ambleck", parameters={}
+    >   2024-06-17T04:55:08.543+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to uk.co.metagrid.ambleck.webapp.AmbleckApiController#ambleckPost(ParcolarRequest)
+    >   2024-06-17T04:55:08.545+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.web.method.HandlerMethod             : Could not resolve parameter [0] in public default org.springframework.http.ResponseEntity<uk.co.metagrid.ambleck.model.ParcolarResponse> uk.co.metagrid.ambleck.webapp.AmbleckApi.ambleckPost(uk.co.metagrid.ambleck.model.ParcolarRequest): JSON parse error: Unrecognized field "duration" (class uk.co.metagrid.ambleck.model.PingSpecific), not marked as ignorable
+    >   2024-06-17T04:55:08.546+01:00  WARN 192972 --- [Ambleck] [nio-8080-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Unrecognized field "duration" (class uk.co.metagrid.ambleck.model.PingSpecific), not marked as ignorable]
+    >   2024-06-17T04:55:08.546+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+    >   2024-06-17T04:55:08.547+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : "ERROR" dispatch for POST "/error", parameters={}
+    >   2024-06-17T04:55:08.548+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+    >   2024-06-17T04:55:08.550+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Using 'application/yaml;charset=UTF-8', given [application/yaml] and supported [application/yaml;charset=UTF-8, text/yaml;charset=UTF-8, application/*+yaml;charset=UTF-8, text/*+yaml;charset=UTF-8, application/yml;charset=UTF-8, text/yml;charset=UTF-8, application/json, application/*+json, application/xml;charset=UTF-8, text/xml;charset=UTF-8, application/*+xml;charset=UTF-8]
+    >   2024-06-17T04:55:08.550+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.w.s.m.m.a.HttpEntityMethodProcessor  : Writing [{timestamp=Mon Jun 17 04:55:08 BST 2024, status=400, error=Bad Request, path=/ambleck}]
+    >   2024-06-17T04:55:08.552+01:00 DEBUG 192972 --- [Ambleck] [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Exiting from "ERROR" dispatch, status 400
+    >   ....
+
+    #
+    # We had the classes the wrong way round in the mapping.
+    #
+
+    >   ....
+    >   2024-06-17T04:58:27.936+01:00  INFO 193140 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 4 ms
+    >   2024-06-17T04:58:27.953+01:00 DEBUG 193140 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : POST "/ambleck", parameters={}
+    >   2024-06-17T04:58:27.960+01:00 DEBUG 193140 --- [Ambleck] [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to uk.co.metagrid.ambleck.webapp.AmbleckApiController#ambleckPost(ParcolarRequest)
+    >   2024-06-17T04:58:28.096+01:00 DEBUG 193140 --- [Ambleck] [nio-8080-exec-1] o.s.web.method.HandlerMethod             : Could not resolve parameter [0] in public default org.springframework.http.ResponseEntity<uk.co.metagrid.ambleck.model.ParcolarResponse> uk.co.metagrid.ambleck.webapp.AmbleckApi.ambleckPost(uk.co.metagrid.ambleck.model.ParcolarRequest): JSON parse error: Could not resolve type id 'urn:simple-compute-resource' as a subtype of `uk.co.metagrid.ambleck.model.AbstractComputeResource`: known type ids = [AbstractComputeResource, urn:simple-compute-executable] (for POJO property 'compute')
+    >   2024-06-17T04:58:28.098+01:00  WARN 193140 --- [Ambleck] [nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Could not resolve type id 'urn:simple-compute-resource' as a subtype of `uk.co.metagrid.ambleck.model.AbstractComputeResource`: known type ids = [AbstractComputeResource, urn:simple-compute-executable] (for POJO property 'compute')]
+    >   2024-06-17T04:58:28.098+01:00 DEBUG 193140 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed 400 BAD_REQUEST
+    >   ....
+
+    #
+    # Copy/paste error in the YAML file.
+    #
+
+    >   ....
+    >   2024-06-17T05:01:42.111+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : POST "/ambleck", parameters={}
+    >   2024-06-17T05:01:42.120+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped to uk.co.metagrid.ambleck.webapp.AmbleckApiController#ambleckPost(ParcolarRequest)
+    >   2024-06-17T05:01:42.264+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] m.m.a.RequestResponseBodyMethodProcessor : Read "application/yaml;charset=UTF-8" to [class ParcolarRequest {<EOL>    executable: class DelayExecutable {<EOL>        class AbstractExecutable {<EOL>  (truncated)...]
+    >   2024-06-17T05:01:42.305+01:00 DEBUG 193312 --- [Ambleck] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Failed to complete request: java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null
+    >   2024-06-17T05:01:42.307+01:00 ERROR 193312 --- [Ambleck] [nio-8080-exec-1] o.a.c.c.C.[.[.[/].[dispatcherServlet]    : Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null] with root cause
+    >
+    >   java.lang.NullPointerException: Cannot invoke "javax.servlet.http.HttpServletResponse.setCharacterEncoding(String)" because "res" is null
+    >   	at uk.co.metagrid.ambleck.webapp.ApiUtil.setExampleResponse(ApiUtil.java:12) ~[parcolar-openapi-0.0.1-SNAPSHOT.jar:na]
+    >   	at uk.co.metagrid.ambleck.webapp.AmbleckApi.lambda$ambleckPost$0(AmbleckApi.java:86) ~[parcolar-openapi-0.0.1-SNAPSHOT.jar:na]
+    >   	at java.base/java.util.Optional.ifPresent(Optional.java:178) ~[na:na]
+    >   ....
+
+    #
+    # AmbleckApi.lambda$ambleckPost$0(AmbleckApi.java:86) is the catch for a YAML request.
+    # So this is triggering the default response to ambleckPost() in the interface.
+    # Not our implementation class.
+    #
+
+    #
+    # Added the rest of the interface methods to our delegate,
+    # including an Autowired constructor.
+    #
+
+    >   ....
+    >       private final NativeWebRequest request;
+    >
+    >       @Autowired
+    >       public AmbleckApiDelegateImpl(NativeWebRequest request) {
+    >           this.request = request;
+    >       }
+    >
+    >       @Override
+    >       public Optional<NativeWebRequest> getRequest() {
+    >           return Optional.ofNullable(request);
+    >       }
+    >   ....
+
+    #
+    # Now everything 'just works'.
+    #
+
+   cat > /tmp/test-001.yaml  << EOF
+   executable:
+     name: "test-001"
+     type: "urn:delay-executable"
+     spec:
+       duration: 21
+   resources:
+     compute:
+       - name: "compute 001"
+         type: "urn:simple-compute-resource"
+         spec:
+           cores:
+             min: 4
+             units: cores
+           memory:
+             min: 8
+             max: 12
+             units: Mi bytes
+     storage:
+       - name: "storage 001"
+         type: "urn:simple-storage-resource"
+         spec:
+           size:
+             min: 1
+             max: 12
+             units: Mi bytes
+   EOF
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       },
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.yaml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+
+
+   cat > /tmp/test-001.json  << EOF
+   {
+   "executable": {
+       "type": "urn:delay-executable",
+       "name": "test-001",
+       "spec": {
+           "duration": 21
+           }
+       },
+   "resources": {
+       "compute": [
+               {
+               "type": "urn:simple-compute-resource",
+               "name": null,
+               "spec": {
+                   "cores": {
+                       "min": 4,
+                       "max": null,
+                       "units": "cores"
+                       },
+                   "memory": {
+                       "min": 8,
+                       "max": 12,
+                       "units": "Mi bytes"
+                       }
+                   }
+               }
+           ],
+       "storage": [
+               {
+               "type": "urn:simple-storage-resource",
+               "name": null,
+               "spec": {
+                   "size": {
+                       "min": 1,
+                       "max": 12,
+                       "units": "Mi bytes"
+                       }
+                   }
+               }
+           ]
+       }
+   }
+   EOF
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       },
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/json" \
+       --data-binary @/tmp/test-001.json \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+
+
+   cat > /tmp/test-001.xml  << EOF
+   <?xml version="1.0"?>
+   <ParcolarRequest>
+     <executable type="urn:delay-executable">
+       <name>test-001</name>
+       <spec>
+         <duration>21</duration>
+       </spec>
+     </executable>
+     <resources>
+       <compute>
+         <compute type="urn:simple-compute-resource">
+           <name/>
+           <spec>
+             <cores>
+               <min>4</min>
+               <max/>
+               <units>cores</units>
+             </cores>
+             <memory>
+               <min>8</min>
+               <max>12</max>
+               <units>Mi bytes</units>
+             </memory>
+           </spec>
+         </compute>
+       </compute>
+       <storage>
+         <storage type="urn:simple-storage-resource">
+           <name/>
+           <spec>
+             <size>
+               <min>1</min>
+               <max>12</max>
+               <units>Mi bytes</units>
+             </size>
+           </spec>
+         </storage>
+       </storage>
+     </resources>
+   </ParcolarRequest>
+   EOF
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-001"
+    >         spec:
+    >           duration: 21
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 4
+    >                 max: null
+    >                 units: "cores"
+    >               memory:
+    >                 min: 8
+    >                 max: 12
+    >                 units: "Mi bytes"
+    >         storage:
+    >           - type: "urn:simple-storage-resource"
+    >             name: null
+    >             spec:
+    >               size:
+    >                 min: 1
+    >                 max: 12
+    >                 units: "Mi bytes"
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       },
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 4,
+    >                   "max": null,
+    >                   "units": "cores"
+    >                 },
+    >                 "memory": {
+    >                   "min": 8,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": [
+    >             {
+    >               "type": "urn:simple-storage-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "size": {
+    >                   "min": 1,
+    >                   "max": 12,
+    >                   "units": "Mi bytes"
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/xml" \
+       --data-binary @/tmp/test-001.xml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>4</min>
+    >                   <max/>
+    >                   <units>cores</units>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>8</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage>
+    >             <storage type="urn:simple-storage-resource">
+    >               <name/>
+    >               <spec>
+    >                 <size>
+    >                   <min>1</min>
+    >                   <max>12</max>
+    >                   <units>Mi bytes</units>
+    >                 </size>
+    >               </spec>
+    >             </storage>
+    >           </storage>
+    >         </resources>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+
+
+   cat > /tmp/test-002.yaml  << EOF
+   executable:
+     name: "test-001"
+     type: "urn:ping-executable"
+     spec:
+       target: "www.example.org"
+   resources:
+     compute:
+       - name: "compute 001"
+         type: "urn:simple-compute-resource"
+         spec:
+           cores:
+             min: 1
+           memory:
+             min: 1
+   EOF
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/yaml" \
+       http://localhost:8080/ambleck \
+   | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.example.org"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 1
+    >                 max: null
+    >                 units: null
+    >               memory:
+    >                 min: 1
+    >                 max: null
+    >                 units: null
+    >         storage: []
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.example.org"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             name: null
+    >             spec:
+    >               cores:
+    >                 min: 1
+    >                 max: null
+    >                 units: null
+    >               memory:
+    >                 min: 1
+    >                 max: null
+    >                 units: null
+    >         storage: []
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/json" \
+       http://localhost:8080/ambleck \
+   | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.example.org"
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 1,
+    >                   "max": null,
+    >                   "units": null
+    >                 },
+    >                 "memory": {
+    >                   "min": 1,
+    >                   "max": null,
+    >                   "units": null
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": []
+    >         }
+    >       },
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.example.org"
+    >           }
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "urn:simple-compute-resource",
+    >               "name": null,
+    >               "spec": {
+    >                 "cores": {
+    >                   "min": 1,
+    >                   "max": null,
+    >                   "units": null
+    >                 },
+    >                 "memory": {
+    >                   "min": 1,
+    >                   "max": null,
+    >                   "units": null
+    >                 }
+    >               }
+    >             }
+    >           ],
+    >           "storage": []
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+   curl \
+       --silent \
+       --show-error \
+       --request POST \
+       --header "Content-Type: application/yaml" \
+       --data-binary @/tmp/test-002.yaml \
+       --header "Accept: application/xml" \
+       http://localhost:8080/ambleck \
+   | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.example.org</target>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>1</min>
+    >                   <max/>
+    >                   <units/>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>1</min>
+    >                   <max/>
+    >                   <units/>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage/>
+    >         </resources>
+    >       </offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.example.org</target>
+    >           </spec>
+    >         </executable>
+    >         <resources>
+    >           <compute>
+    >             <compute type="urn:simple-compute-resource">
+    >               <name/>
+    >               <spec>
+    >                 <cores>
+    >                   <min>1</min>
+    >                   <max/>
+    >                   <units/>
+    >                 </cores>
+    >                 <memory>
+    >                   <min>1</min>
+    >                   <max/>
+    >                   <units/>
+    >                 </memory>
+    >               </spec>
+    >             </compute>
+    >           </compute>
+    >           <storage/>
+    >         </resources>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+
+
+
+

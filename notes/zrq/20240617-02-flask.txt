@@ -1,0 +1,158 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try creating a Python Flask 'forward' or 'contract first' implementation.
+        Starting with a hand edited OpenAPI spec and using it to generate the server code.
+        http://mail.ivoa.net/pipermail/p3t/2024-February/000024.html
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Install OpenAPI code generator
+# We don't need this step if we use npx to launch it.
+#[user@desktop]
+#
+#    npm install @openapitools/openapi-generator-cli -D
+#
+    >   ....
+    >   added 116 packages, and audited 117 packages in 17s
+    >
+    >   23 packages are looking for funding
+    >     run `npm fund` for details
+    >
+    >   found 0 vulnerabilities
+
+
+# -----------------------------------------------------
+# Add a sym-link to our OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            mkdir flask
+            pushd flask
+
+                ln -s ../../../../ivoa/ ivoa
+
+            popd
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Generate the Flask server code.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd flask
+
+                rm -rf webapp*
+
+                npx @openapitools/openapi-generator-cli \
+                    generate \
+                    --generator-name python-flask \
+                    --input-spec ./ivoa/parcolar-0.1.yaml \
+                    --additional-properties legacyDiscriminatorBehavior=false \
+                    --output webapp
+
+            popd
+        popd
+    popd
+
+    #
+    # Just looking at the generated classes without trying to run them yet.
+    # Basic code stubs with a lot of work to do.
+    # No discriminator control of the polymorphism.
+    # No content type negotiation.
+    #
+
+
+# -----------------------------------------------------
+# Create a new spec file, and restore the discriminator and mapping on the lists.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            cp parcolar-0.1.yaml parcolar-0.2.yaml
+            gedit parcolar-0.2.yaml &
+
+        popd
+    popd
+
+    #
+    # We now have multiple discriminator and mapping elements.
+    # Probably too many.
+    #
+
+# -----------------------------------------------------
+# Generate the Flask server code.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd flask
+
+                rm -rf webapp
+
+                npx @openapitools/openapi-generator-cli \
+                    generate \
+                    --generator-name python-flask \
+                    --input-spec ./ivoa/parcolar-0.2.yaml \
+                    --additional-properties legacyDiscriminatorBehavior=false \
+                    --output webapp
+
+            popd
+        popd
+    popd
+
+    #
+    # Looking at the classes ....
+
+    # AbstractStorageResource includes SimpleStorageResource, but doesn't do anything with it.
+    # AbstractComputeResource includes SimpleComputeResource, but doesn't do anything with it.
+    #
+    # ParcolarRequestExecutable includes PingExecutable and DelayExecutable twice, but doesn't do anything with them.
+    # ParcolarRequestExecutable includes PingSpecific and uses it to hard codes the class of the spec.
+    #
+    # Nope. broken.
+    #
+
+
+

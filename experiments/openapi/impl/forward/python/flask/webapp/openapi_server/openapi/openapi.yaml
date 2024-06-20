@@ -1,0 +1,518 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- description: Generated server url
+  url: http://localhost:8080
+paths:
+  /ambleck:
+    post:
+      operationId: ambleck_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+          description: OK
+      tags:
+      - ambleck
+      x-openapi-router-controller: openapi_server.controllers.ambleck_controller
+components:
+  schemas:
+    AbstractSpecific:
+      title: spec
+      type: object
+    AbstractComputeResource:
+      discriminator:
+        mapping:
+          urn:simple-compute-resource: '#/components/schemas/SimpleComputeResource'
+        propertyName: type
+      properties:
+        type:
+          title: type
+          type: string
+        name:
+          title: name
+          type: string
+        spec:
+          title: spec
+          type: object
+      required:
+      - type
+      title: AbstractComputeResource
+      type: object
+    AbstractStorageResource:
+      discriminator:
+        mapping:
+          urn:simple-storage-resource: '#/components/schemas/SimpleStorageResource'
+        propertyName: type
+      properties:
+        type:
+          title: type
+          type: string
+        name:
+          title: name
+          type: string
+        spec:
+          title: spec
+          type: object
+      required:
+      - type
+      title: AbstractStorageResource
+      type: object
+    AbstractExecutable:
+      discriminator:
+        mapping:
+          urn:ping-executable: '#/components/schemas/PingExecutable'
+          urn:delay-executable: '#/components/schemas/DelayExecutable'
+        propertyName: type
+      properties:
+        type:
+          title: type
+          type: string
+        name:
+          title: name
+          type: string
+        spec:
+          title: spec
+          type: object
+      required:
+      - type
+      title: AbstractExecutable
+      type: object
+    DelayExecutable:
+      allOf:
+      - $ref: '#/components/schemas/AbstractExecutable'
+      - properties:
+          spec:
+            $ref: '#/components/schemas/DelaySpecific'
+        type: object
+      example:
+        name: name
+        type: type
+        spec:
+          duration: 0
+      title: DelayExecutable
+      type: object
+    DelaySpecific:
+      example:
+        duration: 0
+      properties:
+        duration:
+          format: int32
+          title: duration
+          type: integer
+      title: DelaySpecific
+      type: object
+    PingExecutable:
+      allOf:
+      - $ref: '#/components/schemas/AbstractExecutable'
+      - properties:
+          spec:
+            $ref: '#/components/schemas/PingSpecific'
+        type: object
+      title: PingExecutable
+      type: object
+    PingSpecific:
+      properties:
+        target:
+          title: target
+          type: string
+      title: PingSpecific
+      type: object
+    SimpleComputeResource:
+      allOf:
+      - $ref: '#/components/schemas/AbstractComputeResource'
+      - properties:
+          spec:
+            $ref: '#/components/schemas/SimpleComputeSpecific'
+        type: object
+      example:
+        name: name
+        type: type
+        spec:
+          cores:
+            min: 6
+            max: 1
+            units: units
+          memory:
+            min: 6
+            max: 1
+            units: units
+      title: SimpleComputeResource
+      type: object
+    SimpleComputeSpecific:
+      example:
+        cores:
+          min: 6
+          max: 1
+          units: units
+        memory:
+          min: 6
+          max: 1
+          units: units
+      properties:
+        cores:
+          $ref: '#/components/schemas/MinMaxInteger'
+        memory:
+          $ref: '#/components/schemas/MinMaxInteger'
+      title: SimpleComputeSpecific
+      type: object
+    SimpleStorageResource:
+      allOf:
+      - $ref: '#/components/schemas/AbstractStorageResource'
+      - properties:
+          spec:
+            $ref: '#/components/schemas/SimpleStorageSpecific'
+        type: object
+      example:
+        name: name
+        type: type
+        spec:
+          size:
+            min: 6
+            max: 1
+            units: units
+      title: SimpleStorageResource
+      type: object
+    SimpleStorageSpecific:
+      example:
+        size:
+          min: 6
+          max: 1
+          units: units
+      properties:
+        size:
+          $ref: '#/components/schemas/MinMaxInteger'
+      title: SimpleStorageSpecific
+      type: object
+    MinMaxInteger:
+      example:
+        min: 6
+        max: 1
+        units: units
+      properties:
+        min:
+          format: int32
+          title: min
+          type: integer
+        max:
+          format: int32
+          title: max
+          type: integer
+        units:
+          title: units
+          type: string
+      title: MinMaxInteger
+      type: object
+    Resources:
+      example:
+        compute:
+        - name: name
+          type: type
+          spec:
+            cores:
+              min: 6
+              max: 1
+              units: units
+            memory:
+              min: 6
+              max: 1
+              units: units
+        - name: name
+          type: type
+          spec:
+            cores:
+              min: 6
+              max: 1
+              units: units
+            memory:
+              min: 6
+              max: 1
+              units: units
+        storage:
+        - name: name
+          type: type
+          spec:
+            size:
+              min: 6
+              max: 1
+              units: units
+        - name: name
+          type: type
+          spec:
+            size:
+              min: 6
+              max: 1
+              units: units
+      properties:
+        compute:
+          discriminator:
+            mapping:
+              urn:simple-compute-resource: '#/components/schemas/SimpleComputeResource'
+            propertyName: type
+          items:
+            $ref: '#/components/schemas/Resources_compute_inner'
+          title: compute
+          type: array
+        storage:
+          discriminator:
+            mapping:
+              urn:simple-storage-resource: '#/components/schemas/SimpleStorageResource'
+            propertyName: type
+          items:
+            $ref: '#/components/schemas/Resources_storage_inner'
+          title: storage
+          type: array
+      title: Resources
+      type: object
+    ParcolarRequest:
+      example:
+        resources:
+          compute:
+          - name: name
+            type: type
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
+          - name: name
+            type: type
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
+          storage:
+          - name: name
+            type: type
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
+          - name: name
+            type: type
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
+        executable:
+          name: name
+          type: type
+          spec:
+            duration: 0
+      properties:
+        executable:
+          $ref: '#/components/schemas/ParcolarRequest_executable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+      title: ParcolarRequest
+      type: object
+    ParcolarOffer:
+      example:
+        resources:
+          compute:
+          - name: name
+            type: type
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
+          - name: name
+            type: type
+            spec:
+              cores:
+                min: 6
+                max: 1
+                units: units
+              memory:
+                min: 6
+                max: 1
+                units: units
+          storage:
+          - name: name
+            type: type
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
+          - name: name
+            type: type
+            spec:
+              size:
+                min: 6
+                max: 1
+                units: units
+        executable:
+          name: name
+          type: type
+          spec:
+            duration: 0
+      properties:
+        executable:
+          $ref: '#/components/schemas/ParcolarRequest_executable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+      title: ParcolarOffer
+      type: object
+    ParcolarResponse:
+      example:
+        result: "YES"
+        offers:
+        - resources:
+            compute:
+            - name: name
+              type: type
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
+            - name: name
+              type: type
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
+            storage:
+            - name: name
+              type: type
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
+            - name: name
+              type: type
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
+          executable:
+            name: name
+            type: type
+            spec:
+              duration: 0
+        - resources:
+            compute:
+            - name: name
+              type: type
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
+            - name: name
+              type: type
+              spec:
+                cores:
+                  min: 6
+                  max: 1
+                  units: units
+                memory:
+                  min: 6
+                  max: 1
+                  units: units
+            storage:
+            - name: name
+              type: type
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
+            - name: name
+              type: type
+              spec:
+                size:
+                  min: 6
+                  max: 1
+                  units: units
+          executable:
+            name: name
+            type: type
+            spec:
+              duration: 0
+      properties:
+        result:
+          enum:
+          - "YES"
+          - "NO"
+          title: result
+          type: string
+        offers:
+          items:
+            $ref: '#/components/schemas/ParcolarOffer'
+          title: offers
+          type: array
+      title: ParcolarResponse
+      type: object
+    Resources_compute_inner:
+      anyOf:
+      - $ref: '#/components/schemas/SimpleComputeResource'
+      title: Resources_compute_inner
+    Resources_storage_inner:
+      anyOf:
+      - $ref: '#/components/schemas/SimpleStorageResource'
+      title: Resources_storage_inner
+    ParcolarRequest_executable:
+      discriminator:
+        mapping:
+          urn:ping-executable: '#/components/schemas/DelayExecutable'
+          urn:delay-executable: '#/components/schemas/PingExecutable'
+        propertyName: type
+      oneOf:
+      - $ref: '#/components/schemas/DelayExecutable'
+      - $ref: '#/components/schemas/PingExecutable'
+      title: ParcolarRequest_executable

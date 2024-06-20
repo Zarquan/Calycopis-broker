@@ -1,0 +1,346 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Ask ChatGPT how to create a polymorphic webapp,
+        using a discriminator to indicate the tyoe.
+
+    Result:
+
+        Looks good, but will it actually run.
+        Need to test it and see what happens.
+
+# -----------------------------------------------------
+# Prompt : "can you generate an example of a fastapi webapp generated from an openapi specification"
+
+Certainly! Below is an example of a FastAPI web application generated from an OpenAPI specification.
+For this example, we'll use a simplified OpenAPI specification that defines a simple API for managing a list of books.
+
+### OpenAPI Specification
+
+Here's an example of a simple OpenAPI specification in YAML format:
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Book API
+  version: 1.0.0
+paths:
+  /books:
+    get:
+      summary: Get a list of books
+      responses:
+        '200':
+          description: A list of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      summary: Add a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Book created
+  /books/{bookId}:
+    get:
+      summary: Get a book by ID
+      parameters:
+        - name: bookId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A single book
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+```
+
+### FastAPI Web Application
+
+Using the above OpenAPI specification, here's a FastAPI web application:
+
+```python
+from fastapi import FastAPI, HTTPException, Path
+from pydantic import BaseModel
+from typing import List
+
+app = FastAPI()
+
+# Pydantic model based on the OpenAPI schema
+class Book(BaseModel):
+    id: str
+    title: str
+    author: str
+
+# In-memory storage for books
+books = []
+
+@app.get("/books", response_model=List[Book])
+def get_books():
+    return books
+
+@app.post("/books", response_model=Book, status_code=201)
+def add_book(book: Book):
+    books.append(book)
+    return book
+
+@app.get("/books/{bookId}", response_model=Book)
+def get_book(bookId: str = Path(..., description="The ID of the book to retrieve")):
+    for book in books:
+        if book.id == bookId:
+            return book
+    raise HTTPException(status_code=404, detail="Book not found")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+### Explanation
+
+1. **Book Model**: We define a Pydantic model `Book` to match the schema in the OpenAPI specification.
+2. **In-Memory Storage**: We use a simple list `books` to store the books in memory.
+3. **Endpoints**:
+   - `GET /books`: Retrieves the list of books.
+   - `POST /books`: Adds a new book to the list.
+   - `GET /books/{bookId}`: Retrieves a book by its ID.
+
+### Running the Application
+
+To run the application, save the code to a file (e.g., `main.py`) and run it using Uvicorn:
+
+```bash
+uvicorn main:app --reload
+```
+
+This will start the FastAPI web server, and you can interact with the API using the
+endpoints defined in the OpenAPI specification.
+The interactive API documentation will be available at `http://127.0.0.1:8000/docs`.
+
+
+# -----------------------------------------------------
+# Prompt : "can you modify the example to demonstrate how fastapi handles a polymorphic list of three classes"
+
+    ....
+    ....
+
+
+# -----------------------------------------------------
+# Prompt : "can you modify the example to show how fastapi would use a discriminator property to indicate the class type"
+
+Certainly! To use a discriminator property in FastAPI, you need to define
+a field in your base model that indicates the specific type of each item.
+This is useful for deserialization when you need to distinguish between different subtypes.
+
+Here’s how you can modify the previous example to include a discriminator property:
+
+### OpenAPI Specification
+
+First, let’s update the OpenAPI specification to include a discriminator:
+
+```yaml
+openapi: 3.0.0
+info:
+  title: Item API
+  version: 1.0.0
+paths:
+  /items:
+    get:
+      summary: Get a list of items
+      responses:
+        '200':
+          description: A list of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+    post:
+      summary: Add a new item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item created
+components:
+  schemas:
+    Item:
+      type: object
+      discriminator:
+        propertyName: item_type
+      required:
+        - item_type
+      properties:
+        item_type:
+          type: string
+      oneOf:
+        - $ref: '#/components/schemas/Book'
+        - $ref: '#/components/schemas/Magazine'
+        - $ref: '#/components/schemas/DVD'
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            author:
+              type: string
+    Magazine:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            issue_number:
+              type: integer
+    DVD:
+      allOf:
+        - $ref: '#/components/schemas/Item'
+        - type: object
+          properties:
+            duration:
+              type: integer
+```
+
+### FastAPI Web Application
+
+Now, let’s update the FastAPI application to use the discriminator property:
+
+```python
+from fastapi import FastAPI, HTTPException, Path
+from pydantic import BaseModel, Field
+from typing import List, Union
+
+app = FastAPI()
+
+class BaseItem(BaseModel):
+    id: str
+    title: str
+    item_type: str
+
+    class Config:
+        discriminator = "item_type"
+
+class Book(BaseItem):
+    author: str
+    item_type: str = Field("book", const=True)
+
+class Magazine(BaseItem):
+    issue_number: int
+    item_type: str = Field("magazine", const=True)
+
+class DVD(BaseItem):
+    duration: int
+    item_type: str = Field("dvd", const=True)
+
+Item = Union[Book, Magazine, DVD]
+
+# In-memory storage for items
+items = []
+
+@app.get("/items", response_model=List[Item])
+def get_items():
+    return items
+
+@app.post("/items", response_model=Item, status_code=201)
+def add_item(item: Item):
+    items.append(item)
+    return item
+
+@app.get("/items/{itemId}", response_model=Item)
+def get_item(itemId: str = Path(..., description="The ID of the item to retrieve")):
+    for item in items:
+        if item.id == itemId:
+            return item
+    raise HTTPException(status_code=404, detail="Item not found")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+### Explanation
+
+1. **Discriminator Property**:
+   - We added an `item_type` field to the `BaseItem` class and specified it as the discriminator in the `Config` class.
+
+2. **Subclasses**:
+   - Each subclass (`Book`, `Magazine`, `DVD`) overrides the `item_type` field with a constant value using `Field(const=True)` to ensure it is correctly set.
+
+3. **Union Type**:
+   - `Item` is defined as a union of the three subclasses.
+
+4. **Endpoints**:
+   - The endpoints (`GET /items`, `POST /items`, `GET /items/{itemId}`) remain the same, handling the polymorphic list with the discriminator property to determine the item type.
+
+### Running the Application
+
+Save the code to a file (e.g., `main.py`) and run it using Uvicorn:
+
+```bash
+uvicorn main:app --reload
+```
+
+This will start the FastAPI web server.
+You can interact with the API using the endpoints defined in the OpenAPI specification.
+The interactive API documentation will be available at `http://127.0.0.1:8000/docs`,
+showing the discriminator property in action.
+
+

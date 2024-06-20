@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--+
+    |
+    | <meta:header>
+    |   <meta:licence>
+    |     Copyright (C) 2024 University of Manchester.
+    |
+    |     This information is free software: you can redistribute it and/or modify
+    |     it under the terms of the GNU General Public License as published by
+    |     the Free Software Foundation, either version 3 of the License, or
+    |     (at your option) any later version.
+    |
+    |     This information is distributed in the hope that it will be useful,
+    |     but WITHOUT ANY WARRANTY; without even the implied warranty of
+    |     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    |     GNU General Public License for more details.
+    |
+    |     You should have received a copy of the GNU General Public License
+    |     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    |   </meta:licence>
+    | </meta:header>
+    |
+    +-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>3.2.4</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>uk.co.metagrid</groupId>
+	<artifactId>parcolar-webapp</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>Parcolar</name>
+	<description>OpenAPI Generator experiment</description>
+	<properties>
+		<java.version>19</java.version>
+	</properties>
+	<dependencies>
+        <!--+
+            | Include our generated classes.
+            +-->
+        <dependency>
+            <groupId>uk.co.metagrid</groupId>
+            <artifactId>parcolar-openapi</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--+
+            | Dependencies from the Spring documentation.
+            | https://www.baeldung.com/java-openapi-generator-server#spring
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+            +-->
+        <!--+
+            | Dependencies from build errors.
+            | https://mkyong.com/spring-boot/package-javax-validation-constraints-does-not-exist/
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>8.0.1.Final</version>
+        </dependency>
+            +-->
+        <!--+
+            |
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+            +-->
+        <!--+
+            | https://mkyong.com/spring-boot/package-javax-validation-constraints-does-not-exist/
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.10.Final</version>
+        </dependency>
+            +-->
+        <!--+
+            | https://stackoverflow.com/a/76034931
+            +-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--+
+            | Dependencies from Ambleck.
+            +-->
+        <dependency>
+	        <groupId>org.springframework.boot</groupId>
+	        <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+        <!--+
+            | Added springdoc-openapi to generate OpenAPI spec.
+            | https://stackoverflow.com/questions/55938207/how-to-generate-openapi-3-0-spec-from-existing-spring-boot-app
+            | https://www.baeldung.com/spring-rest-openapi-documentation
+            +-->
+        <!--dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency-->
+	</dependencies>
+
+	<build>
+        <!--sourceDirectory>src/main/java, target/generated-sources/openapi/src/main/java</sourceDirectory-->
+		<plugins>
+            <!--+
+                | OpenAPI generator from the Spring documentation.
+                | https://www.baeldung.com/java-openapi-generator-server#plugin
+                +-->
+            <!--plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>
+                                ${schema.yaml}
+                            </inputSpec>
+                            <generatorName>spring</generatorName>
+                            <apiPackage>com.baeldung.openapi.api</apiPackage>
+                            <modelPackage>com.baeldung.openapi.model</modelPackage>
+                            <supportingFilesToGenerate>
+                                ApiUtil.java
+                            </supportingFilesToGenerate>
+                            <configOptions>
+                                <delegatePattern>true</delegatePattern>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin-->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

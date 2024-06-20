@@ -1,0 +1,68 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# 20240617
+
+    Inheritance and Polymorphism
+    https://swagger.io/docs/specification/data-models/inheritance-and-polymorphism/
+
+    Introduction to OpenAPI 3.0
+    https://redocly.com/docs/resources/learning-openapi/
+
+
+    OpenAPI Generator usage
+    https://openapi-generator.tech/docs/usage#generate
+
+    Documentation for the python-fastapi Generator
+    https://openapi-generator.tech/docs/generators/python-fastapi
+
+    Documentation for the python-flask Generator
+    https://openapi-generator.tech/docs/generators/python-flask
+
+    Documentation for the openapi Generator
+    https://openapi-generator.tech/docs/generators/openapi/
+
+    Documentation for the spring Generator
+    https://openapi-generator.tech/docs/generators/spring
+
+
+    [PYTHON] Fix for failing to lookup discriminator value using AllOf and discriminator #18498
+    https://github.com/OpenAPITools/openapi-generator/pull/18498/files#
+
+    Release notes
+    https://github.com/OpenAPITools/openapi-generator/releases
+
+
+
+
