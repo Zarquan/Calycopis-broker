@@ -20,7 +20,15 @@
 #
 #zrq-notes-indent
 #
-# AIMetrics: []
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
 #
 
     Target:

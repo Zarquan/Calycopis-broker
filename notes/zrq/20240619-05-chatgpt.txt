@@ -20,7 +20,15 @@
 #
 #zrq-notes-indent
 #
-# AIMetrics: []
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
 #
 
     Target:
@@ -2722,11 +2730,11 @@ EOF
     >   ....
 
     >   def process(request: ParcolarRequest):
-    >   
+    >
     >       offers = []
-    >   
+    >
     >       if isinstance(request.executable, PingExecutable):
-    >   
+    >
     >           offers.append(
     >               ParcolarOffer(
     >                   executable = PingExecutable(
@@ -2738,9 +2746,9 @@ EOF
     >                       )
     >                   )
     >               )
-    >   
+    >
     >       elif isinstance(request.executable, DelayExecutable):
-    >   
+    >
     >           offers.append(
     >               ParcolarOffer(
     >                   executable = DelayExecutable(
@@ -2752,7 +2760,7 @@ EOF
     >                       )
     >                   )
     >               )
-    >   
+    >
     >       if (len(offers) > 0):
     >           return ParcolarResponse(
     >               result="YES",
@@ -3486,7 +3494,7 @@ This client application should work seamlessly with the FastAPI webapp, allowing
     >       spec:
     >         target: example.com
     >     resources: null
-    >   
+    >
     >   Traceback (most recent call last):
     >     File "/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/client-009.py", line 63, in <module>
     >       response = client.post_ambleck(request_data, content_type='application/xml', accept='application/xml')
@@ -3621,7 +3629,7 @@ This fix ensures that the XML payload has a single root element, resolving the "
     >       spec:
     >         target: example.com
     >     resources: null
-    >   
+    >
     >   XML Response: <?xml version="1.0" encoding="utf-8"?>
     >   <ParcolarResponse>
     >   	<result>YES</result>

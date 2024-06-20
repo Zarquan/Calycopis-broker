@@ -20,7 +20,15 @@
 #
 #zrq-notes-indent
 #
-# AIMetrics: []
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 75,
+#       "units": "%"
+#       }
+#     }
+#   ]
 #
 
     Target:
@@ -224,7 +232,7 @@ showing the discriminator property in action.
     >     ....
     >     ....
     >   pydantic.errors.PydanticUserError: `const` is removed, use `Literal` instead
-    >   
+    >
     >   For further information visit https://errors.pydantic.dev/2.7/u/removed-kwargs
 
                 gedit main.py
