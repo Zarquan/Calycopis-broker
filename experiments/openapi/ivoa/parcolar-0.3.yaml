@@ -1,0 +1,231 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /ambleck:
+    post:
+      tags:
+        - ambleck
+      operationId: ambleckPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+components:
+  schemas:
+    AbstractSpecific:
+      type: object
+    AbstractComputeResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractStorageResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractExecutable:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:ping-executable": '#/components/schemas/PingExecutable'
+          "urn:delay-executable": '#/components/schemas/DelayExecutable'
+      properties:
+        type:
+          type: string
+          xml:
+            attribute: false
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    DelayExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/DelaySpecific'
+    DelaySpecific:
+      type: object
+      properties:
+        duration:
+          type: integer
+          format: int32
+    PingExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/PingSpecific'
+    PingSpecific:
+      type: object
+      properties:
+        target:
+          type: string
+    SimpleComputeResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComputeResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleComputeSpecific'
+    SimpleComputeSpecific:
+      type: object
+      properties:
+        cores:
+          $ref: '#/components/schemas/MinMaxInteger'
+        memory:
+          $ref: '#/components/schemas/MinMaxInteger'
+    SimpleStorageResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractStorageResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleStorageSpecific'
+    SimpleStorageSpecific:
+      type: object
+      properties:
+        size:
+          $ref: '#/components/schemas/MinMaxInteger'
+    MinMaxInteger:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+    Resources:
+      type: object
+      properties:
+        compute:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractComputeResource'
+        storage:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractStorageResource'
+    ParcolarRequest:
+      type: object
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarOffer:
+      type: object
+      xml:
+        name: offer
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - "YES"
+            - "NO"
+        offers:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/ParcolarOffer'
+          xml:
+            name: offers
+            wrapped: true
+
