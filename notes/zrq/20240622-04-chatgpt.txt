@@ -1,0 +1,2792 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Resume the ChatGPT session.
+        Create a prompt to generate everything in one pass.
+        Fix the XML lists.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Prompt
+
+It has taken several steps to generate a complete implementation of the client
+and server code, including support for polymorphism using a discriminator and
+content negotiation for both input and output.
+
+Can you write a prompt that I could use to produce the same results in a single
+repeatable step.
+
+
+# -----------------------------------------------------
+# Response
+
+Sure, here's a comprehensive prompt you can use to generate both the server
+and client code in a single step.
+This prompt covers the implementation details for a FastAPI server with polymorphism
+using a discriminator and content negotiation for both input and output, as well as
+a corresponding client application.
+
+### Prompt
+
+```
+Generate a FastAPI web application based on the following OpenAPI specification.
+The server should handle polymorphism using a discriminator and support content
+negotiation for both input and output in JSON, YAML, and XML formats.
+Additionally, generate a Python client application that can interact with this
+server, supporting the same content negotiation for both sending requests and
+receiving responses.
+
+OpenAPI Specification:
+```
+
+```yaml
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /ambleck:
+    post:
+      tags:
+        - ambleck
+      operationId: ambleckPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+components:
+  schemas:
+    AbstractSpecific:
+      type: object
+    AbstractComputeResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractStorageResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractExecutable:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:ping-executable": '#/components/schemas/PingExecutable'
+          "urn:delay-executable": '#/components/schemas/DelayExecutable'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    DelayExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/DelaySpecific'
+    DelaySpecific:
+      type: object
+      properties:
+        duration:
+          type: integer
+          format: int32
+    PingExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/PingSpecific'
+    PingSpecific:
+      type: object
+      properties:
+        target:
+          type: string
+    SimpleComputeResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComputeResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleComputeSpecific'
+    SimpleComputeSpecific:
+      type: object
+      properties:
+        cores:
+          $ref: '#/components/schemas/MinMaxInteger'
+        memory:
+          $ref: '#/components/schemas/MinMaxInteger'
+    SimpleStorageResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractStorageResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleStorageSpecific'
+    SimpleStorageSpecific:
+      type: object
+      properties:
+        size:
+          $ref: '#/components/schemas/MinMaxInteger'
+    MinMaxInteger:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+    Resources:
+      type: object
+      properties:
+        compute:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractComputeResource'
+        storage:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractStorageResource'
+    ParcolarRequest:
+      type: object
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarOffer:
+      type: object
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - "YES"
+            - "NO"
+        offers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParcolarOffer'
+```
+
+### Server Code
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel, Field, ValidationError, root_validator
+from typing import List, Union, Optional
+from fastapi.responses import JSONResponse, Response
+from fastapi.encoders import jsonable_encoder
+import yaml
+import xmltodict
+
+app = FastAPI(
+    title="OpenAPI definition",
+    version="v0"
+)
+
+# Define the models based on the OpenAPI spec
+
+class MinMaxInteger(BaseModel):
+    min: Optional[int] = None
+    max: Optional[int] = None
+    units: Optional[str] = None
+
+class AbstractSpecific(BaseModel):
+    pass
+
+class SimpleComputeSpecific(AbstractSpecific):
+    cores: Optional[MinMaxInteger] = None
+    memory: Optional[MinMaxInteger] = None
+
+class SimpleStorageSpecific(AbstractSpecific):
+    size: Optional[MinMaxInteger] = None
+
+class PingSpecific(AbstractSpecific):
+    target: Optional[str] = None
+
+class DelaySpecific(AbstractSpecific):
+    duration: Optional[int] = None
+
+class AbstractComputeResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleComputeResource(AbstractComputeResource):
+    spec: Optional[SimpleComputeSpecific] = None
+
+class AbstractStorageResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleStorageResource(AbstractStorageResource):
+    spec: Optional[SimpleStorageSpecific] = None
+
+class AbstractExecutable(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+    class Config:
+        discriminator = 'type'
+
+class PingExecutable(AbstractExecutable):
+    spec: Optional[PingSpecific] = None
+
+class DelayExecutable(AbstractExecutable):
+    spec: Optional[DelaySpecific] = None
+
+# Use Pydantic's Union and discriminator features to handle polymorphism
+ExecutableUnion = Union[PingExecutable, DelayExecutable]
+
+class Resources(BaseModel):
+    compute: Optional[List[AbstractComputeResource]] = None
+    storage: Optional[List[AbstractStorageResource]] = None
+
+class ParcolarRequest(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarOffer(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarResponse(BaseModel):
+    result: str
+    offers: Optional[List[ParcolarOffer]] = None
+
+    def yaml(self):
+        return yaml.dump(jsonable_encoder(self), sort_keys=False)
+
+    def xml(self):
+
+
+        # Convert the model to a dictionary first
+        dict_data = jsonable_encoder(self)
+        # Convert the dictionary to an XML string
+        xml_str = xmltodict.unparse({'ParcolarResponse': dict_data}, pretty=True)
+        return xml_str
+
+@app.post("/ambleck", summary="Post an ambleck request")
+async def ambleck_post(request: Request):
+    content_type = request.headers.get('content-type')
+
+    if content_type == "application/json":
+        try:
+            parcolar_request = ParcolarRequest(**await request.json())
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/yaml":
+        try:
+            body = await request.body()
+            parcolar_request = ParcolarRequest(**yaml.safe_load(body))
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/xml":
+        try:
+            body = await request.body()
+            dict_data = xmltodict.parse(body)
+            parcolar_request = ParcolarRequest(**dict_data['ParcolarRequest'])
+        except (ValidationError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Implement your business logic here
+    parcolar_response = ParcolarResponse(result="YES", offers=[])
+
+    # Determine the response format
+    accept_header = request.headers.get('accept')
+    if 'application/xml' in accept_header:
+        return Response(content=parcolar_response.xml(), media_type="application/xml")
+    elif 'application/yaml' in accept_header:
+        return Response(content=parcolar_response.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(content=jsonable_encoder(parcolar_response))
+
+# Add the following lines to start the server if running directly
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+```
+
+### Client Code
+
+```python
+import httpx
+import yaml
+import xmltodict
+import json
+
+class ParcolarClient:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+
+    def _parse_response(self, response: httpx.Response):
+        if 'application/json' in response.headers['Content-Type']:
+            return response.json()
+        elif 'application/yaml' in response.headers['Content-Type']:
+            return yaml.safe_load(response.text)
+        elif 'application/xml' in response.headers['Content-Type']:
+            return xmltodict.parse(response.text)
+        else:
+            response.raise_for_status()
+
+    def _prepare_payload(self, data, content_type):
+        if content_type == 'application/json':
+            return json.dumps(data), content_type
+        elif content_type == 'application/yaml':
+            return yaml.dump(data), content_type
+        elif content_type == 'application/xml':
+            # Wrap data in a root element
+            return xmltodict.unparse({'ParcolarRequest': data}, pretty=True), content_type
+        else:
+            raise ValueError(f"Unsupported content type: {content_type}")
+
+    def post_ambleck(self, data, content_type='application/json', accept='application/json'):
+        payload, content_type = self._prepare_payload(data, content_type)
+        headers = {'Content-Type': content_type, 'Accept': accept}
+        response = httpx.post(f"{self.base_url}/ambleck", headers=headers, content=payload)
+        return self._parse_response(response)
+
+if __name__ == "__main__":
+    client = ParcolarClient(base_url="http://localhost:8080")
+
+    # Sample data
+    request_data = {
+        "executable": {
+            "type": "urn:ping-executable",
+            "name": "Ping Test",
+            "spec": {
+                "target": "example.com"
+            }
+        },
+        "resources": {
+            "compute": [],
+            "storage": []
+        }
+    }
+
+    # Send request in JSON format and accept JSON response
+    response = client.post_ambleck(request_data, content_type='application/json', accept='application/json')
+    print("JSON Response:", response)
+
+    # Send request in YAML format and accept YAML response
+    response = client.post_ambleck(request_data, content_type='application/yaml', accept='application/yaml')
+    print("YAML Response:", yaml.dump(response, sort_keys=False))
+
+    # Send request in XML format and accept XML response
+    response = client.post_ambleck(request_data, content_type='application/xml', accept='application/xml')
+    print("XML Response:", xmltodict.unparse(response, pretty=True))
+```
+
+### Instructions
+
+1. **Run the Server:**
+   - Save the server code to a file, for example, `server.py`.
+   - Run the server using:
+     ```sh
+     python server.py
+     ```
+
+2. **Run the Client:**
+   - Save the client code to a file, for example, `client.py`.
+   - Run the client using:
+     ```sh
+     python client.py
+     ```
+
+This prompt, along with the provided server and client code,
+will generate a complete implementation that handles polymorphism
+using a discriminator and supports content negotiation for both
+input and output in JSON, YAML, and XML formats.
+
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit server-010.py &
+                    ....
+                    ....
+
+                python server-010.py
+
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-010.py:78:
+    >       PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated.
+    >       You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details.
+    >       Deprecated in Pydantic V2.0 to be removed in V3.0.
+    >       See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >           @root_validator(pre=True)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-010.py:94:
+    >       PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated.
+    >       You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details.
+    >       Deprecated in Pydantic V2.0 to be removed in V3.0.
+    >       See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >           @root_validator(pre=True)
+    >   INFO:     Started server process [99418]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Copy the client code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit client-010.py &
+
+                python client-010.py
+
+    >   JSON Response: {'result': 'YES', 'offers': [{'executable': {'type': 'urn:ping-executable', 'name': 'Ping Test', 'spec': {'target': 'example.com'}}, 'resources': None}]}
+    >   YAML Response: result: 'YES'
+    >   offers:
+    >   - executable:
+    >       type: urn:ping-executable
+    >       name: Ping Test
+    >       spec:
+    >         target: example.com
+    >     resources: null
+    >   
+    >   XML Response: <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >   	<result>YES</result>
+    >   	<offers>
+    >   		<executable>
+    >   			<type>urn:ping-executable</type>
+    >   			<name>Ping Test</name>
+    >   			<spec>
+    >   				<target>example.com</target>
+    >   			</spec>
+    >   		</executable>
+    >   		<resources></resources>
+    >   	</offers>
+    >   </ParcolarResponse>
+
+
+# -----------------------------------------------------
+# Prompt
+
+The XML serialization doesn't quite handle the arrays correctly.
+Can you add use the following StackOverflow answer to update the
+schema to name the arrays and their elements correctly.
+See https://stackoverflow.com/a/58078862
+
+# -----------------------------------------------------
+# Response
+
+Sure, I'll update the XML serialization to handle arrays correctly
+by naming them according to the provided StackOverflow answer.
+Here's the updated code for both the server and client, incorporating
+the adjustments for XML serialization.
+
+### Server Code
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel, Field, ValidationError, root_validator
+from typing import List, Union, Optional
+from fastapi.responses import JSONResponse, Response
+from fastapi.encoders import jsonable_encoder
+import yaml
+import xmltodict
+
+app = FastAPI(
+    title="OpenAPI definition",
+    version="v0"
+)
+
+# Define the models based on the OpenAPI spec
+
+class MinMaxInteger(BaseModel):
+    min: Optional[int] = None
+    max: Optional[int] = None
+    units: Optional[str] = None
+
+class AbstractSpecific(BaseModel):
+    pass
+
+class SimpleComputeSpecific(AbstractSpecific):
+    cores: Optional[MinMaxInteger] = None
+    memory: Optional[MinMaxInteger] = None
+
+class SimpleStorageSpecific(AbstractSpecific):
+    size: Optional[MinMaxInteger] = None
+
+class PingSpecific(AbstractSpecific):
+    target: Optional[str] = None
+
+class DelaySpecific(AbstractSpecific):
+    duration: Optional[int] = None
+
+class AbstractComputeResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleComputeResource(AbstractComputeResource):
+    spec: Optional[SimpleComputeSpecific] = None
+
+class AbstractStorageResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleStorageResource(AbstractStorageResource):
+    spec: Optional[SimpleStorageSpecific] = None
+
+class AbstractExecutable(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+    class Config:
+        discriminator = 'type'
+
+class PingExecutable(AbstractExecutable):
+    spec: Optional[PingSpecific] = None
+
+class DelayExecutable(AbstractExecutable):
+    spec: Optional[DelaySpecific] = None
+
+# Use Pydantic's Union and discriminator features to handle polymorphism
+ExecutableUnion = Union[PingExecutable, DelayExecutable]
+
+class Resources(BaseModel):
+    compute: Optional[List[AbstractComputeResource]] = Field(default=None, alias="computes")
+    storage: Optional[List[AbstractStorageResource]] = Field(default=None, alias="storages")
+
+    class Config:
+        allow_population_by_field_name = True
+
+class ParcolarRequest(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarOffer(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarResponse(BaseModel):
+    result: str
+    offers: Optional[List[ParcolarOffer]] = None
+
+    def yaml(self):
+        return yaml.dump(jsonable_encoder(self), sort_keys=False)
+
+    def xml(self):
+        # Convert the model to a dictionary first
+        dict_data = jsonable_encoder(self)
+        # Wrap lists with proper element names
+        dict_data = {
+            'ParcolarResponse': {
+                'result': dict_data['result'],
+                'offers': {
+                    'ParcolarOffer': dict_data['offers']
+                } if dict_data['offers'] else None
+            }
+        }
+        # Convert the dictionary to an XML string
+        xml_str = xmltodict.unparse(dict_data, pretty=True)
+        return xml_str
+
+@app.post("/ambleck", summary="Post an ambleck request")
+async def ambleck_post(request: Request):
+    content_type = request.headers.get('content-type')
+
+    if content_type == "application/json":
+        try:
+            parcolar_request = ParcolarRequest(**await request.json())
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/yaml":
+        try:
+            body = await request.body()
+            parcolar_request = ParcolarRequest(**yaml.safe_load(body))
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/xml":
+        try:
+            body = await request.body()
+            dict_data = xmltodict.parse(body)
+            parcolar_request = ParcolarRequest(**dict_data['ParcolarRequest'])
+        except (ValidationError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Implement your business logic here
+    parcolar_response = ParcolarResponse(result="YES", offers=[])
+
+    # Determine the response format
+    accept_header = request.headers.get('accept')
+    if 'application/xml' in accept_header:
+        return Response(content=parcolar_response.xml(), media_type="application/xml")
+    elif 'application/yaml' in accept_header:
+        return Response(content=parcolar_response.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(content=jsonable_encoder(parcolar_response))
+
+# Add the following lines to start the server if running directly
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+```
+
+### Client Code
+
+```python
+import httpx
+import yaml
+import xmltodict
+import json
+
+class ParcolarClient:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+
+    def _parse_response(self, response: httpx.Response):
+        if 'application/json' in response.headers['Content-Type']:
+            return response.json()
+        elif 'application/yaml' in response.headers['Content-Type']:
+            return yaml.safe_load(response.text)
+        elif 'application/xml' in response.headers['Content-Type']:
+            return xmltodict.parse(response.text)
+        else:
+            response.raise_for_status()
+
+    def _prepare_payload(self, data, content_type):
+        if content_type == 'application/json':
+            return json.dumps(data), content_type
+        elif content_type == 'application/yaml':
+            return yaml.dump(data), content_type
+        elif content_type == 'application/xml':
+            # Wrap data in a root element
+            return xmltodict.unparse({'ParcolarRequest': data}, pretty=True), content_type
+        else:
+            raise ValueError(f"Unsupported content type: {content_type}")
+
+    def post_ambleck(self, data, content_type='application/json', accept='application/json'):
+        payload, content_type = self._prepare_payload(data, content_type)
+        headers = {'Content-Type': content_type, 'Accept': accept}
+        response = httpx.post(f"{self.base_url}/ambleck", headers=headers, content=payload)
+        return self._parse_response(response)
+
+if __name__ == "__main__":
+    client = ParcolarClient(base_url="http://localhost:8080")
+
+    # Sample data
+    request_data = {
+        "executable": {
+            "type": "urn:ping-executable",
+            "name": "Ping Test",
+            "spec": {
+                "target": "example.com"
+            }
+        },
+        "resources": {
+            "compute": [],
+            "storage": []
+        }
+    }
+
+    # Send request in JSON format and accept JSON response
+    response = client.post_ambleck(request_data, content_type='application/json', accept='application/json')
+    print("JSON Response:", response)
+
+    # Send request in YAML format and accept YAML response
+    response = client.post_ambleck(request_data, content_type='application/yaml', accept='application/yaml')
+    print("YAML Response:", yaml.dump(response, sort_keys=False))
+
+    # Send request in XML format and accept XML response
+    response = client.post_ambleck(request_data, content_type='application/xml', accept='application/xml')
+    print("XML Response:", xmltodict.unparse(response, pretty=True))
+```
+
+### Explanation:
+
+1. **Server Code:**
+   - **Resources Model:** Added `Field` with `alias` to handle correct XML serialization for arrays.
+   - **ParcolarResponse Model:** Wrapped lists with proper element names using a root dictionary structure.
+   - **Response Serialization:** Adjusted the XML serialization in
+
+ the `xml` method to correctly wrap arrays with element names.
+
+2. **Client Code:**
+   - **Payload Preparation:** The XML payload is wrapped with a root element named `ParcolarRequest`.
+
+This ensures that the XML serialization handles arrays correctly,
+following the naming conventions described in the provided StackOverflow answer.
+
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit server-011.py &
+                    ....
+                    ....
+
+                python server-011.py
+
+    >   /home/Zarquan/.local/lib/python3.10/site-packages/pydantic/_internal/_config.py:334: UserWarning: Valid config keys have changed in V2:
+    >   * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+    >     warnings.warn(message, UserWarning)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-011.py:81: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-011.py:97: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   INFO:     Started server process [100017]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the client code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit client-011.py &
+
+                python client-011.py
+
+    >   JSON Response: {'result': 'YES', 'offers': [{'executable': {'type': 'urn:ping-executable', 'name': 'Ping Test', 'spec': {'target': 'example.com'}}, 'resources': None}]}
+    >   YAML Response: result: 'YES'
+    >   offers:
+    >   - executable:
+    >       type: urn:ping-executable
+    >       name: Ping Test
+    >       spec:
+    >         target: example.com
+    >     resources: null
+    >   
+    >   XML Response: <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >   	<result>YES</result>
+    >   	<offers>
+    >   		<ParcolarOffer>
+    >   			<executable>
+    >   				<type>urn:ping-executable</type>
+    >   				<name>Ping Test</name>
+    >   				<spec>
+    >   					<target>example.com</target>
+    >   				</spec>
+    >   			</executable>
+    >   			<resources></resources>
+    >   		</ParcolarOffer>
+    >   	</offers>
+    >   </ParcolarResponse>
+
+
+# -----------------------------------------------------
+# Prompt
+
+    That works, but can you add a property to set the name of
+    each offer element to 'offer' rather than the class name.
+
+# -----------------------------------------------------
+# Response
+
+Sure, let's modify the code to ensure each `offer` element is named `offer` instead of the class name. We'll need to adjust both the server and client code to ensure this naming convention is followed for XML serialization.
+
+### Server Code
+
+```python
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel, Field, ValidationError, root_validator
+from typing import List, Union, Optional
+from fastapi.responses import JSONResponse, Response
+from fastapi.encoders import jsonable_encoder
+import yaml
+import xmltodict
+
+app = FastAPI(
+    title="OpenAPI definition",
+    version="v0"
+)
+
+# Define the models based on the OpenAPI spec
+
+class MinMaxInteger(BaseModel):
+    min: Optional[int] = None
+    max: Optional[int] = None
+    units: Optional[str] = None
+
+class AbstractSpecific(BaseModel):
+    pass
+
+class SimpleComputeSpecific(AbstractSpecific):
+    cores: Optional[MinMaxInteger] = None
+    memory: Optional[MinMaxInteger] = None
+
+class SimpleStorageSpecific(AbstractSpecific):
+    size: Optional[MinMaxInteger] = None
+
+class PingSpecific(AbstractSpecific):
+    target: Optional[str] = None
+
+class DelaySpecific(AbstractSpecific):
+    duration: Optional[int] = None
+
+class AbstractComputeResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleComputeResource(AbstractComputeResource):
+    spec: Optional[SimpleComputeSpecific] = None
+
+class AbstractStorageResource(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+class SimpleStorageResource(AbstractStorageResource):
+    spec: Optional[SimpleStorageSpecific] = None
+
+class AbstractExecutable(BaseModel):
+    type: str
+    name: Optional[str] = None
+    spec: Optional[AbstractSpecific] = None
+
+    class Config:
+        discriminator = 'type'
+
+class PingExecutable(AbstractExecutable):
+    spec: Optional[PingSpecific] = None
+
+class DelayExecutable(AbstractExecutable):
+    spec: Optional[DelaySpecific] = None
+
+# Use Pydantic's Union and discriminator features to handle polymorphism
+ExecutableUnion = Union[PingExecutable, DelayExecutable]
+
+class Resources(BaseModel):
+    compute: Optional[List[AbstractComputeResource]] = Field(default=None, alias="computes")
+    storage: Optional[List[AbstractStorageResource]] = Field(default=None, alias="storages")
+
+    class Config:
+        allow_population_by_field_name = True
+
+class ParcolarRequest(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarOffer(BaseModel):
+    executable: Optional[ExecutableUnion] = None
+    resources: Optional[Resources] = None
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:ping-executable":
+                values['executable'] = PingExecutable(**values['executable'])
+            elif exec_type == "urn:delay-executable":
+                values['executable'] = DelayExecutable(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class ParcolarResponse(BaseModel):
+    result: str
+    offers: Optional[List[ParcolarOffer]] = None
+
+    def yaml(self):
+        return yaml.dump(jsonable_encoder(self), sort_keys=False)
+
+    def xml(self):
+        # Convert the model to a dictionary first
+        dict_data = jsonable_encoder(self)
+        # Wrap lists with proper element names
+        dict_data = {
+            'ParcolarResponse': {
+                'result': dict_data['result'],
+                'offers': {
+                    'offer': dict_data['offers']
+                } if dict_data['offers'] else None
+            }
+        }
+        # Convert the dictionary to an XML string
+        xml_str = xmltodict.unparse(dict_data, pretty=True)
+        return xml_str
+
+@app.post("/ambleck", summary="Post an ambleck request")
+async def ambleck_post(request: Request):
+    content_type = request.headers.get('content-type')
+
+    if content_type == "application/json":
+        try:
+            parcolar_request = ParcolarRequest(**await request.json())
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/yaml":
+        try:
+            body = await request.body()
+            parcolar_request = ParcolarRequest(**yaml.safe_load(body))
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/xml":
+        try:
+            body = await request.body()
+            dict_data = xmltodict.parse(body)
+            parcolar_request = ParcolarRequest(**dict_data['ParcolarRequest'])
+        except (ValidationError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Implement your business logic here
+    parcolar_response = ParcolarResponse(result="YES", offers=[])
+
+    # Determine the response format
+    accept_header = request.headers.get('accept')
+    if 'application/xml' in accept_header:
+        return Response(content=parcolar_response.xml(), media_type="application/xml")
+    elif 'application/yaml' in accept_header:
+        return Response(content=parcolar_response.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(content=jsonable_encoder(parcolar_response))
+
+# Add the following lines to start the server if running directly
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080)
+```
+
+### Client Code
+
+```python
+import httpx
+import yaml
+import xmltodict
+import json
+
+class ParcolarClient:
+    def __init__(self, base_url: str):
+        self.base_url = base_url
+
+    def _parse_response(self, response: httpx.Response):
+        if 'application/json' in response.headers['Content-Type']:
+            return response.json()
+        elif 'application/yaml' in response.headers['Content-Type']:
+            return yaml.safe_load(response.text)
+        elif 'application/xml' in response.headers['Content-Type']:
+            return xmltodict.parse(response.text)
+        else:
+            response.raise_for_status()
+
+    def _prepare_payload(self, data, content_type):
+        if content_type == 'application/json':
+            return json.dumps(data), content_type
+        elif content_type == 'application/yaml':
+            return yaml.dump(data), content_type
+        elif content_type == 'application/xml':
+            # Wrap data in a root element
+            return xmltodict.unparse({'ParcolarRequest': data}, pretty=True), content_type
+        else:
+            raise ValueError(f"Unsupported content type: {content_type}")
+
+    def post_ambleck(self, data, content_type='application/json', accept='application/json'):
+        payload, content_type = self._prepare_payload(data, content_type)
+        headers = {'Content-Type': content_type, 'Accept': accept}
+        response = httpx.post(f"{self.base_url}/ambleck", headers=headers, content=payload)
+        return self._parse_response(response)
+
+if __name__ == "__main__":
+    client = ParcolarClient(base_url="http://localhost:8080")
+
+    # Sample data
+    request_data = {
+        "executable": {
+            "type": "urn:ping-executable",
+            "name": "Ping Test",
+            "spec": {
+                "target": "example.com"
+            }
+        },
+        "resources": {
+            "compute": [],
+            "storage": []
+        }
+    }
+
+    # Send request in JSON format and accept JSON response
+    response = client.post_ambleck(request_data, content_type='application/json', accept='application/json')
+    print("JSON Response:", response)
+
+    # Send request in YAML format and accept YAML response
+    response = client.post_ambleck(request_data, content_type='application/yaml', accept='application/yaml')
+    print("YAML Response:", yaml.dump(response, sort_keys=False))
+
+    # Send request in XML format and accept XML response
+    response = client.post_ambleck(request_data, content_type='application/xml', accept='application/xml')
+    print("XML Response:", xmltodict.unparse(response, pretty=True))
+```
+
+### Explanation:
+
+1. **Server Code:**
+   - **XML Serialization in `ParcolarResponse`:** Adjusted the `xml` method to ensure each offer element is named `offer` instead of using the class name.
+
+2. **Client Code:**
+   - No changes are needed in the
+
+ client code as it is already correctly serializing the payload with a root element named `ParcolarRequest`.
+
+This ensures that the XML serialization correctly names each `offer` element as `offer` instead of the class name, and the client code interacts with the server correctly.
+
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit server-012.py &
+                    ....
+                    ....
+
+                python server-012.py
+
+    >   /home/Zarquan/.local/lib/python3.10/site-packages/pydantic/_internal/_config.py:334: UserWarning: Valid config keys have changed in V2:
+    >   * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+    >     warnings.warn(message, UserWarning)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-012.py:81: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-012.py:97: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   INFO:     Started server process [100234]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the client code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                gedit client-012.py &
+
+                python client-012.py
+
+
+    >   JSON Response: {'result': 'YES', 'offers': [{'executable': {'type': 'urn:ping-executable', 'name': 'Ping Test', 'spec': {'target': 'example.com'}}, 'resources': None}]}
+    >   YAML Response: result: 'YES'
+    >   offers:
+    >   - executable:
+    >       type: urn:ping-executable
+    >       name: Ping Test
+    >       spec:
+    >         target: example.com
+    >     resources: null
+    >   
+    >   XML Response: <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >   	<result>YES</result>
+    >   	<offers>
+    >   		<offer>
+    >   			<executable>
+    >   				<type>urn:ping-executable</type>
+    >   				<name>Ping Test</name>
+    >   				<spec>
+    >   					<target>example.com</target>
+    >   				</spec>
+    >   			</executable>
+    >   			<resources></resources>
+    >   		</offer>
+    >   	</offers>
+    >   </ParcolarResponse>
+
+
+# -----------------------------------------------------
+# Prompt
+
+That's good. The 'offers' list and 'offer' elements now have the correct names.
+Can you generate the corresponding OpenAPI specification with the list and element names set.
+
+# -----------------------------------------------------
+# Response
+
+Certainly! Here is the updated OpenAPI specification with the correct names for the `offers` list and its elements:
+
+```yaml
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /ambleck:
+    post:
+      tags:
+        - ambleck
+      operationId: ambleckPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ParcolarRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ParcolarResponse'
+components:
+  schemas:
+    AbstractSpecific:
+      type: object
+    AbstractComputeResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractStorageResource:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    AbstractExecutable:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:ping-executable": '#/components/schemas/PingExecutable'
+          "urn:delay-executable": '#/components/schemas/DelayExecutable'
+      properties:
+        type:
+          type: string
+        name:
+          type: string
+        spec:
+          $ref: '#/components/schemas/AbstractSpecific'
+    DelayExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/DelaySpecific'
+    DelaySpecific:
+      type: object
+      properties:
+        duration:
+          type: integer
+          format: int32
+    PingExecutable:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/PingSpecific'
+    PingSpecific:
+      type: object
+      properties:
+        target:
+          type: string
+    SimpleComputeResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComputeResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleComputeSpecific'
+    SimpleComputeSpecific:
+      type: object
+      properties:
+        cores:
+          $ref: '#/components/schemas/MinMaxInteger'
+        memory:
+          $ref: '#/components/schemas/MinMaxInteger'
+    SimpleStorageResource:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractStorageResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleStorageSpecific'
+    SimpleStorageSpecific:
+      type: object
+      properties:
+        size:
+          $ref: '#/components/schemas/MinMaxInteger'
+    MinMaxInteger:
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+    Resources:
+      type: object
+      properties:
+        compute:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractComputeResource'
+        storage:
+          type: array
+          items:
+            $ref: '#/components/schemas/AbstractStorageResource'
+    ParcolarRequest:
+      type: object
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarOffer:
+      type: object
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/Resources'
+    ParcolarResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - "YES"
+            - "NO"
+        offers:
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/ParcolarOffer'
+          xml:
+            name: offer
+```
+
+### Explanation:
+
+1. **Schema Definitions:**
+   - The `ParcolarResponse` schema's `offers` property is defined as an array of `ParcolarOffer` objects.
+   - The `xml` section for the `offers` property specifies the name `offer` for each element in the array.
+
+This OpenAPI specification ensures that the `offers` list and each `offer` element are named correctly in the XML format, matching the adjustments made in the server and client code.
+
+
+# -----------------------------------------------------
+# Copy the OpenAPI spec and use it to generate the Java/Spring service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+            pushd ivoa
+
+                gedit parcolar-0.3.yaml &
+
+            popd
+
+            pushd impl/forward/java
+
+                pushd spring-openapi
+
+                    gedit pom.xml &
+                        ....
+                        <properties>
+	                        ....
+                    ~    <schema.yaml>${project.basedir}/ivoa/parcolar-0.3.yaml</schema.yaml>
+                        </properties>
+                        ....
+
+                    ./mvnw clean
+                    ./mvnw install
+                popd
+
+                pushd spring-webapp
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+                popd
+
+            popd
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Create our test options.
+#[user@desktop]
+
+    unset formats
+    declare -A formats=(
+        [yaml]="yq '.. style=\"double\" '"
+        [json]="jq '.'"
+        [xml]="xmlstarlet fo"
+        )
+
+    unset datasets
+    declare -a datasets=(
+        test-001
+        test-002
+        )
+
+    unset endpoints
+    declare -A endpoints=(
+        [spring]='http://127.0.0.1:8082/ambleck'
+        [fastapi]='http://127.0.0.1:8080/ambleck'
+        )
+
+
+# -----------------------------------------------------
+# Create our YAML data.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml << EOF
+executable:
+  name: "test-001"
+  type: "urn:ping-executable"
+  spec:
+    target: "www.metagrid.xyz"
+EOF
+
+cat > /tmp/test-002.yaml << EOF
+executable:
+  name: "test-002"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+EOF
+
+# -----------------------------------------------------
+# Create our JSON data.
+#[user@desktop]
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    > /tmp/test-001.json
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-002.yaml \
+    > /tmp/test-002.json
+
+# -----------------------------------------------------
+# Create our XML data.
+#[user@desktop]
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-001.yaml \
+    > /tmp/test-001.xml
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-002.yaml \
+    > /tmp/test-002.xml
+
+
+# -----------------------------------------------------
+# Check our test data.
+#[user@desktop]
+
+    for dataset in "${datasets[@]}"
+    do
+        for format in "${!formats[@]}"
+        do
+
+            echo ""
+            echo "-------- --------"
+            echo "[${dataset}][${format}]"
+            eval "${formats[${format}]} /tmp/${dataset}.${format}"
+
+        done
+    done
+
+    >   -------- --------
+    >   [test-001][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-001</name>
+    >       <type>urn:ping-executable</type>
+    >       <spec>
+    >         <target>www.metagrid.xyz</target>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+    >   
+    >   -------- --------
+    >   [test-001][json]
+    >   {
+    >     "executable": {
+    >       "name": "test-001",
+    >       "type": "urn:ping-executable",
+    >       "spec": {
+    >         "target": "www.metagrid.xyz"
+    >       }
+    >     }
+    >   }
+    >   
+    >   -------- --------
+    >   [test-001][yaml]
+    >   executable:
+    >     name: "test-001"
+    >     type: "urn:ping-executable"
+    >     spec:
+    >       target: "www.metagrid.xyz"
+    >   
+    >   -------- --------
+    >   [test-002][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-002</name>
+    >       <type>urn:delay-executable</type>
+    >       <spec>
+    >         <duration>21</duration>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+    >   
+    >   -------- --------
+    >   [test-002][json]
+    >   {
+    >     "executable": {
+    >       "name": "test-002",
+    >       "type": "urn:delay-executable",
+    >       "spec": {
+    >         "duration": 21
+    >       }
+    >     }
+    >   }
+    >   
+    >   -------- --------
+    >   [test-002][yaml]
+    >   executable:
+    >     name: "test-002"
+    >     type: "urn:delay-executable"
+    >     spec:
+    >       duration: "21"
+
+
+# -----------------------------------------------------
+# Run the Spring service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-webapp
+
+                ./mvnw spring-boot:run
+
+    >   
+    >   2024-06-22T16:38:22.992+01:00  INFO 102345 --- [Ambleck] [           main] u.c.m.ambleck.webapp.AmbleckApplication  : Starting AmbleckApplication using Java 19.0.1 with PID 102345 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/spring-webapp/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/spring-webapp)
+    >   2024-06-22T16:38:22.996+01:00  INFO 102345 --- [Ambleck] [           main] u.c.m.ambleck.webapp.AmbleckApplication  : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-22T16:38:24.605+01:00  INFO 102345 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8082 (http)
+    >   2024-06-22T16:38:24.623+01:00  INFO 102345 --- [Ambleck] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-22T16:38:24.623+01:00  INFO 102345 --- [Ambleck] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.19]
+    >   2024-06-22T16:38:24.689+01:00  INFO 102345 --- [Ambleck] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-22T16:38:24.691+01:00  INFO 102345 --- [Ambleck] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1630 ms
+    >   2024-06-22T16:38:25.412+01:00  INFO 102345 --- [Ambleck] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+    >   2024-06-22T16:38:25.499+01:00  INFO 102345 --- [Ambleck] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8082 (http) with context path ''
+    >   2024-06-22T16:38:25.523+01:00  INFO 102345 --- [Ambleck] [           main] u.c.m.ambleck.webapp.AmbleckApplication  : Started AmbleckApplication in 2.99 seconds (process running for 3.346)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run the FastAPI service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                python server-012.py
+
+    >   /home/Zarquan/.local/lib/python3.10/site-packages/pydantic/_internal/_config.py:334: UserWarning: Valid config keys have changed in V2:
+    >   * 'allow_population_by_field_name' has been renamed to 'populate_by_name'
+    >     warnings.warn(message, UserWarning)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-012.py:81: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/python/chatgpt/server-012.py:97: PydanticDeprecatedSince20: Pydantic V1 style `@root_validator` validators are deprecated. You should migrate to Pydantic V2 style `@model_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.7/migration/
+    >     @root_validator(pre=True)
+    >   INFO:     Started server process [102431]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test all the combinations of type and formats on both services
+# and compare the outputs.
+#[user@desktop]
+
+    for dataset in "${datasets[@]}"
+    do
+        for inform in "${!formats[@]}"
+        do
+            for outform in "${!formats[@]}"
+            do
+
+                echo ""
+                echo "-------- --------"
+                echo "[${dataset}][${inform}][${outform}]"
+
+                springout=$(mktemp)
+                fastapiout=$(mktemp)
+
+                echo "----"
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/${inform}" \
+                    --data-binary @"/tmp/${dataset}.${inform}" \
+                    --header "Accept: application/${outform}" \
+                    "${endpoints[spring]}" \
+                | eval "${formats[${outform}]}" \
+                | tee "${springout}"
+
+                echo "----"
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/${inform}" \
+                    --data-binary @"/tmp/${dataset}.${inform}" \
+                    --header "Accept: application/${outform}" \
+                    "${endpoints[fastapi]}" \
+                | eval "${formats[${outform}]}" \
+                | tee "${fastapiout}"
+
+                echo "----"
+                diff "${springout}" "${fastapiout}"
+                echo "----"
+
+            done
+        done
+    done
+
+    >   -------- --------
+    >   [test-001][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+
+    #
+    # YAML anfd JSON are good.
+    # XML stil needs a couple of tweaks.
+    #
+
+
+# -----------------------------------------------------
+# Edit the OpenAPI spec to control whether the type is an attribute or an element.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+            pushd ivoa
+
+                gedit parcolar-0.3.yaml &
+
+                    ....
+                    AbstractExecutable:
+                      ....
+                      properties:
+                        type:
+                          type: string
+                +       xml:
+                +        attribute: false
+                    ....
+
+            popd
+
+            pushd impl/forward/java
+
+                pushd spring-openapi
+
+                    ./mvnw clean
+                    ./mvnw install
+                popd
+
+            popd
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Run the Spring service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-webapp
+
+                ./mvnw spring-boot:run
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test all the combinations of type and formats on both services
+# and compare the outputs.
+#[user@desktop]
+
+    testall()
+        {
+        for dataset in "${datasets[@]}"
+        do
+            for inform in "${!formats[@]}"
+            do
+                for outform in "${!formats[@]}"
+                do
+
+                    echo ""
+                    echo "-------- --------"
+                    echo "[${dataset}][${inform}][${outform}]"
+
+                    springout=$(mktemp)
+                    fastapiout=$(mktemp)
+
+                    echo "----"
+                    curl \
+                        --silent \
+                        --show-error \
+                        --request POST \
+                        --header "Content-Type: application/${inform}" \
+                        --data-binary @"/tmp/${dataset}.${inform}" \
+                        --header "Accept: application/${outform}" \
+                        "${endpoints[spring]}" \
+                    | eval "${formats[${outform}]}" \
+                    | tee "${springout}"
+
+                    echo "----"
+                    curl \
+                        --silent \
+                        --show-error \
+                        --request POST \
+                        --header "Content-Type: application/${inform}" \
+                        --data-binary @"/tmp/${dataset}.${inform}" \
+                        --header "Accept: application/${outform}" \
+                        "${endpoints[fastapi]}" \
+                    | eval "${formats[${outform}]}" \
+                    | tee "${fastapiout}"
+
+                    echo "----"
+                    diff "${springout}" "${fastapiout}"
+                    echo "----"
+
+                done
+            done
+        done
+        }
+
+    testall
+
+    >   ....
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   ....
+
+    #
+    # Nope, the Spring webapp is still generating the wrong form.
+    # Try the build again, just to check.
+    #
+
+
+# -----------------------------------------------------
+# Clean build of the Spring service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+            pushd impl/forward/java
+
+                pushd spring-openapi
+
+                    ./mvnw clean
+                    ./mvnw install
+
+                popd
+
+                pushd spring-webapp
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+                popd
+
+            popd
+        popd
+    popd
+
+
+    >   ....
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,6c5,7
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >     <offer>
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   13c14
+    >   <     </offers>
+    >   ---
+    >   >     </offer>
+    >   ----
+    >   ....
+
+    #
+    # Nope, same problems.
+    # Seems this is a know issue.
+    # https://stackoverflow.com/questions/55124811/openapi-generator-does-not-generate-xmlattribute-xmlelement-annotations
+    # https://github.com/swagger-api/swagger-codegen/issues/9052
+    # Possible fix, but it doesn't look simple to implement.
+    # https://github.com/swagger-api/swagger-codegen/issues/9052#issuecomment-453942790
+    #
+    # Bored of fixing other people's code.
+    # Is there an easier way ?
+    #
+
