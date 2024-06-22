@@ -31,6 +31,17 @@
 
         Work in progress ...
 
+
+# -----------------------------------------------------
+# 20240621
+
+    COR-628 [Exec broker] Learning
+    https://confluence.skatelescope.org/display/SRCSC/COR-628++%5BExec+broker%5D+Learning
+
+    [Exec broker] Learning
+    https://jira.skatelescope.org/browse/COR-628
+
+
 # -----------------------------------------------------
 # 20240617
 
