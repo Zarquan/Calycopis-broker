@@ -1,0 +1,1010 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        The OpenAPI code generator for Spring is good, but not 100%.
+        Known issue that it doesn't generate the right XmlAttribute and XmlElement annotations.
+        https://stackoverflow.com/questions/55124811/openapi-generator-does-not-generate-xmlattribute-xmlelement-annotations
+        https://github.com/swagger-api/swagger-codegen/issues/9052
+
+        There is a possible fix, but it doesn't look simple to implement.
+        https://github.com/swagger-api/swagger-codegen/issues/9052#issuecomment-453942790
+
+        Bored of fixing other people's code.
+        Is there an easier way ?
+        Can ChatGPT generate better code ?
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Prompt
+
+Generate a Spring Boot web application based on the following OpenAPI specification.
+The server should handle the polymorphism using discriminators and support content
+negotiation for both input and output in JSON, YAML, and XML formats.
+
+    <parcolar-0.3.yaml>
+
+# -----------------------------------------------------
+# Response
+
+Sure! Here is a Spring Boot application that handles the polymorphism using discriminators and supports content negotiation for both input and output in JSON, YAML, and XML formats based on the provided OpenAPI specification.
+
+### Spring Boot Project Structure
+
+```
+src/main/java/com/example/demo
+├── DemoApplication.java
+├── controller
+│   └── AmbleckController.java
+├── model
+│   ├── AbstractComputeResource.java
+│   ├── AbstractExecutable.java
+│   ├── AbstractSpecific.java
+│   ├── AbstractStorageResource.java
+│   ├── DelayExecutable.java
+│   ├── DelaySpecific.java
+│   ├── MinMaxInteger.java
+│   ├── ParcolarOffer.java
+│   ├── ParcolarRequest.java
+│   ├── ParcolarResponse.java
+│   ├── PingExecutable.java
+│   ├── PingSpecific.java
+│   ├── Resources.java
+│   ├── SimpleComputeResource.java
+│   ├── SimpleComputeSpecific.java
+│   ├── SimpleStorageResource.java
+│   └── SimpleStorageSpecific.java
+└── service
+    └── AmbleckService.java
+```
+
+### `pom.xml`
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### `DemoApplication.java`
+
+```java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+### `AmbleckController.java`
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import com.example.demo.service.AmbleckService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ambleck")
+public class AmbleckController {
+
+    @Autowired
+    private AmbleckService ambleckService;
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                 produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+    public ParcolarResponse ambleckPost(@Validated @RequestBody ParcolarRequest request) {
+        return ambleckService.handleRequest(request);
+    }
+}
+```
+
+### `AmbleckService.java`
+
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AmbleckService {
+
+    public ParcolarResponse handleRequest(ParcolarRequest request) {
+        // Implement your business logic here
+        ParcolarResponse response = new ParcolarResponse();
+        response.setResult("YES");
+        return response;
+    }
+}
+```
+
+### `model/` Package
+
+#### `AbstractSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public abstract class AbstractSpecific {
+}
+```
+
+#### `AbstractComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleComputeResource.class, name = "urn:simple-compute-resource")
+})
+public abstract class AbstractComputeResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `AbstractStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleStorageResource.class, name = "urn:simple-storage-resource")
+})
+public abstract class AbstractStorageResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `AbstractExecutable.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PingExecutable.class, name = "urn:ping-executable"),
+        @JsonSubTypes.Type(value = DelayExecutable.class, name = "urn:delay-executable")
+})
+public abstract class AbstractExecutable {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `DelayExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class DelayExecutable extends AbstractExecutable {
+    private DelaySpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `DelaySpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class DelaySpecific extends AbstractSpecific {
+    private Integer duration;
+
+    // Getters and Setters
+}
+```
+
+#### `PingExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class PingExecutable extends AbstractExecutable {
+    private PingSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `PingSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class PingSpecific extends AbstractSpecific {
+    private String target;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeResource extends AbstractComputeResource {
+    private SimpleComputeSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleComputeSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeSpecific extends AbstractSpecific {
+    private MinMaxInteger cores;
+    private MinMaxInteger memory;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageResource extends AbstractStorageResource {
+    private SimpleStorageSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleStorageSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageSpecific extends AbstractSpecific {
+    private MinMaxInteger size;
+
+    // Getters and Setters
+}
+```
+
+#### `MinMaxInteger.java`
+
+```java
+package com.example.demo.model;
+
+public class MinMaxInteger {
+    private Integer min;
+    private Integer max;
+    private String units;
+
+    // Getters and Setters
+}
+```
+
+#### `Resources.java`
+
+```java
+package com.example.demo.model;
+
+import java.util.List;
+
+public class Resources {
+    private List<AbstractComputeResource> compute;
+    private List<AbstractStorageResource> storage;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarOffer.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation
+
+.JacksonXmlProperty;
+
+public class ParcolarOffer {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarRequest.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    // Getters and Setters
+}
+```
+
+### Explanation:
+
+1. **Project Structure:**
+   - Organized the project into `controller`, `model`, and `service` packages.
+
+2. **Model Classes:**
+   - Created model classes based on the provided OpenAPI specification.
+   - Used `@JsonTypeInfo` and `@JsonSubTypes` annotations to handle polymorphism with discriminators.
+
+3. **Controller and Service:**
+   - Implemented a controller (`AmbleckController`) to handle the `/ambleck` endpoint.
+   - Implemented a service (`AmbleckService`) to process the request and generate the response.
+
+4. **Content Negotiation:**
+   - Configured the controller method to consume and produce JSON, XML, and YAML formats.
+
+This Spring Boot application should meet the requirements specified in the OpenAPI document, handling polymorphism using discriminators and supporting content negotiation for both input and output in JSON, YAML, and XML formats.
+
+# -----------------------------------------------------
+# Prompt
+
+That looks good. Can you include the getters and setters in the code.
+
+# -----------------------------------------------------
+# Response
+
+Certainly! Here are the updated model classes with getters and setters included.
+
+### `AbstractSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public abstract class AbstractSpecific {
+}
+```
+
+### `AbstractComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleComputeResource.class, name = "urn:simple-compute-resource")
+})
+public abstract class AbstractComputeResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `AbstractStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleStorageResource.class, name = "urn:simple-storage-resource")
+})
+public abstract class AbstractStorageResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `AbstractExecutable.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PingExecutable.class, name = "urn:ping-executable"),
+        @JsonSubTypes.Type(value = DelayExecutable.class, name = "urn:delay-executable")
+})
+public abstract class AbstractExecutable {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `DelayExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class DelayExecutable extends AbstractExecutable {
+    private DelaySpecific spec;
+
+    @Override
+    public DelaySpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(DelaySpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `DelaySpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class DelaySpecific extends AbstractSpecific {
+    private Integer duration;
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+}
+```
+
+### `PingExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class PingExecutable extends AbstractExecutable {
+    private PingSpecific spec;
+
+    @Override
+    public PingSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(PingSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `PingSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class PingSpecific extends AbstractSpecific {
+    private String target;
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+}
+```
+
+### `SimpleComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeResource extends AbstractComputeResource {
+    private SimpleComputeSpecific spec;
+
+    @Override
+    public SimpleComputeSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(SimpleComputeSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `SimpleComputeSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeSpecific extends AbstractSpecific {
+    private MinMaxInteger cores;
+    private MinMaxInteger memory;
+
+    public MinMaxInteger getCores() {
+        return cores;
+    }
+
+    public void setCores(MinMaxInteger cores) {
+        this.cores = cores;
+    }
+
+    public MinMaxInteger getMemory() {
+        return memory;
+    }
+
+    public void setMemory(MinMaxInteger memory) {
+        this.memory = memory;
+    }
+}
+```
+
+### `SimpleStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageResource extends AbstractStorageResource {
+    private SimpleStorageSpecific spec;
+
+    @Override
+    public SimpleStorageSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(SimpleStorageSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `SimpleStorageSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageSpecific extends AbstractSpecific {
+    private MinMaxInteger size;
+
+    public MinMaxInteger getSize() {
+        return size;
+    }
+
+    public void setSize(MinMaxInteger size) {
+        this.size = size;
+    }
+}
+```
+
+### `MinMaxInteger.java`
+
+```java
+package com.example.demo.model;
+
+public class MinMaxInteger {
+    private Integer min;
+    private Integer max;
+    private String units;
+
+    public Integer getMin() {
+        return min;
+    }
+
+    public void setMin(Integer min) {
+        this.min = min;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
+
+    public void setMax(Integer max) {
+        this.max = max;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+}
+```
+
+### `Resources.java`
+
+```java
+package com.example.demo.model;
+
+import java.util.List;
+
+public class Resources {
+    private List<AbstractComputeResource> compute;
+    private List<AbstractStorageResource> storage;
+
+    public List<AbstractComputeResource> getCompute() {
+        return compute;
+    }
+
+    public void setCompute(List<AbstractComputeResource> compute) {
+        this.compute = compute;
+    }
+
+    public List<AbstractStorageResource> getStorage() {
+        return storage;
+    }
+
+    public void setStorage(List<AbstractStorageResource> storage) {
+        this.storage = storage;
+    }
+}
+```
+
+### `ParcolarOffer.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarOffer {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### `ParcolarRequest.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public List<ParcolarOffer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<ParcolarOffer> offers) {
+        this.offers = offers;
+    }
+}
+```
+
+This updated code includes the necessary getters and setters for each model class. This ensures proper encapsulation and adheres to Java bean conventions.
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            mkdir chatgpt
+            pushd chatgpt
+
+                mkdir server
+                pushd server
+
+                    gedit pom.xml &
+                    mkdir src/main/java/com/example/demo
+                    pushd src/main/java/com/example/demo
+
+                    gedit DemoApplication.java &
+
+                    mkdir controller
+                    pushd controller
+
+                        gedit AmbleckController.java &
+
+                    popd
+
+├── model
+│   ├── AbstractComputeResource.java
+│   ├── AbstractExecutable.java
+│   ├── AbstractSpecific.java
+│   ├── AbstractStorageResource.java
+│   ├── DelayExecutable.java
+│   ├── DelaySpecific.java
+│   ├── MinMaxInteger.java
+│   ├── ParcolarOffer.java
+│   ├── ParcolarRequest.java
+│   ├── ParcolarResponse.java
+│   ├── PingExecutable.java
+│   ├── PingSpecific.java
+│   ├── Resources.java
+│   ├── SimpleComputeResource.java
+│   ├── SimpleComputeSpecific.java
+│   ├── SimpleStorageResource.java
+│   └── SimpleStorageSpecific.java
+└── service
+    └── AmbleckService.java
+
+
+
+
