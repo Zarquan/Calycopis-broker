@@ -38,12 +38,23 @@
         https://stackoverflow.com/questions/55124811/openapi-generator-does-not-generate-xmlattribute-xmlelement-annotations
         https://github.com/swagger-api/swagger-codegen/issues/9052
 
+        Sounds like a minor issue, but without it we can't make the output from the
+        Python and Java services 100% identical.
+
         There is a possible fix, but it doesn't look simple to implement.
         https://github.com/swagger-api/swagger-codegen/issues/9052#issuecomment-453942790
 
         Bored of fixing other people's code.
         Is there an easier way ?
         Can ChatGPT generate better code ?
+
+        TODO check to see if this is an issue.
+        Can the Java and Python client/server interoperate,
+        even if the XML is slightly different.
+
+        TODO check to see if this is an issue.
+        Can we just add the right annotations to the Java code ourselves.
+
 
     Result:
 
@@ -972,39 +983,586 @@ This updated code includes the necessary getters and setters for each model clas
                 pushd server
 
                     gedit pom.xml &
-                    mkdir src/main/java/com/example/demo
+
+                    mkdir -p src/main/java/com/example/demo
                     pushd src/main/java/com/example/demo
 
-                    gedit DemoApplication.java &
+                        gedit DemoApplication.java &
 
-                    mkdir controller
-                    pushd controller
+                        mkdir controller
+                        pushd controller
 
-                        gedit AmbleckController.java &
+                            gedit AmbleckController.java &
+
+                        popd
+
+                        mkdir model
+                        pushd model
+
+                            gedit AbstractComputeResource.java &
+                            gedit AbstractExecutable.java
+                            gedit AbstractSpecific.java
+                            gedit AbstractStorageResource.java
+                            gedit DelayExecutable.java
+                            gedit DelaySpecific.java
+                            gedit MinMaxInteger.java
+                            gedit ParcolarOffer.java
+                            gedit ParcolarRequest.java
+                            gedit ParcolarResponse.java
+                            gedit PingExecutable.java
+                            gedit PingSpecific.java
+                            gedit Resources.java
+                            gedit SimpleComputeResource.java
+                            gedit SimpleComputeSpecific.java
+                            gedit SimpleStorageResource.java
+                            gedit SimpleStorageSpecific.java
+
+                        popd
+
+                        mkdir service
+                        pushd service
+
+                            gedit AmbleckService.java
+
+                        popd
+                    popd
+
+                    cp ../../spring-openapi/mvnw .
+                    cp -r ../../spring-openapi/.mvn/ .
+
+                    cp ../../spring-openapi/.gitignore .
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 05:14:12.204  INFO 113043 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 113043 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:14:12.208  INFO 113043 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:14:13.603  INFO 113043 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:14:13.615  INFO 113043 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:14:13.615  INFO 113043 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:14:13.714  INFO 113043 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:14:13.714  INFO 113043 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1445 ms
+    >   2024-06-23 05:14:14.453  INFO 113043 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:14:14.457  WARN 113043 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Prompt
+
+Running the application using spring-boot:run fails.
+It logs the following Exception:
+Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null
+
+# -----------------------------------------------------
+# Response
+
+The issue you're encountering seems to be related to the version incompatibility of `springfox-boot-starter` with the current Spring Boot version. `springfox` has had compatibility issues with newer versions of Spring Boot.
+
+As an alternative, you can switch to using `springdoc-openapi`, which is another library for integrating OpenAPI with Spring Boot. Here's how you can update your project to use `springdoc-openapi` instead:
+
+### Update `pom.xml`
+
+Remove the `springfox-boot-starter` dependency and add the `springdoc-openapi` dependency:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### Update Application Code
+
+No changes are needed for the actual application code. However, you can add a configuration class to customize the OpenAPI documentation if needed.
+
+### Add `OpenApiConfig.java` (Optional)
+
+If you want to customize the OpenAPI documentation, you can add a configuration class:
+
+```java
+package com.example.demo.config;
+
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI springShopOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("SpringShop API")
+                        .description("Spring shop sample application")
+                        .version("v0.0.1")
+                        .license(new License().name("Apache 2.0").url("http://springdoc.org")))
+                .externalDocs(new ExternalDocumentation()
+                        .description("SpringShop Wiki Documentation")
+                        .url("https://springshop.wiki.github.org/docs"));
+    }
+}
+```
+
+### Run the Application
+
+Run the application using the following command:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+This should resolve the issues related to `springfox` and ensure your application runs smoothly with OpenAPI documentation support.
+
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+                    pushd src/main/java/com/example/demo
+
+                        gedit OpenApiConfig.java
 
                     popd
 
-├── model
-│   ├── AbstractComputeResource.java
-│   ├── AbstractExecutable.java
-│   ├── AbstractSpecific.java
-│   ├── AbstractStorageResource.java
-│   ├── DelayExecutable.java
-│   ├── DelaySpecific.java
-│   ├── MinMaxInteger.java
-│   ├── ParcolarOffer.java
-│   ├── ParcolarRequest.java
-│   ├── ParcolarResponse.java
-│   ├── PingExecutable.java
-│   ├── PingSpecific.java
-│   ├── Resources.java
-│   ├── SimpleComputeResource.java
-│   ├── SimpleComputeSpecific.java
-│   ├── SimpleStorageResource.java
-│   └── SimpleStorageSpecific.java
-└── service
-    └── AmbleckService.java
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
 
+    >   2024-06-23 05:26:44.439  INFO 113400 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 113400 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:26:44.442  INFO 113400 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:26:45.577  INFO 113400 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:26:45.590  INFO 113400 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:26:45.590  INFO 113400 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:26:45.699  INFO 113400 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:26:45.699  INFO 113400 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1197 ms
+    >   2024-06-23 05:26:46.625  INFO 113400 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:26:46.637  INFO 113400 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.585 seconds (JVM running for 2.934)
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+
+    >   ....
+    >   ....
+    >   2024-06-23 05:34:27.529  INFO 113400 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 05:34:27.529  INFO 113400 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 05:34:27.530  INFO 113400 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   2024-06-23 05:34:27.547  WARN 113400 --- [nio-8080-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'application/yaml' not supported]
+
+    #
+    # The ChatGPT code has 'application/x-yaml' instread of 'application/yaml'
+    #
+
+# -----------------------------------------------------
+# Fix the code and run the server.
+#[user@desktop]
+
+                    pushd src/main/java/com/example/demo/controller
+
+                        gedit AmbleckController.java
+
+                            -   @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                            +   @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/yaml"},
+                            -                produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+                            +                produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/yaml"})
+
+
+                    popd
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 05:42:20.432  INFO 114299 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 114299 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:42:20.435  INFO 114299 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:42:21.590  INFO 114299 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:42:21.602  INFO 114299 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:42:21.602  INFO 114299 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:42:21.698  INFO 114299 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:42:21.698  INFO 114299 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1203 ms
+    >   2024-06-23 05:42:22.613  INFO 114299 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:42:22.627  INFO 114299 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.593 seconds (JVM running for 2.953)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+
+    >   ....
+    >   ....
+    >   2024-06-23 05:42:47.642  INFO 114299 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 05:42:47.643  INFO 114299 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 05:42:47.644  INFO 114299 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   2024-06-23 05:42:47.674  WARN 114299 --- [nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'application/yaml;charset=UTF-8' not supported]
+
+# -----------------------------------------------------
+# Prompt
+
+    It looks like the webapp doesn't' support YAML.
+
+# -----------------------------------------------------
+# Response
+
+To support YAML in your Spring Boot application, you need to ensure that you have the necessary dependencies and configurations. Spring Boot does not natively support YAML as a media type out of the box, but you can configure it using Jackson and custom message converters.
+
+Here's how to update your project to add support for YAML:
+
+### Update `pom.xml`
+
+Ensure you have the following dependencies:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### Add YAML Configuration
+
+Create a configuration class to register the YAML message converter:
+
+#### `YamlJackson2HttpMessageConverter.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
+
+@Component
+public class YamlJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {
+
+    public YamlJackson2HttpMessageConverter() {
+        super(new ObjectMapper(new YAMLFactory()), MediaType.parseMediaType("application/x-yaml"));
+    }
+}
+```
+
+#### `WebConfig.java`
+
+```java
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter;
+
+    public WebConfig(YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter) {
+        this.yamlJackson2HttpMessageConverter = yamlJackson2HttpMessageConverter;
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(yamlJackson2HttpMessageConverter);
+    }
+}
+```
+
+### Update Controller
+
+Make sure the controller handles `application/x-yaml`:
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import com.example.demo.service.AmbleckService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ambleck")
+public class AmbleckController {
+
+    @Autowired
+    private AmbleckService ambleckService;
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                 produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+    public ParcolarResponse ambleckPost(@Validated @RequestBody ParcolarRequest request) {
+        return ambleckService.handleRequest(request);
+    }
+}
+```
+
+### Example `ParcolarRequest.java` (Updated)
+
+Here is an example of one of your model classes, including the getters and setters:
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### Run the Application
+
+Run the application using the following command:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+This configuration ensures your Spring Boot application supports JSON, XML, and YAML for both input and output.
+
+
+# -----------------------------------------------------
+# Update the code and run the server.
+#[user@desktop]
+
+                    gedit pom.xml
+                        ....
+                        ....
+
+                    pushd src/main/java/com/example/demo/controller
+
+                        gedit AmbleckController.java
+                            ....
+                            ....
+
+                    popd
+
+                    mkdir -p src/main/java/com/example/demo/config
+                    pushd src/main/java/com/example/demo/config
+
+                        gedit YamlJackson2HttpMessageConverter.java
+                            ....
+                            ....
+
+                        gedit WebConfig.java
+
+                    popd
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 06:02:30.176  INFO 115481 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 115481 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 06:02:30.180  INFO 115481 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 06:02:31.329  INFO 115481 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 06:02:31.343  INFO 115481 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 06:02:31.343  INFO 115481 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 06:02:31.440  INFO 115481 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 06:02:31.440  INFO 115481 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1200 ms
+    >   2024-06-23 06:02:32.337  INFO 115481 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 06:02:32.349  INFO 115481 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.565 seconds (JVM running for 2.977)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+    >   ---
+    >   result: "YES"
+    >   offers: null
+
+    >   ....
+    >   2024-06-23 06:02:58.204  INFO 115481 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 06:02:58.204  INFO 115481 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 06:02:58.206  INFO 115481 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   ....
+
+    #
+    # Took over 2hrs of testing and editing to get this far.
+    # Need to automate the process of creating the files that ChapGPT outputs.
+    # Manually compensated for the old media type 'application/x-yaml' => 'application/yaml'
+    #
+    # Now we need to add our business logic.
+    # ....
+    #
 
 
 
