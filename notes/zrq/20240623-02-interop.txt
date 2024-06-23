@@ -303,7 +303,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][xml][json]
     >   ----
@@ -340,7 +340,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][xml][yaml]
     >   ----
@@ -366,7 +366,7 @@ EOF
     >   5d4
     >   <       type: "urn:ping-executable"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][xml]
     >   ----
@@ -413,7 +413,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][json]
     >   ----
@@ -450,7 +450,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][yaml]
     >   ----
@@ -476,7 +476,7 @@ EOF
     >   5d4
     >   <       type: "urn:ping-executable"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][xml]
     >   ----
@@ -523,7 +523,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][json]
     >   ----
@@ -560,7 +560,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][yaml]
     >   ----
@@ -586,7 +586,7 @@ EOF
     >   5d4
     >   <       type: "urn:ping-executable"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][xml]
     >   ----
@@ -633,7 +633,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][json]
     >   ----
@@ -670,7 +670,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][yaml]
     >   ----
@@ -696,7 +696,7 @@ EOF
     >   5d4
     >   <       type: "urn:delay-executable"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][xml]
     >   ----
@@ -743,7 +743,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][json]
     >   ----
@@ -780,7 +780,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][yaml]
     >   ----
@@ -806,7 +806,7 @@ EOF
     >   5d4
     >   <       type: "urn:delay-executable"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][xml]
     >   ----
@@ -853,7 +853,7 @@ EOF
     >   ---
     >   >       <executable>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][json]
     >   ----
@@ -890,7 +890,7 @@ EOF
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][yaml]
     >   ----
@@ -1302,7 +1302,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:ping-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][xml][json]
     >   ----
@@ -1339,7 +1339,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][xml][yaml]
     >   ----
@@ -1362,7 +1362,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >       resources: "null"
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][xml]
     >   ----
@@ -1409,7 +1409,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:ping-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][json]
     >   ----
@@ -1446,7 +1446,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][json][yaml]
     >   ----
@@ -1469,7 +1469,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >       resources: "null"
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][xml]
     >   ----
@@ -1516,7 +1516,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:ping-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][json]
     >   ----
@@ -1553,7 +1553,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-001][yaml][yaml]
     >   ----
@@ -1576,7 +1576,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >       resources: "null"
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][xml]
     >   ----
@@ -1623,7 +1623,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:delay-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][json]
     >   ----
@@ -1660,7 +1660,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][xml][yaml]
     >   ----
@@ -1683,7 +1683,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >       resources: "null"
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][xml]
     >   ----
@@ -1730,7 +1730,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:delay-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][json]
     >   ----
@@ -1767,7 +1767,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][json][yaml]
     >   ----
@@ -1790,7 +1790,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >       resources: "null"
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][xml]
     >   ----
@@ -1837,7 +1837,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   >       <executable>
     >   >         <type>urn:delay-executable</type>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][json]
     >   ----
@@ -1874,7 +1874,7 @@ This setup ensures that your Spring Boot application correctly handles XML seria
     >   }
     >   ----
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-002][yaml][yaml]
     >   ----
@@ -2099,4 +2099,398 @@ This configuration ensures that the `type` field is serialized as an XML element
     #
 
 
+# -----------------------------------------------------
+# Create a set of XML data using attributes.
+#[user@desktop]
+
+cat > /tmp/fix-002.xsl << EOF
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()" />
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="executable">
+        <xsl:element name="executable">
+            <xsl:attribute name="type">
+                <xsl:value-of select="type"/>
+            </xsl:attribute>
+            <xsl:apply-templates select="node()|@*"/>
+        </xsl:element>
+    </xsl:template>
+
+    <xsl:template match="executable/type"/>
+
+</xsl:stylesheet>
+EOF
+
+    xmlstarlet \
+        tr "/tmp/fix-002.xsl" \
+        "/tmp/test-001.xml" \
+    | xmlstarlet fo \
+    | tee "/tmp/test-003.xml" \
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarRequest>
+    >     <executable type="urn:ping-executable">
+    >       <name>test-001</name>
+    >       <spec>
+    >         <target>www.metagrid.xyz</target>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+    xmlstarlet \
+        tr "/tmp/fix-002.xsl" \
+        "/tmp/test-002.xml" \
+    | xmlstarlet fo \
+    | tee "/tmp/test-004.xml" \
+
+    >   <?xml version="1.0"?>
+    >   <ParcolarRequest>
+    >     <executable type="urn:delay-executable">
+    >       <name>test-002</name>
+    >       <spec>
+    >         <duration>21</duration>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+# -----------------------------------------------------
+# Update our list of options.
+#[user@desktop]
+
+    unset datasets
+    declare -a datasets=(
+        test-001
+        test-002
+        test-003
+        test-004
+        )
+
+# -----------------------------------------------------
+# Update the test function to check the infile exists.
+#[user@desktop]
+
+    testall()
+        {
+        for dataset in "${datasets[@]}"
+        do
+            for inform in "${!formats[@]}"
+            do
+                for outform in "${!formats[@]}"
+                do
+
+                    echo ""
+                    echo "-------- --------"
+                    echo "[${dataset}][${inform}][${outform}]"
+
+                    if [ -a "/tmp/${dataset}.${inform}" ]
+                    then
+
+                        springout=$(mktemp)
+                        fastapiout=$(mktemp)
+
+                        echo "----"
+                        curl \
+                            --silent \
+                            --show-error \
+                            --request POST \
+                            --header "Content-Type: application/${inform}" \
+                            --data-binary @"/tmp/${dataset}.${inform}" \
+                            --header "Accept: application/${outform}" \
+                            "${endpoints[spring]}" \
+                        | eval "${formats[${outform}]}" \
+                        | tee "${springout}"
+
+                        echo "----"
+                        curl \
+                            --silent \
+                            --show-error \
+                            --request POST \
+                            --header "Content-Type: application/${inform}" \
+                            --data-binary @"/tmp/${dataset}.${inform}" \
+                            --header "Accept: application/${outform}" \
+                            "${endpoints[fastapi]}" \
+                        | eval "${formats[${outform}]}" \
+                        | tee "${fastapiout}"
+
+                        echo "----"
+                        diff "${springout}" "${fastapiout}"
+                        echo "----"
+
+                    fi
+                done
+            done
+        done
+        }
+
+    testall
+
+
+
+    >   ....
+    >   ....
+    >   -------- --------
+    >   [test-003][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   -:1.1: Start tag expected, '<' not found
+    >   {"detail":"1 validation error for ParcolarRequest\n  Value error, Unknown execut
+    >   ^
+    >   ----
+    >   1,15d0
+    >   < <?xml version="1.0"?>
+    >   < <ParcolarResponse>
+    >   <   <result>YES</result>
+    >   <   <offers>
+    >   <     <offer>
+    >   <       <executable type="urn:ping-executable">
+    >   <         <name>test-001</name>
+    >   <         <spec>
+    >   <           <target>www.metagrid.xyz</target>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offer>
+    >   <   </offers>
+    >   < </ParcolarResponse>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-003][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   }
+    >   ----
+    >   2,14c2
+    >   <   "result": "YES",
+    >   <   "offers": [
+    >   <     {
+    >   <       "executable": {
+    >   <         "type": "urn:ping-executable",
+    >   <         "name": "test-001",
+    >   <         "spec": {
+    >   <           "target": "www.metagrid.xyz"
+    >   <         }
+    >   <       },
+    >   <       "resources": null
+    >   <     }
+    >   <   ]
+    >   ---
+    >   >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-003][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   1,8c1
+    >   < result: "YES"
+    >   < offers:
+    >   <   - executable:
+    >   <       type: "urn:ping-executable"
+    >   <       name: "test-001"
+    >   <       spec:
+    >   <         target: "www.metagrid.xyz"
+    >   <     resources: "null"
+    >   ---
+    >   > "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-003][json][xml]
+    >   
+    >   -------- --------
+    >   [test-003][json][json]
+    >   
+    >   -------- --------
+    >   [test-003][json][yaml]
+    >   
+    >   -------- --------
+    >   [test-003][yaml][xml]
+    >   
+    >   -------- --------
+    >   [test-003][yaml][json]
+    >   
+    >   -------- --------
+    >   [test-003][yaml][yaml]
+    >   
+    >   -------- --------
+    >   [test-004][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   -:1.1: Start tag expected, '<' not found
+    >   {"detail":"1 validation error for ParcolarRequest\n  Value error, Unknown execut
+    >   ^
+    >   ----
+    >   1,15d0
+    >   < <?xml version="1.0"?>
+    >   < <ParcolarResponse>
+    >   <   <result>YES</result>
+    >   <   <offers>
+    >   <     <offer>
+    >   <       <executable type="urn:delay-executable">
+    >   <         <name>test-002</name>
+    >   <         <spec>
+    >   <           <duration>21</duration>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offer>
+    >   <   </offers>
+    >   < </ParcolarResponse>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-004][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   }
+    >   ----
+    >   2,14c2
+    >   <   "result": "YES",
+    >   <   "offers": [
+    >   <     {
+    >   <       "executable": {
+    >   <         "type": "urn:delay-executable",
+    >   <         "name": "test-002",
+    >   <         "spec": {
+    >   <           "duration": 21
+    >   <         }
+    >   <       },
+    >   <       "resources": null
+    >   <     }
+    >   <   ]
+    >   ---
+    >   >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-004][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   1,8c1
+    >   < result: "YES"
+    >   < offers:
+    >   <   - executable:
+    >   <       type: "urn:delay-executable"
+    >   <       name: "test-002"
+    >   <       spec:
+    >   <         duration: "21"
+    >   <     resources: "null"
+    >   ---
+    >   > "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-004][json][xml]
+    >   
+    >   -------- --------
+    >   [test-004][json][json]
+    >   
+    >   -------- --------
+    >   [test-004][json][yaml]
+    >   
+    >   -------- --------
+    >   [test-004][yaml][xml]
+    >   
+    >   -------- --------
+    >   [test-004][yaml][json]
+    >   
+    >   -------- --------
+    >   [test-004][yaml][yaml]
+
+    #
+    # Looks like the Python code can't handle attributes :-(
+    #
 
