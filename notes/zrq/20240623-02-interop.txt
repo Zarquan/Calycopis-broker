@@ -1,0 +1,2102 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Compare the Spring and FastAPI implementations.
+        Apply the same test to both implementations and compare the results.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run the Spring service
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd chatgpt
+                pushd server
+
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 14:14:02.414  INFO 122537 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 122537 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 14:14:02.417  INFO 122537 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 14:14:03.586  INFO 122537 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8082 (http)
+    >   2024-06-23 14:14:03.598  INFO 122537 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 14:14:03.598  INFO 122537 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 14:14:03.695  INFO 122537 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 14:14:03.695  INFO 122537 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1215 ms
+    >   2024-06-23 14:14:04.622  INFO 122537 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8082 (http) with context path ''
+    >   2024-06-23 14:14:04.633  INFO 122537 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.653 seconds (JVM running for 3.071)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run the FastAPI service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                python server-012.py
+
+    >   ....
+    >   ....
+    >   INFO:     Started server process [122714]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create our list of options.
+#[user@desktop]
+
+    unset formats
+    declare -A formats=(
+        [yaml]="yq '.. style=\"double\" '"
+        [json]="jq '.'"
+        [xml]="xmlstarlet fo"
+        )
+
+    unset datasets
+    declare -a datasets=(
+        test-001
+        test-002
+        )
+
+    unset endpoints
+    declare -A endpoints=(
+        [spring]='http://127.0.0.1:8082/ambleck'
+        [fastapi]='http://127.0.0.1:8080/ambleck'
+        )
+
+
+# -----------------------------------------------------
+# Create our YAML data.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml << EOF
+executable:
+  name: "test-001"
+  type: "urn:ping-executable"
+  spec:
+    target: "www.metagrid.xyz"
+EOF
+
+cat > /tmp/test-002.yaml << EOF
+executable:
+  name: "test-002"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+EOF
+
+# -----------------------------------------------------
+# Create our JSON data.
+#[user@desktop]
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-001",
+    >       "type": "urn:ping-executable",
+    >       "spec": {
+    >         "target": "www.metagrid.xyz"
+    >       }
+    >     }
+    >   }
+
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-002",
+    >       "type": "urn:delay-executable",
+    >       "spec": {
+    >         "duration": 21
+    >       }
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# Create our XML data.
+#[user@desktop]
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-001</name>
+    >       <type>urn:ping-executable</type>
+    >       <spec>
+    >         <target>www.metagrid.xyz</target>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-002</name>
+    >       <type>urn:delay-executable</type>
+    >       <spec>
+    >         <duration>21</duration>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+# -----------------------------------------------------
+# Test all the combinations of type and formats on both services
+# and compare the outputs.
+#[user@desktop]
+
+    testall()
+        {
+        for dataset in "${datasets[@]}"
+        do
+            for inform in "${!formats[@]}"
+            do
+                for outform in "${!formats[@]}"
+                do
+
+                    echo ""
+                    echo "-------- --------"
+                    echo "[${dataset}][${inform}][${outform}]"
+
+                    springout=$(mktemp)
+                    fastapiout=$(mktemp)
+
+                    echo "----"
+                    curl \
+                        --silent \
+                        --show-error \
+                        --request POST \
+                        --header "Content-Type: application/${inform}" \
+                        --data-binary @"/tmp/${dataset}.${inform}" \
+                        --header "Accept: application/${outform}" \
+                        "${endpoints[spring]}" \
+                    | eval "${formats[${outform}]}" \
+                    | tee "${springout}"
+
+                    echo "----"
+                    curl \
+                        --silent \
+                        --show-error \
+                        --request POST \
+                        --header "Content-Type: application/${inform}" \
+                        --data-binary @"/tmp/${dataset}.${inform}" \
+                        --header "Accept: application/${outform}" \
+                        "${endpoints[fastapi]}" \
+                    | eval "${formats[${outform}]}" \
+                    | tee "${fastapiout}"
+
+                    echo "----"
+                    diff "${springout}" "${fastapiout}"
+                    echo "----"
+
+                done
+            done
+        done
+        }
+
+    testall
+
+    >   -------- --------
+    >   [test-001][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:ping-executable"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:ping-executable"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:ping-executable"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:delay-executable"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:delay-executable"
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   5d4
+    >   <       type: "urn:delay-executable"
+    >   ----
+
+    #
+    # YAML repeats the type twice.
+    # XML put the type as anattribute.
+    #
+
+    #
+    # Adding @JsonIgnoreProperties prevents the duplicate in YAML.
+    #
+
+    experiments/openapi/impl/forward/java/chatgpt/server/src/main/java/com/example/demo/model/AbstractExecutable.java
+
+        -   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+        +   @JsonIgnoreProperties(
+        +     value = "type", // ignore manually set type, it will be automatically generated by Jackson during serialization
+        +     allowSetters = true // allows the type to be set during deserialization
+        +   )
+        +   @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+
+
+
+# -----------------------------------------------------
+# Prompt
+
+    How can I make a SpringBoot webapp recognise an JacksonXmlProperty annotation.
+
+# -----------------------------------------------------
+# Response
+
+To make a Spring Boot web application recognize the `@JacksonXmlProperty` annotation, you need to ensure that the `JacksonXmlModule` from the `jackson-dataformat-xml` library is registered with the Jackson `ObjectMapper`.
+
+Here's how you can configure your Spring Boot application to support `@JacksonXmlProperty` annotations:
+
+### Step 1: Add Dependencies
+
+Ensure you have the `jackson-dataformat-xml` dependency in your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-xml</artifactId>
+</dependency>
+```
+
+### Step 2: Configure the ObjectMapper
+
+Create a configuration class to configure the Jackson `ObjectMapper` to use the `JacksonXmlModule`.
+
+#### `JacksonConfig.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlModule;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+
+@Configuration
+public class JacksonConfig {
+
+    @Bean
+    public XmlMapper xmlMapper() {
+        JacksonXmlModule module = new JacksonXmlModule();
+        module.setDefaultUseWrapper(false);
+        return new XmlMapper(module);
+    }
+
+    @Bean
+    public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder, XmlMapper xmlMapper) {
+        return builder.createXmlMapper(false).build().registerModule(xmlMapper.getFactory().getModule());
+    }
+}
+```
+
+### Step 3: Update Web Configuration
+
+Update your `WebConfig` class to include the custom XML `HttpMessageConverter`.
+
+#### `WebConfig.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final XmlMapper xmlMapper;
+    private final YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter;
+
+    public WebConfig(XmlMapper xmlMapper, YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter) {
+        this.xmlMapper = xmlMapper;
+        this.yamlJackson2HttpMessageConverter = yamlJackson2HttpMessageConverter;
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new MappingJackson2XmlHttpMessageConverter(xmlMapper));
+        converters.add(yamlJackson2HttpMessageConverter);
+    }
+}
+```
+
+### Example Model Class with `@JacksonXmlProperty`
+
+Here's an example of a model class using `@JacksonXmlProperty`:
+
+#### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public List<ParcolarOffer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<ParcolarOffer> offers) {
+        this.offers = offers;
+    }
+}
+```
+
+### Running the Application
+
+With these configurations, your Spring Boot application should correctly recognize and process `@JacksonXmlProperty` annotations.
+
+Run the application using:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+
+
+This setup ensures that your Spring Boot application correctly handles XML serialization and deserialization using the `@JacksonXmlProperty` annotation.
+
+# -----------------------------------------------------
+# Update the server code.
+#[user@desktop]
+
+                    ....
+                    ....
+
+                    pushd src/main/java/com/example/demo
+                        pushd config
+
+                            gedit JacksonConfig.java &
+                                ....
+                                ....
+
+                            gedit WebConfig.java &
+                                ....
+                                ....
+
+# -----------------------------------------------------
+# Prompt
+
+    The code fails to compile reporting "cannot find symbolmethod getModule() onclass com.fasterxml.jackson.dataformat.xml.XmlFactory"
+
+# -----------------------------------------------------
+# Response
+
+I apologize for the oversight. The correct way to register the `XmlMapper` with the Jackson `ObjectMapper` involves setting up the `MappingJackson2XmlHttpMessageConverter` directly.
+
+Let's fix the code. Here is the updated version:
+
+### Step 1: Add Dependencies
+
+Ensure you have the `jackson-dataformat-xml` dependency in your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-xml</artifactId>
+</dependency>
+```
+
+### Step 2: Configure the `XmlMapper`
+
+Create a configuration class to configure the `XmlMapper`.
+
+#### `JacksonConfig.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JacksonConfig {
+
+    @Bean
+    public XmlMapper xmlMapper() {
+        return new XmlMapper();
+    }
+}
+```
+
+### Step 3: Update Web Configuration
+
+Update your `WebConfig` class to include the custom XML `HttpMessageConverter`.
+
+#### `WebConfig.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final XmlMapper xmlMapper;
+    private final YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter;
+
+    public WebConfig(XmlMapper xmlMapper, YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter) {
+        this.xmlMapper = xmlMapper;
+        this.yamlJackson2HttpMessageConverter = yamlJackson2HttpMessageConverter;
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new MappingJackson2XmlHttpMessageConverter(xmlMapper));
+        converters.add(yamlJackson2HttpMessageConverter);
+    }
+}
+```
+
+### Example Model Class with `@JacksonXmlProperty`
+
+Here's an example of a model class using `@JacksonXmlProperty`:
+
+#### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public List<ParcolarOffer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<ParcolarOffer> offers) {
+        this.offers = offers;
+    }
+}
+```
+
+### Ensure Other Model Classes Have Getters and Setters
+
+For completeness, ensure other model classes have getters and setters as required.
+
+### Running the Application
+
+With these configurations, your Spring Boot application should correctly recognize and process `@JacksonXmlProperty` annotations.
+
+Run the application using:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+This setup ensures that your Spring Boot application correctly handles XML serialization and deserialization using the `@JacksonXmlProperty` annotation.
+
+    #
+    # That made things worse, lots broken.
+    # Delete the JacksonConfig class.
+    # Revert the WebConfig class.
+    #
+
+    #
+    # We are very very close.
+    # One discrepancy remaining, type as attribute in XML responses.
+    #
+
+    >   -------- --------
+    >   [test-001][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:ping-executable</type>
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:ping-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:ping-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offer>
+    >         <executable>
+    >           <type>urn:delay-executable</type>
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offer>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   6c6,7
+    >   <       <executable type="urn:delay-executable">
+    >   ---
+    >   >       <executable>
+    >   >         <type>urn:delay-executable</type>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+
+
+# -----------------------------------------------------
+# Prompt
+
+    The webapp is ignoring the JacksonXmlProperty and rendering is as an attribute.
+
+# -----------------------------------------------------
+# Response
+
+To ensure that the `type` field is serialized as an XML element instead of an attribute, we need to use custom serialization handling since `@JacksonXmlProperty` does not support this directly when used with `JsonTypeInfo`.
+
+We'll need to create a custom serializer for this purpose.
+
+Here is how you can achieve this:
+
+### Step 1: Create Custom Serializer
+
+First, create a custom serializer to handle the serialization of the `type` field as an element.
+
+#### `AbstractExecutableSerializer.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
+
+import java.io.IOException;
+
+public class AbstractExecutableSerializer extends StdSerializer<AbstractExecutable> {
+
+    public AbstractExecutableSerializer() {
+        this(null);
+    }
+
+    public AbstractExecutableSerializer(Class<AbstractExecutable> t) {
+        super(t);
+    }
+
+    @Override
+    public void serialize(AbstractExecutable value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+        ToXmlGenerator xmlGen = (ToXmlGenerator) gen;
+        xmlGen.writeStartObject();
+
+        xmlGen.writeStringField("type", value.getType());
+        xmlGen.writeStringField("name", value.getName());
+
+        if (value.getSpec() != null) {
+            xmlGen.writeObjectField("spec", value.getSpec());
+        }
+
+        xmlGen.writeEndObject();
+    }
+}
+```
+
+### Step 2: Update Model Classes
+
+Update the `AbstractExecutable` class to use the custom serializer.
+
+#### `AbstractExecutable.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXISTING_PROPERTY)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PingExecutable.class, name = "urn:ping-executable"),
+        @JsonSubTypes.Type(value = DelayExecutable.class, name = "urn:delay-executable")
+})
+@JsonSerialize(using = AbstractExecutableSerializer.class)
+public abstract class AbstractExecutable {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    @JacksonXmlProperty(localName = "type")
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### Step 3: Update Subclasses
+
+Ensure the subclasses include the type field properly and call the super class method.
+
+#### `PingExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class PingExecutable extends AbstractExecutable {
+    private PingSpecific spec;
+
+    public PingExecutable() {
+        setType("urn:ping-executable");
+    }
+
+    @Override
+    public PingSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(PingSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+#### `DelayExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class DelayExecutable extends AbstractExecutable {
+    private DelaySpecific spec;
+
+    public DelayExecutable() {
+        setType("urn:delay-executable");
+    }
+
+    @Override
+    public DelaySpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(DelaySpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### Step 4: Ensure Other Model Classes Have Getters and Setters
+
+For completeness, ensure other model classes have getters and setters as required.
+
+### Running the Application
+
+With these changes, your Spring Boot application should now correctly serialize the `type` property as an XML element rather than an attribute.
+
+Run the application using:
+
+```sh
+mvn spring-boot:run
+```
+
+### Example XML Output
+
+Here is an example of how the XML output should look:
+
+```xml
+<PingExecutable>
+    <type>urn:ping-executable</type>
+    <name>Example</name>
+    <spec>
+        <target>example.com</target>
+    </spec>
+</PingExecutable>
+```
+
+This configuration ensures that the `type` field is serialized as an XML element instead of an attribute.
+
+    #
+    # There is a known issue ..
+    # @JsonAnyGetter + @JsonTypeInfo combination prevents serialization of properties as elements
+    # https://github.com/FasterXML/jackson-dataformat-xml/issues/117#issuecomment-45831353
+    #
+    # Before we go down the route of creating custom Serializers for specific calsses.
+    # Is this a problem ?
+    # Can the different implementations handle both ?
+    #
+
+
+

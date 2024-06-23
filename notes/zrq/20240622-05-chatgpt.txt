@@ -1564,5 +1564,15 @@ This configuration ensures your Spring Boot application supports JSON, XML, and 
     # ....
     #
 
-
+    #
+    # Swagger API
+    # http://localhost:8080/swagger-ui.html
+    #
+    # OpenAPI spec
+    # http://localhost:8080/v3/api-docs
+    #
+    # OpenAPI spec doesn't have the discriminator values in it.
+    # Swagger API XML doesn't wrap the list elements correctly.
+    # Back here again ...
+    #
 
