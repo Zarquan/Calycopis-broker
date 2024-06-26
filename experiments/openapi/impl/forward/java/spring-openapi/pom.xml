@@ -41,7 +41,7 @@
 		<java.version>19</java.version>
         <!--schema.yaml>${project.basedir}/ivoa/ambleck-0.1.yaml</schema.yaml-->
         <!--schema.yaml>${project.basedir}/ivoa/ambleck-modified-0.1.yaml</schema.yaml-->
-        <schema.yaml>${project.basedir}/ivoa/parcolar-0.1.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/parcolar-0.3.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+

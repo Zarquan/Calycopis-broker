@@ -26,6 +26,8 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -77,101 +79,117 @@ public class AmbleckApiDelegateImpl implements AmbleckApiDelegate {
         return Optional.ofNullable(request);
     }
 
-    public AbstractExecutable process(AbstractExecutable requested)
-        {
-        if (requested instanceof PingExecutable)
-            {
-            PingExecutable instance = (PingExecutable) requested;
-            PingExecutable result = new PingExecutable("urn:ping-executable");
-            result.setSpec(
-                new PingSpecific().target(
-                    instance.getSpec().getTarget()
-                    )
-                );
-            result.setName(
-                instance.getName()
-                );
-            return result;
-            }
-        else if (requested instanceof DelayExecutable)
-            {
-            DelayExecutable instance = (DelayExecutable) requested;
-            DelayExecutable result = new DelayExecutable("urn:delay-executable");
-            result.setSpec(
-                new DelaySpecific().duration(
-                    instance.getSpec().getDuration()
-                    )
-                );
-            result.setName(
-                instance.getName()
-                );
-            return result;
-            }
-        else {
-            return null ;
-            }
-        }
 
     @Override
 	public ResponseEntity<ParcolarResponse> ambleckPost(
 	    @RequestBody ParcolarRequest request
 	    ) {
+        return new ResponseEntity<ParcolarResponse>(
+            response(
+                request
+                ),
+            HttpStatus.OK
+            );
+	    }
 
+    public ParcolarResponse response(ParcolarRequest request)
+        {
 	    ParcolarResponse response = new ParcolarResponse();
-	    response.setResult(ParcolarResponse.ResultEnum.YES);
 
-        for (int i = 0 ; i < 2 ; i++)
+        List<ParcolarOffer> offers = offers(
+            request
+            );
+        if (offers.size() > 0)
             {
-            AbstractExecutable executable = process(
-                request.getExecutable()
+            response.setResult(
+                ParcolarResponse.ResultEnum.YES
                 );
+            for (ParcolarOffer offer : offers)
+                {
+                response.addOffersItem(
+                    offer
+                    );
+	            }
+	        }
+        else {
+	        response.setResult(
+	            ParcolarResponse.ResultEnum.NO
+	            );
+            }
+        return response ;
+        }
 
+    public List<ParcolarOffer> offers(ParcolarRequest request)
+        {
+        List<ParcolarOffer> offers = new ArrayList<ParcolarOffer>();
+
+        AbstractExecutable executable = executable(
+            request.getExecutable()
+            );
+
+        if (executable != null)
+            {
             ParcolarOffer offer = new ParcolarOffer();
             offer.setExecutable(
                 executable
                 );
-            offer.setResources(
-                new Resources()
-                );
-
-            for (AbstractComputeResource requested : request.getResources().getCompute())
-                {
-                SimpleComputeResource offered = new SimpleComputeResource(
-                    requested.getName()
-                    );
-                offered.setSpec(
-                    new SimpleComputeSpecific().cores(
-                        ((SimpleComputeResource)requested).getSpec().getCores()
-                        ).memory(
-                        ((SimpleComputeResource)requested).getSpec().getMemory()
-                        )
-                    );
-                offer.getResources().addComputeItem(
-                    offered
-                    );
-                }
-
-            for (AbstractStorageResource requested : request.getResources().getStorage())
-                {
-                SimpleStorageResource offered = new SimpleStorageResource(
-                    requested.getName()
-                    );
-                offered.setSpec(
-                    new SimpleStorageSpecific().size(
-                        ((SimpleStorageResource)requested).getSpec().getSize()
-                        )
-                    );
-                offer.getResources().addStorageItem(
-                    offered
-                    );
-                }
-
-            response.addOffersItem(
+            offers.add(
                 offer
                 );
             }
-        return new ResponseEntity<ParcolarResponse>(response, HttpStatus.OK);
-	    }
+
+        return offers ;
+        }
+
+    public AbstractExecutable executable(AbstractExecutable requested)
+        {
+        if (requested instanceof PingExecutable)
+            {
+            return executable(
+                (PingExecutable) requested
+                );
+            }
+        else if (requested instanceof DelayExecutable)
+            {
+            return executable(
+                (DelayExecutable) requested
+                );
+            }
+        else {
+            // Unknown executable.
+            return null ;
+            }
+        }
+
+    public PingExecutable executable(PingExecutable requested)
+        {
+        PingExecutable result = new PingExecutable(
+            "urn:ping-executable"
+            );
+        result.setName(
+            requested.getName()
+            );
+        result.setSpec(
+            new PingSpecific().target(
+                requested.getSpec().getTarget()
+                )
+            );
+        return result;
+        }
+
+    public DelayExecutable executable(DelayExecutable requested)
+        {
+        DelayExecutable result = new DelayExecutable("urn:delay-executable");
+        result.setName(
+            requested.getName()
+            );
+        result.setSpec(
+            new DelaySpecific().duration(
+                requested.getSpec().getDuration()
+                )
+            );
+        return result;
+        }
     }
 
 

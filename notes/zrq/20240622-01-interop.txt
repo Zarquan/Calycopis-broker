@@ -1,0 +1,609 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Compare the Spring and FastAPI implementations.
+        Start with the Spring implementation.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Generate the Spring model and server.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            pushd spring-openapi
+                ./mvnw clean
+                ./mvnw install
+            popd
+
+            pushd spring-webapp
+                ./mvnw clean
+                ./mvnw spring-boot:run
+            popd
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Create our YAML data.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml << EOF
+executable:
+  name: "test-001"
+  type: "urn:ping-executable"
+  spec:
+    target: "www.metagrid.xyz"
+resources:
+  compute:
+    - name: "compute 001"
+      type: "urn:simple-compute-resource"
+      spec:
+        cores:
+          min: 4
+        memory:
+          min: 8
+          max: 12
+  storage:
+    - name: "storage 001"
+      type: "urn:simple-storage-resource"
+      spec:
+        size:
+          min: 1
+          max: 12
+EOF
+
+cat > /tmp/test-002.yaml << EOF
+executable:
+  name: "test-002"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+resources:
+  compute:
+    - name: "compute 001"
+      type: "urn:simple-compute-resource"
+      spec:
+        cores:
+          min: 4
+EOF
+
+# -----------------------------------------------------
+# Create our JSON data.
+#[user@desktop]
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-001",
+    >       "type": "urn:ping-executable",
+    >       "spec": {
+    >         "target": "www.metagrid.xyz"
+    >       }
+    >     },
+    >     "resources": {
+    >       "compute": [
+    >         {
+    >           "name": "compute 001",
+    >           "type": "urn:simple-compute-resource",
+    >           "spec": {
+    >             "cores": {
+    >               "min": 4
+    >             },
+    >             "memory": {
+    >               "min": 8,
+    >               "max": 12
+    >             }
+    >           }
+    >         }
+    >       ],
+    >       "storage": [
+    >         {
+    >           "name": "storage 001",
+    >           "type": "urn:simple-storage-resource",
+    >           "spec": {
+    >             "size": {
+    >               "min": 1,
+    >               "max": 12
+    >             }
+    >           }
+    >         }
+    >       ]
+    >     }
+    >   }
+
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-002",
+    >       "type": "urn:delay-executable",
+    >       "spec": {
+    >         "duration": 21
+    >       }
+    >     },
+    >     "resources": {
+    >       "compute": [
+    >         {
+    >           "name": "compute 001",
+    >           "type": "urn:simple-compute-resource",
+    >           "spec": {
+    >             "cores": {
+    >               "min": 4
+    >             }
+    >           }
+    >         }
+    >       ]
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# Create our XML data.
+#[user@desktop]
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-001</name>
+    >       <type>urn:ping-executable</type>
+    >       <spec>
+    >         <target>www.metagrid.xyz</target>
+    >       </spec>
+    >     </executable>
+    >     <resources>
+    >       <compute>
+    >         <name>compute 001</name>
+    >         <type>urn:simple-compute-resource</type>
+    >         <spec>
+    >           <cores>
+    >             <min>4</min>
+    >           </cores>
+    >           <memory>
+    >             <min>8</min>
+    >             <max>12</max>
+    >           </memory>
+    >         </spec>
+    >       </compute>
+    >       <storage>
+    >         <name>storage 001</name>
+    >         <type>urn:simple-storage-resource</type>
+    >         <spec>
+    >           <size>
+    >             <min>1</min>
+    >             <max>12</max>
+    >           </size>
+    >         </spec>
+    >       </storage>
+    >     </resources>
+    >   </ParcolarRequest>
+
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-002</name>
+    >       <type>urn:delay-executable</type>
+    >       <spec>
+    >         <duration>21</duration>
+    >       </spec>
+    >     </executable>
+    >     <resources>
+    >       <compute>
+    >         <name>compute 001</name>
+    >         <type>urn:simple-compute-resource</type>
+    >         <spec>
+    >           <cores>
+    >             <min>4</min>
+    >           </cores>
+    >         </spec>
+    >       </compute>
+    >     </resources>
+    >   </ParcolarRequest>
+
+    #
+    # Fix the compute and storage arrays.
+    #
+cat > /tmp/fix-001.xsl << EOF
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+    <xsl:template match="@*|node()">
+        <xsl:copy>
+          <xsl:apply-templates select="@*|node()" />
+        </xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="resources">
+        <resources>
+            <compute>
+                <xsl:for-each select="compute">
+                    <xsl:copy-of select="."/>
+                </xsl:for-each>
+            </compute>
+            <storage/>
+        </resources>
+    </xsl:template>
+
+</xsl:stylesheet>
+EOF
+
+    tempfile=$(mktemp)
+    mv /tmp/test-001.xml "${tempfile}"
+
+    xmlstarlet \
+        tr "/tmp/fix-001.xsl" \
+        "${tempfile}" \
+    | xmlstarlet \
+        fo \
+    | tee "/tmp/test-001.xml"
+
+    tempfile=$(mktemp)
+    mv /tmp/test-002.xml "${tempfile}"
+
+    xmlstarlet \
+        tr "/tmp/fix-001.xsl" \
+        "${tempfile}" \
+    | xmlstarlet \
+        fo \
+    | tee "/tmp/test-002.xml"
+
+# -----------------------------------------------------
+# Test all the combinations of type and formats.
+#[user@desktop]
+
+    endpoint='http://127.0.0.1:8080/ambleck'
+
+    declare -A formats=(
+        [yaml]="yq '.'"
+        [json]="jq '.'"
+        [xml]="xmlstarlet fo"
+        )
+
+    datasets=(
+        test-001
+        test-002
+        )
+
+    for dataset in "${datasets[@]}"
+    do
+        for inform in "${!formats[@]}"
+        do
+            for outform in "${!formats[@]}"
+            do
+
+                echo "--------"
+                echo "[${dataset}][${inform}][${outform}]"
+
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/${inform}" \
+                    --data-binary @"/tmp/${dataset}.${inform}" \
+                    --header "Accept: application/${outform}" \
+                    "${endpoint:?}" \
+                | eval "${formats[${outform}]}"
+
+            done
+        done
+    done
+
+    >   --------
+    >   [test-001][xml][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-001][xml][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-001][xml][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: null
+    >   --------
+    >   [test-001][json][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-001][json][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-001][json][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: null
+    >   --------
+    >   [test-001][yaml][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-001][yaml][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-001][yaml][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: null
+    >   --------
+    >   [test-002][xml][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-002][xml][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-002][xml][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: 21
+    >       resources: null
+    >   --------
+    >   [test-002][json][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-002][json][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-002][json][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: 21
+    >       resources: null
+    >   --------
+    >   [test-002][yaml][xml]
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   --------
+    >   [test-002][yaml][json]
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   --------
+    >   [test-002][yaml][yaml]
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: 21
+    >       resources: null
+
+

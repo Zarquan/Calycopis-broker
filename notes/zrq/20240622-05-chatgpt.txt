@@ -1,0 +1,1578 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        The OpenAPI code generator for Spring is good, but not 100%.
+        Known issue that it doesn't generate the right XmlAttribute and XmlElement annotations.
+        https://stackoverflow.com/questions/55124811/openapi-generator-does-not-generate-xmlattribute-xmlelement-annotations
+        https://github.com/swagger-api/swagger-codegen/issues/9052
+
+        Sounds like a minor issue, but without it we can't make the output from the
+        Python and Java services 100% identical.
+
+        There is a possible fix, but it doesn't look simple to implement.
+        https://github.com/swagger-api/swagger-codegen/issues/9052#issuecomment-453942790
+
+        Bored of fixing other people's code.
+        Is there an easier way ?
+        Can ChatGPT generate better code ?
+
+        TODO check to see if this is an issue.
+        Can the Java and Python client/server interoperate,
+        even if the XML is slightly different.
+
+        TODO check to see if this is an issue.
+        Can we just add the right annotations to the Java code ourselves.
+
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Prompt
+
+Generate a Spring Boot web application based on the following OpenAPI specification.
+The server should handle the polymorphism using discriminators and support content
+negotiation for both input and output in JSON, YAML, and XML formats.
+
+    <parcolar-0.3.yaml>
+
+# -----------------------------------------------------
+# Response
+
+Sure! Here is a Spring Boot application that handles the polymorphism using discriminators and supports content negotiation for both input and output in JSON, YAML, and XML formats based on the provided OpenAPI specification.
+
+### Spring Boot Project Structure
+
+```
+src/main/java/com/example/demo
+├── DemoApplication.java
+├── controller
+│   └── AmbleckController.java
+├── model
+│   ├── AbstractComputeResource.java
+│   ├── AbstractExecutable.java
+│   ├── AbstractSpecific.java
+│   ├── AbstractStorageResource.java
+│   ├── DelayExecutable.java
+│   ├── DelaySpecific.java
+│   ├── MinMaxInteger.java
+│   ├── ParcolarOffer.java
+│   ├── ParcolarRequest.java
+│   ├── ParcolarResponse.java
+│   ├── PingExecutable.java
+│   ├── PingSpecific.java
+│   ├── Resources.java
+│   ├── SimpleComputeResource.java
+│   ├── SimpleComputeSpecific.java
+│   ├── SimpleStorageResource.java
+│   └── SimpleStorageSpecific.java
+└── service
+    └── AmbleckService.java
+```
+
+### `pom.xml`
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### `DemoApplication.java`
+
+```java
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+### `AmbleckController.java`
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import com.example.demo.service.AmbleckService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ambleck")
+public class AmbleckController {
+
+    @Autowired
+    private AmbleckService ambleckService;
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                 produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+    public ParcolarResponse ambleckPost(@Validated @RequestBody ParcolarRequest request) {
+        return ambleckService.handleRequest(request);
+    }
+}
+```
+
+### `AmbleckService.java`
+
+```java
+package com.example.demo.service;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AmbleckService {
+
+    public ParcolarResponse handleRequest(ParcolarRequest request) {
+        // Implement your business logic here
+        ParcolarResponse response = new ParcolarResponse();
+        response.setResult("YES");
+        return response;
+    }
+}
+```
+
+### `model/` Package
+
+#### `AbstractSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public abstract class AbstractSpecific {
+}
+```
+
+#### `AbstractComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleComputeResource.class, name = "urn:simple-compute-resource")
+})
+public abstract class AbstractComputeResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `AbstractStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleStorageResource.class, name = "urn:simple-storage-resource")
+})
+public abstract class AbstractStorageResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `AbstractExecutable.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PingExecutable.class, name = "urn:ping-executable"),
+        @JsonSubTypes.Type(value = DelayExecutable.class, name = "urn:delay-executable")
+})
+public abstract class AbstractExecutable {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `DelayExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class DelayExecutable extends AbstractExecutable {
+    private DelaySpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `DelaySpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class DelaySpecific extends AbstractSpecific {
+    private Integer duration;
+
+    // Getters and Setters
+}
+```
+
+#### `PingExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class PingExecutable extends AbstractExecutable {
+    private PingSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `PingSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class PingSpecific extends AbstractSpecific {
+    private String target;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeResource extends AbstractComputeResource {
+    private SimpleComputeSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleComputeSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeSpecific extends AbstractSpecific {
+    private MinMaxInteger cores;
+    private MinMaxInteger memory;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageResource extends AbstractStorageResource {
+    private SimpleStorageSpecific spec;
+
+    // Getters and Setters
+}
+```
+
+#### `SimpleStorageSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageSpecific extends AbstractSpecific {
+    private MinMaxInteger size;
+
+    // Getters and Setters
+}
+```
+
+#### `MinMaxInteger.java`
+
+```java
+package com.example.demo.model;
+
+public class MinMaxInteger {
+    private Integer min;
+    private Integer max;
+    private String units;
+
+    // Getters and Setters
+}
+```
+
+#### `Resources.java`
+
+```java
+package com.example.demo.model;
+
+import java.util.List;
+
+public class Resources {
+    private List<AbstractComputeResource> compute;
+    private List<AbstractStorageResource> storage;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarOffer.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation
+
+.JacksonXmlProperty;
+
+public class ParcolarOffer {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarRequest.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    // Getters and Setters
+}
+```
+
+#### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    // Getters and Setters
+}
+```
+
+### Explanation:
+
+1. **Project Structure:**
+   - Organized the project into `controller`, `model`, and `service` packages.
+
+2. **Model Classes:**
+   - Created model classes based on the provided OpenAPI specification.
+   - Used `@JsonTypeInfo` and `@JsonSubTypes` annotations to handle polymorphism with discriminators.
+
+3. **Controller and Service:**
+   - Implemented a controller (`AmbleckController`) to handle the `/ambleck` endpoint.
+   - Implemented a service (`AmbleckService`) to process the request and generate the response.
+
+4. **Content Negotiation:**
+   - Configured the controller method to consume and produce JSON, XML, and YAML formats.
+
+This Spring Boot application should meet the requirements specified in the OpenAPI document, handling polymorphism using discriminators and supporting content negotiation for both input and output in JSON, YAML, and XML formats.
+
+# -----------------------------------------------------
+# Prompt
+
+That looks good. Can you include the getters and setters in the code.
+
+# -----------------------------------------------------
+# Response
+
+Certainly! Here are the updated model classes with getters and setters included.
+
+### `AbstractSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public abstract class AbstractSpecific {
+}
+```
+
+### `AbstractComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleComputeResource.class, name = "urn:simple-compute-resource")
+})
+public abstract class AbstractComputeResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `AbstractStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = SimpleStorageResource.class, name = "urn:simple-storage-resource")
+})
+public abstract class AbstractStorageResource {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `AbstractExecutable.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PingExecutable.class, name = "urn:ping-executable"),
+        @JsonSubTypes.Type(value = DelayExecutable.class, name = "urn:delay-executable")
+})
+public abstract class AbstractExecutable {
+    private String type;
+    private String name;
+    private AbstractSpecific spec;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public AbstractSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(AbstractSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `DelayExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class DelayExecutable extends AbstractExecutable {
+    private DelaySpecific spec;
+
+    @Override
+    public DelaySpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(DelaySpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `DelaySpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class DelaySpecific extends AbstractSpecific {
+    private Integer duration;
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+}
+```
+
+### `PingExecutable.java`
+
+```java
+package com.example.demo.model;
+
+public class PingExecutable extends AbstractExecutable {
+    private PingSpecific spec;
+
+    @Override
+    public PingSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(PingSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `PingSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class PingSpecific extends AbstractSpecific {
+    private String target;
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+}
+```
+
+### `SimpleComputeResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeResource extends AbstractComputeResource {
+    private SimpleComputeSpecific spec;
+
+    @Override
+    public SimpleComputeSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(SimpleComputeSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `SimpleComputeSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleComputeSpecific extends AbstractSpecific {
+    private MinMaxInteger cores;
+    private MinMaxInteger memory;
+
+    public MinMaxInteger getCores() {
+        return cores;
+    }
+
+    public void setCores(MinMaxInteger cores) {
+        this.cores = cores;
+    }
+
+    public MinMaxInteger getMemory() {
+        return memory;
+    }
+
+    public void setMemory(MinMaxInteger memory) {
+        this.memory = memory;
+    }
+}
+```
+
+### `SimpleStorageResource.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageResource extends AbstractStorageResource {
+    private SimpleStorageSpecific spec;
+
+    @Override
+    public SimpleStorageSpecific getSpec() {
+        return spec;
+    }
+
+    public void setSpec(SimpleStorageSpecific spec) {
+        this.spec = spec;
+    }
+}
+```
+
+### `SimpleStorageSpecific.java`
+
+```java
+package com.example.demo.model;
+
+public class SimpleStorageSpecific extends AbstractSpecific {
+    private MinMaxInteger size;
+
+    public MinMaxInteger getSize() {
+        return size;
+    }
+
+    public void setSize(MinMaxInteger size) {
+        this.size = size;
+    }
+}
+```
+
+### `MinMaxInteger.java`
+
+```java
+package com.example.demo.model;
+
+public class MinMaxInteger {
+    private Integer min;
+    private Integer max;
+    private String units;
+
+    public Integer getMin() {
+        return min;
+    }
+
+    public void setMin(Integer min) {
+        this.min = min;
+    }
+
+    public Integer getMax() {
+        return max;
+    }
+
+    public void setMax(Integer max) {
+        this.max = max;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public void setUnits(String units) {
+        this.units = units;
+    }
+}
+```
+
+### `Resources.java`
+
+```java
+package com.example.demo.model;
+
+import java.util.List;
+
+public class Resources {
+    private List<AbstractComputeResource> compute;
+    private List<AbstractStorageResource> storage;
+
+    public List<AbstractComputeResource> getCompute() {
+        return compute;
+    }
+
+    public void setCompute(List<AbstractComputeResource> compute) {
+        this.compute = compute;
+    }
+
+    public List<AbstractStorageResource> getStorage() {
+        return storage;
+    }
+
+    public void setStorage(List<AbstractStorageResource> storage) {
+        this.storage = storage;
+    }
+}
+```
+
+### `ParcolarOffer.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarOffer {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### `ParcolarRequest.java`
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### `ParcolarResponse.java`
+
+```java
+package com.example.demo.model;
+
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+import java.util.List;
+
+public class ParcolarResponse {
+    private String result;
+
+    @JacksonXmlElementWrapper(localName = "offers")
+    @JacksonXmlProperty(localName = "offer")
+    private List<ParcolarOffer> offers;
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    public List<ParcolarOffer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<ParcolarOffer> offers) {
+        this.offers = offers;
+    }
+}
+```
+
+This updated code includes the necessary getters and setters for each model class. This ensures proper encapsulation and adheres to Java bean conventions.
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            mkdir chatgpt
+            pushd chatgpt
+
+                mkdir server
+                pushd server
+
+                    gedit pom.xml &
+
+                    mkdir -p src/main/java/com/example/demo
+                    pushd src/main/java/com/example/demo
+
+                        gedit DemoApplication.java &
+
+                        mkdir controller
+                        pushd controller
+
+                            gedit AmbleckController.java &
+
+                        popd
+
+                        mkdir model
+                        pushd model
+
+                            gedit AbstractComputeResource.java &
+                            gedit AbstractExecutable.java
+                            gedit AbstractSpecific.java
+                            gedit AbstractStorageResource.java
+                            gedit DelayExecutable.java
+                            gedit DelaySpecific.java
+                            gedit MinMaxInteger.java
+                            gedit ParcolarOffer.java
+                            gedit ParcolarRequest.java
+                            gedit ParcolarResponse.java
+                            gedit PingExecutable.java
+                            gedit PingSpecific.java
+                            gedit Resources.java
+                            gedit SimpleComputeResource.java
+                            gedit SimpleComputeSpecific.java
+                            gedit SimpleStorageResource.java
+                            gedit SimpleStorageSpecific.java
+
+                        popd
+
+                        mkdir service
+                        pushd service
+
+                            gedit AmbleckService.java
+
+                        popd
+                    popd
+
+                    cp ../../spring-openapi/mvnw .
+                    cp -r ../../spring-openapi/.mvn/ .
+
+                    cp ../../spring-openapi/.gitignore .
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 05:14:12.204  INFO 113043 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 113043 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:14:12.208  INFO 113043 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:14:13.603  INFO 113043 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:14:13.615  INFO 113043 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:14:13.615  INFO 113043 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:14:13.714  INFO 113043 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:14:13.714  INFO 113043 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1445 ms
+    >   2024-06-23 05:14:14.453  INFO 113043 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:14:14.457  WARN 113043 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Prompt
+
+Running the application using spring-boot:run fails.
+It logs the following Exception:
+Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'documentationPluginsBootstrapper'; nested exception is java.lang.NullPointerException: Cannot invoke "org.springframework.web.servlet.mvc.condition.PatternsRequestCondition.getPatterns()" because "this.condition" is null
+
+# -----------------------------------------------------
+# Response
+
+The issue you're encountering seems to be related to the version incompatibility of `springfox-boot-starter` with the current Spring Boot version. `springfox` has had compatibility issues with newer versions of Spring Boot.
+
+As an alternative, you can switch to using `springdoc-openapi`, which is another library for integrating OpenAPI with Spring Boot. Here's how you can update your project to use `springdoc-openapi` instead:
+
+### Update `pom.xml`
+
+Remove the `springfox-boot-starter` dependency and add the `springdoc-openapi` dependency:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### Update Application Code
+
+No changes are needed for the actual application code. However, you can add a configuration class to customize the OpenAPI documentation if needed.
+
+### Add `OpenApiConfig.java` (Optional)
+
+If you want to customize the OpenAPI documentation, you can add a configuration class:
+
+```java
+package com.example.demo.config;
+
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI springShopOpenAPI() {
+        return new OpenAPI()
+                .info(new Info().title("SpringShop API")
+                        .description("Spring shop sample application")
+                        .version("v0.0.1")
+                        .license(new License().name("Apache 2.0").url("http://springdoc.org")))
+                .externalDocs(new ExternalDocumentation()
+                        .description("SpringShop Wiki Documentation")
+                        .url("https://springshop.wiki.github.org/docs"));
+    }
+}
+```
+
+### Run the Application
+
+Run the application using the following command:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+This should resolve the issues related to `springfox` and ensure your application runs smoothly with OpenAPI documentation support.
+
+
+# -----------------------------------------------------
+# Copy the server code and run it.
+#[user@desktop]
+
+                    pushd src/main/java/com/example/demo
+
+                        gedit OpenApiConfig.java
+
+                    popd
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 05:26:44.439  INFO 113400 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 113400 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:26:44.442  INFO 113400 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:26:45.577  INFO 113400 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:26:45.590  INFO 113400 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:26:45.590  INFO 113400 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:26:45.699  INFO 113400 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:26:45.699  INFO 113400 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1197 ms
+    >   2024-06-23 05:26:46.625  INFO 113400 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:26:46.637  INFO 113400 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.585 seconds (JVM running for 2.934)
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+
+    >   ....
+    >   ....
+    >   2024-06-23 05:34:27.529  INFO 113400 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 05:34:27.529  INFO 113400 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 05:34:27.530  INFO 113400 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   2024-06-23 05:34:27.547  WARN 113400 --- [nio-8080-exec-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'application/yaml' not supported]
+
+    #
+    # The ChatGPT code has 'application/x-yaml' instread of 'application/yaml'
+    #
+
+# -----------------------------------------------------
+# Fix the code and run the server.
+#[user@desktop]
+
+                    pushd src/main/java/com/example/demo/controller
+
+                        gedit AmbleckController.java
+
+                            -   @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                            +   @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/yaml"},
+                            -                produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+                            +                produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/yaml"})
+
+
+                    popd
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 05:42:20.432  INFO 114299 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 114299 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 05:42:20.435  INFO 114299 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 05:42:21.590  INFO 114299 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 05:42:21.602  INFO 114299 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 05:42:21.602  INFO 114299 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 05:42:21.698  INFO 114299 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 05:42:21.698  INFO 114299 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1203 ms
+    >   2024-06-23 05:42:22.613  INFO 114299 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 05:42:22.627  INFO 114299 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.593 seconds (JVM running for 2.953)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+
+    >   ....
+    >   ....
+    >   2024-06-23 05:42:47.642  INFO 114299 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 05:42:47.643  INFO 114299 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 05:42:47.644  INFO 114299 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   2024-06-23 05:42:47.674  WARN 114299 --- [nio-8080-exec-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpMediaTypeNotSupportedException: Content type 'application/yaml;charset=UTF-8' not supported]
+
+# -----------------------------------------------------
+# Prompt
+
+    It looks like the webapp doesn't' support YAML.
+
+# -----------------------------------------------------
+# Response
+
+To support YAML in your Spring Boot application, you need to ensure that you have the necessary dependencies and configurations. Spring Boot does not natively support YAML as a media type out of the box, but you can configure it using Jackson and custom message converters.
+
+Here's how to update your project to add support for YAML:
+
+### Update `pom.xml`
+
+Ensure you have the following dependencies:
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.1</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### Add YAML Configuration
+
+Create a configuration class to register the YAML message converter:
+
+#### `YamlJackson2HttpMessageConverter.java`
+
+```java
+package com.example.demo.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
+
+@Component
+public class YamlJackson2HttpMessageConverter extends AbstractJackson2HttpMessageConverter {
+
+    public YamlJackson2HttpMessageConverter() {
+        super(new ObjectMapper(new YAMLFactory()), MediaType.parseMediaType("application/x-yaml"));
+    }
+}
+```
+
+#### `WebConfig.java`
+
+```java
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    private final YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter;
+
+    public WebConfig(YamlJackson2HttpMessageConverter yamlJackson2HttpMessageConverter) {
+        this.yamlJackson2HttpMessageConverter = yamlJackson2HttpMessageConverter;
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(yamlJackson2HttpMessageConverter);
+    }
+}
+```
+
+### Update Controller
+
+Make sure the controller handles `application/x-yaml`:
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.model.ParcolarRequest;
+import com.example.demo.model.ParcolarResponse;
+import com.example.demo.service.AmbleckService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/ambleck")
+public class AmbleckController {
+
+    @Autowired
+    private AmbleckService ambleckService;
+
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"},
+                 produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml"})
+    public ParcolarResponse ambleckPost(@Validated @RequestBody ParcolarRequest request) {
+        return ambleckService.handleRequest(request);
+    }
+}
+```
+
+### Example `ParcolarRequest.java` (Updated)
+
+Here is an example of one of your model classes, including the getters and setters:
+
+```java
+package com.example.demo.model;
+
+public class ParcolarRequest {
+    private AbstractExecutable executable;
+    private Resources resources;
+
+    public AbstractExecutable getExecutable() {
+        return executable;
+    }
+
+    public void setExecutable(AbstractExecutable executable) {
+        this.executable = executable;
+    }
+
+    public Resources getResources() {
+        return resources;
+    }
+
+    public void setResources(Resources resources) {
+        this.resources = resources;
+    }
+}
+```
+
+### Run the Application
+
+Run the application using the following command:
+
+```sh
+mvn spring-boot:run
+```
+
+### Access OpenAPI Documentation
+
+You can access the OpenAPI documentation at `http://localhost:8080/swagger-ui.html` or `http://localhost:8080/v3/api-docs`.
+
+This configuration ensures your Spring Boot application supports JSON, XML, and YAML for both input and output.
+
+
+# -----------------------------------------------------
+# Update the code and run the server.
+#[user@desktop]
+
+                    gedit pom.xml
+                        ....
+                        ....
+
+                    pushd src/main/java/com/example/demo/controller
+
+                        gedit AmbleckController.java
+                            ....
+                            ....
+
+                    popd
+
+                    mkdir -p src/main/java/com/example/demo/config
+                    pushd src/main/java/com/example/demo/config
+
+                        gedit YamlJackson2HttpMessageConverter.java
+                            ....
+                            ....
+
+                        gedit WebConfig.java
+
+                    popd
+
+                    ./mvnw clean
+                    ./mvnw spring-boot:run
+
+    >   2024-06-23 06:02:30.176  INFO 115481 --- [           main] com.example.demo.DemoApplication         : Starting DemoApplication using Java 19.0.1 on methionine with PID 115481 (/var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server/target/classes started by Zarquan in /var/local/projects/IVOA/ivoa/CIRASA-planner/github-zrq/experiments/openapi/impl/forward/java/chatgpt/server)
+    >   2024-06-23 06:02:30.180  INFO 115481 --- [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+    >   2024-06-23 06:02:31.329  INFO 115481 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+    >   2024-06-23 06:02:31.343  INFO 115481 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    >   2024-06-23 06:02:31.343  INFO 115481 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.64]
+    >   2024-06-23 06:02:31.440  INFO 115481 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    >   2024-06-23 06:02:31.440  INFO 115481 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1200 ms
+    >   2024-06-23 06:02:32.337  INFO 115481 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+    >   2024-06-23 06:02:32.349  INFO 115481 --- [           main] com.example.demo.DemoApplication         : Started DemoApplication in 2.565 seconds (JVM running for 2.977)
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test the service ....
+#[user@desktop]
+
+    # POST YAML accept YAML
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/test-001.yaml \
+        --header "Accept: application/yaml" \
+        http://127.0.0.1:8080/ambleck
+
+    >   ---
+    >   result: "YES"
+    >   offers: null
+
+    >   ....
+    >   2024-06-23 06:02:58.204  INFO 115481 --- [nio-8080-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+    >   2024-06-23 06:02:58.204  INFO 115481 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+    >   2024-06-23 06:02:58.206  INFO 115481 --- [nio-8080-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+    >   ....
+
+    #
+    # Took over 2hrs of testing and editing to get this far.
+    # Need to automate the process of creating the files that ChapGPT outputs.
+    # Manually compensated for the old media type 'application/x-yaml' => 'application/yaml'
+    #
+    # Now we need to add our business logic.
+    # ....
+    #
+
+    #
+    # Swagger API
+    # http://localhost:8080/swagger-ui.html
+    #
+    # OpenAPI spec
+    # http://localhost:8080/v3/api-docs
+    #
+    # OpenAPI spec doesn't have the discriminator values in it.
+    # Swagger API XML doesn't wrap the list elements correctly.
+    # Back here again ...
+    #
+

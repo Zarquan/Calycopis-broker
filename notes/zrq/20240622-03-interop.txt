@@ -1,0 +1,950 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Compare the Spring and FastAPI implementations.
+        Apply the same test to both implementations and compare the results.
+
+    Result:
+
+        The implementations generate similar output, but not identical.
+        JSON is identical.
+        YAML has different quotes, but that is legal.
+        XML has problems with lists.
+
+
+# -----------------------------------------------------
+# Create our list of options.
+#[user@desktop]
+
+    unset formats
+    declare -A formats=(
+        [yaml]="yq '.. style=\"double\" '"
+        [json]="jq '.'"
+        [xml]="xmlstarlet fo"
+        )
+
+    unset datasets
+    declare -a datasets=(
+        test-001
+        test-002
+        )
+
+    unset endpoints
+    declare -A endpoints=(
+        [spring]='http://127.0.0.1:8080/ambleck'
+        [fastapi]='http://127.0.0.1:8000/ambleck'
+        )
+
+
+# -----------------------------------------------------
+# Create our YAML data.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml << EOF
+executable:
+  name: "test-001"
+  type: "urn:ping-executable"
+  spec:
+    target: "www.metagrid.xyz"
+EOF
+
+cat > /tmp/test-002.yaml << EOF
+executable:
+  name: "test-002"
+  type: "urn:delay-executable"
+  spec:
+    duration: 21
+EOF
+
+# -----------------------------------------------------
+# Create our JSON data.
+#[user@desktop]
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-001",
+    >       "type": "urn:ping-executable",
+    >       "spec": {
+    >         "target": "www.metagrid.xyz"
+    >       }
+    >     }
+    >   }
+
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.json
+
+    >   {
+    >     "executable": {
+    >       "name": "test-002",
+    >       "type": "urn:delay-executable",
+    >       "spec": {
+    >         "duration": 21
+    >       }
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# Create our XML data.
+#[user@desktop]
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-001</name>
+    >       <type>urn:ping-executable</type>
+    >       <spec>
+    >         <target>www.metagrid.xyz</target>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+    yq \
+        --output-format xml \
+        '{"ParcolarRequest": .}' \
+        /tmp/test-002.yaml \
+    | tee /tmp/test-002.xml
+
+    >   <ParcolarRequest>
+    >     <executable>
+    >       <name>test-002</name>
+    >       <type>urn:delay-executable</type>
+    >       <spec>
+    >         <duration>21</duration>
+    >       </spec>
+    >     </executable>
+    >   </ParcolarRequest>
+
+
+# -----------------------------------------------------
+# Run the Spring service
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-webapp
+
+                ./mvnw spring-boot:run
+
+
+# -----------------------------------------------------
+# Run the FastAPI service.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/python
+            pushd chatgpt
+
+                uvicorn main-009:app
+
+
+# -----------------------------------------------------
+# Test all the combinations of type and formats on both services
+# and compare the outputs.
+#[user@desktop]
+
+    for dataset in "${datasets[@]}"
+    do
+        for inform in "${!formats[@]}"
+        do
+            for outform in "${!formats[@]}"
+            do
+
+                echo ""
+                echo "-------- --------"
+                echo "[${dataset}][${inform}][${outform}]"
+
+                springout=$(mktemp)
+                fastapiout=$(mktemp)
+
+                echo "----"
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/${inform}" \
+                    --data-binary @"/tmp/${dataset}.${inform}" \
+                    --header "Accept: application/${outform}" \
+                    "${endpoints[spring]}" \
+                | eval "${formats[${outform}]}" \
+                | tee "${springout}"
+
+                echo "----"
+                curl \
+                    --silent \
+                    --show-error \
+                    --request POST \
+                    --header "Content-Type: application/${inform}" \
+                    --data-binary @"/tmp/${dataset}.${inform}" \
+                    --header "Accept: application/${outform}" \
+                    "${endpoints[fastapi]}" \
+                | eval "${formats[${outform}]}" \
+                | tee "${fastapiout}"
+
+                echo "----"
+                diff "${springout}" "${fastapiout}"
+                echo "----"
+
+            done
+        done
+    done
+
+
+    >   -------- --------
+    >   [test-001][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:ping-executable</type>
+    >         <name>test-001</name>
+    >         <spec>
+    >           <target>www.metagrid.xyz</target>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   <         <name>test-001</name>
+    >   <         <spec>
+    >   <           <target>www.metagrid.xyz</target>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:ping-executable</type>
+    >   >       <name>test-001</name>
+    >   >       <spec>
+    >   >         <target>www.metagrid.xyz</target>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:ping-executable</type>
+    >         <name>test-001</name>
+    >         <spec>
+    >           <target>www.metagrid.xyz</target>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   <         <name>test-001</name>
+    >   <         <spec>
+    >   <           <target>www.metagrid.xyz</target>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:ping-executable</type>
+    >   >       <name>test-001</name>
+    >   >       <spec>
+    >   >         <target>www.metagrid.xyz</target>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:ping-executable">
+    >           <name>test-001</name>
+    >           <spec>
+    >             <target>www.metagrid.xyz</target>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:ping-executable</type>
+    >         <name>test-001</name>
+    >         <spec>
+    >           <target>www.metagrid.xyz</target>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:ping-executable">
+    >   <         <name>test-001</name>
+    >   <         <spec>
+    >   <           <target>www.metagrid.xyz</target>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:ping-executable</type>
+    >   >       <name>test-001</name>
+    >   >       <spec>
+    >   >         <target>www.metagrid.xyz</target>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:ping-executable",
+    >           "name": "test-001",
+    >           "spec": {
+    >             "target": "www.metagrid.xyz"
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-001][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:ping-executable"
+    >         name: "test-001"
+    >         spec:
+    >           target: "www.metagrid.xyz"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:delay-executable</type>
+    >         <name>test-002</name>
+    >         <spec>
+    >           <duration>21</duration>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   <         <name>test-002</name>
+    >   <         <spec>
+    >   <           <duration>21</duration>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:delay-executable</type>
+    >   >       <name>test-002</name>
+    >   >       <spec>
+    >   >         <duration>21</duration>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][xml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:delay-executable</type>
+    >         <name>test-002</name>
+    >         <spec>
+    >           <duration>21</duration>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   <         <name>test-002</name>
+    >   <         <spec>
+    >   <           <duration>21</duration>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:delay-executable</type>
+    >   >       <name>test-002</name>
+    >   >       <spec>
+    >   >         <duration>21</duration>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][json][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][xml]
+    >   ----
+    >   <?xml version="1.0"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:delay-executable">
+    >           <name>test-002</name>
+    >           <spec>
+    >             <duration>21</duration>
+    >           </spec>
+    >         </executable>
+    >         <resources/>
+    >       </offers>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <ParcolarResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <executable>
+    >         <type>urn:delay-executable</type>
+    >         <name>test-002</name>
+    >         <spec>
+    >           <duration>21</duration>
+    >         </spec>
+    >       </executable>
+    >       <resources/>
+    >     </offers>
+    >   </ParcolarResponse>
+    >   ----
+    >   1c1
+    >   < <?xml version="1.0"?>
+    >   ---
+    >   > <?xml version="1.0" encoding="utf-8"?>
+    >   5,13c5,12
+    >   <     <offers>
+    >   <       <executable type="urn:delay-executable">
+    >   <         <name>test-002</name>
+    >   <         <spec>
+    >   <           <duration>21</duration>
+    >   <         </spec>
+    >   <       </executable>
+    >   <       <resources/>
+    >   <     </offers>
+    >   ---
+    >   >     <executable>
+    >   >       <type>urn:delay-executable</type>
+    >   >       <name>test-002</name>
+    >   >       <spec>
+    >   >         <duration>21</duration>
+    >   >       </spec>
+    >   >     </executable>
+    >   >     <resources/>
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][json]
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:delay-executable",
+    >           "name": "test-002",
+    >           "spec": {
+    >             "duration": 21
+    >           }
+    >         },
+    >         "resources": null
+    >       }
+    >     ]
+    >   }
+    >   ----
+    >   ----
+    >   
+    >   -------- --------
+    >   [test-002][yaml][yaml]
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:delay-executable"
+    >         name: "test-002"
+    >         spec:
+    >           duration: "21"
+    >       resources: "null"
+    >   ----
+    >   ----
+
