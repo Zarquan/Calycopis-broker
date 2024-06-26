@@ -1,0 +1,234 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Summary of where we are with the code generation.
+
+    Result:
+
+        Work in progress ...
+
+    TODO:
+
+        Can ChatGPT handle multiple levels of polymorphism ?
+        Can we solve the XML type attribute problem ?
+
+        Add more executable types.
+        Add more resource types.
+        Add options.
+
+
+# -----------------------------------------------------
+# 20240623-02-interop
+
+    ChatGPT generated Java/Spring code needs manual edits.
+    Adding @JsonIgnoreProperties prevents duplicate 'type' in YAML.
+
+    Comparison of Java/Spring and Python/FastAPI syntax.
+    JSON and YAML are identical.
+    Java/Spring represents type as an attribute.
+    Java/Spring can handle type as either element or attribute.
+    Python/FastAPI can't handle type as attribute.
+
+    Known issue with Java annotations.
+    @JsonAnyGetter + @JsonTypeInfo combination prevents serialization of properties as elements
+    https://github.com/FasterXML/jackson-dataformat-xml/issues/117#issuecomment-45831353
+
+    ChatGPT has a work around, but it involves a custom serializer for each polymorphic type.
+
+
+# -----------------------------------------------------
+# 20240623-01-chatgpt
+
+    ChatGPT generated Java/Spring code needs manual edits.
+    Need to set YAMLGenerator Feature settings to remove document marker and explicit type.
+        executable: !<urn:ping-executable>
+    https://github.com/FasterXML/jackson-dataformats-text/issues/289#issuecomment-927140084
+      YAMLGenerator.Feature.WRITE_DOC_START_MARKER
+      YAMLGenerator.Feature.USE_NATIVE_TYPE_ID
+
+
+# -----------------------------------------------------
+# 20240622-05-chatgpt
+
+    The OpenAPI Java/Spring code generator is good, but not 100%.
+
+    Known issue that it doesn't generate the right XmlAttribute and XmlElement annotations.
+    https://stackoverflow.com/questions/55124811/openapi-generator-does-not-generate-xmlattribute-xmlelement-annotations
+    https://github.com/swagger-api/swagger-codegen/issues/9052
+    (*) additional issue is that @XmlElement might not work anyway.
+
+    ChatGPT prompt to generate from an OpenAPI spec.
+    <parcolar-0.3.yaml>
+
+    ChatGPT needs additional prompting to fix issues.
+    * Missing getters and setters.
+    * Incompatible dependencies using (old) springfox rather than (new) springdoc.
+    * Missing YAML serialization.
+    * Old mime type 'application/x-yaml'
+
+    Round trip generated OpenAPI is incomplete
+    * OpenAPI doesn't have the discriminator values in it.
+    * Swagger API XML doesn't wrap the list elements correctly.
+
+
+# -----------------------------------------------------
+# 20240622-04-chatgpt
+
+    ChatGPT for Python/FastAPI needs additional prompt to fix issues.
+    Needs to fix both the OpenAPI spec and the code.
+    * Wrapped elements in XML arrays.
+      https://stackoverflow.com/a/58078862
+
+# -----------------------------------------------------
+# 20240622-03-interop
+# 20240622-02-interop
+# 20240622-01-interop
+
+    Compare outputs
+    * OpenAPI Java/Spring
+    * ChatGPT Python/FastAPI
+
+    * JSON is identical.
+    * YAML has different quotes, but that is legal.
+    * Java/Spring has problems with XML type attribute and wrapped lists.
+
+# -----------------------------------------------------
+# 20240619-05-chatgpt
+
+    Generate Python/FastAPI code from OpenAPI spec.
+    <parcolar-0.1.yaml>
+
+    Needs additional prompts to fill in the gaps.
+    * Extra prompt to implement polymorphism.
+    * Extra prompt to implement discriminator.
+    * Extra prompt to implement accepts content negotiation.
+    * Extra prompt to implement yaml serialization
+    * Extra prompt to implement xml serialization
+    * Extra prompt to implement content type negotiation.
+    * Extra prompt to implement xml content type.
+    * Extra prompt to handle unknown discriminator.
+
+    Generate client code.
+    * Extra prompt to wrap request in root element
+
+    Takes time to get there, but is less frustrating than the OpenAPI generator.
+
+# -----------------------------------------------------
+# 20240619-04-chatgpt
+
+    ChatGPT generated bookshop webapp, with polymorphism.
+    ChatGPT writes better code than openapi-generator.
+
+# -----------------------------------------------------
+# 20240619-03-chatgpt
+
+    Adding discriminator.
+    Manual fix replacing const with Literal.
+
+# -----------------------------------------------------
+# 20240619-02-openapigen
+
+    Multiple problems with OpenAPI generated PythonFastAPI code.
+    * Broken include paths.
+    * Circular dependencies.
+    * Missing includes.
+    * All three classes have the same list of properties.
+
+# -----------------------------------------------------
+# 20240619-01-chatgpt
+
+    Using ChaptGPT to create book store example that works.
+    * Learned we need to have the right Content-Type header.
+
+# -----------------------------------------------------
+# 20240618-02-chatgpt
+
+    Ask ChatGPT how to use the OpenAPI tools to generate
+    a FastAPI webapp from an OpenAPI specification.
+
+    Fails because the generated code is broken.
+
+# -----------------------------------------------------
+# 20240618-01-chatgpt
+
+    Ask ChatGPT how to create a polymorphic webapp from
+    an OpenAPI specification, using a discriminator
+    to indicate the type.
+
+    Looks good, not tested.
+
+# -----------------------------------------------------
+# 20240617-02-flask
+
+    Try using OpenAPI tools to generate a Python/Flask implementation
+    from a manually edited OpenAPI spec.
+    <parcolar-0.1.yaml>
+
+    Fails because the generated code is broken.
+
+# -----------------------------------------------------
+# 20240617-01-fastapi
+
+    Try using OpenAPI tools to generate a Python/FastAPI implementation
+    from a manually edited OpenAPI spec.
+    <parcolar-0.1.yaml>
+
+    Generated code is missing many parts.
+    * Broken import paths.
+    * Generated code is JSON only.
+    * No support for content negotiation.
+
+# -----------------------------------------------------
+# 20240616-02-openapi
+
+    Try using OpenAPI Maven plugin to generate a Java/Spring
+    from a manually edited OpenAPI spec.
+    <parcolar-0.1.yaml>
+
+    Success, a Spring webapp that handles polymorphism and content negotiation.
+
+# -----------------------------------------------------
+# 20240616-01-openapi
+
+    Try using OpenAPI Maven plugin to generate a Java/Spring
+    from a Swagger generated OpenAPI spec.
+
+    Lots of build errors.
+    * The generated classes don't replicate the original class hierarchy.
+    * The OpenAPI spec doesn't represent the original class hierarchy.
+    * The OpenAPI spec doesn't include the discriminator value.
+    * Using the generated classes isn't going to work.
+    * Too much is missing and too much us broken.
+
+# -----------------------------------------------------
+# 20240405-03-ambleck
+
+    Manually created Java/Spring webapp that handles polymorphisn
+    with a discriminator and content negotiation.
+
+    Using the webbap to generate a Swagger OpenAPI spec.
+

@@ -940,7 +940,7 @@ EOF
 # -----------------------------------------------------
 # Prompt
 
-    How can I make a SpringBoot webapp recognise an JacksonXmlProperty annotation.
+    How can I make a SpringBoot webapp recognise a JacksonXmlProperty annotation.
 
 # -----------------------------------------------------
 # Response
@@ -2276,7 +2276,7 @@ EOF
     >   <   </offers>
     >   < </ParcolarResponse>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-003][xml][json]
     >   ----
@@ -2317,7 +2317,7 @@ EOF
     >   ---
     >   >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-003][xml][yaml]
     >   ----
@@ -2344,25 +2344,25 @@ EOF
     >   ---
     >   > "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...www.metagrid.xyz')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-003][json][xml]
-    >   
+    >
     >   -------- --------
     >   [test-003][json][json]
-    >   
+    >
     >   -------- --------
     >   [test-003][json][yaml]
-    >   
+    >
     >   -------- --------
     >   [test-003][yaml][xml]
-    >   
+    >
     >   -------- --------
     >   [test-003][yaml][json]
-    >   
+    >
     >   -------- --------
     >   [test-003][yaml][yaml]
-    >   
+    >
     >   -------- --------
     >   [test-004][xml][xml]
     >   ----
@@ -2403,7 +2403,7 @@ EOF
     >   <   </offers>
     >   < </ParcolarResponse>
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-004][xml][json]
     >   ----
@@ -2444,7 +2444,7 @@ EOF
     >   ---
     >   >   "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-004][xml][yaml]
     >   ----
@@ -2471,22 +2471,22 @@ EOF
     >   ---
     >   > "detail": "1 validation error for ParcolarRequest\n  Value error, Unknown executable type: None [type=value_error, input_value={'executable': OrderedDic...('duration', '21')]))])}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.7/v/value_error"
     >   ----
-    >   
+    >
     >   -------- --------
     >   [test-004][json][xml]
-    >   
+    >
     >   -------- --------
     >   [test-004][json][json]
-    >   
+    >
     >   -------- --------
     >   [test-004][json][yaml]
-    >   
+    >
     >   -------- --------
     >   [test-004][yaml][xml]
-    >   
+    >
     >   -------- --------
     >   [test-004][yaml][json]
-    >   
+    >
     >   -------- --------
     >   [test-004][yaml][yaml]
 
