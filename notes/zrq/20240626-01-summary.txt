@@ -26,6 +26,8 @@
     Target:
 
         Summary of our results for the Sprint.
+        Published on SKAO Confluence:
+        https://confluence.skatelescope.org/display/SRCSC/COR-628++%5BExec+broker%5D+Learning
 
     Result:
 
