@@ -1,0 +1,278 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Summary of our results for the Sprint.
+        Published on SKAO Confluence:
+        https://confluence.skatelescope.org/display/SRCSC/COR-628++%5BExec+broker%5D+Learning
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Experiments with OpenAPI specifications and code generators.
+
+TL;DR; The ExecutionBroker webapp and data model can be described in OpenAPI.
+The OpenAPI Python code generators are not as capable as the Java code generators.
+ChatGPT turned out to be a more capable code generator than we expected.
+
+The OpenAPI project defines the specification for describing HTTP based web applications.
+[https://www.openapis.org/][https://github.com/OAI/OpenAPI-Specification]
+
+The OpenAPI tools project includes a list of 3rd party server implementations and code generators for a range of differet languages and frameworks.
+
+OpenAPI tools
+[https://tools.openapis.org/]
+OpenAPI code generators
+[https://tools.openapis.org/categories/code-generators.html]
+OpenAPI server implementations
+[https://tools.openapis.org/categories/server-implementations.html]
+
+Note - _"OpenAPI Tools" and "OpenAPI Generator" are not affiliated with OpenAPI Initiative (OAI)_
+
+----
+
+In the following exercise we compared the results from the
+Python/FastAPI (beta) [https://openapi-generator.tech/docs/generators/python-fastapi/]
+and
+Java/Spring [https://openapi-generator.tech/docs/generators/spring/]
+code generators.
+
+We wanted to answer the following key questions.
+1) Can we represent all the aspects of the ExecutionBroker data model and web service API in an OpenAPI specification ?
+2) Can we use an automated code generator to create the client and server side code based on our OpenAPI specification ?
+3) Can we describe and implement the polymorphism inherent in the ExecutionBroker data model ?
+4) Can we describe and implement content negotiation for the web service inputs and outputs in JSON, YAML and XML ?
+
+----
+
+As part of previous work we already had code for a Java/Spring webapp that implemented the required polymorphism and content negotiation.
+https://github.com/Zarquan/CIRASA-planner/tree/main/experiments/ambleck
+https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240405-03-ambleck.txt
+
+Adding the springdoc-openapi java library [https://springdoc.org/]
+to this project enabled us to generate an OpenAPI description of the webapp.
+[https://github.com/Zarquan/CIRASA-planner/blob/main/experiments/openapi/ivoa/ambleck-0.1.yaml]
+
+We then tried to use this OpenAPI description to generate the server side code using the Java/Spring Maven plugin.
+Results were not good.
+The OpenAPI description didn't represent key aspects of the original service,
+including the polymorphism, and the code generation produced non functional code.
+[https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240616-01-openapi.txt]
+
+----
+
+In the next experiment we started with a hand edited OpenAPI description
+that included polymorphism with a discriminator and content negotiation.
+[https://swagger.io/docs/specification/data-models/inheritance-and-polymorphism/]
+[https://swagger.io/docs/specification/media-types/]
+[https://github.com/Zarquan/CIRASA-planner/blob/main/experiments/openapi/ivoa/parcolar-0.1.yaml]
+We used the Java/Spring Maven plugin to generate the server side code for the webapp.
+https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240616-02-openapi.txt
+
+Testing the webapp using `curl` commands demonstrated that we have a
+webapp that correctly handles the polymorphism and content negotiation.
+
+This experiment answered yes to all four of our questions for a Java/Spring webapp.
+Yes, we can describe the ExecutionBroker data model in OpenAPI.
+Yes, we can generate code for a functional webapp from the OpenAPI description.
+Yes, the resulting webapp can handle the polymorphism with `type` discriminator.
+Yes, the resulting webapp can handle content negotiation for the inputs and outputs.
+
+----
+
+We then tried to repeat this success using the Python/FastAPI generator.
+[https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240617-01-fastapi.txt]
+The generated code was partially functional.
+It needed some minor edits to the include paths to get it to run.
+It needed manual editing to get the content negotiation to work.
+The generated code did not handle the polymorphism correctly.
+
+We also tried using the Python/Flask generator.
+[https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240617-02-flask.txt]
+The generated code was not functional.
+
+----
+
+As an experiment we asked ChatGPT to create a simple example of a Python/FastAPI
+webapp generated from an OpenAPI specification.
+
+[https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240618-01-chatgpt.txt]
+
+The intention was just to generate an example that we could learn from before
+going back to our main experiment.
+
+However, the code generated by ChatGPT was good enopugh that we
+continued to experiment with it to see how much of our
+requirements it could handle.
+
+Note, it became clear that although we were asking ChatGPT to generate
+the code from the OpenAPI specification, it was in fact just generating
+two separate things, the OpenAPI specification, and the FastAPI code.
+
+This highlights something that users need to be aware of when using ChatGPT.
+It is just putting language terms together to create a coherent output based on previous examples it has seen.
+The resulting output may appear to be performing additional processing steps,
+but it is just blocks of text. It does not have any meaning, reasoning or intent.
+
+ChatGPT may say :
+"Below is an example of a FastAPI web application generated from an OpenAPI specification."
+
+But is not in fact using the OpenAPI specification to generate the FastAPI code.
+ChatGPT is just generating two blocks of text that look as if they are related.
+
+----
+
+We then asked ChatGPT to show us how FastAPI code could be generated from an OpenAPI description using the Python/FastAPI generator tools.
+[https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240618-02-chatgpt.txt]
+
+The instructions that ChatGPT generated describing how to run the Python/FastAPI generator tools
+worked. However, the resulting Python/FastAPI code did not work.
+
+One issue is the resulting Python code for the data model objects is split into
+separate files for each class, which then have to cross refernce each other in order
+to implement the polymorphism inheritance.
+Book and Magazine both import Item, but Item imports Book and Magazine,
+causing a circular import loop.
+
+Solving this issue got the webapp to run, but testing it revealed more issues.
+Looking at the code, all three classes Book, DVD and Magazine shred the same
+set of properties.
+
+----
+
+Stepping back from the OpenAPI Python/FastAPI generator tools, we asked ChatGPT to generate the
+Python/FastAPI code for the book shop example, using a discriminator property to indicate the class type.
+
+ChatGPT generated good code.
+Only one issue, it used a deprecated pattern to define constants for the discriminator properties.
+So we needed to edit the generated code ourselves to replace `const` with `Literal`.
+See https://errors.pydantic.dev/2.7/u/removed-kwargs
+
+Resulting Python/FastAPI code ran and was able to handle polymorphism using a discriminator property to indicate the class type.
+
+----
+
+We then asked ChatGPT to generate a Python/FastAPI based on our manually editied OpenAPI description
+of the ExecutionBroker webapp.
+https://github.com/Zarquan/CIRASA-planner/blob/main/notes/zrq/20240619-05-chatgpt.txt
+
+At this point ChatGPT started to miss out blocks of functionality in it's response.
+
+Although ChatGPT's response said "This FastAPI app matches the OpenAPI specification provided and handles requests to the `/ambleck` endpoint according to the defined schema."
+
+It did not implement all of the functionality in the OpenAPI description.
+We eventually got it to implement all of the functionality, but it needed a series of additional prompts
+to point out each missing block of functionality and ask ChatGPT to implement it.
+
+* Extra prompt to implement polymorphism.
+* Extra prompt to implement discriminator.
+* Extra prompt to implement accepts content negotiation.
+* Extra prompt to implement yaml serialization
+* Extra prompt to implement xml serialization
+* Extra prompt to implement content type negotiation.
+* Extra prompt to implement xml content type.
+* Extra prompt to handle unknown discriminator.
+
+From this it was clear that ChatGPT was not processing the whole of the OpenAPI service
+description in a procedural manner.
+
+It was matching  blocks of text from the OpenAPI description and generating corresponding blocks
+of text in the Python/FastAPI code.
+When we pointed out the missing functionality, it went back to the OpenAPI description
+found the text in the OpenAPI description and generated the corresponding block of text
+in the Python/FastAPI code.
+
+ChatGPT is not reasoning about the functionality of the code it generates. It is just
+generating blocks of text that look likley based on the surrounding text.
+
+However, the eventual result was a fully functional Python/FastAPI webapp that implemented
+polymorphism using a discriminator, and content negotiation for both the inputs and outputs.
+
+This experiment answered yes to all four of our questions for a Python/FastAPI webapp.
+Yes, we can describe the ExecutionBroker data model in OpenAPI.
+Yes, we can generate code for a functional webapp from the OpenAPI description.
+Yes, the resulting webapp can handle the polymorphism with `type` discriminator.
+Yes, the resulting webapp can handle content negotiation for the inputs and outputs.
+
+Saying yes to the second question might be a bit of a stretch, but it is technically correct.
+Yes, we can pass the ExecutionBroker OpenAPI description to ChatGPT and use it to generate
+a working webapp that implements all of the required functionality.
+It just takes a bit of hand holding to make sure it completes the task.
+
+----
+
+The final set of experiments compared the outputs from the two implementations
+to look for differences.
+
+    * JSON is identical.
+    * YAML has different quotes, but that is legal.
+    * YAML has explicity type !<urn:ping-executable>
+    * Java/Spring has problems with XML type attribute and wrapped lists.
+
+We fixed the YAML issues by manually adding configuration properties
+to the YAML serializer.
+We fixed the XML issue with the list elemnt names by manually adding
+annotations and configuration properties to the Java code.
+
+So far we have not been able to fix the problem with the XML serialization type attribute
+in the Java/Spring implemntation.
+
+The Python/FastAPI implementation produces the type as a child of the executable element .
+
+    <executable>
+        <type>....</type>
+        ....
+    <executable>
+
+The Java/Spring implementation produces the type as an attribute of the executable element.
+
+    <executable type='....'>
+        ....
+    <executable>
+
+The Java/Spring implementation is able to accept the type as either a child element or an attribute.
+The Python/FastAPI implementation is only able to accept the type as a child of the executable element.
+It cannot parse the type as an attribute of the executable element.
+
+Unfortunatley this means that the Python/FastAPI implementation can't handle the XML ouput
+of the Java/Spring implementation.
+
+However, apart from this one issue, the behavior and outputs of the two implementations are identical.
+
+----
+
+We can now state with some level of confidence that it should be possible to describe the full
+ExecutionBroker data model and webapp functionality in an OpenAPI specification,
+and that it should be possible to implement all of the functionality of the ExecutionBroker webapp
+in both Java/Spring and Python/FastAPI.
+
+----
+
+
+

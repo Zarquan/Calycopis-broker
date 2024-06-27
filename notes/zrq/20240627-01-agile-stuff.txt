@@ -1,0 +1,59 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Links to all the agile stuff I need to keep track of.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Feature: Prototype an Execution broker within CANFAR Science platform
+    https://jira.skatelescope.org/browse/SP-4241
+
+        Story done [Exec broker] Learning
+        https://jira.skatelescope.org/browse/COR-628
+        https://confluence.skatelescope.org/display/SRCSC/COR-628++%5BExec+broker%5D+Learning
+
+        Story [Exec Broker] Update the service API
+        https://jira.skatelescope.org/browse/COR-642
+            Do we need the separate worker interface ?
+            Do we use conventional POST methods for every property, or do we use 'options' to POST changes ?
+
+        Story [Exec broker] Bringing the IVOA document up to date.
+        https://jira.skatelescope.org/browse/COR-641
+            Bringing the IVOA document up to date.
+            Take out the things that are just plain wrong.
+            Fix the PURL problem #63 and convert numerics to strings #59
+
+        Story [Exec broker] Running "something" in CANFAR using REST Python client invoked from our web service.
+        https://jira.skatelescope.org/browse/COR-650
+            Unknowns - delegated tokens
+
+
+
