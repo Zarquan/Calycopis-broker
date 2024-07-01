@@ -22,25 +22,26 @@
 #     {
 #     "name": "ChatGPT",
 #     "contribution": {
-#       "value": 50,
+#       "value": 10,
 #       "units": "%"
 #       }
 #     }
 #   ]
 #
 
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: IVOA ExecutionBroker
-  version: 0.4
+  version: "0.4"
   summary: Prototype implementation of the IVOA ExecutionBroker interface
+  description: >
+    Prototype implementation of the IVOA ExecutionBroker interface
   contact:
     name: Zarquan
     url: https://github.com/Zarquan
   license:
     name: Creative Commons Attribution Share Alike 4.0 International
     identifier: CC-BY-SA-4.0
-    url: https://creativecommons.org/licenses/by-sa/4.0/legalcode
 servers:
   - url: http://localhost:8080
     description: Localhost development
@@ -92,13 +93,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
 
     post:
       operationId: OfferUpdate
@@ -115,13 +116,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OfferUpdate'
+              $ref: '#/components/schemas/OfferUpdateRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/OfferUpdate'
+              $ref: '#/components/schemas/OfferUpdateRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/OfferUpdate'
+              $ref: '#/components/schemas/OfferUpdateRequest'
         required: true
       responses:
         "200":
@@ -129,13 +130,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/OfferStatus'
+                $ref: '#/components/schemas/OfferStatusResponse'
 
   /execution/{ident}:
     get:
@@ -155,13 +156,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
 
     post:
       operationId: ExecutionUpdate
@@ -178,13 +179,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdate'
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdate'
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdate'
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
         required: true
       responses:
         "200":
@@ -192,13 +193,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatus'
+                $ref: '#/components/schemas/ExecutionStatusResponse'
 
 components:
   schemas:
@@ -372,7 +373,7 @@ components:
           "urn:binder-notebook-01.":  '#/components/schemas/BinderNotebook01'
       properties:
       allOf:
-        - $ref: '#/components/schemas/AbstractResource'
+        - $ref: '#/components/schemas/AbstractPolymorph'
 
     DockerContainer01:
       description: |
@@ -662,7 +663,7 @@ components:
       xml:
         name: request
       allOf:
-        $ref: '#/components/schemas/ExecutionSpec'
+        - $ref: '#/components/schemas/ExecutionSpec'
 
     OffersResponse:
       description: An execution response.
@@ -846,7 +847,7 @@ components:
           properties:
             options:
               type: array
-                items:
+              items:
                 $ref: '#/components/schemas/OptionBase'
 
     ExecutionStatus:
@@ -891,7 +892,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/UpdateBase'
 
-    ExcutionStatusResponse:
+    ExecutionStatusResponse:
       description: The status response for an execution.
       type: object
       xml:
@@ -902,8 +903,8 @@ components:
           properties:
             options:
               type: array
-                items:
-                  $ref: '#/components/schemas/OptionBase'
+              items:
+                $ref: '#/components/schemas/OptionBase'
 
 
 
