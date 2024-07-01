@@ -1,0 +1,68 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        PI23, Iteration #2
+        26th June- 09 July
+        (*) DAAC politics delayed start of work.
+
+    Result:
+
+        Work in progress ...
+
+        NE657856D
+
+# -----------------------------------------------------
+
+        Story [Exec Broker] Update the service API
+        https://jira.skatelescope.org/browse/COR-642
+            Do we need the separate worker interface ?
+            Do we use conventional POST methods for every property, or do we use 'options' to POST changes ?
+
+        Decision -
+            No need for the separate worker interface.
+            Using options to handle object updates.
+
+            Start with the interface design.
+            Manually edit the OpenAPI spec.
+            Generate framework code from the spec.
+            Add the business login in a separate project.
+
+# -----------------------------------------------------
+# Create a new OpenAPI specification.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            gedit parcolar-0.4.yaml &
+
+
+
+
+
