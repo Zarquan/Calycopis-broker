@@ -52,6 +52,26 @@
             Add the business login in a separate project.
 
 # -----------------------------------------------------
+# Create a new branch.
+#[user@laptop]
+
+    branchname=openapi-spec
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        # Checkout our main branch.
+        git checkout main
+
+        # Create the new branch in our local repository.
+        git checkout -b "${newbranch:?}"
+
+        # Push the new branch to our fork (origin).
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
 # Create a new OpenAPI specification.
 #[user@laptop]
 
