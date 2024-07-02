@@ -322,6 +322,30 @@ components:
                 The size of memory required.
                 Specified in SI units, default is `GiB`.
               $ref: '#/components/schemas/MinMaxInteger'
+            volumes:
+              type: array
+              items:
+                $ref: '#/components/schemas/ComputeResourceVolume'
+
+    ComputeResourceVolume:
+      description: A compute resource volume mount.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            path:
+              description: The mount point inside the compoute resource's filesystem.
+              type: string
+            mode:
+              description: The read write mode.
+              type: string
+              enum:
+                - READONLY
+                - READWRITE
+            resource:
+              description: The name or ident of the resource to mount.
+              type: string
 
     AbstractStorageResource:
       description: Abstract base class for storage resources.
@@ -357,6 +381,82 @@ components:
                 The size of storage required.
                 Specified in SI units, default is `GiB`.
               $ref: '#/components/schemas/MinMaxInteger'
+
+    AbstractDataResource:
+      description: Abstract base class for data resources.
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-data-resource": '#/components/schemas/SimpleDataResource'
+          "urn:S3-data-resource":     '#/components/schemas/S3DataResource'
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorph'
+
+    SimpleDataResource:
+      description: A simple downloadable data resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/SimpleDataResourceSpec'
+
+    SimpleDataResourceSpec:
+      description: A simple data resource specifics.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorphSpec'
+        - type: object
+          required:
+            - location
+          properties:
+            location:
+              description: |
+                The external location of the data to import.
+              type: string
+
+    S3DataResource:
+      description: A S3 data resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            spec:
+              $ref: '#/components/schemas/S3DataResourceSpec'
+
+    S3DataResourceSpec:
+      description: A S3 data resource specifics.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorphSpec'
+        - type: object
+          required:
+            - endpoint
+            - template
+            - bucket
+          properties:
+            endpoint:
+              description: |
+                The endpoint address of the S3 service.
+              type: string
+            template:
+              description: |
+                The URL template for the S3 service.
+              type: string
+            bucket:
+              description: |
+                The target bucket name.
+              type: string
+            object:
+              description: |
+                The target object name.
+                Leaving this blank will mount the whole bucket as a directory.
+              type: string
 
     AbstractExecutable:
       description: Abstract base class for executables.
@@ -702,10 +802,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:string-value-option": '#/components/schemas/StringValueOption'
-          "urn:enum-value-option":   '#/components/schemas/EnumValueOption'
-          "urn:int32-value-option":  '#/components/schemas/Int32ValueOption'
-          "urn:int32-delta-option":  '#/components/schemas/Int32DeltaOption'
+          "urn:string-value-option":  '#/components/schemas/StringValueOption'
+          "urn:enum-value-option":    '#/components/schemas/EnumValueOption'
+          "urn:integer-value-option": '#/components/schemas/IntegerValueOption'
+          "urn:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
       properties:
         type:
           type: string
@@ -738,7 +838,7 @@ components:
               items:
                 type: string
 
-    Int32ValueOption:
+    IntegerValueOption:
       description: A simple 32 bit integer value option.
       type: object
       allOf:
@@ -746,13 +846,15 @@ components:
         - type: object
           properties:
             min:
-              type: int32
+              type: integer
+              format: int32
             max:
-              type: int32
+              type: integer
+              format: int32
             units:
               type: string
 
-    Int32DeltaOption:
+    IntegerDeltaOption:
       description: A simple 32 bit integer delta option.
       type: object
       allOf:
@@ -760,9 +862,11 @@ components:
         - type: object
           properties:
             min:
-              type: int32
+              type: integer
+              format: int32
             max:
-              type: int32
+              type: integer
+              format: int32
             units:
               type: string
 
@@ -776,8 +880,8 @@ components:
         mapping:
           "urn:string-value-update": '#/components/schemas/StringValueUpdate'
           "urn:enum-value-update":   '#/components/schemas/EnumValueUpdate'
-          "urn:int32-value-update":  '#/components/schemas/Int32ValueUpdate'
-          "urn:int32-delta-update":  '#/components/schemas/Int32DeltaUpdate'
+          "urn:integer-value-update":  '#/components/schemas/IntegerValueUpdate'
+          "urn:integer-delta-update":  '#/components/schemas/IntegerDeltaUpdate'
       properties:
         type:
           type: string
@@ -808,7 +912,7 @@ components:
             value:
               type: string
 
-    Int32ValueUpdate:
+    IntegerValueUpdate:
       description: A simple 32 bit integer value update.
       type: object
       allOf:
@@ -816,9 +920,10 @@ components:
         - type: object
           properties:
             value:
-              type: int32
+              type: integer
+              format: int32
 
-    Int32DeltaUpdate:
+    IntegerDeltaUpdate:
       description: A simple 32 bit integer delta update.
       type: object
       allOf:
@@ -826,7 +931,8 @@ components:
         - type: object
           properties:
             value:
-              type: int32
+              type: integer
+              format: int32
 
     OfferUpdateRequest:
       description: A request to update an offer.
