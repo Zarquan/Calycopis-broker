@@ -235,11 +235,10 @@ components:
       description: |
         A generic map of name value pairs.
         See https://swagger.io/docs/specification/data-models/dictionaries/
-      type: array
-      items:
-        type: object
-        additionalProperties:
-          type: string
+      type: object
+      additionalProperties:
+        type: string
+
 
     AbstractComponent:
       description: Abstract base class for a named component.
@@ -251,13 +250,32 @@ components:
         name:
           type: string
 
+    EmptySpecBase:
+      description: >
+          An empty base class for a polymorph's specifics.
+          This makes AbstractPolymorph.getSpec() return Object, which means
+          composition works and we don't need the discriminator in AbstractPolymorphSpec.
+          Nasty hack of sorts.
+      type: object
+
     AbstractPolymorphSpec:
       description: Abstract base class for a polymorph's specifics.
       type: object
-      properties:
-        properties:
-          description: A generic name-value map of properties.
-          $ref: '#/components/schemas/NameValueMap'
+      # We have to have a discriminator to make the code genrator use inheritance.
+      # https://stackoverflow.com/questions/27862407/swagger-inheritance-and-composition
+#     discriminator:
+#       propertyName: type
+      allOf:
+        - type: object
+          properties:
+#         properties:
+#           type:
+#             type: string
+#             xml:
+#               attribute: true
+            properties:
+              description: A generic name-value map of properties.
+              $ref: '#/components/schemas/NameValueMap'
 
     AbstractPolymorph:
       description: Abstract base class for polymorphic types.
@@ -273,7 +291,7 @@ components:
               xml:
                 attribute: true
             spec:
-              $ref: '#/components/schemas/AbstractPolymorphSpec'
+              $ref: '#/components/schemas/EmptySpecBase'
 
     AbstractComputeResource:
       description: Abstract base class for compute resources.
@@ -404,8 +422,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
-          required:
-            - location
           properties:
             location:
               description: |
@@ -428,10 +444,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
-          required:
-            - endpoint
-            - template
-            - bucket
           properties:
             endpoint:
               description: |
@@ -460,11 +472,10 @@ components:
         propertyName: type
         mapping:
           "urn:docker-container-0.1": '#/components/schemas/DockerContainer01'
-          "urn:single-container-0.1": '#/components/schemas/SingleContainer01'
+          "urn:single-container-0.1": '#/components/schemas/SingularContainer01'
           "urn:repo2docker-01.":      '#/components/schemas/Repo2DockerContainer01'
           "urn:jupyter-notebook-01.": '#/components/schemas/JupyterNotebook01'
           "urn:binder-notebook-01.":  '#/components/schemas/BinderNotebook01'
-      properties:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorph'
 
@@ -488,31 +499,24 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
+          required:
+            - image
           properties:
             image:
               type: string
-              required: true
-              description: The image name, with or without the repository, namespace or tag.
-              examples:
-                short:
-                  value:   oligia-webtop
-                  summary: Short form with only the image name.
-                long:
-                  value:   ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
-                  summary: Long form including repository, namespace, image name, and tag.
+              description: |
+                The image name, with or without the repository, namespace or tag.
+              example: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13, ivoa/oligia-webtop or just oligia-webtop.
             namespace:
               type: string
-              required: false
-              description: The image namespace within the repository, if not already specified in the image name.
+              description: The namespace within the repository, if not already specified in the image name.
               example: ivoa
             tag:
               type: string
-              required: false
               description: The image tag, if not already specified in the image name.
               example: ubuntu-2022.01.13
             repository:
               type: string
-              required: false
               description: The respository tag, if not already specified in the image name.
               example: ghcr.io
             platform:
@@ -522,7 +526,6 @@ components:
                 The default is 'linux/amd64'.
             privileged:
               type: boolean
-              required: false
               default: false
               description: |
                 Set the privileged flag on execution, default value is false.
@@ -536,17 +539,17 @@ components:
               type: array
               items:
                 type: object
+                required:
+                  - containerport
                 properties:
                   hostaddress:
                     type: string
-                    required: false
                     description: |
                       The host machine's network interface.
                       Specifying this in a request will restrict the available platforms that can run the executable.
                       In most cases it is best to leave this blank allowing the platform to choose which port number to use.
                   hostport:
                     type: string
-                    required: false
                     description: |
                       The host machine's port number to connect to.
                       Specifying this in a request will restrict the available platforms that can run the executable.
@@ -562,7 +565,7 @@ components:
                       - http
                       - https
                     description: |
-                      The network protocol to use.
+                      The network protocol to use, default is `tcp`.
                       The `http` and `https` values further specify the HTTP protocol to use on top of TCP.
                       Specifying `https` may help to meet firewall restrictions at some sites.
 
@@ -578,7 +581,6 @@ components:
             spec:
               $ref: '#/components/schemas/SingularContainer01Spec'
 
-
     SingularContainer01Spec:
       description: |
         A Singularity container specifics.
@@ -587,10 +589,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
+          required:
+            - image
           properties:
             image:
               type: string
-              required: true
               description: |
                 The URL to download the container image from.
 
@@ -606,7 +609,6 @@ components:
             spec:
               $ref: '#/components/schemas/Repo2DockerContainer01Spec'
 
-
     Repo2DockerContainer01Spec:
       description: |
         A Repo2Docker specifics.
@@ -615,10 +617,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
+          required:
+            - source
           properties:
             source:
               type: string
-              required: true
               description: The URL of the repository.
 
     JupyterNotebook01:
@@ -642,10 +645,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
+          required:
+            - source
           properties:
             source:
               type: string
-              required: true
               description: |
                 The URL of the notebook.
                 TODO - This needs to take into account different ways of referring to a notebook.
@@ -670,14 +674,14 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorphSpec'
         - type: object
+          required:
+            - repository
           properties:
             repository:
               type: string
-              required: true
               description: The URL of the repository to package.
             notebook:
               type: string
-              required: false
               description: The path of the target notebook within the repository.
 
     ComputeResourceList:
@@ -710,6 +714,10 @@ components:
       xml:
         name: date-time
       properties:
+        albert:
+          type: string
+        clara:
+          type: string
 
     ExecutionSpec:
       description: The specification for an execution.

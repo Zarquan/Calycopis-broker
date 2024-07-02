@@ -83,6 +83,74 @@
             gedit parcolar-0.4.yaml &
 
 
+# -----------------------------------------------------
+# Try building the Spring server code from the OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
+
+
+# -----------------------------------------------------
+
+    We can't use a property in the parent executable as a discriminator to control the type of the child spec object.
+    https://redocly.com/docs/resources/discriminator#property-outside-of-the-object
+
+    What we originally wanted
+
+        executable
+          ident: ..
+          name: ..
+          type: urn:docker-executable
+          spec:
+            # docker specific bits
+
+    Two ways of acheiving it.
+
+    Make the Executable base class return just Object for spec
+
+        class ExecutableBase
+            {
+            ....
+            Object getSpec() {....}
+            ....
+            }
+
+    Then the derrived Executable classes return their own types of specifics.
+
+        class DockerExecutable
+            {
+            ....
+            DockerExecutableSpec getSpec() {....}
+            ....
+            }
+
+    Or we need to add a discriminator to enable inheritance in the Spec classes.
+
+        executable
+          ident: ..
+          name: ..
+          type: urn:docker-executable
+          spec:
+            type: urn:docker-executable
+            # docker specific bits
+
+    In which case, we could make the executable a generic base class,
+    and just have the inheritance on the spec objects.
+
+        executable
+          ident: ..
+          name: ..
+          spec:
+            type: urn:docker-executable
+            # docker specific bits
+
+    Is this such a bad thing ?
 
 
 
