@@ -80,7 +80,7 @@
 
         pushd experiments/openapi/ivoa
 
-            gedit parcolar-0.4.yaml &
+            pluma parcolar-0.4.yaml &
 
 
 # -----------------------------------------------------
@@ -152,5 +152,44 @@
 
     Is this such a bad thing ?
 
+# -----------------------------------------------------
 
+    OR ... do we just drop the `spec` part ?
+
+        executable
+          ident: ..
+          name:  ..
+          type:  urn:docker-executable
+          # docker specific bits
+          ....
+
+    Simplifies the whole thing.
+
+
+# -----------------------------------------------------
+# Create a new OpenAPI specification.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            cp parcolar-0.4.yaml \
+               parcolar-0.5.yaml
+
+            pluma parcolar-0.5.yaml &
+
+
+# -----------------------------------------------------
+# Try building the Spring server code from the OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
 
