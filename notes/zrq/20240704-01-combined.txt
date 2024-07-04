@@ -1,0 +1,206 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Can we simplify the web services and data model into one thing.
+
+    At the moment we have an separate classes for an Offer and an Execution.
+
+    The server produces a set of offers, the client accepts one of them,
+    The server creates an execution to represent the running code.
+    but they are pretty much the same thing.
+
+    90% of the data model is the same.
+
+    ExecutionSpec:
+        executable:
+          ....
+          ....
+        datetime:
+          ....
+          ....
+        resources:
+          compute:
+            ....
+            ....
+          storage:
+            ....
+            ....
+          data:
+            ....
+            ....
+
+    An offer contains ExecutionSpec, plus offer details
+
+    offer:
+      expires: <date-time>
+      status:  [OFFERED, ACCEPTED, REJECTED, EXPITRED]
+      executable:
+        ....
+        ....
+      datetime:
+        ....
+        ....
+      resources:
+        compute:
+          ....
+          ....
+        storage:
+          ....
+          ....
+        data:
+          ....
+          ....
+
+    An excution contains ExecutionSpec, plus execution details
+
+    execution:
+      datetime:
+        started: <date-time>
+        finished: <date-time>
+      status:  [WAITING, STANDUP, RUNNING, TEARDOWN, COMPLETED, CANCELLED, FAILED]
+
+      executable:
+        ....
+        ....
+      datetime:
+        ....
+        ....
+      resources:
+        compute:
+          ....
+          ....
+        storage:
+          ....
+          ....
+        data:
+          ....
+          ....
+
+
+    Can we combine them.
+
+      offer:
+        expires: <date-time>
+        status:  [OFFERED, ACCEPTED, REJECTED, EXPITRED]
+
+      execution:
+        datetime:
+          started: <date-time>
+          finished: <date-time>
+        status:  [WAITING, STANDUP, RUNNING, TEARDOWN, COMPLETED, CANCELLED, FAILED]
+
+      executable:
+        ....
+        ....
+      datetime:
+        ....
+        ....
+      resources:
+        compute:
+          ....
+          ....
+        storage:
+          ....
+          ....
+        data:
+          ....
+          ....
+
+
+
+    So only one set of objects, accessed via the /execution endpoint.
+    When it is offered, only the offer part s populated.
+
+    /execution/{ident}
+
+      offer:
+        expires: <date-time>
+        status:  [OFFERED, ACCEPTED, REJECTED, EXPITRED]
+
+      executable:
+        ....
+        ....
+      datetime:
+        ....
+        ....
+      resources:
+        compute:
+          ....
+          ....
+        storage:
+          ....
+          ....
+        data:
+          ....
+          ....
+
+    When it is ACCEPTED, the expiry date is null and the execution part is populated.
+
+      offer:
+        expires: -
+        status:  ACCEPTED
+
+      execution:
+        started:  <date-time>
+        finished: <date-time>
+        status:  [WAITING, STANDUP, RUNNING, TEARDOWN, COMPLETED, CANCELLED, FAILED]
+
+      executable:
+        ....
+        ....
+      datetime:
+        ....
+        ....
+      resources:
+        compute:
+          ....
+          ....
+        storage:
+          ....
+          ....
+        data:
+          ....
+          ....
+
+    Do we still keep the offer part ?
+    or are they a oneOf pair ?
+
+    This makes the API simpler - only one endpoint, and only one top level component.
+    It adds some complexity to the description of the behavour, but not much.
+    It avoids the question about whether to redirect on ACCEPTED.
+
+
+
