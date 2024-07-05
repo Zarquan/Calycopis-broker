@@ -30,6 +30,9 @@ package uk.co.metagrid.ambleck.util;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature ;
 
 import java.nio.charset.StandardCharsets;
 import org.springframework.http.MediaType;
@@ -45,7 +48,17 @@ public class YamlConverter extends AbstractJackson2HttpMessageConverter {
             new YAMLFactory()
                 .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
                 .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
-            ),
+                )
+            .setSerializationInclusion(
+                Include.NON_NULL
+                )
+            .registerModule(
+                new JavaTimeModule()
+                )
+            .disable(
+                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
+                ),
+
         new MediaType("application", "yaml", StandardCharsets.UTF_8),
         new MediaType("text", "yaml", StandardCharsets.UTF_8),
         new MediaType("application", "*+yaml", StandardCharsets.UTF_8),
