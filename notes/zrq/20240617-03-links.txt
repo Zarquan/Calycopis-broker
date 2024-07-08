@@ -31,6 +31,12 @@
 
         Work in progress ...
 
+# -----------------------------------------------------
+# 20240628
+
+    SKA-TEL-SKO-0001072
+    SKAO to SRC Technical Interface Description
+    https://docs.google.com/document/d/1zho_8ii85iS7GYMXTIueZfOCxeL7lCVlpKDpH4ys6pQ/edit
 
 # -----------------------------------------------------
 # 20240621

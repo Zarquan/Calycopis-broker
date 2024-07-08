@@ -39,9 +39,7 @@
 	<description>OpenAPI Generator experiment</description>
 	<properties>
 		<java.version>19</java.version>
-        <!--schema.yaml>${project.basedir}/ivoa/ambleck-0.1.yaml</schema.yaml-->
-        <!--schema.yaml>${project.basedir}/ivoa/ambleck-modified-0.1.yaml</schema.yaml-->
-        <schema.yaml>${project.basedir}/ivoa/parcolar-0.3.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/parcolar-0.6.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
@@ -118,42 +116,6 @@
             <scope>provided</scope>
         </dependency>
 
-
-        <!--+
-            | Dependencies from Ambleck.
-        <dependency>
-	        <groupId>org.springframework.boot</groupId>
-	        <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-        </dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-            +-->
-        <!--+
-            | Added springdoc-openapi to generate OpenAPI spec.
-            | https://stackoverflow.com/questions/55938207/how-to-generate-openapi-3-0-spec-from-existing-spring-boot-app
-            | https://www.baeldung.com/spring-rest-openapi-documentation
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-            +-->
 	</dependencies>
 
 	<build>
@@ -162,6 +124,11 @@
             <!--+
                 | OpenAPI generator from the Spring documentation.
                 | https://www.baeldung.com/java-openapi-generator-server#plugin
+                |
+                | Exclude null values.
+                | @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                | Exclude null values and empty arrays.
+                | @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
                 +-->
             <plugin>
                 <groupId>org.openapitools</groupId>
@@ -184,6 +151,9 @@
                             </supportingFilesToGenerate>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
+                                <additionalModelTypeAnnotations>
+                                    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+                                </additionalModelTypeAnnotations>
                             </configOptions>
                         </configuration>
                     </execution>

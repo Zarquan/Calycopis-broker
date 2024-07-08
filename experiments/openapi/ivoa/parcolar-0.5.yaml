@@ -1,0 +1,1025 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 10,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker
+  version: "0.5"
+  summary: Prototype implementation of the IVOA ExecutionBroker interface
+  description: >
+    Prototype implementation of the IVOA ExecutionBroker interface
+  contact:
+    name: Zarquan
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+servers:
+  - url: http://localhost:8080
+    description: Localhost development
+paths:
+  /request:
+    post:
+      operationId: OffersRequest
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OffersRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/OffersRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/OffersRequest'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OffersResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/OffersResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/OffersResponse'
+
+  /offer/{ident}:
+    get:
+      operationId: OfferStatus
+      parameters:
+        - name: ident
+          in: path
+          description: The offer identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+
+    post:
+      operationId: OfferUpdate
+      parameters:
+        - name: ident
+          in: path
+          description: The offer identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OfferUpdateRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/OfferUpdateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/OfferUpdateRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/OfferStatusResponse'
+
+  /execution/{ident}:
+    get:
+      operationId: ExecutionStatus
+      parameters:
+        - name: ident
+          in: path
+          description: The execution identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+
+    post:
+      operationId: ExecutionUpdate
+      parameters:
+        - name: ident
+          in: path
+          description: The execution identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
+          application/yaml:
+            schema:
+              $ref: '#/components/schemas/ExecutionUpdateRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatusResponse'
+
+components:
+  schemas:
+
+    MinMaxInteger:
+      description: >
+        A minimum and maximum pair with units for an integer value.
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+
+    MinMaxFloat:
+      description: >
+        A minimum and maximum pair with units for a floating point value.
+      type: object
+      properties:
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+        units:
+          type: string
+
+    MinMaxString:
+      description: >
+        A minimum and maximum pair with units for a string point value.
+      type: object
+      properties:
+        min:
+          type: string
+        max:
+          type: string
+        units:
+          type: string
+
+    NameValueMap:
+      description: >
+        A map of name->value properties.
+        See https://swagger.io/docs/specification/data-models/dictionaries/
+      type: object
+      additionalProperties:
+        type: string
+
+    AbstractComponent:
+      description: >
+        Abstract base class for all our components.
+        This class provides a name, a UUID identifier,
+        and a map of name->value properties.
+      type: object
+      properties:
+        ident:
+          type: string
+          format: uuid
+        name:
+          type: string
+        properties:
+          description: >
+            A map of name-value properties.
+          $ref: '#/components/schemas/NameValueMap'
+
+    AbstractPolymorph:
+      description: |
+        Abstract base class for our polymorphic types.
+        This class adds the `type` discriminator for sub classes.
+      type: object
+      discriminator:
+        propertyName: type
+      required:
+        - type
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            type:
+              type: string
+              xml:
+                attribute: true
+
+    AbstractComputeResource:
+      description: >
+        Abstract base class for compute resources.
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorph'
+
+    SimpleComputeResource:
+      description: >
+        A simple compute resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComputeResource'
+        - type: object
+          properties:
+            cores:
+              description: >
+                The number of cpu cores required.
+                Default units of `cores` are equivalent to a single physical cpu core.
+                Use `milli cores` or `m cores` to specify Kubernetes 1/1000 values.
+              $ref: '#/components/schemas/MinMaxInteger'
+            memory:
+              description: >
+                The size of memory required.
+                Specified in SI units, default is `GiB`.
+              $ref: '#/components/schemas/MinMaxInteger'
+            volumes:
+              description: >
+                A list of resources that need to be mounted as volumes.
+              type: array
+              items:
+                $ref: '#/components/schemas/ComputeResourceVolume'
+
+    ComputeResourceVolume:
+      description: >
+        A resource volume mount.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            path:
+              description: >
+                The mount point in the target filesystem.
+              type: string
+            mode:
+              description: >
+                The read-write mode.
+              type: string
+              enum:
+                - READONLY
+                - READWRITE
+            resource:
+              description: >
+                The name or ident of the resource to mount.
+              type: string
+
+    AbstractStorageResource:
+      description: >
+        Abstract base class for storage resources.
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorph'
+
+    SimpleStorageResource:
+      description: >
+        A simple storage resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractStorageResource'
+        - type: object
+          properties:
+            size:
+              description: >
+                The size of storage required, specified in SI units.
+                Default units are `GiB`.
+              $ref: '#/components/schemas/MinMaxInteger'
+
+    AbstractDataResource:
+      description: >
+        Abstract base class for data resources.
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:simple-data-resource": '#/components/schemas/SimpleDataResource'
+          "urn:S3-data-resource":     '#/components/schemas/S3DataResource'
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorph'
+
+    SimpleDataResource:
+      description: >
+          A simple downloadable data resource.
+          This type of resource should always be mounted read-only.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            location:
+              description: |
+                The URL of the data to import.
+              type: string
+
+    S3DataResource:
+      description: A S3 data resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            endpoint:
+              description: |
+                The endpoint address of the S3 service.
+              type: string
+            template:
+              description: |
+                The URL template for the S3 service.
+              type: string
+            bucket:
+              description: |
+                The target bucket name.
+              type: string
+            object:
+              description: |
+                The target object name.
+                Leaving this blank will mount the whole bucket as a directory.
+              type: string
+
+    AbstractExecutable:
+      description: Abstract base class for executables.
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:docker-container-0.1": '#/components/schemas/DockerContainer01'
+          "urn:single-container-0.1": '#/components/schemas/SingularContainer01'
+          "urn:repo2docker-01.":      '#/components/schemas/Repo2DockerContainer01'
+          "urn:jupyter-notebook-01.": '#/components/schemas/JupyterNotebook01'
+          "urn:binder-notebook-01.":  '#/components/schemas/BinderNotebook01'
+      allOf:
+        - $ref: '#/components/schemas/AbstractPolymorph'
+
+    DockerContainer01:
+      description: |
+        A Docker or OCI container executable.
+        See https://opencontainers.org/
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          required:
+            - image
+          properties:
+            image:
+              type: string
+              description: >
+                The image name, with or without the repository, namespace or tag.
+              example: >
+                '`ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13`, `ivoa/oligia-webtop` or just `oligia-webtop`.'
+            namespace:
+              type: string
+              description: >
+                The namespace within the repository, if not already specified in the image name.
+              example: >
+                  '`ivoa`'
+            tag:
+              type: string
+              description: The image tag, if not already specified in the image name.
+              example: >
+                  '`ubuntu-2022.01.13`'
+            repository:
+              type: string
+              description: The respository tag, if not already specified in the image name.
+              example: >
+                  '`ghcr.io`'
+            platform:
+              type: string
+              description: >
+                The target CPU architecture the container is built for.
+                The default is `linux/amd64`.
+            privileged:
+              type: boolean
+              default: false
+              description: >
+                Set the privileged flag on execution.
+                The default is `false`.
+                See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
+            entrypoint:
+              type: string
+            environment:
+              $ref: '#/components/schemas/NameValueMap'
+            publish:
+              description: >
+                  An array of network ports to publish.
+              type: array
+              items:
+                type: object
+                required:
+                  - internal
+                properties:
+                  hostaddress:
+                    type: string
+                    description: >
+                      The IP address of the host machine's external network interface.
+                      Specifying this in a request may restrict the available platforms that can run the executable.
+                      In most cases it is best to leave this blank allowing the platform to choose which interface address to use.
+                  externalport:
+                    type: string
+                    description: >
+                      The host machine's external port number to connect to.
+                      Specifying this in a request may restrict the available platforms that can run the executable.
+                      In most cases it is best to leave this blank allowing the platform to choose which port number to use.
+                  internalport:
+                    type: string
+                    description: The internal port number to publish.
+                  protocol:
+                    type: string
+                    enum:
+                      - UDP
+                      - TCP
+                      - HTTP
+                      - HTTPS
+                    description: >
+                      The network protocol to use, default is `TCP`.
+                      The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
+                      Specifying `HTTPS` may help to meet firewall restrictions at some sites.
+
+    SingularContainer01:
+      description: >
+        A Singularity container executable.
+        See https://docs.sylabs.io/guides/latest/user-guide/
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          required:
+            - image
+          properties:
+            image:
+              type: string
+              description: >
+                The URL to download the container image from.
+
+    Repo2DockerContainer01:
+      description: >
+        A Repo2Docker executable.
+        See https://repo2docker.readthedocs.io/en/latest/
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+
+          required:
+            - source
+          properties:
+            source:
+              type: string
+              description: >
+                The URL of the repository to package.
+
+    JupyterNotebook01:
+      description: >
+        A Jupyter notebook executable.
+        See https://jupyter.org/
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          required:
+            - notebook
+          properties:
+            notebook:
+              type: string
+              description: >
+                The URL of the notebook.
+                TODO - This needs to take into account different ways of referring to a notebook.
+
+    BinderNotebook01:
+      description: >
+        A Binder notebook executable.
+        See https://the-turing-way.netlify.app/communication/binder/zero-to-binder.html
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - type: object
+          required:
+            - repository
+          properties:
+            repository:
+              type: string
+              description: >
+                The URL of the repository to package.
+            notebook:
+              type: string
+              description: >
+                The relative path of the notebook within the repository.
+
+    ComputeResourceList:
+      description: >
+        A list of compute resources.
+      type: array
+      xml:
+        name: compute
+      items:
+        $ref: '#/components/schemas/AbstractComputeResource'
+
+    StorageResourceList:
+      description: >
+        A list of storage resources.
+      type: array
+      xml:
+        name: storage
+      items:
+        $ref: '#/components/schemas/AbstractStorageResource'
+
+    ExecutionResourceList:
+      description: >
+        Combined compute and storage resource lists.
+      type: object
+      xml:
+        name: resources
+      properties:
+        compute:
+          $ref: '#/components/schemas/ComputeResourceList'
+        storage:
+          $ref: '#/components/schemas/StorageResourceList'
+
+    ExecutionDateTime:
+      description: >
+        A date and time block for an execution.
+      type: object
+      xml:
+        name: date-time
+      properties:
+        albert:
+          type: string
+        clara:
+          type: string
+
+    ExecutionSpec:
+      description: >
+        The specification for an execution.
+      type: object
+      xml:
+        name: execution
+      properties:
+        executable:
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          $ref: '#/components/schemas/ExecutionResourceList'
+        datetime:
+          $ref: '#/components/schemas/ExecutionDateTime'
+
+    ExecutionOffer:
+      description: >
+        The specification for an execution offer.
+      type: object
+      xml:
+        name: offer
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            expires:
+              description: >
+                The date and time that this offer expires.
+              type:   string
+              format: date-time
+            status:
+              description: |
+                Setting the status of an offer to `REJECTED` will reject that offer.
+                Setting the status of an offer to `ACCEPTED` will start the execution process.
+                The status of all the sibling offers will automatically be set to `REJECTED`.
+              type: string
+              enum:
+                - OFFERED
+                - ACCEPTED
+                - REJECTED
+                - EXPIRED
+            execution:
+              $ref: '#/components/schemas/ExecutionSpec'
+
+    OffersRequest:
+      description: >
+        An execution request.
+      type: object
+      xml:
+        name: request
+      allOf:
+        - $ref: '#/components/schemas/ExecutionSpec'
+
+    OffersResponse:
+      description: >
+        An execution response.
+      type: object
+      xml:
+        name: response
+      properties:
+        result:
+          description: >
+            A flag to indicate whether the request can be handled by this service.
+            If service is able to handle the request, then the `result` will be `YES`
+            and the `offers` block should contain one or more offers.
+            If service is not able to handle the request, the `result` will be `NO`
+            and the `messages` block may contain one or more reasons explaining why.
+          type: string
+          enum:
+            - "YES"
+            - "NO"
+        offers:
+          description: >
+            If the response is `YES`, this list could contain one or more offers
+            describing how the request can be handled.
+          type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/ExecutionOffer'
+          xml:
+            name: offers
+            wrapped: true
+        messages:
+          description: >
+            If the response is `NO`, this list may contain one or more messages
+            explaining why the request can't be handled.
+          type: array
+          items:
+            type: string
+
+    OptionBase:
+      description: >
+        Abstract base class for describing options.
+        This includes the `type` discriminator and the target `path` to update.
+      type: object
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:string-value-option":  '#/components/schemas/StringValueOption'
+          "urn:enum-value-option":    '#/components/schemas/EnumValueOption'
+          "urn:integer-value-option": '#/components/schemas/IntegerValueOption'
+          "urn:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
+      properties:
+        type:
+          type: string
+          xml:
+            attribute: true
+        path:
+          description: >
+            The target path that the option applies to.
+          type: string
+          xml:
+            attribute: false
+
+    StringValueOption:
+      description: >
+        A simple string value option.
+        This option tells the client that they can set the string value pointed to by the path.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/OptionBase'
+        - type: object
+          properties:
+            pattern:
+              description: >
+                A regular expression pattern restricting the value.
+              type: string
+
+    EnumValueOption:
+      description: >
+        A simple enum value option.
+        This option tells the client that they can set the enum value pointed to by the path.
+      type: object
+      required:
+        - values
+      allOf:
+        - $ref: '#/components/schemas/OptionBase'
+        - type: object
+          properties:
+            values:
+              description: >
+                The list of allowed values to use.
+              type: array
+              items:
+                type: string
+
+    IntegerValueOption:
+      description: >
+        A simple integer value option.
+        This option tells the client that they can set the integer value pointed to by the path.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/OptionBase'
+        - type: object
+          properties:
+            min:
+              description: >
+                The minimum value that can be set.
+              type: integer
+              format: int32
+            max:
+              description: >
+                The maximum value that can be set.
+              type: integer
+              format: int32
+            units:
+              description: >
+                The units used for the maximum and minimum values
+                and the default units used for the update.
+                The client may specify different units in the
+                update if they need to.
+              type: string
+
+    IntegerDeltaOption:
+      description: >
+        A simple integer delta option.
+        This option tells the client that they can increment or decrement the integer value pointed to by the path.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/OptionBase'
+        - type: object
+          properties:
+            min:
+              description: >
+                The minimum change that can be applied.
+              type: integer
+              format: int32
+            max:
+              description: >
+                The maximum change that can be applied.
+              type: integer
+              format: int32
+            units:
+              description: >
+                The units used for the maximum and minimum values
+                and the default units used for the update.
+                The client may specify different units in the
+                update if they need to.
+              type: string
+
+    UpdateBase:
+      description: >
+        Abstract base class for updates.
+        This includes the `type` discriminator and the target `path` to update.
+      type: object
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "urn:string-value-update": '#/components/schemas/StringValueUpdate'
+          "urn:enum-value-update":   '#/components/schemas/EnumValueUpdate'
+          "urn:integer-value-update":  '#/components/schemas/IntegerValueUpdate'
+          "urn:integer-delta-update":  '#/components/schemas/IntegerDeltaUpdate'
+      properties:
+        type:
+          type: string
+          xml:
+            attribute: true
+        path:
+          description: >
+            The target path that the update applies to.
+          type: string
+          xml:
+            attribute: false
+
+    StringValueUpdate:
+      description: >
+        A simple string value update.
+      type: object
+      required:
+        - value
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+        - type: object
+          properties:
+            value:
+              description: >
+                The string value to use.
+              type: string
+
+    EnumValueUpdate:
+      description: >
+        A simple enum value update.
+      type: object
+      required:
+        - value
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+        - type: object
+          properties:
+            value:
+              description: >
+                The enum value to use.
+              type: string
+
+    IntegerValueUpdate:
+      description: >
+        A simple integer value update.
+      type: object
+      required:
+        - value
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+        - type: object
+          properties:
+            value:
+              description: >
+                The integer value to use.
+              type: integer
+              format: int32
+            units:
+              description: >
+                The units to use for the value.
+              type: string
+
+    IntegerDeltaUpdate:
+      description: >
+        A simple integer delta update.
+        This increments or decrements the target value by the specified amount.
+      type: object
+      required:
+        - delta
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+        - type: object
+          properties:
+            delta:
+              description: >
+                The increment or decrement to apply.
+              type: integer
+              format: int32
+            units:
+              description: >
+                The units to use for the change.
+              type: string
+
+    OfferUpdateRequest:
+      description: >
+        A request to update an offer.
+      type: object
+      xml:
+        name: update-request
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+
+    OfferStatusResponse:
+      description: >
+        A status response for an offer,
+        including a list of options that may be applied to it.
+      type: object
+      xml:
+        name: offer-status
+      allOf:
+        - $ref: '#/components/schemas/ExecutionOffer'
+        - type: object
+          properties:
+            options:
+              type: array
+              items:
+                $ref: '#/components/schemas/OptionBase'
+
+    ExecutionStatus:
+      description: >
+        The status of an execution.
+      type: object
+      xml:
+        name: execution-status
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            datetime:
+              type: object
+              properties:
+                started:
+                  description: The date and time the execution was activated.
+                  type:   string
+                  format: date-time
+                finished:
+                  description: The date and time the execution was finished.
+                  type:   string
+                  format: date-time
+            status:
+              description: >
+                Status code for the execution.
+              type: string
+              enum:
+                - WAITING
+                - STANDUP
+                - RUNNING
+                - TEARDOWN
+                - COMPLETED
+                - CANCELLED
+                - FAILED
+        - $ref: '#/components/schemas/ExecutionSpec'
+
+    ExecutionUpdateRequest:
+      description: >
+        A request to update an execution.
+      type: object
+      xml:
+        name: update-request
+      allOf:
+        - $ref: '#/components/schemas/UpdateBase'
+
+    ExecutionStatusResponse:
+      description: >
+        The status response for an execution,
+        including a list of options that may be applied to it.
+      type: object
+      xml:
+        name: execution-status
+      allOf:
+        - $ref: '#/components/schemas/ExecutionStatus'
+        - type: object
+          properties:
+            options:
+              type: array
+              items:
+                $ref: '#/components/schemas/OptionBase'
+
+
+

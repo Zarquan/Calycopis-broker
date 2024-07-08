@@ -1,0 +1,195 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        PI23, Iteration #2
+        26th June- 09 July
+        (*) DAAC politics delayed start of work.
+
+    Result:
+
+        Work in progress ...
+
+        NE657856D
+
+# -----------------------------------------------------
+
+        Story [Exec Broker] Update the service API
+        https://jira.skatelescope.org/browse/COR-642
+            Do we need the separate worker interface ?
+            Do we use conventional POST methods for every property, or do we use 'options' to POST changes ?
+
+        Decision -
+            No need for the separate worker interface.
+            Using options to handle object updates.
+
+            Start with the interface design.
+            Manually edit the OpenAPI spec.
+            Generate framework code from the spec.
+            Add the business login in a separate project.
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@laptop]
+
+    branchname=openapi-spec
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        # Checkout our main branch.
+        git checkout main
+
+        # Create the new branch in our local repository.
+        git checkout -b "${newbranch:?}"
+
+        # Push the new branch to our fork (origin).
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Create a new OpenAPI specification.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            pluma parcolar-0.4.yaml &
+
+
+# -----------------------------------------------------
+# Try building the Spring server code from the OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
+
+
+# -----------------------------------------------------
+
+    We can't use a property in the parent executable as a discriminator to control the type of the child spec object.
+    https://redocly.com/docs/resources/discriminator#property-outside-of-the-object
+
+    What we originally wanted
+
+        executable
+          ident: ..
+          name: ..
+          type: urn:docker-executable
+          spec:
+            # docker specific bits
+
+    Two ways of acheiving it.
+
+    Make the Executable base class return just Object for spec
+
+        class ExecutableBase
+            {
+            ....
+            Object getSpec() {....}
+            ....
+            }
+
+    Then the derrived Executable classes return their own types of specifics.
+
+        class DockerExecutable
+            {
+            ....
+            DockerExecutableSpec getSpec() {....}
+            ....
+            }
+
+    Or we need to add a discriminator to enable inheritance in the Spec classes.
+
+        executable
+          ident: ..
+          name: ..
+          type: urn:docker-executable
+          spec:
+            type: urn:docker-executable
+            # docker specific bits
+
+    In which case, we could make the executable a generic base class,
+    and just have the inheritance on the spec objects.
+
+        executable
+          ident: ..
+          name: ..
+          spec:
+            type: urn:docker-executable
+            # docker specific bits
+
+    Is this such a bad thing ?
+
+# -----------------------------------------------------
+
+    OR ... do we just drop the `spec` part ?
+
+        executable
+          ident: ..
+          name:  ..
+          type:  urn:docker-executable
+          # docker specific bits
+          ....
+
+    Simplifies the whole thing.
+
+
+# -----------------------------------------------------
+# Create a new OpenAPI specification.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            cp parcolar-0.4.yaml \
+               parcolar-0.5.yaml
+
+            pluma parcolar-0.5.yaml &
+
+
+# -----------------------------------------------------
+# Try building the Spring server code from the OpenAPI spec.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
+
