@@ -133,18 +133,16 @@ EOF
         "http://127.0.0.1:8082/request" \
     | yq '.'
 
---START--
-result: "YES"
-offers:
-  - executable:
-      type: "urn:docker-container-0.1"
-      name: "My test executable"
-      image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-      privileged: false
-    offer:
-      expires: "2024-07-05T20:30:44.119889225+01:00"
-      status: "OFFERED"
---END--
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >       offer:
+    >         expires: "2024-07-05T20:30:44.119889225+01:00"
+    >         status: "OFFERED"
 
 
     curl \
@@ -157,25 +155,23 @@ offers:
         "http://127.0.0.1:8082/request" \
     | jq '.'
 
---START--
-{
-  "result": "YES",
-  "offers": [
-    {
-      "executable": {
-        "type": "urn:docker-container-0.1",
-        "name": "My test executable",
-        "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
-        "privileged": false
-      },
-      "offer": {
-        "expires": "2024-07-05T20:30:58.65169359+01:00",
-        "status": "OFFERED"
-      }
-    }
-  ]
-}
---END--
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false
+    >         },
+    >         "offer": {
+    >           "expires": "2024-07-05T20:30:58.65169359+01:00",
+    >           "status": "OFFERED"
+    >         }
+    >       }
+    >     ]
+    >   }
 
 
     curl \
@@ -188,25 +184,23 @@ offers:
         "http://127.0.0.1:8082/request" \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<OffersResponse>
-  <result>YES</result>
-  <offers>
-    <offers>
-      <executable type="urn:docker-container-0.1">
-        <name>My test executable</name>
-        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
-        <privileged>false</privileged>
-      </executable>
-      <offer>
-        <expires>2024-07-05T20:31:14.745746+01:00</expires>
-        <status>OFFERED</status>
-      </offer>
-    </offers>
-  </offers>
-</OffersResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <OffersResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >         </executable>
+    >         <offer>
+    >           <expires>2024-07-05T20:31:14.745746+01:00</expires>
+    >           <status>OFFERED</status>
+    >         </offer>
+    >       </offers>
+    >     </offers>
+    >   </OffersResponse>
 
 
     yq -o json \
@@ -224,18 +218,16 @@ offers:
         "http://127.0.0.1:8082/request" \
     | yq '.'
 
---START--
-result: "YES"
-offers:
-  - executable:
-      type: "urn:docker-container-0.1"
-      name: "My test executable"
-      image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-      privileged: false
-    offer:
-      expires: "2024-07-05T20:31:30.219790376+01:00"
-      status: "OFFERED"
---END--
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >       offer:
+    >         expires: "2024-07-05T20:31:30.219790376+01:00"
+    >         status: "OFFERED"
 
 
     curl \
@@ -248,25 +240,23 @@ offers:
         "http://127.0.0.1:8082/request" \
     | jq '.'
 
---START--
-{
-  "result": "YES",
-  "offers": [
-    {
-      "executable": {
-        "type": "urn:docker-container-0.1",
-        "name": "My test executable",
-        "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
-        "privileged": false
-      },
-      "offer": {
-        "expires": "2024-07-05T20:31:44.688997916+01:00",
-        "status": "OFFERED"
-      }
-    }
-  ]
-}
---END--
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false
+    >         },
+    >         "offer": {
+    >           "expires": "2024-07-05T20:31:44.688997916+01:00",
+    >           "status": "OFFERED"
+    >         }
+    >       }
+    >     ]
+    >   }
 
 
     curl \
@@ -279,25 +269,23 @@ offers:
         "http://127.0.0.1:8082/request" \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<OffersResponse>
-  <result>YES</result>
-  <offers>
-    <offers>
-      <executable type="urn:docker-container-0.1">
-        <name>My test executable</name>
-        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
-        <privileged>false</privileged>
-      </executable>
-      <offer>
-        <expires>2024-07-05T20:32:00.387072005+01:00</expires>
-        <status>OFFERED</status>
-      </offer>
-    </offers>
-  </offers>
-</OffersResponse>
---END--
+    >   <?xml version="1.0"?>
+    >   <OffersResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >         </executable>
+    >         <offer>
+    >           <expires>2024-07-05T20:32:00.387072005+01:00</expires>
+    >           <status>OFFERED</status>
+    >         </offer>
+    >       </offers>
+    >     </offers>
+    >   </OffersResponse>
 
 
     yq \
@@ -321,10 +309,8 @@ offers:
         "http://127.0.0.1:8082/request" \
     | yq '.'
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     curl \
@@ -337,10 +323,8 @@ offers:
         "http://127.0.0.1:8082/request" \
     | jq '.'
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     curl \
@@ -353,8 +337,6 @@ offers:
         "http://127.0.0.1:8082/request" \
     | xmlstarlet fo
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 

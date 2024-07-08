@@ -425,41 +425,50 @@ components:
               type: string
             environment:
               $ref: '#/components/schemas/NameValueMap'
-            publish:
-              description: >
-                  An array of network ports to publish.
-              type: array
-              items:
-                type: object
-                required:
-                  - internal
-                properties:
-                  hostaddress:
-                    type: string
-                    description: >
-                      The IP address of the host machine's external network interface.
-                      Specifying this in a request may restrict the available platforms that can run the executable.
-                      In most cases it is best to leave this blank allowing the platform to choose which interface address to use.
-                  externalport:
-                    type: string
-                    description: >
-                      The host machine's external port number to connect to.
-                      Specifying this in a request may restrict the available platforms that can run the executable.
-                      In most cases it is best to leave this blank allowing the platform to choose which port number to use.
-                  internalport:
-                    type: string
-                    description: The internal port number to publish.
-                  protocol:
-                    type: string
-                    enum:
-                      - UDP
-                      - TCP
-                      - HTTP
-                      - HTTPS
-                    description: >
-                      The network protocol to use, default is `TCP`.
-                      The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
-                      Specifying `HTTPS` may help to meet firewall restrictions at some sites.
+            network:
+              $ref: '#/components/schemas/DockerNetworkSpec'
+
+    DockerNetworkSpec:
+      type: object
+      properties:
+        ports:
+          description: >
+            An array of network ports to publish.
+          type: array
+          items:
+            $ref: '#/components/schemas/DockerNetworkPort'
+
+    DockerNetworkPort:
+      type: object
+      required:
+        - internal
+      properties:
+        address:
+          type: string
+          description: >
+            The IP address of the external network interface.
+            The client should not set this value.
+            The service will update this with the corrent public interface address when it sets up the execution.
+        external:
+          type: string
+          description: >
+            The host machine's external port number to connect.
+            The client should not set this value.
+            The service will update this with the corrent port number when it sets up the execution.
+        internal:
+          type: string
+          description: The port number on the container to publish.
+        protocol:
+          type: string
+          enum:
+            - UDP
+            - TCP
+            - HTTP
+            - HTTPS
+          description: >
+            The network protocol to use, default is `TCP`.
+            The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
+            Specifying `HTTPS` may help to meet firewall restrictions at some sites.
 
     SingularContainer01:
       description: >
@@ -771,7 +780,9 @@ components:
 
     ExecutionDuration:
       description: >
-        A duration time block.
+        A duration time block describing how long the execution will take.
+        The max and min values are expressed as ISO 8601 time durations.
+        See https://en.wikipedia.org/wiki/ISO_8601#Durations
       type: object
       xml:
         name: duration
@@ -781,7 +792,7 @@ components:
         max:
           type: string
 
-    ExecutionDateTime:
+    ExecutionScheduleItem:
       description: >
         A date time block for an execution.
       type: object
@@ -790,7 +801,8 @@ components:
       properties:
         start:
           description: >
-            The start time for the execution.
+            The start time for the execution, expressed as an ISO 8601 time interval.
+            See : https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
           type: string
         duration:
           description: >
@@ -818,16 +830,6 @@ components:
       xml:
         name: offer
       properties:
-        expires:
-          description: >
-            The date and time that this offer expires.
-          type:   string
-          format: date-time
-        accepted:
-          description: >
-            The date and time when this offer expires.
-          type:   string
-          format: date-time
         status:
           description: |
             Setting the status of an offer to `REJECTED` will reject the offer.
@@ -839,6 +841,11 @@ components:
             - ACCEPTED
             - REJECTED
             - EXPIRED
+        expires:
+          description: >
+            The date and time that this offer expires.
+          type:   string
+          format: date-time
 
     ExecutionStatus:
       description: >
@@ -883,7 +890,7 @@ components:
             name: schedule
             wrapped: true
           items:
-            $ref: '#/components/schemas/ExecutionDateTime'
+            $ref: '#/components/schemas/ExecutionScheduleItem'
 
     ExecutionFull:
       description: >
