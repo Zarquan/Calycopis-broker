@@ -1,0 +1,164 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Tidy up the code base so that others can use it.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+
+        branchname=code-tidy
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        # Checkout our main branch.
+        git checkout main
+
+        # Create the new branch in our local repository.
+        git checkout -b "${newbranch:?}"
+
+        # Push the new branch to our fork (origin).
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+
+# -----------------------------------------------------
+# Move the old schema into an attic.
+#[user@desktop]
+
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            mkdir attic
+            git mv ambleck-0.1.json attic
+            git mv ambleck-0.1.yaml attic
+            git mv ambleck-modified-0.1.yaml attic
+            git mv parcolar-0.1.yaml attic
+            git mv parcolar-0.2.yaml attic
+            git mv parcolar-0.3.yaml attic
+            git mv parcolar-0.4.yaml attic
+            git mv parcolar-0.5.yaml attic
+
+            cp parcolar-0.6.yaml openapi-0.6.yaml
+            git mv parcolar-0.5.yaml datamodel-0.6.yaml
+
+            pluma openapi-0.6.yaml   &
+
+            pluma datamodel-0.6.yaml &
+
+            ....
+            ....
+
+
+# -----------------------------------------------------
+# Check that the Spring code generation still works.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
+
+                    ....
+
+    >   ....
+    >   ....
+    >   [WARNING] Failed to get the schema name: ./datamodel-0.6.yaml#/components/schemas/StringValueUpdate
+    >   [ERROR] Failed to lookup the schema 'null' when processing the discriminator mapping of oneOf/anyOf. Please check to ensure it's defined properly.
+    >   [ERROR] String to be sanitized is null. Default to ERROR_UNKNOWN
+    >   [WARNING] Failed to get the schema name: ./datamodel-0.6.yaml#/components/schemas/EnumValueUpdate
+    >   [ERROR] Failed to lookup the schema 'null' when processing the discriminator mapping of oneOf/anyOf. Please check to ensure it's defined properly.
+    >   [WARNING] Failed to get the schema name: ./datamodel-0.6.yaml#/components/schemas/IntegerValueUpdate
+    >   [ERROR] Failed to lookup the schema 'null' when processing the discriminator mapping of oneOf/anyOf. Please check to ensure it's defined properly.
+    >   [WARNING] Failed to get the schema name: ./datamodel-0.6.yaml#/components/schemas/IntegerDeltaUpdate
+    >   [ERROR] Failed to lookup the schema 'null' when processing the discriminator mapping of oneOf/anyOf. Please check to ensure it's defined properly.
+    >   [WARNING] Unknown type found in the schema: object. To map it, please use the schema mapping option (e.g. --schema-mappings in CLI)
+    >   [WARNING] Unknown type found in the schema: object. To map it, please use the schema mapping option (e.g. --schema-mappings in CLI)
+    >   [WARNING] Unknown type found in the schema: object. To map it, please use the schema mapping option (e.g. --schema-mappings in CLI)
+    >   [WARNING] Unknown type found in the schema: object. To map it, please use the schema mapping option (e.g. --schema-mappings in CLI)
+    >   [WARNING] Failed to get the schema name: ./datamodel-0.6.yaml#/components/schemas/DockerContainer01
+    >   ....
+    >   ....
+
+
+    #
+    # Nope, splitting the files doesn't work.
+    # Put them back together again.
+    #
+
+
+# -----------------------------------------------------
+# Restore the single schema file.
+#[user@desktop]
+
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+
+            cat datamodel-0.6.yaml >> openapi-0.6.yaml
+
+            git rm datamodel-0.6.yaml
+
+            pluma openapi-0.6.yaml &
+
+                ....
+                ....
+
+
+# -----------------------------------------------------
+# Check that the Spring code generation still works.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+            pushd spring-openapi
+
+                ./mvnw clean install
+
+                    ....
+
+
+
