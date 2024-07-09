@@ -53,15 +53,20 @@
 # Move the ChatGPT Java code into a named directory.
 #[user@desktop]
 
+        #
+        # ChatGPT's Spring code is generated from parcolar-0.3.yaml
+        # 20240622-05-chatgpt.txt
+        # 20240625-01-summary.txt
+        #
+
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
 
+        # Add version name to ChatGPT's Java code.
         pushd experiments/openapi/impl/forward/java/chatgpt/
 
-            # Change the directory name
             git mv server parcolar-0.3
 
-            # Add the mvn properties file
             pushd parcolar-0.3/
 
                 cp -r ../../spring-openapi/.mvn .
@@ -79,5 +84,96 @@
         git push
 
 
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=code-tidy-03
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Move the ChatGPT Python code into a named directory.
+#[user@desktop]
+
+        #
+        # Looks like ChatGPT's FastAPI code is generated from parcolar-0.1.yaml
+        # 20240619-05-chatgpt.txt
+        # 20240625-01-summary.txt
+        #
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        # Add version name to ChatGPT's Python code.
+        pushd experiments/openapi/impl/forward/python/
+
+            # Change the directory name
+            git mv chatgpt parcolar-0.1
+
+            mkdir chatgpt
+
+            git mv parcolar-0.1 chatgpt
+
+            pushd chatgpt/parcolar-0.1/
+                 git rm -r -f __pycache__/
+            popd
+
+            git commit -m "Renamed old ChatGPT Python code"
+
+            pushd chatgpt/parcolar-0.1/
+                vi .gitignore
+                git add .gitignore
+            popd
+
+            git commit -m "Touched .gitignore"
+
+            git push
+
+
+
+# -----------------------------------------------------
+# Create a pull request, review and merge on GitHub (upstream) ....
+#
+    ....
+    ....
+
+
+# -----------------------------------------------------
+# Merge changes from main repo (upstream).
+#[user@desktop]
+
+    source "${HOME:?}/project.env"
+    pushd "${PROJECT_CODE}"
+
+        # Checkout our main branch.
+        git checkout main
+
+        # Pull any new changes from our fork (origin).
+        git pull
+
+        # Fetch the latest changes from the main repository (upstream).
+        git fetch upstream
+
+        # Merges the changes from the main branch of the upstream repository.
+        git merge upstream/main
+
+        # Sanity check.
+        git status
+
+        # Push the merged changes to our fork (origin).
+        git push
+
+    popd
 
 
