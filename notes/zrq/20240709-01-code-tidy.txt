@@ -160,5 +160,170 @@
 
                     ....
 
+# -----------------------------------------------------
+# Build the business logic and run the webapp.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java
+
+            pushd spring-webapp
+
+                ./mvnw clean spring-boot:run
+
+                    ....
+                    ....
+                    ....
+
+# -----------------------------------------------------
+# Test our service.
+#[user@desktop]
+
+cat > /tmp/test-001.yaml  << EOF
+schedule:
+  - start: 2024-07-08T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-09T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-10T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+executable:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  compute:
+    - name: My test compute resource
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 20
+        max: 50
+  storage:
+    - name: My test storage resource
+      type: urn:simple-storage-resource
+      size:
+        min: 200
+        max: 500
+        units: none
+  data:
+    - name: My test data resource
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/request" \
+    | yq '.'
+
+    >   result: "YES"
+    >   offers:
+    >     - executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >         network:
+    >           ports:
+    >             - internal: "3000"
+    >               protocol: "TCP"
+    >       offer:
+    >         status: "OFFERED"
+    >         expires: "2024-07-09T16:16:51.608604631+01:00"
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8082/request" \
+    | jq '.'
+
+    >   {
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false,
+    >           "network": {
+    >             "ports": [
+    >               {
+    >                 "internal": "3000",
+    >                 "protocol": "TCP"
+    >               }
+    >             ]
+    >           }
+    >         },
+    >         "offer": {
+    >           "status": "OFFERED",
+    >           "expires": "2024-07-09T16:19:00.133713822+01:00"
+    >         }
+    >       }
+    >     ]
+    >   }
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/xml" \
+        "http://127.0.0.1:8082/request" \
+    | xmlstarlet fo
+
+
+    >   <?xml version="1.0"?>
+    >   <OffersResponse>
+    >     <result>YES</result>
+    >     <offers>
+    >       <offers>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >           <network>
+    >             <ports>
+    >               <ports>
+    >                 <internal>3000</internal>
+    >                 <protocol>TCP</protocol>
+    >               </ports>
+    >             </ports>
+    >           </network>
+    >         </executable>
+    >         <offer>
+    >           <status>OFFERED</status>
+    >           <expires>2024-07-09T16:19:41.688376616+01:00</expires>
+    >         </offer>
+    >       </offers>
+    >     </offers>
+    >   </OffersResponse>
 
 
