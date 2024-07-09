@@ -1,0 +1,83 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Tidy up the ChatGPT generated code.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=code-tidy-02
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+
+# -----------------------------------------------------
+# Move the ChatGPT Java code into a named directory.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/impl/forward/java/chatgpt/
+
+            # Change the directory name
+            git mv server parcolar-0.3
+
+            # Add the mvn properties file
+            pushd parcolar-0.3/
+
+                cp -r ../../spring-openapi/.mvn .
+                cp    ../../spring-openapi/.gitignore .
+
+                git add .mvn
+                git add .gitignore
+
+            popd
+        popd
+
+        git add notes/zrq/20240709-02-code-tidy.txt
+
+        git commit -m "Renamed old ChatGPT Java code"
+        git push
+
+
+
+
