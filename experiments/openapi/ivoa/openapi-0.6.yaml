@@ -691,10 +691,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:string-value-update": '#/components/schemas/StringValueUpdate'
-          "urn:enum-value-update":   '#/components/schemas/EnumValueUpdate'
-          "urn:integer-value-update":  '#/components/schemas/IntegerValueUpdate'
-          "urn:integer-delta-update":  '#/components/schemas/IntegerDeltaUpdate'
+          "urn:string-value-update":  '#/components/schemas/StringValueUpdate'
+          "urn:enum-value-update":    '#/components/schemas/EnumValueUpdate'
+          "urn:integer-value-update": '#/components/schemas/IntegerValueUpdate'
+          "urn:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
       properties:
         type:
           type: string

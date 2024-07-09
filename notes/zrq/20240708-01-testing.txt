@@ -33,7 +33,7 @@
 
 
 # -----------------------------------------------------
-# Try building the Spring server code from the OpenAPI spec.
+# Build the Spring server code from the OpenAPI spec.
 #[user@desktop]
 
     source "${HOME:?}/pandak.env"
@@ -49,7 +49,7 @@
                     ....
 
 # -----------------------------------------------------
-# Update the business logic and build the webapp.
+# Build the business logic and run the webapp.
 #[user@desktop]
 
     source "${HOME:?}/pandak.env"
@@ -123,4 +123,6 @@ EOF
         --header "Accept: application/yaml" \
         "http://127.0.0.1:8082/request" \
     | yq '.'
+
+
 
