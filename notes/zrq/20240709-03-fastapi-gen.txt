@@ -107,7 +107,7 @@
 
 # -----------------------------------------------------
 # Run the server.
-#[user@desktop]
+#[root@container]
 
     pushd /fastapi/webapp-0.6
 
@@ -140,10 +140,10 @@
     # Code it is objecting to is this:
 
     >   ....
-    >   
+    >
     >   class NameValueMap(BaseModel):
     >       __root__: Optional[Dict[str, str]] = None
-    >   
+    >
     >   ....
 
     #
