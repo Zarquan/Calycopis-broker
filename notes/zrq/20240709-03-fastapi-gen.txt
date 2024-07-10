@@ -1,0 +1,155 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Use the FastAPI code generator on the latest model.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=fastapi-gen
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Launch a container to do the build.
+#[user@laptop]
+
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+        /impl/forward/python/fastapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/forward/python/fastapi:/fastapi:rw,z" \
+                fedora \
+                bash
+
+
+# -----------------------------------------------------
+# Install FastAPI and the FastAPI code generator
+#[root@container]
+
+    dnf install -y gcc
+
+    dnf install -y python3-devel
+
+    dnf install -y python3-pip
+
+    pip3 install fastapi
+
+    pip3 install fastapi-code-generator
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the server code.
+#[root@container]
+
+    fastapi-codegen \
+        --input  /ivoa/openapi-0.6.yaml \
+        --output /fastapi/webapp-0.6
+
+        ....
+        ....
+
+
+    ls -1 /fastapi/webapp-0.6/
+
+    >   main.py
+    >   models.py
+
+
+# -----------------------------------------------------
+# Run the server.
+#[user@desktop]
+
+    pushd /fastapi/webapp-0.6
+
+        uvicorn main:app
+
+    >   ....
+    >   ....
+    >     File "/fastapi/webapp-0.6/main.py", line 11, in <module>
+    >       from .models import (
+    >   ImportError: attempted relative import with no known parent package
+
+    #
+    # Fixed the broken import ..
+    #
+
+    >   ....
+    >   ....
+    >     File "/fastapi/webapp-0.6/main.py", line 11, in <module>
+    >       from models import (
+    >     File "/fastapi/webapp-0.6/models.py", line 33, in <module>
+    >       class NameValueMap(BaseModel):
+    >     File "/usr/local/lib/python3.12/site-packages/pydantic/_internal/_model_construction.py", line 96, in __new__
+    >       private_attributes = inspect_namespace(
+    >                            ^^^^^^^^^^^^^^^^^^
+    >     File "/usr/local/lib/python3.12/site-packages/pydantic/_internal/_model_construction.py", line 344, in inspect_namespace
+    >       raise TypeError("To define root models, use `pydantic.RootModel` rather than a field called '__root__'")
+    >   TypeError: To define root models, use `pydantic.RootModel` rather than a field called '__root__'
+
+    #
+    # Code it is objecting to is this:
+
+    >   ....
+    >   
+    >   class NameValueMap(BaseModel):
+    >       __root__: Optional[Dict[str, str]] = None
+    >   
+    >   ....
+
+    #
+    # This could descend into a never ending debug session ...
+    #
+
+
+
+
