@@ -1,0 +1,128 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try generating a Python Flask implementation.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=flask-gen
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Launch a container to do the build.
+#[user@laptop]
+
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/forward/python/flask:/flask:rw,z" \
+                fedora \
+                bash
+
+
+# -----------------------------------------------------
+# Install the tools to install the code generator
+#[root@container]
+
+    dnf install -y java-latest-openjdk
+
+    dnf install -y nodejs-npm
+
+    dnf install -y python3-pip
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the server code.
+#[root@container]
+
+    npx @openapitools/openapi-generator-cli \
+        generate \
+        --generator-name python-flask \
+        --input-spec /ivoa/openapi-0.6.yaml \
+        --additional-properties legacyDiscriminatorBehavior=false \
+        --output /flask/webapp-0.6
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run the Flask service.
+#[root@container]
+
+    pushd /flask/webapp-0.6
+
+        pip3 install -r requirements.txt
+        python3 -m openapi_server
+
+    >   Traceback (most recent call last):
+    >     File "<frozen runpy>", line 198, in _run_module_as_main
+    >     File "<frozen runpy>", line 88, in _run_code
+    >     File "/flask/webapp-0.6/openapi_server/__main__.py", line 5, in <module>
+    >       from openapi_server import encoder
+    >     File "/flask/webapp-0.6/openapi_server/encoder.py", line 3, in <module>
+    >       from openapi_server.models.base_model import Model
+    >     File "/flask/webapp-0.6/openapi_server/models/__init__.py", line 4, in <module>
+    >       from openapi_server.models.abstract_compute_resource import AbstractComputeResource
+    >     File "/flask/webapp-0.6/openapi_server/models/abstract_compute_resource.py", line 6, in <module>
+    >       from openapi_server.models.abstract_polymorph import AbstractPolymorph
+    >     File "/flask/webapp-0.6/openapi_server/models/abstract_polymorph.py", line 6, in <module>
+    >       from openapi_server.models.abstract_compute_resource import AbstractComputeResource
+    >   ImportError: cannot import name 'AbstractComputeResource' from partially initialized module 'openapi_server.models.abstract_compute_resource' (most likely due to a circular import) (/flask/webapp-0.6/openapi_server/models/abstract_compute_resource.py)
+
+    #
+    # Never ending maze of crappy code ... not going there.
+    #
+
