@@ -42,6 +42,8 @@ from models import (
     Repo2DockerContainer01, JupyterNotebook01, BinderNotebook01
 )
 
+from datetime import datetime, timedelta
+
 app = FastAPI()
 
 polymorphic_models = {
@@ -59,12 +61,50 @@ polymorphic_models = {
 @app.post("/request", response_model=OffersResponse)
 async def handle_offers_request(request: Request, body: OffersRequest):
     content_type = request.headers.get('Content-Type')
-    response_data = {
-        "result": "YES",
-        "offers": [],
-        "messages": []
-    }
-    return get_response(response_data, content_type)
+
+    response = process(body)
+
+    return get_response(response, content_type)
+
+def process(request: OffersRequest):
+
+    response = OffersResponse()
+
+    if (isinstance(request.getExecutable(), DockerContainer01):
+
+        offer = ExecutionFull()
+
+        offer.setExecutable(
+            docker(
+                request.getExecutable()
+                )
+            )
+        status = OfferStatus()
+        status.status(
+            OfferStatus.StatusEnum.OFFERED
+            )
+        status.expires(
+            datetime.now() + timedelta(minutes = 5)
+
+            )
+        offer.setOffer(
+            status
+            );
+        response.addOffersItem(
+             offer
+            )
+        response.setResult(
+            OffersResponse.ResultEnum.YES
+            )
+
+    else:
+        response.setResult(
+            OffersResponse.ResultEnum.NO
+            )
+
+def docker(request: DockerContainer01):
+    return request
+
 
 @app.get("/execution/{ident}", response_model=ExecutionStatusResponse)
 async def get_execution_status(request: Request, ident: str):
