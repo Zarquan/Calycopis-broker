@@ -58,19 +58,67 @@ polymorphic_models = {
     "urn:binder-notebook-01.": BinderNotebook01
 }
 
-@app.post("/request", response_model=OffersResponse)
+@app.post("/old-request", response_model=OffersResponse)
 async def handle_offers_request(request: Request, body: OffersRequest):
     content_type = request.headers.get('Content-Type')
 
     response = process(body)
 
-    return get_response(response, content_type)
+    return get_response(
+        vars(response),
+        content_type
+        )
+
+@app.post("/request", summary="Post a request for offers")
+async def ambleck_post(request: Request):
+    content_type = request.headers.get('content-type')
+
+    if content_type == "application/json":
+        try:
+            requestobj = OffersRequest(**await request.json())
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/yaml":
+        try:
+            yamlbody = await request.body()
+            requestobj = OffersRequest(**yaml.safe_load(yamlbody))
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/xml":
+        try:
+            xmlbody = await request.body()
+            dict_data = xmltodict.parse(xmlbody)
+            requestobj = OffersRequest(**dict_data['OffersRequest'])
+        except (ValidationError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Implement your business logic here
+    responseobj = process(
+        requestobj
+        )
+
+    # Determine the response format
+    accept_header = request.headers.get('accept')
+    if 'application/xml' in accept_header:
+        return Response(content=responseobj.xml(), media_type="application/xml")
+    elif 'application/yaml' in accept_header:
+        return Response(content=responseobj.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(content=jsonable_encoder(responseobj))
 
 def process(request: OffersRequest):
 
     response = OffersResponse()
 
-    if (isinstance(request.getExecutable(), DockerContainer01):
+    if (isinstance(request.getExecutable(), DockerContainer01)):
 
         offer = ExecutionFull()
 
@@ -85,7 +133,6 @@ def process(request: OffersRequest):
             )
         status.expires(
             datetime.now() + timedelta(minutes = 5)
-
             )
         offer.setOffer(
             status

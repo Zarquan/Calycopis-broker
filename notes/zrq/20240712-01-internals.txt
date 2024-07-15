@@ -66,6 +66,7 @@
                 --rm \
                 --tty \
                 --interactive \
+                --publish '8000:8000' \
                 --volume "$(pwd)/impl/forward/python/chatgpt:/chatgpt:rw,z" \
                 fedora \
                 bash
@@ -74,5 +75,145 @@
 ....
 ....
 --END--
+
+
+# -----------------------------------------------------
+# Install our dependencies ..
+#[root@container]
+
+    dnf install -y python3-pip
+
+    pip3 install fastapi pyyaml pydantic[extra] uvicorn dicttoxml
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Run our webapp ..
+#[root@container]
+
+    pushd /chatgpt/webapp-0.6
+
+        uvicorn main:app
+
+
+# -----------------------------------------------------
+# Test our service.
+#[user@laptop]
+
+cat > /tmp/test-001.yaml  << EOF
+schedule:
+  - start: 2024-07-08T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-09T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-10T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+executable:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  compute:
+    - name: My test compute resource
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 20
+        max: 50
+  storage:
+    - name: My test storage resource
+      type: urn:simple-storage-resource
+      size:
+        min: 200
+        max: 500
+        units: none
+  data:
+    - name: My test data resource
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8000/request"
+
+--START--
+{
+  "detail": [
+    {
+      "type": "model_attributes_type",
+      "loc": [
+        "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": "schedule:\n  - start: 2024-07-08T09:30Z/PT30M\n    duration:\n      min: P1H\n      max: P2H\n  - start: 2024-07-09T09:30Z/PT30M\n    duration:\n      min: P1H\n      max: P2H\n  - start: 2024-07-10T09:30Z/PT30M\n    duration:\n      min: P1H\n      max: P2H\nexecutable:\n  name: My test executable\n  type: urn:docker-container-0.1\n  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13\n  network:\n    ports:\n      - internal: 3000\n        protocol: TCP\nresources:\n  compute:\n    - name: My test compute resource\n      type: urn:simple-compute-resource\n      cores:\n        min: 2\n        max: 5\n      memory:\n        min: 20\n        max: 50\n  storage:\n    - name: My test storage resource\n      type: urn:simple-storage-resource\n      size:\n        min: 200\n        max: 500\n        units: none\n  data:\n    - name: My test data resource\n      type: urn:simple-data-resource\n      location: http://data.example.org/downloads/hdf5t8\n"
+    }
+  ]
+}
+--END--
+
+
+    #
+    # Looks like it isn't recognising the POST content type.
+    #
+
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.json
+
+--START--
+....
+....
+--END--
+
+
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.json" \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8000/request"
+
+--START--
+{
+  "detail": [
+    {
+      "type": "model_attributes_type",
+      "loc": [
+        "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": "{\n  \"schedule\": [\n    {\n      \"start\": \"2024-07-08T09:30Z/PT30M\",\n      \"duration\": {\n        \"min\": \"P1H\",\n        \"max\": \"P2H\"\n      }\n    },\n    {\n      \"start\": \"2024-07-09T09:30Z/PT30M\",\n      \"duration\": {\n        \"min\": \"P1H\",\n        \"max\": \"P2H\"\n      }\n    },\n    {\n      \"start\": \"2024-07-10T09:30Z/PT30M\",\n      \"duration\": {\n        \"min\": \"P1H\",\n        \"max\": \"P2H\"\n      }\n    }\n  ],\n  \"executable\": {\n    \"name\": \"My test executable\",\n    \"type\": \"urn:docker-container-0.1\",\n    \"image\": \"ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13\",\n    \"network\": {\n      \"ports\": [\n        {\n          \"internal\": 3000,\n          \"protocol\": \"TCP\"\n        }\n      ]\n    }\n  },\n  \"resources\": {\n    \"compute\": [\n      {\n        \"name\": \"My test compute resource\",\n        \"type\": \"urn:simple-compute-resource\",\n        \"cores\": {\n          \"min\": 2,\n          \"max\": 5\n        },\n        \"memory\": {\n          \"min\": 20,\n          \"max\": 50\n        }\n      }\n    ],\n    \"storage\": [\n      {\n        \"name\": \"My test storage resource\",\n        \"type\": \"urn:simple-storage-resource\",\n        \"size\": {\n          \"min\": 200,\n          \"max\": 500,\n          \"units\": \"none\"\n        }\n      }\n    ],\n    \"data\": [\n      {\n        \"name\": \"My test data resource\",\n        \"type\": \"urn:simple-data-resource\",\n        \"location\": \"http://data.example.org/downloads/hdf5t8\"\n      }\n    ]\n  }\n}\n"
+    }
+  ]
+}
+--END--
+
 
 
