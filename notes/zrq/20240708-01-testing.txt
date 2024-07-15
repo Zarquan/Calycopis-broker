@@ -34,7 +34,7 @@
 
 # -----------------------------------------------------
 # Build the Spring server code from the OpenAPI spec.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -50,7 +50,7 @@
 
 # -----------------------------------------------------
 # Build the business logic and run the webapp.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -67,7 +67,7 @@
 
 # -----------------------------------------------------
 # Test our service.
-#[user@desktop]
+#[user@laptop]
 
 cat > /tmp/test-001.yaml  << EOF
 schedule:
