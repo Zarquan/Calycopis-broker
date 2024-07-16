@@ -1,0 +1,82 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Refactor some of the directories.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Refactor some of the directories.
+#[user@desktop]
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=directories
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git mv experiments/openapi/impl/forward/java \
+               experiments/openapi/impl/java
+
+        git mv experiments/openapi/impl/forward/python \
+               experiments/openapi/impl/python
+
+        git commit -m "Removed the forward directory path [#29]"
+
+        pushd experiments/openapi/impl/java
+            mkdir spring
+            git mv spring-openapi spring
+            git mv spring-webapp spring
+        popd
+
+        git commit -m "Moved Spring code into a sub directory [#30]"
+
+        pushd experiments/openapi/impl
+            rmdir forward
+            rmdir reverse
+        popd
+
+        pushd experiments/openapi/impl/python
+            mkdir koxudaxi
+            git mv fastapi koxudaxi
+
+            mkdir openapitools
+            git mv flask openapitools
+            git mv frog openapitools/fastapi
+        popd
+
+        git commit -m "Create sub-directories for the Koxudaxi and OpenAPITools generators [#32]"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
