@@ -29,26 +29,32 @@
 #   ]
 #
 
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, Field, RootModel, ValidationError, root_validator
 from typing import List, Optional, Dict, Union
+from enum import Enum, StrEnum, auto
+from fastapi.encoders import jsonable_encoder
+
+import yaml
+import uuid
+import xmltodict
 
 class MinMaxInteger(BaseModel):
-    min: int
-    max: int
-    units: str
+    min: Optional[int] = None
+    max: Optional[int] = None
+    units: Optional[str] = None
 
 class MinMaxFloat(BaseModel):
-    min: float
-    max: float
-    units: str
+    min: Optional[float] = None
+    max: Optional[float] = None
+    units: Optional[str] = None
 
 class NameValueMap(RootModel):
     root: Dict[str, str]
 
 class AbstractComponent(BaseModel):
-    ident: str
-    name: str
-    properties: Optional[NameValueMap]
+    uuid: Optional[str] = uuid.uuid1()
+    name: Optional[str] = None
+    properties: Optional[NameValueMap] = None
 
 class AbstractPolymorph(AbstractComponent):
     type: str
@@ -57,15 +63,15 @@ class AbstractComputeResource(AbstractPolymorph):
     pass
 
 class SimpleComputeResource(AbstractComputeResource):
-    cores: MinMaxInteger
-    memory: MinMaxInteger
-    volumes: Optional[List[Dict]]
+    cores: Optional[MinMaxInteger] = None
+    memory: Optional[MinMaxInteger] = None
+    volumes: Optional[List[Dict]] = None
 
 class AbstractStorageResource(AbstractPolymorph):
     pass
 
 class SimpleStorageResource(AbstractStorageResource):
-    size: MinMaxInteger
+    size: Optional[MinMaxInteger] = None
 
 class AbstractDataResource(AbstractPolymorph):
     pass
@@ -74,91 +80,160 @@ class SimpleDataResource(AbstractDataResource):
     location: str
 
 class S3DataResource(AbstractDataResource):
-    endpoint: str
-    template: str
-    bucket: str
-    object: Optional[str]
+    endpoint: Optional[str] = None
+    template: Optional[str] = None
+    bucket: Optional[str] = None
+    object: Optional[str] = None
 
 class DockerNetworkPort(BaseModel):
-    internal: str
-    external: Optional[str]
-    address: Optional[str]
-    protocol: Optional[str]
+    internal: int
+    external: Optional[str] = None
+    address: Optional[str] = None
+    protocol: Optional[str] = None
 
 class DockerNetworkSpec(BaseModel):
-    ports: Optional[List[DockerNetworkPort]]
+    ports: Optional[List[DockerNetworkPort]] = None
 
 class DockerContainer01(AbstractPolymorph):
-    image: str
-    namespace: Optional[str]
-    tag: Optional[str]
-    repository: Optional[str]
-    platform: Optional[str]
+    image: Optional[str] = None
+    namespace: Optional[str] = None
+    tag: Optional[str] = None
+    repository: Optional[str] = None
+    platform: Optional[str] = None
     privileged: Optional[bool] = False
-    entrypoint: Optional[str]
-    environment: Optional[NameValueMap]
-    network: Optional[DockerNetworkSpec]
+    entrypoint: Optional[str] = None
+    environment: Optional[NameValueMap] = None
+    network: Optional[DockerNetworkSpec] = None
 
 class SingularContainer01(AbstractPolymorph):
-    image: str
+    image: Optional[str] = None
 
 class Repo2DockerContainer01(AbstractPolymorph):
-    source: str
+    source: Optional[str] = None
 
 class JupyterNotebook01(AbstractPolymorph):
-    notebook: str
+    notebook: Optional[str] = None
 
 class BinderNotebook01(AbstractPolymorph):
-    repository: str
-    notebook: str
+    repository: Optional[str] = None
+    notebook: Optional[str] = None
 
 class ExecutionDuration(BaseModel):
-    min: Optional[str]
-    max: Optional[str]
+    min: Optional[str] = None
+    max: Optional[str] = None
 
 class ExecutionScheduleItem(BaseModel):
-    start: Optional[str]
-    duration: Optional[ExecutionDuration]
+    start: Optional[str] = None
+    duration: Optional[ExecutionDuration] = None
 
 class ExecutionResourceList(BaseModel):
-    compute: Optional[List[AbstractComputeResource]]
-    storage: Optional[List[AbstractStorageResource]]
-    data: Optional[List[AbstractDataResource]]
+    compute: Optional[List[AbstractComputeResource]] = None
+    storage: Optional[List[AbstractStorageResource]] = None
+    data: Optional[List[AbstractDataResource]] = None
 
 class OfferStatus(BaseModel):
-    status: Optional[str]
-    expires: Optional[str]
+    status: Optional[str] = None
+    expires: Optional[str] = None
+
+class OfferStatusEnum(StrEnum):
+    OFFERED = "OFFERED"
+    EXPIRED = "EXPIRED"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
 
 class ExecutionStatus(BaseModel):
-    started: Optional[str]
-    completed: Optional[str]
-    status: Optional[str]
+    started: Optional[str] = None
+    completed: Optional[str] = None
+    status: Optional[str] = None
 
 class ExecutionBase(BaseModel):
-    executable: AbstractPolymorph
-    resources: ExecutionResourceList
-    schedule: Optional[List[ExecutionScheduleItem]]
+    executable: AbstractPolymorph = None
+    resources: Optional[ExecutionResourceList] = None
+    schedule: Optional[List[ExecutionScheduleItem]] = None
 
-class ExecutionFull(BaseModel):
-    offer: OfferStatus
-    execution: ExecutionStatus
+class ExecutionFull(ExecutionBase):
+    offer: Optional[OfferStatus] = None
+    execution: Optional[ExecutionStatus] = None
 
 class OffersRequest(ExecutionBase):
-    pass
+
+    @root_validator(pre=True)
+    def check_executable_type(cls, values):
+        if 'executable' in values and isinstance(values['executable'], dict):
+            exec_type = values['executable'].get('type')
+            if exec_type == "urn:docker-container-0.1":
+                values['executable'] = DockerContainer01(**values['executable'])
+            elif exec_type == "urn:single-container-0.1":
+                values['executable'] = SingularContainer01(**values['executable'])
+            elif exec_type == "urn:repo2docker-0.1":
+                values['executable'] = Repo2DockerContainer01(**values['executable'])
+            elif exec_type == "urn:jupyter-notebook-0.1":
+                values['executable'] = JupyterNotebook01(**values['executable'])
+            elif exec_type == "urn:binder-notebook-0.1":
+                values['executable'] = BinderNotebook01(**values['executable'])
+            else:
+                raise ValueError(f"Unknown executable type: {exec_type}")
+        return values
+
+class OffersResponseEnum(StrEnum):
+    YES = "YES"
+    NO  = "NO"
 
 class OffersResponse(BaseModel):
-    result: str
-    offers: Optional[List[ExecutionFull]]
-    messages: Optional[List[str]]
+    result: OffersResponseEnum
+    offers: Optional[List[ExecutionFull]] = Field(default=None, alias="offers")
+    messages: Optional[List[str]] = Field(default=None, alias="messages")
+
+    def yaml(self):
+        return yaml.dump(jsonable_encoder(self), sort_keys=False)
+
+    def xml(self):
+        # Convert the model to a dictionary first
+        dict_data = jsonable_encoder(self)
+        # Wrap lists with proper element names
+        dict_data = {
+            'excution-offers': {
+                'result': dict_data['result'],
+                'offers': {
+                    'offer': dict_data['offers']
+                } if dict_data['offers'] else None,
+                'messages': {
+                    'message': dict_data['messages']
+                } if dict_data['messages'] else None
+            }
+        }
+        # Convert the dictionary to an XML string
+        xml_str = xmltodict.unparse(dict_data, pretty=True)
+        return xml_str
+
+    def json(self):
+        return jsonable_encoder(self)
 
 class ExecutionUpdateRequest(BaseModel):
     path: str
     type: str
 
 class ExecutionStatusResponse(BaseModel):
-    offer: OfferStatus
-    execution: ExecutionStatus
-    options: Optional[List[Dict]]
+    offer: Optional[OfferStatus] = None
+    execution: Optional[ExecutionStatus] = None
+    options: Optional[List[Dict]] = None
+
+    def yaml(self):
+        return yaml.dump(jsonable_encoder(self), sort_keys=False)
+
+    def xml(self):
+        # Convert the model to a dictionary first
+        dict_data = jsonable_encoder(self)
+        # Wrap the outer element
+        dict_data = {
+            'excution-status': dict_data
+            }
+        # Convert the dictionary to an XML string
+        xml_str = xmltodict.unparse(dict_data, pretty=True)
+        return xml_str
+
+    def json(self):
+        return jsonable_encoder(self)
 
 class OptionBase(BaseModel):
     path: str
