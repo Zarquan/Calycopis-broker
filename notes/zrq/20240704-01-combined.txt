@@ -25,7 +25,7 @@
 
     Target:
 
-        Success
+        Simplify the data model, combining offer and execution
 
     Result:
 

@@ -29,18 +29,37 @@
 #   ]
 #
 
-from fastapi import FastAPI, Request, Body, Path
+from fastapi import FastAPI, Request, Body, Path, HTTPException
 from fastapi.responses import JSONResponse, Response
+from fastapi.encoders import jsonable_encoder
 import yaml
 import json
+import xmltodict
+
 from typing import Dict
+from pydantic import BaseModel, Field, ValidationError, root_validator
 
 from models import (
-    OffersRequest, OffersResponse, ExecutionStatusResponse,
-    ExecutionUpdateRequest, SimpleComputeResource, SimpleStorageResource,
-    SimpleDataResource, S3DataResource, DockerContainer01, SingularContainer01,
-    Repo2DockerContainer01, JupyterNotebook01, BinderNotebook01
+    OffersRequest,
+    OffersResponse,
+    OfferStatusEnum,
+    OffersResponseEnum,
+    OfferStatus,
+    ExecutionFull,
+    ExecutionUpdateRequest,
+    ExecutionStatusResponse,
+    SimpleComputeResource,
+    SimpleStorageResource,
+    SimpleDataResource,
+    S3DataResource,
+    DockerContainer01,
+    SingularContainer01,
+    Repo2DockerContainer01,
+    JupyterNotebook01,
+    BinderNotebook01
 )
+
+from datetime import datetime, timedelta
 
 app = FastAPI()
 
@@ -51,62 +70,128 @@ polymorphic_models = {
     "urn:S3-data-resource": S3DataResource,
     "urn:docker-container-0.1": DockerContainer01,
     "urn:single-container-0.1": SingularContainer01,
-    "urn:repo2docker-01.": Repo2DockerContainer01,
-    "urn:jupyter-notebook-01.": JupyterNotebook01,
-    "urn:binder-notebook-01.": BinderNotebook01
+    "urn:repo2docker-0.1": Repo2DockerContainer01,
+    "urn:jupyter-notebook-0.1": JupyterNotebook01,
+    "urn:binder-notebook-0.1": BinderNotebook01
 }
 
-@app.post("/request", response_model=OffersResponse)
+@app.post("/old-request", response_model=OffersResponse)
 async def handle_offers_request(request: Request, body: OffersRequest):
     content_type = request.headers.get('Content-Type')
-    response_data = {
-        "result": "YES",
-        "offers": [],
-        "messages": []
-    }
-    return get_response(response_data, content_type)
+
+    response = process(body)
+
+    return get_response(
+        vars(response),
+        content_type
+        )
+
+@app.post("/request", summary="Post a request for offers")
+async def ambleck_post(request: Request):
+    content_type = request.headers.get('content-type')
+
+    if content_type == "application/json":
+        try:
+            requestobj = OffersRequest(**await request.json())
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/yaml":
+        try:
+            yamlbody = await request.body()
+            requestobj = OffersRequest(**yaml.safe_load(yamlbody))
+        except ValidationError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    elif content_type == "application/xml":
+        try:
+            xmlbody = await request.body()
+            dict_data = xmltodict.parse(xmlbody)
+            print(dict_data)
+            requestobj = OffersRequest(**dict_data['execution-request'])
+        except (ValidationError, KeyError) as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Implement your business logic here
+    responseobj = process(
+        requestobj
+        )
+
+    # Determine the response format
+    accept_header = request.headers.get('accept')
+    if accept_header == "application/xml":
+        return Response(content=responseobj.xml(), media_type="application/xml")
+    elif accept_header == "application/yaml":
+        return Response(content=responseobj.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(responseobj.json())
+
+
+def process(request: OffersRequest) -> OffersResponse:
+
+    response = OffersResponse(result = OffersResponseEnum.NO)
+
+    if (isinstance(request.executable, DockerContainer01)):
+
+        offer = ExecutionFull()
+
+        offer.executable = docker(
+            request.executable
+            )
+        status = OfferStatus()
+        status.status = OfferStatusEnum.OFFERED
+        status.expires = datetime.now() + timedelta(minutes = 5)
+        offer.offer = status
+
+        if (response.offers == None):
+            response.offers = []
+        response.offers.append(
+             offer
+            )
+        response.result = OffersResponseEnum.YES
+
+    else:
+        response.result = OffersResponseEnum.NO
+
+    return response
+
+def docker(request: DockerContainer01):
+    return request
+
 
 @app.get("/execution/{ident}", response_model=ExecutionStatusResponse)
-async def get_execution_status(request: Request, ident: str):
+async def get_execution_status(request: Request, ident: str) -> ExecutionStatusResponse:
     content_type = request.headers.get('Content-Type')
-    response_data = {
-        "offer": {},
-        "execution": {
-            "status": "RUNNING",
-            "started": "2024-07-11T10:00:00Z",
-            "completed": None
-        },
-        "options": []
-    }
-    return get_response(response_data, content_type)
+
+    responseobj = ExecutionStatusResponse()
+
+    accept_header = request.headers.get('accept')
+    if accept_header == "application/xml":
+        return Response(content=responseobj.xml(), media_type="application/xml")
+    elif accept_header == "application/yaml":
+        return Response(content=responseobj.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(responseobj.json())
 
 @app.post("/execution/{ident}", response_model=ExecutionStatusResponse)
-async def update_execution_status(request: Request, ident: str, body: ExecutionUpdateRequest):
+async def update_execution_status(request: Request, ident: str, body: ExecutionUpdateRequest) -> ExecutionStatusResponse:
     content_type = request.headers.get('Content-Type')
-    response_data = {
-        "offer": {},
-        "execution": {
-            "status": "UPDATED",
-            "started": "2024-07-11T10:00:00Z",
-            "completed": None
-        },
-        "options": []
-    }
-    return get_response(response_data, content_type)
 
-def get_response(data: Dict, content_type: str):
-    if content_type == "application/xml":
-        return Response(content=to_xml(data), media_type="application/xml")
-    elif content_type == "application/yaml":
-        return Response(content=to_yaml(data), media_type="application/yaml")
-    return JSONResponse(content=data)
+    responseobj = ExecutionStatusResponse()
 
-def to_yaml(data: Dict) -> str:
-    return yaml.dump(data)
-
-def to_xml(data: Dict) -> str:
-    from dicttoxml import dicttoxml
-    return dicttoxml(data).decode()
+    accept_header = request.headers.get('accept')
+    if accept_header == "application/xml":
+        return Response(content=responseobj.xml(), media_type="application/xml")
+    elif accept_header == "application/yaml":
+        return Response(content=responseobj.yaml(), media_type="application/yaml")
+    else:
+        return JSONResponse(responseobj.json())
 
 if __name__ == "__main__":
     import uvicorn

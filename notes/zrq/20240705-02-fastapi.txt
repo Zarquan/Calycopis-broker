@@ -26,12 +26,11 @@
     Target:
 
         Build the FastAPI model and webapp classes from our model.
+        Based on the parcolar-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
-        Work in progress ...
-
-
+        We got interrupted and this work was not started.
 
 
 # -----------------------------------------------------
@@ -46,3 +45,6 @@ in JSON, YAML, and XML formats.
 # -----------------------------------------------------
 # Response
 
+    #
+    # We got interrupted and this work was not started.
+    #

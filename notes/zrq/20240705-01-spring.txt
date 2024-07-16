@@ -27,10 +27,11 @@
 
         Experiment with the combined data model.
         Everything in one class.
+        Based on the parcolar-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
-        Work in progress ...
+        Working Spring/Java code stubs for parcolar-0.6.yaml
 
 # -----------------------------------------------------
 # Create a new OpenAPI specification.
@@ -49,7 +50,7 @@
 
 # -----------------------------------------------------
 # Try building the Spring server code from the OpenAPI spec.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -66,7 +67,7 @@
 
 # -----------------------------------------------------
 # Update the business logic and build the webapp.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -80,7 +81,7 @@
 
 # -----------------------------------------------------
 # Test our service.
-#[user@desktop]
+#[user@laptop]
 
 cat > /tmp/test-001.yaml  << EOF
 schedule:

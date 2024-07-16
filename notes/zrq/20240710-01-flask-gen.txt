@@ -26,10 +26,16 @@
     Target:
 
         Try generating a Python Flask implementation.
+        Based on the openapi-0.6 datamodel from 20240704-01-combined.
+
+        Using the OpenAPITools Generator
+        https://github.com/OpenAPITools/openapi-generator
 
     Result:
 
-        Work in progress ...
+        Fails with circular imports.
+        Lots of errors in the generated code.
+        Never ending maze of crappy code ... not going there.
 
 
 # -----------------------------------------------------

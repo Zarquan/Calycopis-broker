@@ -25,11 +25,15 @@
 
     Target:
 
-        Use ChatGPT to generate the FastAPI server code.
+        Using ChatGPT to generate FastAPI server code, based on the
+        openapi-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
-        Work in progress ...
+        Looks OK to start with.
+        Turns out to be using a different technique for handling the serialization.
+        Lots of regression, needing lots of manual edits.
+
 
 # -----------------------------------------------------
 # Start a new branch.
@@ -1956,47 +1960,5 @@ This code now includes all necessary import statements for the data model classe
     >   INFO:     Waiting for application startup.
     >   INFO:     Application startup complete.
     >   INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-
-
-# -----------------------------------------------------
-# Prompt
-
-....
-
-# -----------------------------------------------------
-# Response
-
-....
-
-# -----------------------------------------------------
-# Prompt
-
-....
-
-# -----------------------------------------------------
-# Response
-
-....
-
-# -----------------------------------------------------
-# Prompt
-
-....
-
-# -----------------------------------------------------
-# Response
-
-....
-
-# -----------------------------------------------------
-# Prompt
-
-....
-
-# -----------------------------------------------------
-# Response
-
-....
-
 
 

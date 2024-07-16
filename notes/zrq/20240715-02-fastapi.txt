@@ -1,0 +1,109 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try generating a Python FastAPI implementation.
+        Based on the openapi-0.6 datamodel from 20240704-01-combined.
+
+        Using the OpenAPITools Generator
+        https://github.com/OpenAPITools/openapi-generator
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to do the build.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            mkdir impl/forward/python/frog
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/forward/python/frog:/frog:rw,z" \
+                fedora \
+                bash
+
+
+# -----------------------------------------------------
+# Install the tools to install the code generator
+#[root@container]
+
+    dnf install -y \
+        gcc \
+        g++ \
+        wget \
+        python3-pip \
+        python3-devel \
+        python3-uvicorn \
+        java-latest-openjdk
+
+    wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.7.0/openapi-generator-cli-7.7.0.jar -O /tmp/openapi-generator-cli.jar
+
+    java -jar /tmp/openapi-generator-cli.jar \
+        generate \
+        --generator-name python-fastapi \
+        --input-spec /ivoa/openapi-0.6.yaml \
+        --output /frog/webapp-0.6
+
+    pushd /frog/webapp-0.6
+
+    # https://stackoverflow.com/a/77491847
+    # pip3 install "cython<3.0.0" wheel
+    # pip3 install "pyyaml==5.4.1" --no-build-isolation
+    # pip3 install wheel
+    # pip3 install cython
+
+    # Reduce the strict requirements for PyYAML.
+    sed -i '
+        s/^PyYAML==/PyYAML>=/
+        ' requirements.txt
+
+    pip3 install -r requirements.txt
+    pip3 install fastapi
+
+    pushd src
+
+        uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080
+
+    >   ....
+    >   ....
+    >     File "/frog/webapp-0.6/src/openapi_server/main.py", line 15, in <module>
+    >       from fastapi import FastAPI
+    >   ModuleNotFoundError: No module named 'fastapi'
+
+
+
+
+

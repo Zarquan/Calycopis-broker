@@ -85,7 +85,7 @@
 
 # -----------------------------------------------------
 # Try building the Spring server code from the OpenAPI spec.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -183,7 +183,7 @@
 
 # -----------------------------------------------------
 # Try building the Spring server code from the OpenAPI spec.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"

@@ -26,6 +26,7 @@
     Target:
 
         Testing our Spring webapp
+        Based on the parcolar-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
@@ -34,7 +35,7 @@
 
 # -----------------------------------------------------
 # Build the Spring server code from the OpenAPI spec.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -50,7 +51,7 @@
 
 # -----------------------------------------------------
 # Build the business logic and run the webapp.
-#[user@desktop]
+#[user@laptop]
 
     source "${HOME:?}/pandak.env"
     pushd "${PANDAK_CODE}"
@@ -67,7 +68,7 @@
 
 # -----------------------------------------------------
 # Test our service.
-#[user@desktop]
+#[user@laptop]
 
 cat > /tmp/test-001.yaml  << EOF
 schedule:
