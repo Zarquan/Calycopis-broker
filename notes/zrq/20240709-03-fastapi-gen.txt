@@ -26,10 +26,19 @@
     Target:
 
         Use the FastAPI code generator on the latest model.
+        Based on the openapi-0.6 datamodel from 20240704-01-combined.
+
+        Using the Koxudaxi FastAPI code generator
+        https://github.com/koxudaxi/fastapi-code-generator
+
+            This project is in experimental phase.
+            fastapi-code-generator uses datamodel-code-generator to generate pydantic models
 
     Result:
 
-        Work in progress ...
+        Lots of errors in the generated code.
+        Old style '__root__' field to define root models.
+        This could descend into a never ending debug session ...
 
 # -----------------------------------------------------
 # Start a new branch.
@@ -71,6 +80,7 @@
 
 # -----------------------------------------------------
 # Install FastAPI and the FastAPI code generator
+# https://github.com/koxudaxi/fastapi-code-generator
 #[root@container]
 
     dnf install -y gcc

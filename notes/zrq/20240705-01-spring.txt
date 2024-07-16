@@ -27,10 +27,11 @@
 
         Experiment with the combined data model.
         Everything in one class.
+        Based on the parcolar-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
-        Work in progress ...
+        Working Spring/Java code stubs for parcolar-0.6.yaml
 
 # -----------------------------------------------------
 # Create a new OpenAPI specification.

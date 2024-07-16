@@ -26,6 +26,7 @@
     Target:
 
         Testing our Spring webapp
+        Based on the parcolar-0.6 datamodel from 20240704-01-combined.
 
     Result:
 
