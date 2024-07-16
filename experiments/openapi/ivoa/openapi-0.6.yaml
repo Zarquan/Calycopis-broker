@@ -22,19 +22,20 @@
 #   ]
 #
 
-openapi: 3.1.0
+#openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: IVOA ExecutionBroker
   version: "0.5"
-  summary: Prototype implementation of the IVOA ExecutionBroker interface
+# summary: Prototype implementation of the IVOA ExecutionBroker interface
   description: >
     Prototype implementation of the IVOA ExecutionBroker interface
   contact:
     name: Zarquan
     url: https://github.com/Zarquan
-  license:
-    name: Creative Commons Attribution Share Alike 4.0 International
-    identifier: CC-BY-SA-4.0
+# license:
+#   name: Creative Commons Attribution Share Alike 4.0 International
+#   identifier: CC-BY-SA-4.0
 servers:
   - url: http://localhost:8080
     description: Localhost development
@@ -370,9 +371,9 @@ components:
         mapping:
           "urn:docker-container-0.1": '#/components/schemas/DockerContainer01'
           "urn:single-container-0.1": '#/components/schemas/SingularContainer01'
-          "urn:repo2docker-01.":      '#/components/schemas/Repo2DockerContainer01'
-          "urn:jupyter-notebook-01.": '#/components/schemas/JupyterNotebook01'
-          "urn:binder-notebook-01.":  '#/components/schemas/BinderNotebook01'
+          "urn:repo2docker-0.1":      '#/components/schemas/Repo2DockerContainer01'
+          "urn:jupyter-notebook-0.1": '#/components/schemas/JupyterNotebook01'
+          "urn:binder-notebook-0.1":  '#/components/schemas/BinderNotebook01'
       allOf:
         - $ref: '#/components/schemas/AbstractPolymorph'
 
@@ -391,24 +392,16 @@ components:
               type: string
               description: >
                 The image name, with or without the repository, namespace or tag.
-              example: >
-                '`ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13`, `ivoa/oligia-webtop` or just `oligia-webtop`.'
             namespace:
               type: string
               description: >
                 The namespace within the repository, if not already specified in the image name.
-              example: >
-                  '`ivoa`'
             tag:
               type: string
               description: The image tag, if not already specified in the image name.
-              example: >
-                  '`ubuntu-2022.01.13`'
             repository:
               type: string
               description: The respository tag, if not already specified in the image name.
-              example: >
-                  '`ghcr.io`'
             platform:
               type: string
               description: >
