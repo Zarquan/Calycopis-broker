@@ -135,6 +135,15 @@ paths:
   /execution/{uuid}/state:
     get:
       operationId: StateRequest
+      parameters:
+        - name: uuid
+          in: path
+          description: The execution UUID identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
       responses:
         "200":
           description: OK
@@ -999,7 +1008,6 @@ components:
             describing how the request can be handled.
           type: array
           items:
-            type: object
             $ref: '#/components/schemas/ExecutionResponse'
           xml:
             name: offers
