@@ -87,13 +87,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
 
     post:
       operationId: ExecutionUpdate
@@ -111,26 +111,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/ExecutionUpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionStatusResponse'
+                $ref: '#/components/schemas/StatusResponse'
 
 components:
   schemas:
@@ -816,63 +816,15 @@ components:
         data:
           $ref: '#/components/schemas/DataResourceList'
 
-    OfferStatus:
-      description: >
-        The status block for an offer.
-      type: object
-      xml:
-        name: offer
-      properties:
-        status:
-          description: |
-            Setting the status of an offer to `REJECTED` will reject the offer.
-            Setting the status of an offer to `ACCEPTED` will start the execution process
-            and the status of any sibling offers will automatically be set to `REJECTED`.
-          type: string
-          enum:
-            - OFFERED
-            - ACCEPTED
-            - REJECTED
-            - EXPIRED
-        expires:
-          description: >
-            The date and time that this offer expires.
-          type:   string
-          format: date-time
-
-    ExecutionStatus:
-      description: >
-        The status block for an execution.
-      type: object
-      xml:
-        name: execution
-      properties:
-        started:
-          type: string
-          format: date-time
-        completed:
-          type: string
-          format: date-time
-        status:
-          description: >
-            Status code for the execution.
-          type: string
-          enum:
-            - WAITING
-            - STANDUP
-            - RUNNING
-            - TEARDOWN
-            - COMPLETED
-            - CANCELLED
-            - FAILED
-
     ExecutionBase:
       description: >
-        The base class for an execution.
+        The base class for an execution. Used in both requests and responses.
       type: object
       xml:
         name: execution
       properties:
+        name:
+          type: string
         executable:
           $ref: '#/components/schemas/AbstractExecutable'
         resources:
@@ -885,24 +837,56 @@ components:
           items:
             $ref: '#/components/schemas/ExecutionScheduleItem'
 
-    ExecutionFull:
+    ExecutionResponse:
       description: >
-        The full response for an execution.
+        The response for an execution, including UUID and status.
       type: object
       xml:
         name: execution
       allOf:
-        - type: object
-          properties:
-            offer:
-              description: >
-                The offer status.
-              $ref: '#/components/schemas/OfferStatus'
-            execution:
-              description: >
-                The execution status.
-              $ref: '#/components/schemas/ExecutionStatus'
         - $ref: '#/components/schemas/ExecutionBase'
+        - type: object
+            required:
+              - uuid
+              - state
+              - href
+            properties:
+              uuid:
+                type: string
+                format: uuid
+              href:
+                type: string
+              expires:
+                description: >
+                  The date and time that an offer expires.
+                type: string
+                format: date-time
+              started:
+                description: >
+                  The date and time when the execution started.
+                type: string
+                format: date-time
+              completed:
+                description: >
+                  The date and time when the execution completed.
+                type: string
+                format: date-time
+              state:
+                description: >
+                  Status code for the execution.
+                type: string
+                enum:
+                  - OFFERED
+                  - ACCEPTED
+                  - REJECTED
+                  - EXPIRED
+                  - STANDUP
+                  - READY
+                  - RUNNING
+                  - TEARDOWN
+                  - COMPLETED
+                  - FAILED
+                  - CANCELLED
 
     OffersRequest:
       description: >
@@ -929,8 +913,8 @@ components:
             and the `messages` block may contain one or more reasons explaining why.
           type: string
           enum:
-            - "YES"
-            - "NO"
+            - YES
+            - NO
         offers:
           description: >
             If the response is `YES`, this list should contain one or more offers
@@ -938,7 +922,7 @@ components:
           type: array
           items:
             type: object
-            $ref: '#/components/schemas/ExecutionFull'
+            $ref: '#/components/schemas/ExecutionResponse'
           xml:
             name: offers
             wrapped: true
@@ -950,7 +934,7 @@ components:
           items:
             type: string
 
-    ExecutionUpdateRequest:
+    UpdateRequest:
       description: >
         A request to update an execution.
       type: object
@@ -959,7 +943,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/UpdateBase'
 
-    ExecutionStatusResponse:
+    StatusResponse:
       description: >
         The response for an execution status request,
         including a list of options that may be applied
@@ -968,7 +952,7 @@ components:
       xml:
         name: execution-status
       allOf:
-        - $ref: '#/components/schemas/ExecutionFull'
+        - $ref: '#/components/schemas/ExecutionResponse'
         - type: object
           properties:
             options:
