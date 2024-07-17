@@ -881,47 +881,47 @@ components:
       allOf:
         - $ref: '#/components/schemas/ExecutionBase'
         - type: object
-            required:
-              - uuid
-              - state
-              - href
-            properties:
-              uuid:
-                type: string
-                format: uuid
-              href:
-                type: string
-              expires:
-                description: >
-                  The date and time that an offer expires.
-                type: string
-                format: date-time
-              started:
-                description: >
-                  The date and time when the execution started.
-                type: string
-                format: date-time
-              completed:
-                description: >
-                  The date and time when the execution completed.
-                type: string
-                format: date-time
-              state:
-                description: >
-                  Status code for the execution.
-                type: string
-                enum:
-                  - OFFERED
-                  - ACCEPTED
-                  - REJECTED
-                  - EXPIRED
-                  - STANDUP
-                  - READY
-                  - RUNNING
-                  - TEARDOWN
-                  - COMPLETED
-                  - FAILED
-                  - CANCELLED
+          required:
+            - uuid
+            - state
+            - href
+          properties:
+            uuid:
+              type: string
+              format: uuid
+            href:
+              type: string
+            expires:
+              description: >
+                The date and time that an offer expires.
+              type: string
+              format: date-time
+            started:
+              description: >
+                The date and time when the execution started.
+              type: string
+              format: date-time
+            completed:
+              description: >
+                The date and time when the execution completed.
+              type: string
+              format: date-time
+            state:
+              description: >
+                Status code for the execution.
+              type: string
+              enum:
+                - OFFERED
+                - ACCEPTED
+                - REJECTED
+                - EXPIRED
+                - STANDUP
+                - READY
+                - RUNNING
+                - TEARDOWN
+                - COMPLETED
+                - FAILED
+                - CANCELLED
 
     OffersRequest:
       description: >
