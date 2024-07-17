@@ -132,6 +132,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/StatusResponse'
 
+  /execution/{uuid}/state:
+    get:
+      operationId: StateRequest
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+    post:
+      operationId: StateUpdate
+      parameters:
+        - name: uuid
+          in: path
+          description: The execution UUID identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
 components:
   schemas:
 
