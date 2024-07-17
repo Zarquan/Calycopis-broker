@@ -38,8 +38,8 @@
 	<name>Parcolar</name>
 	<description>OpenAPI Generator experiment</description>
 	<properties>
-		<java.version>19</java.version>
-        <schema.yaml>${project.basedir}/ivoa/openapi-0.6.yaml</schema.yaml>
+		<java.version>22</java.version>
+        <schema.yaml>/ivoa/openapi-0.7.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
