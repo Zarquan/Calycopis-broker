@@ -218,6 +218,33 @@ components:
       additionalProperties:
         type: string
 
+    LogMessage:
+      description: >
+        A log message based on the Message Templates standard.
+        https://messagetemplates.org/
+      type: object
+      properties:
+        type:
+          description: >
+            The message type identifier.
+            Typically a URL pointing to a human readable description of the message.
+          type: string
+        time:
+          description: >
+            The date and time of the message.
+          type: string
+          format: date-time
+        template:
+          description: >
+            The message template.
+          type: string
+        values:
+          description: >
+            A map of name->value properties.
+          xml:
+            name: values
+          $ref: '#/components/schemas/NameValueMap'
+
     AbstractComponent:
       description: >
         Abstract base class for all our components.
@@ -226,14 +253,28 @@ components:
       type: object
       properties:
         uuid:
+          description: >
+            A machine readable UUID for the component, assigned by the server.
           type: string
           format: uuid
         name:
+          description: >
+            A human readable name for the component, assigned by the client.
           type: string
         properties:
           description: >
-            A map of name-value properties.
+            A map of extra name-value properties for the component.
+          xml:
+            name: properties
           $ref: '#/components/schemas/NameValueMap'
+        messages:
+          description: >
+            Log messages for the component.
+          xml:
+            name: messages
+          type: array
+          items:
+            $ref: '#/components/schemas/LogMessage'
 
     AbstractPolymorph:
       description: |
@@ -313,7 +354,7 @@ components:
                 - READWRITE
             resource:
               description: >
-                The UUID of the resource to mount.
+                The name or UUID of the resource to mount.
               type: string
 
     AbstractStorageResource:
@@ -857,24 +898,29 @@ components:
       type: object
       xml:
         name: execution
-      properties:
-        name:
-          type: string
-        executable:
-          $ref: '#/components/schemas/AbstractExecutable'
-        resources:
-          $ref: '#/components/schemas/ExecutionResourceList'
-        schedule:
-          type: array
-          xml:
-            name: schedule
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/ExecutionScheduleItem'
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            executable:
+              xml:
+                name: executable
+              $ref: '#/components/schemas/AbstractExecutable'
+            resources:
+              xml:
+                name: resources
+              $ref: '#/components/schemas/ExecutionResourceList'
+            schedule:
+              type: array
+              xml:
+                name: schedule
+                wrapped: true
+              items:
+                $ref: '#/components/schemas/ExecutionScheduleItem'
 
     ExecutionResponse:
       description: >
-        The response for an execution, including UUID and status.
+        The response for an execution, including uuid, href, and status.
       type: object
       xml:
         name: execution
@@ -886,9 +932,6 @@ components:
             - state
             - href
           properties:
-            uuid:
-              type: string
-              format: uuid
             href:
               type: string
             expires:
