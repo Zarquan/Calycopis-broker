@@ -57,9 +57,6 @@
             Move expires to the parent offerset #48
             https://github.com/ivoa/CIRASA-planner/issues/48
 
-            https://github.com/ivoa/CIRASA-planner/issues/44
-            Execution list endpoint #44
-
 
     Result:
 
@@ -372,3 +369,50 @@ result: "YES"
 --END--
 
 
+    # YAML in XML out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/xml" \
+        "http://127.0.0.1:8082/request" \
+    | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<offers-response>
+  <uuid>98e8d470-4500-11ef-9d44-d177efbf7127</uuid>
+  <name>My offers</name>
+  <href>https://..../offerset/98e8d470-4500-11ef-9d44-d177efbf7127</href>
+  <expires>2024-07-18T12:28:53.948698215Z</expires>
+  <offered>
+    <offered>
+      <uuid>98e8fb81-4500-11ef-9d44-d177efbf7127</uuid>
+      <name>My execution</name>
+      <executable type="urn:docker-container-0.1">
+        <name>My test executable</name>
+        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+        <privileged>false</privileged>
+        <network>
+          <ports>
+            <ports>
+              <internal>3000</internal>
+              <protocol>TCP</protocol>
+            </ports>
+          </ports>
+        </network>
+      </executable>
+      <href>https://..../execution/98e8fb81-4500-11ef-9d44-d177efbf7127</href>
+      <state>OFFERED</state>
+    </offered>
+  </offered>
+  <result>YES</result>
+</offers-response>
+--END--
+
+    #
+    # BUG - ignoring xml name on array elements
+    # <offered><offered>....</offered></offered>
+    #

@@ -979,7 +979,7 @@ components:
         A request for a set of offers.
       type: object
       xml:
-        name: request
+        name: offers-request
       allOf:
         - $ref: '#/components/schemas/ExecutionBase'
 
@@ -1008,9 +1008,11 @@ components:
             offers:
               type: array
               xml:
-                name: offers
+                name: offered
                 wrapped: true
               items:
+                xml:
+                  name: execution
                 $ref: '#/components/schemas/ExecutionResponse'
 
     OffersResponse:
@@ -1019,7 +1021,7 @@ components:
         a list of offers and a list of messages.
       type: object
       xml:
-        name: response
+        name: offers-response
       allOf:
         - $ref: '#/components/schemas/OfferSet'
         - type: object
