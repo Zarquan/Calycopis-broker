@@ -302,27 +302,25 @@ EOF
         "http://127.0.0.1:8082/request" \
     | yq '.'
 
---START--
-uuid: "f29f3324-44f5-11ef-9873-6bc5dcf806f9"
-name: "My offers"
-href: "https://..../offerset/f29f3324-44f5-11ef-9873-6bc5dcf806f9"
-expires: "2024-07-18T11:12:39.998452692Z"
-offers:
-  - uuid: "f29f8145-44f5-11ef-9873-6bc5dcf806f9"
-    name: "My execution"
-    executable:
-      type: "urn:docker-container-0.1"
-      name: "My test executable"
-      image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-      privileged: false
-      network:
-        ports:
-          - internal: "3000"
-            protocol: "TCP"
-    href: "https://..../execution/f29f8145-44f5-11ef-9873-6bc5dcf806f9"
-    state: "OFFERED"
-result: "YES"
---END--
+    >   uuid: "f29f3324-44f5-11ef-9873-6bc5dcf806f9"
+    >   name: "My offers"
+    >   href: "https://..../offerset/f29f3324-44f5-11ef-9873-6bc5dcf806f9"
+    >   expires: "2024-07-18T11:12:39.998452692Z"
+    >   offers:
+    >     - uuid: "f29f8145-44f5-11ef-9873-6bc5dcf806f9"
+    >       name: "My execution"
+    >       executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >         network:
+    >           ports:
+    >             - internal: "3000"
+    >               protocol: "TCP"
+    >       href: "https://..../execution/f29f8145-44f5-11ef-9873-6bc5dcf806f9"
+    >       state: "OFFERED"
+    >   result: "YES"
 
 
     # YAML in JSON out
@@ -336,37 +334,35 @@ result: "YES"
         "http://127.0.0.1:8082/request" \
     | jq '.'
 
---START--
-{
-  "uuid": "09183896-44f6-11ef-9873-6bc5dcf806f9",
-  "name": "My offers",
-  "href": "https://..../offerset/09183896-44f6-11ef-9873-6bc5dcf806f9",
-  "expires": "2024-07-18T11:13:17.700394709Z",
-  "offers": [
-    {
-      "uuid": "09183897-44f6-11ef-9873-6bc5dcf806f9",
-      "name": "My execution",
-      "executable": {
-        "type": "urn:docker-container-0.1",
-        "name": "My test executable",
-        "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
-        "privileged": false,
-        "network": {
-          "ports": [
-            {
-              "internal": "3000",
-              "protocol": "TCP"
-            }
-          ]
-        }
-      },
-      "href": "https://..../execution/09183897-44f6-11ef-9873-6bc5dcf806f9",
-      "state": "OFFERED"
-    }
-  ],
-  "result": "YES"
-}
---END--
+    >   {
+    >     "uuid": "09183896-44f6-11ef-9873-6bc5dcf806f9",
+    >     "name": "My offers",
+    >     "href": "https://..../offerset/09183896-44f6-11ef-9873-6bc5dcf806f9",
+    >     "expires": "2024-07-18T11:13:17.700394709Z",
+    >     "offers": [
+    >       {
+    >         "uuid": "09183897-44f6-11ef-9873-6bc5dcf806f9",
+    >         "name": "My execution",
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false,
+    >           "network": {
+    >             "ports": [
+    >               {
+    >                 "internal": "3000",
+    >                 "protocol": "TCP"
+    >               }
+    >             ]
+    >           }
+    >         },
+    >         "href": "https://..../execution/09183897-44f6-11ef-9873-6bc5dcf806f9",
+    >         "state": "OFFERED"
+    >       }
+    >     ],
+    >     "result": "YES"
+    >   }
 
 
     # YAML in XML out
@@ -380,37 +376,35 @@ result: "YES"
         "http://127.0.0.1:8082/request" \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<offers-response>
-  <uuid>98e8d470-4500-11ef-9d44-d177efbf7127</uuid>
-  <name>My offers</name>
-  <href>https://..../offerset/98e8d470-4500-11ef-9d44-d177efbf7127</href>
-  <expires>2024-07-18T12:28:53.948698215Z</expires>
-  <offered>
-    <offered>
-      <uuid>98e8fb81-4500-11ef-9d44-d177efbf7127</uuid>
-      <name>My execution</name>
-      <executable type="urn:docker-container-0.1">
-        <name>My test executable</name>
-        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
-        <privileged>false</privileged>
-        <network>
-          <ports>
-            <ports>
-              <internal>3000</internal>
-              <protocol>TCP</protocol>
-            </ports>
-          </ports>
-        </network>
-      </executable>
-      <href>https://..../execution/98e8fb81-4500-11ef-9d44-d177efbf7127</href>
-      <state>OFFERED</state>
-    </offered>
-  </offered>
-  <result>YES</result>
-</offers-response>
---END--
+    >   <?xml version="1.0"?>
+    >   <offers-response>
+    >     <uuid>98e8d470-4500-11ef-9d44-d177efbf7127</uuid>
+    >     <name>My offers</name>
+    >     <href>https://..../offerset/98e8d470-4500-11ef-9d44-d177efbf7127</href>
+    >     <expires>2024-07-18T12:28:53.948698215Z</expires>
+    >     <offered>
+    >       <offered>
+    >         <uuid>98e8fb81-4500-11ef-9d44-d177efbf7127</uuid>
+    >         <name>My execution</name>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >           <network>
+    >             <ports>
+    >               <ports>
+    >                 <internal>3000</internal>
+    >                 <protocol>TCP</protocol>
+    >               </ports>
+    >             </ports>
+    >           </network>
+    >         </executable>
+    >         <href>https://..../execution/98e8fb81-4500-11ef-9d44-d177efbf7127</href>
+    >         <state>OFFERED</state>
+    >       </offered>
+    >     </offered>
+    >     <result>YES</result>
+    >   </offers-response>
 
     #
     # BUG - ignoring xml name on array elements
@@ -435,27 +429,25 @@ result: "YES"
         "http://127.0.0.1:8082/request" \
     | yq '.'
 
---START--
-uuid: "e1ce5ec2-4501-11ef-9d44-d177efbf7127"
-name: "My offers"
-href: "https://..../offerset/e1ce5ec2-4501-11ef-9d44-d177efbf7127"
-expires: "2024-07-18T12:38:05.745467369Z"
-offers:
-  - uuid: "e1ce5ec3-4501-11ef-9d44-d177efbf7127"
-    name: "My execution"
-    executable:
-      type: "urn:docker-container-0.1"
-      name: "My test executable"
-      image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-      privileged: false
-      network:
-        ports:
-          - internal: "3000"
-            protocol: "TCP"
-    href: "https://..../execution/e1ce5ec3-4501-11ef-9d44-d177efbf7127"
-    state: "OFFERED"
-result: "YES"
---END--
+    >   uuid: "e1ce5ec2-4501-11ef-9d44-d177efbf7127"
+    >   name: "My offers"
+    >   href: "https://..../offerset/e1ce5ec2-4501-11ef-9d44-d177efbf7127"
+    >   expires: "2024-07-18T12:38:05.745467369Z"
+    >   offers:
+    >     - uuid: "e1ce5ec3-4501-11ef-9d44-d177efbf7127"
+    >       name: "My execution"
+    >       executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >         network:
+    >           ports:
+    >             - internal: "3000"
+    >               protocol: "TCP"
+    >       href: "https://..../execution/e1ce5ec3-4501-11ef-9d44-d177efbf7127"
+    >       state: "OFFERED"
+    >   result: "YES"
 
 
     # JSON in JSON out
@@ -469,37 +461,35 @@ result: "YES"
         "http://127.0.0.1:8082/request" \
     | jq '.'
 
---START--
-{
-  "uuid": "fa2aca36-4501-11ef-9d44-d177efbf7127",
-  "name": "My offers",
-  "href": "https://..../offerset/fa2aca36-4501-11ef-9d44-d177efbf7127",
-  "expires": "2024-07-18T12:38:46.616142521Z",
-  "offers": [
-    {
-      "uuid": "fa2aca37-4501-11ef-9d44-d177efbf7127",
-      "name": "My execution",
-      "executable": {
-        "type": "urn:docker-container-0.1",
-        "name": "My test executable",
-        "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
-        "privileged": false,
-        "network": {
-          "ports": [
-            {
-              "internal": "3000",
-              "protocol": "TCP"
-            }
-          ]
-        }
-      },
-      "href": "https://..../execution/fa2aca37-4501-11ef-9d44-d177efbf7127",
-      "state": "OFFERED"
-    }
-  ],
-  "result": "YES"
-}
---END--
+    >   {
+    >     "uuid": "fa2aca36-4501-11ef-9d44-d177efbf7127",
+    >     "name": "My offers",
+    >     "href": "https://..../offerset/fa2aca36-4501-11ef-9d44-d177efbf7127",
+    >     "expires": "2024-07-18T12:38:46.616142521Z",
+    >     "offers": [
+    >       {
+    >         "uuid": "fa2aca37-4501-11ef-9d44-d177efbf7127",
+    >         "name": "My execution",
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false,
+    >           "network": {
+    >             "ports": [
+    >               {
+    >                 "internal": "3000",
+    >                 "protocol": "TCP"
+    >               }
+    >             ]
+    >           }
+    >         },
+    >         "href": "https://..../execution/fa2aca37-4501-11ef-9d44-d177efbf7127",
+    >         "state": "OFFERED"
+    >       }
+    >     ],
+    >     "result": "YES"
+    >   }
 
 
     # JSON in XML out
@@ -513,37 +503,35 @@ result: "YES"
         "http://127.0.0.1:8082/request" \
     | xmlstarlet fo
 
---START--
-<?xml version="1.0"?>
-<offers-response>
-  <uuid>16887298-4502-11ef-9d44-d177efbf7127</uuid>
-  <name>My offers</name>
-  <href>https://..../offerset/16887298-4502-11ef-9d44-d177efbf7127</href>
-  <expires>2024-07-18T12:39:34.206947596Z</expires>
-  <offered>
-    <offered>
-      <uuid>16887299-4502-11ef-9d44-d177efbf7127</uuid>
-      <name>My execution</name>
-      <executable type="urn:docker-container-0.1">
-        <name>My test executable</name>
-        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
-        <privileged>false</privileged>
-        <network>
-          <ports>
-            <ports>
-              <internal>3000</internal>
-              <protocol>TCP</protocol>
-            </ports>
-          </ports>
-        </network>
-      </executable>
-      <href>https://..../execution/16887299-4502-11ef-9d44-d177efbf7127</href>
-      <state>OFFERED</state>
-    </offered>
-  </offered>
-  <result>YES</result>
-</offers-response>
---END--
+    >   <?xml version="1.0"?>
+    >   <offers-response>
+    >     <uuid>16887298-4502-11ef-9d44-d177efbf7127</uuid>
+    >     <name>My offers</name>
+    >     <href>https://..../offerset/16887298-4502-11ef-9d44-d177efbf7127</href>
+    >     <expires>2024-07-18T12:39:34.206947596Z</expires>
+    >     <offered>
+    >       <offered>
+    >         <uuid>16887299-4502-11ef-9d44-d177efbf7127</uuid>
+    >         <name>My execution</name>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >           <network>
+    >             <ports>
+    >               <ports>
+    >                 <internal>3000</internal>
+    >                 <protocol>TCP</protocol>
+    >               </ports>
+    >             </ports>
+    >           </network>
+    >         </executable>
+    >         <href>https://..../execution/16887299-4502-11ef-9d44-d177efbf7127</href>
+    >         <state>OFFERED</state>
+    >       </offered>
+    >     </offered>
+    >     <result>YES</result>
+    >   </offers-response>
 
 
     # XML in YAML out
