@@ -26,10 +26,13 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.time.OffsetDateTime;
+
+import com.github.f4b6a3.uuid.UuidCreator;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,12 +45,12 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import uk.co.metagrid.ambleck.webapp.RequestApiDelegate;
 
-import uk.co.metagrid.ambleck.model.OfferStatus;
+import uk.co.metagrid.ambleck.model.MessageItem;
 import uk.co.metagrid.ambleck.model.OffersRequest;
 import uk.co.metagrid.ambleck.model.OffersResponse;
 import uk.co.metagrid.ambleck.model.AbstractExecutable;
 import uk.co.metagrid.ambleck.model.DockerContainer01;
-import uk.co.metagrid.ambleck.model.ExecutionFull;
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
 @Service
 public class RequestApiDelegateImpl implements RequestApiDelegate {
@@ -61,7 +64,7 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
 
     @Override
     public Optional<NativeWebRequest> getRequest() {
-        return Optional.ofNullable(request);
+        return Optional.ofNullable(this.request);
         }
 
     @Override
@@ -79,28 +82,42 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
     public OffersResponse response(OffersRequest request)
         {
 	    OffersResponse response = new OffersResponse();
+        response.setUuid(
+            UuidCreator.getTimeBased()
+            );
+        response.setName(
+            "My offers"
+            );
+        response.setHref(
+            "https://..../offerset/" + response.getUuid()
+            );
+        response.expires(
+            OffsetDateTime.now().plusMinutes(5)
+            );
 
         if (request.getExecutable() instanceof DockerContainer01)
             {
-            ExecutionFull offer = new ExecutionFull();
-
-            offer.setExecutable(
-                handle(
+            ExecutionResponse execution = new ExecutionResponse();
+            execution.setUuid(
+                UuidCreator.getTimeBased()
+                );
+            execution.setName(
+                "My execution"
+                );
+            execution.setHref(
+                "https://..../execution/" + execution.getUuid()
+                );
+            execution.setExecutable(
+                this.handle(
                     (DockerContainer01) request.getExecutable()
                     )
                 );
-            OfferStatus status = new OfferStatus();
-            status.status(
-                OfferStatus.StatusEnum.OFFERED
+            execution.setState(
+                ExecutionResponse.StateEnum.OFFERED
                 );
-            status.expires(
-                OffsetDateTime.now().plusMinutes(5)
-                );
-            offer.setOffer(
-                status
-                );
+
             response.addOffersItem(
-                 offer
+                 execution
                 );
             response.setResult(
                 OffersResponse.ResultEnum.YES
@@ -110,10 +127,29 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             response.setResult(
                 OffersResponse.ResultEnum.NO
                 );
+            MessageItem message = new MessageItem();
+            message.time(
+                OffsetDateTime.now()
+                );
+            message.type(
+                "https://example.org/message-types/unknown-executable"
+                );
+            message.template(
+                "[{code}] Unable to provide requested executable [{type}]"
+                );
+            message.putValuesItem(
+                "code",
+                "2415"
+                );
+            message.putValuesItem(
+                "type",
+                request.getExecutable().getType()
+                );
+            response.addMessagesItem(
+                message
+                );
             }
-
         return response ;
-
         }
 
     public DockerContainer01 handle(DockerContainer01 request)

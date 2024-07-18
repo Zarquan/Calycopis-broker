@@ -38,8 +38,8 @@
 	<name>Parcolar</name>
 	<description>OpenAPI Generator experiment</description>
 	<properties>
-		<java.version>19</java.version>
-        <schema.yaml>${project.basedir}/ivoa/openapi-0.6.yaml</schema.yaml>
+		<java.version>22</java.version>
+        <schema.yaml>/ivoa/openapi-0.7.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
@@ -61,6 +61,27 @@
             <artifactId>jackson-databind-nullable</artifactId>
             <version>0.2.6</version>
         </dependency>
+        <!--+
+            | Jackson XML annotations.
+            +-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency-->
+        <dependency>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jaxb-api</artifactId>
+          <version>2.3.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
@@ -150,6 +171,7 @@
                                 ApiUtil.java
                             </supportingFilesToGenerate>
                             <configOptions>
+                                <withXml>true</withXml>
                                 <delegatePattern>true</delegatePattern>
                                 <additionalModelTypeAnnotations>
                                     @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
