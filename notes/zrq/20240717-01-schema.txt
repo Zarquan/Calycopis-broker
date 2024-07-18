@@ -1,0 +1,220 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Fix issues with the schema.
+
+            Change ident to uuid #24
+            https://github.com/ivoa/CIRASA-planner/issues/24
+
+            The execution/offer needs to have a uuid #25
+            https://github.com/ivoa/CIRASA-planner/issues/25
+
+            Combine offer and execution status #34
+            https://github.com/ivoa/CIRASA-planner/issues/34
+
+            Include state change method #35
+            https://github.com/ivoa/CIRASA-planner/issues/35
+
+            Change 'state' to 'phase' ? #36
+            https://github.com/ivoa/CIRASA-planner/issues/36
+
+            Include a 'this' pointer for an execution. #37
+            https://github.com/ivoa/CIRASA-planner/issues/37
+
+            Log messages for components.
+            https://github.com/ivoa/CIRASA-planner/issues/42
+
+            Execution belongs to an offerset #46
+            https://github.com/ivoa/CIRASA-planner/issues/46
+
+            Move started and completed to the message log #47
+            https://github.com/ivoa/CIRASA-planner/issues/47
+
+            Move expires to the parent offerset #48
+            https://github.com/ivoa/CIRASA-planner/issues/48
+
+            https://github.com/ivoa/CIRASA-planner/issues/44
+            Execution list endpoint #44
+
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=schema
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Start a new schema.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            mv openapi-0.7.yaml openapi-0.7.new
+
+            cp openapi-0.6.yaml openapi-0.7.yaml
+
+            git add openapi-0.7.yaml
+            git commit -m "Starting a new schema"
+
+            meld openapi-0.7.new openapi-0.7.yaml &
+
+            git add openapi-0.7.yaml
+            git commit -m "Change ident to uuid #24"
+
+            meld openapi-0.7.new openapi-0.7.yaml &
+
+            git add openapi-0.7.yaml
+            git commit -m "Combine offer and execution status #34"
+
+            meld openapi-0.7.new openapi-0.7.yaml &
+
+            git add openapi-0.7.yaml
+            git commit -m "Include state change method #35"
+
+            pluma openapi-0.7.yaml &
+
+            git add openapi-0.7.yaml
+            git commit -m "Include a 'href' pointer for an execution. #37"
+
+            pluma openapi-0.7.yaml &
+            git add openapi-0.7.yaml
+            git commit -m " Log messages for components. #42 "
+
+
+# -----------------------------------------------------
+# Remove the openapi symlinks.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            find . -type l
+
+    >   ./impl/java/spring/spring-openapi/ivoa
+    >   ./impl/python/openapitools/flask/ivoa
+    >   ./impl/python/koxudaxi/fastapi/ivoa
+
+            for link in $(find . -type l)
+            do
+                echo "Link [$link]"
+                git rm "$link"
+                git add "$link"
+            done
+
+            git commit -m "Removed openapi symlinks"
+
+# -----------------------------------------------------
+# Editing the new schema.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi/ivoa
+
+            pluma  openapi-0.7.yaml &
+            git add openapi-0.7.yaml
+            git commit -m "Execution belongs to an offerset #46, #47, #48"
+
+
+
+
+# -----------------------------------------------------
+# Launch a container to generate the Java Spring classes.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@container]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+    >   JAVA_HOME [/usr/lib/jvm/java-22-openjdk-22.0.1.0.8-1.rolling.fc39.x86_64]
+
+
+# -----------------------------------------------------
+# Generate the server side stubs.
+#[root@container]
+
+    pushd /spring/spring-openapi
+        ./mvnw clean install
+    popd
+
+
