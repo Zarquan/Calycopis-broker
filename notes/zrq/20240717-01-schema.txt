@@ -416,3 +416,138 @@ result: "YES"
     # BUG - ignoring xml name on array elements
     # <offered><offered>....</offered></offered>
     #
+
+
+    yq \
+        -o json \
+        '.' \
+        /tmp/test-001.yaml \
+    | tee /tmp/test-001.json
+
+    # JSON in YAML out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @"/tmp/test-001.json" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/request" \
+    | yq '.'
+
+--START--
+uuid: "e1ce5ec2-4501-11ef-9d44-d177efbf7127"
+name: "My offers"
+href: "https://..../offerset/e1ce5ec2-4501-11ef-9d44-d177efbf7127"
+expires: "2024-07-18T12:38:05.745467369Z"
+offers:
+  - uuid: "e1ce5ec3-4501-11ef-9d44-d177efbf7127"
+    name: "My execution"
+    executable:
+      type: "urn:docker-container-0.1"
+      name: "My test executable"
+      image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      privileged: false
+      network:
+        ports:
+          - internal: "3000"
+            protocol: "TCP"
+    href: "https://..../execution/e1ce5ec3-4501-11ef-9d44-d177efbf7127"
+    state: "OFFERED"
+result: "YES"
+--END--
+
+
+    # JSON in JSON out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @"/tmp/test-001.json" \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8082/request" \
+    | jq '.'
+
+--START--
+{
+  "uuid": "fa2aca36-4501-11ef-9d44-d177efbf7127",
+  "name": "My offers",
+  "href": "https://..../offerset/fa2aca36-4501-11ef-9d44-d177efbf7127",
+  "expires": "2024-07-18T12:38:46.616142521Z",
+  "offers": [
+    {
+      "uuid": "fa2aca37-4501-11ef-9d44-d177efbf7127",
+      "name": "My execution",
+      "executable": {
+        "type": "urn:docker-container-0.1",
+        "name": "My test executable",
+        "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+        "privileged": false,
+        "network": {
+          "ports": [
+            {
+              "internal": "3000",
+              "protocol": "TCP"
+            }
+          ]
+        }
+      },
+      "href": "https://..../execution/fa2aca37-4501-11ef-9d44-d177efbf7127",
+      "state": "OFFERED"
+    }
+  ],
+  "result": "YES"
+}
+--END--
+
+
+    # JSON in XML out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/json" \
+        --data-binary @"/tmp/test-001.json" \
+        --header "Accept: application/xml" \
+        "http://127.0.0.1:8082/request" \
+    | xmlstarlet fo
+
+--START--
+<?xml version="1.0"?>
+<offers-response>
+  <uuid>16887298-4502-11ef-9d44-d177efbf7127</uuid>
+  <name>My offers</name>
+  <href>https://..../offerset/16887298-4502-11ef-9d44-d177efbf7127</href>
+  <expires>2024-07-18T12:39:34.206947596Z</expires>
+  <offered>
+    <offered>
+      <uuid>16887299-4502-11ef-9d44-d177efbf7127</uuid>
+      <name>My execution</name>
+      <executable type="urn:docker-container-0.1">
+        <name>My test executable</name>
+        <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+        <privileged>false</privileged>
+        <network>
+          <ports>
+            <ports>
+              <internal>3000</internal>
+              <protocol>TCP</protocol>
+            </ports>
+          </ports>
+        </network>
+      </executable>
+      <href>https://..../execution/16887299-4502-11ef-9d44-d177efbf7127</href>
+      <state>OFFERED</state>
+    </offered>
+  </offered>
+  <result>YES</result>
+</offers-response>
+--END--
+
+
+    # XML in YAML out
+    # XML in JSON out
+    # XML in XML out
+
+
