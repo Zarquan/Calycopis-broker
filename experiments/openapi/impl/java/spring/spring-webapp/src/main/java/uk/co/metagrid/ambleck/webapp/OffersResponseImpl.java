@@ -23,9 +23,37 @@
  */
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.UUID;
+import java.util.List;
+import java.time.OffsetDateTime;
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import uk.co.metagrid.ambleck.model.OffersResponse;
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
 public class OffersResponseImpl extends OffersResponse
     {
+    public OffersResponseImpl()
+        {
+        this.setUuid(
+            UuidCreator.getTimeBased()
+            );
+        this.expires(
+            OffsetDateTime.now().plusMinutes(5)
+            );
+        this.setResult(
+            OffersResponse.ResultEnum.NO
+            );
+        }
 
+    protected void addExecution(final ExecutionResponseImpl execution)
+        {
+        this.addExecutionsItem(
+             (ExecutionResponse) execution
+            );
+        this.setResult(
+            OffersResponse.ResultEnum.YES
+            );
+        }
     }
+

@@ -21,13 +21,39 @@
  *
  *
  */
-
 package uk.co.metagrid.ambleck.webapp;
 
-public interface BrokerContext
+import java.util.UUID;
+import com.github.f4b6a3.uuid.UuidCreator;
+
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
+
+public class ExecutionResponseImpl extends ExecutionResponse
     {
+    private OffersResponseImpl parent;
 
-    public String getVersion();
+    protected OffersResponseImpl getParent()
+        {
+        return this.parent;
+        }
 
+    @Override
+    public UUID getOfferset()
+        {
+        return this.parent.getUuid();
+        }
+
+    public ExecutionResponseImpl(final OffersResponseImpl parent)
+        {
+        this.parent = parent ;
+        this.setUuid(
+            UuidCreator.getTimeBased()
+            );
+        this.setState(
+            ExecutionResponse.StateEnum.OFFERED
+            );
+        parent.addExecution(
+            this
+            );
+        }
     }
-
