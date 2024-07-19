@@ -232,6 +232,8 @@ components:
         A log message based on the Message Templates standard.
         https://messagetemplates.org/
       type: object
+      xml:
+        name: message
       properties:
         type:
           description: >
@@ -243,6 +245,16 @@ components:
             The date and time of the message.
           type: string
           format: date-time
+        level:
+          description: >
+            The message level.
+          type: string
+          enum:
+            - "DEBUG"
+            - "WARN"
+            - "ERROR"
+            - "INFO"
+            - "OTHER"
         template:
           description: >
             The message template.
@@ -266,6 +278,8 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/MessageItem'
+        xml:
+          name: message
 
     AbstractComponent:
       description: >
@@ -297,6 +311,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MessageItem'
+            xml:
+              name: message
 
     AbstractPolymorph:
       description: |
@@ -1012,12 +1028,12 @@ components:
             offers:
               type: array
               xml:
-                name: offered
+                name: offers
                 wrapped: true
               items:
-                xml:
-                  name: execution
                 $ref: '#/components/schemas/ExecutionResponse'
+                xml:
+                  name: offer
 
     OffersResponse:
       description: >
@@ -1049,6 +1065,8 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/MessageItem'
+                xml:
+                  name: message
 
     UpdateRequest:
       description: >

@@ -24,6 +24,7 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
@@ -53,12 +54,31 @@ import uk.co.metagrid.ambleck.model.AbstractExecutable;
 import uk.co.metagrid.ambleck.model.DockerContainer01;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
+import uk.co.metagrid.ambleck.message.DebugMessage;
+import uk.co.metagrid.ambleck.message.ErrorMessage;
+import uk.co.metagrid.ambleck.message.WarnMessage;
+import uk.co.metagrid.ambleck.message.InfoMessage;
+
 @Service
 public class RequestApiDelegateImpl implements RequestApiDelegate {
 
+    private final BrokerContext context ;
+
+    public String getVersion()
+        {
+        if (this.context != null)
+            {
+            return this.context.getVersion();
+            }
+        else {
+            return "unknown";
+            }
+        }
+
     private final NativeWebRequest request;
 
-    public String getUrl() {
+    public String getRequestURL()
+        {
         if (this.request != null)
             {
             return this.request.getNativeRequest(HttpServletRequest.class).getRequestURL().toString();
@@ -68,9 +88,45 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             }
         }
 
+    public String getPathInfo()
+        {
+        if (this.request != null)
+            {
+            return this.request.getNativeRequest(HttpServletRequest.class).getPathInfo();
+            }
+        else {
+            return "unknown";
+            }
+        }
+
+    public String getContextPath()
+        {
+        if (this.request != null)
+            {
+            return this.request.getNativeRequest(HttpServletRequest.class).getContextPath();
+            }
+        else {
+            return "unknown";
+            }
+        }
+
+    public String getServletPath()
+        {
+        if (this.request != null)
+            {
+            return this.request.getNativeRequest(HttpServletRequest.class).getServletPath();
+            }
+        else {
+            return "unknown";
+            }
+        }
+
+
+
     @Autowired
-    public RequestApiDelegateImpl(NativeWebRequest request) {
+    public RequestApiDelegateImpl(NativeWebRequest request, BrokerContext context) {
         this.request = request;
+        this.context = context;
         }
 
     @Override
@@ -96,36 +152,33 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
         response.setUuid(
             UuidCreator.getTimeBased()
             );
-        response.setName(
-            "My offers"
-            );
         response.setHref(
             "https://..../offerset/" + response.getUuid()
             );
         response.expires(
             OffsetDateTime.now().plusMinutes(5)
             );
-
-        // Long way round ..
         response.addMessagesItem(
-            new MessageItem()
-                .time(
-                    OffsetDateTime.now()
-                    )
-                .type(
-                    "https://example.org/message-types/debug"
-                    )
-                .template(
-                    "[{code}] HttpServletRequest [{url}]"
-                    )
-                .putValuesItem(
-                    "code",
-                    "DEBUG"
-                    )
-                .putValuesItem(
+            new DebugMessage(
+                "HttpServletRequest [${url}][${context}][${servlet}]",
+                Map.of(
                     "url",
-                    this.getUrl()
+                    this.getRequestURL(),
+                    "context",
+                    this.getContextPath(),
+                    "servlet",
+                    this.getServletPath()
                     )
+                )
+            );
+        response.addMessagesItem(
+            new InfoMessage(
+                "ExecutionBroker version [${version}]",
+                Map.of(
+                    "version",
+                    this.getVersion()
+                    )
+                )
             );
 
         if (request.getExecutable() instanceof DockerContainer01)
@@ -160,29 +213,14 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             response.setResult(
                 OffersResponse.ResultEnum.NO
                 );
-            MessageItem message = new MessageItem();
-            message.time(
-                OffsetDateTime.now()
-                );
-            message.type(
-                "https://example.org/message-types/unknown-executable"
-                );
-            message.template(
-                "[{code}] Unable to provide requested executable [{type}]"
-                );
-            message.putValuesItem(
-                "code",
-                "ERROR"
-                );
-            message.putValuesItem(
-                "type",
-                request.getExecutable().getType()
-                );
-            message.message(
-                "[2415] Unable to provide requested executable [" + request.getExecutable().getType() + "]"
-                );
             response.addMessagesItem(
-                message
+                new ErrorMessage(
+                    "Unable to provide requested executable [${type}]",
+                    Map.of(
+                        "type",
+                        request.getExecutable().getType()
+                        )
+                    )
                 );
             }
         return response ;

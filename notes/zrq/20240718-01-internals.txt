@@ -54,6 +54,9 @@
             https://commons.apache.org/proper/commons-text/apidocs/org/apache/commons/text/StringSubstitutor.html
             We would have to write our own template processor to see what the messages look like :-(
 
+            Possibly better to adopt a common pattern ${} rather than just {}.
+            Or, apply a regex that replaces {} with ${} ?
+
         We can add the HttpServletRequest code to a base class for our delegates.
 
             String getUrl() {
@@ -73,7 +76,8 @@
             AbstractExecutable, AbstractComputeResource, AbstractStorageResource
             and AbstractDateResource.
 
-
+        Still can't array elemewnt names right in XML.
+        sigh
 
 
 # -----------------------------------------------------
@@ -296,5 +300,295 @@ EOF
     #
 
 
+    >   uuid: "b7ae0a94-458c-11ef-a830-e317c7080b1f"
+    >   name: "My offers"
+    >   messages:
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T05:06:55.114779782Z"
+    >       template: "[{code}] HttpServletRequest [{url}]"
+    >       values:
+    >         code: "DEBUG"
+    >         url: "http://127.0.0.1:8082/request"
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T05:06:55.11550679Z"
+    >       template: "[{code}] ExecutionBroker version [{version}]"
+    >       values:
+    >         code: "DEBUG"
+    >         version: "0.1"
+    >     - type: "https://example.org/message-types/unknown-executable"
+    >       time: "2024-07-19T05:06:55.115809193Z"
+    >       template: "[{code}] Unable to provide requested executable [{type}]"
+    >       values:
+    >         code: "ERROR"
+    >         type: "urn:single-container-0.1"
+    >       message: "[2415] Unable to provide requested executable [urn:single-container-0.1]"
+    >   href: "https://..../offerset/b7ae0a94-458c-11ef-a830-e317c7080b1f"
+    >   expires: "2024-07-19T05:11:55.114707748Z"
+    >   result: "NO"
 
+
+    >   uuid: "d24d954f-4590-11ef-b960-8592197b1974"
+    >   name: "My offers"
+    >   messages:
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T05:36:17.769459543Z"
+    >       level: "DEBUG"
+    >       template: "HttpServletRequest [{url}]"
+    >       values:
+    >         url: "http://127.0.0.1:8082/request"
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T05:36:17.769755795Z"
+    >       level: "DEBUG"
+    >       template: "ExecutionBroker version [{version}]"
+    >       values:
+    >         version: "0.1"
+    >     - type: "https://example.org/message-types/error"
+    >       time: "2024-07-19T05:36:17.770093758Z"
+    >       level: "ERROR"
+    >       template: "Unable to provide requested executable [{type}]"
+    >       values:
+    >         type: "urn:single-container-0.1"
+    >   href: "https://..../offerset/d24d954f-4590-11ef-b960-8592197b1974"
+    >   expires: "2024-07-19T05:41:17.768716077Z"
+    >   result: "NO"
+
+
+
+    >   uuid: "ba9cf008-459a-11ef-a154-e923bf8385b4"
+    >   messages:
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T06:47:12.992180866Z"
+    >       level: "DEBUG"
+    >       template: "HttpServletRequest [${url}][${context}][${servlet}]"
+    >       values:
+    >         servlet: "/request"
+    >         context: ""
+    >         url: "http://127.0.0.1:8082/request"
+    >       message: "HttpServletRequest [http://127.0.0.1:8082/request][][/request]"
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T06:47:13.016807596Z"
+    >       level: "DEBUG"
+    >       template: "ExecutionBroker version [${version}]"
+    >       values:
+    >         version: "0.1"
+    >       message: "ExecutionBroker version [0.1]"
+    >     - type: "https://example.org/message-types/error"
+    >       time: "2024-07-19T06:47:13.017162409Z"
+    >       level: "ERROR"
+    >       template: "Unable to provide requested executable [${type}]"
+    >       values:
+    >         type: "urn:single-container-0.1"
+    >       message: "Unable to provide requested executable [urn:single-container-0.1]"
+    >   href: "https://..../offerset/ba9cf008-459a-11ef-a154-e923bf8385b4"
+    >   expires: "2024-07-19T06:52:12.991332838Z"
+    >   result: "NO"
+
+
+
+    >   uuid: "65f27188-459c-11ef-9ef7-71c878c6b039"
+    >   messages:
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T06:59:09.9380152Z"
+    >       level: "DEBUG"
+    >       template: "HttpServletRequest [${url}][${context}][${servlet}]"
+    >       values:
+    >         servlet: "/request"
+    >         context: ""
+    >         url: "http://127.0.0.1:8082/request"
+    >       message: "[DEBUG] HttpServletRequest [http://127.0.0.1:8082/request][][/request]"
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-07-19T06:59:09.938184229Z"
+    >       level: "INFO"
+    >       template: "ExecutionBroker version [${version}]"
+    >       values:
+    >         version: "0.1"
+    >       message: "[INFO] ExecutionBroker version [0.1]"
+    >     - type: "https://example.org/message-types/error"
+    >       time: "2024-07-19T06:59:09.938387375Z"
+    >       level: "ERROR"
+    >       template: "Unable to provide requested executable [${type}]"
+    >       values:
+    >         type: "urn:single-container-0.1"
+    >       message: "[ERROR] Unable to provide requested executable [urn:single-container-0.1]"
+    >   href: "https://..../offerset/65f27188-459c-11ef-9ef7-71c878c6b039"
+    >   expires: "2024-07-19T07:04:09.937876223Z"
+    >   result: "NO"
+
+
+    # YAML in YAML out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/request" \
+    | yq '.'
+
+    >   uuid: "4e2a08b6-459c-11ef-9ef7-71c878c6b039"
+    >   messages:
+    >     - type: "https://example.org/message-types/debug"
+    >       time: "2024-07-19T06:58:30.038264726Z"
+    >       level: "DEBUG"
+    >       template: "HttpServletRequest [${url}][${context}][${servlet}]"
+    >       values:
+    >         servlet: "/request"
+    >         context: ""
+    >         url: "http://127.0.0.1:8082/request"
+    >       message: "[DEBUG] HttpServletRequest [http://127.0.0.1:8082/request][][/request]"
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-07-19T06:58:30.063457116Z"
+    >       level: "INFO"
+    >       template: "ExecutionBroker version [${version}]"
+    >       values:
+    >         version: "0.1"
+    >       message: "[INFO] ExecutionBroker version [0.1]"
+    >   href: "https://..../offerset/4e2a08b6-459c-11ef-9ef7-71c878c6b039"
+    >   expires: "2024-07-19T07:03:30.037520871Z"
+    >   offers:
+    >     - uuid: "4e2e4e77-459c-11ef-9ef7-71c878c6b039"
+    >       name: "My execution"
+    >       executable:
+    >         type: "urn:docker-container-0.1"
+    >         name: "My test executable"
+    >         image: "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         privileged: false
+    >         network:
+    >           ports:
+    >             - internal: "3000"
+    >               protocol: "TCP"
+    >       href: "https://..../execution/4e2e4e77-459c-11ef-9ef7-71c878c6b039"
+    >       state: "OFFERED"
+    >   result: "YES"
+
+
+    # YAML in JSON out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8082/request" \
+    | jq '.'
+
+    >   {
+    >     "uuid": "808c49d9-459c-11ef-9ef7-71c878c6b039",
+    >     "messages": [
+    >       {
+    >         "type": "https://example.org/message-types/debug",
+    >         "time": "2024-07-19T06:59:54.566634406Z",
+    >         "level": "DEBUG",
+    >         "template": "HttpServletRequest [${url}][${context}][${servlet}]",
+    >         "values": {
+    >           "servlet": "/request",
+    >           "context": "",
+    >           "url": "http://127.0.0.1:8082/request"
+    >         },
+    >         "message": "[DEBUG] HttpServletRequest [http://127.0.0.1:8082/request][][/request]"
+    >       },
+    >       {
+    >         "type": "https://example.org/message-types/info",
+    >         "time": "2024-07-19T06:59:54.566750543Z",
+    >         "level": "INFO",
+    >         "template": "ExecutionBroker version [${version}]",
+    >         "values": {
+    >           "version": "0.1"
+    >         },
+    >         "message": "[INFO] ExecutionBroker version [0.1]"
+    >       }
+    >     ],
+    >     "href": "https://..../offerset/808c49d9-459c-11ef-9ef7-71c878c6b039",
+    >     "expires": "2024-07-19T07:04:54.566541954Z",
+    >     "offers": [
+    >       {
+    >         "uuid": "808c49da-459c-11ef-9ef7-71c878c6b039",
+    >         "name": "My execution",
+    >         "executable": {
+    >           "type": "urn:docker-container-0.1",
+    >           "name": "My test executable",
+    >           "image": "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13",
+    >           "privileged": false,
+    >           "network": {
+    >             "ports": [
+    >               {
+    >                 "internal": "3000",
+    >                 "protocol": "TCP"
+    >               }
+    >             ]
+    >           }
+    >         },
+    >         "href": "https://..../execution/808c49da-459c-11ef-9ef7-71c878c6b039",
+    >         "state": "OFFERED"
+    >       }
+    >     ],
+    >     "result": "YES"
+    >   }
+
+
+    # YAML in XML out
+    curl \
+        --silent \
+        --show-error \
+        --request POST \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/xml" \
+        "http://127.0.0.1:8082/request" \
+    | xmlstarlet fo
+
+    >   <?xml version="1.0"?>
+    >   <offers-response>
+    >     <uuid>9e87eacb-459c-11ef-9ef7-71c878c6b039</uuid>
+    >     <messages>
+    >       <messages>
+    >         <type>https://example.org/message-types/debug</type>
+    >         <time>2024-07-19T07:00:44.86977599Z</time>
+    >         <level>DEBUG</level>
+    >         <template>HttpServletRequest [${url}][${context}][${servlet}]</template>
+    >         <values>
+    >           <servlet>/request</servlet>
+    >           <context/>
+    >           <url>http://127.0.0.1:8082/request</url>
+    >         </values>
+    >         <message>[DEBUG] HttpServletRequest [http://127.0.0.1:8082/request][][/request]</message>
+    >       </messages>
+    >       <messages>
+    >         <type>https://example.org/message-types/info</type>
+    >         <time>2024-07-19T07:00:44.869888043Z</time>
+    >         <level>INFO</level>
+    >         <template>ExecutionBroker version [${version}]</template>
+    >         <values>
+    >           <version>0.1</version>
+    >         </values>
+    >         <message>[INFO] ExecutionBroker version [0.1]</message>
+    >       </messages>
+    >     </messages>
+    >     <href>https://..../offerset/9e87eacb-459c-11ef-9ef7-71c878c6b039</href>
+    >     <expires>2024-07-19T07:05:44.869678369Z</expires>
+    >     <offered>
+    >       <offered>
+    >         <uuid>9e87eacc-459c-11ef-9ef7-71c878c6b039</uuid>
+    >         <name>My execution</name>
+    >         <executable type="urn:docker-container-0.1">
+    >           <name>My test executable</name>
+    >           <image>ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13</image>
+    >           <privileged>false</privileged>
+    >           <network>
+    >             <ports>
+    >               <ports>
+    >                 <internal>3000</internal>
+    >                 <protocol>TCP</protocol>
+    >               </ports>
+    >             </ports>
+    >           </network>
+    >         </executable>
+    >         <href>https://..../execution/9e87eacc-459c-11ef-9ef7-71c878c6b039</href>
+    >         <state>OFFERED</state>
+    >       </offered>
+    >     </offered>
+    >     <result>YES</result>
+    >   </offers-response>
 
