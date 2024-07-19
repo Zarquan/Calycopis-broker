@@ -19,8 +19,6 @@
  *   </meta:licence>
  * </meta:header>
  *
- * Using Jackson subtypes
- * https://stacktobasics.com/jackson-sub-types
  *
  */
 
@@ -42,6 +40,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.context.request.ServletWebRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import uk.co.metagrid.ambleck.webapp.RequestApiDelegate;
 
@@ -56,6 +57,16 @@ import uk.co.metagrid.ambleck.model.ExecutionResponse;
 public class RequestApiDelegateImpl implements RequestApiDelegate {
 
     private final NativeWebRequest request;
+
+    public String getUrl() {
+        if (this.request != null)
+            {
+            return this.request.getNativeRequest(HttpServletRequest.class).getRequestURL().toString();
+            }
+        else {
+            return "unknown";
+            }
+        }
 
     @Autowired
     public RequestApiDelegateImpl(NativeWebRequest request) {
@@ -93,6 +104,28 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             );
         response.expires(
             OffsetDateTime.now().plusMinutes(5)
+            );
+
+        // Long way round ..
+        response.addMessagesItem(
+            new MessageItem()
+                .time(
+                    OffsetDateTime.now()
+                    )
+                .type(
+                    "https://example.org/message-types/debug"
+                    )
+                .template(
+                    "[{code}] HttpServletRequest [{url}]"
+                    )
+                .putValuesItem(
+                    "code",
+                    "DEBUG"
+                    )
+                .putValuesItem(
+                    "url",
+                    this.getUrl()
+                    )
             );
 
         if (request.getExecutable() instanceof DockerContainer01)
@@ -139,11 +172,14 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
                 );
             message.putValuesItem(
                 "code",
-                "2415"
+                "ERROR"
                 );
             message.putValuesItem(
                 "type",
                 request.getExecutable().getType()
+                );
+            message.message(
+                "[2415] Unable to provide requested executable [" + request.getExecutable().getType() + "]"
                 );
             response.addMessagesItem(
                 message

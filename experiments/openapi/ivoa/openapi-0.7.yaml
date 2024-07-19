@@ -253,6 +253,10 @@ components:
           xml:
             name: values
           $ref: '#/components/schemas/NameValueMap'
+        message:
+          description: >
+            The resulting message.
+          type: string
 
     MessageList:
       description: >
