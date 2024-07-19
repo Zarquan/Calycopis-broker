@@ -21,20 +21,34 @@
  *
  *
  */
+
 package uk.co.metagrid.ambleck.webapp;
 
-import org.springframework.stereotype.Component;
+import java.util.UUID;
+import java.util.Map;
+import java.util.List;
 
-@Component
-public class BrokerContextImpl implements BrokerContext
+import uk.co.metagrid.ambleck.model.OffersResponse;
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
+
+public interface BrokerDatabase
     {
 
-    public String getVersion()
-        {
-        return "0.1";
-        }
+    public UUID getUuid();
+
+    public void addOffer(final OffersResponse offer);
+
+    public OffersResponse getOffer(final UUID uuid);
+
+    public Iterable<OffersResponse> getOffers();
 
 
+
+    public void addExecution(final ExecutionResponse execution);
+
+    public ExecutionResponse getExecution(final UUID uuid);
+
+    public Iterable<ExecutionResponse> getExecutions();
 
     }
 

@@ -990,7 +990,7 @@ components:
                 - CANCELLED
             offerset:
               description: >
-                The UUID identifier of the parent offer set.
+                The UUID identifier of the parent OffersResponse.
               type: string
               format: uuid
 
@@ -1003,7 +1003,7 @@ components:
       allOf:
         - $ref: '#/components/schemas/ExecutionBase'
 
-    OfferSet:
+    OffersResponse:
       description: >
         A set of executions offered in response to a request,
         including a uuid, href, and an expiry date for the set.
@@ -1013,37 +1013,9 @@ components:
         - href
         - expires
       xml:
-        name: offer-set
-      allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
-        - type: object
-          properties:
-            href:
-              type: string
-            expires:
-              description: >
-                The date and time that this set of offers expire.
-              type: string
-              format: date-time
-            offers:
-              type: array
-              xml:
-                name: offers
-                wrapped: true
-              items:
-                $ref: '#/components/schemas/ExecutionResponse'
-                xml:
-                  name: offer
-
-    OffersResponse:
-      description: >
-        The response to an offers request, including the response result
-        a list of offers and a list of messages.
-      type: object
-      xml:
         name: offers-response
       allOf:
-        - $ref: '#/components/schemas/OfferSet'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             result:
@@ -1057,12 +1029,29 @@ components:
               enum:
                 - "YES"
                 - "NO"
+            href:
+              type: string
+            expires:
+              description: >
+                The date and time that this set of offers expire.
+              type: string
+              format: date-time
+            executions:
+              type: array
+              xml:
+                name: executions
+                wrapped: true
+              items:
+                $ref: '#/components/schemas/ExecutionResponse'
+                xml:
+                  name: execution
             messages:
               description: >
                 A list of messages about the response.
+              type: array
               xml:
                 name: messages
-              type: array
+                wrapped: true
               items:
                 $ref: '#/components/schemas/MessageItem'
                 xml:

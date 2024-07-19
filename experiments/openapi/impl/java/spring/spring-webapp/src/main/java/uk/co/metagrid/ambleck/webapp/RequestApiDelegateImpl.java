@@ -62,18 +62,7 @@ import uk.co.metagrid.ambleck.message.InfoMessage;
 @Service
 public class RequestApiDelegateImpl implements RequestApiDelegate {
 
-    private final BrokerContext context ;
-
-    public String getVersion()
-        {
-        if (this.context != null)
-            {
-            return this.context.getVersion();
-            }
-        else {
-            return "unknown";
-            }
-        }
+    private final BrokerDatabase database ;
 
     private final NativeWebRequest request;
 
@@ -121,12 +110,10 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             }
         }
 
-
-
     @Autowired
-    public RequestApiDelegateImpl(NativeWebRequest request, BrokerContext context) {
-        this.request = request;
-        this.context = context;
+    public RequestApiDelegateImpl(NativeWebRequest request, BrokerDatabase database) {
+        this.request  = request;
+        this.database = database;
         }
 
     @Override
@@ -148,15 +135,9 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
 
     public OffersResponse response(OffersRequest request)
         {
-	    OffersResponse response = new OffersResponse();
-        response.setUuid(
-            UuidCreator.getTimeBased()
-            );
+	    OffersResponseImpl response = new OffersResponseImpl();
         response.setHref(
             "https://..../offerset/" + response.getUuid()
-            );
-        response.expires(
-            OffsetDateTime.now().plusMinutes(5)
             );
         response.addMessagesItem(
             new DebugMessage(
@@ -173,20 +154,20 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
             );
         response.addMessagesItem(
             new InfoMessage(
-                "ExecutionBroker version [${version}]",
+                "BrokerDatabase [${uuid}]",
                 Map.of(
-                    "version",
-                    this.getVersion()
+                    "uuid",
+                    this.database.getUuid().toString()
                     )
                 )
+            );
+        database.addOffer(
+            response
             );
 
         if (request.getExecutable() instanceof DockerContainer01)
             {
-            ExecutionResponse execution = new ExecutionResponse();
-            execution.setUuid(
-                UuidCreator.getTimeBased()
-                );
+            ExecutionResponseImpl execution = new ExecutionResponseImpl(response);
             execution.setName(
                 "My execution"
                 );
@@ -198,21 +179,11 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
                     (DockerContainer01) request.getExecutable()
                     )
                 );
-            execution.setState(
-                ExecutionResponse.StateEnum.OFFERED
-                );
-
-            response.addOffersItem(
-                 execution
-                );
-            response.setResult(
-                OffersResponse.ResultEnum.YES
+            database.addExecution(
+                execution
                 );
             }
         else {
-            response.setResult(
-                OffersResponse.ResultEnum.NO
-                );
             response.addMessagesItem(
                 new ErrorMessage(
                     "Unable to provide requested executable [${type}]",
@@ -223,7 +194,7 @@ public class RequestApiDelegateImpl implements RequestApiDelegate {
                     )
                 );
             }
-        return response ;
+        return (OffersResponse) response ;
         }
 
     public DockerContainer01 handle(DockerContainer01 request)
