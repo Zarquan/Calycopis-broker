@@ -1,0 +1,34 @@
+schedule:
+  - start: 2024-07-25T08:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+executable:
+  properties:
+  name: my-notebook
+  type: urn:canfar-notebook-0.1
+  image: images.canfar.net/skaha/base-notebook:latest
+resources:
+  compute:
+    - properties:
+      name: Test compute resource
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 4
+        max: 8
+  storage:
+    - properties:
+      name: My test storage resource
+      type: urn:simple-storage-resource
+      size:
+        min: 200
+        max: 500
+        units: none
+  data:
+    - properties:
+      name: My test dataset
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
