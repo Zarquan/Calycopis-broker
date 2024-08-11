@@ -1,0 +1,324 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Does the Spanish CANFAR have VOSpace next to it ?
+
+    Tickets:
+
+        [Exec broker] Running "something" in CANFAR using REST Python client invoked from our web service.
+        https://jira.skatelescope.org/browse/COR-650
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=284188338
+
+
+        Spanish CANFAR Skaha service
+        https://spsrc25.iaa.csic.es/skaha/
+
+        Spanish CANFAR science portal
+        https://spsrc25.iaa.csic.es/science-portal/
+
+        Spanish CANFAR VOSpace
+        https://spsrc25.iaa.csic.es/cavern/
+        https://spsrc25.iaa.csic.es/storage/
+
+
+
+    TODO:
+
+        https://curity.io/resources/learn/oidc-spring-boot/
+        https://curity.io/resources/learn/python-openid-connect-client/
+
+
+    Result:
+
+
+# -----------------------------------------------------
+
+    Logged in to the Spanish platform via the UI.
+    Trying to launch a notebook session.
+    Extremley slow to do anything.
+
+    Got a connection YRL.
+    https://spsrc25.iaa.csic.es/session/notebook/ud0imxre/lab/tree/arc/home/zarquan
+
+    Created a test notebook.
+    https://spsrc25.iaa.csic.es/session/notebook/ud0imxre/lab/tree/arc/home/zarquan/Albert.ipynb
+
+
+# -----------------------------------------------------
+# Launch a container to run some Python code.
+#[user@laptop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --name canfar-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/python/chatgpt/webapp-0.6-canfar:/canfar:rw,z" \
+                --volume "/home/h15033dm/cadcproxy.pem:/canfar/cadcproxy.pem:rw,z" \
+                python:3.9 \
+                bash
+
+            ....
+            ....
+
+
+        pip install \
+            --upgrade \
+            requests
+
+        pip install \
+            --upgrade \
+            vos
+
+        apt-get update
+        apt-get install oidc-agent
+
+        oidc-agent
+
+    >   OIDC_SOCK=/tmp/oidc-G7Cte8/oidc-agent.1; export OIDC_SOCK;
+    >   OIDCD_PID=1121; export OIDCD_PID;
+    >   echo Agent pid $OIDCD_PID
+
+
+        eval $(oidc-agent)
+
+    >   Agent pid 1125
+
+
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+    >   oidc-gen[1127]: entire read failed in function readFILE
+    >   oidc-gen[1127]: unknown type 2
+    >   Error: Unknown cJSON Type
+    >   Only saving the account configuration. You might want to save the following content to another location.
+    >   
+    >   {
+    >   	"client_id":	"ab9a699e-03be-4805-b1bb-4a3f93fd8ab1",
+    >   	"client_secret":	"VSzPTEjT94PN-dV7y8GZrjzdhEjPFG8iQmiMeBmLC7CbkN03wWF0lCYE-WTT4i-Ai99XaBwqJD4q1v5H-I_JqA",
+    >   	"client_name":	"oidc-agent:example-client-b2e7afc915e7",
+    >   	"redirect_uris":	["edu.kit.data.oidc-agent:/redirect", "http://localhost:8080", "http://localhost:1658", "http://localhost:4242"],
+    >   	"grant_types":	["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"],
+    >   	"response_types":	["token"],
+    >   	"token_endpoint_auth_method":	"client_secret_basic",
+    >   	"scope":	"entitlements address openid profile eduperson_entitlement wlcg storage.create:/ phone offline_access eduperson_scoped_affiliation eduperson_assurance aarc email wlcg.groups",
+    >   	"reuse_refresh_token":	true,
+    >   	"dynamically_registered":	true,
+    >   	"clear_access_tokens_on_refresh":	true,
+    >   	"require_auth_time":	false,
+    >   	"registration_access_token":	"eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczpcL1wvc2thLWlhbS5zdGZjLmFjLnVrXC8iLCJhdWQiOiJhYjlhNjk5ZS0wM2JlLTQ4MDUtYjFiYi00YTNmOTNmZDhhYjEiLCJpYXQiOjE3MjI4OTk0OTQsImp0aSI6IjEzMmVhZjllLTFjZTktNDE4OC05NmIzLTQxM2I5Y2QyMWYwYiJ9.W6yZMujok7FC0CKj4ulCQY_ETt4i4TVZ84yy8i2NGjY3tcV5hbwt3Q_P17gVu3zDorpk8S6KT-Hopadl5UWxKN8I84i_lRhYGDFxgtkuW2XZE0oJrcQaLP7vjiJjB2qqQ1FTGPamg63e7iBhgteoyA6ugxbFcfESz71mCApcj7zpm2jrc3vTld6IKyhlKw1xURqQkbaiW9mPkAH4bILDRHCVLHKunFWxfrpNSYnDTTUHC6U1d1eHvzJetkUqQlkORkPKQ5PltNVB8hqO9YizM-dzrL4o2Fyl6l5c8QuraP2Re1xpb2aNYNYh8SOMF52tFxuAjZ75QsZ9I7FJ8qPEyg",
+    >   	"registration_client_uri":	"https://ska-iam.stfc.ac.uk/iam/api/client-registration/ab9a699e-03be-4805-b1bb-4a3f93fd8ab1",
+    >   	"created_at":	1722899493956,
+    >   	"active":	true,
+    >   	"name":	"example-client",
+    >   	"issuer_url":	"https://ska-iam.stfc.ac.uk/",
+    >   	"device_authorization_endpoint":	"",
+    >   	"refresh_token":	"",
+    >   	"cert_path":	"/etc/ssl/certs/ca-certificates.crt",
+    >   	"audience":	""
+    >   }
+    >   
+    >   Enter encryption password for account configuration 'example-client':
+    >   Confirm encryption Password:
+    >   Everything setup correctly!
+
+
+        oidc-token example-client
+
+    >   eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIxY2ZjZTQyYy02MTEzLTRlZmItYmY0NC0xOTNkZGI0ODE1YWEiLCJpc3MiOiJodHRwczpcL1wvc2thLWlhbS5zdGZjLmFjLnVrXC8iLCJncm91cHMiOlsicHJvdG90eXBpbmctZ3JvdXBzXC9taW5pLXNyYyIsInNlcnZpY2VzXC9zaXRlLWNhcGFiaWxpdGllcy1hcGlcL3JvbGVzXC92aWV3ZXIiLCJwcm90b3R5cGluZy1ncm91cHMiLCJzZXJ2aWNlc1wvZ2F0ZXdheS1iYWNrZW5kLWFwaSIsInNlcnZpY2VzIiwic2VydmljZXNcL3NpdGUtY2FwYWJpbGl0aWVzLWFwaSIsInByb3RvdHlwaW5nLWdyb3Vwc1wvY29yYWwiLCJwcm90b3R5cGluZy1ncm91cHNcL21pbmktc3JjXC9kYXRhLW9wcyIsInNlcnZpY2VzXC9zaXRlLWNhcGFiaWxpdGllcy1hcGlcL3JvbGVzIiwicHJvdG90eXBpbmctZ3JvdXBzXC9taW5pLXNyY1wvcGxhdGZvcm0tdXNlcnMiLCJwcm90b3R5cGluZy1ncm91cHNcL21pbmktc3JjXC9kYXRhLW9wc1wvc3BhaW4iXSwicHJlZmVycmVkX3VzZXJuYW1lIjoiemFycXVhbiIsIm9yZ2FuaXNhdGlvbl9uYW1lIjoiU0tBIElBTSBQcm90b3R5cGUiLCJjbGllbnRfaWQiOiJhYjlhNjk5ZS0wM2JlLTQ4MDUtYjFiYi00YTNmOTNmZDhhYjEiLCJuYmYiOjE3MjI4OTk1NTAsInNjb3BlIjoiZW50aXRsZW1lbnRzIGFkZHJlc3Mgb3BlbmlkIHByb2ZpbGUgZWR1cGVyc29uX2VudGl0bGVtZW50IHdsY2cgc3RvcmFnZS5jcmVhdGU6XC8gcGhvbmUgb2ZmbGluZV9hY2Nlc3MgZWR1cGVyc29uX3Njb3BlZF9hZmZpbGlhdGlvbiBlZHVwZXJzb25fYXNzdXJhbmNlIGFhcmMgZW1haWwgd2xjZy5ncm91cHMiLCJuYW1lIjoiRGF2ZSBNb3JyaXMiLCJleHAiOjE3MjI5MDMxNTAsImlhdCI6MTcyMjg5OTU1MCwianRpIjoiYTZhM2Y4NjctMGIwYy00NzIwLWE3ZDUtYmMzYjgzZDM0YTBlIiwiZW1haWwiOiJkYXZlLm1vcnJpc0BtYW5jaGVzdGVyLmFjLnVrIn0.XzgNHBhNmjR-3-nbEXZdfWCw_NDgGTQsp8s7jlaS_EpbiH3fff1_fj8oYmuDXGvWxV5kStJ-0K3cY-5S01mgP-vUBhoix-Qa_cWyL2DqJYeiWk10eDvcQ_g4gZES9AgKpSTe58OSTfW3uwuVAc9dcMiJx7d-OjyYpX-dST8UjresJ_QFpSV1mhnMDGpg_GWoblDE1aePfaLnK9diBJaqOKngIDkzZ5qEpUyqr4SQKtwxPb3XJMTRQCjWuh9ZeZMhS87mW_M5M1G9wNRQizhLcgiMGvb1ner6zenvmKzenDMdGr5U-qnNAm7NnjAypS-SKOn9tB7PeseFuLWl_iycqg
+
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+
+        #
+        # Query the IAM service
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://ska-iam.stfc.ac.uk/userinfo" \
+        | jq '.'
+
+    >   {
+    >     "sub": "1cfce42c-6113-4efb-bf44-193ddb4815aa",
+    >     "name": "Dave Morris",
+    >     "preferred_username": "zarquan",
+    >     "given_name": "Dave",
+    >     "family_name": "Morris",
+    >     "updated_at": 1718198685,
+    >     "email": "dave.morris@manchester.ac.uk",
+    >     "email_verified": true,
+    >     "groups": [
+    >       "prototyping-groups/mini-src",
+    >       "services/site-capabilities-api/roles/viewer",
+    >       "prototyping-groups",
+    >       "services/gateway-backend-api",
+    >       "services",
+    >       "services/site-capabilities-api",
+    >       "prototyping-groups/coral",
+    >       "prototyping-groups/mini-src/data-ops",
+    >       "services/site-capabilities-api/roles",
+    >       "prototyping-groups/mini-src/platform-users",
+    >       "prototyping-groups/mini-src/data-ops/spain"
+    >     ],
+    >     "organisation_name": "SKA IAM Prototype"
+    >   }
+
+
+        #
+        # List the current sessions.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://spsrc25.iaa.csic.es/skaha/v0/session" \
+        | jq '.'
+
+    >   [
+    >     {
+    >       "id": "ud0imxre",
+    >       "userid": "zarquan",
+    >       "runAsUID": "1006",
+    >       "runAsGID": "1006",
+    >       "supplementalGroups": [
+    >         900003,
+    >         900011,
+    >         900004,
+    >         900005,
+    >         900012,
+    >         900006,
+    >         900007,
+    >         900017,
+    >         900019,
+    >         900020,
+    >         900022
+    >       ],
+    >       "appid": "<none>",
+    >       "image": "spsrc26.iaa.csic.es/science-portal/mcmc-notebook:v1.1",
+    >       "type": "notebook",
+    >       "status": "Running",
+    >       "name": "notebook1",
+    >       "startTime": "2024-08-05T22:48:34Z",
+    >       "expiryTime": "2024-08-09T22:48:34Z",
+    >       "connectURL": "https://spsrc25.iaa.csic.es/session/notebook/ud0imxre/lab/tree/arc/home/zarquan?token=ud0imxre",
+    >       "requestedRAM": "4G",
+    >       "requestedCPUCores": "2",
+    >       "requestedGPUCores": "0",
+    >       "ramInUse": "142M",
+    >       "gpuRAMInUse": "<none>",
+    >       "cpuCoresInUse": "0.001",
+    >       "gpuUtilization": "<none>"
+    >     }
+    >   ]
+
+
+        #
+        # Start a new notebook session.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=1" \
+            --data "cores=1" \
+            --data "image=spsrc26.iaa.csic.es/science-portal/mcmc-notebook:v1.1" \
+            --data "name=test-notebook" \
+            "https://spsrc25.iaa.csic.es/skaha/v0/session"
+
+
+    >   lbseitep
+
+        sessionid=lbseitep
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://spsrc25.iaa.csic.es/skaha/v0/session/${sessionid}" \
+        | jq '.'
+
+    >   {
+    >     "id": "lbseitep",
+    >     "userid": "zarquan",
+    >     "runAsUID": "1006",
+    >     "runAsGID": "1006",
+    >     "supplementalGroups": [
+    >       900003,
+    >       900011,
+    >       900004,
+    >       900005,
+    >       900012,
+    >       900006,
+    >       900007,
+    >       900017,
+    >       900019,
+    >       900020,
+    >       900022
+    >     ],
+    >     "appid": "<none>",
+    >     "image": "spsrc26.iaa.csic.es/science-portal/mcmc-notebook:v1.1",
+    >     "type": "notebook",
+    >     "status": "Running",
+    >     "name": "test-notebook",
+    >     "startTime": "2024-08-05T23:46:14Z",
+    >     "expiryTime": "2024-08-09T23:46:14Z",
+    >     "connectURL": "https://spsrc25.iaa.csic.es/session/notebook/lbseitep/lab/tree/arc/home/zarquan?token=lbseitep",
+    >     "requestedRAM": "1G",
+    >     "requestedCPUCores": "1",
+    >     "requestedGPUCores": "0",
+    >     "ramInUse": "62M",
+    >     "gpuRAMInUse": "<none>",
+    >     "cpuCoresInUse": "0.0",
+    >     "gpuUtilization": "<none>"
+    >   }
+
+
+
+    #
+    # Add the notebook name to our connection URL.
+
+    sessionid=lbseitep
+    notename=Albert.ipynb
+
+    firefox \
+        --new-window \
+        "https://spsrc25.iaa.csic.es/session/notebook/${sessionid}/lab/tree/arc/home/zarquan/${notename}?token=${sessionid}" \
+        &
+
+    #
+    # Yay, it works :-D
+    # Next is check we can use tokens to access the VOSpace.
+    #
+
+

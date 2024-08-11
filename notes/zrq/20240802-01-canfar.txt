@@ -1,0 +1,172 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Check we can replicate Bob's work connecting to CANFAR.
+
+    Result:
+
+        Work in progress ...
+
+        CADC CANFAR Science portal
+        https://www.canfar.net/science-portal/
+
+
+
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        branchname=canfar
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build a container to run Bob's Python code.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            pushd impl/python/chatgpt/webapp-0.6-canfar
+
+                ....
+                ....
+                TBD
+
+
+# -----------------------------------------------------
+# Launch a container to run Bob's Python code.
+#[user@desktop]
+
+    source "${HOME:?}/pandak.env"
+    pushd "${PANDAK_CODE}"
+
+        pushd experiments/openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --name canfar-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/python/chatgpt/webapp-0.6-canfar:/canfar:rw,z" \
+                --volume "/home/h15033dm/cadcproxy.pem:/canfar/cadcproxy.pem:rw,z" \
+                python:3.9 \
+                bash
+
+
+            pushd /canfar
+
+                # pip install --no-cache-dir -r requirements.txt
+
+                pip install requests
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Need to install oidc-agent, curl and jq. jq is a filter for JSON data, so it can pull the wanted field
+
+For a one off session:
+
+    eval $(oidc-agent)
+
+or as a service whenever you log in
+
+    "eval $(oidc-agent-service use) > /dev/null"
+
+but don't like the service option as you have to refresh the account with "oidc-add <account name>"
+
+For client registration with SKAO IAM
+
+    oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+You can use something more memorable than "example-client" as your account name
+
+And finally get the token as a environment variable:
+
+    SKA_TOKEN=$(oidc-token example-client)
+
+
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --name oidc-agent \
+                fedora \
+                bash
+
+
+        dnf install oidc-agent
+
+        oidc-agent
+
+    >   OIDC_SOCK=/tmp/oidc-IMa9Ex/oidc-agent.1; export OIDC_SOCK;
+    >   OIDCD_PID=312; export OIDCD_PID;
+    >   echo Agent pid $OIDCD_PID
+
+
+        eval $(oidc-agent)
+
+    >   Agent pid 317
+
+
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+
+
+
