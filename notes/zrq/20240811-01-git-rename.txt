@@ -1,0 +1,168 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Rename the project and tidy away some older experiments.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Make sure all our changes have been pushed upstream and merged.
+
+    Rename the upstream IVOA project in GitHub.
+    https://github.com/ivoa/CIRASA-planner.git => https://github.com/ivoa/Calycopis-broker
+
+    Delete our personal fork of CIRASA-planner and create a new personal fork of Calycopis-broker
+
+# -----------------------------------------------------
+# Create a new .env file for our local project.
+#[user@desktop]
+
+cat > "${HOME}/calycopis.env " << 'EOF'
+source "${HOME:?}/projects.env"
+CALYCOPIS_REPO='git@github.com:Zarquan/Calycopis-broker.git'
+CALYCOPIS_HOME="${PROJECTS_ROOT}/IVOA/ivoa/Calycopis-broker"
+CALYCOPIS_CODE="${CALYCOPIS_HOME:?}/github-zrq"
+EOF
+
+
+# -----------------------------------------------------
+# Checkout a copy of our new fork.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_HOME}"
+
+        git clone "${CALYCOPIS_REPO}" 'github-zrq'
+
+    >   Cloning into 'github-zrq'...
+    >   remote: Enumerating objects: 1593, done.
+    >   remote: Counting objects: 100% (665/665), done.
+    >   remote: Compressing objects: 100% (372/372), done.
+    >   remote: Total 1593 (delta 228), reused 560 (delta 215), pack-reused 928
+    >   Receiving objects: 100% (1593/1593), 5.82 MiB | 6.26 MiB/s, done.
+    >   Resolving deltas: 100% (636/636), done.
+
+        pushd 'github-zrq'
+
+            git remote add 'upstream' 'git@github.com:ivoa/Calycopis-broker.git'
+
+            git remote -v
+
+    >   origin      git@github.com:Zarquan/Calycopis-broker.git (fetch)
+    >   origin      git@github.com:Zarquan/Calycopis-broker.git (push)
+    >   upstream    git@github.com:ivoa/Calycopis-broker.git (fetch)
+    >   upstream    git@github.com:ivoa/Calycopis-broker.git (push)
+
+
+# -----------------------------------------------------
+# Start a new branch.
+#[user@desktop]
+
+        branchname=attication
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Tidy away our older experiments.
+#[user@desktop]
+
+        mkdir attic
+        git mv experiments/ambleck attic/ambleck
+        git mv experiments/pandak  attic/pandak
+        git mv experiments/openapi openapi
+        rmdir experiments
+
+
+# -----------------------------------------------------
+# Rename some older files.
+#[user@desktop]
+
+        pushd docs
+
+            git mv poster ADASS-2023
+
+        popd
+
+
+# -----------------------------------------------------
+# Tidy away our older experiments.
+#[user@desktop]
+
+        mkdir -p attic/openapi/python/chatgpt
+        git mv openapi/impl/python/chatgpt/parcolar-0.1 \
+               attic/openapi/python/chatgpt
+
+        mkdir -p attic/openapi/java/chatgpt
+        git mv openapi/impl/java/chatgpt/parcolar-0.3 \
+               attic/openapi/java/chatgpt
+
+
+# -----------------------------------------------------
+# Commit and push our changes.
+#[user@desktop]
+
+        git status
+
+    >   On branch 20240811-zrq-attication
+    >   Your branch is up to date with 'origin/20240811-zrq-attication'.
+    >   
+    >   Changes to be committed:
+    >     (use "git restore --staged <file>..." to unstage)
+    >       renamed:    experiments/ambleck/.gitignore -> attic/ambleck/.gitignore
+    >       renamed:    experiments/ambleck/.mvn/wrapper/maven-wrapper.jar -> attic/ambleck/.mvn/wrapper/maven-wrapper.jar
+    >       renamed:    experiments/ambleck/.mvn/wrapper/maven-wrapper.properties -> attic/ambleck/.mvn/wrapper/maven-wrapper.properties
+    >       renamed:    experiments/ambleck/mvnw -> attic/ambleck/mvnw
+    >       renamed:    experiments/ambleck/mvnw.cmd -> attic/ambleck/mvnw.cmd
+    >       renamed:    experiments/ambleck/pom.xml -> attic/ambleck/pom.xml
+    >       ....
+    >       ....
+    >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.1.yaml -> openapi/ivoa/attic/parcolar-0.1.yaml
+    >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.2.yaml -> openapi/ivoa/attic/parcolar-0.2.yaml
+    >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.3.yaml -> openapi/ivoa/attic/parcolar-0.3.yaml
+    >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.4.yaml -> openapi/ivoa/attic/parcolar-0.4.yaml
+    >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.5.yaml -> openapi/ivoa/attic/parcolar-0.5.yaml
+    >       renamed:    experiments/openapi/ivoa/openapi-0.6.yaml -> openapi/ivoa/openapi-0.6.yaml
+    >       renamed:    experiments/openapi/ivoa/openapi-0.7.yaml -> openapi/ivoa/openapi-0.7.yaml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >       notes/zrq/20240811-01-git-rename.txt
+
+        git add .
+        git commit -m "Moving older experiments into the attic"
+
+        git push
+
