@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.

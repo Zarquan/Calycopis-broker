@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -21,34 +20,42 @@
  *
  *
  */
-
-package uk.co.metagrid.ambleck.webapp;
+package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
-import java.util.Map;
-import java.util.List;
+import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.OffersResponse;
+import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
-public interface BrokerDatabase
+public class ExecutionResponseImpl extends ExecutionResponse
     {
+    private OfferSetResponse parent;
 
-    public UUID getUuid();
+    protected OfferSetResponse getParent()
+        {
+        return this.parent;
+        }
 
-    public void addOffer(final OffersResponse offer);
+    @Override
+    public UUID getOfferset()
+        {
+        return this.parent.getUuid();
+        }
 
-    public OffersResponse getOffer(final UUID uuid);
-
-    public Iterable<OffersResponse> getOffers();
-
-
-
-    public void addExecution(final ExecutionResponse execution);
-
-    public ExecutionResponse getExecution(final UUID uuid);
-
-    public Iterable<ExecutionResponse> getExecutions();
-
+    public ExecutionResponseImpl(final OfferSetResponse parent)
+        {
+        this.parent = parent ;
+        this.setUuid(
+            UuidCreator.getTimeBased()
+            );
+        this.setState(
+            ExecutionResponse.StateEnum.OFFERED
+            );
+/*
+        parent.addExecution(
+            this
+            );
+ */
+        }
     }
-

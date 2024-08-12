@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -21,39 +20,36 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.webapp;
+
+package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
-import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.OfferSetRequest;
+import uk.co.metagrid.ambleck.model.OfferSetResponse;
 
-public class ExecutionResponseImpl extends ExecutionResponse
+public interface OfferSetResponseFactory
     {
-    private OffersResponseImpl parent;
 
-    protected OffersResponseImpl getParent()
-        {
-        return this.parent;
-        }
+    public UUID getUuid();
 
-    @Override
-    public UUID getOfferset()
-        {
-        return this.parent.getUuid();
-        }
+    /**
+     * Create a new OfferSetResponse based on an OfferSetRequest.
+     *
+     */
+    public OfferSetResponse create(final OfferSetRequest request);
 
-    public ExecutionResponseImpl(final OffersResponseImpl parent)
-        {
-        this.parent = parent ;
-        this.setUuid(
-            UuidCreator.getTimeBased()
-            );
-        this.setState(
-            ExecutionResponse.StateEnum.OFFERED
-            );
-        parent.addExecution(
-            this
-            );
-        }
+    /**
+     * Get an Iterable of all the OfferSetResponses.
+     *
+     */
+    public Iterable<OfferSetResponse> select();
+
+    /**
+     * Locate a specific OfferSetResponse based on the identifier.
+     *
+     */
+    public OfferSetResponse select(final UUID uuid);
+
     }
+

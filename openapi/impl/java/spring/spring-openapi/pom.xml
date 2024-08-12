@@ -32,14 +32,14 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>uk.co.metagrid</groupId>
-	<artifactId>parcolar-openapi</artifactId>
+	<artifactId>calycopis-openapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>Parcolar</name>
-	<description>OpenAPI Generator experiment</description>
+	<name>Calycopis OpenAPI</name>
+	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>22</java.version>
-        <schema.yaml>/ivoa/openapi-0.7.yaml</schema.yaml>
+        <schema.yaml>/ivoa/openapi-0.8.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+

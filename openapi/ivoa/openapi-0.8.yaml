@@ -40,30 +40,48 @@ servers:
   - url: http://localhost:8080
     description: Localhost development
 paths:
-  /offers:
+  /offerset:
     post:
-      operationId: OffersPost
+      operationId: OfferSetPost
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OffersRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/OffersRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/OffersRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
         required: true
       responses:
         "303":
           description: Redirect
-            headers:
-              Location:
-                content:
-                  text/plain:
-                    schema:
-                      type: string
+          headers:
+            Location:
+              content:
+                text/plain:
+                  schema:
+                    type: string
+        "200":
+          description: R
+          headers:
+            Location:
+              content:
+                text/plain:
+                  schema:
+                    type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OfferSetResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/OfferSetResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/OfferSetResponse'
 
   /offerset/{uuid}:
     get:
@@ -193,12 +211,12 @@ paths:
       responses:
         "303":
           description: Redirect
-            headers:
-              Location:
-                content:
-                  text/plain:
-                    schema:
-                      type: string
+          headers:
+            Location:
+              content:
+                text/plain:
+                  schema:
+                    type: string
 
 components:
   schemas:
@@ -1045,7 +1063,7 @@ components:
               type: string
               format: uuid
 
-    OffersRequest:
+    OfferSetRequest:
       description: >
         A request for a set of offers for an execution.
       type: object
