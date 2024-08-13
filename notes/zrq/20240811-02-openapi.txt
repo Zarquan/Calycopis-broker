@@ -350,6 +350,47 @@ EOF
 
 
 
+cat > /tmp/test-002.yaml  << EOF
+name: My execution request
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  compute:
+    - properties:
+      name: My compute resource
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 20
+        max: 50
+  data:
+    - properties:
+      name: My data resource
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    # Request a new offerset
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-002.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "/tmp/result-002.yaml" \
+    | yq '.'
+
 
 
 

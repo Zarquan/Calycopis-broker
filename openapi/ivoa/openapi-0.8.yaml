@@ -1102,6 +1102,11 @@ components:
               description: >
                 The URL to access this set of offers.
               type: string
+            created:
+              description: >
+                The date and time that this set of offers was created.
+              type: string
+              format: date-time
             expires:
               description: >
                 The date and time that this set of offers expire.

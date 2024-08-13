@@ -28,35 +28,76 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.OfferSetResponseImpl;
+import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
+
+import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 
 @Component
 public class OfferSetResponseFactoryImpl
     implements OfferSetResponseFactory
     {
-    private UUID uuid ;
 
+    /*
+     * This factory identifier.
+     *
+     */
+    private final UUID uuid ;
+
+    /*
+     * Get the factory's identifier.
+     *
+     */
     @Override
     public UUID getUuid()
         {
         return this.uuid ;
         }
 
-    public OfferSetResponseFactoryImpl()
+    private final ExecutionResponseFactory factory ;
+
+    @Autowired
+    public OfferSetResponseFactoryImpl(final ExecutionResponseFactory factory)
         {
         this.uuid = UuidCreator.getTimeBased();
+        this.factory = factory ;
         }
 
     /**
-     * Our Map of OfferSetResponses.
+     * Our HashMap of OfferSetResponses.
      *
      */
-    private Map<UUID, OfferSetResponse> offersets = new HashMap<UUID, OfferSetResponse>();
+    private Map<UUID, OfferSetResponse> hashmap = new HashMap<UUID, OfferSetResponse>();
+
+    /**
+     * Insert an OfferSetResponse into our HashMap.
+     *
+     */
+    protected void insert(final OfferSetResponse offerset)
+        {
+        this.hashmap.put(
+            offerset.getUuid(),
+            offerset
+            );
+        }
+
+    /**
+     * Select an OfferSetResponse based on its identifier.
+     *
+     */
+    @Override
+    public OfferSetResponse select(final UUID uuid)
+        {
+        return this.hashmap.get(
+            uuid
+            );
+        }
 
     /**
      * Create a new OfferSetResponse based on an OfferSetRequest.
@@ -65,34 +106,20 @@ public class OfferSetResponseFactoryImpl
     @Override
     public OfferSetResponse create(final OfferSetRequest request)
         {
-        OfferSetResponse offerset = new OfferSetResponseImpl();
-        offersets.put(
-            offerset.getUuid(),
-            offerset
-            );
-        return offerset ;
-        }
+        OfferSetResponse response = new OfferSetResponseImpl();
 
-    /**
-     * Get an Iterable of all the OfferSetResponses.
-     *
-     */
-    @Override
-    public Iterable<OfferSetResponse> select()
-        {
-        return offersets.values();
-        }
-
-    /**
-     * Locate a specific OfferSetResponse based on the identifier.
-     *
-     */
-    @Override
-    public OfferSetResponse select(final UUID uuid)
-        {
-        return offersets.get(
-            uuid
+        this.insert(
+            response
             );
+        response.setName(
+            request.getName()
+            );
+        factory.process(
+            request,
+            response
+            );
+
+        return response ;
         }
     }
 

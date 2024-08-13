@@ -1,0 +1,520 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Develop the message processing internals.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes from the OpenAPI spec.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi
+
+        ./mvnw clean install
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Compile and run our webapp classes.
+#[root@spring-builder]
+
+    pushd /spring/spring-webapp
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Short forms.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the client tools.
+#[root@spring-builder]
+
+    dnf install -y \
+        xmlstarlet \
+        curl \
+        jq \
+        yq
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+cat > /tmp/test-001.yaml  << EOF
+schedule:
+  - start: 2024-07-08T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-09T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+  - start: 2024-07-10T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  compute:
+    - properties:
+      name: My test compute resource
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 20
+        max: 50
+  storage:
+    - properties:
+      name: My test storage resource
+      type: urn:simple-storage-resource
+      size:
+        min: 200
+        max: 500
+        units: none
+  data:
+    - properties:
+      name: My test data resource
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    #
+    # Simple request.
+    #
+
+cat > /tmp/test-001.yaml  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-001.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "4b92f313-5908-11ef-ab72-0364f300c494"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/4b92f313-5908-11ef-ab72-0364f300c494"
+    >   created: "2024-08-13T00:09:23.430759572Z"
+    >   expires: "2024-08-13T00:14:23.430794916Z"
+
+
+    #
+    # Reject scheduling elements.
+    #
+
+cat > /tmp/test-002.yaml  << EOF
+schedule:
+  - start: 2024-07-08T09:30Z/PT30M
+    duration:
+      min: P1H
+      max: P2H
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-002.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "fe0a8229-5908-11ef-b40a-bfb6cec9c633"
+    >   messages:
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T00:14:22.849312158Z"
+    >       level: "INFO"
+    >       template: "Execution schedule not supported"
+    >       message: "[INFO] Execution schedule not supported"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/fe0a8229-5908-11ef-b40a-bfb6cec9c633"
+    >   created: "2024-08-13T00:14:22.848811604Z"
+    >   expires: "2024-08-13T00:19:22.848849281Z"
+
+
+    #
+    # Reject storage resources.
+    #
+
+cat > /tmp/test-003.yaml  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  storage:
+    - properties:
+      name: My test storage resource
+      type: urn:simple-storage-resource
+      size:
+        min: 200
+        max: 500
+        units: GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-003.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "c368f0cd-5909-11ef-b6a4-8b03903f9e03"
+    >   messages:
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T00:19:53.978869752Z"
+    >       level: "INFO"
+    >       template: "Storage resources not supported"
+    >       message: "[INFO] Storage resources not supported"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/c368f0cd-5909-11ef-b6a4-8b03903f9e03"
+    >   created: "2024-08-13T00:19:53.978755339Z"
+    >   expires: "2024-08-13T00:24:53.97878255Z"
+
+
+    #
+    # Reject multiple compute resources.
+    #
+
+cat > /tmp/test-004.yaml  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  compute:
+    - properties:
+      name: My first compute resource
+      type: urn:simple-compute-resource
+    - properties:
+      name: My second compute resource
+      type: urn:simple-compute-resource
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-004.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "be2b12ce-590a-11ef-a124-73b3e6f6701d"
+    >   messages:
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T00:26:54.682520098Z"
+    >       level: "INFO"
+    >       template: "Multiple compute resources not supported"
+    >       message: "[INFO] Multiple compute resources not supported"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/be2b12ce-590a-11ef-a124-73b3e6f6701d"
+    >   created: "2024-08-13T00:26:54.682005157Z"
+    >   expires: "2024-08-13T00:31:54.682039204Z"
+
+
+
+    #
+    # Add some data resources.
+    #
+
+cat > /tmp/test-005.yaml  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:docker-container-0.1
+  image: ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+  network:
+    ports:
+      - internal: 3000
+        protocol: TCP
+resources:
+  data:
+    - properties:
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      uuid: fe9c7d3e-8d3b-471b-874e-b8dd8a10443c
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      name: Simple data resource one
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      uuid: ffccf287-5463-4c75-ab75-3270a1245720
+      name: Simple data resource two
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-005.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "ec57cbaf-590f-11ef-b36b-8f97abd3351e"
+    >   messages:
+    >   
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T01:03:59.634171084Z"
+    >       level: "INFO"
+    >       template: "Data resource with no name or identifier [][][${type}]"
+    >       values:
+    >         type: "urn:simple-data-resource"
+    >       message: "[INFO] Data resource with no name or identifier [][][urn:simple-data-resource]"
+    >   
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T01:03:59.659370019Z"
+    >       level: "INFO"
+    >       template: "Data resource UUID should not be set by client [${name}][${uuid}][${type}]"
+    >       values:
+    >         name: "null"
+    >         type: "urn:simple-data-resource"
+    >         uuid: "fe9c7d3e-8d3b-471b-874e-b8dd8a10443c"
+    >       message: "[INFO] Data resource UUID should not be set by client [null][fe9c7d3e-8d3b-471b-874e-b8dd8a10443c][urn:simple-data-resource]"
+    >   
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T01:03:59.659563044Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${name}][${uuid}][${type}]"
+    >       values:
+    >         name: "Simple data resource one"
+    >         type: "urn:simple-data-resource"
+    >         uuid: "null"
+    >       message: "[INFO] Found data resource [Simple data resource one][null][urn:simple-data-resource]"
+    >   
+    >     - type: "https://example.org/message-types/warn"
+    >       time: "2024-08-13T01:03:59.659693435Z"
+    >       level: "INFO"
+    >       template: "Data resource UUID should not be set by client [${name}][${uuid}][${type}]"
+    >       values:
+    >         name: "Simple data resource two"
+    >         type: "urn:simple-data-resource"
+    >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >       message: "[INFO] Data resource UUID should not be set by client [Simple data resource two][ffccf287-5463-4c75-ab75-3270a1245720][urn:simple-data-resource]"
+    >   
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T01:03:59.659806135Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${name}][${uuid}][${type}]"
+    >       values:
+    >         name: "Simple data resource two"
+    >         type: "urn:simple-data-resource"
+    >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >       message: "[INFO] Found data resource [Simple data resource two][ffccf287-5463-4c75-ab75-3270a1245720][urn:simple-data-resource]"
+    >   
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/ec57cbaf-590f-11ef-b36b-8f97abd3351e"
+    >   created: "2024-08-13T01:03:59.633633206Z"
+    >   expires: "2024-08-13T01:08:59.633671273Z"
+
+
+
+
+
+
+
+
+
+
+
+
+cat > /tmp/test-006.yaml  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      volumes:
+        - path: /here
+          resource: Resource 001
+        - path: /there
+          resource: ffccf287-5463-4c75-ab75-3270a1245720
+  data:
+    - properties:
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      uuid: fe9c7d3e-8d3b-471b-874e-b8dd8a10443c
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      name: Resource 001
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      uuid: ffccf287-5463-4c75-ab75-3270a1245720
+      name: Resource 002
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-006.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+

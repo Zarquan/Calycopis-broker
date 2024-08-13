@@ -23,34 +23,30 @@
 package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
-import com.github.f4b6a3.uuid.UuidCreator;
 
+import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
-public class ExecutionResponseImpl extends ExecutionResponse
+public interface ExecutionResponseFactory
     {
-    private OfferSetResponse parent;
 
-    protected OfferSetResponse getParent()
-        {
-        return this.parent;
-        }
+    /*
+     * Get the factory's identifier.
+     *
+     */
+    public UUID getUuid();
 
-    @Override
-    public UUID getOfferset()
-        {
-        return this.parent.getUuid();
-        }
+    /**
+     * Select an ExecutionResponse based on its identifier.
+     *
+     */
+    public ExecutionResponse select(final UUID uuid);
 
-    public ExecutionResponseImpl(final OfferSetResponse parent)
-        {
-        this.parent = parent ;
-        this.setUuid(
-            UuidCreator.getTimeBased()
-            );
-        this.setState(
-            ExecutionResponse.StateEnum.OFFERED
-            );
-        }
+    /**
+     * Process an OfferSetRequest and populate the OfferSetResponse with ExecutionResponse offers.
+     *
+     */
+    public void process(final OfferSetRequest request, final OfferSetResponse response);
+
     }

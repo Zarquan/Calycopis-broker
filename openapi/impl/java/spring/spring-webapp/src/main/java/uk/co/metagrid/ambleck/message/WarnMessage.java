@@ -31,6 +31,16 @@ import uk.co.metagrid.ambleck.model.MessageItem;
 public class WarnMessage extends MessageBase
     {
     public static final String DEFAULT_TYPE_URL = "https://example.org/message-types/warn" ;
+
+    public WarnMessage(final String message)
+        {
+        this(
+            DEFAULT_TYPE_URL,
+            message,
+            Map.of()
+            );
+        }
+
     public WarnMessage(final String template, Map<String,String> params)
         {
         this(
@@ -39,6 +49,7 @@ public class WarnMessage extends MessageBase
             params
             );
         }
+
     public WarnMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(

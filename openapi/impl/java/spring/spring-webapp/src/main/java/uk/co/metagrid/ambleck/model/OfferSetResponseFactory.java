@@ -31,25 +31,23 @@ import uk.co.metagrid.ambleck.model.OfferSetResponse;
 public interface OfferSetResponseFactory
     {
 
+    /*
+     * Get the factory's identifier.
+     *
+     */
     public UUID getUuid();
+
+    /**
+     * Select an OfferSetResponse based on its identifier.
+     *
+     */
+    public OfferSetResponse select(final UUID uuid);
 
     /**
      * Create a new OfferSetResponse based on an OfferSetRequest.
      *
      */
     public OfferSetResponse create(final OfferSetRequest request);
-
-    /**
-     * Get an Iterable of all the OfferSetResponses.
-     *
-     */
-    public Iterable<OfferSetResponse> select();
-
-    /**
-     * Locate a specific OfferSetResponse based on the identifier.
-     *
-     */
-    public OfferSetResponse select(final UUID uuid);
 
     }
 

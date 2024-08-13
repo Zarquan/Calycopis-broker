@@ -32,6 +32,16 @@ import uk.co.metagrid.ambleck.model.MessageItem;
 public class InfoMessage extends MessageBase
     {
     public static final String DEFAULT_TYPE_URL = "https://example.org/message-types/info" ;
+
+    public InfoMessage(final String message)
+        {
+        this(
+            DEFAULT_TYPE_URL,
+            message,
+            Map.of()
+            );
+        }
+
     public InfoMessage(final String template, Map<String,String> params)
         {
         this(
@@ -40,6 +50,7 @@ public class InfoMessage extends MessageBase
             params
             );
         }
+
     public InfoMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(

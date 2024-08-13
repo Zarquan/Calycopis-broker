@@ -32,6 +32,16 @@ import uk.co.metagrid.ambleck.model.MessageItem;
 public class ErrorMessage extends MessageBase
     {
     public static final String DEFAULT_TYPE_URL = "https://example.org/message-types/error" ;
+
+    public ErrorMessage(final String message)
+        {
+        this(
+            DEFAULT_TYPE_URL,
+            message,
+            Map.of()
+            );
+        }
+
     public ErrorMessage(final String template, Map<String,String> params)
         {
         this(
@@ -40,6 +50,7 @@ public class ErrorMessage extends MessageBase
             params
             );
         }
+
     public ErrorMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(

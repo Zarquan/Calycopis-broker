@@ -26,10 +26,7 @@ package uk.co.metagrid.ambleck.webapp;
 import java.net.URI;
 import java.util.Map;
 import java.util.UUID;
-//import java.util.List;
-//import java.util.ArrayList;
 import java.util.Optional;
-//import java.time.OffsetDateTime;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
@@ -46,10 +43,6 @@ import uk.co.metagrid.ambleck.webapp.OffersetApiDelegate;
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
-
-//import uk.co.metagrid.ambleck.model.AbstractExecutable;
-//import uk.co.metagrid.ambleck.model.DockerContainer01;
-//import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
 import uk.co.metagrid.ambleck.message.DebugMessage;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
@@ -103,6 +96,8 @@ public class OffersetApiDelegateImpl
         response.setHref(
             this.getBaseUrl() + "/offerset/" + response.getUuid()
             );
+/*
+ *
         response.addMessagesItem(
             new DebugMessage(
                 "HttpServletRequest [${uri}][${url}][${context}][${servlet}]",
@@ -127,7 +122,8 @@ public class OffersetApiDelegateImpl
                     )
                 )
             );
-
+ *
+ */
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(
             URI.create(

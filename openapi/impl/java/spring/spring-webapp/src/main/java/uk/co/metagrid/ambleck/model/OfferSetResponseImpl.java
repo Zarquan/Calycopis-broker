@@ -42,6 +42,9 @@ public class OfferSetResponseImpl extends OfferSetResponse
         this.setUuid(
             UuidCreator.getTimeBased()
             );
+        this.created(
+            OffsetDateTime.now()
+            );
         this.expires(
             OffsetDateTime.now().plusMinutes(5)
             );
