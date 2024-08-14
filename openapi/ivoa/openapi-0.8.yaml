@@ -55,6 +55,7 @@ paths:
             schema:
               $ref: '#/components/schemas/OfferSetRequest'
         required: true
+      # TODO Errors return error codes and ErrorResponse.
       responses:
         "303":
           description: Redirect
@@ -95,6 +96,7 @@ paths:
             type: string
             format: uuid
           style: simple
+      # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
           description: OK
@@ -121,6 +123,7 @@ paths:
             type: string
             format: uuid
           style: simple
+      # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
           description: OK
@@ -158,6 +161,8 @@ paths:
           application/yaml:
             schema:
               $ref: '#/components/schemas/UpdateRequest'
+      # TODO This should return UpdateRequest and 301 back to the state.
+      # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
           description: OK
@@ -1156,14 +1161,18 @@ components:
                 xml:
                   name: message
 
+    # TODO This should be is-a AbstractUpdate rather than has-a AbstractUpdate
     UpdateRequest:
       description: >
         A request to update an execution.
       type: object
       xml:
         name: update-request
-      allOf:
-        - $ref: '#/components/schemas/AbstractUpdate'
+      properties:
+        update:
+          xml:
+            name: update
+          $ref: '#/components/schemas/AbstractUpdate'
 
 
 

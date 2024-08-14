@@ -95,7 +95,7 @@ public class ExecutionResponseImpl extends ExecutionResponse
                     new EnumValueOption(
                         List.of("ACCEPTED", "REJECTED"),
                         "urn:enum-value-option",
-                        "/state"
+                        "state"
                         )
                     );
                 break;
@@ -108,10 +108,11 @@ public class ExecutionResponseImpl extends ExecutionResponse
                     new EnumValueOption(
                         List.of("CANCELLED"),
                         "urn:enum-value-option",
-                        "/state"
+                        "state"
                         )
                     );
                 break;
             }
         }
     }
+

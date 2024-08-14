@@ -43,6 +43,8 @@ import uk.co.metagrid.ambleck.webapp.ExecutionApiDelegate;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 
+import uk.co.metagrid.ambleck.model.UpdateRequest;
+
 import uk.co.metagrid.ambleck.message.DebugMessage;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
@@ -68,8 +70,9 @@ public class ExecutionApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<ExecutionResponse> executionGet(final UUID uuid)
-        {
+    public ResponseEntity<ExecutionResponse> executionGet(
+        final UUID uuid
+        ) {
         ExecutionResponse response = factory.select(uuid);
         if (null != response)
             {
@@ -85,6 +88,28 @@ public class ExecutionApiDelegateImpl
             }
         }
 
+    @Override
+    public ResponseEntity<ExecutionResponse> executionPost(
+        final UUID uuid,
+        final UpdateRequest request
+        ) {
+        ExecutionResponse response = factory.update(
+            uuid,
+            request.getUpdate()
+            );
+        if (null != response)
+            {
+            return new ResponseEntity<ExecutionResponse>(
+                response,
+                HttpStatus.OK
+                );
+            }
+        else {
+            return new ResponseEntity<>(
+                HttpStatus.NOT_FOUND
+                );
+            }
+        }
     }
 
 

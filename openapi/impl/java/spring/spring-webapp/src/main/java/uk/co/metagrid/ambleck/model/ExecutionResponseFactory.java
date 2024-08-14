@@ -27,6 +27,7 @@ import java.util.UUID;
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.AbstractUpdate;
 
 public interface ExecutionResponseFactory
     {
@@ -38,15 +39,21 @@ public interface ExecutionResponseFactory
     public UUID getUuid();
 
     /**
-     * Select an ExecutionResponse based on its identifier.
+     * Select an Execution based on its identifier.
      *
      */
     public ExecutionResponse select(final UUID uuid);
 
     /**
-     * Process an OfferSetRequest and populate the OfferSetResponse with ExecutionResponse offers.
+     * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
      *
      */
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response);
+
+    /**
+     * Update an Execution.
+     *
+     */
+    public ExecutionResponse update(final UUID uuid, final AbstractUpdate update);
 
     }

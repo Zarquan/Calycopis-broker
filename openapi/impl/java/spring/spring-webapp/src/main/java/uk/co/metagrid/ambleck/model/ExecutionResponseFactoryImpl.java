@@ -36,6 +36,11 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.ExecutionResponse.StateEnum;
+
+//import uk.co.metagrid.ambleck.model.UpdateRequest;
+import uk.co.metagrid.ambleck.model.AbstractUpdate;
+import uk.co.metagrid.ambleck.model.EnumValueUpdate;
 
 import uk.co.metagrid.ambleck.message.DebugMessage;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
@@ -88,17 +93,15 @@ public class ExecutionResponseFactoryImpl
         }
 
     /**
-     * Select an ExecutionResponse based on its identifier.
-     * Populate the options list.
+     * Select an Execution based on its identifier.
      *
      */
     @Override
-    public ExecutionResponse select(final UUID uuid)
+    public ExecutionResponseImpl select(final UUID uuid)
         {
-        ExecutionResponseImpl execution = this.hashmap.get(
+        return this.hashmap.get(
             uuid
             );
-        return execution ;
         }
 
     /*
@@ -290,6 +293,7 @@ public class ExecutionResponseFactoryImpl
      * Process an OfferSetRequest and populate an OfferSetResponse with ExecutionResponse offers.
      *
      */
+    @Override
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
         //
@@ -400,6 +404,92 @@ public class ExecutionResponseFactoryImpl
             response.setResult(
                 OfferSetResponse.ResultEnum.YES
                 );
+            }
+        }
+
+    /**
+     * Update an Execution.
+     * TODO Add an UpdateResponse, which holds messages about the update.
+     * TODO Add an ErrorResponse, which holds messages about any errors.
+     *
+     */
+    @Override
+    public ExecutionResponse update(final UUID uuid, final AbstractUpdate request)
+        {
+        ExecutionResponseImpl response = this.select(uuid);
+        if (response != null)
+            {
+            switch(request)
+                {
+                case EnumValueUpdate update :
+                    this.update(
+                        response,
+                        update
+                        );
+                    break ;
+
+                default:
+                    // We need to be able to return some error messages here.
+                    // We need an ErrorResponse structure ..
+                    // This is an invalid request.
+                    break;
+                }
+            }
+        response.updateOptions();
+        return response ;
+        }
+
+    /**
+     * Update an Execution.
+     *
+     */
+    protected void update(final ExecutionResponseImpl response, final EnumValueUpdate update)
+        {
+        switch(update.getPath())
+            {
+            case "state" :
+                StateEnum currentstate = response.getState();
+                StateEnum updatestate  = currentstate;
+                try {
+                    updatestate = StateEnum.fromValue(
+                        update.getValue()
+                        );
+                    }
+                catch (IllegalArgumentException ouch)
+                    {
+                    // Unknown state.
+                    }
+                if (updatestate != currentstate)
+                    {
+                    switch(currentstate)
+                        {
+                        case OFFERED :
+                            switch(updatestate)
+                                {
+                                case ACCEPTED:
+                                    response.setState(StateEnum.ACCEPTED);
+                                    break;
+                                case REJECTED:
+                                    response.setState(StateEnum.REJECTED);
+                                    break;
+                                default:
+                                    // Invalid state transition.
+                                    break;
+                                }
+                            break;
+
+                        default:
+                            // Invalid state transition.
+                            break;
+                        }
+                    }
+                break;
+
+            default:
+                // We need to be able to return some error messages here.
+                // We need an ErrorResponse structure ..
+                // This is an invalid request.
+                break;
             }
         }
 
