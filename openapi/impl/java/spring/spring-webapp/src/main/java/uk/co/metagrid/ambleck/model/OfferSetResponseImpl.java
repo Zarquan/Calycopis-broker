@@ -37,10 +37,13 @@ public class OfferSetResponseImpl extends OfferSetResponse
      * Generates a new UUID and sets the expiry time to 5min from now.
      *
      */
-    public OfferSetResponseImpl()
+    public OfferSetResponseImpl(final String baseurl)
         {
         this.setUuid(
             UuidCreator.getTimeBased()
+            );
+        this.setHref(
+            baseurl + "/offerset/" + this.getUuid()
             );
         this.created(
             OffsetDateTime.now()
@@ -56,15 +59,15 @@ public class OfferSetResponseImpl extends OfferSetResponse
     /**
      * Add an ExecutionResponse to our list of offers.
      *
-     */
-    protected void addExecution(final ExecutionResponseImpl execution)
+    protected void addOffer(final ExecutionResponseImpl execution)
         {
-        this.addExecutionsItem(
+        this.addOffersItem(
              (ExecutionResponse) execution
             );
         this.setResult(
             OfferSetResponse.ResultEnum.YES
             );
         }
+     */
     }
 

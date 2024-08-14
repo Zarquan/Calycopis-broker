@@ -23,8 +23,12 @@
 package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+import java.time.OffsetDateTime;
 import com.github.f4b6a3.uuid.UuidCreator;
 
+import uk.co.metagrid.ambleck.model.OfferSetLink;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
@@ -37,20 +41,77 @@ public class ExecutionResponseImpl extends ExecutionResponse
         return this.parent;
         }
 
-    @Override
-    public UUID getOfferset()
-        {
-        return this.parent.getUuid();
-        }
-
-    public ExecutionResponseImpl(final OfferSetResponse parent)
+    public ExecutionResponseImpl(final String baseurl, final OfferSetResponse parent)
         {
         this.parent = parent ;
         this.setUuid(
             UuidCreator.getTimeBased()
             );
+        this.setHref(
+            baseurl + "/execution/" + this.getUuid()
+            );
         this.setState(
             ExecutionResponse.StateEnum.OFFERED
             );
+
+        this.created(
+            OffsetDateTime.now()
+            );
+        this.modified(
+            this.getCreated()
+            );
+        this.expires(
+            parent.getExpires()
+            );
+
+        OfferSetLink offerset = new OfferSetLink();
+        this.setOfferset(
+            offerset
+            );
+        offerset.setUuid(
+            this.parent.getUuid()
+            );
+        offerset.setHref(
+            this.parent.getHref()
+            );
+
+        this.updateOptions();
+
+        }
+
+    /**
+     * Update the options based on the state.
+     *
+     */
+    public void updateOptions()
+        {
+        List<AbstractOption> options = new ArrayList<AbstractOption>();
+        this.setOptions(options);
+
+        switch(this.getState())
+            {
+            case OFFERED:
+                options.add(
+                    new EnumValueOption(
+                        List.of("ACCEPTED", "REJECTED"),
+                        "urn:enum-value-option",
+                        "/state"
+                        )
+                    );
+                break;
+
+            case ACCEPTED:
+            case PREPARING:
+            case WAITING:
+            case RUNNING:
+                options.add(
+                    new EnumValueOption(
+                        List.of("CANCELLED"),
+                        "urn:enum-value-option",
+                        "/state"
+                        )
+                    );
+                break;
+            }
         }
     }

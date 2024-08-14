@@ -38,11 +38,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.webapp.OffersetApiDelegate;
+import uk.co.metagrid.ambleck.webapp.ExecutionApiDelegate;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 
 import uk.co.metagrid.ambleck.message.DebugMessage;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
@@ -52,16 +51,16 @@ import uk.co.metagrid.ambleck.message.InfoMessage;
 @Service
 // https://saranganjana.medium.com/componentscan-in-spring-boot-ec828569df26
 @ComponentScan("uk.co.metagrid.ambleck.model")
-public class OffersetApiDelegateImpl
+public class ExecutionApiDelegateImpl
     extends BaseDelegateImpl
-    implements OffersetApiDelegate {
+    implements ExecutionApiDelegate {
 
-    private final OfferSetResponseFactory factory ;
+    private final ExecutionResponseFactory factory ;
 
     @Autowired
-    public OffersetApiDelegateImpl(
+    public ExecutionApiDelegateImpl(
         NativeWebRequest request,
-        OfferSetResponseFactory factory
+        ExecutionResponseFactory factory
         )
         {
         super(request);
@@ -69,43 +68,23 @@ public class OffersetApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<OfferSetResponse> offerSetGet(final UUID uuid)
+    public ResponseEntity<ExecutionResponse> executionGet(final UUID uuid)
         {
-        OfferSetResponse response = factory.select(uuid);
+        ExecutionResponse response = factory.select(uuid);
         if (null != response)
             {
-            return new ResponseEntity<OfferSetResponse>(
+            return new ResponseEntity<ExecutionResponse>(
                 response,
                 HttpStatus.OK
                 );
             }
         else {
-            return new ResponseEntity<OfferSetResponse>(
+            return new ResponseEntity<>(
                 HttpStatus.NOT_FOUND
                 );
             }
         }
 
-    @Override
-    public ResponseEntity<OfferSetResponse> offerSetPost(
-        @RequestBody OfferSetRequest request
-        ) {
-	    OfferSetResponse response = factory.create(
-	        this.getBaseUrl(),
-	        request
-	        );
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(
-            URI.create(
-                response.getHref()
-                )
-            );
-        return new ResponseEntity<OfferSetResponse>(
-            response,
-            headers,
-            HttpStatus.SEE_OTHER
-            );
-	    }
     }
 
 

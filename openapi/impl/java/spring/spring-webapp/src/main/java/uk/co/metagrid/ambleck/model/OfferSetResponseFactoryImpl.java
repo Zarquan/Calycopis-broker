@@ -104,17 +104,17 @@ public class OfferSetResponseFactoryImpl
      *
      */
     @Override
-    public OfferSetResponse create(final OfferSetRequest request)
+    public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
         {
-        OfferSetResponse response = new OfferSetResponseImpl();
-
+        OfferSetResponse response = new OfferSetResponseImpl(baseurl);
         this.insert(
             response
             );
         response.setName(
             request.getName()
             );
-        factory.process(
+        factory.create(
+            baseurl,
             request,
             response
             );

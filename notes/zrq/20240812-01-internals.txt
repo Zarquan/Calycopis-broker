@@ -409,7 +409,7 @@ EOF
 
     >   uuid: "ec57cbaf-590f-11ef-b36b-8f97abd3351e"
     >   messages:
-    >   
+    >
     >     - type: "https://example.org/message-types/warn"
     >       time: "2024-08-13T01:03:59.634171084Z"
     >       level: "INFO"
@@ -417,7 +417,7 @@ EOF
     >       values:
     >         type: "urn:simple-data-resource"
     >       message: "[INFO] Data resource with no name or identifier [][][urn:simple-data-resource]"
-    >   
+    >
     >     - type: "https://example.org/message-types/warn"
     >       time: "2024-08-13T01:03:59.659370019Z"
     >       level: "INFO"
@@ -427,7 +427,7 @@ EOF
     >         type: "urn:simple-data-resource"
     >         uuid: "fe9c7d3e-8d3b-471b-874e-b8dd8a10443c"
     >       message: "[INFO] Data resource UUID should not be set by client [null][fe9c7d3e-8d3b-471b-874e-b8dd8a10443c][urn:simple-data-resource]"
-    >   
+    >
     >     - type: "https://example.org/message-types/info"
     >       time: "2024-08-13T01:03:59.659563044Z"
     >       level: "INFO"
@@ -437,7 +437,7 @@ EOF
     >         type: "urn:simple-data-resource"
     >         uuid: "null"
     >       message: "[INFO] Found data resource [Simple data resource one][null][urn:simple-data-resource]"
-    >   
+    >
     >     - type: "https://example.org/message-types/warn"
     >       time: "2024-08-13T01:03:59.659693435Z"
     >       level: "INFO"
@@ -447,7 +447,7 @@ EOF
     >         type: "urn:simple-data-resource"
     >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
     >       message: "[INFO] Data resource UUID should not be set by client [Simple data resource two][ffccf287-5463-4c75-ab75-3270a1245720][urn:simple-data-resource]"
-    >   
+    >
     >     - type: "https://example.org/message-types/info"
     >       time: "2024-08-13T01:03:59.659806135Z"
     >       level: "INFO"
@@ -457,22 +457,16 @@ EOF
     >         type: "urn:simple-data-resource"
     >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
     >       message: "[INFO] Found data resource [Simple data resource two][ffccf287-5463-4c75-ab75-3270a1245720][urn:simple-data-resource]"
-    >   
+    >
     >   result: "NO"
     >   href: "http://127.0.0.1:8082/offerset/ec57cbaf-590f-11ef-b36b-8f97abd3351e"
     >   created: "2024-08-13T01:03:59.633633206Z"
     >   expires: "2024-08-13T01:08:59.633671273Z"
 
 
-
-
-
-
-
-
-
-
-
+    #
+    # Test data resource wiring.
+    #
 
 cat > /tmp/test-006.yaml  << EOF
 executable:
@@ -485,18 +479,13 @@ resources:
     - name: Compute 001
       type: urn:simple-compute-resource
       volumes:
-        - path: /here
+        - name: Volume 001
+          path: /here
           resource: Resource 001
-        - path: /there
+        - name: Volume 002
+          path: /there
           resource: ffccf287-5463-4c75-ab75-3270a1245720
   data:
-    - properties:
-      type: urn:simple-data-resource
-      location: http://data.example.org/downloads/hdf5t8
-    - properties:
-      uuid: fe9c7d3e-8d3b-471b-874e-b8dd8a10443c
-      type: urn:simple-data-resource
-      location: http://data.example.org/downloads/hdf5t8
     - properties:
       name: Resource 001
       type: urn:simple-data-resource
@@ -517,4 +506,62 @@ EOF
         --header "Accept: application/yaml" \
         "http://127.0.0.1:8082/offerset" \
     | yq '.'
+
+    >   uuid: "514822a8-5973-11ef-a69d-c391157784f1"
+    >   messages:
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T12:55:29.157060489Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${rname}][${ruuid}] for volume [${vname}][${vuuid}]"
+    >       values:
+    >         ruuid: "514822a9-5973-11ef-a69d-c391157784f1"
+    >         vname: "Volume 001"
+    >         rname: "Resource 001"
+    >         vuuid: "514849bb-5973-11ef-a69d-c391157784f1"
+    >       message: "[INFO] Found data resource [Resource 001][514822a9-5973-11ef-a69d-c391157784f1] for volume [Volume 001][514849bb-5973-11ef-a69d-c391157784f1]"
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T12:55:29.157282843Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${rname}][${ruuid}] for volume [${vname}][${vuuid}]"
+    >       values:
+    >         ruuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         vname: "Volume 002"
+    >         rname: "Resource 002"
+    >         vuuid: "514849bc-5973-11ef-a69d-c391157784f1"
+    >       message: "[INFO] Found data resource [Resource 002][ffccf287-5463-4c75-ab75-3270a1245720] for volume [Volume 002][514849bc-5973-11ef-a69d-c391157784f1]"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/514822a8-5973-11ef-a69d-c391157784f1"
+    >   created: "2024-08-13T12:55:29.156875275Z"
+    >   expires: "2024-08-13T13:00:29.156898178Z"
+    >   executions:
+    >     - uuid: "514849be-5973-11ef-a69d-c391157784f1"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "514849bd-5973-11ef-a69d-c391157784f1"
+    >         name: "My test executable"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "514849ba-5973-11ef-a69d-c391157784f1"
+    >             name: "Compute 001"
+    >             volumes:
+    >               - uuid: "514849bb-5973-11ef-a69d-c391157784f1"
+    >                 name: "Volume 001"
+    >                 path: "/here"
+    >                 resource: "514822a9-5973-11ef-a69d-c391157784f1"
+    >               - uuid: "514849bc-5973-11ef-a69d-c391157784f1"
+    >                 name: "Volume 002"
+    >                 path: "/there"
+    >                 resource: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         data:
+    >           - type: "urn:simple-data-resource"
+    >             uuid: "514822a9-5973-11ef-a69d-c391157784f1"
+    >             name: "Resource 001"
+    >             location: "http://data.example.org/downloads/hdf5t8"
+    >           - type: "urn:simple-data-resource"
+    >             uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >             name: "Resource 002"
+    >             location: "http://data.example.org/downloads/hdf5t8"
+    >       state: "OFFERED"
+    >       offerset: "514822a8-5973-11ef-a69d-c391157784f1"
 

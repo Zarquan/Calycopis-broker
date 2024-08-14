@@ -47,7 +47,7 @@ public interface OfferSetResponseFactory
      * Create a new OfferSetResponse based on an OfferSetRequest.
      *
      */
-    public OfferSetResponse create(final OfferSetRequest request);
+    public OfferSetResponse create(final String baseurl, final OfferSetRequest request);
 
     }
 

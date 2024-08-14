@@ -73,13 +73,13 @@ public class ExecutionResponseFactoryImpl
      * Our Map of ExecutionResponses.
      *
      */
-    private Map<UUID, ExecutionResponse> hashmap = new HashMap<UUID, ExecutionResponse>();
+    private Map<UUID, ExecutionResponseImpl> hashmap = new HashMap<UUID, ExecutionResponseImpl>();
 
     /**
      * Insert an ExecutionResponse into our HashMap.
      *
      */
-    protected void insert(final ExecutionResponse execution)
+    protected void insert(final ExecutionResponseImpl execution)
         {
         this.hashmap.put(
             execution.getUuid(),
@@ -89,14 +89,16 @@ public class ExecutionResponseFactoryImpl
 
     /**
      * Select an ExecutionResponse based on its identifier.
+     * Populate the options list.
      *
      */
     @Override
     public ExecutionResponse select(final UUID uuid)
         {
-        return this.hashmap.get(
+        ExecutionResponseImpl execution = this.hashmap.get(
             uuid
             );
+        return execution ;
         }
 
     /*
@@ -123,6 +125,7 @@ public class ExecutionResponseFactoryImpl
     /**
      * A local class to hold context during processing.
      * We can pass one thing down the processing chain rather than many things.
+     * TODO Move this up a level to OfferSetResponseFactory.
      *
      */
     public class ProcessingContext
@@ -149,8 +152,15 @@ public class ExecutionResponseFactoryImpl
             return this.response;
             }
 
-        public ProcessingContext(final OfferSetRequest request, final OfferSetResponse response)
+        private final String baseurl;
+        public String baseurl()
             {
+            return this.baseurl;
+            }
+
+        public ProcessingContext(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
+            {
+            this.baseurl  = baseurl ;
             this.request  = request ;
             this.response = response ;
             }
@@ -280,7 +290,7 @@ public class ExecutionResponseFactoryImpl
      * Process an OfferSetRequest and populate an OfferSetResponse with ExecutionResponse offers.
      *
      */
-    public void process(final OfferSetRequest request, final OfferSetResponse response)
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
         //
         // Reject explicit scheduling.
@@ -319,6 +329,7 @@ public class ExecutionResponseFactoryImpl
         //
         // Create our processing context.
         ProcessingContext context = new ProcessingContext(
+            baseurl,
             request,
             response
             );
@@ -355,43 +366,40 @@ public class ExecutionResponseFactoryImpl
         if (context.valid())
             {
             // Transfer results from context to response.
-            ExecutionResponseImpl execution = new ExecutionResponseImpl(response);
+            ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
             this.insert(
-                execution
+                offer
                 );
-            execution.setName(
+
+            offer.setName(
                 request.getName()
                 );
-            execution.setExecutable(
+            offer.setExecutable(
                 context.getExecutable()
                 );
-            ExecutionResourceList resourcelist = new ExecutionResourceList();
+
+            ExecutionResourceList resources = new ExecutionResourceList();
             for (AbstractDataResource resource : context.getDataResourceList())
                 {
-                resourcelist.addDataItem(
+                resources.addDataItem(
                     resource
                     );
                 }
             for (AbstractComputeResource resource : context.getComputeResourceList())
                 {
-                resourcelist.addComputeItem(
+                resources.addComputeItem(
                     resource
                     );
                 }
-            execution.setResources(
-                resourcelist
+            offer.setResources(
+                resources
                 );
-            response.addExecutionsItem(
-                execution
+            response.addOffersItem(
+                offer
                 );
             response.setResult(
                 OfferSetResponse.ResultEnum.YES
                 );
-// TODO
-// The execution needs to have href set.
-//
-// Change SimpleDataResource to SimpleHttpResource ?
-
             }
         }
 
@@ -577,8 +585,125 @@ public class ExecutionResponseFactoryImpl
             );
         //
         // Validate the compute resource itself.
-// cores < max
-// memory < max
+        Integer mincores = null ;
+        Integer maxcores = null ;
+        Integer DEFAULT_MIN_CORES = 4 ;
+        Integer DEFAULT_MAX_CORES = 8 ;
+        Integer MIN_CORES_LIMIT = 2 ;
+        Integer MAX_CORES_LIMIT = 16 ;
+
+        String coreunits = null;
+        String DEFAULT_CORE_UNITS = "cores" ;
+
+        if (request.getCores() != null)
+            {
+            mincores  = request.getCores().getMin();
+            maxcores  = request.getCores().getMax();
+            coreunits = request.getCores().getUnits();
+            }
+        if (coreunits == null)
+            {
+            coreunits = DEFAULT_CORE_UNITS;
+            }
+        if (DEFAULT_CORE_UNITS.equals(coreunits) == false)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] unknown core units [${coreunits}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "coreunits",
+                        safeString(coreunits)
+                        )
+                    )
+                );
+            context.fail();
+            }
+
+        if (mincores == null)
+            {
+            mincores = DEFAULT_MIN_CORES;
+            }
+        if (mincores < MIN_CORES_LIMIT)
+            {
+            mincores = DEFAULT_MIN_CORES;
+            }
+        if (maxcores == null)
+            {
+            maxcores = DEFAULT_MAX_CORES;
+            }
+        if (mincores > MAX_CORES_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum cores exceeds available resources [${mincores}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "mincores",
+                        safeString(mincores),
+                        "limit",
+                        safeString(MAX_CORES_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (maxcores > MAX_CORES_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] maximum cores exceeds available resources [${maxcores}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "maxcores",
+                        safeString(maxcores),
+                        "limit",
+                        safeString(MAX_CORES_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (mincores > maxcores)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum cores exceeds maximum [${mincores}][${maxcores}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "mincores",
+                        safeString(mincores),
+                        "maxcores",
+                        safeString(maxcores)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        result.setCores(
+            new MinMaxInteger()
+            );
+        result.getCores().setMin(
+            mincores
+            );
+        result.getCores().setMax(
+            maxcores
+            );
+        result.getCores().setUnits(
+            coreunits
+            );
 
         //
         // Process the network ports.
@@ -726,8 +851,7 @@ public class ExecutionResponseFactoryImpl
      */
     public void validate(final JupyterNotebook01 request, final ProcessingContext context)
         {
-        JupyterNotebook01 result = new JupyterNotebook01();
-        result.setType(
+        JupyterNotebook01 result = new JupyterNotebook01(
             "urn:jupyter-notebook-0.1"
             );
         if (request.getUuid() != null)
@@ -745,9 +869,21 @@ public class ExecutionResponseFactoryImpl
             request.getName()
             );
 
-        //
-        // ....
-        //
+        String notebook = request.getNotebook();
+        if ((notebook != null) && (notebook.trim().isEmpty()))
+            {
+            context.addMessage(
+                new ErrorMessage(
+                    "Null or empty notebook location"
+                    )
+                );
+            context.fail();
+            }
+        else {
+            result.setNotebook(
+                notebook.trim()
+                );
+            }
         context.setExecutable(
             result
             );

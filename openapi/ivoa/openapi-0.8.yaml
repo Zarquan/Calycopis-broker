@@ -127,13 +127,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
 
     post:
       operationId: ExecutionPost
@@ -164,13 +164,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/StatusResponse'
+                $ref: '#/components/schemas/ExecutionResponse'
 
   /execution/{uuid}/state:
     get:
@@ -561,8 +561,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
-          required:
-            - image
           properties:
             image:
               type: string
@@ -616,8 +614,6 @@ components:
       description: |
         Details of a network port on the container made available for connection from outside.
       type: object
-      required:
-        - internal
       properties:
         address:
           type: string
@@ -654,8 +650,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
-          required:
-            - image
           properties:
             image:
               type: string
@@ -670,14 +664,11 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
-
-          required:
-            - source
           properties:
             source:
               type: string
               description: >
-                The URL of the repository to package.
+                The URL of the source repository.
 
     JupyterNotebook01:
       description: >
@@ -687,8 +678,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
-          required:
-            - notebook
           properties:
             notebook:
               type: string
@@ -704,8 +693,6 @@ components:
       allOf:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
-          required:
-            - repository
           properties:
             repository:
               type: string
@@ -743,7 +730,7 @@ components:
       items:
         $ref: '#/components/schemas/AbstractDataResource'
 
-    OptionBase:
+    AbstractOption:
       description: >
         Abstract base class for describing options.
         This includes the `type` discriminator and the target `path` to update.
@@ -776,7 +763,7 @@ components:
         This option enables the client to set a string value pointed to by the path.
       type: object
       allOf:
-        - $ref: '#/components/schemas/OptionBase'
+        - $ref: '#/components/schemas/AbstractOption'
         - type: object
           properties:
             pattern:
@@ -792,7 +779,7 @@ components:
       required:
         - values
       allOf:
-        - $ref: '#/components/schemas/OptionBase'
+        - $ref: '#/components/schemas/AbstractOption'
         - type: object
           properties:
             values:
@@ -808,7 +795,7 @@ components:
         This option enables the client to set an integer value pointed to by the path.
       type: object
       allOf:
-        - $ref: '#/components/schemas/OptionBase'
+        - $ref: '#/components/schemas/AbstractOption'
         - type: object
           properties:
             min:
@@ -835,7 +822,7 @@ components:
         This option enables the client to increment or decrement an integer value pointed to by the path.
       type: object
       allOf:
-        - $ref: '#/components/schemas/OptionBase'
+        - $ref: '#/components/schemas/AbstractOption'
         - type: object
           properties:
             min:
@@ -856,7 +843,7 @@ components:
                 update if they need to.
               type: string
 
-    UpdateBase:
+    AbstractUpdate:
       description: >
         Abstract base class for updates.
         This includes the `type` discriminator and the target `path` to update.
@@ -890,7 +877,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/UpdateBase'
+        - $ref: '#/components/schemas/AbstractUpdate'
         - type: object
           properties:
             value:
@@ -905,7 +892,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/UpdateBase'
+        - $ref: '#/components/schemas/AbstractUpdate'
         - type: object
           properties:
             value:
@@ -920,7 +907,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/UpdateBase'
+        - $ref: '#/components/schemas/AbstractUpdate'
         - type: object
           properties:
             value:
@@ -941,7 +928,7 @@ components:
       required:
         - delta
       allOf:
-        - $ref: '#/components/schemas/UpdateBase'
+        - $ref: '#/components/schemas/AbstractUpdate'
         - type: object
           properties:
             delta:
@@ -1050,18 +1037,54 @@ components:
                 - ACCEPTED
                 - REJECTED
                 - EXPIRED
-                - STANDUP
-                - READY
+                - PREPARING
+                - WAITING
                 - RUNNING
-                - TEARDOWN
+                - FINISHING
                 - COMPLETED
                 - FAILED
                 - CANCELLED
+            created:
+              description: >
+                The date and time that this execution was created.
+              type: string
+              format: date-time
+            modified:
+              description: >
+                The date and time that this execution was last modified.
+              type: string
+              format: date-time
+            expires:
+              description: >
+                The date and time that this execution offer expires.
+                Only valid while the state is OFFERED.
+              type: string
+              format: date-time
             offerset:
               description: >
-                The UUID identifier of the parent OfferSet.
-              type: string
-              format: uuid
+                A refernce to the offer's parent OfferSet.
+              $ref: '#/components/schemas/OfferSetLink'
+            options:
+              description: >
+                A List of options the client can apply to this Execution.
+              type: array
+              items:
+                $ref: '#/components/schemas/AbstractOption'
+
+    OfferSetLink:
+      description: >
+        A reference from an offer to it's parent offerset.
+      type: object
+      properties:
+        uuid:
+          description: >
+            The UUID identifier of the parent OfferSet.
+          type: string
+          format: uuid
+        href:
+          description: >
+            The URL of the parent OfferSet.
+          type: string
 
     OfferSetRequest:
       description: >
@@ -1112,10 +1135,10 @@ components:
                 The date and time that this set of offers expire.
               type: string
               format: date-time
-            executions:
+            offers:
               type: array
               xml:
-                name: executions
+                name: offers
                 wrapped: true
               items:
                 $ref: '#/components/schemas/ExecutionResponse'
@@ -1140,22 +1163,7 @@ components:
       xml:
         name: update-request
       allOf:
-        - $ref: '#/components/schemas/UpdateBase'
+        - $ref: '#/components/schemas/AbstractUpdate'
 
-    StatusResponse:
-      description: >
-        The response for an execution status request,
-        including a list of options that may be applied
-        to the execution object.
-      type: object
-      xml:
-        name: execution-status
-      allOf:
-        - $ref: '#/components/schemas/ExecutionResponse'
-        - type: object
-          properties:
-            options:
-              type: array
-              items:
-                $ref: '#/components/schemas/OptionBase'
+
 
