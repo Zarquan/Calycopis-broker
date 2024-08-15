@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -22,33 +21,33 @@
  *
  */
 
-package uk.co.metagrid.ambleck.webapp;
+package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
-import java.util.Map;
-import java.util.List;
 
-import uk.co.metagrid.ambleck.model.OffersResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.OfferSetRequest;
+import uk.co.metagrid.ambleck.model.OfferSetResponse;
 
-public interface BrokerDatabase
+public interface OfferSetResponseFactory
     {
 
+    /*
+     * Get the factory's identifier.
+     *
+     */
     public UUID getUuid();
 
-    public void addOffer(final OffersResponse offer);
+    /**
+     * Select an OfferSetResponse based on its identifier.
+     *
+     */
+    public OfferSetResponse select(final UUID uuid);
 
-    public OffersResponse getOffer(final UUID uuid);
-
-    public Iterable<OffersResponse> getOffers();
-
-
-
-    public void addExecution(final ExecutionResponse execution);
-
-    public ExecutionResponse getExecution(final UUID uuid);
-
-    public Iterable<ExecutionResponse> getExecutions();
+    /**
+     * Create a new OfferSetResponse based on an OfferSetRequest.
+     *
+     */
+    public OfferSetResponse create(final String baseurl, final OfferSetRequest request);
 
     }
 

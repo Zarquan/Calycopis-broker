@@ -1,0 +1,629 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Develop the message processing internals.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Container from previous notes ..
+#[user@desktop]
+
+    ....
+    ....
+
+
+# -----------------------------------------------------
+# Generate the data model classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+cat > /tmp/test-006.yaml  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 2
+        max: 5
+      memory:
+        min: 20
+        max: 50
+      volumes:
+        - name: Volume 001
+          path: here
+          resource: Resource 001
+        - name: Volume 002
+          path: /there
+          resource: ffccf287-5463-4c75-ab75-3270a1245720
+  data:
+    - properties:
+      name: Resource 001
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+    - properties:
+      uuid: ffccf287-5463-4c75-ab75-3270a1245720
+      name: Resource 002
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/hdf5t8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-006.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+
+cat > /tmp/test-007.yaml  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        max: 5
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"/tmp/test-007.yaml" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "0144a117-5981-11ef-bc84-8dde8482edc9"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/0144a117-5981-11ef-bc84-8dde8482edc9"
+    >   created: "2024-08-13T14:33:27.870963808Z"
+    >   expires: "2024-08-13T14:38:27.870984245Z"
+    >   executions:
+    >     - uuid: "0144c82a-5981-11ef-bc84-8dde8482edc9"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0144c829-5981-11ef-bc84-8dde8482edc9"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0144c828-5981-11ef-bc84-8dde8482edc9"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 5
+    >       state: "OFFERED"
+    >       offerset: "0144a117-5981-11ef-bc84-8dde8482edc9"
+
+
+testyaml=$(
+    mktemp --suffix '.yaml'
+    )
+cat > "${testyaml}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 5
+        max: 4
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${testyaml}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "0c9c452b-5983-11ef-b0ac-cd492aac5734"
+    >   messages:
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T14:48:05.928582986Z"
+    >       level: "INFO"
+    >       template: "Compute resource [${name}][${uuid}] minimum cores exceeds maximum [${mincores}][${maxcores}]"
+    >       values:
+    >         name: "Compute 001"
+    >         mincores: "5"
+    >         maxcores: "4"
+    >         uuid: "null"
+    >       message: "[INFO] Compute resource [Compute 001][null] minimum cores exceeds maximum [5][4]"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/0c9c452b-5983-11ef-b0ac-cd492aac5734"
+    >   created: "2024-08-13T14:48:05.893241971Z"
+    >   expires: "2024-08-13T14:53:05.893280644Z"
+
+
+testyaml=$(
+    mktemp --suffix '.yaml'
+    )
+cat > "${testyaml}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 20
+        max: 24
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${testyaml}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "34bc2e8e-5983-11ef-b0ac-cd492aac5734"
+    >   messages:
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T14:49:13.211432467Z"
+    >       level: "INFO"
+    >       template: "Compute resource [${name}][${uuid}] minimum cores exceeds available resources [${mincores}][${limit}]"
+    >       values:
+    >         limit: "16"
+    >         name: "Compute 001"
+    >         mincores: "20"
+    >         uuid: "null"
+    >       message: "[INFO] Compute resource [Compute 001][null] minimum cores exceeds available resources [20][16]"
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-13T14:49:13.211628233Z"
+    >       level: "INFO"
+    >       template: "Compute resource [${name}][${uuid}] maximum cores exceeds available resources [${maxcores}][${limit}]"
+    >       values:
+    >         limit: "16"
+    >         name: "Compute 001"
+    >         maxcores: "24"
+    >         uuid: "null"
+    >       message: "[INFO] Compute resource [Compute 001][null] maximum cores exceeds available resources [24][16]"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/34bc2e8e-5983-11ef-b0ac-cd492aac5734"
+    >   created: "2024-08-13T14:49:13.211313195Z"
+    >   expires: "2024-08-13T14:54:13.211336781Z"
+
+
+testyaml=$(
+    mktemp --suffix '.yaml'
+    )
+cat > "${testyaml}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${testyaml}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+    >   uuid: "0d0f1bab-5985-11ef-b92e-6d41d0c4ab7e"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/0d0f1bab-5985-11ef-b92e-6d41d0c4ab7e"
+    >   created: "2024-08-13T15:02:25.639864365Z"
+    >   expires: "2024-08-13T15:07:25.639897797Z"
+    >   executions:
+    >     - uuid: "0d1472de-5985-11ef-b92e-6d41d0c4ab7e"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d1472dd-5985-11ef-b92e-6d41d0c4ab7e"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d144bcc-5985-11ef-b92e-6d41d0c4ab7e"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       state: "OFFERED"
+    >       offerset: "0d0f1bab-5985-11ef-b92e-6d41d0c4ab7e"
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    createyaml=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${testyaml}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createyaml}" \
+    | yq '.'
+
+    >   uuid: "9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >   created: "2024-08-13T15:56:28.837907856Z"
+    >   expires: "2024-08-13T16:01:28.837943311Z"
+    >   offers:
+    >     - uuid: "9a2f41e4-598c-11ef-89ad-59fc8e544d4c"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "9a2f41e3-598c-11ef-89ad-59fc8e544d4c"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "9a2ef3c2-598c-11ef-89ad-59fc8e544d4c"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/9a2f41e4-598c-11ef-89ad-59fc8e544d4c"
+    >       state: "OFFERED"
+    >       offerset:
+    >         uuid: "9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >         href: "http://127.0.0.1:8082/offerset/9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+
+
+    yq '.uuid' "${createyaml}"
+
+    >   9a27eee1-598c-11ef-89ad-59fc8e544d4c
+
+
+    yq '.href' "${createyaml}"
+
+    >   http://127.0.0.1:8082/offerset/9a27eee1-598c-11ef-89ad-59fc8e544d4c
+
+
+    href=$(
+        yq '.href' "${createyaml}"
+        )
+    selectyaml=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        "${href}" \
+    | tee "${selectyaml}" \
+    | yq '.'
+
+    >   uuid: "9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >   created: "2024-08-13T15:56:28.837907856Z"
+    >   expires: "2024-08-13T16:01:28.837943311Z"
+    >   offers:
+    >     - uuid: "9a2f41e4-598c-11ef-89ad-59fc8e544d4c"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "9a2f41e3-598c-11ef-89ad-59fc8e544d4c"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "9a2ef3c2-598c-11ef-89ad-59fc8e544d4c"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/9a2f41e4-598c-11ef-89ad-59fc8e544d4c"
+    >       state: "OFFERED"
+    >       offerset:
+    >         uuid: "9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+    >         href: "http://127.0.0.1:8082/offerset/9a27eee1-598c-11ef-89ad-59fc8e544d4c"
+
+
+    yq '.offers[0].uuid' "${selectyaml}"
+
+    >   9a2f41e4-598c-11ef-89ad-59fc8e544d4c
+
+
+    yq '.offers[0].href' "${selectyaml}"
+
+    >   http://127.0.0.1:8082/execution/9a2f41e4-598c-11ef-89ad-59fc8e544d4c
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+createrequest=$(
+    mktemp --suffix '.yaml'
+    )
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+EOF
+
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "e7138a83-59ad-11ef-a53f-9bea15196c1c"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/e7138a83-59ad-11ef-a53f-9bea15196c1c"
+    >   created: "2024-08-13T19:54:51.280947312Z"
+    >   expires: "2024-08-13T19:59:51.280980004Z"
+    >   offers:
+    >     - uuid: "e717f756-59ad-11ef-a53f-9bea15196c1c"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "e717f755-59ad-11ef-a53f-9bea15196c1c"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "e717d044-59ad-11ef-a53f-9bea15196c1c"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/e717f756-59ad-11ef-a53f-9bea15196c1c"
+    >       state: "OFFERED"
+    >       offerset:
+    >         uuid: "e7138a83-59ad-11ef-a53f-9bea15196c1c"
+    >         href: "http://127.0.0.1:8082/offerset/e7138a83-59ad-11ef-a53f-9bea15196c1c"
+
+
+    selecthref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+    selectresponse=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        "${selecthref}" \
+    | tee "${selectresponse}" \
+    | yq '.'
+
+    >   uuid: "e717f756-59ad-11ef-a53f-9bea15196c1c"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "e717f755-59ad-11ef-a53f-9bea15196c1c"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "e717d044-59ad-11ef-a53f-9bea15196c1c"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/e717f756-59ad-11ef-a53f-9bea15196c1c"
+    >   state: "OFFERED"
+    >   offerset:
+    >     uuid: "e7138a83-59ad-11ef-a53f-9bea15196c1c"
+    >     href: "http://127.0.0.1:8082/offerset/e7138a83-59ad-11ef-a53f-9bea15196c1c"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+createrequest=$(
+    mktemp --suffix '.yaml'
+    )
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+EOF
+
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "938b797a-59f4-11ef-9413-5546cd95681f"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/938b797a-59f4-11ef-9413-5546cd95681f"
+    >   created: "2024-08-14T04:20:45.406591036Z"
+    >   expires: "2024-08-14T04:25:45.406628141Z"
+    >   offers:
+    >     - uuid: "9390346d-59f4-11ef-9413-5546cd95681f"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "9390346c-59f4-11ef-9413-5546cd95681f"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "93900d5b-59f4-11ef-9413-5546cd95681f"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/9390346d-59f4-11ef-9413-5546cd95681f"
+    >       state: "OFFERED"
+    >       created: "2024-08-14T04:20:45.437064885Z"
+    >       modified: "2024-08-14T04:20:45.437064885Z"
+    >       expires: "2024-08-14T04:25:45.406628141Z"
+    >       offerset:
+    >         uuid: "938b797a-59f4-11ef-9413-5546cd95681f"
+    >         href: "http://127.0.0.1:8082/offerset/938b797a-59f4-11ef-9413-5546cd95681f"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "/state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    selecthref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+    selectresponse=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        "${selecthref}" \
+    | tee "${selectresponse}" \
+    | yq '.'
+
+    >   uuid: "9390346d-59f4-11ef-9413-5546cd95681f"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "9390346c-59f4-11ef-9413-5546cd95681f"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "93900d5b-59f4-11ef-9413-5546cd95681f"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/9390346d-59f4-11ef-9413-5546cd95681f"
+    >   state: "OFFERED"
+    >   created: "2024-08-14T04:20:45.437064885Z"
+    >   modified: "2024-08-14T04:20:45.437064885Z"
+    >   expires: "2024-08-14T04:25:45.406628141Z"
+    >   offerset:
+    >     uuid: "938b797a-59f4-11ef-9413-5546cd95681f"
+    >     href: "http://127.0.0.1:8082/offerset/938b797a-59f4-11ef-9413-5546cd95681f"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "/state"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
+
+
+
+
+
+
+
+
+
+
+

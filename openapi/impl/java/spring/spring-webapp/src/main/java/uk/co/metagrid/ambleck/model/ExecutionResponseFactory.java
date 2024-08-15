@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -21,39 +20,40 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.webapp;
+package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
-import com.github.f4b6a3.uuid.UuidCreator;
 
+import uk.co.metagrid.ambleck.model.OfferSetRequest;
+import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.AbstractUpdate;
 
-public class ExecutionResponseImpl extends ExecutionResponse
+public interface ExecutionResponseFactory
     {
-    private OffersResponseImpl parent;
 
-    protected OffersResponseImpl getParent()
-        {
-        return this.parent;
-        }
+    /*
+     * Get the factory's identifier.
+     *
+     */
+    public UUID getUuid();
 
-    @Override
-    public UUID getOfferset()
-        {
-        return this.parent.getUuid();
-        }
+    /**
+     * Select an Execution based on its identifier.
+     *
+     */
+    public ExecutionResponse select(final UUID uuid);
 
-    public ExecutionResponseImpl(final OffersResponseImpl parent)
-        {
-        this.parent = parent ;
-        this.setUuid(
-            UuidCreator.getTimeBased()
-            );
-        this.setState(
-            ExecutionResponse.StateEnum.OFFERED
-            );
-        parent.addExecution(
-            this
-            );
-        }
+    /**
+     * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
+     *
+     */
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response);
+
+    /**
+     * Update an Execution.
+     *
+     */
+    public ExecutionResponse update(final UUID uuid, final AbstractUpdate update);
+
     }

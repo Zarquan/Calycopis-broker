@@ -1,0 +1,36 @@
+
+server:
+    # https://mkyong.com/spring-boot/spring-boot-how-to-change-tomcat-port/
+    port: 8082
+    # https://stackoverflow.com/a/51962717
+    tomcat:
+        accesslog:
+            enabled: true
+# https://howtodoinjava.com/spring-boot/configure-logging-application-yml/
+logging:
+    level:
+        com.baeldung: INFO
+        org: INFO
+        org.apache.tomcat: INFO
+        org.apache.catalina: INFO
+        org.hibernate: DEBUG
+        org.springframework: INFO
+        org.springframework.controllers: DEBUG
+
+spring:
+    application:
+        name: Ambleck
+    # https://www.baeldung.com/spring-boot-h2-database
+    datasource:
+        url: jdbc:h2:mem:testdb
+        username: sa
+        password: password
+        driverClassName: org.h2.Driver
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+    h2:
+        console:
+            enabled: true
+            settings:
+                web-allow-others: true
+

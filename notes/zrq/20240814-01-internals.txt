@@ -1,0 +1,287 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Develop the message processing internals.
+
+    Result:
+
+        Work in progress ...
+
+    TODO:
+
+        Update should be a POST-REDIRECT-GET method.
+        Errors should return an ErrorResponse with messages.
+
+        Words and names matter.
+        Because we are working from the OpenAPI spec inwards
+        our main clasess and ExecutionResponse and ExecutionResponseFactory
+        rather than Execution and ExecutionFactory.
+        This could cause conceptual problems when we reach the database level.
+        Technical debt - we don't have time to fix it now.
+
+        State change trigger methods
+
+            /cron
+            /execution/{uuid}/cron
+
+        Define behaviour
+
+            If a user asks for multiple time slots in the schedule, the server should split them up and make separate offers for each.
+            The server should not offer an execution with multiple time slots.
+            Not clear which slot the execution would use, or would it repeat the task multiple times ?
+
+            Server chooses a start time for each offer.
+            Add prepare-cost and prepare-time to show when it will start preparing.
+            Server waits until /cron trigger after the start time to start.
+
+            Split the schedule into parts
+
+                schedule:
+                  # Request from user (array of options)
+                  request:
+                    - start:
+                      duration:
+                    - start:
+                      duration:
+                  # Planned preparation time offered by server
+                  preparing:
+                    start:
+                    duration:
+                  # Planned execution time offered by server
+                  executing:
+                    start:
+                    duration:
+                  # Planned finishing time offered by server
+                  finishing:
+                    start:
+                    duration:
+
+
+
+
+
+
+# -----------------------------------------------------
+# Container from previous notes ..
+#[user@desktop]
+
+    ....
+    ....
+
+
+# -----------------------------------------------------
+# Generate the data model classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: test notebook
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   created: "2024-08-14T05:45:26.855136373Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offers:
+    >     - uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >       state: "OFFERED"
+    >       created: "2024-08-14T05:45:26.885928565Z"
+    >       modified: "2024-08-14T05:45:26.885928565Z"
+    >       expires: "2024-08-14T05:50:26.855173513Z"
+    >       offerset:
+    >         uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >         href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    selecthref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+    selectresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        "${selecthref}" \
+    | tee "${selectresponse}" \
+    | yq '.'
+
+    >   uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   state: "OFFERED"
+    >   created: "2024-08-14T05:45:26.885928565Z"
+    >   modified: "2024-08-14T05:45:26.885928565Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offerset:
+    >     uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >     href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
+
+
+    updatehref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '.'
+
+    >   uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   state: "ACCEPTED"
+    >   created: "2024-08-14T05:45:26.885928565Z"
+    >   modified: "2024-08-14T05:45:26.885928565Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offerset:
+    >     uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >     href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+

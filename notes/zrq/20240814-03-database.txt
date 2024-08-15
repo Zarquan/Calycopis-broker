@@ -1,0 +1,275 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Add an embedded H2 database.
+        https://www.baeldung.com/spring-boot-h2-database
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in with published ports.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes from the OpenAPI spec.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi
+
+        ./mvnw clean install
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Compile and run our webapp classes.
+#[root@spring-builder]
+
+    pushd /spring/spring-webapp
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Connect to the database admin pages.
+#[user@desktop]
+
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+
+# -----------------------------------------------------
+# Experiment with the database.
+#[sa@testdb]
+
+    http://localhost:8082/h2-console
+
+    CREATE TABLE hour(
+        ident INT PRIMARY KEY,
+        );
+
+    SELECT hour FROM SYSTEM_RANGE(0, 23);
+    SELECT hour FROM SYSTEM_RANGE(0, ((24*7)-1));
+
+    DROP TABLE session;
+    CREATE TABLE session(
+        ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        start INT,
+        duration INT,
+        cores    INT,
+        memory   INT
+        );
+
+    INSERT INTO session (start, duration, cores, memory) VALUES( 3, 3, 2, 2);
+    INSERT INTO session (start, duration, cores, memory) VALUES( 4, 3, 2, 1);
+    INSERT INTO session (start, duration, cores, memory) VALUES( 5, 3, 2, 2);
+    INSERT INTO session (start, duration, cores, memory) VALUES( 5, 3, 2, 1);
+    INSERT INTO session (start, duration, cores, memory) VALUES( 6, 3, 2, 2);
+    INSERT INTO session (start, duration, cores, memory) VALUES( 7, 3, 2, 1);
+
+    SELECT * FROM session ;
+
+    CREATE TABLE xx AS (SELECT x AS xx FROM SYSTEM_RANGE(0, 9));
+
+    SELECT x, SUM(cores), SUM(memory) FROM session RIGHT OUTER JOIN xx ON start = x GROUP BY x ;
+
+    SELECT start, duration FROM session RIGHT OUTER JOIN (SELECT x AS xx FROM SYSTEM_RANGE(0, 10))
+
+    SELECT start, sum(cores) FROM session OUTER JOIN (SELECT x AS xx FROM SYSTEM_RANGE(0, 5)) WHERE (xx < duration) GROUP BY start ORDER BY start
+    SELECT start, duration FROM session OUTER JOIN (SELECT x AS xx FROM SYSTEM_RANGE(0, 5)) WHERE (xx < duration) GROUP BY start ORDER BY start
+
+
+    SELECT start, SUM(cores) FROM session WHERE start = 3 GROUP BY start ;
+
+ 0              0
+ 1              0
+ 2              0
+ 3 2            2
+ 4 2 2          4
+ 5 2 2 2 2      8
+ 6   2 2 2 2    8
+ 7     2 2 2 2  8
+ 8         2 2  4
+ 9           2  2
+10              0
+
+    SELECT start, start + duration FROM session WHERE (start <= 6) AND ((start + duration) > 6) GROUP BY start ;
+    START  	START + DURATION  
+    4	7
+    5	8
+    (2 rows, 1 ms)
+
+    SELECT start, cores FROM session WHERE (start <= 6) AND ((start + duration) > 6) ;
+    START  	CORES  
+    4	2
+    5	2
+    5	2
+    6	2
+    (4 rows, 1 ms)
+
+    CREATE TABLE xx AS (SELECT x AS xx FROM SYSTEM_RANGE(0, 9));
+
+    SELECT xx, start, cores FROM xx JOIN session ON (session.start <= xx.xx) AND ((session.start + session.duration) > xx.xx) ;
+
+    SELECT xx.x, count(start), sum(cores) FROM xx JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
+    X  	COUNT(START)  	SUM(CORES)  
+    3	1	2
+    4	2	4
+    5	4	8
+    6	4	8
+    7	4	8
+    8	2	4
+    9	1	2
+    (7 rows, 2 ms)
+
+    SELECT xx.x, count(start), sum(cores) FROM xx OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
+
+    SELECT xx.x, count(start), IfNull(sum(cores), 0) FROM xx LEFT OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
+    X  	COUNT(START)  	COALESCE(SUM(CORES), 0)  
+    0	0	0
+    1	0	0
+    2	0	0
+    3	1	2
+    4	2	4
+    5	4	8
+    6	4	8
+    7	4	8
+    8	2	4
+    9	1	2
+    (10 rows, 9 ms)
+
+    SELECT xx.x, count(start), IfNull(sum(cores), 0) AS cores, IfNull(sum(memory), 0) AS memory FROM xx LEFT OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
+    X  	COUNT(START)  	CORES  	MEMORY  
+    0	0	0	0
+    1	0	0	0
+    2	0	0	0
+    3	1	2	2
+    4	2	4	3
+    5	4	8	6
+    6	4	8	6
+    7	4	8	6
+    8	2	4	3
+    9	1	2	1
+
+    SELECT xx.x AS x_hour, count(session.start) AS x_count, IfNull(sum(cores), 0) AS cores, IfNull(sum(memory), 0) AS memory FROM (SELECT x FROM SYSTEM_RANGE(0, 12)) AS xx LEFT OUTER JOIN session ON ((session.start <= xx.x) AND ((session.start + session.duration) > xx.x))  GROUP BY x;
+    X_HOUR  	X_COUNT  	CORES  	MEMORY  
+    0	0	0	0
+    1	0	0	0
+    2	0	0	0
+    3	1	2	2
+    4	2	4	3
+    5	4	8	6
+    6	4	8	6
+    7	4	8	6
+    8	2	4	3
+    9	1	2	1
+    10	0	0	0
+    11	0	0	0
+    12	0	0	0
+    (13 rows, 3 ms)
+
+
+    SELECT
+        x_range.x_hour,
+        count(session.start) AS x_count,
+        IfNull(sum(cores), 0) AS x_cores,
+        IfNull(sum(memory), 0) AS x_memory
+    FROM
+        (SELECT x AS x_hour FROM SYSTEM_RANGE(0, 12)) AS x_range
+    LEFT OUTER JOIN
+        session
+    ON
+        ((session.start <= x_range.x_hour) AND ((session.start + session.duration) > x_range.x_hour))
+    GROUP BY
+        x_range.x_hour
+    HAVING
+        (x_cores <= 3)
+    AND
+        (x_memory <= 3)
+
+    X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY  
+    0	0	0	0
+    1	0	0	0
+    2	0	0	0
+    3	1	2	2
+    9	1	2	1
+    10	0	0	0
+    11	0	0	0
+    12	0	0	0
+    (8 rows, 3 ms)
+

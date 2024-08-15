@@ -33,6 +33,15 @@ public class DebugMessage extends MessageBase
     {
     public static final String DEFAULT_TYPE_URL = "https://example.org/message-types/debug" ;
 
+    public DebugMessage(final String message)
+        {
+        this(
+            DEFAULT_TYPE_URL,
+            message,
+            Map.of()
+            );
+        }
+
     public DebugMessage(final String template, Map<String,String> params)
         {
         this(
@@ -41,6 +50,7 @@ public class DebugMessage extends MessageBase
             params
             );
         }
+
     public DebugMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(

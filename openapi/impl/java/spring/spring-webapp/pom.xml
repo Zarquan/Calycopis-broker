@@ -32,13 +32,13 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>uk.co.metagrid</groupId>
-	<artifactId>parcolar-webapp</artifactId>
+	<artifactId>calycopis-webapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>Parcolar</name>
-	<description>OpenAPI Generator experiment</description>
+	<name>Calycopis webapp</name>
+	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
-		<java.version>19</java.version>
+		<java.version>22</java.version>
 	</properties>
 	<dependencies>
         <!--+
@@ -46,7 +46,7 @@
             +-->
         <dependency>
             <groupId>uk.co.metagrid</groupId>
-            <artifactId>parcolar-openapi</artifactId>
+            <artifactId>calycopis-openapi</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <!--+
@@ -56,6 +56,19 @@
           <groupId>com.github.f4b6a3</groupId>
           <artifactId>uuid-creator</artifactId>
           <version>6.0.0</version>
+        </dependency>
+        <!--+
+            | Embedded H2 database.
+            | https://www.baeldung.com/spring-boot-h2-database
+            +-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
 
         <!--+

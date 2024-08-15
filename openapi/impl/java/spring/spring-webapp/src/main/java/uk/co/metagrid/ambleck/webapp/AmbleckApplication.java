@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -61,8 +60,8 @@ public class AmbleckApplication {
     private RequestMappingHandlerAdapter handlerAdapter;
 
     /**
-     * This manages to catch the built-in converters,
-     * but it misses the YAML converter.
+     * This manages to catch the built-in converters, but it misses the YAML converter.
+     * That suggests this is executed before the YAML converter is added.
      *
      */
     @EventListener
@@ -75,7 +74,7 @@ public class AmbleckApplication {
                 c -> {
                     if (c instanceof MappingJackson2HttpMessageConverter)
                         {
-                        System.out.print("Found MappingJackson2HttpMessageConverter [" + c.getClass().getName() + "]");
+                        //System.out.print("Found MappingJackson2HttpMessageConverter [" + c.getClass().getName() + "]");
                         MappingJackson2HttpMessageConverter jsonMessageConverter = (MappingJackson2HttpMessageConverter) c;
                         ObjectMapper objectMapper = jsonMessageConverter.getObjectMapper();
                         objectMapper.disable(

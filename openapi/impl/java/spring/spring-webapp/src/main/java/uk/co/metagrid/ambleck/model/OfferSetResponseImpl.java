@@ -1,5 +1,4 @@
 /*
- *
  * <meta:header>
  *   <meta:licence>
  *     Copyright (C) 2024 University of Manchester.
@@ -21,39 +20,54 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.webapp;
+package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
 import java.util.List;
 import java.time.OffsetDateTime;
 import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.OffersResponse;
+import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
-public class OffersResponseImpl extends OffersResponse
+public class OfferSetResponseImpl extends OfferSetResponse
     {
-    public OffersResponseImpl()
+    /**
+     * Public constructor.
+     * Generates a new UUID and sets the expiry time to 5min from now.
+     *
+     */
+    public OfferSetResponseImpl(final String baseurl)
         {
         this.setUuid(
             UuidCreator.getTimeBased()
+            );
+        this.setHref(
+            baseurl + "/offerset/" + this.getUuid()
+            );
+        this.created(
+            OffsetDateTime.now()
             );
         this.expires(
             OffsetDateTime.now().plusMinutes(5)
             );
         this.setResult(
-            OffersResponse.ResultEnum.NO
+            OfferSetResponse.ResultEnum.NO
             );
         }
 
-    protected void addExecution(final ExecutionResponseImpl execution)
+    /**
+     * Add an ExecutionResponse to our list of offers.
+     *
+    protected void addOffer(final ExecutionResponseImpl execution)
         {
-        this.addExecutionsItem(
+        this.addOffersItem(
              (ExecutionResponse) execution
             );
         this.setResult(
-            OffersResponse.ResultEnum.YES
+            OfferSetResponse.ResultEnum.YES
             );
         }
+     */
     }
 
