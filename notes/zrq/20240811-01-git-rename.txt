@@ -44,7 +44,7 @@
 # Create a new .env file for our local project.
 #[user@desktop]
 
-cat > "${HOME}/calycopis.env " << 'EOF'
+cat > "${HOME}/calycopis.env" << 'EOF'
 source "${HOME:?}/projects.env"
 CALYCOPIS_REPO='git@github.com:Zarquan/Calycopis-broker.git'
 CALYCOPIS_HOME="${PROJECTS_ROOT}/IVOA/ivoa/Calycopis-broker"
@@ -138,7 +138,7 @@ EOF
 
     >   On branch 20240811-zrq-attication
     >   Your branch is up to date with 'origin/20240811-zrq-attication'.
-    >   
+    >
     >   Changes to be committed:
     >     (use "git restore --staged <file>..." to unstage)
     >       renamed:    experiments/ambleck/.gitignore -> attic/ambleck/.gitignore
@@ -156,7 +156,7 @@ EOF
     >       renamed:    experiments/openapi/ivoa/attic/parcolar-0.5.yaml -> openapi/ivoa/attic/parcolar-0.5.yaml
     >       renamed:    experiments/openapi/ivoa/openapi-0.6.yaml -> openapi/ivoa/openapi-0.6.yaml
     >       renamed:    experiments/openapi/ivoa/openapi-0.7.yaml -> openapi/ivoa/openapi-0.7.yaml
-    >   
+    >
     >   Untracked files:
     >     (use "git add <file>..." to include in what will be committed)
     >       notes/zrq/20240811-01-git-rename.txt
