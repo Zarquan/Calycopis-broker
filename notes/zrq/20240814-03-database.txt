@@ -244,24 +244,23 @@ EOF
     (13 rows, 3 ms)
 
 
-        SELECT
-            x_range.x_hour,
-            count(session.start) AS x_count,
-            IfNull(sum(cores), 0) AS x_cores,
-            IfNull(sum(memory), 0) AS x_memory
-        FROM
-            (SELECT x AS x_hour FROM SYSTEM_RANGE(0, 12)) AS x_range
-        LEFT OUTER JOIN
-            session
-        ON
-            ((session.start <= x_range.x_hour) AND ((session.start + session.duration) > x_range.x_hour))
-        GROUP BY
-            x_range.x_hour
-        HAVING
-            (x_cores <= 3)
-        AND
-            (x_memory <= 3)
-        ;
+    SELECT
+        x_range.x_hour,
+        count(session.start) AS x_count,
+        IfNull(sum(cores), 0) AS x_cores,
+        IfNull(sum(memory), 0) AS x_memory
+    FROM
+        (SELECT x AS x_hour FROM SYSTEM_RANGE(0, 12)) AS x_range
+    LEFT OUTER JOIN
+        session
+    ON
+        ((session.start <= x_range.x_hour) AND ((session.start + session.duration) > x_range.x_hour))
+    GROUP BY
+        x_range.x_hour
+    HAVING
+        (x_cores <= 3)
+    AND
+        (x_memory <= 3)
 
     X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY  
     0	0	0	0
