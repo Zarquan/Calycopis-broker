@@ -145,43 +145,41 @@ EOF
     | tee "${createresponse}" \
     | yq '.'
 
---START--
-uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-result: "YES"
-href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-created: "2024-08-14T05:45:26.855136373Z"
-expires: "2024-08-14T05:50:26.855173513Z"
-offers:
-  - uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-    executable:
-      type: "urn:jupyter-notebook-0.1"
-      uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
-      name: "test notebook"
-      notebook: "http://there"
-    resources:
-      compute:
-        - type: "urn:simple-compute-resource"
-          uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
-          name: "Compute 001"
-          cores:
-            min: 4
-            max: 8
-            units: "cores"
-    href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-    state: "OFFERED"
-    created: "2024-08-14T05:45:26.885928565Z"
-    modified: "2024-08-14T05:45:26.885928565Z"
-    expires: "2024-08-14T05:50:26.855173513Z"
-    offerset:
-      uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-      href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-    options:
-      - type: "urn:enum-value-option"
-        path: "state"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
---END--
+    >   uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   created: "2024-08-14T05:45:26.855136373Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offers:
+    >     - uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "test notebook"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >       href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >       state: "OFFERED"
+    >       created: "2024-08-14T05:45:26.885928565Z"
+    >       modified: "2024-08-14T05:45:26.885928565Z"
+    >       expires: "2024-08-14T05:50:26.855173513Z"
+    >       offerset:
+    >         uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >         href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
 
 
     selecthref=$(
@@ -199,37 +197,35 @@ offers:
     | tee "${selectresponse}" \
     | yq '.'
 
---START--
-uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-executable:
-  type: "urn:jupyter-notebook-0.1"
-  uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
-  name: "test notebook"
-  notebook: "http://there"
-resources:
-  compute:
-    - type: "urn:simple-compute-resource"
-      uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
-      name: "Compute 001"
-      cores:
-        min: 4
-        max: 8
-        units: "cores"
-href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-state: "OFFERED"
-created: "2024-08-14T05:45:26.885928565Z"
-modified: "2024-08-14T05:45:26.885928565Z"
-expires: "2024-08-14T05:50:26.855173513Z"
-offerset:
-  uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-  href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-options:
-  - type: "urn:enum-value-option"
-    path: "state"
-    values:
-      - "ACCEPTED"
-      - "REJECTED"
---END--
+    >   uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   state: "OFFERED"
+    >   created: "2024-08-14T05:45:26.885928565Z"
+    >   modified: "2024-08-14T05:45:26.885928565Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offerset:
+    >     uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >     href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
 
 
     updatehref=$(
@@ -260,34 +256,32 @@ EOF
     | tee "${updateresponse}" \
     | yq '.'
 
---START--
-uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-executable:
-  type: "urn:jupyter-notebook-0.1"
-  uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
-  name: "test notebook"
-  notebook: "http://there"
-resources:
-  compute:
-    - type: "urn:simple-compute-resource"
-      uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
-      name: "Compute 001"
-      cores:
-        min: 4
-        max: 8
-        units: "cores"
-href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
-state: "ACCEPTED"
-created: "2024-08-14T05:45:26.885928565Z"
-modified: "2024-08-14T05:45:26.885928565Z"
-expires: "2024-08-14T05:50:26.855173513Z"
-offerset:
-  uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-  href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
-options:
-  - type: "urn:enum-value-option"
-    path: "state"
-    values:
-      - "CANCELLED"
---END--
+    >   uuid: "6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "6857a02e-5a00-11ef-90c5-6992c7cbf6d4"
+    >     name: "test notebook"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "6857791d-5a00-11ef-90c5-6992c7cbf6d4"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >   href: "http://127.0.0.1:8082/execution/6857c73f-5a00-11ef-90c5-6992c7cbf6d4"
+    >   state: "ACCEPTED"
+    >   created: "2024-08-14T05:45:26.885928565Z"
+    >   modified: "2024-08-14T05:45:26.885928565Z"
+    >   expires: "2024-08-14T05:50:26.855173513Z"
+    >   offerset:
+    >     uuid: "68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >     href: "http://127.0.0.1:8082/offerset/68530c4c-5a00-11ef-90c5-6992c7cbf6d4"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
 

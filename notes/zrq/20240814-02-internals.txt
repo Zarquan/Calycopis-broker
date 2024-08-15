@@ -1,0 +1,71 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Where next.
+    Sending a request creates a set of offers.
+    The set has an expiry time, inherited by the offers.
+
+    Updating to ACCEPTED or CANCELLED on an offer nulls the expiry time.
+ ** TODO accepting one offer updates the rest to rejected and nulls the expiry time.
+    TODO reject the whole set - implies state on the offerset.
+    TODO also suggests there is an aggregate state on the offerset.
+    - EXPIRED if all of them are expired
+    - REJECTED if all of them are rejected
+    - ACCEPTED if ONE of them is accepted
+
+    cron update endpoint
+    Updates the Execution state to the next level.
+
+    Booking time slots, based on duration.
+    Maintain a count of how many in each time slot.
+    Do we continue with HashMaps, or do we start to use a database ?
+
+    bestinDay => a timeslot offer
+        + schedule start time
+        + compute resources
+
+    bestinWeek => a timeslot offer
+        + schedule start time
+        + compute resources
+
+    a database just for the schedule might be the way to go for now
+
+    timeslots are the unknown unknown
+    extend create to calculate the best offers based on timeslots
+    placeholder for the execution
+
+
+
+
