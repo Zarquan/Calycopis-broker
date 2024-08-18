@@ -105,8 +105,19 @@ EOF
 
 
 # -----------------------------------------------------
+# Short form.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+
+# -----------------------------------------------------
 # Connect to the database admin pages.
 #[user@desktop]
+
+    http://localhost:8082/h2-console
 
     url: jdbc:h2:mem:testdb
     username: sa
@@ -117,14 +128,8 @@ EOF
 # Experiment with the database.
 #[sa@testdb]
 
-    http://localhost:8082/h2-console
-
-    CREATE TABLE hour(
-        ident INT PRIMARY KEY,
-        );
-
-    SELECT hour FROM SYSTEM_RANGE(0, 23);
-    SELECT hour FROM SYSTEM_RANGE(0, ((24*7)-1));
+    SELECT x FROM SYSTEM_RANGE(0, 23);
+    SELECT x FROM SYSTEM_RANGE(0, ((24*7)-1));
 
     DROP TABLE session;
     CREATE TABLE session(
@@ -169,79 +174,86 @@ EOF
 10              0
 
     SELECT start, start + duration FROM session WHERE (start <= 6) AND ((start + duration) > 6) GROUP BY start ;
-    START  	START + DURATION  
-    4	7
-    5	8
-    (2 rows, 1 ms)
+
+    >   START  	START + DURATION  
+    >   4	7
+    >   5	8
+    >   (2 rows, 1 ms)
+
 
     SELECT start, cores FROM session WHERE (start <= 6) AND ((start + duration) > 6) ;
-    START  	CORES  
-    4	2
-    5	2
-    5	2
-    6	2
-    (4 rows, 1 ms)
+
+    >   START  	CORES  
+    >   4	2
+    >   5	2
+    >   5	2
+    >   6	2
+    >   (4 rows, 1 ms)
 
     CREATE TABLE xx AS (SELECT x AS xx FROM SYSTEM_RANGE(0, 9));
 
     SELECT xx, start, cores FROM xx JOIN session ON (session.start <= xx.xx) AND ((session.start + session.duration) > xx.xx) ;
 
     SELECT xx.x, count(start), sum(cores) FROM xx JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
-    X  	COUNT(START)  	SUM(CORES)  
-    3	1	2
-    4	2	4
-    5	4	8
-    6	4	8
-    7	4	8
-    8	2	4
-    9	1	2
-    (7 rows, 2 ms)
+
+    >   X  	COUNT(START)  	SUM(CORES)  
+    >   3	1	2
+    >   4	2	4
+    >   5	4	8
+    >   6	4	8
+    >   7	4	8
+    >   8	2	4
+    >   9	1	2
+    >   (7 rows, 2 ms)
 
     SELECT xx.x, count(start), sum(cores) FROM xx OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
 
     SELECT xx.x, count(start), IfNull(sum(cores), 0) FROM xx LEFT OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
-    X  	COUNT(START)  	COALESCE(SUM(CORES), 0)  
-    0	0	0
-    1	0	0
-    2	0	0
-    3	1	2
-    4	2	4
-    5	4	8
-    6	4	8
-    7	4	8
-    8	2	4
-    9	1	2
-    (10 rows, 9 ms)
+
+    >   X  	COUNT(START)  	COALESCE(SUM(CORES), 0)  
+    >   0	0	0
+    >   1	0	0
+    >   2	0	0
+    >   3	1	2
+    >   4	2	4
+    >   5	4	8
+    >   6	4	8
+    >   7	4	8
+    >   8	2	4
+    >   9	1	2
+    >   (10 rows, 9 ms)
 
     SELECT xx.x, count(start), IfNull(sum(cores), 0) AS cores, IfNull(sum(memory), 0) AS memory FROM xx LEFT OUTER JOIN session ON (session.start <= xx.x) AND ((session.start + session.duration) > xx.x)  GROUP BY x;
-    X  	COUNT(START)  	CORES  	MEMORY  
-    0	0	0	0
-    1	0	0	0
-    2	0	0	0
-    3	1	2	2
-    4	2	4	3
-    5	4	8	6
-    6	4	8	6
-    7	4	8	6
-    8	2	4	3
-    9	1	2	1
+
+    >   X  	COUNT(START)  	CORES  	MEMORY  
+    >   0	0	0	0
+    >   1	0	0	0
+    >   2	0	0	0
+    >   3	1	2	2
+    >   4	2	4	3
+    >   5	4	8	6
+    >   6	4	8	6
+    >   7	4	8	6
+    >   8	2	4	3
+    >   9	1	2	1
 
     SELECT xx.x AS x_hour, count(session.start) AS x_count, IfNull(sum(cores), 0) AS cores, IfNull(sum(memory), 0) AS memory FROM (SELECT x FROM SYSTEM_RANGE(0, 12)) AS xx LEFT OUTER JOIN session ON ((session.start <= xx.x) AND ((session.start + session.duration) > xx.x))  GROUP BY x;
-    X_HOUR  	X_COUNT  	CORES  	MEMORY  
-    0	0	0	0
-    1	0	0	0
-    2	0	0	0
-    3	1	2	2
-    4	2	4	3
-    5	4	8	6
-    6	4	8	6
-    7	4	8	6
-    8	2	4	3
-    9	1	2	1
-    10	0	0	0
-    11	0	0	0
-    12	0	0	0
-    (13 rows, 3 ms)
+
+    >   X_HOUR  	X_COUNT  	CORES  	MEMORY  
+    >   0	0	0	0
+    >   1	0	0	0
+    >   2	0	0	0
+    >   3	1	2	2
+    >   4	2	4	3
+    >   5	4	8	6
+    >   6	4	8	6
+    >   7	4	8	6
+    >   8	2	4	3
+    >   9	1	2	1
+    >   10	0	0	0
+    >   11	0	0	0
+    >   12	0	0	0
+    >   (13 rows, 3 ms)
 
 
     SELECT
@@ -262,14 +274,143 @@ EOF
     AND
         (x_memory <= 3)
 
-    X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY  
-    0	0	0	0
-    1	0	0	0
-    2	0	0	0
-    3	1	2	2
-    9	1	2	1
-    10	0	0	0
-    11	0	0	0
-    12	0	0	0
-    (8 rows, 3 ms)
+    >   X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY  
+    >   0	0	0	0
+    >   1	0	0	0
+    >   2	0	0	0
+    >   3	1	2	2
+    >   9	1	2	1
+    >   10	0	0	0
+    >   11	0	0	0
+    >   12	0	0	0
+    >   (8 rows, 3 ms)
+
+
+
+    select
+        val,
+        row_number()
+    over (
+        partition by vno order by val
+        )
+    from (
+        select
+            val,
+            val - row_number() over (order by val) as vno
+        from
+            rank_test
+
+
+        )
+    as a
+
+
+
+
+    DROP VIEW albert ;
+    CREATE VIEW albert AS (
+        SELECT
+            x_range.x_hour,
+            count(session.start) AS x_count,
+            IfNull(sum(cores), 0) AS x_cores,
+            IfNull(sum(memory), 0) AS x_memory
+        FROM
+            (SELECT x AS x_hour FROM SYSTEM_RANGE(0, 12)) AS x_range
+        LEFT OUTER JOIN
+            session
+        ON
+            ((session.start <= x_range.x_hour) AND ((session.start + session.duration) > x_range.x_hour))
+        GROUP BY
+            x_range.x_hour
+        HAVING
+            (x_cores <= 3)
+        AND
+            (x_memory <= 3)
+        )
+
+
+    >   SELECT * FROM albert;
+    >   X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY
+    >   0	0	0	0
+    >   1	0	0	0
+    >   2	0	0	0
+    >   3	1	2	2
+    >   9	1	2	1
+    >   10	0	0	0
+    >   11	0	0	0
+    >   12	0	0	0
+    >   (8 rows, 4 ms)--END--
+    >   
+    >   
+    >           select
+    >               albert.*,
+    >               (row_number() over ()  - 1) as x_rownum,
+    >               (x_hour - (row_number() over ()  - 1)) as x_group
+    >           from
+    >               albert
+    >   
+    >   X_HOUR  	X_COUNT  	X_CORES  	X_MEMORY  	X_ROWNUM  	X_GROUP
+    >   0	0	0	0	0	0
+    >   1	0	0	0	1	0
+    >   2	0	0	0	2	0
+    >   3	1	2	2	3	0
+    >   9	1	2	1	4	5
+    >   10	0	0	0	5	5
+    >   11	0	0	0	6	5
+    >   12	0	0	0	7	5
+    >   (8 rows, 4 ms)
+
+
+    select
+        min(x_hour),
+        max(x_hour),
+        count(x_hour),
+        min(x_cores),
+        max(x_cores),
+        x_group
+    from
+        (
+        select
+            albert.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (x_hour - (row_number() over ()  - 1)) as x_group
+        from
+            albert
+        )
+    group by x_group
+
+
+    >   MIN(X_HOUR)  	MAX(X_HOUR)  	COUNT(X_HOUR)  	MIN(X_CORES)  	MAX(X_CORES)  	X_GROUP
+    >   0               3               4               0               2               0
+    >   9               12              4               0               2               5
+    >   (2 rows, 3 ms)
+
+
+    INSERT INTO session (start, duration, cores, memory) VALUES( 12, 3, 2, 1);
+
+    select
+        min(x_hour),
+        max(x_hour),
+        count(x_hour),
+        min(x_cores),
+        max(x_cores),
+        x_group
+    from
+        (
+        select
+            albert.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (x_hour - (row_number() over ()  - 1)) as x_group
+        from
+            albert
+        )
+    group by x_group
+
+
+    >   MIN(X_HOUR)  	MAX(X_HOUR)  	COUNT(X_HOUR)  	MIN(X_CORES)  	MAX(X_CORES)  	X_GROUP
+    >   0	3	4	0	2	0
+    >   9	11	3	0	2	5
+    >   (2 rows, 0 ms)
+
+
 
