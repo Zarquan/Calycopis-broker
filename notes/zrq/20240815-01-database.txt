@@ -162,7 +162,6 @@ EOF
 
     SELECT * FROM x_session ;
 
-    >   
     >   IDENT   START   DURATION    CORES   MEMORY
     >   1       3	    3           2       2
     >   2       4       4           2       1
@@ -177,56 +176,55 @@ EOF
     >   11      16      3           2       5
     >   12      17      4           2       1
     >   (12 rows, 0 ms)--END--
-    >   
-    >    0              0
-    >    1              0
-    >    2              0
-    >    3 2            2
-    >    4 2 2          4
-    >    5 2 2 2 2      8
-    >    6   2 2 2 2    8
-    >    7   2   2 2 2 10
-    >    8       2 2 2  6
-    >    9           2  2
-    >   10           2  2
-    >   11              0
-    >   12 2            2
-    >   13 2 2          4
-    >   14 2 2 2        6
-    >   15   2 2 2      6
-    >   16   2 2 2 2    8
-    >   17       2 2 2  6
-    >   18       2 2 2  6
-    >   19           2  2
-    >   20           2  2
-    >   21              0
-    >   22              0
-    >   23              0
-    >   
-    >   
-    >       DROP VIEW IF EXISTS x_load ;
-    >       CREATE VIEW x_load AS (
-    >           SELECT
-    >               x_range.x_hour AS start_hour,
-    >               count(x_session.start) AS load_count,
-    >               IfNull(sum(cores), 0) AS load_cores,
-    >               IfNull(sum(memory), 0) AS load_memory
-    >           FROM
-    >               (SELECT x AS x_hour FROM SYSTEM_RANGE(0, ((24*1)-1))) AS x_range
-    >           LEFT OUTER JOIN
-    >               x_session
-    >           ON
-    >               ((x_session.start <= x_range.x_hour) AND ((x_session.start + x_session.duration) > x_range.x_hour))
-    >           GROUP BY
-    >               x_range.x_hour
-    >           HAVING
-    >               (load_cores <= 6)
-    >           AND
-    >               (load_memory <= 6)
-    >           );
-    >       SELECT * FROM x_load ;
-    >   
-    >   
+
+     0              0
+     1              0
+     2              0
+     3 2            2
+     4 2 2          4
+     5 2 2 2 2      8
+     6   2 2 2 2    8
+     7   2   2 2 2 10
+     8       2 2 2  6
+     9           2  2
+    10           2  2
+    11              0
+    12 2            2
+    13 2 2          4
+    14 2 2 2        6
+    15   2 2 2      6
+    16   2 2 2 2    8
+    17       2 2 2  6
+    18       2 2 2  6
+    19           2  2
+    20           2  2
+    21              0
+    22              0
+    23              0
+
+
+   DROP VIEW IF EXISTS x_load ;
+   CREATE VIEW x_load AS (
+       SELECT
+           x_range.x_hour AS start_hour,
+           count(x_session.start) AS load_count,
+           IfNull(sum(cores), 0) AS load_cores,
+           IfNull(sum(memory), 0) AS load_memory
+       FROM
+           (SELECT x AS x_hour FROM SYSTEM_RANGE(0, ((24*1)-1))) AS x_range
+       LEFT OUTER JOIN
+           x_session
+       ON
+           ((x_session.start <= x_range.x_hour) AND ((x_session.start + x_session.duration) > x_range.x_hour))
+       GROUP BY
+           x_range.x_hour
+       HAVING
+           (load_cores <= 6)
+       AND
+           (load_memory <= 6)
+       );
+   SELECT * FROM x_load ;
+
     >   START_HOUR  LOAD_COUNT  LOAD_CORES  LOAD_MEMORY
     >   0           0           0           0
     >   1           0           0           0
@@ -269,7 +267,7 @@ EOF
         );
     SELECT * FROM x_free ;
 
-    >   
+    >
     >   START_HOUR  LOAD_COUNT  FREE_CORES  FREE_MEMORY
     >   0           0           8           8
     >   1           0           8           8

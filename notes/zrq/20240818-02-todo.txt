@@ -1,0 +1,114 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        List of ideas ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Multiple updates in one message ?
+
+    Update should be a POST-REDIRECT-GET method.
+    Errors should return an ErrorResponse with messages.
+
+    Words and names matter.
+    Because we are working from the OpenAPI spec inwards
+    our main clasess and ExecutionResponse and ExecutionResponseFactory
+    rather than Execution and ExecutionFactory.
+    This could cause conceptual problems when we reach the database level.
+    Technical debt - we don't have time to fix it now.
+
+    State change trigger methods
+
+        /cron
+        /execution/{uuid}/cron
+
+    Define behaviour
+
+        If a user asks for multiple time slots in the schedule, the server should split them up and make separate offers for each.
+        The server should not offer an execution with multiple time slots.
+        Not clear which slot the execution would use, or would it repeat the task multiple times ?
+
+        Server chooses a start time for each offer.
+        Add prepare-cost and prepare-time to show when it will start preparing.
+        Server waits until /cron trigger after the start time to start.
+
+        Split the schedule into parts
+
+            schedule:
+              # Request from user (array of options)
+              request:
+                - start:
+                  duration:
+                - start:
+                  duration:
+              # Planned preparation time offered by server
+              preparing:
+                start:
+                duration:
+              # Planned execution time offered by server
+              executing:
+                start:
+                duration:
+              # Planned finishing time offered by server
+              finishing:
+                start:
+                duration:
+
+
+
+    Updating to ACCEPTED or CANCELLED on an offer nulls the expiry time.
+ ** TODO accepting one offer updates the rest to rejected and nulls the expiry time.
+    TODO reject the whole set - implies state on the offerset.
+    TODO also suggests there is an aggregate state on the offerset.
+    - EXPIRED if all of them are expired
+    - REJECTED if all of them are rejected
+    - ACCEPTED if ONE of them is accepted
+
+    cron update endpoint
+    Updates the Execution state to the next level.
+
+    bestinDay => a timeslot offer
+        + schedule start time
+        + compute resources
+
+    bestinWeek => a timeslot offer
+        + schedule start time
+        + compute resources
+
+
+    Need to bring in the VOSpace code from the python branch.
+    Database of userid and certiifcate to access Canadian service.
+    Separate endpoint to upload our cert.
+
+    Ask Spain to support the generic notebook container.
+
+
+
