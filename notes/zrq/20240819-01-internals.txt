@@ -391,16 +391,20 @@ BlockResources AS (
         MinFreeMemory DESC,
         BlockLength DESC,
         BlockStart  ASC
+
     #
-    # Divide the start time (now) by 60 to get minutes.
+    # ExecutionBlock.Start is in minutes not seconds since 1970
+    # Divide now by 60 to get start time in minutes.
     # Max cores is 32
     # Max memory is 32
-    # 28734097 is now / 60
-    # 0, 19 is a range of 20 minutes
+    # 28734097 is now / 60 to get start of offers (move forward if we need staging time)
+    # 0, 19 is a range of 20 * 1 minute steps
     # FreeCores >= 2 is the minimum
     # FreeMemory >= 2 is the minimum
     # BlockLength >= 4 is the shortest block
     # BlockLength <= 6 is the longest block
     #
-
+    # Use minutes for the demonstration.
+    # Promote to hours for the production system.
+    #
 
