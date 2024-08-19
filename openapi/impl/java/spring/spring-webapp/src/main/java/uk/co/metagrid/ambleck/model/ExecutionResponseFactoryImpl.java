@@ -131,7 +131,7 @@ public class ExecutionResponseFactoryImpl
      * TODO Move this up a level to OfferSetResponseFactory.
      *
      */
-    public class ProcessingContext
+    public static class ProcessingContext
         {
         private boolean valid = true ;
         public boolean valid()
@@ -287,7 +287,207 @@ public class ExecutionResponseFactoryImpl
             this.executable = executable;
             }
 
+        public int DEFAULT_MIN_CORES = 1 ;
+        private int mincores = 0 ;
+        public int getMinCores()
+            {
+            if (this.mincores != 0)
+                {
+                return this.mincores ;
+                }
+            else {
+                return DEFAULT_MIN_CORES ;
+                }
+            }
+        public void addMinCores(int delta)
+            {
+            this.mincores += delta ;
+            }
+
+        public int DEFAULT_MAX_CORES = 1 ;
+        private int maxcores = 0 ;
+        public int getMaxCores()
+            {
+            if (this.maxcores != 0)
+                {
+                return this.maxcores ;
+                }
+            else {
+                return DEFAULT_MAX_CORES ;
+                }
+            }
+        public void addMaxCores(int delta)
+            {
+            this.maxcores += delta ;
+            }
+
+        public int DEFAULT_MIN_MEMORY = 1 ;
+        private int minmemory = 0 ;
+        public int getMinMemory()
+            {
+            if (this.minmemory != 0)
+                {
+                return this.minmemory ;
+                }
+            else {
+                return DEFAULT_MIN_MEMORY ;
+                }
+            }
+        public void addMinMemory(int delta)
+            {
+            this.minmemory += delta ;
+            }
+
+        public int DEFAULT_MAX_MEMORY = 1 ;
+        private int maxmemory = 0 ;
+        public int getMaxMemory()
+            {
+            if (this.maxmemory != 0)
+                {
+                return this.maxmemory ;
+                }
+            else {
+                return DEFAULT_MAX_MEMORY ;
+                }
+            }
+        public void addMaxMemory(int delta)
+            {
+            this.maxmemory += delta ;
+            }
+
+        public int DEFAULT_MIN_DURATION = 10 ;
+        private int minduration = 0 ;
+        public int getMinDuration()
+            {
+            if (this.minduration != 0)
+                {
+                return this.minduration ;
+                }
+            else {
+                return DEFAULT_MIN_DURATION ;
+                }
+            }
+        public void addMinDuration(int delta)
+            {
+            this.minduration += delta ;
+            }
+
+        public int DEFAULT_MAX_DURATION = 10 ;
+        private int maxduration = 0 ;
+        public int getMaxDuration()
+            {
+            if (this.maxduration != 0)
+                {
+                return this.maxduration ;
+                }
+            else {
+                return DEFAULT_MAX_DURATION ;
+                }
+            }
+        public void addMaxDuration(int delta)
+            {
+            this.maxduration += delta ;
+            }
         }
+
+    /*
+     * Resource statistics for an offer.
+     *
+     */
+    public interface ExecutionBlock
+        {
+        public long getBlockStart();
+        public long getBlockLength();
+        public int  getMinCores();
+        public int  getMaxCores();
+        public int  getMinMemory();
+        public int  getMaxMemory();
+        }
+
+    public static class ExecutionBlockImpl implements ExecutionBlock
+        {
+        public ExecutionBlockImpl(
+            long blockStart,
+            long blockLength,
+            int minCores,
+            int maxCores,
+            int minMemory,
+            int maxMemory
+            ) {
+            this.blockStart  = blockStart  ;
+            this.blockLength = blockLength ;
+            this.minCores = minCores ;
+            this.maxCores = maxCores ;
+            this.minMemory = minMemory ;
+            this.maxMemory = maxMemory ;
+            }
+
+        private long blockStart;
+        public long getBlockStart()
+            {
+            return this.blockStart;
+            }
+
+        private long blockLength;
+        public long getBlockLength()
+            {
+            return this.blockLength;
+            }
+
+        private int minCores;
+        public int  getMinCores()
+            {
+            return this.minCores;
+            }
+
+        private int maxCores;
+        public int  getMaxCores()
+            {
+            return this.maxCores;
+            }
+
+        private int minMemory;
+        public int  getMinMemory()
+            {
+            return this.minMemory;
+            }
+
+        private int maxMemory;
+        public int  getMaxMemory()
+            {
+            return this.maxMemory;
+            }
+        }
+
+    /*
+     * Get a list of potential offers from our database.
+     *
+     */
+    public List<ExecutionBlock> getExecutionBlockList(final ProcessingContext context)
+        {
+        List<ExecutionBlock> list = new ArrayList<ExecutionBlock>();
+        list.add(
+            new ExecutionBlockImpl(
+                10,2,3,6,4,8
+                )
+            );
+        list.add(
+            new ExecutionBlockImpl(
+                20,4,6,12,8,16
+                )
+            );
+        return list ;
+        }
+
+    /*
+     * Insert an Execution into our database.
+     *
+     */
+    public void addExecutionBlock(final ExecutionResponse offer)
+        {
+
+        }
+
 
     /**
      * Process an OfferSetRequest and populate an OfferSetResponse with ExecutionResponse offers.
@@ -369,41 +569,97 @@ public class ExecutionResponseFactoryImpl
         // Check if everything worked.
         if (context.valid())
             {
-            // Transfer results from context to response.
-            ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
-            this.insert(
-                offer
-                );
-
-            offer.setName(
-                request.getName()
-                );
-            offer.setExecutable(
-                context.getExecutable()
-                );
-
-            ExecutionResourceList resources = new ExecutionResourceList();
-            for (AbstractDataResource resource : context.getDataResourceList())
+            //
+            // Get a list of execution blocks.
+            for (ExecutionBlock block : getExecutionBlockList(context))
                 {
-                resources.addDataItem(
-                    resource
+                //
+                // Create an offer using the resources in our context.
+                ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
+                this.insert(
+                    offer
+                    );
+                offer.setName(
+                    request.getName()
+                    );
+                offer.setExecutable(
+                    context.getExecutable()
+                    );
+                // Transfer start time and duration from the offer block.
+/*
+                offer.setStartTime(
+                    block.getBlockStart()
+                    );
+                offer.setDuration(
+                    block.getBlockLength()
+                    );
+ */
+                ExecutionResourceList resources = new ExecutionResourceList();
+                for (AbstractDataResource resource : context.getDataResourceList())
+                    {
+                    resources.addDataItem(
+                        resource
+                        );
+                    }
+                for (AbstractComputeResource resource : context.getComputeResourceList())
+                    {
+                    // Transfer cores and memory from the offer.
+                    // Data model shape mismatch.
+                    // This assumes we only have one SimpleComputeResource.
+                    if (resource instanceof SimpleComputeResource)
+                        {
+                        SimpleComputeResource simple = (SimpleComputeResource) resource ;
+                        SimpleComputeResource albert = new SimpleComputeResource(
+                            "urn:simple-compute-resource"
+                            );
+                        albert.setUuid(
+                            simple.getUuid()
+                            );
+                        albert.setName(
+                            simple.getName()
+                            );
+                        if (albert.getCores() == null)
+                            {
+                            albert.setCores(
+                                new MinMaxInteger()
+                                );
+                            }
+                        albert.getCores().setMin(
+                            block.getMinCores()
+                            );
+                        albert.getCores().setMax(
+                            block.getMaxCores()
+                            );
+                        if (albert.getMemory() == null)
+                            {
+                            albert.setMemory(
+                                new MinMaxInteger()
+                                );
+                            }
+                        albert.getMemory().setMin(
+                            block.getMinMemory()
+                            );
+                        albert.getMemory().setMax(
+                            block.getMaxMemory()
+                            );
+                        albert.setVolumes(
+                            simple.getVolumes()
+                            );
+                        resources.addComputeItem(
+                            albert
+                            );
+                        }
+                    }
+                offer.setResources(
+                    resources
+                    );
+                response.addOffersItem(
+                    offer
+                    );
+                response.setResult(
+                    OfferSetResponse.ResultEnum.YES
                     );
                 }
-            for (AbstractComputeResource resource : context.getComputeResourceList())
-                {
-                resources.addComputeItem(
-                    resource
-                    );
-                }
-            offer.setResources(
-                resources
-                );
-            response.addOffersItem(
-                offer
-                );
-            response.setResult(
-                OfferSetResponse.ResultEnum.YES
-                );
             }
         }
 
@@ -718,10 +974,6 @@ public class ExecutionResponseFactoryImpl
             {
             mincores = DEFAULT_MIN_CORES;
             }
-        if (mincores < MIN_CORES_LIMIT)
-            {
-            mincores = DEFAULT_MIN_CORES;
-            }
         if (maxcores == null)
             {
             maxcores = DEFAULT_MAX_CORES;
@@ -794,6 +1046,134 @@ public class ExecutionResponseFactoryImpl
             );
         result.getCores().setUnits(
             coreunits
+            );
+        context.addMinCores(
+            mincores
+            );
+        context.addMaxCores(
+            maxcores
+            );
+
+        Integer minmemory = null ;
+        Integer maxmemory = null ;
+        Integer DEFAULT_MIN_MEMORY = 4 ;
+        Integer DEFAULT_MAX_MEMORY = 8 ;
+        Integer MIN_MEMORY_LIMIT = 2 ;
+        Integer MAX_MEMORY_LIMIT = 16 ;
+
+        String memoryunits = null;
+        String DEFAULT_MEMORY_UNITS = "GiB" ;
+
+        if (request.getMemory() != null)
+            {
+            minmemory   = request.getMemory().getMin();
+            maxmemory   = request.getMemory().getMax();
+            memoryunits = request.getMemory().getUnits();
+            }
+        if (memoryunits == null)
+            {
+            memoryunits = DEFAULT_MEMORY_UNITS;
+            }
+        if (DEFAULT_MEMORY_UNITS.equals(memoryunits) == false)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] unknown memory units [${memoryunits}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "memoryunits",
+                        safeString(memoryunits)
+                        )
+                    )
+                );
+            context.fail();
+            }
+
+        if (minmemory == null)
+            {
+            minmemory = DEFAULT_MIN_MEMORY;
+            }
+        if (maxmemory == null)
+            {
+            maxmemory = DEFAULT_MAX_MEMORY;
+            }
+        if (minmemory > MAX_MEMORY_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum memory exceeds available resources [${minmemory}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "minmemory",
+                        safeString(minmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (maxmemory > MAX_MEMORY_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] maximum memory exceeds available resources [${maxmemory}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "maxmemory",
+                        safeString(maxmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (minmemory > maxmemory)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum memory exceeds maximum [${minmemory}][${maxmemory}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "minmemory",
+                        safeString(minmemory),
+                        "maxmemory",
+                        safeString(maxmemory)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        result.setMemory(
+            new MinMaxInteger()
+            );
+        result.getMemory().setMin(
+            minmemory
+            );
+        result.getMemory().setMax(
+            maxmemory
+            );
+        result.getMemory().setUnits(
+            memoryunits
+            );
+        context.addMinMemory(
+            minmemory
+            );
+        context.addMaxMemory(
+            maxmemory
             );
 
         //
