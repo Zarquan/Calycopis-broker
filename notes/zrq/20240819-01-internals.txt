@@ -32,7 +32,6 @@
         Work in progress ...
 
 # -----------------------------------------------------
-# -----------------------------------------------------
 # Launch a container to work in with published ports.
 #[user@desktop]
 
@@ -229,5 +228,179 @@ EOF
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
+
+
+# -----------------------------------------------------
+# Connect to the database admin pages.
+#[user@desktop]
+
+    href: http://localhost:8082/h2-console
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+
+# -----------------------------------------------------
+# Create our main table.
+#[user@desktop]
+
+    DROP TABLE IF EXISTS ExecutionBlock;
+    CREATE TABLE ExecutionBlock(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        Start  LONG,
+        Length LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlock;
+
+
+# -----------------------------------------------------
+# Experiment with our query.
+#[user@desktop]
+
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(ExecutionBlock.Start) AS RowCount,
+        (32 - IfNull(sum(ExecutionBlock.MinCores),  0)) AS FreeCores,
+        (32 - IfNull(sum(ExecutionBlock.MinMemory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x + 28734097 AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 19)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        ExecutionBlock
+    ON  (
+            (ExecutionBlock.Start <= StartRange.StartRow)
+            AND
+            ((ExecutionBlock.Start + ExecutionBlock.Length) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (
+        SELECT
+            x AS n
+        FROM
+            SYSTEM_RANGE(1, 6)
+        ) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    ),
+BlockResources AS (
+    SELECT
+        BlockStart,
+        BlockLength,
+        StartRow,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    JOIN
+        SplitBlocks
+    WHERE
+        StartRow >= BlockStart
+    AND
+        StartRow < (BlockStart + BlockLength)
+    AND
+        BlockLength >= 4
+    AND
+        BlockLength <= 6
+    )
+
+    -- Earliest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        BlockStart  ASC,
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC
+
+    -- Largest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC,
+        BlockStart  ASC
+    #
+    # Divide the start time (now) by 60 to get minutes.
+    # Max cores is 32
+    # Max memory is 32
+    # 28734097 is now / 60
+    # 0, 19 is a range of 20 minutes
+    # FreeCores >= 2 is the minimum
+    # FreeMemory >= 2 is the minimum
+    # BlockLength >= 4 is the shortest block
+    # BlockLength <= 6 is the longest block
+    #
 
 

@@ -68,10 +68,13 @@ public class ExecutionResponseFactoryImpl
         return this.uuid ;
         }
 
+    private ExecutionBlockDatabase database ;
+
     @Autowired
-    public ExecutionResponseFactoryImpl()
+    public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
         this.uuid = UuidCreator.getTimeBased();
+        this.database = database ;
         }
 
     /**
@@ -126,370 +129,6 @@ public class ExecutionResponseFactoryImpl
         }
 
     /**
-     * A local class to hold context during processing.
-     * We can pass one thing down the processing chain rather than many things.
-     * TODO Move this up a level to OfferSetResponseFactory.
-     *
-     */
-    public static class ProcessingContext
-        {
-        private boolean valid = true ;
-        public boolean valid()
-            {
-            return this.valid;
-            }
-        public void fail()
-            {
-            this.valid = false ;
-            }
-
-        private final OfferSetRequest request;
-        public OfferSetRequest request()
-            {
-            return this.request;
-            }
-
-        private final OfferSetResponse response;
-        public OfferSetResponse response()
-            {
-            return this.response;
-            }
-
-        private final String baseurl;
-        public String baseurl()
-            {
-            return this.baseurl;
-            }
-
-        public ProcessingContext(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
-            {
-            this.baseurl  = baseurl ;
-            this.request  = request ;
-            this.response = response ;
-            }
-
-        // Messages
-        public void addMessage(final MessageItem message)
-            {
-            this.response.addMessagesItem(
-                message
-                );
-            }
-
-        // Data resources
-        private Map<String, AbstractDataResource> datamap = new HashMap<String, AbstractDataResource>();
-        private List<AbstractDataResource> datalist = new ArrayList<AbstractDataResource>();
-
-        public void addDataResource(final AbstractDataResource data)
-            {
-            UUID   uuid = data.getUuid() ;
-            String name = data.getName() ;
-            String type = data.getType() ;
-
-            // Check for anonymous resource and set the UUID.
-            if ((uuid == null) && (name == null))
-                {
-                uuid = UuidCreator.getTimeBased();
-                data.setUuid(
-                    uuid
-                    );
-                }
-            // Add the resource UUID to our Map.
-            if (uuid != null)
-                {
-                datamap.put(
-                    uuid.toString(),
-                    data
-                    );
-                }
-            // Add the resource name to our Map.
-            if (name != null)
-                {
-                datamap.put(
-                    name,
-                    data
-                    );
-                }
-            // Add the resource to our List.
-            datalist.add(
-                data
-                );
-            }
-
-        public List<AbstractDataResource> getDataResourceList()
-            {
-            return this.datalist;
-            }
-
-        public AbstractDataResource findDataResource(final String key)
-            {
-            return this.datamap.get(key);
-            }
-
-        // Compute resources.
-        private Map<String, AbstractComputeResource> compmap = new HashMap<String, AbstractComputeResource>();
-        private List<AbstractComputeResource> complist = new ArrayList<AbstractComputeResource>();
-
-        public void addComputeResource(final AbstractComputeResource comp)
-            {
-            UUID   uuid = comp.getUuid() ;
-            String name = comp.getName() ;
-            String type = comp.getType() ;
-
-            // Check for anonymous resource and set the UUID.
-            if ((uuid == null) && (name == null))
-                {
-                uuid = UuidCreator.getTimeBased();
-                comp.setUuid(
-                    uuid
-                    );
-                }
-            // Add the resource UUID to our Map.
-            if (uuid != null)
-                {
-                compmap.put(
-                    uuid.toString(),
-                    comp
-                    );
-                }
-            // Add the resource name to our Map.
-            if (name != null)
-                {
-                compmap.put(
-                    name,
-                    comp
-                    );
-                }
-            // Add the resource to our List.
-            complist.add(
-                comp
-                );
-            }
-
-        public List<AbstractComputeResource> getComputeResourceList()
-            {
-            return this.complist;
-            }
-
-        public AbstractComputeResource findComputeResource(final String key)
-            {
-            return this.compmap.get(key);
-            }
-
-        // Executable
-        private AbstractExecutable executable ;
-        public AbstractExecutable getExecutable()
-            {
-            return this.executable;
-            }
-        public void setExecutable(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        public int DEFAULT_MIN_CORES = 1 ;
-        private int mincores = 0 ;
-        public int getMinCores()
-            {
-            if (this.mincores != 0)
-                {
-                return this.mincores ;
-                }
-            else {
-                return DEFAULT_MIN_CORES ;
-                }
-            }
-        public void addMinCores(int delta)
-            {
-            this.mincores += delta ;
-            }
-
-        public int DEFAULT_MAX_CORES = 1 ;
-        private int maxcores = 0 ;
-        public int getMaxCores()
-            {
-            if (this.maxcores != 0)
-                {
-                return this.maxcores ;
-                }
-            else {
-                return DEFAULT_MAX_CORES ;
-                }
-            }
-        public void addMaxCores(int delta)
-            {
-            this.maxcores += delta ;
-            }
-
-        public int DEFAULT_MIN_MEMORY = 1 ;
-        private int minmemory = 0 ;
-        public int getMinMemory()
-            {
-            if (this.minmemory != 0)
-                {
-                return this.minmemory ;
-                }
-            else {
-                return DEFAULT_MIN_MEMORY ;
-                }
-            }
-        public void addMinMemory(int delta)
-            {
-            this.minmemory += delta ;
-            }
-
-        public int DEFAULT_MAX_MEMORY = 1 ;
-        private int maxmemory = 0 ;
-        public int getMaxMemory()
-            {
-            if (this.maxmemory != 0)
-                {
-                return this.maxmemory ;
-                }
-            else {
-                return DEFAULT_MAX_MEMORY ;
-                }
-            }
-        public void addMaxMemory(int delta)
-            {
-            this.maxmemory += delta ;
-            }
-
-        public int DEFAULT_MIN_DURATION = 10 ;
-        private int minduration = 0 ;
-        public int getMinDuration()
-            {
-            if (this.minduration != 0)
-                {
-                return this.minduration ;
-                }
-            else {
-                return DEFAULT_MIN_DURATION ;
-                }
-            }
-        public void addMinDuration(int delta)
-            {
-            this.minduration += delta ;
-            }
-
-        public int DEFAULT_MAX_DURATION = 10 ;
-        private int maxduration = 0 ;
-        public int getMaxDuration()
-            {
-            if (this.maxduration != 0)
-                {
-                return this.maxduration ;
-                }
-            else {
-                return DEFAULT_MAX_DURATION ;
-                }
-            }
-        public void addMaxDuration(int delta)
-            {
-            this.maxduration += delta ;
-            }
-        }
-
-    /*
-     * Resource statistics for an offer.
-     *
-     */
-    public interface ExecutionBlock
-        {
-        public long getBlockStart();
-        public long getBlockLength();
-        public int  getMinCores();
-        public int  getMaxCores();
-        public int  getMinMemory();
-        public int  getMaxMemory();
-        }
-
-    public static class ExecutionBlockImpl implements ExecutionBlock
-        {
-        public ExecutionBlockImpl(
-            long blockStart,
-            long blockLength,
-            int minCores,
-            int maxCores,
-            int minMemory,
-            int maxMemory
-            ) {
-            this.blockStart  = blockStart  ;
-            this.blockLength = blockLength ;
-            this.minCores = minCores ;
-            this.maxCores = maxCores ;
-            this.minMemory = minMemory ;
-            this.maxMemory = maxMemory ;
-            }
-
-        private long blockStart;
-        public long getBlockStart()
-            {
-            return this.blockStart;
-            }
-
-        private long blockLength;
-        public long getBlockLength()
-            {
-            return this.blockLength;
-            }
-
-        private int minCores;
-        public int  getMinCores()
-            {
-            return this.minCores;
-            }
-
-        private int maxCores;
-        public int  getMaxCores()
-            {
-            return this.maxCores;
-            }
-
-        private int minMemory;
-        public int  getMinMemory()
-            {
-            return this.minMemory;
-            }
-
-        private int maxMemory;
-        public int  getMaxMemory()
-            {
-            return this.maxMemory;
-            }
-        }
-
-    /*
-     * Get a list of potential offers from our database.
-     *
-     */
-    public List<ExecutionBlock> getExecutionBlockList(final ProcessingContext context)
-        {
-        List<ExecutionBlock> list = new ArrayList<ExecutionBlock>();
-        list.add(
-            new ExecutionBlockImpl(
-                10,2,3,6,4,8
-                )
-            );
-        list.add(
-            new ExecutionBlockImpl(
-                20,4,6,12,8,16
-                )
-            );
-        return list ;
-        }
-
-    /*
-     * Insert an Execution into our database.
-     *
-     */
-    public void addExecutionBlock(final ExecutionResponse offer)
-        {
-
-        }
-
-
-    /**
      * Process an OfferSetRequest and populate an OfferSetResponse with ExecutionResponse offers.
      *
      */
@@ -532,7 +171,7 @@ public class ExecutionResponseFactoryImpl
 
         //
         // Create our processing context.
-        ProcessingContext context = new ProcessingContext(
+        ProcessingContext context = new ProcessingContextImpl(
             baseurl,
             request,
             response
@@ -571,7 +210,7 @@ public class ExecutionResponseFactoryImpl
             {
             //
             // Get a list of execution blocks.
-            for (ExecutionBlock block : getExecutionBlockList(context))
+            for (ExecutionBlock block : database.generate(context))
                 {
                 //
                 // Create an offer using the resources in our context.
@@ -594,6 +233,7 @@ public class ExecutionResponseFactoryImpl
                     block.getBlockLength()
                     );
  */
+
                 ExecutionResourceList resources = new ExecutionResourceList();
                 for (AbstractDataResource resource : context.getDataResourceList())
                     {
@@ -645,8 +285,13 @@ public class ExecutionResponseFactoryImpl
                         albert.setVolumes(
                             simple.getVolumes()
                             );
+                        // Add the SimpleComputeResource to our response.
                         resources.addComputeItem(
                             albert
+                            );
+                        // Add the ExecutionBlock to our database.
+                        database.insert(
+                            block
                             );
                         }
                     }
