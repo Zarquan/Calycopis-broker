@@ -247,6 +247,10 @@ public class ExecutionResponseFactoryImpl
                     context.getExecutable()
                     );
 
+//
+// Set the offered schedule.
+//
+
                 ExecutionResourceList resources = new ExecutionResourceList();
                 for (AbstractDataResource resource : context.getDataResourceList())
                     {
@@ -262,6 +266,41 @@ public class ExecutionResponseFactoryImpl
                     if (resource instanceof SimpleComputeResource)
                         {
                         SimpleComputeResource simple = (SimpleComputeResource) resource ;
+/*
+ *
+                        int mincores = simple.getCores().getMin();
+                        int maxcores = simple.getCores().getMax() * 2;
+                        if (maxcores > block.getMaxCores())
+                            {
+                            maxcores = block.getMaxCores();
+                            }
+                        int minmemory = simple.getMemory().getMin();
+                        int maxmemory = simple.getMemory().getMax() * 2;
+                        if (maxmemory > block.getMaxMemory())
+                            {
+                            maxmemory = block.getMaxMemory();
+                            }
+ *
+ */
+                        block.setMinCores(
+                            simple.getCores().getMin()
+                            );
+                        if (block.getMaxCores() > (simple.getCores().getMax() * 2))
+                            {
+                            block.setMaxCores(
+                                simple.getCores().getMax() * 2
+                                );
+                            }
+                        block.setMinMemory(
+                            simple.getMemory().getMin()
+                            );
+                        if (block.getMaxMemory() > (simple.getMemory().getMax() * 2))
+                            {
+                            block.setMaxMemory(
+                                simple.getMemory().getMax() * 2
+                                );
+                            }
+
                         SimpleComputeResource albert = new SimpleComputeResource(
                             "urn:simple-compute-resource"
                             );
@@ -592,9 +631,7 @@ public class ExecutionResponseFactoryImpl
         // Validate the compute resource itself.
         Integer mincores = null ;
         Integer maxcores = null ;
-        Integer DEFAULT_MIN_CORES = 4 ;
-        Integer DEFAULT_MAX_CORES = 8 ;
-        Integer MIN_CORES_LIMIT = 2 ;
+        Integer MIN_CORES_DEFAULT = 1 ;
         Integer MAX_CORES_LIMIT = 16 ;
 
         String coreunits = null;
@@ -630,11 +667,11 @@ public class ExecutionResponseFactoryImpl
 
         if (mincores == null)
             {
-            mincores = DEFAULT_MIN_CORES;
+            mincores = MIN_CORES_DEFAULT;
             }
         if (maxcores == null)
             {
-            maxcores = DEFAULT_MAX_CORES;
+            maxcores = mincores;
             }
         if (mincores > MAX_CORES_LIMIT)
             {
@@ -714,9 +751,7 @@ public class ExecutionResponseFactoryImpl
 
         Integer minmemory = null ;
         Integer maxmemory = null ;
-        Integer DEFAULT_MIN_MEMORY = 4 ;
-        Integer DEFAULT_MAX_MEMORY = 8 ;
-        Integer MIN_MEMORY_LIMIT = 2 ;
+        Integer MIN_MEMORY_DEFAULT = 1 ;
         Integer MAX_MEMORY_LIMIT = 16 ;
 
         String memoryunits = null;
@@ -752,11 +787,11 @@ public class ExecutionResponseFactoryImpl
 
         if (minmemory == null)
             {
-            minmemory = DEFAULT_MIN_MEMORY;
+            minmemory = MIN_MEMORY_DEFAULT;
             }
         if (maxmemory == null)
             {
-            maxmemory = DEFAULT_MAX_MEMORY;
+            maxmemory = minmemory;
             }
         if (minmemory > MAX_MEMORY_LIMIT)
             {

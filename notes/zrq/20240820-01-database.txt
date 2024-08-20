@@ -74,9 +74,6 @@
         );
     SELECT * FROM ExecutionBlocks ;
 
-    >   ....
-    >   ....
-
     -- https://stackoverflow.com/a/39394592
     DROP VIEW IF EXISTS BlocksView ;
     CREATE VIEW BlocksView AS
@@ -311,11 +308,162 @@ EOF
     | tee "${createresponse}" \
     | yq '.'
 
-
+    #
+    # Using named parameters caused a RuntimeException inside the database.
+    #
 
     >   ....
     >   SQL state [HY000]; error code [50000]; General error: "java.lang.RuntimeException: Unexpected code path"
     >   ....
 
+    #
+    # Manually do the replacement ourselves works,
+    # but allocates all 32 cores and 32 GiB to every block.
+    #
+
+    >   
+    >   uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >   created: "2024-08-20T04:59:59.494021842Z"
+    >   expires: "2024-08-20T05:04:59.494057923Z"
+    >   offers:
+    >     - uuid: "0d46a020-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d46a020-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.67272158Z"
+    >       modified: "2024-08-20T04:59:59.67272158Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47b191-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47b191-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.679954955Z"
+    >       modified: "2024-08-20T04:59:59.679954955Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47d8a2-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47d8a2-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.680436682Z"
+    >       modified: "2024-08-20T04:59:59.680436682Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47d8a3-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47d8a3-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.680824155Z"
+    >       modified: "2024-08-20T04:59:59.680824155Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+    >   IDENT  BLOCKSTART  BLOCKLENGTH  MINCORES  MAXCORES  MINMEMORY  MAXMEMORY  STARTTIME           DURATION  
+    >   1       5747099        6          32        32         32         32      2024-20-08 04:55:00    30
+    >   2       5747105        6          32        32         32         32      2024-20-08 05:25:00    30
+    >   3       5747111        6          32        32         32         32      2024-20-08 05:55:00    30
+    >   4       5747117        6          32        32         32         32      2024-20-08 06:25:00    30
+    >   (4 rows, 2 ms)
+
+    #
+    # With nothing in the database, it will offer all the resources.
+    # We should only offer part of the resources.
+    # Limit our offer to twice what they asked for.
+    #
 
 

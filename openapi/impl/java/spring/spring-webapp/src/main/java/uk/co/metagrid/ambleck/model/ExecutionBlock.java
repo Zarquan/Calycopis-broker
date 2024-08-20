@@ -46,10 +46,18 @@ public interface ExecutionBlock
 
     public Long getBlockStart();
     public Long getBlockLength();
+
     public Integer getMinCores();
+    public void setMinCores(final Integer value);
+
     public Integer getMaxCores();
+    public void setMaxCores(final Integer value);
+
     public Integer getMinMemory();
+    public void setMinMemory(final Integer value);
+
     public Integer getMaxMemory();
+    public void setMaxMemory(final Integer value);
 
     }
 

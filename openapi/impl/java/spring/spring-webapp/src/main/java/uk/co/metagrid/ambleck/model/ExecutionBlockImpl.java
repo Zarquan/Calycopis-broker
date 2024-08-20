@@ -68,52 +68,68 @@ public class ExecutionBlockImpl implements ExecutionBlock
         this.maxMemory = maxMemory ;
         }
 
-    private final Instant instant;
+    private Instant instant;
     public Instant getInstant()
         {
         return this.instant;
         }
 
-    private final Duration duration;
+    private Duration duration;
     public Duration getDuration()
         {
         return this.duration;
         }
 
-    private final Long blockStart;
+    private Long blockStart;
     public Long getBlockStart()
         {
         return this.blockStart;
         }
 
-    private final Long blockLength;
+    private Long blockLength;
     public Long getBlockLength()
         {
         return this.blockLength;
         }
 
-    private final Integer minCores;
+    private Integer minCores;
     public Integer getMinCores()
         {
         return this.minCores;
         }
+    public void setMinCores(final Integer value)
+        {
+        this.minCores = value ;
+        }
 
-    private final Integer maxCores;
+    private Integer maxCores;
     public Integer getMaxCores()
         {
         return this.maxCores;
         }
+    public void setMaxCores(final Integer value)
+        {
+        this.maxCores = value ;
+        }
 
-    private final Integer minMemory;
+    private Integer minMemory;
     public Integer getMinMemory()
         {
         return this.minMemory;
         }
+    public void setMinMemory(final Integer value)
+        {
+        this.minMemory = value ;
+        }
 
-    private final Integer maxMemory;
+    private Integer maxMemory;
     public Integer getMaxMemory()
         {
         return this.maxMemory;
+        }
+    public void setMaxMemory(final Integer value)
+        {
+        this.maxMemory = value ;
         }
     }
 

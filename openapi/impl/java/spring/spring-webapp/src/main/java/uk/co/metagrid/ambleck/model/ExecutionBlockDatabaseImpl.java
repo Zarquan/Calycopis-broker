@@ -231,7 +231,6 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 AND
                     BlockLength <= :maxblocklength
                 )
-
             SELECT
                 BlockStart,
                 BlockLength,
@@ -249,8 +248,22 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 BlockLength DESC
             """;
 
+            query = query.replace(":totalcores",  "32");
+            query = query.replace(":totalmemory", "32");
+            query = query.replace(":rangeoffset", String.valueOf((starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE)));
+            query = query.replace(":rangestart",  "0");
+            query = query.replace(":rangeend",    "23");
+            query = query.replace(":minfreecores",   String.valueOf(context.getMinCores()));
+            query = query.replace(":minfreememory",  String.valueOf(context.getMinMemory()));
+            query = query.replace(":minblocklength", String.valueOf(minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE));
+            query = query.replace(":maxblocklength", String.valueOf(maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE));
+
         List<ExecutionBlock> list = JdbcClient.create(template)
             .sql(query)
+            .query(new ExecutionBlockMapper())
+            .list();
+
+/*
             .param("totalcores",     new Integer(32))
             .param("totalmemory",    new Integer(32))
             .param("rangeoffset",    (starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE))
@@ -260,8 +273,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             .param("minfreememory",  context.getMinMemory())
             .param("minblocklength", (minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
             .param("maxblocklength", (maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
-            .query(new ExecutionBlockMapper())
-            .list();
+ */
 
         return list ;
         }
