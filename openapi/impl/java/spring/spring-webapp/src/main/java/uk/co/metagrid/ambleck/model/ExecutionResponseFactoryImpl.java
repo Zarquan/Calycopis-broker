@@ -191,12 +191,26 @@ public class ExecutionResponseFactoryImpl
 
         if (request.getResources() != null)
             {
-            validate(
-                request.getResources().getData()
-                );
-            validate(
-                request.getResources().getCompute()
-                );
+            if (request.getResources().getData() != null)
+                {
+                for (AbstractDataResource resource : request.getResources().getData())
+                    {
+                    validate(
+                        resource,
+                        context
+                        );
+                    }
+                }
+            if (request.getResources().getCompute() != null)
+                {
+                for (AbstractComputeResource resource : request.getResources().getCompute())
+                    {
+                    validate(
+                        resource,
+                        context
+                        );
+                    }
+                }
             }
 
         //
@@ -395,24 +409,6 @@ public class ExecutionResponseFactoryImpl
         }
 
     /**
-     * Validate a list of data resources.
-     *
-     */
-    public void validate(final List<AbstractDataResource> list, final ProcessingContext context)
-        {
-        if (list != null)
-            {
-            for (AbstractDataResource resource : request.getResources().getData())
-                {
-                validate(
-                    resource,
-                    context
-                    );
-                }
-            }
-        }
-
-    /**
      * Validate an AbstractDataResource.
      *
      */
@@ -537,24 +533,6 @@ public class ExecutionResponseFactoryImpl
         context.addDataResource(
             result
             );
-        }
-
-    /**
-     * Validate our ComputeResource list.
-     *
-     */
-    public void validate(final List<AbstractComputeResource> list, final ProcessingContext context)
-        {
-        if (request != null)
-            {
-            for (AbstractComputeResource resource : list)
-                {
-                validate(
-                    resource,
-                    context
-                    );
-                }
-            }
         }
 
     /**

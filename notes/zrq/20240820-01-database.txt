@@ -1,0 +1,321 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Get the execution block queries working.
+
+    Resources:
+
+        H2 Console
+        http://localhost:8082/h2-console/
+
+        Spring Boot + Spring JDBC + H2 Database Example
+        https://www.javaguides.net/2019/08/spring-boot-spring-jdbc-h2-database.html
+
+        Spring Boot With H2 Database
+        https://www.baeldung.com/spring-boot-h2-database
+
+        Spring Boot with H2 Database
+        https://www.geeksforgeeks.org/spring-boot-with-h2-database/
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+# -----------------------------------------------------
+# Create our database.
+#[sa@database]
+
+    -- Create our database table.
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        BlockStart  LONG,
+        BlockLength LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlocks ;
+
+    >   ....
+    >   ....
+
+    -- https://stackoverflow.com/a/39394592
+    DROP VIEW IF EXISTS BlocksView ;
+    CREATE VIEW BlocksView AS
+        (
+        SELECT
+            *,
+            FORMATDATETIME(
+                DATEADD('SECOND', (BlockStart * 60 * 5), DATE '1970-01-01'),
+                'YYYY-dd-MM HH:mm:ss'
+                ) AS StartTime,
+            (BlockLength * 5) AS Duration
+        FROM
+            ExecutionBlocks
+        );
+    SELECT * FROM BlocksView ;
+
+
+# -----------------------------------------------------
+# Test our query.
+#[sa@database]
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(ExecutionBlocks.BlockStart) AS RowCount,
+        (32 - IfNull(sum(ExecutionBlocks.MinCores),  0)) AS FreeCores,
+        (32 - IfNull(sum(ExecutionBlocks.MinMemory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x + 5747067 AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 19)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        ExecutionBlocks
+    ON  (
+            (ExecutionBlocks.BlockStart <= StartRange.StartRow)
+            AND
+            ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (
+        SELECT
+            x AS n
+        FROM
+            SYSTEM_RANGE(1, 6)
+        ) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    ),
+BlockResources AS (
+    SELECT
+        BlockStart,
+        BlockLength,
+        StartRow,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    JOIN
+        SplitBlocks
+    WHERE
+        StartRow >= BlockStart
+    AND
+        StartRow < (BlockStart + BlockLength)
+    AND
+        BlockLength >= 4
+    AND
+        BlockLength <= 6
+    )
+
+    -- Earliest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory,
+        DATEADD(
+            'SECOND',
+            (BlockStart * 60 * 5),
+            DATE '1970-01-01'
+            ) AS StartTime,
+        DATEADD(
+            'SECOND',
+            (BlockLength * 60 * 5),
+            TIME '00:00'
+            ) AS BlockTime     FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        BlockStart  ASC,
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC
+
+    >   ....
+    >   ....
+
+    -- Largest match
+
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory,
+        DATEADD(
+            'SECOND',
+            (BlockStart * 60 * 5),
+            DATE '1970-01-01'
+            ) AS StartTime,
+        DATEADD(
+            'SECOND',
+            (BlockLength * 60 * 5),
+            TIME '00:00'
+            ) AS BlockTime     FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC,
+        BlockStart  ASC
+
+    >   ....
+    >   ....
+
+    #
+    # Divide everything by 60 to get time in minutes since 1970.
+    # ExecutionBlocks.Start is in minutes.
+    # Divide 'now' by 60 to get start time in minutes.
+    # Max cores is 32
+    # Max memory is 32
+    # 5747067 is now / 60 to get start of offers (move forward if we need staging time)
+    # 0, 19 is a range of 20 * 1 minute steps
+    # FreeCores >= 2 is the minimum
+    # FreeMemory >= 2 is the minimum
+    # BlockLength >= 4 is the shortest block
+    # BlockLength <= 6 is the longest block
+    #
+    # Use minutes for the demonstration.
+    # Promote to hours for the production system.
+    #
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    #
+    # Create a new offerset.
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+
+
+    >   ....
+    >   SQL state [HY000]; error code [50000]; General error: "java.lang.RuntimeException: Unexpected code path"
+    >   ....
+
+
+

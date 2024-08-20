@@ -38,9 +38,8 @@ package uk.co.metagrid.ambleck.model;
 import java.util.List;
 import java.util.ArrayList;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Optional;
+//import java.sql.SQLException;
+//import java.util.Optional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -52,6 +51,11 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+
+import org.springframework.jdbc.core.simple.JdbcClient;
+import org.springframework.jdbc.core.RowMapper;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 
 @Repository
 public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
@@ -116,7 +120,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         if ((minduration == null) && (maxduration == null))
             {
             minduration = Duration.ofMinutes(20);
-            maxduration = Duration.ofMinutes(20);
+            maxduration = Duration.ofMinutes(30);
             }
         if (minduration == null)
             {
@@ -127,24 +131,157 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             maxduration = minduration;
             }
 
-        // This is where we truncate the Interval into an Instant.
-        List<ExecutionBlock> list = new ArrayList<ExecutionBlock>();
-        list.add(
-            new ExecutionBlockImpl(
-                starttime.getStart(),
-                minduration,
-                3,6,4,8
+        String query =
+            """
+            WITH ExpandedDataset AS
+                (
+                SELECT
+                    StartRange.StartRow AS StartRow,
+                    COUNT(ExecutionBlocks.BlockStart) AS RowCount,
+                    (:totalcores  - IfNull(sum(ExecutionBlocks.MinCores),  0)) AS FreeCores,
+                    (:totalmemory - IfNull(sum(ExecutionBlocks.MinMemory), 0)) AS FreeMemory
+                FROM
+                    (
+                    SELECT
+                        x + :rangeoffset AS StartRow
+                    FROM
+                        SYSTEM_RANGE(:rangestart, :rangeend)
+                    ) AS StartRange
+                LEFT OUTER JOIN
+                    ExecutionBlocks
+                ON  (
+                        (ExecutionBlocks.BlockStart <= StartRange.StartRow)
+                        AND
+                        ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
+                        )
+                GROUP BY
+                    StartRange.StartRow
+                ),
+            ConsecutiveBlocks AS (
+                SELECT
+                    StartRow,
+                    (StartRow + 1) -
+                        (
+                        ROW_NUMBER() OVER (
+                            PARTITION BY (FreeCores >= :minfreecores AND FreeMemory >= :minfreememory)
+                            ORDER BY StartRow
+                            )
+                        ) AS BlockGroup,
+                    FreeCores,
+                    FreeMemory
+                FROM
+                    ExpandedDataset
+                WHERE
+                    FreeCores >= :minfreecores
+                    AND
+                    FreeMemory >= :minfreememory
+                ),
+            BlockInfo AS (
+                SELECT
+                    MIN(StartRow) AS BlockStart,
+                    COUNT(*) AS BlockLength,
+                    MIN(FreeCores) AS MaxFreeCores,
+                    MIN(FreeMemory) AS MaxFreeMemory
+                FROM
+                    ConsecutiveBlocks
+                WHERE
+                    BlockGroup IS NOT NULL
+                GROUP BY
+                    BlockGroup
+                HAVING
+                    COUNT(*) >= :minblocklength
+                ),
+            SplitBlocks AS (
+                SELECT
+                    BlockStart + :maxblocklength * (n - 1) AS BlockStart,
+                    LEAST(
+                        :maxblocklength,
+                        BlockLength - :maxblocklength * (n - 1)
+                        ) AS BlockLength,
+                    MaxFreeCores,
+                    MaxFreeMemory
+                FROM
+                    BlockInfo,
+                    (
+                    SELECT
+                        x AS n
+                    FROM
+                        SYSTEM_RANGE(1, :maxblocklength)
+                    ) AS Numbers
+                WHERE
+                    BlockStart + :maxblocklength * (n - 1) < BlockStart + BlockLength
+                ),
+            BlockResources AS (
+                SELECT
+                    BlockStart,
+                    BlockLength,
+                    StartRow,
+                    FreeCores,
+                    FreeMemory
+                FROM
+                    ExpandedDataset
+                JOIN
+                    SplitBlocks
+                WHERE
+                    StartRow >= BlockStart
+                AND
+                    StartRow < (BlockStart + BlockLength)
+                AND
+                    BlockLength >= :minblocklength
+                AND
+                    BlockLength <= :maxblocklength
                 )
-            );
-        list.add(
-            new ExecutionBlockImpl(
-                starttime.getStart(),
-                minduration,
-                6,12,8,16
-                )
-            );
+
+            SELECT
+                BlockStart,
+                BlockLength,
+                MIN(FreeCores)  AS MinFreeCores,
+                MIN(FreeMemory) AS MinFreeMemory
+            FROM
+                BlockResources
+            GROUP BY
+                BlockStart,
+                BlockLength
+            ORDER BY
+                BlockStart  ASC,
+                MinFreeCores  DESC,
+                MinFreeMemory DESC,
+                BlockLength DESC
+            """;
+
+        List<ExecutionBlock> list = JdbcClient.create(template)
+            .sql(query)
+            .param("totalcores",     new Integer(32))
+            .param("totalmemory",    new Integer(32))
+            .param("rangeoffset",    (starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE))
+            .param("rangestart",     new Integer(0))
+            .param("rangeend",       new Integer(23))
+            .param("minfreecores",   context.getMinCores())
+            .param("minfreememory",  context.getMinMemory())
+            .param("minblocklength", (minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
+            .param("maxblocklength", (maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
+            .query(new ExecutionBlockMapper())
+            .list();
+
         return list ;
         }
 
+    public static class ExecutionBlockMapper implements RowMapper<ExecutionBlock>
+        {
+        @Override
+        public ExecutionBlock mapRow(ResultSet rs, int rowNum)
+        throws SQLException
+            {
+            ExecutionBlock block = new ExecutionBlockImpl(
+                rs.getLong("BlockStart"),
+                rs.getLong("BlockLength"),
+                rs.getInt("MinFreeCores"),
+                rs.getInt("MinFreeCores"),
+                rs.getInt("MinFreeMemory"),
+                rs.getInt("MinFreeMemory")
+                );
+            return block;
+            }
+        }
     }
 
