@@ -19,17 +19,17 @@
  * </meta:header>
  *
     -- Create our database table.
-    DROP TABLE IF EXISTS ExecutionBlock;
-    CREATE TABLE ExecutionBlock(
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
         Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        Start  LONG,
-        Length LONG,
+        BlockStart  LONG,
+        BlockLength LONG,
         MinCores INT,
         MaxCores INT,
         MinMemory INT,
         MaxMemory INT
         );
-    SELECT * FROM ExecutionBlock ;
+    SELECT * FROM ExecutionBlocks ;
 
  *
  */
@@ -45,6 +45,7 @@ import java.util.Optional;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
+import org.threeten.extra.Interval;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -72,7 +73,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int insert(final ExecutionBlock block)
         {
         return template.update(
-            "INSERT INTO ExecutionBlock (Start, Length, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ExecutionBlocks (BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?)",
             new Object[] {
                 block.getBlockStart(),
                 block.getBlockLength(),
@@ -91,31 +92,54 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     @Override
     public List<ExecutionBlock> generate(final ProcessingContext context)
         {
+        Interval starttime = null;
+        Duration minduration = null;
+        Duration maxduration = null;
 
-        long starttime = InstantSource.tick(
-            InstantSource.system(),
-            Duration.ofSeconds(1)
-            )
-            .instant()
-            .getEpochSecond();
+        List<ProcessingContext.ScheduleItem> items = context.getScheduleItems();
+        // This is where we only take the forst item in the list.
+        if ((items != null) && (items.size() > 0))
+            {
+            starttime = items.get(0).getStartTime();
+            minduration = items.get(0).getMinDuration();
+            maxduration = items.get(0).getMaxDuration();
+            }
 
-        starttime = starttime / 60 ;
+        if (starttime == null)
+            {
+            starttime = Interval.of​(
+                Instant.now(),
+                Duration.ofMinutes(5)
+                );
+            }
 
-        //long duration = Duration.ofMinutes(5).getSeconds();
-        long duration = 5;
+        if ((minduration == null) && (maxduration == null))
+            {
+            minduration = Duration.ofMinutes(20);
+            maxduration = Duration.ofMinutes(20);
+            }
+        if (minduration == null)
+            {
+            minduration = maxduration;
+            }
+        if (maxduration == null)
+            {
+            maxduration = minduration;
+            }
 
+        // This is where we truncate the Interval into an Instant.
         List<ExecutionBlock> list = new ArrayList<ExecutionBlock>();
         list.add(
             new ExecutionBlockImpl(
-                starttime,
-                duration,
+                starttime.getStart(),
+                minduration,
                 3,6,4,8
                 )
             );
         list.add(
             new ExecutionBlockImpl(
-                starttime,
-                duration,
+                starttime.getStart(),
+                minduration,
                 6,12,8,16
                 )
             );

@@ -67,20 +67,34 @@
               request:
                 - start:
                   duration:
+                    min:
+                    max:
                 - start:
                   duration:
-              # Planned preparation time offered by server
-              preparing:
-                start:
-                duration:
-              # Planned execution time offered by server
-              executing:
-                start:
-                duration:
-              # Planned finishing time offered by server
-              finishing:
-                start:
-                duration:
+                    min:
+                    max:
+              # Plan offered by server
+              offered:
+                preparing:
+                  start:
+                  duration:
+                executing:
+                  start:
+                  duration:
+                finishing:
+                  start:
+                  duration:
+              # Measured
+              observed:
+                preparing:
+                  start:
+                  duration:
+                executing:
+                  start:
+                  duration:
+                finishing:
+                  start:
+                  duration:
 
 
 

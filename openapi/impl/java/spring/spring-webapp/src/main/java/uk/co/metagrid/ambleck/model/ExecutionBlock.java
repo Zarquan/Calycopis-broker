@@ -22,18 +22,35 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.time.Instant;
+import java.time.Duration;
+
 /*
- * Resource statistics for an offer.
+ * Resources data for an Execution block in the database.
  *
  */
 public interface ExecutionBlock
     {
-    public long getBlockStart();
-    public long getBlockLength();
-    public int  getMinCores();
-    public int  getMaxCores();
-    public int  getMinMemory();
-    public int  getMaxMemory();
+
+    /**
+     * The block step size in seconds.
+     * This controls the granularity of time values in the database.
+     * A production system would use one hour steps.
+     * The development system uses five minute steps.
+     *
+     */
+    public static final Long BLOCK_STEP_SIZE = 60L * 5L ;
+
+    public Instant getInstant();
+    public Duration getDuration();
+
+    public Long getBlockStart();
+    public Long getBlockLength();
+    public Integer getMinCores();
+    public Integer getMaxCores();
+    public Integer getMinMemory();
+    public Integer getMaxMemory();
+
     }
 
 

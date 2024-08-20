@@ -27,12 +27,31 @@
 
         Connect up our database offers.
 
+    Resources:
+
+        Spring Boot + Spring JDBC + H2 Database Example
+        https://www.javaguides.net/2019/08/spring-boot-spring-jdbc-h2-database.html
+
+        Spring Boot With H2 Database
+        https://www.baeldung.com/spring-boot-h2-database
+
+        Spring Boot with H2 Database
+        https://www.geeksforgeeks.org/spring-boot-with-h2-database/
+
+        H2 Console
+        http://localhost:8082/h2-console/
+
+        Java InstantSource
+        https://www.baeldung.com/java-instantsource
+        https://docs.oracle.com/en%2Fjava%2Fjavase%2F21%2Fdocs%2Fapi%2F%2F/java.base/java/time/InstantSource.html
+        https://stackoverflow.com/a/69961841
+
     Result:
 
         Work in progress ...
 
 # -----------------------------------------------------
-# Launch a container to work in with published ports.
+# Launch a container to work in.
 #[user@desktop]
 
     source "${HOME:?}/calycopis.env"
@@ -245,7 +264,8 @@ EOF
 #[user@desktop]
 
     DROP TABLE IF EXISTS ExecutionBlock;
-    CREATE TABLE ExecutionBlock(
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
         Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         Start  LONG,
         Length LONG,
@@ -393,8 +413,9 @@ BlockResources AS (
         BlockStart  ASC
 
     #
-    # ExecutionBlock.Start is in minutes not seconds since 1970
-    # Divide now by 60 to get start time in minutes.
+    # Divide everything by 60 to get time in minutes since 1970.
+    # ExecutionBlock.Start is in minutes.
+    # Divide 'now' by 60 to get start time in minutes.
     # Max cores is 32
     # Max memory is 32
     # 28734097 is now / 60 to get start of offers (move forward if we need staging time)

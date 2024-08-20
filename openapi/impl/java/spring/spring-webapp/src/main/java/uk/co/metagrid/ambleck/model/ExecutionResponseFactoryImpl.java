@@ -31,6 +31,10 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Instant;
+import java.time.Duration;
+import org.threeten.extra.Interval ;
+
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
@@ -136,37 +140,38 @@ public class ExecutionResponseFactoryImpl
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
         //
-        // Reject explicit scheduling.
-        if (request.getSchedule().size() > 0)
-            {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Execution schedule not supported"
-                    )
-                );
-            return ;
-            }
-        //
         // Reject storage resources.
-        if (request.getResources().getStorage().size() > 0)
+        if (request.getResources() != null)
             {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Storage resources not supported"
-                    )
-                );
-            return ;
+            if (request.getResources().getStorage() != null)
+                {
+                if (request.getResources().getStorage().size() > 0)
+                    {
+                    response.addMessagesItem(
+                        new WarnMessage(
+                            "Storage resources not supported"
+                            )
+                        );
+                    return ;
+                    }
+                }
             }
         //
         // Reject multiple compute resources.
-        if (request.getResources().getCompute().size() > 1)
+        if (request.getResources() != null)
             {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Multiple compute resources not supported"
-                    )
-                );
-            return ;
+            if (request.getResources().getCompute() != null)
+                {
+                if (request.getResources().getCompute().size() > 1)
+                    {
+                    response.addMessagesItem(
+                        new WarnMessage(
+                            "Multiple compute resources not supported"
+                            )
+                        );
+                    return ;
+                    }
+                }
             }
 
         //
@@ -178,25 +183,28 @@ public class ExecutionResponseFactoryImpl
             );
 
         //
-        // Validate our data resources.
-        for (AbstractDataResource resource : request.getResources().getData())
+        // Validate our scheduling request.
+        validate(
+            request.getSchedule(),
+            context
+            );
+
+        if (request.getResources() != null)
             {
             validate(
-                resource,
-                context
+                request.getResources().getData()
+                );
+            validate(
+                request.getResources().getCompute()
                 );
             }
 
         //
-        // Validate our compute resources.
-        for (AbstractComputeResource resource : request.getResources().getCompute())
+        // Check for an enpty compute list.
+        if (context.getComputeResourceList().isEmpty())
             {
-            validate(
-                resource,
-                context
-                );
+            // Need to add a default compute resource.
             }
-
         //
         // Validate our executable.
         validate(
@@ -224,15 +232,6 @@ public class ExecutionResponseFactoryImpl
                 offer.setExecutable(
                     context.getExecutable()
                     );
-                // Transfer start time and duration from the offer block.
-/*
-                offer.setStartTime(
-                    block.getBlockStart()
-                    );
-                offer.setDuration(
-                    block.getBlockLength()
-                    );
- */
 
                 ExecutionResourceList resources = new ExecutionResourceList();
                 for (AbstractDataResource resource : context.getDataResourceList())
@@ -396,6 +395,24 @@ public class ExecutionResponseFactoryImpl
         }
 
     /**
+     * Validate a list of data resources.
+     *
+     */
+    public void validate(final List<AbstractDataResource> list, final ProcessingContext context)
+        {
+        if (list != null)
+            {
+            for (AbstractDataResource resource : request.getResources().getData())
+                {
+                validate(
+                    resource,
+                    context
+                    );
+                }
+            }
+        }
+
+    /**
      * Validate an AbstractDataResource.
      *
      */
@@ -520,6 +537,24 @@ public class ExecutionResponseFactoryImpl
         context.addDataResource(
             result
             );
+        }
+
+    /**
+     * Validate our ComputeResource list.
+     *
+     */
+    public void validate(final List<AbstractComputeResource> list, final ProcessingContext context)
+        {
+        if (request != null)
+            {
+            for (AbstractComputeResource resource : list)
+                {
+                validate(
+                    resource,
+                    context
+                    );
+                }
+            }
         }
 
     /**
@@ -1002,6 +1037,120 @@ public class ExecutionResponseFactoryImpl
             }
         context.setExecutable(
             result
+            );
+        }
+
+    /**
+     * Validate the Execution Schedule.
+     *
+     */
+    public void validate(final ExecutionSchedule schedule, final ProcessingContext context)
+        {
+        if (schedule != null)
+            {
+            //
+            // Check the offered section is empty.
+
+            //
+            // Check the observed section is empty.
+
+            //
+            // Validate each of our requested items.
+            for (ScheduleRequestItem item : schedule.getRequested())
+                {
+                validate(
+                    item,
+                    context
+                    );
+                }
+            }
+        }
+
+    /**
+     * Validate a ScheduleRequestItem.
+     *
+     */
+    public void validate(final ScheduleRequestItem item, final ProcessingContext context)
+        {
+        Interval starttime = null;
+        Duration minduration = null;
+        Duration maxduration = null;
+
+        if (item.getStart() != null)
+            {
+            try {
+                starttime = Interval.parse​(
+                    item.getStart()
+                    );
+                }
+            catch (Exception ouch)
+                {
+                context.addMessage(
+                    new ErrorMessage(
+                        "Unable to parse schedule request start time [${value}][${message}]",
+                        Map.of(
+                            "value",
+                            safeString(item.getStart()),
+                            "message",
+                            safeString(ouch.getMessage())
+                            )
+                        )
+                    );
+                context.fail();
+                }
+            }
+
+        if (item.getDuration() != null)
+            {
+            if (item.getDuration().getMin() != null)
+                {
+                String text = item.getDuration().getMin() ;
+                try {
+                    minduration = Duration.parse​(text);
+                    }
+                catch (Exception ouch)
+                    {
+                    context.addMessage(
+                        new ErrorMessage(
+                            "Unable to parse schedule request duration [${value}][${message}]",
+                            Map.of(
+                                "value",
+                                safeString(text),
+                                "message",
+                                safeString(ouch.getMessage())
+                                )
+                            )
+                        );
+                    context.fail();
+                    }
+                }
+            if (item.getDuration().getMax() != null)
+                {
+                String text = item.getDuration().getMax() ;
+                try {
+                    minduration = Duration.parse​(text);
+                    }
+                catch (Exception ouch)
+                    {
+                    context.addMessage(
+                        new ErrorMessage(
+                            "Unable to parse schedule request duration [${value}][${message}]",
+                            Map.of(
+                                "value",
+                                safeString(text),
+                                "message",
+                                safeString(ouch.getMessage())
+                                )
+                            )
+                        );
+                    context.fail();
+                    }
+                }
+            }
+        context.addScheduleItem(
+            starttime,
+            minduration,
+            maxduration
             );
         }
     }

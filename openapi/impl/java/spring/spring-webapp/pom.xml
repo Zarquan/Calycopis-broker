@@ -70,6 +70,15 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!--+
+            | ThreeTen time classes.
+            | https://github.com/ThreeTen/threeten-extra
+            +-->
+        <dependency>
+          <groupId>org.threeten</groupId>
+          <artifactId>threeten-extra</artifactId>
+          <version>1.8.0</version>
+        </dependency>
 
         <!--+
             | Dependencies from the Spring documentation.

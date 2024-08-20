@@ -22,60 +22,96 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.time.Instant;
+import java.time.Duration;
+
 /*
- * Resource statistics for an offer.
+ * Resources data for an Execution block in the database.
  *
  */
 public class ExecutionBlockImpl implements ExecutionBlock
     {
+
     public ExecutionBlockImpl(
-        long blockStart,
-        long blockLength,
-        int minCores,
-        int maxCores,
-        int minMemory,
-        int maxMemory
+        final Instant  instant,
+        final Duration duration,
+        final Integer minCores,
+        final Integer maxCores,
+        final Integer minMemory,
+        final Integer maxMemory
         ) {
-        this.blockStart  = blockStart  ;
-        this.blockLength = blockLength ;
+        this.instant  = instant ;
+        this.duration = duration ;
+        this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE ;
+        this.blockLength = duration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE ;
         this.minCores = minCores ;
         this.maxCores = maxCores ;
         this.minMemory = minMemory ;
         this.maxMemory = maxMemory ;
         }
 
-    private long blockStart;
-    public long getBlockStart()
+    public ExecutionBlockImpl(
+        final Long blockStart,
+        final Long blockLength,
+        final Integer minCores,
+        final Integer maxCores,
+        final Integer minMemory,
+        final Integer maxMemory
+        ) {
+        this.blockStart  = blockStart  ;
+        this.blockLength = blockLength ;
+        this.instant  = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SIZE) ;
+        this.duration = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SIZE) ;
+        this.minCores = minCores ;
+        this.maxCores = maxCores ;
+        this.minMemory = minMemory ;
+        this.maxMemory = maxMemory ;
+        }
+
+    private final Instant instant;
+    public Instant getInstant()
+        {
+        return this.instant;
+        }
+
+    private final Duration duration;
+    public Duration getDuration()
+        {
+        return this.duration;
+        }
+
+    private final Long blockStart;
+    public Long getBlockStart()
         {
         return this.blockStart;
         }
 
-    private long blockLength;
-    public long getBlockLength()
+    private final Long blockLength;
+    public Long getBlockLength()
         {
         return this.blockLength;
         }
 
-    private int minCores;
-    public int  getMinCores()
+    private final Integer minCores;
+    public Integer getMinCores()
         {
         return this.minCores;
         }
 
-    private int maxCores;
-    public int  getMaxCores()
+    private final Integer maxCores;
+    public Integer getMaxCores()
         {
         return this.maxCores;
         }
 
-    private int minMemory;
-    public int  getMinMemory()
+    private final Integer minMemory;
+    public Integer getMinMemory()
         {
         return this.minMemory;
         }
 
-    private int maxMemory;
-    public int  getMaxMemory()
+    private final Integer maxMemory;
+    public Integer getMaxMemory()
         {
         return this.maxMemory;
         }

@@ -24,6 +24,10 @@ package uk.co.metagrid.ambleck.model;
 import java.util.Map;
 import java.util.List;
 
+import java.time.Instant;
+import java.time.Duration;
+import org.threeten.extra.Interval;
+
 /**
  * A class to hold context during processing.
  *
@@ -52,19 +56,28 @@ public interface ProcessingContext
     public AbstractExecutable getExecutable();
     public void setExecutable(final AbstractExecutable executable);
 
+    // This is a total over all the compute resources.
     public int getMinCores();
     public int getMaxCores();
     public void addMinCores(int delta);
     public void addMaxCores(int delta);
 
+    // This is a total over all the compute resources.
     public int getMinMemory();
     public int getMaxMemory();
     public void addMinMemory(int delta);
     public void addMaxMemory(int delta);
 
-    public long getStartTime();
-    public long getDuration();
-    public void setDuration(long value);
+    public interface ScheduleItem
+        {
+        public Interval getStartTime();
+        public Duration getMinDuration();
+        public Duration getMaxDuration();
+        }
+
+    public List<ScheduleItem> getScheduleItems();
+    public void addScheduleItem(final Interval starttime, final Duration mindutarion, final Duration maxdutation);
+
     }
 
 

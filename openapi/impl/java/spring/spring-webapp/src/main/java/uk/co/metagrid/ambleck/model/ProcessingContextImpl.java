@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
+import org.threeten.extra.Interval;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
@@ -46,18 +47,6 @@ public class ProcessingContextImpl implements ProcessingContext
         this.baseurl  = baseurl ;
         this.request  = request ;
         this.response = response ;
-        this.starttime = InstantSource.tick(
-            InstantSource.system(),
-            Duration.ofMinutes(5)
-            )
-            .instant()
-            .getEpochSecond();
-        }
-
-    private long starttime ;
-    public long getStartTime()
-        {
-        return this.starttime ;
         }
 
     private boolean valid = true ;
@@ -276,7 +265,8 @@ public class ProcessingContextImpl implements ProcessingContext
         {
         this.maxmemory += delta ;
         }
-
+/*
+ *
     public long DEFAULT_DURATION = Duration.ofMinutes(5).getSeconds();
     private long duration = 0 ;
     public long getDuration()
@@ -292,6 +282,49 @@ public class ProcessingContextImpl implements ProcessingContext
     public void setDuration(long value)
         {
         this.duration = value ;
+        }
+ *
+ */
+
+    public class ScheduleItemImpl implements ScheduleItem
+        {
+        public ScheduleItemImpl(final Interval starttime, final Duration minduration, final Duration maxduration)
+            {
+            this.starttime = starttime ;
+            this.minduration = minduration;
+            this.maxduration = maxduration;
+            }
+        private Interval starttime ;
+        public Interval getStartTime()
+            {
+            return this.starttime;
+            }
+        private Duration minduration;
+        public Duration getMinDuration()
+            {
+            return this.minduration;
+            }
+        private Duration maxduration;
+        public Duration getMaxDuration()
+            {
+            return this.maxduration;
+            }
+        }
+
+    private List<ScheduleItem> scheduleItems = new ArrayList<ScheduleItem>();
+    public List<ScheduleItem> getScheduleItems()
+        {
+        return this.scheduleItems ;
+        }
+    public void addScheduleItem(final Interval starttime, final Duration minduration, final Duration maxduration)
+        {
+        scheduleItems.add(
+            new ScheduleItemImpl(
+                starttime,
+                minduration,
+                maxduration
+                )
+            );
         }
     }
 
