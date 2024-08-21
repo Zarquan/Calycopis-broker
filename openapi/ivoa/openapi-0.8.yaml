@@ -946,7 +946,7 @@ components:
                 The units to use for the change.
               type: string
 
-    ExecutionDuration:
+    MinMaxDuration:
       description: >
         A duration time block describing how long the execution will take.
         The max and min values are expressed as ISO 8601 time durations.
@@ -960,7 +960,7 @@ components:
         max:
           type: string
 
-    ExecutionScheduleItem:
+    ScheduleRequestItem:
       description: >
         A date time block for an execution.
       type: object
@@ -975,7 +975,63 @@ components:
         duration:
           description: >
             The duration for the execution.
-          $ref: '#/components/schemas/ExecutionDuration'
+          $ref: '#/components/schemas/MinMaxDuration'
+
+    ScheduleRequestList:
+      description: >
+        List of schedule request items.
+      type: array
+      xml:
+        name: schedule
+        wrapped: true
+      items:
+        $ref: '#/components/schemas/ScheduleRequestItem'
+
+    ScheduleBlock:
+      description: >
+        Used for the predicted and observed times.
+      type: object
+      xml:
+        name: date-time
+      properties:
+        preparing:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            duration:
+              type: string
+        executing:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            duration:
+              type: string
+        finishing:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            duration:
+              type: string
+
+    ExecutionSchedule:
+      description: >
+        Schedule ...
+      type: object
+      xml:
+        name: date-time
+      properties:
+        requested:
+          $ref: '#/components/schemas/ScheduleRequestList'
+        offered:
+          $ref: '#/components/schemas/ScheduleBlock'
+        observed:
+          $ref: '#/components/schemas/ScheduleBlock'
 
     ExecutionResourceList:
       description: >
@@ -1010,12 +1066,9 @@ components:
                 name: resources
               $ref: '#/components/schemas/ExecutionResourceList'
             schedule:
-              type: array
               xml:
                 name: schedule
-                wrapped: true
-              items:
-                $ref: '#/components/schemas/ExecutionScheduleItem'
+              $ref: '#/components/schemas/ExecutionSchedule'
 
     ExecutionResponse:
       description: >

@@ -1,0 +1,431 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Connect up our database offers.
+
+    Resources:
+
+        Spring Boot + Spring JDBC + H2 Database Example
+        https://www.javaguides.net/2019/08/spring-boot-spring-jdbc-h2-database.html
+
+        Spring Boot With H2 Database
+        https://www.baeldung.com/spring-boot-h2-database
+
+        Spring Boot with H2 Database
+        https://www.geeksforgeeks.org/spring-boot-with-h2-database/
+
+        H2 Console
+        http://localhost:8082/h2-console/
+
+        Java InstantSource
+        https://www.baeldung.com/java-instantsource
+        https://docs.oracle.com/en%2Fjava%2Fjavase%2F21%2Fdocs%2Fapi%2F%2F/java.base/java/time/InstantSource.html
+        https://stackoverflow.com/a/69961841
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the client tools.
+#[root@spring-builder]
+
+    dnf install -y \
+        xmlstarlet \
+        curl \
+        jq \
+        yq
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    #
+    # Start with a hard coded list ..
+    #
+
+    #
+    # Create a new offerset.
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >   created: "2024-08-19T01:48:05.610790949Z"
+    >   expires: "2024-08-19T01:53:05.610822822Z"
+    >   offers:
+    >     - uuid: "13f89b70-5dcd-11ef-892d-5731b2e2f2ce"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "13f8745f-5dcd-11ef-892d-5731b2e2f2ce"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "13f84d4e-5dcd-11ef-892d-5731b2e2f2ce"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 3
+    >               max: 6
+    >             memory:
+    >               min: 4
+    >               max: 8
+    >       href: "http://127.0.0.1:8082/execution/13f89b70-5dcd-11ef-892d-5731b2e2f2ce"
+    >       state: "OFFERED"
+    >       created: "2024-08-19T01:48:05.652094283Z"
+    >       modified: "2024-08-19T01:48:05.652094283Z"
+    >       expires: "2024-08-19T01:53:05.610822822Z"
+    >       offerset:
+    >         uuid: "13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >         href: "http://127.0.0.1:8082/offerset/13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "13f8e991-5dcd-11ef-892d-5731b2e2f2ce"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "13f8745f-5dcd-11ef-892d-5731b2e2f2ce"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "13f84d4e-5dcd-11ef-892d-5731b2e2f2ce"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 6
+    >               max: 12
+    >             memory:
+    >               min: 8
+    >               max: 16
+    >       href: "http://127.0.0.1:8082/execution/13f8e991-5dcd-11ef-892d-5731b2e2f2ce"
+    >       state: "OFFERED"
+    >       created: "2024-08-19T01:48:05.653871599Z"
+    >       modified: "2024-08-19T01:48:05.653871599Z"
+    >       expires: "2024-08-19T01:53:05.610822822Z"
+    >       offerset:
+    >         uuid: "13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >         href: "http://127.0.0.1:8082/offerset/13f259dd-5dcd-11ef-892d-5731b2e2f2ce"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+# -----------------------------------------------------
+# Connect to the database admin pages.
+#[user@desktop]
+
+    href: http://localhost:8082/h2-console
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+
+# -----------------------------------------------------
+# Create our main table.
+#[user@desktop]
+
+    DROP TABLE IF EXISTS ExecutionBlock;
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        Start  LONG,
+        Length LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlock;
+
+
+# -----------------------------------------------------
+# Experiment with our query.
+#[user@desktop]
+
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(ExecutionBlock.Start) AS RowCount,
+        (32 - IfNull(sum(ExecutionBlock.MinCores),  0)) AS FreeCores,
+        (32 - IfNull(sum(ExecutionBlock.MinMemory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x + 28734097 AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 19)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        ExecutionBlock
+    ON  (
+            (ExecutionBlock.Start <= StartRange.StartRow)
+            AND
+            ((ExecutionBlock.Start + ExecutionBlock.Length) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (
+        SELECT
+            x AS n
+        FROM
+            SYSTEM_RANGE(1, 6)
+        ) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    ),
+BlockResources AS (
+    SELECT
+        BlockStart,
+        BlockLength,
+        StartRow,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    JOIN
+        SplitBlocks
+    WHERE
+        StartRow >= BlockStart
+    AND
+        StartRow < (BlockStart + BlockLength)
+    AND
+        BlockLength >= 4
+    AND
+        BlockLength <= 6
+    )
+
+    -- Earliest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        BlockStart  ASC,
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC
+
+    -- Largest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC,
+        BlockStart  ASC
+
+    #
+    # Divide everything by 60 to get time in minutes since 1970.
+    # ExecutionBlock.Start is in minutes.
+    # Divide 'now' by 60 to get start time in minutes.
+    # Max cores is 32
+    # Max memory is 32
+    # 28734097 is now / 60 to get start of offers (move forward if we need staging time)
+    # 0, 19 is a range of 20 * 1 minute steps
+    # FreeCores >= 2 is the minimum
+    # FreeMemory >= 2 is the minimum
+    # BlockLength >= 4 is the shortest block
+    # BlockLength <= 6 is the longest block
+    #
+    # Use minutes for the demonstration.
+    # Promote to hours for the production system.
+    #
+

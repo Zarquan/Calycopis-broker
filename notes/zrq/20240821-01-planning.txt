@@ -1,0 +1,139 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Where next ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    19th
+
+        - 07:00 Working overnight
+
+    20th
+
+        00:30 Started
+        00:30-07:00 Working overnight
+        07:00 Stopped
+
+        07:00-12:00 Sleep ..
+
+        12:30 Started
+        12:50-13:50 Planning in Zoom with Susana
+        13:50-14:06 Planning in Slack with Susana
+        14:15 working
+        14:30 Stopped
+
+        14:30 Tim emails
+        16:00 Network issues
+        16:20 Called care home
+
+        17:50 Dog walk
+        18:00 Tim finance emails
+
+        18:20 Started
+        18:20-19:00 Emails and Slack
+        19:00-20:30 Booking slots
+        20:30 Stopped for dinner
+
+        04:20 Started
+        04:30-05:30 this
+        05:30-07:00 Configuring log4j and sl4j logging
+        07:00 Stopped
+
+        09:30 Started
+        09:30-10:30 Coral team planning in Zoom
+        11:00-12:30 Planning in Zoom with Susanna & Robert Perry
+        12:30-13:30 Planning in Slack with Susana
+        14:05-15:15 DAAC Kanban review Duncan, Paul, Steve, Erin
+        15:00 Stopped
+
+        Walked the dogs n the park :-)
+        Did some washing up :-(
+
+        16:00 Started
+        Slack to Rob Perry, Duncan and Paul
+        Confluence, Jira, SLack and emails ...
+        16:45 Started real work
+
+
+
+
+# -----------------------------------------------------
+
+    Where next ..
+
+        Add logging - done
+        Picked a recent article to get the latest fashion.
+        https://www.baeldung.com/java-logging-intro
+        https://medium.com/@bishalf98/log4j2-in-springboot3-095ab6f15763
+
+        Limit to 4 offers - done
+
+        Comment on current feature - done
+        Describe document feature - Susana is starting this.
+
+        Test future start date - done
+        Works BUT it ignores the Period part of the Interval
+        It interprets it as 'after' the start time rather than
+        'within' the interval.
+            requested:
+              - start: 2024-08-30T09:45:00Z/PT1H
+                duration:
+                  min: PT2H
+            offered:
+              executing:
+                start: "2024-08-30T09:45:00Z"
+                duration: "PT2H"
+            offered:
+              executing:
+                start: "2024-08-30T11:45:00Z"
+                duration: "PT2H"
+            offered:
+              executing:
+                start: "2024-08-30T13:45:00Z"
+                duration: "PT2H"
+            offered:
+              executing:
+                start: "2024-08-30T15:45:00Z"
+                duration: "PT2H"
+
+        New git branch ..
+
+        Expiry date in database.
+        Cron task to clear expired offers.
+
+        Code to progress state machine.
+        Leave VOSpace code as stubs.
+
+        Script demo to watch state progression.
+
+
+

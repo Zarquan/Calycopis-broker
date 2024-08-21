@@ -1,0 +1,958 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        branchname=combined
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+
+# -----------------------------------------------------
+# Launch a container to work in with published ports.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes from the OpenAPI spec.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi
+
+        ./mvnw clean install
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Compile and run our webapp classes.
+#[root@spring-builder]
+
+    pushd /spring/spring-webapp
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the client tools.
+#[root@spring-builder]
+
+    dnf install -y \
+        xmlstarlet \
+        curl \
+        jq \
+        yq
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    #
+    # Create a new offerset.
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      volumes:
+        - name: Volume 001
+          path: /here
+          resource: Resource 001
+        - name: Volume 002
+          path: /there
+          resource: ffccf287-5463-4c75-ab75-3270a1245720
+  data:
+    - name: Resource 001
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/data-001
+    - uuid: ffccf287-5463-4c75-ab75-3270a1245720
+      name: Resource 002
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/data-002
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >   messages:
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-18T06:15:59.763372052Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${rname}][${ruuid}] for volume [${vname}][${vuuid}]"
+    >       values:
+    >         ruuid: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >         vname: "Volume 001"
+    >         vuuid: "5679acd8-5d29-11ef-b6ad-cb70a518a846"
+    >         rname: "Resource 001"
+    >       message: "[INFO] Found data resource [Resource 001][56795eb6-5d29-11ef-b6ad-cb70a518a846] for volume [Volume 001][5679acd8-5d29-11ef-b6ad-cb70a518a846]"
+    >     - type: "https://example.org/message-types/info"
+    >       time: "2024-08-18T06:15:59.795728592Z"
+    >       level: "INFO"
+    >       template: "Found data resource [${rname}][${ruuid}] for volume [${vname}][${vuuid}]"
+    >       values:
+    >         ruuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         vname: "Volume 002"
+    >         vuuid: "567e8ed9-5d29-11ef-b6ad-cb70a518a846"
+    >         rname: "Resource 002"
+    >       message: "[INFO] Found data resource [Resource 002][ffccf287-5463-4c75-ab75-3270a1245720] for volume [Volume 002][567e8ed9-5d29-11ef-b6ad-cb70a518a846]"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >   created: "2024-08-18T06:15:59.716792232Z"
+    >   expires: "2024-08-18T06:20:59.716828581Z"
+    >   offers:
+    >     - uuid: "567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "567eb5ea-5d29-11ef-b6ad-cb70a518a846"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "5679acd7-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 4
+    >               max: 8
+    >               units: "cores"
+    >             volumes:
+    >               - uuid: "5679acd8-5d29-11ef-b6ad-cb70a518a846"
+    >                 name: "Volume 001"
+    >                 path: "/here"
+    >                 resource: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >               - uuid: "567e8ed9-5d29-11ef-b6ad-cb70a518a846"
+    >                 name: "Volume 002"
+    >                 path: "/there"
+    >                 resource: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         data:
+    >           - type: "urn:simple-data-resource"
+    >             uuid: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Resource 001"
+    >             location: "http://data.example.org/downloads/data-001"
+    >           - type: "urn:simple-data-resource"
+    >             uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >             name: "Resource 002"
+    >             location: "http://data.example.org/downloads/data-002"
+    >       href: "http://127.0.0.1:8082/execution/567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >       state: "OFFERED"
+    >       created: "2024-08-18T06:15:59.797760709Z"
+    >       modified: "2024-08-18T06:15:59.797760709Z"
+    >       expires: "2024-08-18T06:20:59.716828581Z"
+    >       offerset:
+    >         uuid: "567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >         href: "http://127.0.0.1:8082/offerset/567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    #
+    # Select the first offer.
+    selecthref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+
+    selectresponse=$(
+        mktemp --suffix '.yaml'
+        )
+    curl \
+        --silent \
+        --show-error \
+        --header "Accept: application/yaml" \
+        "${selecthref}" \
+    | tee "${selectresponse}" \
+    | yq '.'
+
+    >   uuid: "567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "567eb5ea-5d29-11ef-b6ad-cb70a518a846"
+    >     name: "My test executable"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "5679acd7-5d29-11ef-b6ad-cb70a518a846"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >         volumes:
+    >           - uuid: "5679acd8-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Volume 001"
+    >             path: "/here"
+    >             resource: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >           - uuid: "567e8ed9-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Volume 002"
+    >             path: "/there"
+    >             resource: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >     data:
+    >       - type: "urn:simple-data-resource"
+    >         uuid: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >         name: "Resource 001"
+    >         location: "http://data.example.org/downloads/data-001"
+    >       - type: "urn:simple-data-resource"
+    >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         name: "Resource 002"
+    >         location: "http://data.example.org/downloads/data-002"
+    >   href: "http://127.0.0.1:8082/execution/567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >   state: "OFFERED"
+    >   created: "2024-08-18T06:15:59.797760709Z"
+    >   modified: "2024-08-18T06:15:59.797760709Z"
+    >   expires: "2024-08-18T06:20:59.716828581Z"
+    >   offerset:
+    >     uuid: "567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >     href: "http://127.0.0.1:8082/offerset/567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
+
+
+    #
+    # ACCEPT the first offer.
+    updatehref=$(
+        yq '.href' "${selectresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '.'
+
+    >   uuid: "567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "567eb5ea-5d29-11ef-b6ad-cb70a518a846"
+    >     name: "My test executable"
+    >     notebook: "http://there"
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         uuid: "5679acd7-5d29-11ef-b6ad-cb70a518a846"
+    >         name: "Compute 001"
+    >         cores:
+    >           min: 4
+    >           max: 8
+    >           units: "cores"
+    >         volumes:
+    >           - uuid: "5679acd8-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Volume 001"
+    >             path: "/here"
+    >             resource: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >           - uuid: "567e8ed9-5d29-11ef-b6ad-cb70a518a846"
+    >             name: "Volume 002"
+    >             path: "/there"
+    >             resource: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >     data:
+    >       - type: "urn:simple-data-resource"
+    >         uuid: "56795eb6-5d29-11ef-b6ad-cb70a518a846"
+    >         name: "Resource 001"
+    >         location: "http://data.example.org/downloads/data-001"
+    >       - type: "urn:simple-data-resource"
+    >         uuid: "ffccf287-5463-4c75-ab75-3270a1245720"
+    >         name: "Resource 002"
+    >         location: "http://data.example.org/downloads/data-002"
+    >   href: "http://127.0.0.1:8082/execution/567edcfb-5d29-11ef-b6ad-cb70a518a846"
+    >   state: "ACCEPTED"
+    >   created: "2024-08-18T06:15:59.797760709Z"
+    >   modified: "2024-08-18T06:15:59.797760709Z"
+    >   expires: "2024-08-18T06:20:59.716828581Z"
+    >   offerset:
+    >     uuid: "567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >     href: "http://127.0.0.1:8082/offerset/567280e5-5d29-11ef-b6ad-cb70a518a846"
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+
+    #
+    # TODO Check the resul of the offers have been rejected.
+    #
+
+
+
+# -----------------------------------------------------
+# Connect to the database admin pages.
+#[user@desktop]
+
+    href: http://localhost:8082/h2-console
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+
+    DROP VIEW IF EXISTS x_free;
+    DROP VIEW IF EXISTS x_load;
+    DROP TABLE IF EXISTS x_session;
+    CREATE TABLE x_session(
+        ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        start INT,
+        duration INT,
+        cores    INT,
+        memory   INT
+        );
+
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 3, 3, 2, 2);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 4, 3, 2, 1);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 5, 2, 2, 2);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 5, 3, 2, 1);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 6, 3, 2, 2);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 7, 3, 2, 1);
+
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 12, 3, 2, 3);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 13, 3, 2, 1);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 14, 3, 2, 4);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 15, 3, 2, 1);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 16, 3, 2, 5);
+    INSERT INTO x_session (start, duration, cores, memory) VALUES( 17, 3, 2, 1);
+
+    SELECT * FROM x_session ;
+
+    >   IDENT   START   DURATION    CORES   MEMORY  
+    >   1        3      3           2       2
+    >   2        4      3           2       1
+    >   3        5      2           2       2
+    >   4        5      3           2       1
+    >   5        6      3           2       2
+    >   6        7      3           2       1
+    >   7       12      3           2       3
+    >   8       13      3           2       1
+    >   9       14      3           2       4
+    >   10      15      3           2       1
+    >   11      16      3           2       5
+    >   12      17      3           2       1
+    >   (12 rows, 3 ms)
+
+
+     0              0
+     1              0
+     2              0
+     3 2            2
+     4 2 2          4
+     5 2 2 2 2      8
+     6   2 2 2 2    8
+     7   2   2 2 2 10
+     8       2 2 2  6
+     9           2  2
+    10           2  2
+    11              0
+    12 2            2
+    13 2 2          4
+    14 2 2 2        6
+    15   2 2 2      6
+    16   2 2 2 2    8
+    17       2 2 2  6
+    18       2 2 2  6
+    19           2  2
+    20           2  2
+    21              0
+    22              0
+    23              0
+
+# -----------------------------------------------------
+
+    DROP VIEW IF EXISTS x_load ;
+    CREATE VIEW x_load AS (
+        SELECT
+            x_range.x_hour AS start_hour,
+            COUNT(x_session.start) AS load_count,
+            IfNull(sum(cores), 0) AS load_cores,
+            IfNull(sum(memory), 0) AS load_memory
+        FROM
+            (SELECT x AS x_hour FROM SYSTEM_RANGE(0, ((24*1)-1))) AS x_range
+        LEFT OUTER JOIN
+            x_session
+        ON
+            ((x_session.start <= x_range.x_hour) AND ((x_session.start + x_session.duration) > x_range.x_hour))
+        GROUP BY
+            x_range.x_hour
+        HAVING
+            (load_cores <= 6)
+        AND
+            (load_memory <= 6)
+        );
+    SELECT * FROM x_load ;
+
+    >   START_HOUR  LOAD_COUNT  LOAD_CORES  LOAD_MEMORY  
+    >   0           0           0           0
+    >   1           0           0           0
+    >   2           0           0           0
+    >   3           1           2           2
+    >   4           2           4           3
+    >   7           3           6           4
+    >   8           2           4           3
+    >   9           1           2           1
+    >   10          0           0           0
+    >   11          0           0           0
+    >   12          1           2           3
+    >   13          2           4           4
+    >   15          3           6           6
+    >   18          2           4           6
+    >   19          1           2           1
+    >   20          0           0           0
+    >   21          0           0           0
+    >   22          0           0           0
+    >   23          0           0           0
+    >   (19 rows, 21 ms)
+
+
+    DROP VIEW IF EXISTS x_free;
+    CREATE VIEW x_free AS (
+        SELECT
+            start_hour AS start_hour,
+            load_count AS load_count,
+            (8 - load_cores)  AS free_cores,
+            (8 - load_memory) AS free_memory
+        FROM
+            (
+            SELECT
+                start_hour,
+                load_count,
+                load_cores,
+                load_memory
+            FROM
+                x_load
+            )
+        );
+    SELECT * FROM x_free ;
+
+    >   
+    >   START_HOUR  LOAD_COUNT  FREE_CORES  FREE_MEMORY  
+    >   0           0           8           8
+    >   1           0           8           8
+    >   2           0           8           8
+    >   3           1           6           6
+    >   4           2           4           5
+    >   7           3           2           4
+    >   8           2           4           5
+    >   9           1           6           7
+    >   10          0           8           8
+    >   11          0           8           8
+    >   12          1           6           5
+    >   13          2           4           4
+    >   15          3           2           2
+    >   18          2           4           2
+    >   19          1           6           7
+    >   20          0           8           8
+    >   21          0           8           8
+    >   22          0           8           8
+    >   23          0           8           8
+    >   (19 rows, 10 ms)
+
+
+    DROP VIEW IF EXISTS x_blocks;
+    CREATE VIEW x_blocks AS (
+        select
+            b_ident,
+            MIN(start_hour) AS b_start,
+            MAX(start_hour) AS b_end,
+            COUNT(start_hour) AS b_duration,
+            MIN(free_cores) AS b_min_cores,
+            MAX(free_cores) AS b_max_cores
+        from
+            (
+            select
+                x_free.*,
+                (row_number() over ()  - 1) as x_rownum,
+                (start_hour - (row_number() over ()  - 1)) AS b_ident
+            from
+                x_free
+            )
+        group by b_ident
+        );
+
+    SELECT * FROM x_blocks ORDER BY b_start ASC ;
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MIN_CORES B_MAX_CORES  
+    >   0        0       4      5           4           8
+    >   2        7      13      7           2           8
+    >   3       15      15      1           2           2
+    >   5       18      23      6           4           8
+    >   (4 rows, 11 ms)
+
+
+    SELECT * FROM x_blocks ORDER BY b_duration DESC, b_min_cores DESC ;
+
+    >   
+    >   B_IDENT B_START B_END   B_DURATION  B_MIN_CORES B_MAX_CORES  
+    >   2        7      13      7           2           8
+    >   5       18      23      6           4           8
+    >   0        0       4      5           4           8
+    >   3       15      15      1           2           2
+    >   (4 rows, 10 ms)
+
+
+    SELECT * FROM x_blocks WHERE b_duration >= 5 ORDER BY b_min_cores DESC, b_duration DESC ;
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MIN_CORES B_MAX_CORES  
+    >   5       18      23      6           4           8
+    >   0        0       4      5           4           8
+    >   2        7      13      7           2           8
+    >   (3 rows, 17 ms)
+
+
+    SELECT * FROM x_blocks WHERE b_duration >= 5 ORDER BY b_start ASC, b_min_cores DESC, b_duration DESC ;
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MIN_CORES B_MAX_CORES  
+    >   0        0       4      5           4           8
+    >   2        7      13      7           2           8
+    >   5       18      23      6           4           8
+    >   (3 rows, 9 ms)
+
+    #
+    # If we are looking for best in 7, then we need to exclude best in 24 from the results.
+    # Or at least exclude the offer we have chosen from best in 24.
+    # Also need toput a limit on the duration of an offer.
+    # If there are no other users, then we don't want it to offer all the cores for all the time.
+    #
+
+    #
+    # Lots of combinations to look at
+    # First that meets the minimum in 1d (default cores 1/2 default time 4hrs)
+    # Longest duration in 1d (default cores 1/2)
+    # Longest duration in 7d (default cores 1/2)
+    # Max cores in 1d (default time 4hrs)
+    # Max cores in 7d (default time 4hrs)
+    #
+
+# -----------------------------------------------------
+
+    SELECT
+        b_ident,
+        MIN(start_hour) AS b_start,
+        MAX(start_hour) AS b_end,
+        COUNT(start_hour) AS b_duration,
+        MIN(free_cores)  AS b_max_cores,
+        MIN(free_memory) AS b_max_memory
+    FROM
+        (
+        SELECT
+            x_free.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (start_hour - (row_number() over ()  - 1)) AS b_ident
+        FROM
+            (
+            SELECT
+                x_range.x_hour AS start_hour,
+                COUNT(x_session.start) AS load_count,
+                IfNull(sum(cores), 0)  AS load_cores,
+                IfNull(sum(memory), 0) AS load_memory,
+                (8 - IfNull(sum(cores),  0)) AS free_cores,
+                (8 - IfNull(sum(memory), 0))    AS free_memory
+            FROM
+                (
+                SELECT
+                    x AS x_hour
+                FROM
+                    SYSTEM_RANGE(
+                        0,
+                            (
+                            (24*1*7) - 1
+                            )
+                        )
+                ) AS x_range
+            LEFT OUTER JOIN
+                x_session
+            ON  (
+                    (x_session.start <= x_range.x_hour)
+                    AND
+                    (
+                        (x_session.start + x_session.duration) > x_range.x_hour
+                    )
+                )
+            GROUP BY
+                x_range.x_hour
+            HAVING
+                (load_cores <= 6)
+            AND
+                (load_memory <= 6)
+            ) AS x_free
+        )
+    group by b_ident
+
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   0        0        4       5         4           5
+    >   2        7       13       7         2           4
+    >   3       15       15       1         2           2
+    >   5       18      167     150         4           2
+    >   (4 rows, 12 ms)
+
+
+    #
+    # Look for 4hr blocks that meet the minimum (2, 2, 4).
+    #
+
+    SELECT
+        b_ident,
+        MIN(start_hour) AS b_start,
+        MAX(start_hour) AS b_end,
+        COUNT(start_hour) AS b_duration,
+        MIN(free_cores)  AS b_max_cores,
+        MIN(free_memory) AS b_max_memory
+    FROM
+        (
+
+        SELECT
+            x_free.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (start_hour - (row_number() over ()  - 1)) AS b_ident
+        FROM
+            (
+            SELECT
+                x_range.x_hour AS start_hour,
+                COUNT(x_session.start) AS load_count,
+                IfNull(sum(cores), 0)  AS load_cores,
+                IfNull(sum(memory), 0) AS load_memory,
+                (8 - IfNull(sum(cores),  0)) AS free_cores,
+                (8 - IfNull(sum(memory), 0)) AS free_memory
+            FROM
+                (
+                SELECT
+                    x AS x_hour
+                FROM
+                    SYSTEM_RANGE(
+                        0,
+                            (
+                            (24*1*7) - 1
+                            )
+                        )
+                ) AS x_range
+            LEFT OUTER JOIN
+                x_session
+            ON  (
+                    (x_session.start <= x_range.x_hour)
+                    AND
+                    (
+                        (x_session.start + x_session.duration) > x_range.x_hour
+                    )
+                )
+            GROUP BY
+                x_range.x_hour
+            HAVING
+                (free_cores >= 2)
+            AND
+                (free_memory >= 2)
+            ) AS x_free
+        )
+    GROUP BY
+        b_ident
+    HAVING
+        b_duration >= 4
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   0       0       4       5           4           5
+    >   2       7       13      7           2           4
+    >   5       18      167     150         4           2
+    >   (3 rows, 14 ms)
+
+
+    #
+    # Look for 4hr blocks that meet the medium (4, 4, 4).
+    #
+
+    SELECT
+        b_ident,
+        MIN(start_hour) AS b_start,
+        MAX(start_hour) AS b_end,
+        COUNT(start_hour) AS b_duration,
+        MIN(free_cores)  AS b_max_cores,
+        MIN(free_memory) AS b_max_memory
+    FROM
+        (
+        SELECT
+            x_free.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (start_hour - (row_number() over ()  - 1)) AS b_ident
+        FROM
+            (
+            SELECT
+                x_range.x_hour AS start_hour,
+                COUNT(x_session.start) AS load_count,
+                IfNull(sum(cores), 0)  AS load_cores,
+                IfNull(sum(memory), 0) AS load_memory,
+                (8 - IfNull(sum(cores),  0)) AS free_cores,
+                (8 - IfNull(sum(memory), 0)) AS free_memory
+            FROM
+                (
+                SELECT
+                    x AS x_hour
+                FROM
+                    SYSTEM_RANGE(
+                        0,
+                            (
+                            (24*1*7) - 1
+                            )
+                        )
+                ) AS x_range
+            LEFT OUTER JOIN
+                x_session
+            ON  (
+                    (x_session.start <= x_range.x_hour)
+                    AND
+                    (
+                        (x_session.start + x_session.duration) > x_range.x_hour
+                    )
+                )
+            GROUP BY
+                x_range.x_hour
+            HAVING
+                (free_cores >= 4)
+            AND
+                (free_memory >= 4)
+            ) AS x_free
+        )
+    GROUP BY
+        b_ident
+    HAVING
+        b_duration >= 4
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   0       0       4       5           4           5
+    >   3       8       13      6           4           4
+    >   8       19      167     149         6           7
+    >   (3 rows, 13 ms)
+
+
+    # Look for 4hr blocks that meet the maximum (8, 8, 4).
+
+    SELECT
+        b_ident,
+        MIN(start_hour) AS b_start,
+        MAX(start_hour) AS b_end,
+        COUNT(start_hour) AS b_duration,
+        MIN(free_cores)  AS b_max_cores,
+        MIN(free_memory) AS b_max_memory
+    FROM
+        (
+        SELECT
+            x_free.*,
+            (row_number() over ()  - 1) as x_rownum,
+            (start_hour - (row_number() over ()  - 1)) AS b_ident
+        FROM
+            (
+            SELECT
+                x_range.x_hour AS start_hour,
+                COUNT(x_session.start) AS load_count,
+                IfNull(sum(cores), 0)  AS load_cores,
+                IfNull(sum(memory), 0) AS load_memory,
+                (8 - IfNull(sum(cores),  0)) AS free_cores,
+                (8 - IfNull(sum(memory), 0)) AS free_memory
+            FROM
+                (
+                SELECT
+                    x AS x_hour
+                FROM
+                    SYSTEM_RANGE(
+                        0,
+                            (
+                            (24*1*7) - 1
+                            )
+                        )
+                ) AS x_range
+            LEFT OUTER JOIN
+                x_session
+            ON  (
+                    (x_session.start <= x_range.x_hour)
+                    AND
+                    (
+                        (x_session.start + x_session.duration) > x_range.x_hour
+                    )
+                )
+            GROUP BY
+                x_range.x_hour
+            HAVING
+                (free_cores >= 8)
+            AND
+                (free_memory >= 8)
+            ) AS x_free
+        )
+    GROUP BY
+        b_ident
+    HAVING
+        b_duration >= 4
+
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   15      20      167     148         8           8
+    >   (1 row, 13 ms)
+
+# -----------------------------------------------------
+
+    >   # 4hr blocks that meet the minimum (2, 2, 4).
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   0       0       4       5           4           5
+    >   2       7       13      7           2           4
+    >   5       18      167     150         4           2
+    >   (3 rows, 14 ms)
+
+    >   # 4hr blocks that meet the medium (4, 4, 4).
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   0       0       4       5           4           5
+    >   3       8       13      6           4           4
+    >   8       19      167     149         6           7
+    >   (3 rows, 13 ms)
+
+    >   # 4hr blocks that meet the maximum (8, 8, 4).
+    >   B_IDENT B_START B_END   B_DURATION  B_MAX_CORES B_MAX_MEMORY  
+    >   15      20      167     148         8           8
+    >   (1 row, 13 ms)
+
+
+
+
+

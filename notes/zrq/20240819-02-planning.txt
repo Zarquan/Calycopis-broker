@@ -1,0 +1,154 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on proposed work for PI25
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+PI23 features
+# -----------------------------------------------------
+
+Prototype an Execution broker within CANFAR Science platform
+https://jira.skatelescope.org/browse/SP-4241
+
+    Work in progress - see below.
+
+# -----------------------------------------------------
+PI24 features
+# -----------------------------------------------------
+
+ExecutionBroker scheduling and resource booking
+https://jira.skatelescope.org/browse/SP-4512
+
+Feedback from the backlog refinement meeting on 30 Jul 2024 was this is too large and unlikley to be selected.
+It needs to be broken down into smaller steps to have a better chance of being selected.
+
+In light of what we have learned developing the first prototype in SP-4241
+I suggest we withdraw this feature and re-submit
+a number of smaller tasks, some for PI24 and some for later.
+
+# -----------------------------------------------------
+
+ExecutionBroker modular plug-in design
+https://jira.skatelescope.org/browse/SP-4511
+
+This is still valid, but based on our experince with SP-4241
+this should probably be deferred until PI26.
+
+# -----------------------------------------------------
+
+DataStaging broker
+ExecutionBroker DataStaging
+https://jira.skatelescope.org/browse/SP-4514
+
+Acceptance criteria needs more detail.
+
+We should probably re-word this as an investigation (Spike?).
+
+# -----------------------------------------------------
+
+Verify the IVOA Execution Broker Metadata Model functionality by executing real world examples
+https://jira.skatelescope.org/browse/SP-4283
+
+    This is still valid but needs re-wording.
+    Too many AC and AC5 is out of scope.
+    We don't have a production ready version of the service available to use yet.
+
+    The metadata documents should be contributed to the IVOA spec as worked examples.
+
+# -----------------------------------------------------
+PI23 tickets
+# -----------------------------------------------------
+
+[Exec broker] Running "something" in CANFAR using REST Python client invoked from our web service.
+⚠️Unknowns - delegated tokens
+https://jira.skatelescope.org/browse/COR-650
+
+    Ready for acceptance.
+    We succesfully ran something.
+    We haven't really investigated delegated tokens.
+    We just re-used the existing token.
+
+# -----------------------------------------------------
+
+[exec broker] Running "something useful" in CANFAR using resources allocated in booked slots.
+Primary goal - command line application
+Stretch goal - visualization application e.g. CARTA ?
+https://jira.skatelescope.org/browse/COR-668
+
+    Work in progress.
+    The way it has turned out the "something useful" will be a notebook.
+    We have all the bits, but we haven't got them all working together yet.
+
+# -----------------------------------------------------
+
+[exec broker] Early demo: data model & API
+https://jira.skatelescope.org/browse/COR-652
+
+    Done.
+    Status needs updating.
+
+# -----------------------------------------------------
+
+[exec broker] Demo
+https://jira.skatelescope.org/browse/COR-670
+
+    ToDo.
+    Late as possible to get as much functionality as possible.
+    Presented as a set of slides to show the state changes and scheduling.
+    Reproducable demo after if wpople really want to watch it from the command line.
+
+# -----------------------------------------------------
+
+[Exec broker] Bringing the IVOA document up to date.
+https://jira.skatelescope.org/browse/COR-641
+
+    This won't be completed in PI23.
+    There is so much to change in the document that.
+    This should be a separate (1 person month) Feature for PI24.
+    Work done during Sept/Oct and presented at the IVOA ocnference in Nov.
+
+# -----------------------------------------------------
+
+[exec broker] Booking Basic booking system allocating from a fixed quota of compute resources in 1hr slots from a 24hr window.
+https://jira.skatelescope.org/browse/COR-651
+
+    Work in progress.
+
+# -----------------------------------------------------
+[exec broker] Reporting Updating the IVOA document to match. Demonstrator of service capabilities. (*) Bob on holiday
+https://jira.skatelescope.org/browse/COR-669
+
+    This won't be completed in PI23.
+    See COR-641
+
+
+
+

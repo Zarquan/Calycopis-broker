@@ -1,0 +1,616 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Get the execution block queries working.
+
+    Resources:
+
+        H2 Console
+        http://localhost:8082/h2-console/
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+# -----------------------------------------------------
+# Create our database.
+#[sa@database]
+
+    -- Create our database table.
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        BlockStart  LONG,
+        BlockLength LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlocks ;
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the client tools.
+#[root@spring-builder]
+
+    dnf install -y \
+        xmlstarlet \
+        curl \
+        jq \
+        yq
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    #
+    # Create a new offerset.
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >   created: "2024-08-19T18:32:25.849503964Z"
+    >   expires: "2024-08-19T18:37:25.849545938Z"
+    >   offers:
+    >     - uuid: "61e0cce1-5e59-11ef-abef-5799506a4fdd"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "61e07ec0-5e59-11ef-abef-5799506a4fdd"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "61e0309f-5e59-11ef-abef-5799506a4fdd"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 3
+    >               max: 6
+    >             memory:
+    >               min: 4
+    >               max: 8
+    >       href: "http://127.0.0.1:8082/execution/61e0cce1-5e59-11ef-abef-5799506a4fdd"
+    >       state: "OFFERED"
+    >       created: "2024-08-19T18:32:25.90007924Z"
+    >       modified: "2024-08-19T18:32:25.90007924Z"
+    >       expires: "2024-08-19T18:37:25.849545938Z"
+    >       offerset:
+    >         uuid: "61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >         href: "http://127.0.0.1:8082/offerset/61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "61e364f2-5e59-11ef-abef-5799506a4fdd"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "61e07ec0-5e59-11ef-abef-5799506a4fdd"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "61e0309f-5e59-11ef-abef-5799506a4fdd"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 6
+    >               max: 12
+    >             memory:
+    >               min: 8
+    >               max: 16
+    >       href: "http://127.0.0.1:8082/execution/61e364f2-5e59-11ef-abef-5799506a4fdd"
+    >       state: "OFFERED"
+    >       created: "2024-08-19T18:32:25.916896318Z"
+    >       modified: "2024-08-19T18:32:25.916896318Z"
+    >       expires: "2024-08-19T18:37:25.849545938Z"
+    >       offerset:
+    >         uuid: "61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >         href: "http://127.0.0.1:8082/offerset/61d92bbe-5e59-11ef-abef-5799506a4fdd"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+# -----------------------------------------------------
+# Check our database.
+#[sa@database]
+
+    -- Create our database table.
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        BlockStart  LONG,
+        BlockLength LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT   BLOCKSTART  BLOCKLENGTH  MINCORES  MAXCORES  MINMEMORY  MAXMEMORY  
+    >   1       5746974     4            3          6        4           8
+    >   2       5746974     4            6         12        8          16
+    >   (2 rows, 3 ms)
+
+
+    -- https://stackoverflow.com/a/39394592
+    DROP VIEW IF EXISTS BlocksView ;
+    CREATE VIEW BlocksView AS
+        (
+        SELECT
+            *,
+            FORMATDATETIME(
+                DATEADD('SECOND', (BlockStart * 60 * 5), DATE '1970-01-01'),
+                'YYYY-dd-MM HH:mm:ss'
+                ) AS StartTime,
+            (BlockLength * 5) AS Duration
+        FROM
+            ExecutionBlocks
+        );
+    SELECT * FROM BlocksView ;
+
+    >   IDENT  BLOCKSTART  BLOCKLENGTH  MINCORES  MAXCORES  MINMEMORY  MAXMEMORY  STARTTIME             DURATION  
+    >   1       5746974      4             3         6         4           8      2024-19-08 18:30:00      20
+    >   2       5746974      4             6        12         8          16      2024-19-08 18:30:00      20
+    >   3       5746976      4             3         6         4           8      2024-19-08 18:40:00      20
+    >   4       5746976      4             6        12         8          16      2024-19-08 18:40:00      20
+    >   5       5746977      4             3         6         4           8      2024-19-08 18:45:00      20
+    >   6       5746977      4             6        12         8          16      2024-19-08 18:45:00      20
+    >   (6 rows, 3 ms)
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        Split the schedule into parts
+
+            schedule:
+              # Request from user (array of options)
+              request:
+                - start:
+                  duration:
+                - start:
+                  duration:
+              # Plan offered by server
+              offered:
+                preparing:
+                  start:
+                  duration:
+                executing:
+                  start:
+                  duration:
+                finishing:
+                  start:
+                  duration:
+              # Measured
+              observed:
+                preparing:
+                  start:
+                  duration:
+                executing:
+                  start:
+                  duration:
+                finishing:
+                  start:
+                  duration:
+
+# -----------------------------------------------------
+# Test with no schedule.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >   created: "2024-08-20T01:11:24.744402102Z"
+    >   expires: "2024-08-20T01:16:24.74441973Z"
+    >   offers:
+    >     - uuid: "1e8a9d83-5e91-11ef-abc8-83fd3c51f1ba"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "1e8a9d82-5e91-11ef-abc8-83fd3c51f1ba"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "1e8a9d81-5e91-11ef-abc8-83fd3c51f1ba"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 3
+    >               max: 6
+    >             memory:
+    >               min: 4
+    >               max: 8
+    >       href: "http://127.0.0.1:8082/execution/1e8a9d83-5e91-11ef-abc8-83fd3c51f1ba"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T01:11:24.744535294Z"
+    >       modified: "2024-08-20T01:11:24.744535294Z"
+    >       expires: "2024-08-20T01:16:24.74441973Z"
+    >       offerset:
+    >         uuid: "1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >         href: "http://127.0.0.1:8082/offerset/1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "1e8bd604-5e91-11ef-abc8-83fd3c51f1ba"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "1e8a9d82-5e91-11ef-abc8-83fd3c51f1ba"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "1e8a9d81-5e91-11ef-abc8-83fd3c51f1ba"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 6
+    >               max: 12
+    >             memory:
+    >               min: 8
+    >               max: 16
+    >       href: "http://127.0.0.1:8082/execution/1e8bd604-5e91-11ef-abc8-83fd3c51f1ba"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T01:11:24.752792675Z"
+    >       modified: "2024-08-20T01:11:24.752792675Z"
+    >       expires: "2024-08-20T01:16:24.74441973Z"
+    >       offerset:
+    >         uuid: "1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >         href: "http://127.0.0.1:8082/offerset/1e8a9d80-5e91-11ef-abc8-83fd3c51f1ba"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+# -----------------------------------------------------
+# Test with valid schedule.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+schedule:
+  requested:
+  - start: 2024-08-20T02:45Z/P10M
+    duration:
+      min: PT15M
+      max: PT30M
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >   created: "2024-08-20T01:32:12.000614466Z"
+    >   expires: "2024-08-20T01:37:12.000638903Z"
+    >   offers:
+    >     - uuid: "05f6c70d-5e94-11ef-abc8-83fd3c51f1ba"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "05f6c70c-5e94-11ef-abc8-83fd3c51f1ba"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "05f6c70b-5e94-11ef-abc8-83fd3c51f1ba"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 3
+    >               max: 6
+    >             memory:
+    >               min: 4
+    >               max: 8
+    >       href: "http://127.0.0.1:8082/execution/05f6c70d-5e94-11ef-abc8-83fd3c51f1ba"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T01:32:12.001010408Z"
+    >       modified: "2024-08-20T01:32:12.001010408Z"
+    >       expires: "2024-08-20T01:37:12.000638903Z"
+    >       offerset:
+    >         uuid: "05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >         href: "http://127.0.0.1:8082/offerset/05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "05f6ee1e-5e94-11ef-abc8-83fd3c51f1ba"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "05f6c70c-5e94-11ef-abc8-83fd3c51f1ba"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "05f6c70b-5e94-11ef-abc8-83fd3c51f1ba"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 6
+    >               max: 12
+    >             memory:
+    >               min: 8
+    >               max: 16
+    >       href: "http://127.0.0.1:8082/execution/05f6ee1e-5e94-11ef-abc8-83fd3c51f1ba"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T01:32:12.001815099Z"
+    >       modified: "2024-08-20T01:32:12.001815099Z"
+    >       expires: "2024-08-20T01:37:12.000638903Z"
+    >       offerset:
+    >         uuid: "05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >         href: "http://127.0.0.1:8082/offerset/05f6c70a-5e94-11ef-abc8-83fd3c51f1ba"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+    >   IDENT  BLOCKSTART  BLOCKLENGTH  MINCORES  MAXCORES  MINMEMORY  MAXMEMORY  STARTTIME             DURATION  
+    >   ....
+    >   5       5747073         6           3        6          4           8       2024-20-08 02:45:00	   30
+    >   6       5747073         6           6       12          8          16       2024-20-08 02:45:00	   30
+    >   (6 rows, 1 ms)
+
+
+# -----------------------------------------------------
+# Test with duration.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT15M
+      max: PT30M
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+

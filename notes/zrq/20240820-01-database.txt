@@ -1,0 +1,2140 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Get the execution block queries working.
+
+    Resources:
+
+        H2 Console
+        http://localhost:8082/h2-console/
+
+        Spring Boot + Spring JDBC + H2 Database Example
+        https://www.javaguides.net/2019/08/spring-boot-spring-jdbc-h2-database.html
+
+        Spring Boot With H2 Database
+        https://www.baeldung.com/spring-boot-h2-database
+
+        Spring Boot with H2 Database
+        https://www.geeksforgeeks.org/spring-boot-with-h2-database/
+
+        Java ThreeTen Interval
+        https://www.threeten.org/threeten-extra/apidocs/org.threeten.extra/org/threeten/extra/Interval.html#getStart()
+
+        Spring JDBC Client
+        https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/simple/JdbcClient.html
+        https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/simple/JdbcClient.MappedQuerySpec.html
+        https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/RowMapper.html
+        https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/jdbc/core/namedparam/NamedParameterJdbcTemplate.html
+
+        Spring JDBC template
+        https://www.baeldung.com/spring-jdbc-jdbctemplate
+        https://www.digitalocean.com/community/tutorials/spring-jdbctemplate-example
+
+        Java text blocks
+        https://openjdk.org/jeps/368
+
+
+    Result:
+
+        ExecutionBlock query working.
+
+    TODO:
+
+        Add a message to say no resources.
+
+
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+# -----------------------------------------------------
+# Create our database.
+#[sa@database]
+
+    -- Create our database table.
+    DROP TABLE IF EXISTS ExecutionBlocks;
+    CREATE TABLE ExecutionBlocks(
+        Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        BlockStart  LONG,
+        BlockLength LONG,
+        MinCores INT,
+        MaxCores INT,
+        MinMemory INT,
+        MaxMemory INT
+        );
+    SELECT * FROM ExecutionBlocks ;
+
+    -- https://stackoverflow.com/a/39394592
+    DROP VIEW IF EXISTS BlocksView ;
+    CREATE VIEW BlocksView AS
+        (
+        SELECT
+            *,
+            FORMATDATETIME(
+                DATEADD('SECOND', (BlockStart * 60 * 5), DATE '1970-01-01'),
+                'YYYY-dd-MM HH:mm:ss'
+                ) AS StartTime,
+            (BlockLength * 5) AS Duration
+        FROM
+            ExecutionBlocks
+        );
+    SELECT * FROM BlocksView ;
+
+
+# -----------------------------------------------------
+# Test our query.
+#[sa@database]
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(ExecutionBlocks.BlockStart) AS RowCount,
+        (32 - IfNull(sum(ExecutionBlocks.MinCores),  0)) AS FreeCores,
+        (32 - IfNull(sum(ExecutionBlocks.MinMemory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x + 5747067 AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 19)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        ExecutionBlocks
+    ON  (
+            (ExecutionBlocks.BlockStart <= StartRange.StartRow)
+            AND
+            ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (
+        SELECT
+            x AS n
+        FROM
+            SYSTEM_RANGE(1, 6)
+        ) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    ),
+BlockResources AS (
+    SELECT
+        BlockStart,
+        BlockLength,
+        StartRow,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    JOIN
+        SplitBlocks
+    WHERE
+        StartRow >= BlockStart
+    AND
+        StartRow < (BlockStart + BlockLength)
+    AND
+        BlockLength >= 4
+    AND
+        BlockLength <= 6
+    )
+
+    -- Earliest match
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory,
+        DATEADD(
+            'SECOND',
+            (BlockStart * 60 * 5),
+            DATE '1970-01-01'
+            ) AS StartTime,
+        DATEADD(
+            'SECOND',
+            (BlockLength * 60 * 5),
+            TIME '00:00'
+            ) AS BlockTime     FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        BlockStart  ASC,
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC
+
+    >   ....
+    >   ....
+
+    -- Largest match
+
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory,
+        DATEADD(
+            'SECOND',
+            (BlockStart * 60 * 5),
+            DATE '1970-01-01'
+            ) AS StartTime,
+        DATEADD(
+            'SECOND',
+            (BlockLength * 60 * 5),
+            TIME '00:00'
+            ) AS BlockTime     FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC,
+        BlockStart  ASC
+
+    >   ....
+    >   ....
+
+    #
+    # Divide everything by 60 to get time in minutes since 1970.
+    # ExecutionBlocks.Start is in minutes.
+    # Divide 'now' by 60 to get start time in minutes.
+    # Max cores is 32
+    # Max memory is 32
+    # 5747067 is now / 60 to get start of offers (move forward if we need staging time)
+    # 0, 19 is a range of 20 * 1 minute steps
+    # FreeCores >= 2 is the minimum
+    # FreeMemory >= 2 is the minimum
+    # BlockLength >= 4 is the shortest block
+    # BlockLength <= 6 is the longest block
+    #
+    # Use minutes for the demonstration.
+    # Promote to hours for the production system.
+    #
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    #
+    # Create a new offerset.
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    #
+    # Using named parameters caused a RuntimeException inside the database.
+    #
+
+    >   ....
+    >   SQL state [HY000]; error code [50000]; General error: "java.lang.RuntimeException: Unexpected code path"
+    >   ....
+
+    #
+    # Manually do the replacement ourselves works,
+    # but allocates all 32 cores and 32 GiB to every block.
+    #
+
+    >
+    >   uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >   created: "2024-08-20T04:59:59.494021842Z"
+    >   expires: "2024-08-20T05:04:59.494057923Z"
+    >   offers:
+    >     - uuid: "0d46a020-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d46a020-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.67272158Z"
+    >       modified: "2024-08-20T04:59:59.67272158Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47b191-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47b191-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.679954955Z"
+    >       modified: "2024-08-20T04:59:59.679954955Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47d8a2-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47d8a2-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.680436682Z"
+    >       modified: "2024-08-20T04:59:59.680436682Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "0d47d8a3-5eb1-11ef-9023-d75f61507571"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "0d300adf-5eb1-11ef-9023-d75f61507571"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "0d300ade-5eb1-11ef-9023-d75f61507571"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 32
+    >               max: 32
+    >             memory:
+    >               min: 32
+    >               max: 32
+    >       href: "http://127.0.0.1:8082/execution/0d47d8a3-5eb1-11ef-9023-d75f61507571"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T04:59:59.680824155Z"
+    >       modified: "2024-08-20T04:59:59.680824155Z"
+    >       expires: "2024-08-20T05:04:59.494057923Z"
+    >       offerset:
+    >         uuid: "0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >         href: "http://127.0.0.1:8082/offerset/0d2b4fed-5eb1-11ef-9023-d75f61507571"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+    >   IDENT  BLOCKSTART  BLOCKLENGTH  MINCORES  MAXCORES  MINMEMORY  MAXMEMORY  STARTTIME           DURATION  
+    >   1       5747099        6          32        32         32         32      2024-20-08 04:55:00    30
+    >   2       5747105        6          32        32         32         32      2024-20-08 05:25:00    30
+    >   3       5747111        6          32        32         32         32      2024-20-08 05:55:00    30
+    >   4       5747117        6          32        32         32         32      2024-20-08 06:25:00    30
+    >   (4 rows, 2 ms)
+
+    #
+    # With nothing in the database, it will offer all the resources.
+    # We should only offer part of the resources.
+    # Limit our offer to twice what they asked for.
+    #
+    # Updated the algorithm to only offer half the available resources or the maximum in the request, whichever is lower.
+    # Added code to set the offered schedule in the response.
+    #
+
+
+# -----------------------------------------------------
+# Test our webapp.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >   created: "2024-08-20T18:23:04.318842032Z"
+    >   expires: "2024-08-20T18:28:04.31888446Z"
+    >   offers:
+    >     - uuid: "3dad9cda-5f21-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "3d94bda9-5f21-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T18:20:00Z"
+    >             duration: "PT30M"
+    >       href: "http://127.0.0.1:8082/execution/3dad9cda-5f21-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:23:04.512685359Z"
+    >       modified: "2024-08-20T18:23:04.512685359Z"
+    >       expires: "2024-08-20T18:28:04.31888446Z"
+    >       offerset:
+    >         uuid: "3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "3daed55b-5f21-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "3d94bda9-5f21-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T18:50:00Z"
+    >             duration: "PT30M"
+    >       href: "http://127.0.0.1:8082/execution/3daed55b-5f21-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:23:04.52082129Z"
+    >       modified: "2024-08-20T18:23:04.52082129Z"
+    >       expires: "2024-08-20T18:28:04.31888446Z"
+    >       offerset:
+    >         uuid: "3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "3daefc6c-5f21-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "3d94bda9-5f21-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T19:20:00Z"
+    >             duration: "PT30M"
+    >       href: "http://127.0.0.1:8082/execution/3daefc6c-5f21-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:23:04.521289432Z"
+    >       modified: "2024-08-20T18:23:04.521289432Z"
+    >       expires: "2024-08-20T18:28:04.31888446Z"
+    >       offerset:
+    >         uuid: "3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "3daefc6d-5f21-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "3d94bda9-5f21-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T19:50:00Z"
+    >             duration: "PT30M"
+    >       href: "http://127.0.0.1:8082/execution/3daefc6d-5f21-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:23:04.521648538Z"
+    >       modified: "2024-08-20T18:23:04.521648538Z"
+    >       expires: "2024-08-20T18:28:04.31888446Z"
+    >       offerset:
+    >         uuid: "3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/3d8fdba7-5f21-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T18:20:00Z"
+    >       duration: "PT30M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T18:50:00Z"
+    >       duration: "PT30M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT30M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:50:00Z"
+    >       duration: "PT30M"
+
+    yq '.offers[].resources.compute[]' "${createresponse}"
+
+    >   type: "urn:simple-compute-resource"
+    >   uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >   name: "Compute 001"
+    >   cores:
+    >     min: 1
+    >     max: 2
+    >   memory:
+    >     min: 1
+    >     max: 2
+    >   type: "urn:simple-compute-resource"
+    >   uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >   name: "Compute 001"
+    >   cores:
+    >     min: 1
+    >     max: 2
+    >   memory:
+    >     min: 1
+    >     max: 2
+    >   type: "urn:simple-compute-resource"
+    >   uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >   name: "Compute 001"
+    >   cores:
+    >     min: 1
+    >     max: 2
+    >   memory:
+    >     min: 1
+    >     max: 2
+    >   type: "urn:simple-compute-resource"
+    >   uuid: "3d949698-5f21-11ef-aa76-ffa39695b336"
+    >   name: "Compute 001"
+    >   cores:
+    >     min: 1
+    >     max: 2
+    >   memory:
+    >     min: 1
+    >     max: 2
+
+# -----------------------------------------------------
+# Ask for more time (PT1H).
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT1H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "429af22d-5f22-11ef-aa76-ffa39695b336"
+    >   result: "YES"
+    >   href: "http://127.0.0.1:8082/offerset/429af22d-5f22-11ef-aa76-ffa39695b336"
+    >   created: "2024-08-20T18:30:22.275666579Z"
+    >   expires: "2024-08-20T18:35:22.27569159Z"
+    >   offers:
+    >     - uuid: "42a30880-5f22-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "429af22f-5f22-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "429af22e-5f22-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T18:30:00Z"
+    >             duration: "PT1H"
+    >       href: "http://127.0.0.1:8082/execution/42a30880-5f22-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:30:22.328337964Z"
+    >       modified: "2024-08-20T18:30:22.328337964Z"
+    >       expires: "2024-08-20T18:35:22.27569159Z"
+    >       offerset:
+    >         uuid: "429af22d-5f22-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/429af22d-5f22-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "42a30881-5f22-11ef-aa76-ffa39695b336"
+    >       executable:
+    >         type: "urn:jupyter-notebook-0.1"
+    >         uuid: "429af22f-5f22-11ef-aa76-ffa39695b336"
+    >         name: "My test executable"
+    >         notebook: "http://there"
+    >       resources:
+    >         compute:
+    >           - type: "urn:simple-compute-resource"
+    >             uuid: "429af22e-5f22-11ef-aa76-ffa39695b336"
+    >             name: "Compute 001"
+    >             cores:
+    >               min: 1
+    >               max: 2
+    >             memory:
+    >               min: 1
+    >               max: 2
+    >       schedule:
+    >         offered:
+    >           executing:
+    >             start: "2024-08-20T19:30:00Z"
+    >             duration: "PT1H"
+    >       href: "http://127.0.0.1:8082/execution/42a30881-5f22-11ef-aa76-ffa39695b336"
+    >       state: "OFFERED"
+    >       created: "2024-08-20T18:30:22.328900714Z"
+    >       modified: "2024-08-20T18:30:22.328900714Z"
+    >       expires: "2024-08-20T18:35:22.27569159Z"
+    >       offerset:
+    >         uuid: "429af22d-5f22-11ef-aa76-ffa39695b336"
+    >         href: "http://127.0.0.1:8082/offerset/429af22d-5f22-11ef-aa76-ffa39695b336"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T18:30:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:30:00Z"
+    >       duration: "PT1H"
+
+
+# -----------------------------------------------------
+# Ask for more time (PT2H).
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T18:30:00Z"
+    >       duration: "PT2H"
+
+
+# -----------------------------------------------------
+# Ask for more time (PT4H).
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT4H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    >   uuid: "d223a2d6-5f22-11ef-aa76-ffa39695b336"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/d223a2d6-5f22-11ef-aa76-ffa39695b336"
+    >   created: "2024-08-20T18:34:23.085838264Z"
+    >   expires: "2024-08-20T18:39:23.085862346Z"
+
+    #
+    # TODO Need a message saying that no blocks are available because the request exceeds to allowed range.
+    #
+
+    #
+    # The offers were limited to 2hr because the range in the database query is limited to 24 * 5min steps = 2 hrs.
+    # At the moment the range is hard coded into the ExecutionBlockDatabase code.
+    #
+    # Update te code to use 23 * (60 / ExecutionBlock.BLOCK_STEP_SIZE)
+    #
+
+# -----------------------------------------------------
+# Ask for different times.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT1H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T20:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T21:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T22:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T23:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T00:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T02:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T04:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:00:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T06:00:00Z"
+    >       duration: "PT1H"
+
+    #
+    # Asking for 1hr => offers 12 1hr blocks.
+    #
+
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T21:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T23:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T09:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T11:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T13:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T15:00:00Z"
+    >       duration: "PT2H"
+
+    #
+    # Asking for 2hr => offers 11 2hr blocks.
+    #
+    # Changed the code to use (((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES) - 1)
+    #
+
+
+# -----------------------------------------------------
+# Ask for different times.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT1H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T20:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T21:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T22:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T23:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T00:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T02:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T04:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:10:00Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T06:10:00Z"
+    >       duration: "PT1H"
+
+    #
+    # Asking for PT1H => 12 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T21:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T23:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T09:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T11:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T13:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T15:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T17:10:00Z"
+    >       duration: "PT2H"
+
+    #
+    # Asking for PT2H => 12 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT3H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T22:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T04:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T10:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T13:10:00Z"
+    >       duration: "PT3H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T16:10:00Z"
+    >       duration: "PT3H"
+
+    #
+    # Asking for PT3H => 8 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT4H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:15:00Z"
+    >       duration: "PT4H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T23:15:00Z"
+    >       duration: "PT4H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:15:00Z"
+    >       duration: "PT4H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:15:00Z"
+    >       duration: "PT4H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T11:15:00Z"
+    >       duration: "PT4H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T15:15:00Z"
+    >       duration: "PT4H"
+
+    #
+    # Asking for PT4H => 6 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT5H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:15:00Z"
+    >       duration: "PT5H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T00:15:00Z"
+    >       duration: "PT5H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:15:00Z"
+    >       duration: "PT5H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T10:15:00Z"
+    >       duration: "PT5H"
+
+    #
+    # Asking for PT5H => 4 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT6H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:15:00Z"
+    >       duration: "PT6H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T01:15:00Z"
+    >       duration: "PT6H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:15:00Z"
+    >       duration: "PT6H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T13:15:00Z"
+    >       duration: "PT6H"
+
+    #
+    # Asking for PT6H => 4 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT7H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:15:00Z"
+    >       duration: "PT7H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T02:15:00Z"
+    >       duration: "PT7H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T09:15:00Z"
+    >       duration: "PT7H"
+
+    #
+    # Asking for PT7H => 3 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT8H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:15:00Z"
+    >       duration: "PT8H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T03:15:00Z"
+    >       duration: "PT8H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T11:15:00Z"
+    >       duration: "PT8H"
+
+    #
+    # Asking for PT8H => 3 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT9H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT9H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T04:20:00Z"
+    >       duration: "PT9H"
+
+    #
+    # Asking for PT9H => 2 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT10H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT10H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T05:20:00Z"
+    >       duration: "PT10H"
+
+    #
+    # Asking for PT10H => 2 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT11H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT11H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T06:20:00Z"
+    >       duration: "PT11H"
+
+    #
+    # Asking for PT11H => 2 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT12H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT12H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-21T07:20:00Z"
+    >       duration: "PT12H"
+
+    #
+    # Asking for PT12H => 2 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT13H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT13H"
+
+    #
+    # Asking for PT13H => 1 offer.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT23H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT23H"
+
+    #
+    # Asking for PT23H => 1 offer.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT24H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:20:00Z"
+    >       duration: "PT24H"
+
+    #
+    # Asking for PT24H => 1 offer.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT25H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   uuid: "eee073af-5f29-11ef-bb3c-09eb99dfcfa4"
+    >   result: "NO"
+    >   href: "http://127.0.0.1:8082/offerset/eee073af-5f29-11ef-bb3c-09eb99dfcfa4"
+    >   created: "2024-08-20T19:25:17.775503638Z"
+    >   expires: "2024-08-20T19:30:17.775514314Z"
+
+    #
+    # Asking for PT25H => 0 offers.
+    #
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT25M
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:25:00Z"
+    >       duration: "PT25M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T19:50:00Z"
+    >       duration: "PT25M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T20:15:00Z"
+    >       duration: "PT25M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T20:40:00Z"
+    >       duration: "PT25M"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-20T21:05:00Z"
+    >       duration: "PT25M"
+
+    #
+    # Asking for PT25M => 5 offers ?
+    #
+    # TODO We should probably limit it to 4 offers anyway.
+    #
+
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT5M
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.'
+
+    yq '.offers[].schedule' "${createresponse}"
+
+    #
+    # BUG - first offer starts one block in the past.
+    #

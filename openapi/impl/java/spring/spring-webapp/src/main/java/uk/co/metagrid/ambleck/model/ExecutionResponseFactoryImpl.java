@@ -31,6 +31,13 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.Instant;
+import java.time.Duration;
+
+import org.threeten.extra.Interval ;
+
 import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
@@ -47,10 +54,21 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class ExecutionResponseFactoryImpl
     implements ExecutionResponseFactory
     {
+
+    /*
+     * Create a SLF4J Logger for this class.
+     *
+    private static Logger logger = LoggerFactory.getLogger(ExecutionResponseFactoryImpl.class);
+     */
 
     /*
      * This factory identifier.
@@ -68,10 +86,14 @@ public class ExecutionResponseFactoryImpl
         return this.uuid ;
         }
 
+    private ExecutionBlockDatabase database ;
+
     @Autowired
-    public ExecutionResponseFactoryImpl()
+    public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
+        log.debug("Creating a new ExecutionResponseFactory instance");
         this.uuid = UuidCreator.getTimeBased();
+        this.database = database ;
         }
 
     /**
@@ -126,238 +148,94 @@ public class ExecutionResponseFactoryImpl
         }
 
     /**
-     * A local class to hold context during processing.
-     * We can pass one thing down the processing chain rather than many things.
-     * TODO Move this up a level to OfferSetResponseFactory.
-     *
-     */
-    public class ProcessingContext
-        {
-        private boolean valid = true ;
-        public boolean valid()
-            {
-            return this.valid;
-            }
-        public void fail()
-            {
-            this.valid = false ;
-            }
-
-        private final OfferSetRequest request;
-        public OfferSetRequest request()
-            {
-            return this.request;
-            }
-
-        private final OfferSetResponse response;
-        public OfferSetResponse response()
-            {
-            return this.response;
-            }
-
-        private final String baseurl;
-        public String baseurl()
-            {
-            return this.baseurl;
-            }
-
-        public ProcessingContext(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
-            {
-            this.baseurl  = baseurl ;
-            this.request  = request ;
-            this.response = response ;
-            }
-
-        // Messages
-        public void addMessage(final MessageItem message)
-            {
-            this.response.addMessagesItem(
-                message
-                );
-            }
-
-        // Data resources
-        private Map<String, AbstractDataResource> datamap = new HashMap<String, AbstractDataResource>();
-        private List<AbstractDataResource> datalist = new ArrayList<AbstractDataResource>();
-
-        public void addDataResource(final AbstractDataResource data)
-            {
-            UUID   uuid = data.getUuid() ;
-            String name = data.getName() ;
-            String type = data.getType() ;
-
-            // Check for anonymous resource and set the UUID.
-            if ((uuid == null) && (name == null))
-                {
-                uuid = UuidCreator.getTimeBased();
-                data.setUuid(
-                    uuid
-                    );
-                }
-            // Add the resource UUID to our Map.
-            if (uuid != null)
-                {
-                datamap.put(
-                    uuid.toString(),
-                    data
-                    );
-                }
-            // Add the resource name to our Map.
-            if (name != null)
-                {
-                datamap.put(
-                    name,
-                    data
-                    );
-                }
-            // Add the resource to our List.
-            datalist.add(
-                data
-                );
-            }
-
-        public List<AbstractDataResource> getDataResourceList()
-            {
-            return this.datalist;
-            }
-
-        public AbstractDataResource findDataResource(final String key)
-            {
-            return this.datamap.get(key);
-            }
-
-        // Compute resources.
-        private Map<String, AbstractComputeResource> compmap = new HashMap<String, AbstractComputeResource>();
-        private List<AbstractComputeResource> complist = new ArrayList<AbstractComputeResource>();
-
-        public void addComputeResource(final AbstractComputeResource comp)
-            {
-            UUID   uuid = comp.getUuid() ;
-            String name = comp.getName() ;
-            String type = comp.getType() ;
-
-            // Check for anonymous resource and set the UUID.
-            if ((uuid == null) && (name == null))
-                {
-                uuid = UuidCreator.getTimeBased();
-                comp.setUuid(
-                    uuid
-                    );
-                }
-            // Add the resource UUID to our Map.
-            if (uuid != null)
-                {
-                compmap.put(
-                    uuid.toString(),
-                    comp
-                    );
-                }
-            // Add the resource name to our Map.
-            if (name != null)
-                {
-                compmap.put(
-                    name,
-                    comp
-                    );
-                }
-            // Add the resource to our List.
-            complist.add(
-                comp
-                );
-            }
-
-        public List<AbstractComputeResource> getComputeResourceList()
-            {
-            return this.complist;
-            }
-
-        public AbstractComputeResource findComputeResource(final String key)
-            {
-            return this.compmap.get(key);
-            }
-
-        // Executable
-        private AbstractExecutable executable ;
-        public AbstractExecutable getExecutable()
-            {
-            return this.executable;
-            }
-        public void setExecutable(final AbstractExecutable executable)
-            {
-            this.executable = executable;
-            }
-
-        }
-
-    /**
      * Process an OfferSetRequest and populate an OfferSetResponse with ExecutionResponse offers.
      *
      */
     @Override
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
-        //
-        // Reject explicit scheduling.
-        if (request.getSchedule().size() > 0)
-            {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Execution schedule not supported"
-                    )
-                );
-            return ;
-            }
+        log.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
+
         //
         // Reject storage resources.
-        if (request.getResources().getStorage().size() > 0)
+        if (request.getResources() != null)
             {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Storage resources not supported"
-                    )
-                );
-            return ;
+            if (request.getResources().getStorage() != null)
+                {
+                if (request.getResources().getStorage().size() > 0)
+                    {
+                    response.addMessagesItem(
+                        new WarnMessage(
+                            "Storage resources not supported"
+                            )
+                        );
+                    return ;
+                    }
+                }
             }
         //
         // Reject multiple compute resources.
-        if (request.getResources().getCompute().size() > 1)
+        if (request.getResources() != null)
             {
-            response.addMessagesItem(
-                new WarnMessage(
-                    "Multiple compute resources not supported"
-                    )
-                );
-            return ;
+            if (request.getResources().getCompute() != null)
+                {
+                if (request.getResources().getCompute().size() > 1)
+                    {
+                    response.addMessagesItem(
+                        new WarnMessage(
+                            "Multiple compute resources not supported"
+                            )
+                        );
+                    return ;
+                    }
+                }
             }
 
         //
         // Create our processing context.
-        ProcessingContext context = new ProcessingContext(
+        ProcessingContext context = new ProcessingContextImpl(
             baseurl,
             request,
             response
             );
 
         //
-        // Validate our data resources.
-        for (AbstractDataResource resource : request.getResources().getData())
+        // Validate our scheduling request.
+        validate(
+            request.getSchedule(),
+            context
+            );
+
+        if (request.getResources() != null)
             {
-            validate(
-                resource,
-                context
-                );
+            if (request.getResources().getData() != null)
+                {
+                for (AbstractDataResource resource : request.getResources().getData())
+                    {
+                    validate(
+                        resource,
+                        context
+                        );
+                    }
+                }
+            if (request.getResources().getCompute() != null)
+                {
+                for (AbstractComputeResource resource : request.getResources().getCompute())
+                    {
+                    validate(
+                        resource,
+                        context
+                        );
+                    }
+                }
             }
 
         //
-        // Validate our compute resources.
-        for (AbstractComputeResource resource : request.getResources().getCompute())
+        // Check for an enpty compute list.
+        if (context.getComputeResourceList().isEmpty())
             {
-            validate(
-                resource,
-                context
-                );
+            // Need to add a default compute resource.
             }
-
         //
         // Validate our executable.
         validate(
@@ -369,41 +247,143 @@ public class ExecutionResponseFactoryImpl
         // Check if everything worked.
         if (context.valid())
             {
-            // Transfer results from context to response.
-            ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
-            this.insert(
-                offer
-                );
-
-            offer.setName(
-                request.getName()
-                );
-            offer.setExecutable(
-                context.getExecutable()
-                );
-
-            ExecutionResourceList resources = new ExecutionResourceList();
-            for (AbstractDataResource resource : context.getDataResourceList())
+            //
+            // Get a list of execution blocks.
+            for (ExecutionBlock block : database.generate(context))
                 {
-                resources.addDataItem(
-                    resource
+                //
+                // Create an offer using the resources in our context.
+                ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
+                this.insert(
+                    offer
+                    );
+                offer.setName(
+                    request.getName()
+                    );
+                offer.setExecutable(
+                    context.getExecutable()
+                    );
+                if (offer.getSchedule() == null)
+                    {
+                    offer.setSchedule(
+                        new ExecutionSchedule()
+                        );
+                    }
+                if (offer.getSchedule().getOffered() == null)
+                    {
+                    offer.getSchedule().setOffered(
+                        new ScheduleBlock()
+                        );
+                    }
+                if (offer.getSchedule().getOffered().getExecuting() == null)
+                    {
+                    offer.getSchedule().getOffered().setExecuting(
+                        new ScheduleBlockPreparing()
+                        );
+                    }
+                offer.getSchedule().getOffered().getExecuting().setStart(
+                    OffsetDateTime.ofInstant(
+                        block.getInstant(),
+                        ZoneId.systemDefault()
+                        )
+                    );
+                offer.getSchedule().getOffered().getExecuting().setDuration(
+                    block.getDuration().toString()
+                    );
+
+                ExecutionResourceList resources = new ExecutionResourceList();
+                for (AbstractDataResource resource : context.getDataResourceList())
+                    {
+                    resources.addDataItem(
+                        resource
+                        );
+                    }
+                for (AbstractComputeResource resource : context.getComputeResourceList())
+                    {
+                    // Transfer cores and memory from the offer.
+                    // Data model shape mismatch.
+                    // This assumes we only have one SimpleComputeResource.
+                    if (resource instanceof SimpleComputeResource)
+                        {
+                        SimpleComputeResource simple = (SimpleComputeResource) resource ;
+                        // Offer the same minimum as the request.
+                        block.setMinCores(
+                            simple.getCores().getMin()
+                            );
+                        // Offer twice the requested maximum IF that is still less than the block.
+                        if ((simple.getCores().getMax() * 2) < block.getMaxCores())
+                            {
+                            block.setMaxCores(
+                                simple.getCores().getMax() * 2
+                                );
+                            }
+                        // Offer the same minimum as the request.
+                        block.setMinMemory(
+                            simple.getMemory().getMin()
+                            );
+                        // Offer twice the requested maximum IF that is still less than the block.
+                        if ((simple.getMemory().getMax() * 2) < block.getMaxMemory())
+                            {
+                            block.setMaxMemory(
+                                simple.getMemory().getMax() * 2
+                                );
+                            }
+                        SimpleComputeResource result = new SimpleComputeResource(
+                            "urn:simple-compute-resource"
+                            );
+                        result.setUuid(
+                            simple.getUuid()
+                            );
+                        result.setName(
+                            simple.getName()
+                            );
+                        if (result.getCores() == null)
+                            {
+                            result.setCores(
+                                new MinMaxInteger()
+                                );
+                            }
+                        result.getCores().setMin(
+                            block.getMinCores()
+                            );
+                        result.getCores().setMax(
+                            block.getMaxCores()
+                            );
+                        if (result.getMemory() == null)
+                            {
+                            result.setMemory(
+                                new MinMaxInteger()
+                                );
+                            }
+                        result.getMemory().setMin(
+                            block.getMinMemory()
+                            );
+                        result.getMemory().setMax(
+                            block.getMaxMemory()
+                            );
+                        result.setVolumes(
+                            simple.getVolumes()
+                            );
+                        // Add the SimpleComputeResource to our response.
+                        resources.addComputeItem(
+                            result
+                            );
+                        // Add the ExecutionBlock to our database.
+                        database.insert(
+                            block
+                            );
+                        }
+                    }
+                offer.setResources(
+                    resources
+                    );
+                response.addOffersItem(
+                    offer
+                    );
+                response.setResult(
+                    OfferSetResponse.ResultEnum.YES
                     );
                 }
-            for (AbstractComputeResource resource : context.getComputeResourceList())
-                {
-                resources.addComputeItem(
-                    resource
-                    );
-                }
-            offer.setResources(
-                resources
-                );
-            response.addOffersItem(
-                offer
-                );
-            response.setResult(
-                OfferSetResponse.ResultEnum.YES
-                );
             }
         }
 
@@ -678,9 +658,7 @@ public class ExecutionResponseFactoryImpl
         // Validate the compute resource itself.
         Integer mincores = null ;
         Integer maxcores = null ;
-        Integer DEFAULT_MIN_CORES = 4 ;
-        Integer DEFAULT_MAX_CORES = 8 ;
-        Integer MIN_CORES_LIMIT = 2 ;
+        Integer MIN_CORES_DEFAULT = 1 ;
         Integer MAX_CORES_LIMIT = 16 ;
 
         String coreunits = null;
@@ -716,15 +694,11 @@ public class ExecutionResponseFactoryImpl
 
         if (mincores == null)
             {
-            mincores = DEFAULT_MIN_CORES;
-            }
-        if (mincores < MIN_CORES_LIMIT)
-            {
-            mincores = DEFAULT_MIN_CORES;
+            mincores = MIN_CORES_DEFAULT;
             }
         if (maxcores == null)
             {
-            maxcores = DEFAULT_MAX_CORES;
+            maxcores = mincores;
             }
         if (mincores > MAX_CORES_LIMIT)
             {
@@ -794,6 +768,132 @@ public class ExecutionResponseFactoryImpl
             );
         result.getCores().setUnits(
             coreunits
+            );
+        context.addMinCores(
+            mincores
+            );
+        context.addMaxCores(
+            maxcores
+            );
+
+        Integer minmemory = null ;
+        Integer maxmemory = null ;
+        Integer MIN_MEMORY_DEFAULT = 1 ;
+        Integer MAX_MEMORY_LIMIT = 16 ;
+
+        String memoryunits = null;
+        String DEFAULT_MEMORY_UNITS = "GiB" ;
+
+        if (request.getMemory() != null)
+            {
+            minmemory   = request.getMemory().getMin();
+            maxmemory   = request.getMemory().getMax();
+            memoryunits = request.getMemory().getUnits();
+            }
+        if (memoryunits == null)
+            {
+            memoryunits = DEFAULT_MEMORY_UNITS;
+            }
+        if (DEFAULT_MEMORY_UNITS.equals(memoryunits) == false)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] unknown memory units [${memoryunits}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "memoryunits",
+                        safeString(memoryunits)
+                        )
+                    )
+                );
+            context.fail();
+            }
+
+        if (minmemory == null)
+            {
+            minmemory = MIN_MEMORY_DEFAULT;
+            }
+        if (maxmemory == null)
+            {
+            maxmemory = minmemory;
+            }
+        if (minmemory > MAX_MEMORY_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum memory exceeds available resources [${minmemory}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "minmemory",
+                        safeString(minmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (maxmemory > MAX_MEMORY_LIMIT)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] maximum memory exceeds available resources [${maxmemory}][${limit}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "maxmemory",
+                        safeString(maxmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        if (minmemory > maxmemory)
+            {
+            context.addMessage(
+                new InfoMessage(
+                    "Compute resource [${name}][${uuid}] minimum memory exceeds maximum [${minmemory}][${maxmemory}]",
+                    Map.of(
+                        "name",
+                        safeString(request.getName()),
+                        "uuid",
+                        safeString(request.getUuid()),
+                        "minmemory",
+                        safeString(minmemory),
+                        "maxmemory",
+                        safeString(maxmemory)
+                        )
+                    )
+                );
+            context.fail();
+            }
+        result.setMemory(
+            new MinMaxInteger()
+            );
+        result.getMemory().setMin(
+            minmemory
+            );
+        result.getMemory().setMax(
+            maxmemory
+            );
+        result.getMemory().setUnits(
+            memoryunits
+            );
+        context.addMinMemory(
+            minmemory
+            );
+        context.addMaxMemory(
+            maxmemory
             );
 
         //
@@ -977,6 +1077,119 @@ public class ExecutionResponseFactoryImpl
             }
         context.setExecutable(
             result
+            );
+        }
+
+    /**
+     * Validate the Execution Schedule.
+     *
+     */
+    public void validate(final ExecutionSchedule schedule, final ProcessingContext context)
+        {
+        if (schedule != null)
+            {
+            //
+            // Validate each of our requested items.
+            for (ScheduleRequestItem item : schedule.getRequested())
+                {
+                validate(
+                    item,
+                    context
+                    );
+                }
+            // TODO
+            // Check the offered section is empty.
+            //
+            // Check the observed section is empty.
+            //
+            }
+        }
+
+    /**
+     * Validate a ScheduleRequestItem.
+     *
+     */
+    public void validate(final ScheduleRequestItem item, final ProcessingContext context)
+        {
+        Interval starttime = null;
+        Duration minduration = null;
+        Duration maxduration = null;
+
+        if (item.getStart() != null)
+            {
+            try {
+                starttime = Interval.parse​(
+                    item.getStart()
+                    );
+                }
+            catch (Exception ouch)
+                {
+                context.addMessage(
+                    new ErrorMessage(
+                        "Unable to parse schedule request start time [${value}][${message}]",
+                        Map.of(
+                            "value",
+                            safeString(item.getStart()),
+                            "message",
+                            safeString(ouch.getMessage())
+                            )
+                        )
+                    );
+                context.fail();
+                }
+            }
+
+        if (item.getDuration() != null)
+            {
+            if (item.getDuration().getMin() != null)
+                {
+                String text = item.getDuration().getMin() ;
+                try {
+                    minduration = Duration.parse​(text);
+                    }
+                catch (Exception ouch)
+                    {
+                    context.addMessage(
+                        new ErrorMessage(
+                            "Unable to parse schedule request duration [${value}][${message}]",
+                            Map.of(
+                                "value",
+                                safeString(text),
+                                "message",
+                                safeString(ouch.getMessage())
+                                )
+                            )
+                        );
+                    context.fail();
+                    }
+                }
+            if (item.getDuration().getMax() != null)
+                {
+                String text = item.getDuration().getMax() ;
+                try {
+                    minduration = Duration.parse​(text);
+                    }
+                catch (Exception ouch)
+                    {
+                    context.addMessage(
+                        new ErrorMessage(
+                            "Unable to parse schedule request duration [${value}][${message}]",
+                            Map.of(
+                                "value",
+                                safeString(text),
+                                "message",
+                                safeString(ouch.getMessage())
+                                )
+                            )
+                        );
+                    context.fail();
+                    }
+                }
+            }
+        context.addScheduleItem(
+            starttime,
+            minduration,
+            maxduration
             );
         }
     }

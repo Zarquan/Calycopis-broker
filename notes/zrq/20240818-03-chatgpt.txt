@@ -1,0 +1,1006 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 50,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Let's see if ChatGPT can do better ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # Generate our test data
+
+    DROP VIEW IF EXISTS expanded ;
+    CREATE VIEW expanded AS (
+        SELECT
+            x_range.x_hour AS START_ROW,
+            COUNT(x_session.start) AS ROW_COUNT,
+            (8 - IfNull(sum(cores),  0)) AS FREE_CORES,
+            (8 - IfNull(sum(memory), 0)) AS FREE_MEMORY
+        FROM
+            (
+            SELECT
+                x AS x_hour
+            FROM
+                SYSTEM_RANGE(
+                    0,
+                   39
+                    )
+            ) AS x_range
+        LEFT OUTER JOIN
+            x_session
+        ON  (
+                (x_session.start <= x_range.x_hour)
+                AND
+                (
+                    (x_session.start + x_session.duration) > x_range.x_hour
+                )
+                )
+        GROUP BY
+            x_range.x_hour
+        );
+
+    SELECT * FROM expanded;
+
+# -----------------------------------------------------
+# Prompt :
+
+Given a table with the following tab separated data.
+
+START_ROW  	ROW_COUNT  	FREE_CORES  	FREE_MEMORY  
+0	0	8	8
+1	0	8	8
+2	0	8	8
+3	1	6	6
+4	2	4	5
+5	4	0	2
+6	4	0	2
+7	3	2	4
+8	2	4	5
+9	1	6	7
+10	0	8	8
+11	0	8	8
+12	1	6	5
+13	2	4	4
+14	3	2	0
+15	3	2	2
+16	3	2	-2
+17	3	2	1
+18	2	4	2
+19	1	6	7
+20	0	8	8
+21	0	8	8
+22	0	8	8
+23	0	8	8
+24	0	8	8
+25	0	8	8
+26	0	8	8
+27	0	8	8
+28	0	8	8
+29	0	8	8
+30	0	8	8
+31	0	8	8
+32	0	8	8
+33	0	8	8
+34	0	8	8
+35	0	8	8
+36	0	8	8
+37	0	8	8
+38	0	8	8
+39	0	8	8
+
+# -----------------------------------------------------
+# ChatGPT :
+
+It looks like you have a table with data related to system resource usage, where each row represents a specific time or task and records the following:
+
+- **START_ROW**: The starting index of the row.
+- **ROW_COUNT**: The number of rows involved or the process is running on.
+- **FREE_CORES**: The number of CPU cores that are free at that time.
+- **FREE_MEMORY**: The amount of free memory available at that time.
+
+Based on the data you've provided, you can observe certain patterns regarding how the system resources are utilized across different rows. Specifically, you might notice trends such as:
+
+1. **Free Cores and Memory Decrease with Active Rows**:
+   - As `ROW_COUNT` increases (indicating more active processes or tasks), `FREE_CORES` and `FREE_MEMORY` tend to decrease. For example:
+     - At `ROW_COUNT = 0`, both `FREE_CORES` and `FREE_MEMORY` are at their maximum (8 cores and 8 memory units).
+     - As `ROW_COUNT` increases to 4, `FREE_CORES` drop to 0, and `FREE_MEMORY` drops to 2.
+
+2. **Recovery of Resources**:
+   - After periods of activity (higher `ROW_COUNT`), when `ROW_COUNT` returns to 0, resources like `FREE_CORES` and `FREE_MEMORY` recover back to their maximum values (8 each).
+
+3. **Negative or Unexpected Values**:
+   - There are rows where `FREE_MEMORY` becomes negative, such as at `START_ROW = 16` with `FREE_MEMORY = -2`. This could indicate an overcommitment of memory or a potential error in tracking memory usage.
+
+Would you like to explore any specific aspect of this data further, such as visualizing the trends, identifying anomalies, or performing any calculations?
+
+
+# -----------------------------------------------------
+# Prompt :
+
+Can you design a SQL query that would find blocks of four or more consecutive rows with FREE_CORES >= 2 and FREE_MEMORY >= 2.
+Returning the start and length of each block.
+
+# -----------------------------------------------------
+# ChatGPT :
+
+    >   Certainly! You can achieve this by using a SQL query that identifies blocks of consecutive rows where both `FREE_CORES` and `FREE_MEMORY` are greater than or equal to 2. Below is a SQL query that would return the `START_ROW` and the length (`BLOCK_LENGTH`) of each such block:
+    >   
+    >   ```sql
+    >   WITH ConsecutiveBlocks AS (
+    >       SELECT
+    >           START_ROW,
+    >           ROW_NUMBER() OVER (ORDER BY START_ROW) -
+    >           ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS BlockGroup
+    >       FROM
+    >           YourTableName
+    >       WHERE
+    >           FREE_CORES >= 2
+    >           AND FREE_MEMORY >= 2
+    >   ),
+    >   BlockInfo AS (
+    >       SELECT
+    >           MIN(START_ROW) AS BlockStart,
+    >           COUNT(*) AS BlockLength
+    >       FROM
+    >           ConsecutiveBlocks
+    >       WHERE
+    >           BlockGroup IS NOT NULL
+    >       GROUP BY
+    >           BlockGroup
+    >   )
+    >   SELECT
+    >       BlockStart,
+    >       BlockLength
+    >   FROM
+    >       BlockInfo
+    >   WHERE
+    >       BlockLength >= 4
+    >   ORDER BY
+    >       BlockStart;
+    >   ```
+    >   
+    >   ### Explanation:
+    >   1. **ConsecutiveBlocks CTE**:
+    >      - It first filters the rows where both `FREE_CORES` and `FREE_MEMORY` are greater than or equal to 2.
+    >      - The `ROW_NUMBER()` function is used twice: once for the entire sequence and once partitioned by a boolean condition (whether `FREE_CORES` and `FREE_MEMORY` are both >= 2).
+    >      - The difference between these two row numbers (`ROW_NUMBER() OVER (ORDER BY START_ROW) - ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW)`) identifies contiguous blocks of rows meeting the condition.
+    >   
+    >   2. **BlockInfo CTE**:
+    >      - This groups the rows by these contiguous blocks and calculates the starting row (`BlockStart`) and the length of each block (`BlockLength`).
+    >   
+    >   3. **Final SELECT**:
+    >      - The final select statement filters out blocks that have a length less than 4 and orders the results by the start row.
+    >   
+    >   This query will return all blocks of four or more consecutive rows where both `FREE_CORES` and `FREE_MEMORY` are greater than or equal to 2, along with the start of each block and its length.
+    >   
+    >   Make sure to replace `YourTableName` with the actual name of your table.
+
+# -----------------------------------------------------
+# Give it a try on the database.
+#
+
+    WITH ConsecutiveBlocks AS (
+        SELECT
+            START_ROW,
+            ROW_NUMBER() OVER (ORDER BY START_ROW) -
+            ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS BlockGroup
+        FROM
+            expanded
+        WHERE
+            FREE_CORES >= 2
+            AND FREE_MEMORY >= 2
+    ),
+    BlockInfo AS (
+        SELECT
+            MIN(START_ROW) AS BlockStart,
+            COUNT(*) AS BlockLength
+        FROM
+            ConsecutiveBlocks
+        WHERE
+            BlockGroup IS NOT NULL
+        GROUP BY
+            BlockGroup
+    )
+    SELECT
+        BlockStart,
+        BlockLength
+    FROM
+        BlockInfo
+    WHERE
+        BlockLength >= 4
+    ORDER BY
+        BlockStart;
+
+
+    # Nope, just one big block.
+    >   BLOCKSTART  	BLOCKLENGTH  
+    >   0	35
+    >   (1 row, 10 ms)
+
+
+# -----------------------------------------------------
+# First part of that fails to identify blocks.
+#
+
+    SELECT
+        START_ROW,
+        ROW_NUMBER() OVER (ORDER BY START_ROW) -
+        ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS BlockGroup
+    FROM
+        expanded
+    WHERE
+        FREE_CORES >= 2
+        AND FREE_MEMORY >= 2
+
+START_ROW  	BLOCKGROUP  
+0	0
+1	0
+2	0
+3	0
+4	0
+7	0
+8	0
+9	0
+10	0
+11	0
+12	0
+13	0
+15	0
+18	0
+19	0
+20	0
+21	0
+22	0
+23	0
+24	0
+25	0
+26	0
+27	0
+28	0
+29	0
+30	0
+31	0
+32	0
+33	0
+34	0
+35	0
+36	0
+37	0
+38	0
+39	0
+(35 rows, 3 ms)
+
+    #
+    # Subtracting ROW_NUMBER() OVER values with different partitioning is probably a bad move.
+    # Using the same >= criteria in the WHERE and PARTITION doesn't make sense.
+    # ChatGPT has seen people do this, but it doesn't understand why.
+    #
+
+    SELECT
+        START_ROW,
+        ROW_NUMBER() OVER (ORDER BY START_ROW) AS aa,
+        ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS bb
+    FROM
+        expanded
+    WHERE
+        FREE_CORES >= 2
+        AND FREE_MEMORY >= 2
+
+    >   START_ROW  	AA  	BB  
+    >   0	1	1
+    >   1	2	2
+    >   2	3	3
+    >   3	4	4
+    >   4	5	5
+    >   7	6	6
+    >   8	7	7
+    >   9	8	8
+    >   10	9	9
+    >   11	10	10
+    >   12	11	11
+    >   13	12	12
+    >   15	13	13
+    >   18	14	14
+    >   19	15	15
+    >   20	16	16
+    >   21	17	17
+    >   22	18	18
+    >   23	19	19
+    >   24	20	20
+    >   25	21	21
+    >   26	22	22
+    >   27	23	23
+    >   28	24	24
+    >   29	25	25
+    >   30	26	26
+    >   31	27	27
+    >   32	28	28
+    >   33	29	29
+    >   34	30	30
+    >   35	31	31
+    >   36	32	32
+    >   37	33	33
+    >   38	34	34
+    >   39	35	35
+    >   (35 rows, 4 ms)
+
+    #
+    # Missing a few rows, 5,6,14,16,17, but it doesn't increment the block number.
+    # What do we get if we don't include the WHERE clause ..
+    #
+
+    SELECT
+        START_ROW,
+        ROW_NUMBER() OVER (ORDER BY START_ROW) AS aa,
+        ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS bb
+    FROM
+        expanded;
+
+    >   START_ROW  	AA  	BB  
+    >   0	1	1
+    >   1	2	2
+    >   2	3	3
+    >   3	4	4
+    >   4	5	5
+    >   5	6	1
+    >   6	7	2
+    >   7	8	6
+    >   8	9	7
+    >   9	10	8
+    >   10	11	9
+    >   11	12	10
+    >   12	13	11
+    >   13	14	12
+    >   14	15	3
+    >   15	16	13
+    >   16	17	4
+    >   17	18	5
+    >   18	19	14
+    >   19	20	15
+    >   20	21	16
+    >   21	22	17
+    >   22	23	18
+    >   23	24	19
+    >   24	25	20
+    >   25	26	21
+    >   26	27	22
+    >   27	28	23
+    >   28	29	24
+    >   29	30	25
+    >   30	31	26
+    >   31	32	27
+    >   32	33	28
+    >   33	34	29
+    >   34	35	30
+    >   35	36	31
+    >   36	37	32
+    >   37	38	33
+    >   38	39	34
+    >   39	40	35
+    >   (40 rows, 2 ms)
+
+
+    SELECT
+        START_ROW,
+        ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS bb,
+        (START_ROW + 1) - (ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW)) AS cc
+    FROM
+        expanded
+    WHERE
+        FREE_CORES >= 2 AND FREE_MEMORY >= 2
+
+    >   START_ROW  	BB  	CC  
+    >   0	1	0
+    >   1	2	0
+    >   2	3	0
+    >   3	4	0
+    >   4	5	0
+    >   7	6	2
+    >   8	7	2
+    >   9	8	2
+    >   10	9	2
+    >   11	10	2
+    >   12	11	2
+    >   13	12	2
+    >   15	13	3
+    >   18	14	5
+    >   19	15	5
+    >   20	16	5
+    >   21	17	5
+    >   22	18	5
+    >   23	19	5
+    >   24	20	5
+    >   25	21	5
+    >   26	22	5
+    >   27	23	5
+    >   28	24	5
+    >   29	25	5
+    >   30	26	5
+    >   31	27	5
+    >   32	28	5
+    >   33	29	5
+    >   34	30	5
+    >   35	31	5
+    >   36	32	5
+    >   37	33	5
+    >   38	34	5
+    >   39	35	5
+    >   (35 rows, 3 ms)
+
+    #
+    # Use that to fix ChatGPT's code.
+    #
+
+    WITH ConsecutiveBlocks AS (
+        SELECT
+            START_ROW,
+            (START_ROW + 1) - (ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW)) AS BlockGroup
+        FROM
+            expanded
+        WHERE
+            FREE_CORES >= 2
+            AND FREE_MEMORY >= 2
+    ),
+    BlockInfo AS (
+        SELECT
+            MIN(START_ROW) AS BlockStart,
+            COUNT(*) AS BlockLength
+        FROM
+            ConsecutiveBlocks
+        WHERE
+            BlockGroup IS NOT NULL
+        GROUP BY
+            BlockGroup
+    )
+    SELECT
+        BlockStart,
+        BlockLength
+    FROM
+        BlockInfo
+    WHERE
+        BlockLength >= 4
+    ORDER BY
+        BlockStart;
+
+    >   BLOCKSTART  	BLOCKLENGTH  
+    >   0	5
+    >   7	7
+    >   18	22
+    >   (3 rows, 13 ms)
+
+
+# -----------------------------------------------------
+# Try the part we haven't solved.
+# Prompt :
+
+    Can you update the query to split blocks larger than 4 rows into smaller ones ?
+
+# -----------------------------------------------------
+# ChatGPT :
+
+Certainly! If you want to split blocks larger than 4 rows into smaller blocks of exactly 4 rows, you can modify the query as follows:
+
+```sql
+WITH ConsecutiveBlocks AS (
+    SELECT
+        START_ROW,
+        ROW_NUMBER() OVER (ORDER BY START_ROW) -
+        ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW) AS BlockGroup
+    FROM
+        YourTableName
+    WHERE
+        FREE_CORES >= 2
+        AND FREE_MEMORY >= 2
+),
+BlockInfo AS (
+    SELECT
+        MIN(START_ROW) AS BlockStart,
+        COUNT(*) AS BlockLength
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 4 * (n - 1) AS BlockStart,
+        LEAST(4, BlockLength - 4 * (n - 1)) AS BlockLength
+    FROM
+        BlockInfo,
+        (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) AS Numbers
+    WHERE
+        BlockStart + 4 * (n - 1) < BlockStart + BlockLength
+)
+SELECT
+    BlockStart,
+    BlockLength
+FROM
+    SplitBlocks
+WHERE
+    BlockLength = 4
+ORDER BY
+    BlockStart;
+```
+
+### Explanation:
+
+1. **ConsecutiveBlocks CTE**:
+   - Same as before, this identifies consecutive rows where both `FREE_CORES` and `FREE_MEMORY` are greater than or equal to 2.
+
+2. **BlockInfo CTE**:
+   - This groups the identified consecutive rows into blocks and computes the starting row (`BlockStart`) and the length (`BlockLength`) of each block that is 4 or more rows long.
+
+3. **SplitBlocks CTE**:
+   - This part of the query is responsible for splitting any blocks longer than 4 rows into smaller blocks of exactly 4 rows.
+   - The `Numbers` subquery generates a series of numbers (1 through 4) to be used for splitting the blocks.
+   - For each block in `BlockInfo`, the subquery creates new blocks starting at `BlockStart + 4 * (n - 1)` with a length of 4 or less depending on what remains from the original block.
+
+4. **Final SELECT**:
+   - This selects only those blocks that are exactly 4 rows long and orders them by their start row.
+
+This query will give you blocks of exactly 4 rows, even if the original blocks were longer. Blocks of less than 4 rows will be discarded. If you need to include blocks that are less than 4 rows long but still part of the split, you can adjust the query by modifying the `WHERE` clause in the final `SELECT`.
+
+
+# -----------------------------------------------------
+# Plug that into our working query.
+#
+
+WITH ConsecutiveBlocks AS (
+    SELECT
+        START_ROW,
+        (START_ROW + 1) - (ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW)) AS BlockGroup
+    FROM
+        expanded
+    WHERE
+        FREE_CORES >= 2
+        AND FREE_MEMORY >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(START_ROW) AS BlockStart,
+        COUNT(*) AS BlockLength
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 4 * (n - 1) AS BlockStart,
+        LEAST(4, BlockLength - 4 * (n - 1)) AS BlockLength
+    FROM
+        BlockInfo,
+        (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) AS Numbers
+    WHERE
+        BlockStart + 4 * (n - 1) < BlockStart + BlockLength
+    )
+SELECT
+    BlockStart,
+    BlockLength
+FROM
+    SplitBlocks
+WHERE
+    BlockLength = 4
+ORDER BY
+    BlockStart;
+
+    >   BLOCKSTART  	BLOCKLENGTH  
+    >   0	4
+    >   7	4
+    >   18	4
+    >   22	4
+    >   26	4
+    >   30	4
+    >   (6 rows, 37 ms)
+
+
+# -----------------------------------------------------
+# Increase the max length to 6.
+#
+
+WITH ConsecutiveBlocks AS (
+    SELECT
+        START_ROW,
+        (START_ROW + 1) - (ROW_NUMBER() OVER (PARTITION BY (FREE_CORES >= 2 AND FREE_MEMORY >= 2) ORDER BY START_ROW)) AS BlockGroup
+    FROM
+        expanded
+    WHERE
+        FREE_CORES >= 2
+        AND FREE_MEMORY >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(START_ROW) AS BlockStart,
+        COUNT(*) AS BlockLength
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength
+    FROM
+        BlockInfo,
+        (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    )
+SELECT
+    BlockStart,
+    BlockLength
+FROM
+    SplitBlocks
+WHERE
+    BlockLength >= 4
+AND
+    BlockLength <= 6
+ORDER BY
+    BlockStart;
+
+    >   BLOCKSTART  	BLOCKLENGTH  
+    >   0	5
+    >   7	6
+    >   18	6
+    >   24	6
+    >   30	6
+    >   36	4
+    >   (6 rows, 18 ms)
+
+    #
+    # OK, so we have a nicer way of formatting the queries, and we can split the larger blocks into chunks.
+    #
+
+# -----------------------------------------------------
+# Combine that with our expanded query.
+#
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(x_session.start) AS RowCount,
+        (8 - IfNull(sum(cores),  0)) AS FreeCores,
+        (8 - IfNull(sum(memory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 39)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        x_session
+    ON  (
+            (x_session.start <= StartRange.StartRow)
+            AND
+            ((x_session.start + x_session.duration) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    )
+SELECT
+    BlockStart,
+    BlockLength,
+    MaxFreeCores,
+    MaxFreeMemory
+FROM
+    SplitBlocks
+WHERE
+    BlockLength >= 4
+AND
+    BlockLength <= 6
+ORDER BY
+    BlockStart;
+
+    >   
+    >   BLOCKSTART  BLOCKLENGTH  MAXFREECORES  MAXFREEMEMORY  
+    >   0           5            4             5
+    >   7           6            2             4
+    >   18          6            4             2
+    >   24          6            4             2
+    >   30          6            4             2
+    >   36          4            4             2
+    >   (6 rows, 40 ms)
+
+# -----------------------------------------------------
+# We should re-calculate the max free cores and max free memory over the new blocks.
+# 18-24 might have a limit of 2G memory, but the subsequent blocks don't have a limit.
+#
+
+WITH ExpandedDataset AS
+    (
+    SELECT
+        StartRange.StartRow AS StartRow,
+        COUNT(x_session.start) AS RowCount,
+        (8 - IfNull(sum(cores),  0)) AS FreeCores,
+        (8 - IfNull(sum(memory), 0)) AS FreeMemory
+    FROM
+        (
+        SELECT
+            x AS StartRow
+        FROM
+            SYSTEM_RANGE(0, 39)
+        ) AS StartRange
+    LEFT OUTER JOIN
+        x_session
+    ON  (
+            (x_session.start <= StartRange.StartRow)
+            AND
+            ((x_session.start + x_session.duration) > StartRange.StartRow)
+            )
+    GROUP BY
+        StartRange.StartRow
+    ),
+ConsecutiveBlocks AS (
+    SELECT
+        StartRow,
+        (StartRow + 1) -
+            (
+            ROW_NUMBER() OVER (
+                PARTITION BY (FreeCores >= 2 AND FreeMemory >= 2)
+                ORDER BY StartRow
+                )
+            ) AS BlockGroup,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    WHERE
+        FreeCores >= 2
+        AND
+        FreeMemory >= 2
+    ),
+BlockInfo AS (
+    SELECT
+        MIN(StartRow) AS BlockStart,
+        COUNT(*) AS BlockLength,
+        MIN(FreeCores) AS MaxFreeCores,
+        MIN(FreeMemory) AS MaxFreeMemory
+    FROM
+        ConsecutiveBlocks
+    WHERE
+        BlockGroup IS NOT NULL
+    GROUP BY
+        BlockGroup
+    HAVING
+        COUNT(*) >= 4
+    ),
+SplitBlocks AS (
+    SELECT
+        BlockStart + 6 * (n - 1) AS BlockStart,
+        LEAST(6, BlockLength - 6 * (n - 1)) AS BlockLength,
+        MaxFreeCores,
+        MaxFreeMemory
+    FROM
+        BlockInfo,
+        (
+        SELECT
+            x AS n
+        FROM
+            SYSTEM_RANGE(1, 6)
+        ) AS Numbers
+    WHERE
+        BlockStart + 6 * (n - 1) < BlockStart + BlockLength
+    ),
+BlockResources AS (
+    SELECT
+        BlockStart,
+        BlockLength,
+        StartRow,
+        FreeCores,
+        FreeMemory
+    FROM
+        ExpandedDataset
+    JOIN
+        SplitBlocks
+    WHERE
+        StartRow >= BlockStart
+    AND
+        StartRow < (BlockStart + BlockLength)
+    AND
+        BlockLength >= 4
+    AND
+        BlockLength <= 6
+    )
+
+SELECT * FROM BlockResources;
+
+    >   BLOCKSTART  BLOCKLENGTH  STARTROW  FREECORES  FREEMEMORY  
+    >   0           5            0         8          8
+    >   0           5            1         8          8
+    >   0           5            2         8          8
+    >   0           5            3         6          6
+    >   0           5            4         4          5
+    >   7           6            7         2          4
+    >   7           6            8         4          5
+    >   7           6            9         6          7
+    >   7           6            10        8          8
+    >   7           6            11        8          8
+    >   7           6            12        6          5
+    >   18          6            18        4          2
+    >   18          6            19        6          7
+    >   18          6            20        8          8
+    >   18          6            21        8          8
+    >   18          6            22        8          8
+    >   18          6            23        8          8
+    >   24          6            24        8          8
+    >   24          6            25        8          8
+    >   24          6            26        8          8
+    >   24          6            27        8          8
+    >   24          6            28        8          8
+    >   24          6            29        8          8
+    >   30          6            30        8          8
+    >   30          6            31        8          8
+    >   30          6            32        8          8
+    >   30          6            33        8          8
+    >   30          6            34        8          8
+    >   30          6            35        8          8
+    >   36          4            36        8          8
+    >   36          4            37        8          8
+    >   36          4            38        8          8
+    >   36          4            39        8          8
+
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart
+    ORDER BY
+        BlockStart ASC
+
+    >   BLOCKSTART  BLOCKLENGTH  MINFREECORES  MINFREEMEMORY  
+    >   0           5            4             5
+    >   7           6            2             4
+    >   18          6            4             2
+    >   24          6            8             8
+    >   30          6            8             8
+    >   36          4            8             8
+
+
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        BlockLength DESC,
+        BlockStart  ASC
+
+    >   BLOCKSTART  BLOCKLENGTH  MINFREECORES  MINFREEMEMORY  
+    >   7           6            2             4
+    >   18          6            4             2
+    >   24          6            8             8
+    >   30          6            8             8
+    >   0           5            4             5
+    >   36          4            8             8
+
+
+    SELECT
+        BlockStart,
+        BlockLength,
+        MIN(FreeCores)  AS MinFreeCores,
+        MIN(FreeMemory) AS MinFreeMemory
+    FROM
+        BlockResources
+    GROUP BY
+        BlockStart,
+        BlockLength
+    ORDER BY
+        MinFreeCores  DESC,
+        MinFreeMemory DESC,
+        BlockLength DESC,
+        BlockStart  ASC
+
+    >   BLOCKSTART  BLOCKLENGTH  MINFREECORES  MINFREEMEMORY  
+    >   24          6            8             8
+    >   30          6            8             8
+    >   36          4            8             8
+    >   0           5            4             5
+    >   18          6            4             2
+    >   7           6            2             4
+
+
