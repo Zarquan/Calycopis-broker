@@ -31,8 +31,11 @@ import java.util.ArrayList;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.ZoneId;
+import java.time.OffsetDateTime;
 import java.time.Instant;
 import java.time.Duration;
+
 import org.threeten.extra.Interval ;
 
 import com.github.f4b6a3.uuid.UuidCreator;
@@ -51,10 +54,19 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 public class ExecutionResponseFactoryImpl
     implements ExecutionResponseFactory
     {
+
+    /*
+     * Create a SLF4J Logger for this class.
+     *
+     */
+    private static Logger logger = LoggerFactory.getLogger(ExecutionResponseFactoryImpl.class);
 
     /*
      * This factory identifier.
@@ -77,6 +89,7 @@ public class ExecutionResponseFactoryImpl
     @Autowired
     public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
+        logger.debug("Creating a new ExecutionResponseFactory instance");
         this.uuid = UuidCreator.getTimeBased();
         this.database = database ;
         }
@@ -139,6 +152,8 @@ public class ExecutionResponseFactoryImpl
     @Override
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
+        logger.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
+
         //
         // Reject storage resources.
         if (request.getResources() != null)
@@ -246,10 +261,33 @@ public class ExecutionResponseFactoryImpl
                 offer.setExecutable(
                     context.getExecutable()
                     );
-
-//
-// Set the offered schedule.
-//
+                if (offer.getSchedule() == null)
+                    {
+                    offer.setSchedule(
+                        new ExecutionSchedule()
+                        );
+                    }
+                if (offer.getSchedule().getOffered() == null)
+                    {
+                    offer.getSchedule().setOffered(
+                        new ScheduleBlock()
+                        );
+                    }
+                if (offer.getSchedule().getOffered().getExecuting() == null)
+                    {
+                    offer.getSchedule().getOffered().setExecuting(
+                        new ScheduleBlockPreparing()
+                        );
+                    }
+                offer.getSchedule().getOffered().getExecuting().setStart(
+                    OffsetDateTime.ofInstant(
+                        block.getInstant(),
+                        ZoneId.systemDefault()
+                        )
+                    );
+                offer.getSchedule().getOffered().getExecuting().setDuration(
+                    block.getDuration().toString()
+                    );
 
                 ExecutionResourceList resources = new ExecutionResourceList();
                 for (AbstractDataResource resource : context.getDataResourceList())
@@ -266,80 +304,67 @@ public class ExecutionResponseFactoryImpl
                     if (resource instanceof SimpleComputeResource)
                         {
                         SimpleComputeResource simple = (SimpleComputeResource) resource ;
-/*
- *
-                        int mincores = simple.getCores().getMin();
-                        int maxcores = simple.getCores().getMax() * 2;
-                        if (maxcores > block.getMaxCores())
-                            {
-                            maxcores = block.getMaxCores();
-                            }
-                        int minmemory = simple.getMemory().getMin();
-                        int maxmemory = simple.getMemory().getMax() * 2;
-                        if (maxmemory > block.getMaxMemory())
-                            {
-                            maxmemory = block.getMaxMemory();
-                            }
- *
- */
+                        // Offer the same minimum as the request.
                         block.setMinCores(
                             simple.getCores().getMin()
                             );
-                        if (block.getMaxCores() > (simple.getCores().getMax() * 2))
+                        // Offer twice the requested maximum IF that is still less than the block.
+                        if ((simple.getCores().getMax() * 2) < block.getMaxCores())
                             {
                             block.setMaxCores(
                                 simple.getCores().getMax() * 2
                                 );
                             }
+                        // Offer the same minimum as the request.
                         block.setMinMemory(
                             simple.getMemory().getMin()
                             );
-                        if (block.getMaxMemory() > (simple.getMemory().getMax() * 2))
+                        // Offer twice the requested maximum IF that is still less than the block.
+                        if ((simple.getMemory().getMax() * 2) < block.getMaxMemory())
                             {
                             block.setMaxMemory(
                                 simple.getMemory().getMax() * 2
                                 );
                             }
-
-                        SimpleComputeResource albert = new SimpleComputeResource(
+                        SimpleComputeResource result = new SimpleComputeResource(
                             "urn:simple-compute-resource"
                             );
-                        albert.setUuid(
+                        result.setUuid(
                             simple.getUuid()
                             );
-                        albert.setName(
+                        result.setName(
                             simple.getName()
                             );
-                        if (albert.getCores() == null)
+                        if (result.getCores() == null)
                             {
-                            albert.setCores(
+                            result.setCores(
                                 new MinMaxInteger()
                                 );
                             }
-                        albert.getCores().setMin(
+                        result.getCores().setMin(
                             block.getMinCores()
                             );
-                        albert.getCores().setMax(
+                        result.getCores().setMax(
                             block.getMaxCores()
                             );
-                        if (albert.getMemory() == null)
+                        if (result.getMemory() == null)
                             {
-                            albert.setMemory(
+                            result.setMemory(
                                 new MinMaxInteger()
                                 );
                             }
-                        albert.getMemory().setMin(
+                        result.getMemory().setMin(
                             block.getMinMemory()
                             );
-                        albert.getMemory().setMax(
+                        result.getMemory().setMax(
                             block.getMaxMemory()
                             );
-                        albert.setVolumes(
+                        result.setVolumes(
                             simple.getVolumes()
                             );
                         // Add the SimpleComputeResource to our response.
                         resources.addComputeItem(
-                            albert
+                            result
                             );
                         // Add the ExecutionBlock to our database.
                         database.insert(
@@ -1062,12 +1087,6 @@ public class ExecutionResponseFactoryImpl
         if (schedule != null)
             {
             //
-            // Check the offered section is empty.
-
-            //
-            // Check the observed section is empty.
-
-            //
             // Validate each of our requested items.
             for (ScheduleRequestItem item : schedule.getRequested())
                 {
@@ -1076,6 +1095,11 @@ public class ExecutionResponseFactoryImpl
                     context
                     );
                 }
+            // TODO
+            // Check the offered section is empty.
+            //
+            // Check the observed section is empty.
+            //
             }
         }
 

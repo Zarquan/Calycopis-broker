@@ -33,13 +33,14 @@ public interface ExecutionBlock
     {
 
     /**
-     * The block step size in seconds.
+     * The block step size.
      * This controls the granularity of time values in the database.
      * A production system would use one hour steps.
      * The development system uses five minute steps.
      *
      */
-    public static final Long BLOCK_STEP_SIZE = 60L * 5L ;
+    public static final Long BLOCK_STEP_MINUTES = 5L ;
+    public static final Long BLOCK_STEP_SECONDS = 60L * BLOCK_STEP_MINUTES ;
 
     public Instant getInstant();
     public Duration getDuration();

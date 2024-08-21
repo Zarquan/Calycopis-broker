@@ -42,8 +42,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
         ) {
         this.instant  = instant ;
         this.duration = duration ;
-        this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE ;
-        this.blockLength = duration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE ;
+        this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS ;
+        this.blockLength = duration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS ;
         this.minCores = minCores ;
         this.maxCores = maxCores ;
         this.minMemory = minMemory ;
@@ -60,8 +60,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
         ) {
         this.blockStart  = blockStart  ;
         this.blockLength = blockLength ;
-        this.instant  = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SIZE) ;
-        this.duration = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SIZE) ;
+        this.instant  = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
+        this.duration = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
         this.minCores = minCores ;
         this.maxCores = maxCores ;
         this.minMemory = minMemory ;

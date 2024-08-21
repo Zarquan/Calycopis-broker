@@ -101,7 +101,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         Duration maxduration = null;
 
         List<ProcessingContext.ScheduleItem> items = context.getScheduleItems();
-        // This is where we only take the forst item in the list.
+        // BUG - We only take the first item in the request.
         if ((items != null) && (items.size() > 0))
             {
             starttime = items.get(0).getStartTime();
@@ -248,15 +248,17 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 BlockLength DESC
             """;
 
-            query = query.replace(":totalcores",  "32");
-            query = query.replace(":totalmemory", "32");
-            query = query.replace(":rangeoffset", String.valueOf((starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE)));
-            query = query.replace(":rangestart",  "0");
-            query = query.replace(":rangeend",    "23");
+            query = query.replace(":totalcores",     String.valueOf(32));
+            query = query.replace(":totalmemory",    String.valueOf(32));
+            query = query.replace(":rangeoffset",    String.valueOf((starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS)));
+            query = query.replace(":rangestart",     String.valueOf(0));
+            query = query.replace(":rangeend",       String.valueOf(
+                ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES) - 1
+                ));
             query = query.replace(":minfreecores",   String.valueOf(context.getMinCores()));
             query = query.replace(":minfreememory",  String.valueOf(context.getMinMemory()));
-            query = query.replace(":minblocklength", String.valueOf(minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE));
-            query = query.replace(":maxblocklength", String.valueOf(maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE));
+            query = query.replace(":minblocklength", String.valueOf(minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
+            query = query.replace(":maxblocklength", String.valueOf(maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
 
         List<ExecutionBlock> list = JdbcClient.create(template)
             .sql(query)
@@ -264,15 +266,17 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             .list();
 
 /*
+ * Filling in the template with named params like this caused a RuntimeException in the H2 database.
+ *
             .param("totalcores",     new Integer(32))
             .param("totalmemory",    new Integer(32))
-            .param("rangeoffset",    (starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SIZE))
+            .param("rangeoffset",    (starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS))
             .param("rangestart",     new Integer(0))
             .param("rangeend",       new Integer(23))
             .param("minfreecores",   context.getMinCores())
             .param("minfreememory",  context.getMinMemory())
-            .param("minblocklength", (minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
-            .param("maxblocklength", (maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SIZE))
+            .param("minblocklength", (minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS))
+            .param("maxblocklength", (maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS))
  */
 
         return list ;
