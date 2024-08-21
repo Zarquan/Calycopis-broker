@@ -33,6 +33,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
     {
 
     public ExecutionBlockImpl(
+        final ExecutionResponse.StateEnum blockState,
         final Instant  instant,
         final Duration duration,
         final Integer minCores,
@@ -40,17 +41,19 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer minMemory,
         final Integer maxMemory
         ) {
-        this.instant  = instant ;
-        this.duration = duration ;
+        this.blockState  = blockState ;
+        this.instant     = instant ;
+        this.duration    = duration ;
         this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS ;
         this.blockLength = duration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS ;
-        this.minCores = minCores ;
-        this.maxCores = maxCores ;
-        this.minMemory = minMemory ;
-        this.maxMemory = maxMemory ;
+        this.minCores    = minCores ;
+        this.maxCores    = maxCores ;
+        this.minMemory   = minMemory ;
+        this.maxMemory   = maxMemory ;
         }
 
     public ExecutionBlockImpl(
+        final String blockState,
         final Long blockStart,
         final Long blockLength,
         final Integer minCores,
@@ -58,14 +61,47 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer minMemory,
         final Integer maxMemory
         ) {
+        this(
+            ExecutionResponse.StateEnum.fromValue(
+                blockState
+                ),
+            blockStart,
+            blockLength,
+            minCores,
+            maxCores,
+            minMemory,
+            maxMemory
+            );
+        }
+
+    public ExecutionBlockImpl(
+        final ExecutionResponse.StateEnum blockState,
+        final Long blockStart,
+        final Long blockLength,
+        final Integer minCores,
+        final Integer maxCores,
+        final Integer minMemory,
+        final Integer maxMemory
+        ) {
+        this.blockState  = blockState ;
         this.blockStart  = blockStart  ;
         this.blockLength = blockLength ;
-        this.instant  = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
-        this.duration = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
-        this.minCores = minCores ;
-        this.maxCores = maxCores ;
-        this.minMemory = minMemory ;
-        this.maxMemory = maxMemory ;
+        this.instant     = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
+        this.duration    = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
+        this.minCores    = minCores ;
+        this.maxCores    = maxCores ;
+        this.minMemory   = minMemory ;
+        this.maxMemory   = maxMemory ;
+        }
+
+    private ExecutionResponse.StateEnum blockState;
+    public ExecutionResponse.StateEnum getState()
+        {
+        return this.blockState;
+        }
+    public void setState(ExecutionResponse.StateEnum state)
+        {
+        this.blockState = state ;
         }
 
     private Instant instant;

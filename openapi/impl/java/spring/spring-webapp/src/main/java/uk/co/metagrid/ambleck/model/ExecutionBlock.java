@@ -42,6 +42,9 @@ public interface ExecutionBlock
     public static final Long BLOCK_STEP_MINUTES = 5L ;
     public static final Long BLOCK_STEP_SECONDS = 60L * BLOCK_STEP_MINUTES ;
 
+    public ExecutionResponse.StateEnum getState();
+    public void setState(ExecutionResponse.StateEnum state);
+
     public Instant getInstant();
     public Duration getDuration();
 

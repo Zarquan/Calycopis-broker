@@ -1091,6 +1091,7 @@ components:
                 Status code for the execution.
               type: string
               enum:
+                - PROPOSED
                 - OFFERED
                 - ACCEPTED
                 - REJECTED

@@ -253,9 +253,16 @@ public class ExecutionResponseFactoryImpl
                 {
                 //
                 // Create an offer using the resources in our context.
-                ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
+                ExecutionResponseImpl offer = new ExecutionResponseImpl(
+                    ExecutionResponse.StateEnum.OFFERED,
+                    baseurl,
+                    response
+                    );
                 this.insert(
                     offer
+                    );
+                block.setState(
+                    ExecutionResponse.StateEnum.OFFERED
                     );
                 offer.setName(
                     request.getName()

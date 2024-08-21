@@ -77,8 +77,9 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int insert(final ExecutionBlock block)
         {
         return template.update(
-            "INSERT INTO ExecutionBlocks (BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ExecutionBlocks (BlockState, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?)",
             new Object[] {
+                block.getState().toString(),
                 block.getBlockStart(),
                 block.getBlockLength(),
                 block.getMinCores(),
@@ -232,6 +233,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                     BlockLength <= :maxblocklength
                 )
             SELECT
+                'PROPOSED' AS BlockState,
                 BlockStart,
                 BlockLength,
                 MIN(FreeCores)  AS MinFreeCores,
@@ -251,15 +253,25 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
 
             query = query.replace(":totalcores",     String.valueOf(32));
             query = query.replace(":totalmemory",    String.valueOf(32));
-            query = query.replace(":rangeoffset",    String.valueOf((starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS)));
+            query = query.replace(":rangeoffset",    String.valueOf(
+                starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS
+                ));
             query = query.replace(":rangestart",     String.valueOf(0));
             query = query.replace(":rangeend",       String.valueOf(
                 ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES) - 1
                 ));
-            query = query.replace(":minfreecores",   String.valueOf(context.getMinCores()));
-            query = query.replace(":minfreememory",  String.valueOf(context.getMinMemory()));
-            query = query.replace(":minblocklength", String.valueOf(minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
-            query = query.replace(":maxblocklength", String.valueOf(maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
+            query = query.replace(":minfreecores",   String.valueOf(
+                context.getMinCores()
+                ));
+            query = query.replace(":minfreememory",  String.valueOf(
+                context.getMinMemory()
+                ));
+            query = query.replace(":minblocklength", String.valueOf(
+                minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS
+                ));
+            query = query.replace(":maxblocklength", String.valueOf(
+                maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS
+                ));
 
         List<ExecutionBlock> list = JdbcClient.create(template)
             .sql(query)
@@ -289,15 +301,24 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         public ExecutionBlock mapRow(ResultSet rs, int rowNum)
         throws SQLException
             {
-            ExecutionBlock block = new ExecutionBlockImpl(
-                rs.getLong("BlockStart"),
-                rs.getLong("BlockLength"),
-                rs.getInt("MinFreeCores"),
-                rs.getInt("MinFreeCores"),
-                rs.getInt("MinFreeMemory"),
-                rs.getInt("MinFreeMemory")
-                );
-            return block;
+            try {
+                ExecutionBlock block = new ExecutionBlockImpl(
+                    rs.getString("BlockState"),
+                    rs.getLong("BlockStart"),
+                    rs.getLong("BlockLength"),
+                    rs.getInt("MinFreeCores"),
+                    rs.getInt("MinFreeCores"),
+                    rs.getInt("MinFreeMemory"),
+                    rs.getInt("MinFreeMemory")
+                    );
+                return block;
+                }
+            catch (IllegalArgumentException ouch)
+                {
+                throw new SQLException(
+                    ouch
+                    );
+                }
             }
         }
     }

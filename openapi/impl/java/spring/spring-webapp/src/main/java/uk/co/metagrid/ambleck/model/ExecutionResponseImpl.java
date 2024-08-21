@@ -41,19 +41,18 @@ public class ExecutionResponseImpl extends ExecutionResponse
         return this.parent;
         }
 
-    public ExecutionResponseImpl(final String baseurl, final OfferSetResponse parent)
+    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetResponse parent)
         {
         this.parent = parent ;
+        this.setState(
+            state
+            );
         this.setUuid(
             UuidCreator.getTimeBased()
             );
         this.setHref(
             baseurl + "/execution/" + this.getUuid()
             );
-        this.setState(
-            ExecutionResponse.StateEnum.OFFERED
-            );
-
         this.created(
             OffsetDateTime.now()
             );

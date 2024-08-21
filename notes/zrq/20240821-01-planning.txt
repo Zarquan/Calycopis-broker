@@ -127,11 +127,16 @@
 
         New git branch ..
 
+        State in the database - done
+
         Expiry date in database.
         Cron task to clear expired offers.
 
         Code to progress state machine.
         Leave VOSpace code as stubs.
+
+        Create a Dockerfile for the build container.
+        Save the build container image.
 
         Script demo to watch state progression.
 

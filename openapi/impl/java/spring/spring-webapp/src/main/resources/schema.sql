@@ -24,6 +24,7 @@
 DROP TABLE IF EXISTS ExecutionBlocks;
 CREATE TABLE ExecutionBlocks(
     Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    BlockState  CHAR(10),
     BlockStart  LONG,
     BlockLength LONG,
     MinCores INT,
