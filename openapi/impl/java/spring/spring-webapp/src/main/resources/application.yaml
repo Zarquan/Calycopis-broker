@@ -1,3 +1,23 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
 
 server:
     # https://mkyong.com/spring-boot/spring-boot-how-to-change-tomcat-port/
@@ -21,16 +41,21 @@ spring:
     application:
         name: Ambleck
     # https://www.baeldung.com/spring-boot-h2-database
+    # https://stackoverflow.com/a/38047021
     datasource:
         url: jdbc:h2:mem:testdb
         username: sa
         password: password
         driverClassName: org.h2.Driver
+        initialize: true
     jpa:
         database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+          ddl-auto: none
     h2:
         console:
             enabled: true
             settings:
                 web-allow-others: true
+
 

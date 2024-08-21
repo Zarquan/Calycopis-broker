@@ -40,6 +40,7 @@
         </RandomAccessFile>
     </Appenders>
     <Loggers>
+        <!-- https://stackoverflow.com/a/68471053 -->
         <Logger name ="com.zaxxer.hikari" level="OFF"/>
         <Root level="DEBUG" includeLocation="false">
             <AppenderRef ref="RandomAccessFile"/>
