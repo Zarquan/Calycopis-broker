@@ -120,6 +120,16 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+        <!--+
+            | Project Lombok
+            | https://projectlombok.org/
+            +-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!--+
             | Dependencies from the Spring documentation.

@@ -54,9 +54,11 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class ExecutionResponseFactoryImpl
     implements ExecutionResponseFactory
@@ -65,8 +67,8 @@ public class ExecutionResponseFactoryImpl
     /*
      * Create a SLF4J Logger for this class.
      *
-     */
     private static Logger logger = LoggerFactory.getLogger(ExecutionResponseFactoryImpl.class);
+     */
 
     /*
      * This factory identifier.
@@ -89,7 +91,7 @@ public class ExecutionResponseFactoryImpl
     @Autowired
     public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
-        logger.debug("Creating a new ExecutionResponseFactory instance");
+        log.debug("Creating a new ExecutionResponseFactory instance");
         this.uuid = UuidCreator.getTimeBased();
         this.database = database ;
         }
@@ -152,7 +154,7 @@ public class ExecutionResponseFactoryImpl
     @Override
     public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
         {
-        logger.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
+        log.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
 
         //
         // Reject storage resources.

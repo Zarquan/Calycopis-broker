@@ -74,6 +74,7 @@
         Add logging.
         Picked a recent article to get the latest fashion.
         https://www.baeldung.com/java-logging-intro
+        https://medium.com/@bishalf98/log4j2-in-springboot3-095ab6f15763
 
         Comment on current feature.
         Describe document feature.
