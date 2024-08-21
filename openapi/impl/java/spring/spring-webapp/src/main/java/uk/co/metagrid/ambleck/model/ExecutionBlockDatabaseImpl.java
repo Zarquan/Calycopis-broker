@@ -246,6 +246,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 MinFreeCores  DESC,
                 MinFreeMemory DESC,
                 BlockLength DESC
+            LIMIT 4
             """;
 
             query = query.replace(":totalcores",     String.valueOf(32));
