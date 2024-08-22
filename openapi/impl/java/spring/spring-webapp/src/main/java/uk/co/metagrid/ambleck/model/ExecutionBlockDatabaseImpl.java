@@ -81,6 +81,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     @Override
     public int insert(final ExecutionBlock block)
         {
+        log.debug("INSERT [{}]", block.getOfferUuid());
         return template.update(
             "INSERT INTO ExecutionBlocks (BlockState, OfferUuid, ExpiryTime, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
             new Object[] {
@@ -110,7 +111,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
 
         return JdbcClient.create(template)
             .sql(query)
-            .param("offeruuid", offeruuid)
+            .param("offeruuid", offeruuid.toString())
             .query(new ExecutionBlockMapper())
             .single();
         }
@@ -122,19 +123,14 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int update(final UUID offeruuid, final ExecutionResponse.StateEnum newstate)
         {
         log.debug("Update state [{}][{}]", offeruuid, newstate);
-        String query =
-            """
-            UPDATE ExecutionBlocks SET BlockState = :newstate WHERE OfferUuid = :offeruuid
-            """;
-        int result = JdbcClient.create(template)
-            .sql(query)
-            .param("newstate", newstate)
-            .param("offeruuid", offeruuid)
-            .update();
-        log.debug("Result [{}]", result);
-        return result ;
+        return template.update(
+            "UPDATE ExecutionBlocks SET BlockState = ? WHERE OfferUuid = ?",
+            new Object[] {
+                newstate.toString(),
+                offeruuid
+                }
+            );
         }
-
 
     /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.

@@ -259,6 +259,9 @@ public class ExecutionResponseFactoryImpl
                 this.insert(
                     offer
                     );
+                block.setOfferUuid(
+                    offer.getUuid()
+                    );
                 block.setState(
                     ExecutionResponse.StateEnum.OFFERED
                     );

@@ -112,19 +112,19 @@ EOF
 
     >   offered:
     >     executing:
-    >       start: "2024-08-22T14:10:00Z"
+    >       start: "2024-08-22T15:00:00Z"
     >       duration: "PT2H"
     >   offered:
     >     executing:
-    >       start: "2024-08-22T16:10:00Z"
+    >       start: "2024-08-22T17:00:00Z"
     >       duration: "PT2H"
     >   offered:
     >     executing:
-    >       start: "2024-08-22T18:10:00Z"
+    >       start: "2024-08-22T19:00:00Z"
     >       duration: "PT2H"
     >   offered:
     >     executing:
-    >       start: "2024-08-22T20:10:00Z"
+    >       start: "2024-08-22T21:00:00Z"
     >       duration: "PT2H"
 
 
@@ -136,21 +136,21 @@ EOF
     SELECT * FROM BlocksView ;
 
     >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
-    >   1  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 14:10:00+UTC  120  5747786  24  1  2  1  2
-    >   2  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 16:10:00+UTC  120  5747810  24  1  2  1  2
-    >   3  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 18:10:00+UTC  120  5747834  24  1  2  1  2
-    >   4  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 20:10:00+UTC  120  5747858  24  1  2  1  2
-    >   (4 rows, 8 ms)
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 13 ms)
 
 
     SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
 
     >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
-    >   1  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 14:10:00+UTC  120  5747786  24  1  2  1  2
-    >   2  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 16:10:00+UTC  120  5747810  24  1  2  1  2
-    >   3  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 18:10:00+UTC  120  5747834  24  1  2  1  2
-    >   4  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 20:10:00+UTC  120  5747858  24  1  2  1  2
-    >   (4 rows, 9 ms)
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 5 ms)
 
 
 # -----------------------------------------------------
@@ -190,7 +190,7 @@ EOF
     >   schedule:
     >     offered:
     >       executing:
-    >         start: "2024-08-22T18:10:00Z"
+    >         start: "2024-08-22T19:00:00Z"
     >         duration: "PT2H"
 
 
@@ -201,9 +201,20 @@ EOF
 
     SELECT * FROM BlocksView ;
 
-    >   ....
-    >   ....
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  ACCEPTED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 4 ms)
 
 
     SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (3 rows, 2 ms)
+
 
