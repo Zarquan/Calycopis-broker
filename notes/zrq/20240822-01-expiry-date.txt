@@ -298,7 +298,7 @@ EOF
 
     SELECT * FROM BlocksView ;
 
-    >   
+    >
     >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
     >   1  55d70097-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 18:25:00+UTC  120  5747837  24  1  2  1  2
     >   2  55d83918-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 20:25:00+UTC  120  5747861  24  1  2  1  2
@@ -361,18 +361,18 @@ EOF
     >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
     >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
     >   (4 rows, 1 ms)--END--
-    >   
-    >   
+    >
+    >
     >   # -----------------------------------------------------
     >   # -----------------------------------------------------
     >   # Poke the sweep method.
     >   #[user@database]
-    >   
+    >
     >       curl \
     >           --silent \
     >           --show-error \
     >           "http://127.0.0.1:8082/system/sweep"
-    >   
+    >
     >   Amleck [0]
 
 
@@ -752,7 +752,6 @@ EOF
     >     executing:
     >       start: "2024-08-23T00:50:00Z"
     >       duration: "PT2H"
-
 
     updatehref=$(
         yq '.offers[2].href' "${createresponse}"

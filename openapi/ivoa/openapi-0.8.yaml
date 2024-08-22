@@ -224,10 +224,22 @@ paths:
                     type: string
 
   #
-  # Sweep the expired offers away.
-  /system/sweep:
+  # Update the expired offers.
+  /system/sweep/update:
     get:
-      operationId: SweepGet
+      operationId: SweepUpdate
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  #
+  # Delete the expired offers.
+  /system/sweep/delete:
+    get:
+      operationId: SweepDelete
       responses:
         "200":
           description: OK

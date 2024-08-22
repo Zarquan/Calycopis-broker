@@ -37,6 +37,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
     public ExecutionBlockImpl(
         final ExecutionResponse.StateEnum blockState,
         final UUID offeruuid,
+        final UUID parentuuid,
         final Instant expirytime,
         final Instant instant,
         final Duration duration,
@@ -47,6 +48,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
         ) {
         this.blockState  = blockState ;
         this.offeruuid   = offeruuid ;
+        this.parentuuid  = parentuuid ;
         this.expirytime  = expirytime ;
         this.instant     = instant ;
         this.duration    = duration ;
@@ -61,6 +63,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
     public ExecutionBlockImpl(
         final String blockState,
         final UUID offeruuid,
+        final UUID parentuuid,
         final Instant expirytime,
         final Long blockStart,
         final Long blockLength,
@@ -74,6 +77,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
                 blockState
                 ),
             offeruuid,
+            parentuuid,
             expirytime,
             blockStart,
             blockLength,
@@ -87,6 +91,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
     public ExecutionBlockImpl(
         final ExecutionResponse.StateEnum blockState,
         final UUID offeruuid,
+        final UUID parentuuid,
         final Instant expirytime,
         final Long blockStart,
         final Long blockLength,
@@ -97,6 +102,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
         ) {
         this.blockState  = blockState ;
         this.offeruuid   = offeruuid ;
+        this.parentuuid  = parentuuid ;
         this.expirytime  = expirytime ;
         this.blockStart  = blockStart ;
         this.blockLength = blockLength ;
@@ -126,6 +132,16 @@ public class ExecutionBlockImpl implements ExecutionBlock
     public void setOfferUuid(final UUID offeruuid)
         {
         this.offeruuid = offeruuid;
+        }
+
+    private UUID parentuuid;
+    public UUID getParentUuid()
+        {
+        return this.parentuuid;
+        }
+    public void setParentUuid(final UUID parentuuid)
+        {
+        this.parentuuid = parentuuid;
         }
 
     private Instant expirytime;

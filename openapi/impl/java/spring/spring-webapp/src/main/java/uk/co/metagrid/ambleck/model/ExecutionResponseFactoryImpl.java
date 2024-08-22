@@ -262,6 +262,9 @@ public class ExecutionResponseFactoryImpl
                 block.setOfferUuid(
                     offer.getUuid()
                     );
+                block.setParentUuid(
+                    response.getUuid()
+                    );
                 block.setState(
                     ExecutionResponse.StateEnum.OFFERED
                     );
@@ -461,10 +464,15 @@ public class ExecutionResponseFactoryImpl
                                 {
                                 case ACCEPTED:
                                     response.setState(StateEnum.ACCEPTED);
-// TODO null expiry time
+                                    database.accept(
+                                        response.getUuid()
+                                        );
                                     break;
                                 case REJECTED:
                                     response.setState(StateEnum.REJECTED);
+                                    database.reject(
+                                        response.getUuid()
+                                        );
                                     break;
                                 default:
                                     // Invalid state transition.
@@ -476,12 +484,6 @@ public class ExecutionResponseFactoryImpl
                             // Invalid state transition.
                             break;
                         }
-                    //
-                    // Update the corresponding block.
-                    database.update(
-                        response.getUuid(),
-                        updatestate
-                        );
                     }
                 break;
 

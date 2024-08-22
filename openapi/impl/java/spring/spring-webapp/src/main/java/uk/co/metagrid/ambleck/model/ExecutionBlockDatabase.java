@@ -41,10 +41,16 @@ public interface ExecutionBlockDatabase
     public ExecutionBlock select(final UUID offeruuid);
 
     /**
-     * Update an ExecutionBlock in our database.
+     * Accept an ExecutionBlock in our database.
      *
      */
-    public int update(final UUID offeruuid, final ExecutionResponse.StateEnum newstate);
+    public int accept(final UUID offeruuid);
+
+    /**
+     * Reject an ExecutionBlock in our database.
+     *
+     */
+    public int reject(final UUID offeruuid);
 
     /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.
@@ -53,10 +59,16 @@ public interface ExecutionBlockDatabase
     public List<ExecutionBlock> generate(final ProcessingContext context);
 
     /**
-     * Sweep the database for expired offers.
+     * Update any expired offers.
      *
      */
-    public int sweep(final Integer limit);
+    public int sweepUpdate(final Integer limit);
+
+    /**
+     * Delete any expired offers.
+     *
+     */
+    public int sweepDelete(final Integer limit);
 
     }
 

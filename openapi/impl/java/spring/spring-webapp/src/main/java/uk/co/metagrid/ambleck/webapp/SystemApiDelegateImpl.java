@@ -52,9 +52,24 @@ public class SystemApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<String> sweepGet()
+    public ResponseEntity<String> sweepUpdate()
         {
-        int result = this.database.sweep(1);
+        int result = this.database.sweepUpdate(1);
+        return new ResponseEntity<String>(
+            "Amleck [:result:]".replace(
+                ":result:",
+                String.valueOf(
+                    result
+                    )
+                ),
+            HttpStatus.OK
+            );
+        }
+
+    @Override
+    public ResponseEntity<String> sweepDelete()
+        {
+        int result = this.database.sweepDelete(1);
         return new ResponseEntity<String>(
             "Amleck [:result:]".replace(
                 ":result:",

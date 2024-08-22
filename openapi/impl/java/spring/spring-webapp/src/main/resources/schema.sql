@@ -25,6 +25,7 @@ DROP TABLE IF EXISTS ExecutionBlocks;
 CREATE TABLE ExecutionBlocks(
     Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     OfferUuid UUID,
+    ParentUuid UUID,
     ExpiryTime TIMESTAMP(0) WITH TIME ZONE,
     BlockState CHAR VARYING,
     BlockStart LONG,
@@ -44,6 +45,7 @@ CREATE VIEW BlocksView AS
     SELECT
         Ident,
         OfferUuid,
+        ParentUuid,
         BlockState,
         FORMATDATETIME(
             ExpiryTime,

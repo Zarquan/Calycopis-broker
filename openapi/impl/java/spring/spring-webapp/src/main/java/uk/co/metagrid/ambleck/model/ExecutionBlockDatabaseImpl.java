@@ -83,10 +83,11 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         {
         log.debug("INSERT [{}]", block.getOfferUuid());
         return template.update(
-            "INSERT INTO ExecutionBlocks (BlockState, OfferUuid, ExpiryTime, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ExecutionBlocks (BlockState, OfferUuid, ParentUuid, ExpiryTime, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             new Object[] {
                 block.getState().toString(),
                 block.getOfferUuid(),
+                block.getParentUuid(),
                 block.getExpiryTime(),
                 block.getBlockStart(),
                 block.getBlockLength(),
@@ -108,7 +109,6 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             """
             SELECT * FROM ExecutionBlocks WHERE OfferUuid = :offeruuid
             """;
-
         return JdbcClient.create(template)
             .sql(query)
             .param("offeruuid", offeruuid.toString())
@@ -117,50 +117,182 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         }
 
     /**
-     * Update an ExecutionBlock in our database.
+     * Accept an ExecutionBlock in our database.
      *
      */
-    public int update(final UUID offeruuid, final ExecutionResponse.StateEnum newstate)
+    public int accept(final UUID offeruuid)
         {
-        log.debug("Update state [{}][{}]", offeruuid, newstate);
-        return template.update(
-            "UPDATE ExecutionBlocks SET BlockState = ? WHERE OfferUuid = ?",
+        log.debug("Accept [{}]", offeruuid);
+        int one = template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'ACCEPTED',
+                ExpiryTime = NULL
+            WHERE
+                OfferUuid = ?
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            ;
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'REJECTED'
+            WHERE
+                ParentUuid IN (
+                    SELECT
+                        ParentUuid
+                    FROM
+                        ExecutionBlocks
+                    WHERE
+                        OfferUuid = ?
+                    )
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            """,
             new Object[] {
-                newstate.toString(),
+                offeruuid,
+                offeruuid
+                }
+            );
+        return one ;
+        }
+
+    /**
+     * Reject an ExecutionBlock in our database.
+     *
+     */
+    public int reject(final UUID offeruuid)
+        {
+        log.debug("Reject [{}]", offeruuid);
+        return template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'REJECTED'
+            WHERE
+                OfferUuid = ?
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            """,
+            new Object[] {
                 offeruuid
                 }
             );
         }
 
     /**
-     * Sweep the database for expired offers.
+     * Update any expired offers.
      *
      */
-    public int sweep(final Integer limit)
+    @Override
+    public int sweepUpdate(final Integer limit)
         {
         log.debug("Sweep [{}]", limit);
-        return template.update(
-            """
-            DELETE FROM
-                ExecutionBlocks
-            WHERE Ident IN (
-                SELECT
+        if (limit == 0)
+            {
+            return template.update(
+                """
+                UPDATE
+                    ExecutionBlocks
+                SET
+                    BlockState = 'EXPIRED'
+                WHERE
                     Ident
-                FROM
+                IN (
+                    SELECT
+                        Ident
+                    FROM
+                        ExecutionBlocks
+                    WHERE
+                        BlockState IN ('PROPOSED','OFFERED')
+                    AND
+                        (ExpiryTime < CURRENT_TIMESTAMP())
+                    ORDER BY
+                        Ident
+                    )
+                """
+                );
+            }
+        else {
+            return template.update(
+                """
+                UPDATE
+                    ExecutionBlocks
+                SET
+                    BlockState = 'EXPIRED'
+                WHERE
+                    Ident
+                IN (
+                    SELECT
+                        Ident
+                    FROM
+                        ExecutionBlocks
+                    WHERE
+                        BlockState IN ('PROPOSED', 'OFFERED')
+                    AND
+                        (ExpiryTime < CURRENT_TIMESTAMP())
+                    ORDER BY
+                        Ident
+                    LIMIT ?
+                    )
+                """,
+                new Object[] {
+                    limit
+                    }
+                );
+            }
+        }
+
+    /**
+     * Delete expired offers.
+     *
+     */
+    @Override
+    public int sweepDelete(final Integer limit)
+        {
+        log.debug("Sweep [{}]", limit);
+        if (limit == 0)
+            {
+            return template.update(
+                """
+                DELETE FROM
                     ExecutionBlocks
                 WHERE
-                    BlockState IN ('PROPOSED','OFFERED')
+                    BlockState IN ('EXPIRED', 'REJECTED')
                 AND
                     (ExpiryTime < CURRENT_TIMESTAMP())
-                ORDER BY
+                """
+                );
+            }
+        else {
+            return template.update(
+                """
+                DELETE FROM
+                    ExecutionBlocks
+                WHERE
                     Ident
-                LIMIT ?
-                )
-            """,
-            new Object[] {
-                limit
-                }
-            );
+                IN (
+                    SELECT
+                        Ident
+                    FROM
+                        ExecutionBlocks
+                    WHERE
+                        BlockState IN ('EXPIRED', 'REJECTED')
+                    AND
+                        (ExpiryTime < CURRENT_TIMESTAMP())
+                    ORDER BY
+                        Ident
+                    LIMIT ?
+                    )
+                """,
+                new Object[] {
+                    limit
+                    }
+                );
+            }
         }
 
 
@@ -309,6 +441,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             SELECT
                 'PROPOSED' AS BlockState,
                 NULL AS OfferUuid,
+                NULL AS ParentUuid,
                 NULL AS ExpiryTime,
                 BlockStart,
                 BlockLength,
@@ -397,6 +530,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 ExecutionBlock block = new ExecutionBlockImpl(
                     rs.getString("BlockState"),
                     (UUID) rs.getObject("OfferUuid"),
+                    (UUID) rs.getObject("ParentUuid"),
                     timestampToInstant(rs.getTimestamp("ExpiryTime")),
                     rs.getLong("BlockStart"),
                     rs.getLong("BlockLength"),

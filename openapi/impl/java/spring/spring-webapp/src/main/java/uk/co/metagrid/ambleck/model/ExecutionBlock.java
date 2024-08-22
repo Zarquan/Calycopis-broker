@@ -50,6 +50,9 @@ public interface ExecutionBlock
     public UUID getOfferUuid();
     public void setOfferUuid(final UUID offeruuid);
 
+    public UUID getParentUuid();
+    public void setParentUuid(final UUID parentuuid);
+
     public Instant getExpiryTime();
     public void setExpiryTime(final Instant expirytime);
 
