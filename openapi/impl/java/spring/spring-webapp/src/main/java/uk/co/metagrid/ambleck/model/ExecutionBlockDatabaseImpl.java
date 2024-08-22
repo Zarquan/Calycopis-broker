@@ -35,6 +35,7 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -45,6 +46,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
 import org.threeten.extra.Interval;
+import java.sql.Timestamp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -57,6 +59,9 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
 public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     {
@@ -77,9 +82,11 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int insert(final ExecutionBlock block)
         {
         return template.update(
-            "INSERT INTO ExecutionBlocks (BlockState, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ExecutionBlocks (BlockState, OfferUuid, ExpiryTime, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
             new Object[] {
                 block.getState().toString(),
+                block.getOfferUuid(),
+                block.getExpiryTime(),
                 block.getBlockStart(),
                 block.getBlockLength(),
                 block.getMinCores(),
@@ -89,6 +96,45 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 }
             );
         }
+
+    /**
+     * Select an ExecutionBlock from our database.
+     *
+     */
+    public ExecutionBlock select(final UUID offeruuid)
+        {
+        String query =
+            """
+            SELECT * FROM ExecutionBlocks WHERE OfferUuid = :offeruuid
+            """;
+
+        return JdbcClient.create(template)
+            .sql(query)
+            .param("offeruuid", offeruuid)
+            .query(new ExecutionBlockMapper())
+            .single();
+        }
+
+    /**
+     * Update an ExecutionBlock in our database.
+     *
+     */
+    public int update(final UUID offeruuid, final ExecutionResponse.StateEnum newstate)
+        {
+        log.debug("Update state [{}][{}]", offeruuid, newstate);
+        String query =
+            """
+            UPDATE ExecutionBlocks SET BlockState = :newstate WHERE OfferUuid = :offeruuid
+            """;
+        int result = JdbcClient.create(template)
+            .sql(query)
+            .param("newstate", newstate)
+            .param("offeruuid", offeruuid)
+            .update();
+        log.debug("Result [{}]", result);
+        return result ;
+        }
+
 
     /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.
@@ -234,6 +280,8 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 )
             SELECT
                 'PROPOSED' AS BlockState,
+                NULL AS OfferUuid,
+                NULL AS ExpiryTime,
                 BlockStart,
                 BlockLength,
                 MIN(FreeCores)  AS MinFreeCores,
@@ -256,9 +304,9 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             query = query.replace(":rangeoffset",    String.valueOf(
                 starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS
                 ));
-            query = query.replace(":rangestart",     String.valueOf(0));
+            query = query.replace(":rangestart",     String.valueOf(1));
             query = query.replace(":rangeend",       String.valueOf(
-                ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES) - 1
+                ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES)
                 ));
             query = query.replace(":minfreecores",   String.valueOf(
                 context.getMinCores()
@@ -295,6 +343,22 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         return list ;
         }
 
+    /**
+     * Null safe translation between time formats.
+     * Handles a null timestamp from the database.
+     *
+     */
+    private static Instant timestampToInstant(final Timestamp timestamp)
+        {
+        if (timestamp != null)
+            {
+            return timestamp.toInstant();
+            }
+        else {
+            return null ;
+            }
+        }
+
     public static class ExecutionBlockMapper implements RowMapper<ExecutionBlock>
         {
         @Override
@@ -304,6 +368,8 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
             try {
                 ExecutionBlock block = new ExecutionBlockImpl(
                     rs.getString("BlockState"),
+                    (UUID) rs.getObject("OfferUuid"),
+                    timestampToInstant(rs.getTimestamp("ExpiryTime")),
                     rs.getLong("BlockStart"),
                     rs.getLong("BlockLength"),
                     rs.getInt("MinFreeCores"),

@@ -2136,5 +2136,9 @@ EOF
     yq '.offers[].schedule' "${createresponse}"
 
     #
-    # BUG - first offer starts one block in the past.
+    # BUG - first offer starts at the beginning of the current time block.
+    # So if the time is 12:14 and the block size is 5min, then the first offer starts at 12:10.
+    # Not too bad if they are for a 1hr session and the offer starts 5min early.
+    # Not so good if the block size is 1hr, and they make the request at 12:55, then the first offer starts at 12:00.
     #
+

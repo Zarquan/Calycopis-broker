@@ -83,7 +83,11 @@
         Confluence, Jira, SLack and emails ...
         16:45 Started real work
         17:15 Git branch done
+        17:15-19:30 Adding block state to the database table.
+        19:30 Stopped
 
+        23:00-08:30 sleep
+        08:30-09:30 thinking about the architecture diagram
 
 
 # -----------------------------------------------------

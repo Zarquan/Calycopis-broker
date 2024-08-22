@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
+
 import java.time.Instant;
 import java.time.Duration;
 
@@ -34,7 +36,9 @@ public class ExecutionBlockImpl implements ExecutionBlock
 
     public ExecutionBlockImpl(
         final ExecutionResponse.StateEnum blockState,
-        final Instant  instant,
+        final UUID offeruuid,
+        final Instant expirytime,
+        final Instant instant,
         final Duration duration,
         final Integer minCores,
         final Integer maxCores,
@@ -42,6 +46,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer maxMemory
         ) {
         this.blockState  = blockState ;
+        this.offeruuid   = offeruuid ;
+        this.expirytime  = expirytime ;
         this.instant     = instant ;
         this.duration    = duration ;
         this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS ;
@@ -54,6 +60,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
 
     public ExecutionBlockImpl(
         final String blockState,
+        final UUID offeruuid,
+        final Instant expirytime,
         final Long blockStart,
         final Long blockLength,
         final Integer minCores,
@@ -65,6 +73,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
             ExecutionResponse.StateEnum.fromValue(
                 blockState
                 ),
+            offeruuid,
+            expirytime,
             blockStart,
             blockLength,
             minCores,
@@ -76,6 +86,8 @@ public class ExecutionBlockImpl implements ExecutionBlock
 
     public ExecutionBlockImpl(
         final ExecutionResponse.StateEnum blockState,
+        final UUID offeruuid,
+        final Instant expirytime,
         final Long blockStart,
         final Long blockLength,
         final Integer minCores,
@@ -84,7 +96,9 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer maxMemory
         ) {
         this.blockState  = blockState ;
-        this.blockStart  = blockStart  ;
+        this.offeruuid   = offeruuid ;
+        this.expirytime  = expirytime ;
+        this.blockStart  = blockStart ;
         this.blockLength = blockLength ;
         this.instant     = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
         this.duration    = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
@@ -102,6 +116,26 @@ public class ExecutionBlockImpl implements ExecutionBlock
     public void setState(ExecutionResponse.StateEnum state)
         {
         this.blockState = state ;
+        }
+
+    private UUID offeruuid;
+    public UUID getOfferUuid()
+        {
+        return this.offeruuid;
+        }
+    public void setOfferUuid(final UUID offeruuid)
+        {
+        this.offeruuid = offeruuid;
+        }
+
+    private Instant expirytime;
+    public Instant getExpiryTime()
+        {
+        return this.expirytime;
+        }
+    public void setExpiryTime(final Instant expirytime)
+        {
+        this.expirytime= expirytime ;
         }
 
     private Instant instant;

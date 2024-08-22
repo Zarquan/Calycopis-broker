@@ -22,6 +22,7 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
 import java.util.List;
 
 public interface ExecutionBlockDatabase
@@ -32,6 +33,18 @@ public interface ExecutionBlockDatabase
      *
      */
     public int insert(final ExecutionBlock block);
+
+    /**
+     * Select an ExecutionBlock from our database.
+     *
+     */
+    public ExecutionBlock select(final UUID offeruuid);
+
+    /**
+     * Update an ExecutionBlock in our database.
+     *
+     */
+    public int update(final UUID offeruuid, final ExecutionResponse.StateEnum newstate);
 
     /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.

@@ -27,6 +27,8 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -43,7 +45,11 @@ import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 public class OfferSetResponseFactoryImpl
     implements OfferSetResponseFactory
     {
-
+    /*
+     * The default expiry time in minutes.
+     *
+     */
+    public static final int DEFAULT_EXPIRY_TIME = 5 ;
     /*
      * This factory identifier.
      *
@@ -60,6 +66,10 @@ public class OfferSetResponseFactoryImpl
         return this.uuid ;
         }
 
+    /**
+     * Our ExecutionResponseFactory instance.
+     *
+     */
     private final ExecutionResponseFactory factory ;
 
     @Autowired
@@ -106,7 +116,12 @@ public class OfferSetResponseFactoryImpl
     @Override
     public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
         {
-        OfferSetResponse response = new OfferSetResponseImpl(baseurl);
+        OfferSetResponse response = new OfferSetResponseImpl(
+            OffsetDateTime.now().plusMinutes(
+                DEFAULT_EXPIRY_TIME
+                ),
+            baseurl
+            );
         this.insert(
             response
             );

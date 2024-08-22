@@ -54,8 +54,6 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -264,6 +262,9 @@ public class ExecutionResponseFactoryImpl
                 block.setState(
                     ExecutionResponse.StateEnum.OFFERED
                     );
+                block.setExpiryTime(
+                    response.getExpires().toInstant()
+                    );
                 offer.setName(
                     request.getName()
                     );
@@ -421,8 +422,8 @@ public class ExecutionResponseFactoryImpl
                     // This is an invalid request.
                     break;
                 }
+            response.updateOptions();
             }
-        response.updateOptions();
         return response ;
         }
 
@@ -446,6 +447,8 @@ public class ExecutionResponseFactoryImpl
                     {
                     // Unknown state.
                     }
+                //
+                // If this is a change.
                 if (updatestate != currentstate)
                     {
                     switch(currentstate)
@@ -470,6 +473,12 @@ public class ExecutionResponseFactoryImpl
                             // Invalid state transition.
                             break;
                         }
+                    //
+                    // Update the corresponding block.
+                    database.update(
+                        response.getUuid(),
+                        updatestate
+                        );
                     }
                 break;
 

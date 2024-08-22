@@ -1,0 +1,209 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Add support for expiry date.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T14:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T16:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:10:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:10:00Z"
+    >       duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 14:10:00+UTC  120  5747786  24  1  2  1  2
+    >   2  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 16:10:00+UTC  120  5747810  24  1  2  1  2
+    >   3  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 18:10:00+UTC  120  5747834  24  1  2  1  2
+    >   4  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 20:10:00+UTC  120  5747858  24  1  2  1  2
+    >   (4 rows, 8 ms)
+
+
+    SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 14:10:00+UTC  120  5747786  24  1  2  1  2
+    >   2  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 16:10:00+UTC  120  5747810  24  1  2  1  2
+    >   3  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 18:10:00+UTC  120  5747834  24  1  2  1  2
+    >   4  null  OFFERED  2024-22-08 14:12:57+UTC  2024-22-08 20:10:00+UTC  120  5747858  24  1  2  1  2
+    >   (4 rows, 9 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# ACCEPT the third offer.
+#[root@spring-builder]
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T18:10:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   ....
+    >   ....
+
+
+    SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+

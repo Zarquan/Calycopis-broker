@@ -33,11 +33,10 @@ import uk.co.metagrid.ambleck.model.ExecutionResponse;
 public class OfferSetResponseImpl extends OfferSetResponse
     {
     /**
-     * Public constructor.
-     * Generates a new UUID and sets the expiry time to 5min from now.
+     * Public constructor, automatically generates a new UUID.
      *
      */
-    public OfferSetResponseImpl(final String baseurl)
+    public OfferSetResponseImpl(final OffsetDateTime expires, final String baseurl)
         {
         this.setUuid(
             UuidCreator.getTimeBased()
@@ -49,7 +48,7 @@ public class OfferSetResponseImpl extends OfferSetResponse
             OffsetDateTime.now()
             );
         this.expires(
-            OffsetDateTime.now().plusMinutes(5)
+            expires
             );
         this.setResult(
             OfferSetResponse.ResultEnum.NO
