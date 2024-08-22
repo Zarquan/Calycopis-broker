@@ -133,6 +133,38 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         }
 
     /**
+     * Sweep the database for expired offers.
+     *
+     */
+    public int sweep(final Integer limit)
+        {
+        log.debug("Sweep [{}]", limit);
+        return template.update(
+            """
+            DELETE FROM
+                ExecutionBlocks
+            WHERE Ident IN (
+                SELECT
+                    Ident
+                FROM
+                    ExecutionBlocks
+                WHERE
+                    BlockState IN ('PROPOSED','OFFERED')
+                AND
+                    (ExpiryTime < CURRENT_TIMESTAMP())
+                ORDER BY
+                    Ident
+                LIMIT ?
+                )
+            """,
+            new Object[] {
+                limit
+                }
+            );
+        }
+
+
+    /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.
      *
      */

@@ -52,5 +52,11 @@ public interface ExecutionBlockDatabase
      */
     public List<ExecutionBlock> generate(final ProcessingContext context);
 
+    /**
+     * Sweep the database for expired offers.
+     *
+     */
+    public int sweep(final Integer limit);
+
     }
 

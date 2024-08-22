@@ -55,7 +55,8 @@ import uk.co.metagrid.ambleck.message.InfoMessage;
 @ComponentScan("uk.co.metagrid.ambleck.model")
 public class ExecutionApiDelegateImpl
     extends BaseDelegateImpl
-    implements ExecutionApiDelegate {
+    implements ExecutionApiDelegate
+    {
 
     private final ExecutionResponseFactory factory ;
 

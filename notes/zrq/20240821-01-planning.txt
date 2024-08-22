@@ -89,6 +89,11 @@
         23:00-08:30 sleep
         08:30-09:30 thinking about the architecture diagram
 
+        09:30 Started
+        09:30-15:15 code ..
+        15:15-15:35 dog walk
+        17:20-17:40 dog walk
+        17:40- ....
 
 # -----------------------------------------------------
 
