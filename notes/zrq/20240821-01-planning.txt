@@ -102,7 +102,8 @@
         23:00-04:30 sleep
 
         05:00 started
-
+        06:25 ...
+        07:15 stopped
 
 
 # -----------------------------------------------------
@@ -156,6 +157,80 @@
         Leave VOSpace code as stubs.
 
         Script demo to show state progression.
+
+# -----------------------------------------------------
+
+        Code to progress state machine.
+        Poke to progress state machine.
+
+        What if we moved the transfers into another service.
+        stagequote   -> returns quote for time cost
+        stageexecute -> performs action, with callback
+            single function webservice, kicks off the transfer in the background
+            callback when done
+
+        quote data
+            quote time cost to transfer data
+            (sync)
+
+        prepare session directory
+            VOSpace create directory
+            /home/{username}/broker/{sessionuuid}
+            (sync)
+
+        prepare notebook
+            transfer notebook into session directory
+            notebook metadata includes location and md5
+            notebook:
+                location:
+                  url: ...
+                checks:
+                  size: ...
+                  md5: ....
+            (async)
+
+        transfer data
+            resource:
+                location:
+                  url: ...
+                checks:
+                  size: ...
+                  md5: ....
+            check if already present
+                check checksum
+                pass if same
+                fail if differet
+            else
+                transfer into session directory
+                pass on complete
+            callback to EB
+            (async)
+
+        execute notebook
+            CANFAR launch session
+            (sync)
+
+        complete notebook
+            CANFAR close session
+            (sync)
+
+        It means another service, but it keeps the EB code simpler.
+        Offload the deatils into another single function service.
+
+        EB needs to keep track of the concurrent tasks it has launched.
+        Callback ticks off each task with a single update.
+        Then IF all the updates are done, more to the next stage.
+
+        We can simulate the transfer service manually.
+        We can trigger the callnback manually.
+
+        Do we implement in Java or Python ?
+        There is a CADC Java client (requires cert)
+        https://central.sonatype.com/artifact/org.opencadc/cadc-vos-client
+
+        Does Spaninsh VOSpace support cert or just token ?
+
+
 
 
 
