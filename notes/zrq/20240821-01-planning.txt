@@ -93,7 +93,17 @@
         09:30-15:15 code ..
         15:15-15:35 dog walk
         17:20-17:40 dog walk
-        17:40- ....
+
+        18:00 started
+        18:00-20:50 code ..
+        20:50 stopped
+        dinner & TV
+
+        23:00-04:30 sleep
+
+        05:00 started
+
+
 
 # -----------------------------------------------------
 
@@ -107,7 +117,7 @@
         Limit to 4 offers - done
 
         Comment on current feature - done
-        Describe document feature - Susana is starting this.
+        Describe document feature - Susana starting Dave added suggestions.
 
         Test future start date - done
         Works BUT it ignores the Period part of the Interval
@@ -137,17 +147,15 @@
         New git branch ..
 
         State in the database - done
-
-        Expiry date in database.
-        Cron task to clear expired offers.
+        Expiry date in database - done
+        Sweep to clear expired - done
 
         Code to progress state machine.
+        Poke to progress state machine.
+
         Leave VOSpace code as stubs.
 
-        Create a Dockerfile for the build container.
-        Save the build container image.
-
-        Script demo to watch state progression.
+        Script demo to show state progression.
 
 
 
