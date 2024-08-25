@@ -33,81 +33,6 @@
 
 # -----------------------------------------------------
 
-    19th
-
-        - 07:00 Working overnight
-
-    20th
-
-        00:30 Started
-        00:30-07:00 Working overnight
-        07:00 Stopped
-
-        07:00-12:00 Sleep ..
-
-        12:30 Started
-        12:50-13:50 Planning in Zoom with Susana
-        13:50-14:06 Planning in Slack with Susana
-        14:15 working
-        14:30 Stopped
-
-        14:30 Tim emails
-        16:00 Network issues
-        16:20 Called care home
-
-        17:50 Dog walk
-        18:00 Tim finance emails
-
-        18:20 Started
-        18:20-19:00 Emails and Slack
-        19:00-20:30 Booking slots
-        20:30 Stopped for dinner
-
-        04:20 Started
-        04:30-05:30 this
-        05:30-07:00 Configuring log4j and sl4j logging
-        07:00 Stopped
-
-        09:30 Started
-        09:30-10:30 Coral team planning in Zoom
-        11:00-12:30 Planning in Zoom with Susanna & Robert Perry
-        12:30-13:30 Planning in Slack with Susana
-        14:05-15:15 DAAC Kanban review Duncan, Paul, Steve, Erin
-        15:00 Stopped
-
-        Walked the dogs n the park :-)
-        Did some washing up :-(
-
-        16:00 Started
-        Slack to Rob Perry, Duncan and Paul
-        Confluence, Jira, SLack and emails ...
-        16:45 Started real work
-        17:15 Git branch done
-        17:15-19:30 Adding block state to the database table.
-        19:30 Stopped
-
-        23:00-08:30 sleep
-        08:30-09:30 thinking about the architecture diagram
-
-        09:30 Started
-        09:30-15:15 code ..
-        15:15-15:35 dog walk
-        17:20-17:40 dog walk
-
-        18:00 started
-        18:00-20:50 code ..
-        20:50 stopped
-        dinner & TV
-
-        23:00-04:30 sleep
-
-        05:00 started
-        06:25 ...
-        07:15 stopped
-
-
-# -----------------------------------------------------
-
     Where next ..
 
         Add logging - done
@@ -230,7 +155,339 @@
 
         Does Spaninsh VOSpace support cert or just token ?
 
+# -----------------------------------------------------
+
+    ExecutionBroker
+
+        Quoting
+
+            foreach data
+                quote data
+                    quote time cost to transfer data
+                    (sync)
+
+        Preparing
+
+            maintain a list of things that need to happen before it can start
+            List<Task> tasklist
+
+                // Count of completed tasks
+                int done
+
+                // Preparing is 'done' when count == size
+                (done == tasklist.size())
+
+            prepare session directory
+                VOSpace create directory
+                /home/{username}/broker/{sessionuuid}
+                (sync)
+
+            prepare notebook
+                transfer notebook into session directory
+                notebook metadata includes location and md5
+                notebook:
+                    location:
+                      url: ...
+                    checks:
+                      size: ...
+                      md5: ....
+                (async)
+
+            transfer data
+                resource:
+                    location:
+                      url: ...
+                    checks:
+                      size: ...
+                      md5: ....
+                check if already present
+                    check checksum
+                    pass if same
+                    fail if differet
+                else
+                    transfer into session directory
+                    pass on complete
+                callback to EB
+                (async)
+
+        process the list of data resources and volume mounts
+        add a Task to the List for each thing
+        each task kicks off a remote service passing a callback URL
+
+        the callbacks set the Task state and update the execution state
+        if ALL Tasks are completed, execution state is incremented to WAITING
+
+            DROP TABLE IF EXISTS example ;
+            CREATE TABLE example (
+                ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                status CHAR VARYING
+                );
+            INSERT INTO example (status) VALUES('RUNNING');
+            INSERT INTO example (status) VALUES('RUNNING');
+            INSERT INTO example (status) VALUES('COMPLETED');
+            INSERT INTO example (status) VALUES('COMPLETED');
+
+            -- count each group and the whole set
+            -- https://stackoverflow.com/a/60004149
+            SELECT status, count(status), sum(count(*)) over () FROM example GROUP BY status
+            STATUS      COUNT(STATUS)   SUM(COUNT(*)) OVER ()  
+            COMPLETED   2               4
+            RUNNING     2               4
+            (2 rows, 0 ms)
+
+            done when there is one row and the counts are equal
+
+            SELECT
+                status,
+                count(status) AS StatusCount,
+                (SELECT COUNT(*) FROM example) AS TotalCount
+            FROM
+                example
+            WHERE
+                status = 'COMPLETED'
+
+            STATUS      STATUSCOUNT TOTALCOUNT  
+            COMPLETED   2   4
+            (1 row, 2 ms)
+
+            done when the counts are equal
+
+        cron update looks for execution with state WAITING and starttime < now
+        cron update starts the execution and moves status to RUNNING
+
+        Manual HTTP trigger for cron tasks for now.
+        Investigate Quartz another time.
+        https://www.baeldung.com/quartz
+
+        Not clear if Quartz manages database sessions.
+
+# -----------------------------------------------------
+
+        OK, separate micro services it is.
+
+        OpenAPI based, using parts of the same data model as EB.
+        Split the EB schema into parts and include them using $ref.
+        https://swagger.io/docs/specification/using-ref/
+
+        Java/Spring based because .. ?
+        Because we already have some, so it is more of the same.
+
+        Separate SRCNet Feature to port the code into Python.
+
+        Cheat and put the certs/tokens on disc ..
+
+        ExecutionBroker maintains a list of things todo.
+        List<Task> tasklist
+
+        Processing data resource adds a Task to the list.
+        Processing executable adds a Task to the list.
+
+        Tasks lie dormant until the ExecutionBroker block moves from
+        ACCEPTED to PREPARING
+
+        ExecutionBroker block status updated to PREPARING when
+        (status = ACCEPTED) AND ((startime - sum(task-quote)) < now()
+
+            If tasks are sequential use sum(task-quote)
+            If tasks are parallel use max(task-quote)
+
+        Tasks make a call to a remote service to kick them off.
+        Call includes a callback URL to update when done.
+        * Need to have a deliberate break to prevent nested callback before the request completes.
+        * Request kicks off a new Thread in the MicroService with a 1s delay at the start.
+        * ExecutionBroker updates the task status to RUNNING.
+        * Callback backs off if the status isn't already RUNNING.
+
+        ExecutionBroker moves to the next stage when all the tasks are done.
+        See above for SQL to transition RUNNING -> WAITING
+
+        Cron looks for ExecutionBroker blocks with (status WAITING) AND (starttime < now).
+        Kicks off the execution.
+
+# -----------------------------------------------------
+
+        Prepare the executable
+
+            Session prepartion is create the home directory
+
+            Notebook prepartion is transfer the file.
+            Possibly transfer the requirements ?
+
+            DataResource prepartion is transfer the file.
+            Check if it is present.
+            Quote is based on a fixed table.
+                here - 1m
+                not here - 1h
+
+            Check if it is present.
+                Force replacement ?
+            Transfer if required.
+
+# -----------------------------------------------------
+
+    ExecutionBlock state stored in database
+    ExecutionResponse stored in memory in HashMap
+
+    ExecutionResponse is a complex tree of polymorphic objects.
+    ExecutionBlock is a simplified minimal table.
+
+    Link between ExecutionBlock and ExecutionResponse is the UUID.
+    * When the ExecutionBlock is deleted from DB, we should delete the corresponding ExecutionResponse from the HashMap.
+    * How do we get a list of deleted blocks ?
+    * Huge memory leak issues.
+    * Ignore it for the demo.
+
+    When we implement proper persitance using Hibernate
+    the main business logic class would be Execution.
+    ExecutionResponse is just the serialization in messages.
+    ExecutionBlock can be implemented as a view on Execution.
+
+# -----------------------------------------------------
+
+    Define the status change callback.
+
+    Simple POST request that triggers internal status change.
+
+    /callback/{taskident}
+
+        update:
+          state:
+            COMPLETED
+            CANCELLED
+            FAILED
+        response:
+          state:
+            ....
+
+    More complex tasks can have their own callback messages.
+
+        TaskStateEnum
+            CREATED
+            RUNNING
+            COMPLETED
+            CANCELLED
+            FAILED
+
+    On the callout to the micro-service, the mains service sets
+    the state from CREATED to RUNNING.
+    The new state will only be visible *after* the transaction completes.
+
+    The callback checks the state and only makes the progression
+    from RUNNING to COMPLETED if the state is already RUNNING.
+    The callback call returns the current state in the response.
+
+    If we a callback happens before the callout has completyed,
+    the state will still be CREATED.
+    In which case the micro-service should pause and try again.
 
 
+    interface PreparationStep
+        UUID uuid
+        UUID parent -> execution/block
+        StateEnum state
+            CREATED
+            RUNNING
+            COMPLETED
+            CANCELLED
+            FAILED
+
+        start();
+        run(); <- Runnable in Thread
+        complete();
+        cancel();
+        fail();
+
+    PreparationStepImpl
+
+    class PreparationStepFactory
+
+        PreparationStep select(uuid)
+        List<PreparationStep> select(parent)
+
+    interface CanfarPreparationStep extends extends PreparationStep
+
+    class CanfarPreparationStep
+
+        @Override
+        void run()
+            {
+            Call the VOSpace service to create working directory.
+            }
+
+
+    Where do we put the working directory path ?
+    Platform (CANFAR) specific data for the Execution.
+    Add to the Execution properties ?
+    canfar.home = /home/{user}/broker/{execution}/
+
+    Or we define a new class
+    interface CanfarExecution extends PlatformExecution
+        {
+        String getUserName();
+        String getSessionHome();
+        }
+
+    CanfarExecutionImpl extends ExecutionResponseImpl
+    implements CanfarExecution
+        {
+        ....
+        }
+
+    interface CanfarPreparationStep extends PreparationStep
+        {
+        CanfarExecution getParent();
+        }
+
+    class CanfarPreparationImpl implements CanfarPreparationStep
+        {
+        @Override
+        void run()
+            {
+            Call the VOSpace service to create working directory.
+            }
+        }
+
+    interface DataStagingStep extends PreparationStep
+
+        volume: -> volume mount
+          compute:  -> compute resource
+          resource: -> data resource
+
+    interface VOSpaceStagingStep extends DataStagingStep
+
+    class VOSpaceStagingImpl extends DataStagingImpl extends PreparationStepImpl
+        {
+        @Override
+        void run()
+            {
+            transfer data from external resource into local VOSpace
+            }
+        }
+
+    Processing a CanfarExecution adds steps to the execution.
+
+    CanfarExecutionImpl
+
+        String getUserName();
+        String getSessionHome();
+        void setSessionHome(String path);
+
+        void process()
+            {
+            steps.add(
+                new CanfarPreparationStepImpl(
+                    this
+                    )
+                )
+            for each volume mount
+                {
+                steps.add(
+                    new VOSpaceStagingImpl(
+                        volume,
+                        canfarstep.getSessionHome()
+                        )
+                    );
+                }
+            }
 
 

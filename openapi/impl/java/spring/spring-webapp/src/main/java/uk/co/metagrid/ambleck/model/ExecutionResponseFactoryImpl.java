@@ -63,12 +63,6 @@ public class ExecutionResponseFactoryImpl
     {
 
     /*
-     * Create a SLF4J Logger for this class.
-     *
-    private static Logger logger = LoggerFactory.getLogger(ExecutionResponseFactoryImpl.class);
-     */
-
-    /*
      * This factory identifier.
      *
      */
@@ -190,6 +184,55 @@ public class ExecutionResponseFactoryImpl
             }
 
         //
+        // If there is no resource list, add one.
+        if (request.getResources() == null)
+            {
+            request.setResources(
+                new ExecutionResourceList()
+                );
+            }
+
+        //
+        // If there are no compute resources, add one.
+        if (request.getResources().getCompute().size() < 1)
+            {
+            SimpleComputeResource compute = new SimpleComputeResource(
+                "urn:simple-compute-resource"
+                );
+            compute.setUuid(
+                UuidCreator.getTimeBased()
+                );
+            compute.setName(
+                "Simple compute resource"
+                );
+/*
+            if (compute.getCores() == null)
+                {
+                compute.setCores(
+                    new MinMaxInteger()
+                    );
+                }
+            compute.getCores().setMin(
+                1
+                );
+ *
+ *
+            if (compute.getMemory() == null)
+                {
+                compute.setMemory(
+                    new MinMaxInteger()
+                    );
+                }
+            compute.getMemory().setMin(
+                block.getMinMemory()
+                );
+*/
+            request.getResources().addComputeItem(
+                compute
+                );
+            }
+
+        //
         // Create our processing context.
         ProcessingContext context = new ProcessingContextImpl(
             baseurl,
@@ -204,8 +247,12 @@ public class ExecutionResponseFactoryImpl
             context
             );
 
+        //
+        // Validate our resources.
         if (request.getResources() != null)
             {
+            //
+            // Validate our data resources.
             if (request.getResources().getData() != null)
                 {
                 for (AbstractDataResource resource : request.getResources().getData())
@@ -216,6 +263,8 @@ public class ExecutionResponseFactoryImpl
                         );
                     }
                 }
+            //
+            // Validate our compute resources.
             if (request.getResources().getCompute() != null)
                 {
                 for (AbstractComputeResource resource : request.getResources().getCompute())
@@ -228,12 +277,6 @@ public class ExecutionResponseFactoryImpl
                 }
             }
 
-        //
-        // Check for an enpty compute list.
-        if (context.getComputeResourceList().isEmpty())
-            {
-            // Need to add a default compute resource.
-            }
         //
         // Validate our executable.
         validate(

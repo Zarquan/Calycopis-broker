@@ -248,6 +248,27 @@ paths:
               schema:
                 type: string
 
+  #
+  # Advance the state of an executon.
+  /system/step/{uuid}:
+    get:
+      operationId: StepUpdate
+      parameters:
+        - name: uuid
+          in: path
+          description: The execution identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
 
 components:
   schemas:

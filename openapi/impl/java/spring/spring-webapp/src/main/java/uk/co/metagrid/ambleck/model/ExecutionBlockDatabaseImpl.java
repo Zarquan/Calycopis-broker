@@ -191,59 +191,32 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int sweepUpdate(final Integer limit)
         {
         log.debug("Sweep [{}]", limit);
-        if (limit == 0)
-            {
-            return template.update(
-                """
-                UPDATE
-                    ExecutionBlocks
-                SET
-                    BlockState = 'EXPIRED'
-                WHERE
+        return template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'EXPIRED'
+            WHERE
+                Ident
+            IN (
+                SELECT
                     Ident
-                IN (
-                    SELECT
-                        Ident
-                    FROM
-                        ExecutionBlocks
-                    WHERE
-                        BlockState IN ('PROPOSED','OFFERED')
-                    AND
-                        (ExpiryTime < CURRENT_TIMESTAMP())
-                    ORDER BY
-                        Ident
-                    )
-                """
-                );
-            }
-        else {
-            return template.update(
-                """
-                UPDATE
+                FROM
                     ExecutionBlocks
-                SET
-                    BlockState = 'EXPIRED'
                 WHERE
+                    BlockState IN ('PROPOSED', 'OFFERED')
+                AND
+                    (ExpiryTime < CURRENT_TIMESTAMP())
+                ORDER BY
                     Ident
-                IN (
-                    SELECT
-                        Ident
-                    FROM
-                        ExecutionBlocks
-                    WHERE
-                        BlockState IN ('PROPOSED', 'OFFERED')
-                    AND
-                        (ExpiryTime < CURRENT_TIMESTAMP())
-                    ORDER BY
-                        Ident
-                    LIMIT ?
-                    )
-                """,
-                new Object[] {
-                    limit
-                    }
-                );
-            }
+                LIMIT ?
+                )
+            """,
+            new Object[] {
+                ((limit != null) ? limit : new Integer(1))
+                }
+            );
         }
 
     /**
@@ -254,45 +227,30 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public int sweepDelete(final Integer limit)
         {
         log.debug("Sweep [{}]", limit);
-        if (limit == 0)
-            {
-            return template.update(
-                """
-                DELETE FROM
+        return template.update(
+            """
+            DELETE FROM
+                ExecutionBlocks
+            WHERE
+                Ident
+            IN (
+                SELECT
+                    Ident
+                FROM
                     ExecutionBlocks
                 WHERE
                     BlockState IN ('EXPIRED', 'REJECTED')
                 AND
                     (ExpiryTime < CURRENT_TIMESTAMP())
-                """
-                );
-            }
-        else {
-            return template.update(
-                """
-                DELETE FROM
-                    ExecutionBlocks
-                WHERE
+                ORDER BY
                     Ident
-                IN (
-                    SELECT
-                        Ident
-                    FROM
-                        ExecutionBlocks
-                    WHERE
-                        BlockState IN ('EXPIRED', 'REJECTED')
-                    AND
-                        (ExpiryTime < CURRENT_TIMESTAMP())
-                    ORDER BY
-                        Ident
-                    LIMIT ?
-                    )
-                """,
-                new Object[] {
-                    limit
-                    }
-                );
-            }
+                LIMIT ?
+                )
+            """,
+            new Object[] {
+                ((limit != null) ? limit : new Integer(1))
+                }
+            );
         }
 
 

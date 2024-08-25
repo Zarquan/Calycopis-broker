@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -31,23 +33,28 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
+import uk.co.metagrid.ambleck.platform.ExecutionManager;
+import uk.co.metagrid.ambleck.platform.PreparationStep.StateEnum;
 
 @Service
-@ComponentScan("uk.co.metagrid.ambleck.model")
+@ComponentScan("uk.co.metagrid.ambleck")
 public class SystemApiDelegateImpl
     extends BaseDelegateImpl
     implements SystemApiDelegate
     {
 
+    private final ExecutionManager manager ;
     private final ExecutionBlockDatabase database ;
 
     @Autowired
     public SystemApiDelegateImpl(
         final NativeWebRequest request,
+        final ExecutionManager manager,
         final ExecutionBlockDatabase database
         )
         {
         super(request);
+        this.manager = manager ;
         this.database = database ;
         }
 
@@ -56,7 +63,7 @@ public class SystemApiDelegateImpl
         {
         int result = this.database.sweepUpdate(1);
         return new ResponseEntity<String>(
-            "Amleck [:result:]".replace(
+            "Update [:result:]".replace(
                 ":result:",
                 String.valueOf(
                     result
@@ -71,7 +78,23 @@ public class SystemApiDelegateImpl
         {
         int result = this.database.sweepDelete(1);
         return new ResponseEntity<String>(
-            "Amleck [:result:]".replace(
+            "Delete [:result:]".replace(
+                ":result:",
+                String.valueOf(
+                    result
+                    )
+                ),
+            HttpStatus.OK
+            );
+        }
+
+
+    @Override
+    public ResponseEntity<String> stepUpdate(final UUID uuid)
+        {
+        int result = this.manager.advance(uuid);
+        return new ResponseEntity<String>(
+            "Advance [:result:]".replace(
                 ":result:",
                 String.valueOf(
                     result
