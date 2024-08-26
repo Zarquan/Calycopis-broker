@@ -65,88 +65,93 @@
 
 # -----------------------------------------------------
 
-    The binding to JSON is too strong.
+Hi Russ,
 
-    Please don't call it the JSON network protocol - that is what P3T should be trying to avoid.
-    We are in danger of repeating the mistakes of 2004 20 years later.
+This is a really good place to start the discussions from.
 
-    We need to relax our grip and let go of the dependency on JSON.
+We should try to avoid referring to the overall goal as the 'JSON network protocol' - that is what P3T should be trying to avoid. If we bind too strongly to JSON we are in danger of repeating the mistakes of 20 years ago when we bound our standards to XML, WSDL and SOAP.
 
-    P3T should not be defining a JSON protocol - that's the mistake from 2004.
-    OpenAPI supports content negotiation, we should use it.
+I suggest we split the content over 4 documents.
 
-    Split sqr-092 into 4 separate documents.
+1) IVOA Service protocol
+A document containing generic definitions of what services, operations are etc. This is pretty close to what you have in https://sqr-091.lsst.io/, but replace the phrase 'web service' with simply 'Service'.
 
-        1) IVOA Service protocol
-            Generic definitions of what operations are.
-            No mention of network protocols or serialisation formats.
+2) IVOA HTTP protocol
+A document describing how the IVOA should use aspects of the HTTP protocol. This includes the formatting of HTTP GET parameters from https://sqr-092.lsst.io/, and how IVOA services should use the HTTP content negotiation process. This also gives us somewhere to talk about HTTP error codes, caching, cross-site-scripting, and things like the POST-redirect-GET pattern.
 
-        2) IVOA HTTP protocol
-            How the IVOA should use aspects of the HTTP protocol.
-            Defines the formatting IVOA services should use for HTTP GET params.
-            Defines how IVOA services should use the HTTP content negotiation process.
-            Also gives us somewhere to talk about error codes, caching, cross-site-scripting, and the POST-redirect-GET pattern.
+3) IVOA JSON serialisation
+This is just the details of how IVOA services should map object data into a JSON serialisation. This is a stand-alone document, separate from how we use the HTTP transport protocol. Pretty much what you have in https://sqr-092.lsst.io/, but without the HTTP parts. It should be explicitly clear what is inherited from the existing JSON standard and what is IVOA specific.
 
-        3) IVOA JSON serialisation
-            This is just the details of how IVOA services should map data structures into a JSON serialisation.
-            This is a stand-alone document, separate from everything else.
-            It might turn out to be simpler if we start by referring to the existing JSON standard and then only document the differences.
+4) IVOA WebService protocol
+A specific sub-type of the [IVOA Service Protocol] for IVOA service HTTP based WebServices.
 
-        4) IVOA Web Service protocol
-            Specific sub-type of the [IVOA Service Protocol] for HTTP based web services.
+An [IVOA WebService]
+* MUST format HTTP request parameters as defined in [IVOA HTTP protocol].
+* MUST use HTTP headers for content negotiation as defined in [IVOA HTTP protocol].
+* MAY specify [IVOA JSON serialisation] as the default serialisation for objects in requests and responses.
+* MAY include other serialisations for objects in requests and responses.
 
-            * MUST use HTTP request params as defined in [IVOA HTTP protocol].
-            * MUST use content negotiation as defined in [IVOA HTTP protocol].
+A particular IVOA standard, e.g. SODA, MAY specify a minimal set of content types. We already do this when we say TAP requires VOTable, but we should use the HTTP content type headers for this rather than a separate FORMAT parameter.
 
-            * SHOULD include [IVOA JSON serialisation] as the content type for structured requests and responses.
-            * MAY include another serialisation as the content type for structured requests and responses.
+* Standards being developed in 2024 MAY include JSON in the minimum set.
+* Standards being developed in 2024 MAY specify JSON as the default.
 
-            A particular IVOA standard, e.g. SODA, MAY specify a minimal set of content types.
-            * we already do this when we say TAP requires VOTable.
-            * we should use HTTP content type rather than a separate FORMAT parameter (non-http versions can add the FORMAT param if they need it).
-            * Standards being developed in 2024 MAY include JSON in the minimum set.
-            * Standards defined in 2034 MAY specify a different minimum set.
+* Standards defined in 2034 MAY specify a different minimum set.
+* Standards defined in 2034 MAY specify a different default.
 
-    This is not a huge amount of work, but it does need a change in the way we _think_ about it.
-    The hard part is letting go.
+This is not a huge technical change from what we have, but it does change the way we think about it.
 
-    Separate the data model from the serialization.
-    A service standard defines the data model, NOT the serialization.
-    The standard refers to [IVOA Web Service protocol] as an implementation.
-    The Web Service protocol says
-        1) Use content negotiation for HTTP requests.
-        2) SHOULD include JSON content type.
-    End result is the same, just a few more lines in your OpenAPI spec,
-    BUT it breaks the hard coded reliance on one serialization format.
+Separating the data model, transport, and serialization.
 
-    For example, the SODA document would describe the operations and data model
-    in an abstract way, without referring to a serialization format.
-    The SODA document would have a section on implementations,
-    with a sub-section on the [Web Service] implementation,
-    which descibes how to use the [Web Service] protocol to implement
-    the SODA service.
-    As part of this the SODA specification can define a minimum set
-    of content types that a [SODA Web Service] MUST support.
-    This minimum set would include JSON.
+* The main part of an IVOA Service standard defines the data model.
+* A sub-section of the standard refers to [IVOA WebService protocol] as an implementation.
+* The [IVOA WebService protocol] says a WebService MUST use content negotiation for HTTP requests.
+* The [IVOA WebService protocol] says a WebService SHOULD specify JSON as the default content type serialisation.
 
-    End result, Rubin et al get what they want;
-    P3T version of SODA requires JSON,
-    BUT we do not build it in from the start.
-    Change one line in the SODA standard and a future version
-    could include support for ApacheAvro.
+End result is the same, just a few more lines in the OpenAPI spec, but it breaks the hard coded reliance on one serialization format.
+
+For example, the main part of the SODA Standard would describe the operations and data model in an abstract way, without referring to a transport protocol or serialization format.
+
+The SODA Standard would include a section on [Implementations], with a sub-section for the [WebService] implementation, which describes how to implement the SODA service using the [IVOA WebService] protocol.
+
+As part of this, the SODA Standard can define a minimum set of content type serialisations that a [SODA WebService] MUST support.
+In 2024, this minimum set would include JSON as the default.
+
+End result, Rubin et al get what they want; the 2024 version of SODA requires JSON, BUT we do not build it in from the start. Change one single line in the SODA Standard and a future version could require [not_invented_yet] as the default serialization.
+
+---- ----
+
+One of the issues with the IVOA standards raised in the P3T team remit was the extent of the document cross referencing. To address the complaint that "to understand one standard you need to refer to at least three other documents each of which refer to three more" which makes it hard to get started.
+
+As I write this email I am aware that we are in danger of making this worse, adding yet more documents for Services, WebService, JSON, HTTP etc ...
+
+I still think this separating things out like this is the right way to go, but we should look at ways of mitigating the steep learning curve. Perhaps a section at the start of each document that lists the other documents needed and what they are needed for.
 
 
+"
+This document refers to the following set of documents and standards:
+* [IVOA WebService protocol] for how to implement this standard as a WebService.
+* [IVOA HTTP protocol] for HTTP specific details of the WebService methods.
+* [IVOA JSON serialization] for object serialization.
+* [IVOA VOTable standard] for data serialization.
+"
+
+---- ----
+
+To make things worse, I hope to be able to set aside some time soon to contribute yet another document describing how to handle error messages.
 
 
+Hope this is useful,
+-- Dave
 
 
-
-
-    What I'm aiming for
-
-        The generic part of TAP, VOSpace or ExecutionBroker define the datamodel and the operations.
-        A section at the end of the document defines the web service implementation.
-        The web service implementation section refes to Webservice protocol and HTTP request protocol.
-        There is no need to mention JSON in the specification.
-
+--------
+Dave Morris
+Research Software Engineer
+UK SKA Regional Centre
+Department of Physics and Astronomy
+University of Manchester
+--------
+AIMetrics: []
+--------
 
