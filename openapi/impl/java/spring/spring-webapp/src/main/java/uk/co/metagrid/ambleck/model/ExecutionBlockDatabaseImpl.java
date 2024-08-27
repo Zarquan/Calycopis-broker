@@ -262,16 +262,13 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public List<ExecutionBlock> generate(final ProcessingContext context)
         {
         Interval starttime = null;
-        Duration minduration = null;
-        Duration maxduration = null;
+        Duration minduration  = null;
+        Duration maxduration  = null;
 
-        List<ProcessingContext.ScheduleItem> items = context.getScheduleItems();
-        // BUG - We only take the first item in the request.
-        if ((items != null) && (items.size() > 0))
+        if (context.getExecutionTime() != null)
             {
-            starttime = items.get(0).getStartTime();
-            minduration = items.get(0).getMinDuration();
-            maxduration = items.get(0).getMaxDuration();
+            starttime   = context.getExecutionTime().getStartTime();
+            minduration = context.getExecutionTime().getDuration();
             }
 
         if (starttime == null)
@@ -282,18 +279,15 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 );
             }
 
-        if ((minduration == null) && (maxduration == null))
-            {
-            minduration = Duration.ofMinutes(20);
-            maxduration = Duration.ofMinutes(30);
-            }
         if (minduration == null)
             {
-            minduration = maxduration;
+            minduration = Duration.ofMinutes(30);
             }
         if (maxduration == null)
             {
-            maxduration = minduration;
+            maxduration = Duration.ofSeconds(
+                minduration.getSeconds()
+                );
             }
 
         String query =

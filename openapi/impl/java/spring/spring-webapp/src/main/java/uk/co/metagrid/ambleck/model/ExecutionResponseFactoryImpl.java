@@ -241,12 +241,17 @@ public class ExecutionResponseFactoryImpl
             );
 
         //
-        // Validate our scheduling request.
+        // Validate our execution schedule.
         validate(
             request.getSchedule(),
             context
             );
-
+        //
+        // Validate our executable.
+        validate(
+            request.getExecutable(),
+            context
+            );
         //
         // Validate our resources.
         if (request.getResources() != null)
@@ -276,13 +281,6 @@ public class ExecutionResponseFactoryImpl
                     }
                 }
             }
-
-        //
-        // Validate our executable.
-        validate(
-            request.getExecutable(),
-            context
-            );
 
         //
         // Check if everything worked.
@@ -335,14 +333,14 @@ public class ExecutionResponseFactoryImpl
                 if (offer.getSchedule().getOffered().getExecuting() == null)
                     {
                     offer.getSchedule().getOffered().setExecuting(
-                        new ScheduleBlockPreparing()
+                        new ScheduleBlockItem()
                         );
                     }
                 offer.getSchedule().getOffered().getExecuting().setStart(
                     OffsetDateTime.ofInstant(
                         block.getInstant(),
                         ZoneId.systemDefault()
-                        )
+                        ).toString()
                     );
                 offer.getSchedule().getOffered().getExecuting().setDuration(
                     block.getDuration().toString()
@@ -1113,24 +1111,24 @@ public class ExecutionResponseFactoryImpl
      */
     public void validate(final JupyterNotebook01 request, final ProcessingContext context)
         {
+        log.debug("Validating a JupyterNotebook request [{}]", request.getName());
         JupyterNotebook01 result = new JupyterNotebook01(
             "urn:jupyter-notebook-0.1"
             );
-        if (request.getUuid() != null)
-            {
-            result.setUuid(
-                request.getUuid()
-                );
-            }
-        else {
-            result.setUuid(
-                UuidCreator.getTimeBased()
-                );
-            }
+        result.setUuid(
+            UuidCreator.getTimeBased()
+            );
         result.setName(
             request.getName()
             );
-
+/*
+ *
+        validate(
+            request.getSchedule(),
+            context
+            );
+ *
+ */
         String notebook = request.getNotebook();
         if ((notebook != null) && (notebook.trim().isEmpty()))
             {
@@ -1157,29 +1155,143 @@ public class ExecutionResponseFactoryImpl
      */
     public void validate(final ExecutionSchedule schedule, final ProcessingContext context)
         {
+        log.debug("Processing ExecutionSchedule");
         if (schedule != null)
             {
             //
-            // Validate each of our requested items.
-            for (ScheduleRequestItem item : schedule.getRequested())
-                {
-                validate(
-                    item,
-                    context
-                    );
-                }
-            // TODO
             // Check the offered section is empty.
-            //
+            // ....
             // Check the observed section is empty.
-            //
+            // ....
+
+            ScheduleBlock requested = schedule.getRequested();
+            if (requested != null);
+                {
+                ScheduleBlockItem preparing = requested.getPreparing();
+                if (preparing != null)
+                    {
+                    Interval prepstart = null;
+                    Duration preptime  = null;
+
+                    if (preparing.getStart() != null)
+                        {
+                        String string = preparing.getStart();
+                        try {
+                            prepstart = Interval.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse start interval [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    if (preparing.getDuration() != null)
+                        {
+                        String string = preparing.getDuration();
+                        try {
+                            preptime = Duration.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse duration [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    context.setPreparationTime(
+                        prepstart,
+                        preptime
+                        );
+                    }
+
+                ScheduleBlockItem executing = requested.getExecuting();
+                if (executing != null)
+                    {
+                    Interval execstart = null;
+                    Duration exectime  = null;
+                    if (executing.getStart() != null)
+                        {
+                        String string = executing.getStart();
+                        try {
+                            execstart = Interval.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse start interval [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    if (executing.getDuration() != null)
+                        {
+                        String string = executing.getDuration();
+                        try {
+                            exectime = Duration.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse duration [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    context.setExecutionTime(
+                        execstart,
+                        exectime
+                        );
+                    }
+                }
             }
         }
 
     /**
      * Validate a ScheduleRequestItem.
      *
-     */
     public void validate(final ScheduleRequestItem item, final ProcessingContext context)
         {
         Interval starttime = null;
@@ -1257,12 +1369,8 @@ public class ExecutionResponseFactoryImpl
                     }
                 }
             }
-        context.addScheduleItem(
-            starttime,
-            minduration,
-            maxduration
-            );
         }
+     */
     }
 
 

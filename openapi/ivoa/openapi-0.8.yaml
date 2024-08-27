@@ -407,20 +407,12 @@ components:
             $ref: '#/components/schemas/MessageItem'
             xml:
               name: message
-
-    AbstractPolymorph:
-      description: |
-        Abstract base class for our polymorphic types.
-        This class adds the `type` discriminator for sub classes.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
-        - type: object
-          properties:
-            type:
-              type: string
-              xml:
-                attribute: true
+        schedule:
+          description: >
+            Scheduling information for the component.
+          xml:
+            name: schedule
+          $ref: '#/components/schemas/ExecutionSchedule'
 
     AbstractComputeResource:
       description: >
@@ -1009,7 +1001,7 @@ components:
 
     ScheduleRequestItem:
       description: >
-        A date time block for an execution.
+        A date and time request for an execution.
       type: object
       xml:
         name: date-time
@@ -1026,13 +1018,25 @@ components:
 
     ScheduleRequestList:
       description: >
-        List of schedule request items.
+        List of date and time request for an execution.
       type: array
       xml:
         name: schedule
         wrapped: true
       items:
         $ref: '#/components/schemas/ScheduleRequestItem'
+
+    ScheduleBlockItem:
+      description: >
+        Used for the predicted and observed times.
+      type: object
+      xml:
+        name: date-time
+      properties:
+        start:
+          type: string
+        duration:
+          type: string
 
     ScheduleBlock:
       description: >
@@ -1042,39 +1046,21 @@ components:
         name: date-time
       properties:
         preparing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/ScheduleBlockItem'
         executing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/ScheduleBlockItem'
         finishing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/ScheduleBlockItem'
 
     ExecutionSchedule:
       description: >
         Schedule ...
       type: object
       xml:
-        name: date-time
+        name: schedule
       properties:
         requested:
-          $ref: '#/components/schemas/ScheduleRequestList'
+          $ref: '#/components/schemas/ScheduleBlock'
         offered:
           $ref: '#/components/schemas/ScheduleBlock'
         observed:

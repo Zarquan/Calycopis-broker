@@ -1,0 +1,203 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implement the PreparationSteps ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+  schedule:
+    requested:
+      preparing:
+        duration: PT5M
+schedule:
+  requested:
+    executing:
+      duration: PT1H
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+--START--
+offered:
+  executing:
+    start: "2024-08-27T15:00Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-27T16:00Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-27T17:00Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-27T18:00Z"
+    duration: "PT1H"
+--END--
+
+
+    yq '.offers[].executable.schedule' \
+       "${createresponse}"
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Accept an offer.
+#[root@spring-builder]
+
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    updatehref=$(
+        yq '.offers[0].href' "${createresponse}"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+--START--
+....
+....
+--END--
+
+

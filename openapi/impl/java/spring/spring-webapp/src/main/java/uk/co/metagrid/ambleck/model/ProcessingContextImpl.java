@@ -288,42 +288,46 @@ public class ProcessingContextImpl implements ProcessingContext
 
     public class ScheduleItemImpl implements ScheduleItem
         {
-        public ScheduleItemImpl(final Interval starttime, final Duration minduration, final Duration maxduration)
+        public ScheduleItemImpl(final Interval starttime, final Duration duration)
             {
             this.starttime = starttime ;
-            this.minduration = minduration;
-            this.maxduration = maxduration;
+            this.duration  = duration;
             }
         private Interval starttime ;
         public Interval getStartTime()
             {
             return this.starttime;
             }
-        private Duration minduration;
-        public Duration getMinDuration()
+        private Duration duration;
+        public Duration getDuration()
             {
-            return this.minduration;
-            }
-        private Duration maxduration;
-        public Duration getMaxDuration()
-            {
-            return this.maxduration;
+            return this.duration;
             }
         }
 
-    private List<ScheduleItem> scheduleItems = new ArrayList<ScheduleItem>();
-    public List<ScheduleItem> getScheduleItems()
+    private ScheduleItem prepTime;
+    public ScheduleItem getPreparationTime()
         {
-        return this.scheduleItems ;
+        return this.prepTime;
         }
-    public void addScheduleItem(final Interval starttime, final Duration minduration, final Duration maxduration)
+    public void setPreparationTime(final Interval starttime, final Duration duration)
         {
-        scheduleItems.add(
-            new ScheduleItemImpl(
-                starttime,
-                minduration,
-                maxduration
-                )
+        this.prepTime = new ScheduleItemImpl(
+            starttime,
+            duration
+            );
+        }
+
+    private ScheduleItem execTime;
+    public ScheduleItem getExecutionTime()
+        {
+        return this.execTime;
+        }
+    public void setExecutionTime(final Interval starttime, final Duration duration)
+        {
+        this.execTime = new ScheduleItemImpl(
+            starttime,
+            duration
             );
         }
     }

@@ -71,12 +71,14 @@ public interface ProcessingContext
     public interface ScheduleItem
         {
         public Interval getStartTime();
-        public Duration getMinDuration();
-        public Duration getMaxDuration();
+        public Duration getDuration();
         }
 
-    public List<ScheduleItem> getScheduleItems();
-    public void addScheduleItem(final Interval starttime, final Duration mindutarion, final Duration maxdutation);
+    public ScheduleItem getPreparationTime();
+    public void setPreparationTime(final Interval starttime, final Duration dutarion);
+
+    public ScheduleItem getExecutionTime();
+    public void setExecutionTime(final Interval starttime, final Duration dutarion);
 
     }
 
