@@ -35,6 +35,8 @@ import org.threeten.extra.Interval;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
+import uk.co.metagrid.ambleck.platform.Execution;
+
 /**
  * A class to hold context during processing.
  *
@@ -42,11 +44,12 @@ import com.github.f4b6a3.uuid.UuidCreator;
 public class ProcessingContextImpl implements ProcessingContext
     {
 
-    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI response)
+    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final Execution execution)
         {
         this.baseurl  = baseurl ;
         this.request  = request ;
-        this.response = response ;
+        this.offerset = offerset ;
+        this.execution = execution ;
         }
 
     private boolean valid = true ;
@@ -69,10 +72,10 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.request;
         }
 
-    private final OfferSetAPI response;
-    public OfferSetAPI response()
+    private final OfferSetAPI offerset;
+    public OfferSetAPI getOfferSet()
         {
-        return this.response;
+        return this.offerset;
         }
 
     private final String baseurl;
@@ -81,10 +84,16 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.baseurl;
         }
 
+    private Execution execution;
+    public Execution getExecution()
+        {
+        return this.execution;
+        }
+
     // Messages
     public void addMessage(final MessageItem message)
         {
-        this.response.addMessage(
+        this.offerset.addMessage(
             message
             );
         }

@@ -54,37 +54,23 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
+import uk.co.metagrid.ambleck.platform.Execution;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class ExecutionResponseFactoryImpl
+    extends FactoryBase
     implements ExecutionResponseFactory
     {
-
-    /*
-     * This factory identifier.
-     *
-     */
-    private final UUID uuid ;
-
-    /*
-     * Get the factory identifier.
-     *
-     */
-    @Override
-    public UUID getUuid()
-        {
-        return this.uuid ;
-        }
 
     private ExecutionBlockDatabase database ;
 
     @Autowired
     public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
-        log.debug("Creating a new ExecutionResponseFactory instance");
-        this.uuid = UuidCreator.getTimeBased();
+        super();
         this.database = database ;
         }
 
@@ -144,10 +130,9 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response)
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final Execution execution)
         {
-        log.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
-
+        log.debug("Processing a new OfferSetRequest and OfferSetResponse");
         //
         // Reject storage resources.
         if (request.getResources() != null)
@@ -156,7 +141,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getStorage().size() > 0)
                     {
-                    response.addMessage(
+                    offerset.addMessage(
                         new WarnMessage(
                             "Storage resources not supported"
                             )
@@ -173,7 +158,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getCompute().size() > 1)
                     {
-                    response.addMessage(
+                    offerset.addMessage(
                         new WarnMessage(
                             "Multiple compute resources not supported"
                             )
@@ -205,28 +190,6 @@ public class ExecutionResponseFactoryImpl
             compute.setName(
                 "Simple compute resource"
                 );
-/*
-            if (compute.getCores() == null)
-                {
-                compute.setCores(
-                    new MinMaxInteger()
-                    );
-                }
-            compute.getCores().setMin(
-                1
-                );
- *
- *
-            if (compute.getMemory() == null)
-                {
-                compute.setMemory(
-                    new MinMaxInteger()
-                    );
-                }
-            compute.getMemory().setMin(
-                block.getMinMemory()
-                );
-*/
             request.getResources().addComputeItem(
                 compute
                 );
@@ -237,7 +200,8 @@ public class ExecutionResponseFactoryImpl
         ProcessingContext context = new ProcessingContextImpl(
             baseurl,
             request,
-            response
+            offerset,
+            execution
             );
 
         //
@@ -295,7 +259,8 @@ public class ExecutionResponseFactoryImpl
                 ExecutionResponseImpl offer = new ExecutionResponseImpl(
                     ExecutionResponse.StateEnum.OFFERED,
                     baseurl,
-                    response
+                    context.getOfferSet(),
+                    context.getExecution()
                     );
                 this.insert(
                     offer
@@ -304,13 +269,13 @@ public class ExecutionResponseFactoryImpl
                     offer.getUuid()
                     );
                 block.setParentUuid(
-                    response.getUuid()
+                    offerset.getUuid()
                     );
                 block.setState(
                     ExecutionResponse.StateEnum.OFFERED
                     );
                 block.setExpiryTime(
-                    response.getExpires().toInstant()
+                    offerset.getExpires().toInstant()
                     );
                 offer.setName(
                     request.getName()
@@ -432,10 +397,10 @@ public class ExecutionResponseFactoryImpl
                 offer.setResources(
                     resources
                     );
-                response.addOffer(
+                offerset.addOffer(
                     offer
                     );
-                response.setResult(
+                offerset.setResult(
                     OfferSetResponse.ResultEnum.YES
                     );
                 }
@@ -1129,6 +1094,7 @@ public class ExecutionResponseFactoryImpl
             );
  *
  */
+
         String notebook = request.getNotebook();
         if ((notebook != null) && (notebook.trim().isEmpty()))
             {
@@ -1288,89 +1254,6 @@ public class ExecutionResponseFactoryImpl
                 }
             }
         }
-
-    /**
-     * Validate a ScheduleRequestItem.
-     *
-    public void validate(final ScheduleRequestItem item, final ProcessingContext context)
-        {
-        Interval starttime = null;
-        Duration minduration = null;
-        Duration maxduration = null;
-
-        if (item.getStart() != null)
-            {
-            try {
-                starttime = Interval.parse​(
-                    item.getStart()
-                    );
-                }
-            catch (Exception ouch)
-                {
-                context.addMessage(
-                    new ErrorMessage(
-                        "Unable to parse schedule request start time [${value}][${message}]",
-                        Map.of(
-                            "value",
-                            safeString(item.getStart()),
-                            "message",
-                            safeString(ouch.getMessage())
-                            )
-                        )
-                    );
-                context.fail();
-                }
-            }
-
-        if (item.getDuration() != null)
-            {
-            if (item.getDuration().getMin() != null)
-                {
-                String text = item.getDuration().getMin() ;
-                try {
-                    minduration = Duration.parse​(text);
-                    }
-                catch (Exception ouch)
-                    {
-                    context.addMessage(
-                        new ErrorMessage(
-                            "Unable to parse schedule request duration [${value}][${message}]",
-                            Map.of(
-                                "value",
-                                safeString(text),
-                                "message",
-                                safeString(ouch.getMessage())
-                                )
-                            )
-                        );
-                    context.fail();
-                    }
-                }
-            if (item.getDuration().getMax() != null)
-                {
-                String text = item.getDuration().getMax() ;
-                try {
-                    minduration = Duration.parse​(text);
-                    }
-                catch (Exception ouch)
-                    {
-                    context.addMessage(
-                        new ErrorMessage(
-                            "Unable to parse schedule request duration [${value}][${message}]",
-                            Map.of(
-                                "value",
-                                safeString(text),
-                                "message",
-                                safeString(ouch.getMessage())
-                                )
-                            )
-                        );
-                    context.fail();
-                    }
-                }
-            }
-        }
-     */
     }
 
 

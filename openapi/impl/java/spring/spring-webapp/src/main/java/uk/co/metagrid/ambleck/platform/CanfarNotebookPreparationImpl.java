@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 public class CanfarNotebookPreparationImpl
     extends CanfarPreparationImpl
     implements CanfarNotebookPreparationStep
-
     {
 
     public CanfarNotebookPreparationImpl(final CanfarExecution parent)

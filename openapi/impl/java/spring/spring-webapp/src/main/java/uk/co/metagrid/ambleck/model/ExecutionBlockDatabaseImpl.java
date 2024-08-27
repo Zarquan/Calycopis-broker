@@ -63,7 +63,9 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Repository
-public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
+public class ExecutionBlockDatabaseImpl
+    extends FactoryBase
+    implements ExecutionBlockDatabase
     {
 
     private JdbcTemplate template;
@@ -71,6 +73,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     @Autowired
     public ExecutionBlockDatabaseImpl(final JdbcTemplate template)
         {
+        super();
         this.template = template ;
         }
 

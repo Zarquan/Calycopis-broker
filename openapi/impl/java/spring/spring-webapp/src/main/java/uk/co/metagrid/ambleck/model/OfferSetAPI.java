@@ -35,8 +35,7 @@ import uk.co.metagrid.ambleck.platform.Execution;
 
 public interface OfferSetAPI
     {
-    public Execution getExecution();
-    //public ExecutionResponse getAccepted();
+
     public void setAccepted(ExecutionResponse accepted);
 
     public List<ExecutionResponse> getOffers();

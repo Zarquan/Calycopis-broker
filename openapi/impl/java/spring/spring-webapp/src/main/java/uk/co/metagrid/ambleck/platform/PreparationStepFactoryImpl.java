@@ -20,17 +20,26 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.model;
+package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.platform.Execution;
+import uk.co.metagrid.ambleck.model.FactoryBase;
 
-public interface ExecutionResponseAPI
+public class PreparationStepFactoryImpl
+    extends FactoryBase
+    implements PreparationStepFactory
     {
-
-    public UUID getUuid();
-    //public Execution getExecution();
-
+    /**
+     * Select a PreparationStep based on it's uuid.
+     * Used by callbacks to locate theirt target.
+     *
+     */
+    @Override
+    public PreparationStep select(final UUID uuid)
+        {
+        return null ;
+        }
     }
+
+

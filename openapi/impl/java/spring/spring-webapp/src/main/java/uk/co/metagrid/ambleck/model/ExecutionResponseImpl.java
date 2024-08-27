@@ -44,20 +44,16 @@ public class ExecutionResponseImpl
         {
         return this.parent;
         }
+    private Execution execution;
     protected Execution getExecution()
         {
-        if (this.parent != null)
-            {
-            return this.parent.getExecution();
-            }
-        else {
-            return null ;
-            }
+        return this.execution ;
         }
 
-    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent)
+    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution execution)
         {
         this.parent = parent ;
+        this.execution = execution ;
         this.setState(
             state
             );

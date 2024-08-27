@@ -23,10 +23,11 @@
 package uk.co.metagrid.ambleck.platform;
 
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
 
 public interface CanfarExecutionFactory
     extends ExecutionFactory
     {
-    public CanfarExecution create(final OfferSetAPI offerset);
+    public CanfarExecution create(final OfferSetAPI offerset, final ExecutionResponseAPI response);
     }
 

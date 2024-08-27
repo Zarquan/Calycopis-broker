@@ -20,17 +20,33 @@
  *
  *
  */
+
 package uk.co.metagrid.ambleck.model;
+
+import com.github.f4b6a3.uuid.UuidCreator;
 
 import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.platform.Execution;
-
-public interface ExecutionResponseAPI
+public class FactoryBase
     {
+    /*
+     * This factory's identifier.
+     *
+     */
+    private final UUID uuid ;
 
-    public UUID getUuid();
-    //public Execution getExecution();
+    /*
+     * Get this factory's identifier.
+     *
+     */
+    public UUID getUuid()
+        {
+        return this.uuid ;
+        }
 
+    public FactoryBase()
+        {
+        this.uuid = UuidCreator.getTimeBased();
+        }
     }
+

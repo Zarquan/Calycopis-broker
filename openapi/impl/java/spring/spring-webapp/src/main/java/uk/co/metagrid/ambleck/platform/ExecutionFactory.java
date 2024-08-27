@@ -22,10 +22,22 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
+import java.util.UUID;
+
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
 
 public interface ExecutionFactory
     {
+    /*
+     * Get this factory's identifier.
+     *
+     */
+    public UUID getUuid();
+
+    /**
+     * Create a new Execution.
+     *
+     */
     public Execution create(final OfferSetAPI offerset);
     }
 

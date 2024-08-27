@@ -38,11 +38,16 @@ public class OfferSetResponseImpl
     extends OfferSetResponse
     implements OfferSetAPI
     {
+
+
     private Execution execution;
-    public Execution getExecution()
+    protected Execution getExecution()
         {
-        return null;
-        //return this.execution;
+        return this.execution;
+        }
+    protected void setExecution(final Execution execution)
+        {
+        this.execution = execution;
         }
 
     private ExecutionResponse accepted;

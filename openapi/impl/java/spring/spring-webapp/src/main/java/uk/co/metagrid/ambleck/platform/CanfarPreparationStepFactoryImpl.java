@@ -20,17 +20,35 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.model;
+package uk.co.metagrid.ambleck.platform;
 
-import java.util.UUID;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.platform.Execution;
+import uk.co.metagrid.ambleck.model.FactoryBase;
 
-public interface ExecutionResponseAPI
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+class CanfarPreparationStepFactoryImpl
+    extends PreparationStepFactoryImpl
+    implements CanfarPreparationStepFactory
     {
+    public CanfarPreparationStepFactoryImpl()
+        {
+        super();
+        }
 
-    public UUID getUuid();
-    //public Execution getExecution();
+    public CanfarNotebookPreparationStep createNotebookStep(final CanfarExecution parent)
+        {
+        return null ;
+        }
+
+    public CanfarDataResourceStep createDataResourceStep(final CanfarExecution parent)
+        {
+        return null ;
+        }
 
     }
+

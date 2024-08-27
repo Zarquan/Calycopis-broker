@@ -40,10 +40,16 @@ public abstract class ExecutionBase<T extends PreparationStep>
     implements Execution<T>
     {
 
-    public ExecutionBase(final ExecutionResponseAPI response, final OfferSetAPI offerset)
+    public ExecutionBase(final OfferSetAPI offerset, final ExecutionResponseAPI response)
         {
-        this.response = response ;
         this.offerset = offerset ;
+        this.response = response ;
+        }
+
+    private OfferSetAPI offerset;
+    public OfferSetAPI getOfferSet()
+        {
+        return this.offerset;
         }
 
     private ExecutionResponseAPI response;
@@ -51,11 +57,9 @@ public abstract class ExecutionBase<T extends PreparationStep>
         {
         return this.response;
         }
-
-    private OfferSetAPI offerset;
-    public OfferSetAPI getOfferSet()
+    public void getResponse(final ExecutionResponseAPI response)
         {
-        return this.offerset;
+        this.response = response;
         }
 
     private UUID uuid;

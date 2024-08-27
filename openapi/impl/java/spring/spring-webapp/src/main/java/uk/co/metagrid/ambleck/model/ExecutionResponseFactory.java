@@ -29,6 +29,8 @@ import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 import uk.co.metagrid.ambleck.model.AbstractUpdate;
 
+import uk.co.metagrid.ambleck.platform.Execution;
+
 public interface ExecutionResponseFactory
     {
 
@@ -48,7 +50,7 @@ public interface ExecutionResponseFactory
      * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
      *
      */
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response);
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response, final Execution execution);
 
     /**
      * Update an Execution.
