@@ -22,15 +22,43 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
+
 public class CanfarExecutionImpl
     extends ExecutionBase<CanfarPreparationStep>
     implements CanfarExecution
     {
 
+    public CanfarExecutionImpl(final ExecutionResponseAPI response, final OfferSetAPI offerset)
+        {
+        super(
+            response,
+            offerset
+            );
+        }
+
+
     private String userName;
     public String getUserName()
         {
         return this.userName;
+        }
+
+    private String userHome;
+    public String getUserHome()
+        {
+        return this.userHome;
+        }
+
+    private String sessionName;
+    public String getSessionName()
+        {
+        return this.sessionName;
+        }
+    public void setSessionName(String name)
+        {
+        this.sessionName = name ;
         }
 
     private String sessionHome;
@@ -42,6 +70,7 @@ public class CanfarExecutionImpl
         {
         this.sessionHome = path ;
         }
+
 
 //  public List<CanfarPreparationStep> getPreparationSteps();
 

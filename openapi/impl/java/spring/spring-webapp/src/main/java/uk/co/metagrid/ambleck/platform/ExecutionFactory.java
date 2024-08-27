@@ -22,9 +22,10 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-public interface CanfarPreparationStep
-    extends PreparationStep<CanfarExecution>
-    {
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
 
+public interface ExecutionFactory
+    {
+    public Execution create(final OfferSetAPI offerset);
     }
 

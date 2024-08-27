@@ -42,7 +42,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 public class ProcessingContextImpl implements ProcessingContext
     {
 
-    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
+    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI response)
         {
         this.baseurl  = baseurl ;
         this.request  = request ;
@@ -69,8 +69,8 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.request;
         }
 
-    private final OfferSetResponse response;
-    public OfferSetResponse response()
+    private final OfferSetAPI response;
+    public OfferSetAPI response()
         {
         return this.response;
         }
@@ -84,7 +84,7 @@ public class ProcessingContextImpl implements ProcessingContext
     // Messages
     public void addMessage(final MessageItem message)
         {
-        this.response.addMessagesItem(
+        this.response.addMessage(
             message
             );
         }

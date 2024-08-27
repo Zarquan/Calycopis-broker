@@ -23,6 +23,7 @@
 package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
+import java.time.Duration;
 
 /**
  * Base class for a PreparationStep.
@@ -53,6 +54,16 @@ public abstract class PreparationBase<ParentType extends Execution>
     public StateEnum getState()
         {
         return this.state;
+        }
+
+    private Duration prepCost;
+    public Duration getPrepCost()
+        {
+        return this.prepCost;
+        }
+    public void setPrepCost(final Duration cost)
+        {
+        this.prepCost = cost ;
         }
 
     /**

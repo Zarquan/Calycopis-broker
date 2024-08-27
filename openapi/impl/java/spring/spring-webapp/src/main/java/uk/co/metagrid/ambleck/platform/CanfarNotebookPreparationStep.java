@@ -22,9 +22,12 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-public interface CanfarPreparationStep
-    extends PreparationStep<CanfarExecution>
+public interface CanfarNotebookPreparationStep
+extends CanfarPreparationStep
     {
+
+    public String getNotebookName();
+    public void setNotebookName(final String notebook);
 
     }
 

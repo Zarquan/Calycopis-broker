@@ -32,16 +32,30 @@ import uk.co.metagrid.ambleck.model.OfferSetLink;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
-public class ExecutionResponseImpl extends ExecutionResponse
-    {
-    private OfferSetResponse parent;
+import uk.co.metagrid.ambleck.platform.Execution;
 
-    protected OfferSetResponse getParent()
+public class ExecutionResponseImpl
+    extends ExecutionResponse
+    implements ExecutionResponseAPI
+    {
+
+    private OfferSetAPI parent;
+    protected OfferSetAPI getParent()
         {
         return this.parent;
         }
+    protected Execution getExecution()
+        {
+        if (this.parent != null)
+            {
+            return this.parent.getExecution();
+            }
+        else {
+            return null ;
+            }
+        }
 
-    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetResponse parent)
+    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent)
         {
         this.parent = parent ;
         this.setState(

@@ -116,7 +116,7 @@ public class OfferSetResponseFactoryImpl
     @Override
     public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
         {
-        OfferSetResponse response = new OfferSetResponseImpl(
+        OfferSetResponseImpl response = new OfferSetResponseImpl(
             OffsetDateTime.now().plusMinutes(
                 DEFAULT_EXPIRY_TIME
                 ),

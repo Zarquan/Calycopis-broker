@@ -39,7 +39,7 @@ public interface ProcessingContext
     public void fail();
 
     public OfferSetRequest  request();
-    public OfferSetResponse response();
+    public OfferSetAPI response();
 
     public String baseurl();
 

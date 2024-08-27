@@ -22,9 +22,29 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-public interface CanfarPreparationStep
-    extends PreparationStep<CanfarExecution>
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public class CanfarNotebookPreparationImpl
+    extends CanfarPreparationImpl
+    implements CanfarNotebookPreparationStep
+
     {
+
+    public CanfarNotebookPreparationImpl(final CanfarExecution parent)
+        {
+        super(parent) ;
+        }
+
+    private String notebookname;
+    public String getNotebookName()
+        {
+        return this.notebookname;
+        }
+    public void setNotebookName(final String notebookname)
+        {
+        this.notebookname = notebookname;
+        }
 
     }
 

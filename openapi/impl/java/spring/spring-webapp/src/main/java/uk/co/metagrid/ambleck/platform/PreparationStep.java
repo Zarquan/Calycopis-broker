@@ -24,6 +24,8 @@ package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
 
+import java.time.Duration;
+
 /**
  * Public interface representing a step needed to prepare an Execution session.
  *
@@ -43,6 +45,12 @@ public interface PreparationStep<ParentType extends Execution>
         FAILED
         }
     public StateEnum getState();
+
+    /**
+     * The cost in time to prepare this step.
+     *
+     */
+    public Duration getPrepCost();
 
     /**
      * Public Runnable method.

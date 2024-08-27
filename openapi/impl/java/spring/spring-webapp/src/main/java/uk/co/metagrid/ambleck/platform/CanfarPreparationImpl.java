@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
+import java.time.Duration;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -33,9 +35,11 @@ public class CanfarPreparationImpl
     public CanfarPreparationImpl(final CanfarExecution parent)
         {
         super(parent) ;
+        this.setPrepCost(
+            Duration.ofMinutes(5)
+            );
         }
 
-    //public CanfarExecution getParent();
 
     @Override
     public void run()
@@ -62,6 +66,5 @@ public class CanfarPreparationImpl
                 );
             }
         }
-
     }
 

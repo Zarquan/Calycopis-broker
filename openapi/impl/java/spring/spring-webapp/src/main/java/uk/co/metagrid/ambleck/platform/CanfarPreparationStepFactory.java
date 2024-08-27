@@ -22,9 +22,13 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-public interface CanfarPreparationStep
-    extends PreparationStep<CanfarExecution>
+interface CanfarPreparationStepFactory
+    extends PreparationStepFactory
     {
+
+    public CanfarNotebookPreparationStep createNotebookStep(final CanfarExecution parent);
+
+    public CanfarDataResourceStep createDataResourceStep(final CanfarExecution parent);
 
     }
 

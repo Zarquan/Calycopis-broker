@@ -490,4 +490,155 @@
                 }
             }
 
+# -----------------------------------------------------
+
+    Two use cases for the PreparationSteps.
+    1) As part of the quoting process.
+    2) As part of the executuion process.
+
+    Do we create one, or two instances.
+    Would the number of cores effect the startup time ?
+    Assume not.
+
+    The main delays will be staging data.
+    We need to know the staging delay before we can qute the start time.
+    So we need to create a list of PreparationSteps during validation.
+    Then sum or max the quoted times and use that as the block starting time.
+
+    We can then copy/transfer the list of PreparationSteps to each of the offers.
+    An Execution - has many Offers.
+    One offer is accepted.
+    The list of PreparationSteps is attached to the Execution.
+    In our current architecture that's equivalent to the OfferStep.
+
+    So the platform Execution links to the OfferSet, not the ExecutionResponse.
+
+# -----------------------------------------------------
+
+    Add an Execution to the OfferSet (one day OfferSet becomes Execution).
+    Validation process adds PreparationSteps to the Execution.
+    Validation adds the cost estimates from the PreparationSteps to create an overall preparationCost.
+    (*) Add a cost estimate to PreparationStep
+    Validation uses this to move the minimum start time forward to give the service enough time to prepare.
+
+    An Offer is accepted, setting the state to ACCEPTED.
+    Cron updates the ACCEPTED state to PREPARING when ....
+
+    # ----
+    Interesting, do we have a problem?
+    In order to prepare for the execution, we need to have at least some of the resources in place.
+    Specifically, for a volume mount, does the VM or container need to be running ?
+    With a VM, the mount is done when the VM is created.
+    With a Docker container, the mount is done when the container is created.
+    With a Kubernetes Pod, the mount done when the Pod is started.
+    ...
+    In general, we need to have the disc space allocated, but not the compute resources
+
+    The offer start time is the RUNNING start time when the compute is executuing.
+    With a batch job, it is when the container/VM or whatever is started.
+    With an interactive job, starting the container/VM should be part of preparing.
+    So that we jump into a running notebook at the offered starttime.
+    Do that later.
+    # ----
+
+    We need to calculte the preparation start time.
+    prepstart = starttime - prepcost
+
+    Cron updates the Execution () state to PREPARING when
+        (state = ACCEPTED) AND (prepstart <= now)
+    This triggers the start of each of the PreparationSteps.
+    Initially we run then sequentially, later designs can do them concurrently.
+        PreparationStep run() sets the step state to RUNNING.
+        PreparationStep run() calls an external micro-service to do stuff.
+            External micro-service does stuff ....
+        External service uses callback endpoint to set step state to COMPLETED.
+        Setting one step to COMPLETED starts the next.
+
+        On callback, if all of the steps are COMPLETED, then Execution state is set to WAITING.
+
+    Cron updates the Execution (ExecutionResponse) state to RUNNING when
+        (state = WAITING) AND (mainstart <= now)
+
+    Cron updates the Execution (ExecutionResponse) state to FINISHING when
+        (state = RUNNING) AND ((mainstart + duration) <= now)
+        Does this also call out to cancel the CanfarSession ?
+
+    # ----
+
+    The Executable has a prepstart and prepcost value.
+    Each DataResource has a prepstart and prepcost value.
+    Each ExecutionResponse offer has a prepstart and prepcost value, which is the sum of the PreparationSteps.
+
+    Because we are CANFAR based, we add a CanfarExecution to our validation context.
+    Validating a notebook Executable adds a CanfarNotebookPreparationStep.
+    Validating a data resource adds a DataResourcePreparationStep.
+
+    We use the sum of the prepstart values to calculate the minimum start time (now + prepstartsum)
+    and the maximum start time (requeststart - prepstartsum).
+    If the minimum is after the maximum, then we don't have time to prepare.
+
+    Use the minimum starttime as the seed for the generate method.
+    Generate the offers.
+
+    Link the CanfarExecution to our top level OfferSetResponse as a way to persist it.
+
+    OfferSetAPI
+        Execution getExecution()
+        ExecutionResponse getAccepted()
+        List<ExecutionResponse> getOffers()
+
+    OfferSetResponse - generated bean
+
+    OfferSetResponseImpl
+        extends OfferSetResponse
+        implements OfferSetAPI
+
+    ExecutionResponseAPI
+        OfferSetResponseAPI getParent()
+        CanfarExecution getExecution() = getParent().getExecution()
+
+    ExecutionResponseImpl
+        extends ExecutionResponse
+        implements ExecutionResponseAPI
+
+    ExecutionFactory
+        Execution create(OfferSetResponse offerset)
+
+    CanfarExecutionFactory
+        extends ExecutionFactory
+        CanfarExecution create(OfferSetResponse offerset)
+
+    Execution
+        OfferSetResponse getOfferSet()
+        Duration getPrepCost() // sum of step costs
+        List<PreparationStep> getPreparationSteps()
+
+    CanfarExecution
+        extends Execution
+        List<CanfarPreparationStep> getPreparationSteps()
+        String getUserName()
+        String getUserHome()
+        String getSessionName()
+        String getSessionHome()
+
+    PreparationStepFactory
+        select(UUID) // Callback uses this to update the step
+
+    CanfarPreparationStepFactory
+        extends PreparationStepFactory
+        CanfarDataResourceStep createNotebookStep(CanfarExecution parent, ...);
+        CanfarPreparationStep  createDataResourceStep(CanfarExecution parent, ...);
+
+    PreparationStep
+        Duration  getPrepCost()
+        Execution getParent()
+
+    CanfarPreparationStep
+        extends PreparationStep
+        CanfarExecution getParent()
+
+    CanfarNotebookPreparationStep
+        extends CanfarPreparationStep
+        String getNotebook()
+
 

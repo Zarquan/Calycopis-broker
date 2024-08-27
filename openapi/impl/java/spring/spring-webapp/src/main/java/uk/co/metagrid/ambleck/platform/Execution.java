@@ -25,6 +25,10 @@ package uk.co.metagrid.ambleck.platform;
 import java.util.UUID;
 import java.util.List;
 
+import java.time.Duration;
+
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
+
 /**
  * Public interface for an Execution session.
  *
@@ -33,6 +37,10 @@ public interface Execution<T extends PreparationStep>
     {
 
     public UUID getUuid();
+
+    public OfferSetAPI getOfferSet();
+
+    public Duration getPrepCost();
 
     public List<T> getPreparationSteps();
 

@@ -27,6 +27,10 @@ public interface CanfarExecution
     {
 
     public String getUserName();
+    public String getUserHome();
+
+    public String getSessionName();
+    public void setSessionName(final String path);
 
     public String getSessionHome();
     public void setSessionHome(final String path);

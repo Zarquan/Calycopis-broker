@@ -26,16 +26,37 @@ import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
-import uk.co.metagrid.ambleck.model.ExecutionResponseImpl;
+import java.time.Duration;
+
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
 
 /**
  * Base class for an Execution session.
  *
  */
-public class ExecutionBase<T extends PreparationStep>
+public abstract class ExecutionBase<T extends PreparationStep>
     //extends ExecutionResponseImpl
     implements Execution<T>
     {
+
+    public ExecutionBase(final ExecutionResponseAPI response, final OfferSetAPI offerset)
+        {
+        this.response = response ;
+        this.offerset = offerset ;
+        }
+
+    private ExecutionResponseAPI response;
+    public  ExecutionResponseAPI getResponse()
+        {
+        return this.response;
+        }
+
+    private OfferSetAPI offerset;
+    public OfferSetAPI getOfferSet()
+        {
+        return this.offerset;
+        }
 
     private UUID uuid;
     public UUID getUuid()
@@ -47,6 +68,16 @@ public class ExecutionBase<T extends PreparationStep>
     public List<T> getPreparationSteps()
         {
         return this.steps;
+        }
+
+    private Duration prepCost;
+    public Duration getPrepCost()
+        {
+        return this.prepCost;
+        }
+    public void setPrepCost(final Duration cost)
+        {
+        this.prepCost = cost ;
         }
     }
 

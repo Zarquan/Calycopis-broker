@@ -23,37 +23,31 @@
 package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
+import java.util.List;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
-import uk.co.metagrid.ambleck.model.AbstractUpdate;
+import java.time.OffsetDateTime;
 
-public interface ExecutionResponseFactory
+import uk.co.metagrid.ambleck.model.OfferSetResponse.ResultEnum;
+
+import uk.co.metagrid.ambleck.message.WarnMessage;
+
+import uk.co.metagrid.ambleck.platform.Execution;
+
+public interface OfferSetAPI
     {
+    public Execution getExecution();
+    //public ExecutionResponse getAccepted();
+    public void setAccepted(ExecutionResponse accepted);
 
-    /*
-     * Get the factory's identifier.
-     *
-     */
+    public List<ExecutionResponse> getOffers();
+
     public UUID getUuid();
+    public OffsetDateTime getExpires();
+    public String getHref();
+    public void setResult(ResultEnum result);
 
-    /**
-     * Select an Execution based on its identifier.
-     *
-     */
-    public ExecutionResponse select(final UUID uuid);
-
-    /**
-     * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
-     *
-     */
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response);
-
-    /**
-     * Update an Execution.
-     *
-     */
-    public ExecutionResponse update(final UUID uuid, final AbstractUpdate update);
+    public void addMessage(final MessageItem message);
+    public void addOffer(final ExecutionResponseImpl response);
 
     }
+

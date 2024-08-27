@@ -144,7 +144,7 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response)
         {
         log.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
 
@@ -156,7 +156,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getStorage().size() > 0)
                     {
-                    response.addMessagesItem(
+                    response.addMessage(
                         new WarnMessage(
                             "Storage resources not supported"
                             )
@@ -173,7 +173,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getCompute().size() > 1)
                     {
-                    response.addMessagesItem(
+                    response.addMessage(
                         new WarnMessage(
                             "Multiple compute resources not supported"
                             )
@@ -434,7 +434,7 @@ public class ExecutionResponseFactoryImpl
                 offer.setResources(
                     resources
                     );
-                response.addOffersItem(
+                response.addOffer(
                     offer
                     );
                 response.setResult(
@@ -506,13 +506,20 @@ public class ExecutionResponseFactoryImpl
                             switch(updatestate)
                                 {
                                 case ACCEPTED:
-                                    response.setState(StateEnum.ACCEPTED);
+                                    response.setState(
+                                        StateEnum.ACCEPTED
+                                        );
+
+                                    response.getParent().setAccepted(response);
+
                                     database.accept(
                                         response.getUuid()
                                         );
                                     break;
                                 case REJECTED:
-                                    response.setState(StateEnum.REJECTED);
+                                    response.setState(
+                                        StateEnum.REJECTED
+                                        );
                                     database.reject(
                                         response.getUuid()
                                         );
