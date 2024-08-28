@@ -19,11 +19,28 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.model;
+package uk.co.metagrid.ambleck.time;
 
-public interface TimeScheduleBlockItem
+public class TimeScheduleBlockImpl
+    implements TimeScheduleBlock
     {
-    public TimeScheduleBlockItem getPreparing();
-    public TimeScheduleBlockItem getExecuting();
-    public TimeScheduleBlockItem getFinishing();
+    public TimeScheduleBlockImpl()
+        {
+        }
+
+    public TimeScheduleBlockItem getRequested()
+        {
+        return null ;
+        }
+
+    public TimeScheduleBlockItem getOffered()
+        {
+        return null ;
+        }
+
+    public TimeScheduleBlockItem getObserved()
+        {
+        return null ;
+        }
     }
+

@@ -19,13 +19,11 @@
  * </meta:header>
  *
  */
-package uk.co.metagrid.ambleck.model;
+package uk.co.metagrid.ambleck.time;
 
-import java.time.Duration;
-import org.threeten.extra.Interval;
-
-public interface TimeScheduleBlockValue
+public interface TimeScheduleBlock
     {
-    public Interval getStart();
-    public Duration getDuration();
+    TimeScheduleBlockItem getRequested();
+    TimeScheduleBlockItem getOffered();
+    TimeScheduleBlockItem getObserved();
     }
