@@ -30,14 +30,41 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponse;
 
-public class OfferSetResponseImpl extends OfferSetResponse
+import uk.co.metagrid.ambleck.message.WarnMessage;
+
+import uk.co.metagrid.ambleck.platform.Execution;
+
+public class OfferSetResponseImpl
+    extends OfferSetResponse
+    implements OfferSetAPI
     {
+
+
+    private Execution execution;
+    protected Execution getExecution()
+        {
+        return this.execution;
+        }
+    protected void setExecution(final Execution execution)
+        {
+        this.execution = execution;
+        }
+
+    private ExecutionResponse accepted;
+    protected ExecutionResponse getAccepted()
+        {
+        return this.accepted;
+        }
+    public void setAccepted(final ExecutionResponse accepted)
+        {
+        this.accepted = accepted ;
+        }
+
     /**
-     * Public constructor.
-     * Generates a new UUID and sets the expiry time to 5min from now.
+     * Public constructor, automatically generates a new UUID.
      *
      */
-    public OfferSetResponseImpl(final String baseurl)
+    public OfferSetResponseImpl(final OffsetDateTime expires, final String baseurl)
         {
         this.setUuid(
             UuidCreator.getTimeBased()
@@ -49,25 +76,21 @@ public class OfferSetResponseImpl extends OfferSetResponse
             OffsetDateTime.now()
             );
         this.expires(
-            OffsetDateTime.now().plusMinutes(5)
+            expires
             );
         this.setResult(
             OfferSetResponse.ResultEnum.NO
             );
         }
 
-    /**
-     * Add an ExecutionResponse to our list of offers.
-     *
-    protected void addOffer(final ExecutionResponseImpl execution)
+    public void addMessage(final MessageItem message)
         {
-        this.addOffersItem(
-             (ExecutionResponse) execution
-            );
-        this.setResult(
-            OfferSetResponse.ResultEnum.YES
-            );
+        super.addMessagesItem(message);
         }
-     */
+
+    public void addOffer(final ExecutionResponseImpl response)
+        {
+        super.addOffersItem(response);
+        }
     }
 

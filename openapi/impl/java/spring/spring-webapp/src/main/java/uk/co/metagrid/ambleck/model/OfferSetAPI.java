@@ -25,50 +25,28 @@ package uk.co.metagrid.ambleck.model;
 import java.util.UUID;
 import java.util.List;
 
-public interface ExecutionBlockDatabase
+import java.time.OffsetDateTime;
+
+import uk.co.metagrid.ambleck.model.OfferSetResponse.ResultEnum;
+
+import uk.co.metagrid.ambleck.message.WarnMessage;
+
+import uk.co.metagrid.ambleck.platform.Execution;
+
+public interface OfferSetAPI
     {
 
-    /**
-     * Insert an ExecutionBlock into our database.
-     *
-     */
-    public int insert(final ExecutionBlock block);
+    public void setAccepted(ExecutionResponse accepted);
 
-    /**
-     * Select an ExecutionBlock from our database.
-     *
-     */
-    public ExecutionBlock select(final UUID offeruuid);
+    public List<ExecutionResponse> getOffers();
 
-    /**
-     * Accept an ExecutionBlock in our database.
-     *
-     */
-    public int accept(final UUID offeruuid);
+    public UUID getUuid();
+    public OffsetDateTime getExpires();
+    public String getHref();
+    public void setResult(ResultEnum result);
 
-    /**
-     * Reject an ExecutionBlock in our database.
-     *
-     */
-    public int reject(final UUID offeruuid);
-
-    /**
-     * Generate a list of ExecutionBlock offers based on a ProcessingContext.
-     *
-     */
-    public List<ExecutionBlock> generate(final ProcessingContext context);
-
-    /**
-     * Update any expired offers.
-     *
-     */
-    public int sweepUpdate(final Integer limit);
-
-    /**
-     * Delete any expired offers.
-     *
-     */
-    public int sweepDelete(final Integer limit);
+    public void addMessage(final MessageItem message);
+    public void addOffer(final ExecutionResponseImpl response);
 
     }
 

@@ -223,6 +223,53 @@ paths:
                   schema:
                     type: string
 
+  #
+  # Update the expired offers.
+  /system/sweep/update:
+    get:
+      operationId: SweepUpdate
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+  #
+  # Delete the expired offers.
+  /system/sweep/delete:
+    get:
+      operationId: SweepDelete
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  #
+  # Advance the state of an executon.
+  /system/step/{uuid}:
+    get:
+      operationId: StepUpdate
+      parameters:
+        - name: uuid
+          in: path
+          description: The execution identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+
 components:
   schemas:
 
@@ -360,20 +407,12 @@ components:
             $ref: '#/components/schemas/MessageItem'
             xml:
               name: message
-
-    AbstractPolymorph:
-      description: |
-        Abstract base class for our polymorphic types.
-        This class adds the `type` discriminator for sub classes.
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
-        - type: object
-          properties:
-            type:
-              type: string
-              xml:
-                attribute: true
+        schedule:
+          description: >
+            Scheduling information for the component.
+          xml:
+            name: schedule
+          $ref: '#/components/schemas/StringScheduleBlock'
 
     AbstractComputeResource:
       description: >
@@ -960,34 +999,46 @@ components:
         max:
           type: string
 
-    ScheduleRequestItem:
+#    ScheduleRequestItem:
+#      description: >
+#        A date and time request for an execution.
+#      type: object
+#      xml:
+#        name: date-time
+#      properties:
+#        start:
+#          description: >
+#            The start time for the execution, expressed as an ISO 8601 time interval.
+#            See : https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+#          type: string
+#        duration:
+#          description: >
+#            The duration for the execution.
+#          $ref: '#/components/schemas/MinMaxDuration'
+
+#    ScheduleRequestList:
+#      description: >
+#        List of date and time request for an execution.
+#      type: array
+#      xml:
+#        name: schedule
+#        wrapped: true
+#      items:
+#        $ref: '#/components/schemas/ScheduleRequestItem'
+
+    StringScheduleBlockValue:
       description: >
-        A date time block for an execution.
+        Used for the predicted and observed times.
       type: object
       xml:
         name: date-time
       properties:
         start:
-          description: >
-            The start time for the execution, expressed as an ISO 8601 time interval.
-            See : https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
           type: string
         duration:
-          description: >
-            The duration for the execution.
-          $ref: '#/components/schemas/MinMaxDuration'
+          type: string
 
-    ScheduleRequestList:
-      description: >
-        List of schedule request items.
-      type: array
-      xml:
-        name: schedule
-        wrapped: true
-      items:
-        $ref: '#/components/schemas/ScheduleRequestItem'
-
-    ScheduleBlock:
+    StringScheduleBlockItem:
       description: >
         Used for the predicted and observed times.
       type: object
@@ -995,43 +1046,25 @@ components:
         name: date-time
       properties:
         preparing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/StringScheduleBlockValue'
         executing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/StringScheduleBlockValue'
         finishing:
-          type: object
-          properties:
-            start:
-              type: string
-              format: date-time
-            duration:
-              type: string
+          $ref: '#/components/schemas/StringScheduleBlockValue'
 
-    ExecutionSchedule:
+    StringScheduleBlock:
       description: >
         Schedule ...
       type: object
       xml:
-        name: date-time
+        name: schedule
       properties:
         requested:
-          $ref: '#/components/schemas/ScheduleRequestList'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
         offered:
-          $ref: '#/components/schemas/ScheduleBlock'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
         observed:
-          $ref: '#/components/schemas/ScheduleBlock'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
 
     ExecutionResourceList:
       description: >
@@ -1068,7 +1101,7 @@ components:
             schedule:
               xml:
                 name: schedule
-              $ref: '#/components/schemas/ExecutionSchedule'
+              $ref: '#/components/schemas/StringScheduleBlock'
 
     ExecutionResponse:
       description: >
@@ -1091,6 +1124,7 @@ components:
                 Status code for the execution.
               type: string
               enum:
+                - PROPOSED
                 - OFFERED
                 - ACCEPTED
                 - REJECTED

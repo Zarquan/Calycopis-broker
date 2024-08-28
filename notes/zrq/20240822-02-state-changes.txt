@@ -1,0 +1,2132 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Add support for ACCEPT and REJECT.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T22:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T02:45:00Z"
+    >       duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  e7a66b18-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  OFFERED  5747865  24  8  16  8  16
+    >   2  e7a7caa9-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  OFFERED  5747889  24  8  16  8  16
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  OFFERED  5747913  24  8  16  8  16
+    >   4  e7a7f1bb-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  OFFERED  5747937  24  8  16  8  16
+    >   (4 rows, 5 ms)
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Accept an offer.
+#[root@spring-builder]
+
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T00:45:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  e7a66b18-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747865  24  8  16  8  16
+    >   2  e7a7caa9-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747889  24  8  16  8  16
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  null  ACCEPTED  5747913  24  8  16  8  16
+    >   4  e7a7f1bb-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747937  24  8  16  8  16
+    >   (4 rows, 1 ms)
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep/delete method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep/delete"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   2  e7a7caa9-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747889  24  8  16  8  16
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  null  ACCEPTED  5747913  24  8  16  8  16
+    >   4  e7a7f1bb-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747937  24  8  16  8  16
+    >   (3 rows, 2 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep/delete method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep/delete"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  null  ACCEPTED  5747913  24  8  16  8  16
+    >   4  e7a7f1bb-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  2024-08-22 20:46:28+00  REJECTED  5747937  24  8  16  8  16
+    >   (2 rows, 0 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep/delete method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep/delete"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  null  ACCEPTED  5747913  24  8  16  8  16
+    >   (1 row, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep/delete method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep/delete"
+
+    >   Amleck [0]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  e7a7f1ba-60c6-11ef-ba00-6ff0e210faf3  e7806c85-60c6-11ef-ba00-6ff0e210faf3  null  ACCEPTED  5747913  24  8  16  8  16
+    >   (1 row, 1 ms)
+
+    #
+    # Looks good.
+    #
+
+# -----------------------------------------------------
+# Start with a clean database.
+#[root@spring-builder]
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create lots of offers, ACCEPT some.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 4
+      memory:
+        min: 4
+EOF
+
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    for loop in {0..9}
+    do
+        echo "-------- --------"
+        echo "Loop [${loop}]"
+
+        # Create 4
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${createrequest}" \
+            --header "Accept: application/yaml" \
+            "http://127.0.0.1:8082/offerset" \
+        | tee "${createresponse}" \
+        | yq '.offers[].schedule'
+
+        echo "--------"
+
+        # Create 4
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${createrequest}" \
+            --header "Accept: application/yaml" \
+            "http://127.0.0.1:8082/offerset" \
+        | tee "${createresponse}" \
+        | yq '.offers[].schedule'
+
+        echo "--------"
+
+        updatehref=$(
+            yq '.offers[2].href' "${createresponse}"
+            )
+
+        # Accept 1 (reject 3)
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${updaterequest}" \
+            --header "Accept: application/yaml" \
+            "${updatehref}" \
+        | tee "${updateresponse}" \
+        | yq '{"state":.state, "schedule":.schedule}'
+
+    done
+
+
+    >   -------- --------
+    >   Loop [0]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T08:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [1]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T08:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [2]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T08:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [3]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T08:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [4]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T16:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [5]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T16:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [6]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T16:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [7]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T16:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T18:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T16:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [8]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T20:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T22:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T00:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T02:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T20:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T22:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T00:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T02:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-24T00:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [9]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T20:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T22:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T00:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T02:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T20:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T22:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T00:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-24T02:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-24T00:25:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    1  9a68dcd5-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  OFFERED  5747957  24  4  8  4  8
+    >    2  9a6a1556-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  OFFERED  5747981  24  4  8  4  8
+    >    3  9a6a3c67-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  OFFERED  5748005  24  4  8  4  8
+    >    4  9a6a6378-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  OFFERED  5748029  24  4  8  4  8
+    >    5  9a8899dc-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >    6  9a88c0ed-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >    8  9a890f0f-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >    9  9a9fcb63-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747957  24  4  8  4  8
+    >   10  9a9fcb64-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747981  24  4  8  4  8
+    >   11  9a9ff275-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748005  24  4  8  4  8
+    >   12  9aa01986-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748029  24  4  8  4  8
+    >   13  9aad5ffa-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >   14  9aad870b-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   16  9aadfc3d-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >   17  9abfaf81-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747957  24  4  8  4  8
+    >   18  9abfd692-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747981  24  4  8  4  8
+    >   19  9abffda3-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748005  24  4  8  4  8
+    >   20  9abffda4-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748029  24  4  8  4  8
+    >   21  9ad02a48-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >   22  9ad07869-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   24  9ad0c68b-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >   25  9ae3d95f-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747957  24  4  8  4  8
+    >   26  9ae40070-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5747981  24  4  8  4  8
+    >   27  9ae42781-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748005  24  4  8  4  8
+    >   28  9ae44e92-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748029  24  4  8  4  8
+    >   29  9af42d16-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  4  4  4
+    >   30  9af45427-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  4  4  4
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   32  9af47b39-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  4  4  4
+    >   33  9b06a3ad-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748053  24  4  8  4  8
+    >   34  9b06cabe-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748077  24  4  8  4  8
+    >   35  9b06f1cf-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748101  24  4  8  4  8
+    >   36  9b0718e0-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  OFFERED  5748125  24  4  8  4  8
+    >   37  9b1549b4-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   38  9b1570c5-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   40  9b15bee7-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   41  9b26fcfb-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   42  9b27240c-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   43  9b27240d-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   44  9b274b1e-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   45  9b34b8a2-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   46  9b34dfb3-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   48  9b3506c5-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   49  9b4903f9-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   50  9b49792a-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   51  9b49a03b-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   52  9b49a03c-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   53  9b575be0-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   54  9b575be1-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   56  9b57aa03-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   57  9b6bce47-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   58  9b6bf558-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   59  9b6bf559-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   60  9b6c1c6a-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   61  9b7b85be-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  4  4  4
+    >   62  9b7baccf-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  4  4  4
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   64  9b7bd3e1-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  4  4  4
+    >   65  9b910995-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748149  24  4  8  4  8
+    >   66  9b9157b6-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748173  24  4  8  4  8
+    >   67  9b9157b7-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748197  24  4  8  4  8
+    >   68  9b917ec8-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748221  24  4  8  4  8
+    >   69  9b9fd6ac-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748149  24  4  8  4  8
+    >   70  9b9ffdbd-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748173  24  4  8  4  8
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   72  9ba024cf-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748221  24  4  8  4  8
+    >   73  9bb8b5e3-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748149  24  4  8  4  8
+    >   74  9bb8dcf4-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748173  24  4  8  4  8
+    >   75  9bb90405-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748197  24  4  8  4  8
+    >   76  9bb90406-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748221  24  4  8  4  8
+    >   77  9bc511fa-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748149  24  4  8  4  8
+    >   78  9bc5390b-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748173  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   80  9bc5601d-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748221  24  4  8  4  8
+    >   (80 rows, 9 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    #
+    # Wait until after the expiry time, 2024-08-23 04:29:38+00.
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update some to EXPIRED.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/update"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    1  9a68dcd5-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  EXPIRED  5747957  24  4  8  4  8
+    >    2  9a6a1556-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  EXPIRED  5747981  24  4  8  4  8
+    >    3  9a6a3c67-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  EXPIRED  5748005  24  4  8  4  8
+    >    4  9a6a6378-6107-11ef-957a-8da5b97a2421  9a4639a2-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:35+00  EXPIRED  5748029  24  4  8  4  8
+    >    5  9a8899dc-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >    6  9a88c0ed-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >    8  9a890f0f-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >    9  9a9fcb63-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747957  24  4  8  4  8
+    >   10  9a9fcb64-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747981  24  4  8  4  8
+    >   11  9a9ff275-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748005  24  4  8  4  8
+    >   12  9aa01986-6107-11ef-957a-8da5b97a2421  9a959230-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748029  24  4  8  4  8
+    >   13  9aad5ffa-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >   14  9aad870b-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   16  9aadfc3d-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >   17  9abfaf81-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747957  24  4  8  4  8
+    >   18  9abfd692-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747981  24  4  8  4  8
+    >   19  9abffda3-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748005  24  4  8  4  8
+    >   20  9abffda4-6107-11ef-957a-8da5b97a2421  9ab7c03e-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748029  24  4  8  4  8
+    >   21  9ad02a48-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  8  4  8
+    >   22  9ad07869-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   24  9ad0c68b-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >   25  9ae3d95f-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747957  24  4  8  4  8
+    >   26  9ae40070-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747981  24  4  8  4  8
+    >   27  9ae42781-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748005  24  4  8  4  8
+    >   28  9ae44e92-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748029  24  4  8  4  8
+    >   29  9af42d16-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  4  4  4
+    >   30  9af45427-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  4  4  4
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   32  9af47b39-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  4  4  4
+    >   33  9b06a3ad-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748053  24  4  8  4  8
+    >   34  9b06cabe-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748077  24  4  8  4  8
+    >   35  9b06f1cf-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748101  24  4  8  4  8
+    >   36  9b0718e0-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748125  24  4  8  4  8
+    >   37  9b1549b4-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   38  9b1570c5-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   40  9b15bee7-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   41  9b26fcfb-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   42  9b27240c-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   43  9b27240d-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   44  9b274b1e-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   45  9b34b8a2-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   46  9b34dfb3-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   48  9b3506c5-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   49  9b4903f9-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   50  9b49792a-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   51  9b49a03b-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   52  9b49a03c-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   53  9b575be0-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   54  9b575be1-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   56  9b57aa03-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   57  9b6bce47-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748053  24  4  8  4  8
+    >   58  9b6bf558-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748077  24  4  8  4  8
+    >   59  9b6bf559-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748101  24  4  8  4  8
+    >   60  9b6c1c6a-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748125  24  4  8  4  8
+    >   61  9b7b85be-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  4  4  4
+    >   62  9b7baccf-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  4  4  4
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   64  9b7bd3e1-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  4  4  4
+    >   65  9b910995-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748149  24  4  8  4  8
+    >   66  9b9157b6-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748173  24  4  8  4  8
+    >   67  9b9157b7-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748197  24  4  8  4  8
+    >   68  9b917ec8-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  OFFERED  5748221  24  4  8  4  8
+    >   69  9b9fd6ac-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748149  24  4  8  4  8
+    >   70  9b9ffdbd-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748173  24  4  8  4  8
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   72  9ba024cf-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748221  24  4  8  4  8
+    >   73  9bb8b5e3-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748149  24  4  8  4  8
+    >   74  9bb8dcf4-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748173  24  4  8  4  8
+    >   75  9bb90405-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748197  24  4  8  4  8
+    >   76  9bb90406-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  OFFERED  5748221  24  4  8  4  8
+    >   77  9bc511fa-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748149  24  4  8  4  8
+    >   78  9bc5390b-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748173  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   80  9bc5601d-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748221  24  4  8  4  8
+    >   (80 rows, 3 ms)
+
+    #
+    # Ran the update twice, so we don't have any OFFERED left.
+    # Sorry :-(
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   24  9ad0c68b-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  8  4  8
+    >   25  9ae3d95f-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747957  24  4  8  4  8
+    >   26  9ae40070-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5747981  24  4  8  4  8
+    >   27  9ae42781-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748005  24  4  8  4  8
+    >   28  9ae44e92-6107-11ef-957a-8da5b97a2421  9ada3c6c-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748029  24  4  8  4  8
+    >   29  9af42d16-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747957  24  4  4  4  4
+    >   30  9af45427-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5747981  24  4  4  4  4
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   32  9af47b39-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  REJECTED  5748029  24  4  4  4  4
+    >   33  9b06a3ad-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748053  24  4  8  4  8
+    >   34  9b06cabe-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748077  24  4  8  4  8
+    >   35  9b06f1cf-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748101  24  4  8  4  8
+    >   36  9b0718e0-6107-11ef-957a-8da5b97a2421  9afd2dca-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:36+00  EXPIRED  5748125  24  4  8  4  8
+    >   37  9b1549b4-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   38  9b1570c5-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   40  9b15bee7-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   41  9b26fcfb-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748053  24  4  8  4  8
+    >   42  9b27240c-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748077  24  4  8  4  8
+    >   43  9b27240d-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748101  24  4  8  4  8
+    >   44  9b274b1e-6107-11ef-957a-8da5b97a2421  9b1f0db8-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748125  24  4  8  4  8
+    >   45  9b34b8a2-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   46  9b34dfb3-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   48  9b3506c5-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   49  9b4903f9-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748053  24  4  8  4  8
+    >   50  9b49792a-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748077  24  4  8  4  8
+    >   51  9b49a03b-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748101  24  4  8  4  8
+    >   52  9b49a03c-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748125  24  4  8  4  8
+    >   53  9b575be0-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   54  9b575be1-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   56  9b57aa03-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   57  9b6bce47-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748053  24  4  8  4  8
+    >   58  9b6bf558-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748077  24  4  8  4  8
+    >   59  9b6bf559-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748101  24  4  8  4  8
+    >   60  9b6c1c6a-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748125  24  4  8  4  8
+    >   61  9b7b85be-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  4  4  4
+    >   62  9b7baccf-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  4  4  4
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   64  9b7bd3e1-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  4  4  4
+    >   65  9b910995-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748149  24  4  8  4  8
+    >   66  9b9157b6-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748173  24  4  8  4  8
+    >   67  9b9157b7-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748197  24  4  8  4  8
+    >   68  9b917ec8-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748221  24  4  8  4  8
+    >   69  9b9fd6ac-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748149  24  4  8  4  8
+    >   70  9b9ffdbd-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748173  24  4  8  4  8
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   72  9ba024cf-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748221  24  4  8  4  8
+    >   73  9bb8b5e3-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748149  24  4  8  4  8
+    >   74  9bb8dcf4-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748173  24  4  8  4  8
+    >   75  9bb90405-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748197  24  4  8  4  8
+    >   76  9bb90406-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748221  24  4  8  4  8
+    >   77  9bc511fa-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748149  24  4  8  4  8
+    >   78  9bc5390b-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748173  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   80  9bc5601d-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748221  24  4  8  4  8
+    >   (60 rows, 3 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   46  9b34dfb3-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   48  9b3506c5-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   49  9b4903f9-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748053  24  4  8  4  8
+    >   50  9b49792a-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748077  24  4  8  4  8
+    >   51  9b49a03b-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748101  24  4  8  4  8
+    >   52  9b49a03c-6107-11ef-957a-8da5b97a2421  9b405166-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748125  24  4  8  4  8
+    >   53  9b575be0-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  8  4  8
+    >   54  9b575be1-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   56  9b57aa03-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  8  4  8
+    >   57  9b6bce47-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748053  24  4  8  4  8
+    >   58  9b6bf558-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748077  24  4  8  4  8
+    >   59  9b6bf559-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748101  24  4  8  4  8
+    >   60  9b6c1c6a-6107-11ef-957a-8da5b97a2421  9b60f8d4-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748125  24  4  8  4  8
+    >   61  9b7b85be-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748053  24  4  4  4  4
+    >   62  9b7baccf-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748077  24  4  4  4  4
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   64  9b7bd3e1-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748125  24  4  4  4  4
+    >   65  9b910995-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748149  24  4  8  4  8
+    >   66  9b9157b6-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748173  24  4  8  4  8
+    >   67  9b9157b7-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748197  24  4  8  4  8
+    >   68  9b917ec8-6107-11ef-957a-8da5b97a2421  9b86f772-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  EXPIRED  5748221  24  4  8  4  8
+    >   69  9b9fd6ac-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748149  24  4  8  4  8
+    >   70  9b9ffdbd-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748173  24  4  8  4  8
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   72  9ba024cf-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748221  24  4  8  4  8
+    >   73  9bb8b5e3-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748149  24  4  8  4  8
+    >   74  9bb8dcf4-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748173  24  4  8  4  8
+    >   75  9bb90405-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748197  24  4  8  4  8
+    >   76  9bb90406-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748221  24  4  8  4  8
+    >   77  9bc511fa-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748149  24  4  8  4  8
+    >   78  9bc5390b-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748173  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   80  9bc5601d-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748221  24  4  8  4  8
+    >   (40 rows, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   69  9b9fd6ac-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748149  24  4  8  4  8
+    >   70  9b9ffdbd-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748173  24  4  8  4  8
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   72  9ba024cf-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:37+00  REJECTED  5748221  24  4  8  4  8
+    >   73  9bb8b5e3-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748149  24  4  8  4  8
+    >   74  9bb8dcf4-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748173  24  4  8  4  8
+    >   75  9bb90405-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748197  24  4  8  4  8
+    >   76  9bb90406-6107-11ef-957a-8da5b97a2421  9babe4a0-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  EXPIRED  5748221  24  4  8  4  8
+    >   77  9bc511fa-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748149  24  4  8  4  8
+    >   78  9bc5390b-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748173  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   80  9bc5601d-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  2024-08-23 04:29:38+00  REJECTED  5748221  24  4  8  4  8
+    >   (20 rows, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   (10 rows, 0 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   (10 rows, 1 ms)
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >   (10 rows, 7 ms)
+
+    #
+    # Start times are spread into the future because there were a lot of active offers at the time.
+    # Requesting more offers now will fill in the gaps.
+    #
+    # TODO nice way of graphing the data.
+    # Possibly using Prometheus and Grafana ?
+    # This would be a feature on its own - add metrics to EB.
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some more offers, ACCEPT some.
+#[root@spring-builder]
+
+    for loop in {0..5}
+    do
+        echo "-------- --------"
+        echo "Loop [${loop}]"
+
+        # Create 4
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${createrequest}" \
+            --header "Accept: application/yaml" \
+            "http://127.0.0.1:8082/offerset" \
+        | tee "${createresponse}" \
+        | yq '.offers[].schedule'
+
+        echo "--------"
+
+        # Create 4
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${createrequest}" \
+            --header "Accept: application/yaml" \
+            "http://127.0.0.1:8082/offerset" \
+        | tee "${createresponse}" \
+        | yq '.offers[].schedule'
+
+        echo "--------"
+
+        updatehref=$(
+            yq '.offers[2].href' "${createresponse}"
+            )
+
+        # Accept 1 (reject 3)
+        curl \
+            --silent \
+            --show-error \
+            --location \
+            --header "Content-Type: application/yaml" \
+            --data-binary @"${updaterequest}" \
+            --header "Accept: application/yaml" \
+            "${updatehref}" \
+        | tee "${updateresponse}" \
+        | yq '{"state":.state, "schedule":.schedule}'
+
+    done
+
+    >   -------- --------
+    >   Loop [0]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T07:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T09:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T11:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T07:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T09:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T11:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T09:05:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [1]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T07:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T09:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T11:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T07:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T09:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T11:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T09:05:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [2]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T12:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [3]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T05:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T10:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T12:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T14:25:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T12:25:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [4]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T13:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T15:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T17:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T19:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T13:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T15:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T17:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T19:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T17:05:00Z"
+    >         duration: "PT2H"
+    >   -------- --------
+    >   Loop [5]
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T13:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T15:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T17:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T19:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T13:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T15:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T17:05:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T19:05:00Z"
+    >       duration: "PT2H"
+    >   --------
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T17:05:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   81  0eb716a1-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5747965  24  4  8  4  8
+    >   82  0eb73db2-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5747989  24  4  8  4  8
+    >   83  0eb764c3-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748013  24  4  8  4  8
+    >   84  0eb764c4-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748037  24  4  8  4  8
+    >   85  0ec1ec18-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5747965  24  4  8  4  8
+    >   86  0ec21329-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5747989  24  4  8  4  8
+    >   87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  8  4  8
+    >   88  0ec23a3b-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5748037  24  4  8  4  8
+    >   89  0ed1a38f-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5747965  24  4  8  4  8
+    >   90  0ed1a390-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5747989  24  4  8  4  8
+    >   91  0ed1caa1-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748013  24  4  8  4  8
+    >   92  0ed1caa2-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748037  24  4  8  4  8
+    >   93  0edd6366-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5747965  24  4  8  4  8
+    >   94  0edd8a77-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5747989  24  4  4  4  4
+    >   95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  4  4  4
+    >   96  0eddb189-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  REJECTED  5748037  24  4  8  4  8
+    >   97  0ef2991d-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5747965  24  4  8  4  8
+    >   98  0ef2991e-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748029  24  4  8  4  8
+    >   99  0ef2c02f-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748053  24  4  8  4  8
+    >   100  0ef2c030-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:38+00  OFFERED  5748077  24  4  8  4  8
+    >   101  0f002db4-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5747965  24  4  8  4  8
+    >   102  0f0054c5-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748029  24  4  8  4  8
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  8  4  8
+    >   104  0f007bd7-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748077  24  4  8  4  8
+    >   105  0f12080b-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5747965  24  4  8  4  8
+    >   106  0f122f1c-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748029  24  4  8  4  8
+    >   107  0f122f1d-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748053  24  4  8  4  8
+    >   108  0f122f1e-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748077  24  4  8  4  8
+    >   109  0f1dc7e2-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5747965  24  4  4  4  4
+    >   110  0f1dc7e3-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748029  24  4  4  4  4
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  4  4  4
+    >   112  0f1deef5-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748077  24  4  8  4  8
+    >   113  0f2da669-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748061  24  4  8  4  8
+    >   114  0f2da66a-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748085  24  4  8  4  8
+    >   115  0f2dcd7b-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748109  24  4  8  4  8
+    >   116  0f2dcd7c-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748133  24  4  8  4  8
+    >   117  0f398d50-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748061  24  4  8  4  8
+    >   118  0f39b461-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748085  24  4  8  4  8
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  8  4  8
+    >   120  0f39db73-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748133  24  4  8  4  8
+    >   121  0f4f8657-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748061  24  4  8  4  8
+    >   122  0f4fd478-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748085  24  4  8  4  8
+    >   123  0f4ffb89-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748109  24  4  8  4  8
+    >   124  0f4ffb8a-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748133  24  4  8  4  8
+    >   125  0f624b0e-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748061  24  4  4  4  4
+    >   126  0f62992f-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748085  24  4  4  4  4
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  4  4  4
+    >   128  0f629931-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748133  24  4  8  4  8
+    >   (58 rows, 2 ms)
+
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >   81  0eb716a1-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   82  0eb73db2-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 07:05:00+UTC  120  5747989  24  4  8  4  8
+    >   83  0eb764c3-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 09:05:00+UTC  120  5748013  24  4  8  4  8
+    >   84  0eb764c4-610d-11ef-957a-8da5b97a2421  0eaf275e-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 11:05:00+UTC  120  5748037  24  4  8  4  8
+    >   85  0ec1ec18-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   86  0ec21329-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 07:05:00+UTC  120  5747989  24  4  8  4  8
+    >   87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 09:05:00+UTC  120  5748013  24  4  8  4  8
+    >   88  0ec23a3b-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 11:05:00+UTC  120  5748037  24  4  8  4  8
+    >   89  0ed1a38f-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   90  0ed1a390-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 07:05:00+UTC  120  5747989  24  4  8  4  8
+    >   91  0ed1caa1-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 09:05:00+UTC  120  5748013  24  4  8  4  8
+    >   92  0ed1caa2-610d-11ef-957a-8da5b97a2421  0eca9eac-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 11:05:00+UTC  120  5748037  24  4  8  4  8
+    >   93  0edd6366-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   94  0edd8a77-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 07:05:00+UTC  120  5747989  24  4  4  4  4
+    >   95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 09:05:00+UTC  120  5748013  24  4  4  4  4
+    >   96  0eddb189-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:38+UTC  2024-23-08 11:05:00+UTC  120  5748037  24  4  8  4  8
+    >   97  0ef2991d-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   98  0ef2991e-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 10:25:00+UTC  120  5748029  24  4  8  4  8
+    >   99  0ef2c02f-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 12:25:00+UTC  120  5748053  24  4  8  4  8
+    >   100  0ef2c030-610d-11ef-957a-8da5b97a2421  0ee85fea-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:38+UTC  2024-23-08 14:25:00+UTC  120  5748077  24  4  8  4  8
+    >   101  0f002db4-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   102  0f0054c5-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 10:25:00+UTC  120  5748029  24  4  8  4  8
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 12:25:00+UTC  120  5748053  24  4  8  4  8
+    >   104  0f007bd7-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 14:25:00+UTC  120  5748077  24  4  8  4  8
+    >   105  0f12080b-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  8  4  8
+    >   106  0f122f1c-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 10:25:00+UTC  120  5748029  24  4  8  4  8
+    >   107  0f122f1d-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 12:25:00+UTC  120  5748053  24  4  8  4  8
+    >   108  0f122f1e-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 14:25:00+UTC  120  5748077  24  4  8  4  8
+    >   109  0f1dc7e2-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 05:05:00+UTC  120  5747965  24  4  4  4  4
+    >   110  0f1dc7e3-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 10:25:00+UTC  120  5748029  24  4  4  4  4
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 12:25:00+UTC  120  5748053  24  4  4  4  4
+    >   112  0f1deef5-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 14:25:00+UTC  120  5748077  24  4  8  4  8
+    >   113  0f2da669-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 13:05:00+UTC  120  5748061  24  4  8  4  8
+    >   114  0f2da66a-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 15:05:00+UTC  120  5748085  24  4  8  4  8
+    >   115  0f2dcd7b-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 17:05:00+UTC  120  5748109  24  4  8  4  8
+    >   116  0f2dcd7c-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 19:05:00+UTC  120  5748133  24  4  8  4  8
+    >   117  0f398d50-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 13:05:00+UTC  120  5748061  24  4  8  4  8
+    >   118  0f39b461-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 15:05:00+UTC  120  5748085  24  4  8  4  8
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 17:05:00+UTC  120  5748109  24  4  8  4  8
+    >   120  0f39db73-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 19:05:00+UTC  120  5748133  24  4  8  4  8
+    >   121  0f4f8657-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 13:05:00+UTC  120  5748061  24  4  8  4  8
+    >   122  0f4fd478-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 15:05:00+UTC  120  5748085  24  4  8  4  8
+    >   123  0f4ffb89-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 17:05:00+UTC  120  5748109  24  4  8  4  8
+    >   124  0f4ffb8a-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  OFFERED  2024-23-08 05:08:39+UTC  2024-23-08 19:05:00+UTC  120  5748133  24  4  8  4  8
+    >   125  0f624b0e-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 13:05:00+UTC  120  5748061  24  4  4  4  4
+    >   126  0f62992f-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 15:05:00+UTC  120  5748085  24  4  4  4  4
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 17:05:00+UTC  120  5748109  24  4  4  4  4
+    >   128  0f629931-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  REJECTED  2024-23-08 05:08:39+UTC  2024-23-08 19:05:00+UTC  120  5748133  24  4  8  4  8
+    >   (58 rows, 20 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [0]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [0]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [0]
+    >   --------
+    >   ....
+    >   ....
+
+    #
+    # No effect.
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/update"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [1]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [1]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >    7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  8  4  8
+    >   95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  4  4  4
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  8  4  8
+    >   104  0f007bd7-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748077  24  4  8  4  8
+    >   105  0f12080b-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5747965  24  4  8  4  8
+    >   106  0f122f1c-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748029  24  4  8  4  8
+    >   107  0f122f1d-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748053  24  4  8  4  8
+    >   108  0f122f1e-610d-11ef-957a-8da5b97a2421  0f089228-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748077  24  4  8  4  8
+    >   109  0f1dc7e2-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5747965  24  4  4  4  4
+    >   110  0f1dc7e3-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748029  24  4  4  4  4
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  4  4  4
+    >   112  0f1deef5-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748077  24  4  8  4  8
+    >   113  0f2da669-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748061  24  4  8  4  8
+    >   114  0f2da66a-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748085  24  4  8  4  8
+    >   115  0f2dcd7b-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748109  24  4  8  4  8
+    >   116  0f2dcd7c-610d-11ef-957a-8da5b97a2421  0f260546-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  EXPIRED  5748133  24  4  8  4  8
+    >   117  0f398d50-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748061  24  4  8  4  8
+    >   118  0f39b461-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748085  24  4  8  4  8
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  8  4  8
+    >   120  0f39db73-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748133  24  4  8  4  8
+    >   121  0f4f8657-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748061  24  4  8  4  8
+    >   122  0f4fd478-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748085  24  4  8  4  8
+    >   123  0f4ffb89-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748109  24  4  8  4  8
+    >   124  0f4ffb8a-610d-11ef-957a-8da5b97a2421  0f443bb4-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  OFFERED  5748133  24  4  8  4  8
+    >   125  0f624b0e-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748061  24  4  4  4  4
+    >   126  0f62992f-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748085  24  4  4  4  4
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  4  4  4
+    >   128  0f629931-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748133  24  4  8  4  8
+    >   (38 rows, 2 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/update"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [1]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [1]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  8  4  8
+    >   95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  4  4  4
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  8  4  8
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  4  4  4
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  8  4  8
+    >   126  0f62992f-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748085  24  4  4  4  4
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  4  4  4
+    >   128  0f629931-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  2024-08-23 05:08:39+00  REJECTED  5748133  24  4  8  4  8
+    >   (18 rows, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Delete some.
+#[root@spring-builder]
+
+    for sweep in {0..19}
+    do
+        echo ""
+        echo "--------"
+        echo "Sweep [${sweep}]"
+
+        curl \
+            --silent \
+            --show-error \
+            "http://127.0.0.1:8082/system/sweep/delete"
+
+    done
+
+    >   --------
+    >   Sweep [0]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [1]
+    >   Amleck [1]
+    >   --------
+    >   Sweep [2]
+    >   Amleck [0]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM ExecutionBlocks ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    EXPIRYTIME    BLOCKSTATE    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  8  4  8
+    >   31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748005  24  4  4  4  4
+    >   39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  8  4  8
+    >   63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748101  24  4  4  4  4
+    >   71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  null  ACCEPTED  5748197  24  4  8  4  8
+    >   87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  8  4  8
+    >   95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748013  24  4  4  4  4
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  8  4  8
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748053  24  4  4  4  4
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  8  4  8
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  null  ACCEPTED  5748109  24  4  4  4  4
+    >   (16 rows, 2 ms)
+
+
+    SELECT * FROM BlocksView ORDER BY BlockStart ;
+
+    >   IDENT    OFFERUUID    PARENTUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >     7  9a88e7fe-6107-11ef-957a-8da5b97a2421  9a7d4f39-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >    15  9aadd52c-6107-11ef-957a-8da5b97a2421  9aa4ad67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >    23  9ad09f7a-6107-11ef-957a-8da5b97a2421  9ac61825-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  8  4  8
+    >    31  9af47b38-6107-11ef-957a-8da5b97a2421  9ae89453-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 08:25:00+UTC  120  5748005  24  4  4  4  4
+    >    87  0ec2132a-610d-11ef-957a-8da5b97a2421  0ebb3555-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 09:05:00+UTC  120  5748013  24  4  8  4  8
+    >    95  0edd8a78-610d-11ef-957a-8da5b97a2421  0ed59b33-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 09:05:00+UTC  120  5748013  24  4  4  4  4
+    >   103  0f0054c6-610d-11ef-957a-8da5b97a2421  0ef6b7d1-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 12:25:00+UTC  120  5748053  24  4  8  4  8
+    >   111  0f1deef4-610d-11ef-957a-8da5b97a2421  0f15ffaf-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 12:25:00+UTC  120  5748053  24  4  4  4  4
+    >    39  9b1597d6-6107-11ef-957a-8da5b97a2421  9b0b1081-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >    47  9b34dfb4-6107-11ef-957a-8da5b97a2421  9b2bb7ef-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >    55  9b5782f2-6107-11ef-957a-8da5b97a2421  9b4e0d0d-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  8  4  8
+    >    63  9b7bd3e0-6107-11ef-957a-8da5b97a2421  9b719aab-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 16:25:00+UTC  120  5748101  24  4  4  4  4
+    >   119  0f39b462-610d-11ef-957a-8da5b97a2421  0f319e0d-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 17:05:00+UTC  120  5748109  24  4  8  4  8
+    >   127  0f629930-610d-11ef-957a-8da5b97a2421  0f548f6b-610d-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-23-08 17:05:00+UTC  120  5748109  24  4  4  4  4
+    >    71  9b9ffdbe-6107-11ef-957a-8da5b97a2421  9b9660c9-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >    79  9bc5601c-6107-11ef-957a-8da5b97a2421  9bbc5f67-6107-11ef-957a-8da5b97a2421  ACCEPTED  null  2024-24-08 00:25:00+UTC  120  5748197  24  4  8  4  8
+    >   (16 rows, 5 ms)
+

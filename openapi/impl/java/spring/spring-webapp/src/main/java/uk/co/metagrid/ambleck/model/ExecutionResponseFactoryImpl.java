@@ -54,45 +54,23 @@ import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import uk.co.metagrid.ambleck.platform.Execution;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class ExecutionResponseFactoryImpl
+    extends FactoryBase
     implements ExecutionResponseFactory
     {
-
-    /*
-     * Create a SLF4J Logger for this class.
-     *
-    private static Logger logger = LoggerFactory.getLogger(ExecutionResponseFactoryImpl.class);
-     */
-
-    /*
-     * This factory identifier.
-     *
-     */
-    private final UUID uuid ;
-
-    /*
-     * Get the factory identifier.
-     *
-     */
-    @Override
-    public UUID getUuid()
-        {
-        return this.uuid ;
-        }
 
     private ExecutionBlockDatabase database ;
 
     @Autowired
     public ExecutionResponseFactoryImpl(final ExecutionBlockDatabase database)
         {
-        log.debug("Creating a new ExecutionResponseFactory instance");
-        this.uuid = UuidCreator.getTimeBased();
+        super();
         this.database = database ;
         }
 
@@ -152,10 +130,9 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ProcessingContext<?> context)
         {
-        log.debug("Processing a new OfferSetRequest and OfferSetResponse pair");
-
+        log.debug("Processing a new OfferSetRequest and OfferSetResponse");
         //
         // Reject storage resources.
         if (request.getResources() != null)
@@ -164,7 +141,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getStorage().size() > 0)
                     {
-                    response.addMessagesItem(
+                    offerset.addMessage(
                         new WarnMessage(
                             "Storage resources not supported"
                             )
@@ -181,7 +158,7 @@ public class ExecutionResponseFactoryImpl
                 {
                 if (request.getResources().getCompute().size() > 1)
                     {
-                    response.addMessagesItem(
+                    offerset.addMessage(
                         new WarnMessage(
                             "Multiple compute resources not supported"
                             )
@@ -192,22 +169,62 @@ public class ExecutionResponseFactoryImpl
             }
 
         //
+        // If there is no resource list, add one.
+        if (request.getResources() == null)
+            {
+            request.setResources(
+                new ExecutionResourceList()
+                );
+            }
+
+        //
+        // If there are no compute resources, add one.
+        if (request.getResources().getCompute().size() < 1)
+            {
+            SimpleComputeResource compute = new SimpleComputeResource(
+                "urn:simple-compute-resource"
+                );
+            compute.setUuid(
+                UuidCreator.getTimeBased()
+                );
+            compute.setName(
+                "Simple compute resource"
+                );
+            request.getResources().addComputeItem(
+                compute
+                );
+            }
+/*
+ *
+        //
         // Create our processing context.
         ProcessingContext context = new ProcessingContextImpl(
             baseurl,
             request,
-            response
+            offerset,
+            execution
             );
+ *
+ */
 
         //
-        // Validate our scheduling request.
+        // Validate our execution schedule.
         validate(
             request.getSchedule(),
             context
             );
-
+        //
+        // Validate our executable.
+        validate(
+            request.getExecutable(),
+            context
+            );
+        //
+        // Validate our resources.
         if (request.getResources() != null)
             {
+            //
+            // Validate our data resources.
             if (request.getResources().getData() != null)
                 {
                 for (AbstractDataResource resource : request.getResources().getData())
@@ -218,6 +235,8 @@ public class ExecutionResponseFactoryImpl
                         );
                     }
                 }
+            //
+            // Validate our compute resources.
             if (request.getResources().getCompute() != null)
                 {
                 for (AbstractComputeResource resource : request.getResources().getCompute())
@@ -231,19 +250,6 @@ public class ExecutionResponseFactoryImpl
             }
 
         //
-        // Check for an enpty compute list.
-        if (context.getComputeResourceList().isEmpty())
-            {
-            // Need to add a default compute resource.
-            }
-        //
-        // Validate our executable.
-        validate(
-            request.getExecutable(),
-            context
-            );
-
-        //
         // Check if everything worked.
         if (context.valid())
             {
@@ -253,9 +259,26 @@ public class ExecutionResponseFactoryImpl
                 {
                 //
                 // Create an offer using the resources in our context.
-                ExecutionResponseImpl offer = new ExecutionResponseImpl(baseurl, response);
+                ExecutionResponseImpl offer = new ExecutionResponseImpl(
+                    ExecutionResponse.StateEnum.OFFERED,
+                    baseurl,
+                    context.getOfferSet(),
+                    context.getExecution()
+                    );
                 this.insert(
                     offer
+                    );
+                block.setOfferUuid(
+                    offer.getUuid()
+                    );
+                block.setParentUuid(
+                    offerset.getUuid()
+                    );
+                block.setState(
+                    ExecutionResponse.StateEnum.OFFERED
+                    );
+                block.setExpiryTime(
+                    offerset.getExpires().toInstant()
                     );
                 offer.setName(
                     request.getName()
@@ -266,26 +289,26 @@ public class ExecutionResponseFactoryImpl
                 if (offer.getSchedule() == null)
                     {
                     offer.setSchedule(
-                        new ExecutionSchedule()
+                        new StringScheduleBlock()
                         );
                     }
                 if (offer.getSchedule().getOffered() == null)
                     {
                     offer.getSchedule().setOffered(
-                        new ScheduleBlock()
+                        new StringScheduleBlockItem()
                         );
                     }
                 if (offer.getSchedule().getOffered().getExecuting() == null)
                     {
                     offer.getSchedule().getOffered().setExecuting(
-                        new ScheduleBlockPreparing()
+                        new StringScheduleBlockValue()
                         );
                     }
                 offer.getSchedule().getOffered().getExecuting().setStart(
                     OffsetDateTime.ofInstant(
                         block.getInstant(),
                         ZoneId.systemDefault()
-                        )
+                        ).toString()
                     );
                 offer.getSchedule().getOffered().getExecuting().setDuration(
                     block.getDuration().toString()
@@ -377,10 +400,10 @@ public class ExecutionResponseFactoryImpl
                 offer.setResources(
                     resources
                     );
-                response.addOffersItem(
+                offerset.addOffer(
                     offer
                     );
-                response.setResult(
+                offerset.setResult(
                     OfferSetResponse.ResultEnum.YES
                     );
                 }
@@ -414,8 +437,8 @@ public class ExecutionResponseFactoryImpl
                     // This is an invalid request.
                     break;
                 }
+            response.updateOptions();
             }
-        response.updateOptions();
         return response ;
         }
 
@@ -439,6 +462,8 @@ public class ExecutionResponseFactoryImpl
                     {
                     // Unknown state.
                     }
+                //
+                // If this is a change.
                 if (updatestate != currentstate)
                     {
                     switch(currentstate)
@@ -447,11 +472,23 @@ public class ExecutionResponseFactoryImpl
                             switch(updatestate)
                                 {
                                 case ACCEPTED:
-                                    response.setState(StateEnum.ACCEPTED);
-// TODO null expiry time
+                                    response.setState(
+                                        StateEnum.ACCEPTED
+                                        );
+
+                                    response.getParent().setAccepted(response);
+
+                                    database.accept(
+                                        response.getUuid()
+                                        );
                                     break;
                                 case REJECTED:
-                                    response.setState(StateEnum.REJECTED);
+                                    response.setState(
+                                        StateEnum.REJECTED
+                                        );
+                                    database.reject(
+                                        response.getUuid()
+                                        );
                                     break;
                                 default:
                                     // Invalid state transition.
@@ -1042,23 +1079,20 @@ public class ExecutionResponseFactoryImpl
      */
     public void validate(final JupyterNotebook01 request, final ProcessingContext context)
         {
+        log.debug("Validating a JupyterNotebook request [{}]", request.getName());
         JupyterNotebook01 result = new JupyterNotebook01(
             "urn:jupyter-notebook-0.1"
             );
-        if (request.getUuid() != null)
-            {
-            result.setUuid(
-                request.getUuid()
-                );
-            }
-        else {
-            result.setUuid(
-                UuidCreator.getTimeBased()
-                );
-            }
+        result.setUuid(
+            UuidCreator.getTimeBased()
+            );
         result.setName(
             request.getName()
             );
+        //
+        // TODO
+        // Validate the notebook schedule ..
+        //
 
         String notebook = request.getNotebook();
         if ((notebook != null) && (notebook.trim().isEmpty()))
@@ -1078,119 +1112,154 @@ public class ExecutionResponseFactoryImpl
         context.setExecutable(
             result
             );
+/*
+ * TODO Add the processing step .. in setExecutable()
+        CanfarNotebookPreparationStep step = factory.createNotebookStep(
+            (CanfarExecution) parent,
+            result
+            );
+ *
+ */
         }
 
     /**
      * Validate the Execution Schedule.
-     *
+     * TODO Move this to the time classes.
      */
-    public void validate(final ExecutionSchedule schedule, final ProcessingContext context)
+    public void validate(final StringScheduleBlock schedule, final ProcessingContext context)
         {
+        log.debug("Processing StringScheduleBlock");
         if (schedule != null)
             {
             //
-            // Validate each of our requested items.
-            for (ScheduleRequestItem item : schedule.getRequested())
-                {
-                validate(
-                    item,
-                    context
-                    );
-                }
-            // TODO
             // Check the offered section is empty.
-            //
+            // ....
             // Check the observed section is empty.
-            //
-            }
-        }
+            // ....
 
-    /**
-     * Validate a ScheduleRequestItem.
-     *
-     */
-    public void validate(final ScheduleRequestItem item, final ProcessingContext context)
-        {
-        Interval starttime = null;
-        Duration minduration = null;
-        Duration maxduration = null;
-
-        if (item.getStart() != null)
-            {
-            try {
-                starttime = Interval.parse​(
-                    item.getStart()
-                    );
-                }
-            catch (Exception ouch)
+            StringScheduleBlockItem requested = schedule.getRequested();
+            if (requested != null);
                 {
-                context.addMessage(
-                    new ErrorMessage(
-                        "Unable to parse schedule request start time [${value}][${message}]",
-                        Map.of(
-                            "value",
-                            safeString(item.getStart()),
-                            "message",
-                            safeString(ouch.getMessage())
-                            )
-                        )
-                    );
-                context.fail();
-                }
-            }
-
-        if (item.getDuration() != null)
-            {
-            if (item.getDuration().getMin() != null)
-                {
-                String text = item.getDuration().getMin() ;
-                try {
-                    minduration = Duration.parse​(text);
-                    }
-                catch (Exception ouch)
+                StringScheduleBlockValue preparing = requested.getPreparing();
+                if (preparing != null)
                     {
-                    context.addMessage(
-                        new ErrorMessage(
-                            "Unable to parse schedule request duration [${value}][${message}]",
-                            Map.of(
-                                "value",
-                                safeString(text),
-                                "message",
-                                safeString(ouch.getMessage())
-                                )
-                            )
+                    Interval prepstart = null;
+                    Duration preptime  = null;
+
+                    if (preparing.getStart() != null)
+                        {
+                        String string = preparing.getStart();
+                        try {
+                            prepstart = Interval.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse start interval [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    if (preparing.getDuration() != null)
+                        {
+                        String string = preparing.getDuration();
+                        try {
+                            preptime = Duration.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse duration [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    context.setPreparationTime(
+                        prepstart,
+                        preptime
                         );
-                    context.fail();
                     }
-                }
-            if (item.getDuration().getMax() != null)
-                {
-                String text = item.getDuration().getMax() ;
-                try {
-                    minduration = Duration.parse​(text);
-                    }
-                catch (Exception ouch)
+
+                StringScheduleBlockValue executing = requested.getExecuting();
+                if (executing != null)
                     {
-                    context.addMessage(
-                        new ErrorMessage(
-                            "Unable to parse schedule request duration [${value}][${message}]",
-                            Map.of(
-                                "value",
-                                safeString(text),
-                                "message",
-                                safeString(ouch.getMessage())
-                                )
-                            )
+                    Interval execstart = null;
+                    Duration exectime  = null;
+                    if (executing.getStart() != null)
+                        {
+                        String string = executing.getStart();
+                        try {
+                            execstart = Interval.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse start interval [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    if (executing.getDuration() != null)
+                        {
+                        String string = executing.getDuration();
+                        try {
+                            exectime = Duration.parse​(
+                                string
+                                );
+                            }
+                        catch (Exception ouch)
+                            {
+                            context.addMessage(
+                                new ErrorMessage(
+                                    "Unable to parse duration [${value}][${message}]",
+                                    Map.of(
+                                        "value",
+                                        safeString(string),
+                                        "message",
+                                        safeString(ouch.getMessage())
+                                        )
+                                    )
+                                );
+                            context.fail();
+                            }
+                        }
+                    context.setExecutionTime(
+                        execstart,
+                        exectime
                         );
-                    context.fail();
                     }
                 }
             }
-        context.addScheduleItem(
-            starttime,
-            minduration,
-            maxduration
-            );
         }
     }
 

@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
+
 import java.time.Instant;
 import java.time.Duration;
 
@@ -33,24 +35,36 @@ public class ExecutionBlockImpl implements ExecutionBlock
     {
 
     public ExecutionBlockImpl(
-        final Instant  instant,
+        final ExecutionResponse.StateEnum blockState,
+        final UUID offeruuid,
+        final UUID parentuuid,
+        final Instant expirytime,
+        final Instant instant,
         final Duration duration,
         final Integer minCores,
         final Integer maxCores,
         final Integer minMemory,
         final Integer maxMemory
         ) {
-        this.instant  = instant ;
-        this.duration = duration ;
+        this.blockState  = blockState ;
+        this.offeruuid   = offeruuid ;
+        this.parentuuid  = parentuuid ;
+        this.expirytime  = expirytime ;
+        this.instant     = instant ;
+        this.duration    = duration ;
         this.blockStart  = instant.getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS ;
         this.blockLength = duration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS ;
-        this.minCores = minCores ;
-        this.maxCores = maxCores ;
-        this.minMemory = minMemory ;
-        this.maxMemory = maxMemory ;
+        this.minCores    = minCores ;
+        this.maxCores    = maxCores ;
+        this.minMemory   = minMemory ;
+        this.maxMemory   = maxMemory ;
         }
 
     public ExecutionBlockImpl(
+        final String blockState,
+        final UUID offeruuid,
+        final UUID parentuuid,
+        final Instant expirytime,
         final Long blockStart,
         final Long blockLength,
         final Integer minCores,
@@ -58,14 +72,86 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer minMemory,
         final Integer maxMemory
         ) {
-        this.blockStart  = blockStart  ;
+        this(
+            ExecutionResponse.StateEnum.fromValue(
+                blockState
+                ),
+            offeruuid,
+            parentuuid,
+            expirytime,
+            blockStart,
+            blockLength,
+            minCores,
+            maxCores,
+            minMemory,
+            maxMemory
+            );
+        }
+
+    public ExecutionBlockImpl(
+        final ExecutionResponse.StateEnum blockState,
+        final UUID offeruuid,
+        final UUID parentuuid,
+        final Instant expirytime,
+        final Long blockStart,
+        final Long blockLength,
+        final Integer minCores,
+        final Integer maxCores,
+        final Integer minMemory,
+        final Integer maxMemory
+        ) {
+        this.blockState  = blockState ;
+        this.offeruuid   = offeruuid ;
+        this.parentuuid  = parentuuid ;
+        this.expirytime  = expirytime ;
+        this.blockStart  = blockStart ;
         this.blockLength = blockLength ;
-        this.instant  = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
-        this.duration = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
-        this.minCores = minCores ;
-        this.maxCores = maxCores ;
-        this.minMemory = minMemory ;
-        this.maxMemory = maxMemory ;
+        this.instant     = Instant.ofEpochSecond(blockStart * ExecutionBlock.BLOCK_STEP_SECONDS) ;
+        this.duration    = Duration.ofSeconds(blockLength * ExecutionBlock.BLOCK_STEP_SECONDS) ;
+        this.minCores    = minCores ;
+        this.maxCores    = maxCores ;
+        this.minMemory   = minMemory ;
+        this.maxMemory   = maxMemory ;
+        }
+
+    private ExecutionResponse.StateEnum blockState;
+    public ExecutionResponse.StateEnum getState()
+        {
+        return this.blockState;
+        }
+    public void setState(ExecutionResponse.StateEnum state)
+        {
+        this.blockState = state ;
+        }
+
+    private UUID offeruuid;
+    public UUID getOfferUuid()
+        {
+        return this.offeruuid;
+        }
+    public void setOfferUuid(final UUID offeruuid)
+        {
+        this.offeruuid = offeruuid;
+        }
+
+    private UUID parentuuid;
+    public UUID getParentUuid()
+        {
+        return this.parentuuid;
+        }
+    public void setParentUuid(final UUID parentuuid)
+        {
+        this.parentuuid = parentuuid;
+        }
+
+    private Instant expirytime;
+    public Instant getExpiryTime()
+        {
+        return this.expirytime;
+        }
+    public void setExpiryTime(final Instant expirytime)
+        {
+        this.expirytime= expirytime ;
         }
 
     private Instant instant;

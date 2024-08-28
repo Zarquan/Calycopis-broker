@@ -20,55 +20,33 @@
  *
  *
  */
+
 package uk.co.metagrid.ambleck.model;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
 import java.util.UUID;
-import java.util.List;
 
-public interface ExecutionBlockDatabase
+public class FactoryBase
     {
-
-    /**
-     * Insert an ExecutionBlock into our database.
+    /*
+     * This factory's identifier.
      *
      */
-    public int insert(final ExecutionBlock block);
+    private final UUID uuid ;
 
-    /**
-     * Select an ExecutionBlock from our database.
+    /*
+     * Get this factory's identifier.
      *
      */
-    public ExecutionBlock select(final UUID offeruuid);
+    public UUID getUuid()
+        {
+        return this.uuid ;
+        }
 
-    /**
-     * Accept an ExecutionBlock in our database.
-     *
-     */
-    public int accept(final UUID offeruuid);
-
-    /**
-     * Reject an ExecutionBlock in our database.
-     *
-     */
-    public int reject(final UUID offeruuid);
-
-    /**
-     * Generate a list of ExecutionBlock offers based on a ProcessingContext.
-     *
-     */
-    public List<ExecutionBlock> generate(final ProcessingContext context);
-
-    /**
-     * Update any expired offers.
-     *
-     */
-    public int sweepUpdate(final Integer limit);
-
-    /**
-     * Delete any expired offers.
-     *
-     */
-    public int sweepDelete(final Integer limit);
-
+    public FactoryBase()
+        {
+        this.uuid = UuidCreator.getTimeBased();
+        }
     }
 

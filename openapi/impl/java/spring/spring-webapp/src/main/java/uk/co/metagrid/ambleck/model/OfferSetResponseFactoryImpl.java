@@ -27,10 +27,12 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.time.OffsetDateTime;
+
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.f4b6a3.uuid.UuidCreator;
+//import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.OfferSetResponse;
@@ -38,35 +40,41 @@ import uk.co.metagrid.ambleck.model.OfferSetResponseImpl;
 import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
 
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
+import uk.co.metagrid.ambleck.platform.CanfarProcessingContextFactory;
+import uk.co.metagrid.ambleck.platform.Execution;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class OfferSetResponseFactoryImpl
+    extends FactoryBase
     implements OfferSetResponseFactory
     {
-
     /*
-     * This factory identifier.
+     * The default expiry time for offers, in minutes.
      *
      */
-    private final UUID uuid ;
+    public static final int DEFAULT_EXPIRY_TIME = 5 ;
 
-    /*
-     * Get the factory's identifier.
+    /**
+     * Our ExecutionResponseFactory instance.
      *
      */
-    @Override
-    public UUID getUuid()
-        {
-        return this.uuid ;
-        }
+    private final ExecutionResponseFactory responder ;
 
-    private final ExecutionResponseFactory factory ;
+    /**
+     * Our CanfarExecutionFactory instance.
+     *
+     */
+    private final CanfarProcessingContextFactory canfarder ;
 
     @Autowired
-    public OfferSetResponseFactoryImpl(final ExecutionResponseFactory factory)
+    public OfferSetResponseFactoryImpl(final ExecutionResponseFactory responder, final CanfarProcessingContextFactory canfarder)
         {
-        this.uuid = UuidCreator.getTimeBased();
-        this.factory = factory ;
+        super();
+        this.responder = responder ;
+        this.canfarder = canfarder ;
         }
 
     /**
@@ -106,20 +114,37 @@ public class OfferSetResponseFactoryImpl
     @Override
     public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
         {
-        OfferSetResponse response = new OfferSetResponseImpl(baseurl);
-        this.insert(
-            response
+        log.debug(
+            "Creating OfferSetResponse"
             );
-        response.setName(
-            request.getName()
-            );
-        factory.create(
-            baseurl,
-            request,
-            response
+        OfferSetResponseImpl offerset = new OfferSetResponseImpl(
+            OffsetDateTime.now().plusMinutes(
+                DEFAULT_EXPIRY_TIME
+                ),
+            baseurl
             );
 
-        return response ;
+        ProcessingContext context = canfarder.create(
+            baseurl,
+            request,
+            offerset
+            );
+        offerset.setExecution(
+            context.getExecution()
+            );
+        offerset.setName(
+            request.getName()
+            );
+        this.insert(
+            offerset
+            );
+        responder.create(
+            baseurl,
+            request,
+            offerset,
+            context
+            );
+        return offerset ;
         }
     }
 

@@ -1,0 +1,1070 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Add support for expiry date.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T15:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T17:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T19:00:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T21:00:00Z"
+    >       duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 13 ms)
+
+
+    SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 5 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# ACCEPT the third offer.
+#[root@spring-builder]
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T19:00:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   3  b874639a-6096-11ef-aa91-5366a548d396  ACCEPTED  2024-22-08 15:01:32+UTC  2024-22-08 19:00:00+UTC  120  5747844  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (4 rows, 4 ms)
+
+
+    SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  b87219a8-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 15:00:00+UTC  120  5747796  24  1  2  1  2
+    >   2  b8746399-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 17:00:00+UTC  120  5747820  24  1  2  1  2
+    >   4  b8748aab-6096-11ef-aa91-5366a548d396  OFFERED  2024-22-08 15:01:32+UTC  2024-22-08 21:00:00+UTC  120  5747868  24  1  2  1  2
+    >   (3 rows, 2 ms)
+
+    SELECT * FROM ExecutionBlocks WHERE BlockState IN ('PROPOSED','OFFERED') AND ExpiryTime < CURRENT_TIMESTAMP() ORDER BY Ident ASC LIMIT 1
+
+    DELETE FROM ExecutionBlocks WHERE Ident IN (
+        SELECT Ident FROM ExecutionBlocks WHERE BlockState IN ('PROPOSED','OFFERED') AND ExpiryTime < CURRENT_TIMESTAMP() ORDER BY Ident
+        );
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    #
+    # Adding code for the sweep ..
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 1
+      memory:
+        min: 1
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T22:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:25:00Z"
+    >       duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  55d70097-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 18:25:00+UTC  120  5747837  24  1  2  1  2
+    >   2  55d83918-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 20:25:00+UTC  120  5747861  24  1  2  1  2
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
+    >   (4 rows, 12 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# ACCEPT the third offer.
+#[root@spring-builder]
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T22:25:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  55d70097-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 18:25:00+UTC  120  5747837  24  1  2  1  2
+    >   2  55d83918-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 20:25:00+UTC  120  5747861  24  1  2  1  2
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
+    >   (4 rows, 1 ms)--END--
+    >
+    >
+    >   # -----------------------------------------------------
+    >   # -----------------------------------------------------
+    >   # Poke the sweep method.
+    >   #[user@database]
+    >
+    >       curl \
+    >           --silent \
+    >           --show-error \
+    >           "http://127.0.0.1:8082/system/sweep"
+    >
+    >   Amleck [0]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   1  55d70097-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 18:25:00+UTC  120  5747837  24  1  2  1  2
+    >   2  55d83918-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 20:25:00+UTC  120  5747861  24  1  2  1  2
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
+    >   (4 rows, 2 ms)
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    #
+    # Wait 5 min ...
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   2  55d83918-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-22-08 20:25:00+UTC  120  5747861  24  1  2  1  2
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
+    >   (3 rows, 3 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   4  55d8873a-60b3-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:26:22+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  1  2  1  2
+    >   (2 rows, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep"
+
+    >   Amleck [1]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   (1 row, 1 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep"
+
+    >   Amleck [0]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   (1 row, 1 ms)
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Request a lot of resources and ACCEPT the third offer.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T22:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:45:00Z"
+    >       duration: "PT2H"
+
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T22:45:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# Request a lot of resources and ACCEPT the third offer.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T22:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:50:00Z"
+    >       duration: "PT2H"
+
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T22:50:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# Request a lot of resources and ACCEPT the third offer.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T20:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T22:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:50:00Z"
+    >       duration: "PT2H"
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-22T22:50:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# Request a lot of resources and ACCEPT the third offer.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-22T18:50:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T00:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T02:25:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:25:00Z"
+    >       duration: "PT2H"
+
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T02:25:00Z"
+    >         duration: "PT2H"
+
+
+
+
+# -----------------------------------------------------
+# Request a lot of resources and ACCEPT the third offer.
+#[root@spring-builder]
+
+    createrequest=$(
+        mktemp --suffix '.yaml'
+        )
+    createresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${createrequest}"  << EOF
+executable:
+  properties:
+  name: My test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://there
+schedule:
+  requested:
+  - duration:
+      min: PT2H
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      cores:
+        min: 8
+      memory:
+        min: 8
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${createrequest}" \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | tee "${createresponse}" \
+    | yq '.offers[].schedule'
+
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T02:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T04:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T06:45:00Z"
+    >       duration: "PT2H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-23T08:45:00Z"
+    >       duration: "PT2H"
+
+
+    updatehref=$(
+        yq '.offers[2].href' "${createresponse}"
+        )
+    updaterequest=$(
+        mktemp --suffix '.yaml'
+        )
+    updateresponse=$(
+        mktemp --suffix '.yaml'
+        )
+
+cat > "${updaterequest}" << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @"${updaterequest}" \
+        --header "Accept: application/yaml" \
+        "${updatehref}" \
+    | tee "${updateresponse}" \
+    | yq '{"state":.state, "schedule":.schedule}'
+
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-23T06:45:00Z"
+    >         duration: "PT2H"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   5  9c30ec1e-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:49:49+UTC  2024-22-08 18:45:00+UTC  120  5747841  24  8  16  8  16
+    >   6  9c31132f-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:49:49+UTC  2024-22-08 20:45:00+UTC  120  5747865  24  8  16  8  16
+    >   7  9c311330-60b6-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:49:49+UTC  2024-22-08 22:45:00+UTC  120  5747889  24  8  16  8  16
+    >   8  9c313a41-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:49:49+UTC  2024-23-08 00:45:00+UTC  120  5747913  24  8  16  8  16
+    >   9  cdcdba65-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:51:12+UTC  2024-22-08 18:50:00+UTC  120  5747842  24  8  16  8  16
+    >   10  cdcde176-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:51:12+UTC  2024-22-08 20:50:00+UTC  120  5747866  24  8  16  8  16
+    >   11  cdce0887-60b6-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:51:12+UTC  2024-22-08 22:50:00+UTC  120  5747890  24  8  16  8  16
+    >   12  cdce56a8-60b6-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:51:12+UTC  2024-23-08 00:50:00+UTC  120  5747914  24  8  16  8  16
+    >   13  1d051ddc-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:53:25+UTC  2024-22-08 18:50:00+UTC  120  5747842  24  8  16  8  16
+    >   14  1d0544ed-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:53:25+UTC  2024-22-08 20:50:00+UTC  120  5747866  24  8  15  8  15
+    >   15  1d056bfe-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:53:25+UTC  2024-22-08 22:50:00+UTC  120  5747890  24  8  15  8  15
+    >   16  1d056bff-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:53:25+UTC  2024-23-08 00:50:00+UTC  120  5747914  24  8  16  8  16
+    >   17  3c21e643-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:54:18+UTC  2024-22-08 18:50:00+UTC  120  5747842  24  8  8  8  8
+    >   18  3c223464-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:54:18+UTC  2024-23-08 00:25:00+UTC  120  5747909  24  8  8  8  8
+    >   19  3c223465-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:54:18+UTC  2024-23-08 02:25:00+UTC  120  5747933  24  8  8  8  8
+    >   20  3c225b76-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:54:18+UTC  2024-23-08 04:25:00+UTC  120  5747957  24  8  16  8  16
+    >   21  60e5ac5a-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:55:19+UTC  2024-23-08 02:45:00+UTC  120  5747937  24  8  8  8  8
+    >   22  60e5ac5b-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:55:19+UTC  2024-23-08 04:45:00+UTC  120  5747961  24  8  16  8  16
+    >   23  60e5d36c-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:55:19+UTC  2024-23-08 06:45:00+UTC  120  5747985  24  8  16  8  16
+    >   24  60e5fa7d-60b7-11ef-aeb3-5f533eaa75b3  OFFERED  2024-22-08 18:55:19+UTC  2024-23-08 08:45:00+UTC  120  5748009  24  8  16  8  16
+    >   (21 rows, 2 ms)
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Poke the sweep method.
+#[user@database]
+
+    curl \
+        --silent \
+        --show-error \
+        "http://127.0.0.1:8082/system/sweep"
+
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [1]
+    >   Amleck [0]
+    >   Amleck [0]
+    >   Amleck [0]
+    >   Amleck [0]
+    >   Amleck [0]
+    >   Amleck [0]
+    >   Amleck [0]
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the database.
+#[user@database]
+
+    SELECT * FROM BlocksView ;
+
+    >   IDENT    OFFERUUID    BLOCKSTATE    EXPIRYTIME    STARTTIME    DURATION    BLOCKSTART    BLOCKLENGTH    MINCORES    MAXCORES    MINMEMORY    MAXMEMORY  
+    >   3  55d86029-60b3-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:26:22+UTC  2024-22-08 22:25:00+UTC  120  5747885  24  1  2  1  2
+    >   7  9c311330-60b6-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:49:49+UTC  2024-22-08 22:45:00+UTC  120  5747889  24  8  16  8  16
+    >   11  cdce0887-60b6-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:51:12+UTC  2024-22-08 22:50:00+UTC  120  5747890  24  8  16  8  16
+    >   15  1d056bfe-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:53:25+UTC  2024-22-08 22:50:00+UTC  120  5747890  24  8  15  8  15
+    >   19  3c223465-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:54:18+UTC  2024-23-08 02:25:00+UTC  120  5747933  24  8  8  8  8
+    >   23  60e5d36c-60b7-11ef-aeb3-5f533eaa75b3  ACCEPTED  2024-22-08 18:55:19+UTC  2024-23-08 06:45:00+UTC  120  5747985  24  8  16  8  16
+    >   (6 rows, 3 ms)
+
+
+
+

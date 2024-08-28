@@ -28,18 +28,20 @@ import java.time.Instant;
 import java.time.Duration;
 import org.threeten.extra.Interval;
 
+import uk.co.metagrid.ambleck.platform.Execution;
+
 /**
  * A class to hold context during processing.
  *
  */
-public interface ProcessingContext
+public interface ProcessingContext<ExecutionType extends Execution>
     {
     public boolean valid();
     public void valid(boolean value);
     public void fail();
 
-    public OfferSetRequest  request();
-    public OfferSetResponse response();
+    public OfferSetRequest request();
+    public OfferSetAPI getOfferSet();
 
     public String baseurl();
 
@@ -71,12 +73,23 @@ public interface ProcessingContext
     public interface ScheduleItem
         {
         public Interval getStartTime();
-        public Duration getMinDuration();
-        public Duration getMaxDuration();
+        public Duration getDuration();
         }
 
-    public List<ScheduleItem> getScheduleItems();
-    public void addScheduleItem(final Interval starttime, final Duration mindutarion, final Duration maxdutation);
+    // ScheduleItem for the Execution.
+    // ScheduleItem for the Executable.
+
+    public ScheduleItem getPreparationTime();
+    public void setPreparationTime(final Interval starttime, final Duration duration);
+
+    public ScheduleItem getExecutionTime();
+    public void setExecutionTime(final Interval starttime, final Duration dutarion);
+
+    public ExecutionType getExecution();
+    //public Execution setExecution(final Execution execution);
+
+    //public void addPreparation();
+
 
     }
 

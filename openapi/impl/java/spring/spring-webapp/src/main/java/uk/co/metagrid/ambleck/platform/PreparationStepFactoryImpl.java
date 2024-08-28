@@ -20,55 +20,50 @@
  *
  *
  */
-package uk.co.metagrid.ambleck.model;
+package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
-import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
-public interface ExecutionBlockDatabase
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import uk.co.metagrid.ambleck.model.FactoryBase;
+
+public class PreparationStepFactoryImpl
+    extends FactoryBase
+    implements PreparationStepFactory
     {
 
     /**
-     * Insert an ExecutionBlock into our database.
+     * Our internal Map of steps.
      *
      */
-    public int insert(final ExecutionBlock block);
+    private Map<UUID, PreparationStep> hashmap = new HashMap<UUID, PreparationStep>();
 
     /**
-     * Select an ExecutionBlock from our database.
+     * Add a PreparationStep to our Map.
      *
      */
-    public ExecutionBlock select(final UUID offeruuid);
+    protected void insert(final PreparationStep step)
+        {
+        hashmap.put(
+            step.getUuid(),
+            step
+            ) ;
+        }
 
     /**
-     * Accept an ExecutionBlock in our database.
+     * Select a PreparationStep based on it's uuid.
+     * Used by callbacks to locate theirt target.
      *
      */
-    public int accept(final UUID offeruuid);
-
-    /**
-     * Reject an ExecutionBlock in our database.
-     *
-     */
-    public int reject(final UUID offeruuid);
-
-    /**
-     * Generate a list of ExecutionBlock offers based on a ProcessingContext.
-     *
-     */
-    public List<ExecutionBlock> generate(final ProcessingContext context);
-
-    /**
-     * Update any expired offers.
-     *
-     */
-    public int sweepUpdate(final Integer limit);
-
-    /**
-     * Delete any expired offers.
-     *
-     */
-    public int sweepDelete(final Integer limit);
-
+    @Override
+    public PreparationStep select(final UUID uuid)
+        {
+        return hashmap.get(uuid) ;
+        }
     }
+
 

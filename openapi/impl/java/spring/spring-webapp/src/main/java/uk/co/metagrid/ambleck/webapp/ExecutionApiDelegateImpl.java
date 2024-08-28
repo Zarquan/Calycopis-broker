@@ -52,10 +52,11 @@ import uk.co.metagrid.ambleck.message.InfoMessage;
 
 @Service
 // https://saranganjana.medium.com/componentscan-in-spring-boot-ec828569df26
-@ComponentScan("uk.co.metagrid.ambleck.model")
+@ComponentScan("uk.co.metagrid.ambleck")
 public class ExecutionApiDelegateImpl
     extends BaseDelegateImpl
-    implements ExecutionApiDelegate {
+    implements ExecutionApiDelegate
+    {
 
     private final ExecutionResponseFactory factory ;
 

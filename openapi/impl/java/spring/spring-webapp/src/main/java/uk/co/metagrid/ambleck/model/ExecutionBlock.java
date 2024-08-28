@@ -22,6 +22,8 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
+
 import java.time.Instant;
 import java.time.Duration;
 
@@ -42,7 +44,19 @@ public interface ExecutionBlock
     public static final Long BLOCK_STEP_MINUTES = 5L ;
     public static final Long BLOCK_STEP_SECONDS = 60L * BLOCK_STEP_MINUTES ;
 
-    public Instant getInstant();
+    public ExecutionResponse.StateEnum getState();
+    public void setState(ExecutionResponse.StateEnum state);
+
+    public UUID getOfferUuid();
+    public void setOfferUuid(final UUID offeruuid);
+
+    public UUID getParentUuid();
+    public void setParentUuid(final UUID parentuuid);
+
+    public Instant getExpiryTime();
+    public void setExpiryTime(final Instant expirytime);
+
+    public Instant  getInstant();
     public Duration getDuration();
 
     public Long getBlockStart();

@@ -24,28 +24,49 @@
 DROP TABLE IF EXISTS ExecutionBlocks;
 CREATE TABLE ExecutionBlocks(
     Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    BlockStart  LONG,
+    OfferUuid UUID,
+    ParentUuid UUID,
+    ExpiryTime TIMESTAMP(0) WITH TIME ZONE,
+    BlockState CHAR VARYING,
+    BlockStart LONG,
     BlockLength LONG,
     MinCores INT,
     MaxCores INT,
     MinMemory INT,
     MaxMemory INT
     );
-SELECT * FROM ExecutionBlocks ;
+
+-- SELECT * FROM ExecutionBlocks ;
 
 -- https://stackoverflow.com/a/39394592
 DROP VIEW IF EXISTS BlocksView ;
 CREATE VIEW BlocksView AS
     (
     SELECT
-        *,
+        Ident,
+        OfferUuid,
+        ParentUuid,
+        BlockState,
+        FORMATDATETIME(
+            ExpiryTime,
+            'YYYY-dd-MM HH:mm:ss+z'
+            ) AS ExpiryTime,
         FORMATDATETIME(
             DATEADD('SECOND', (BlockStart * 60 * 5), DATE '1970-01-01'),
-            'YYYY-dd-MM HH:mm:ss'
+            'YYYY-dd-MM HH:mm:ss+z'
             ) AS StartTime,
-        (BlockLength * 5) AS Duration
+        (BlockLength * 5) AS Duration,
+        BlockStart,
+        BlockLength,
+        MinCores,
+        MaxCores,
+        MinMemory,
+        MaxMemory
     FROM
         ExecutionBlocks
     );
-SELECT * FROM BlocksView ;
+
+-- SELECT * FROM BlocksView ;
+-- SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+
 

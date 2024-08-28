@@ -35,6 +35,7 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.util.UUID;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -45,6 +46,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.InstantSource;
 import org.threeten.extra.Interval;
+import java.sql.Timestamp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -57,8 +59,13 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
-public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
+public class ExecutionBlockDatabaseImpl
+    extends FactoryBase
+    implements ExecutionBlockDatabase
     {
 
     private JdbcTemplate template;
@@ -66,6 +73,7 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     @Autowired
     public ExecutionBlockDatabaseImpl(final JdbcTemplate template)
         {
+        super();
         this.template = template ;
         }
 
@@ -76,9 +84,14 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     @Override
     public int insert(final ExecutionBlock block)
         {
+        log.debug("INSERT [{}]", block.getOfferUuid());
         return template.update(
-            "INSERT INTO ExecutionBlocks (BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?)",
+            "INSERT INTO ExecutionBlocks (BlockState, OfferUuid, ParentUuid, ExpiryTime, BlockStart, BlockLength, MinCores, MaxCores, MinMemory, MaxMemory) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             new Object[] {
+                block.getState().toString(),
+                block.getOfferUuid(),
+                block.getParentUuid(),
+                block.getExpiryTime(),
                 block.getBlockStart(),
                 block.getBlockLength(),
                 block.getMinCores(),
@@ -90,6 +103,161 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         }
 
     /**
+     * Select an ExecutionBlock from our database.
+     *
+     */
+    public ExecutionBlock select(final UUID offeruuid)
+        {
+        String query =
+            """
+            SELECT * FROM ExecutionBlocks WHERE OfferUuid = :offeruuid
+            """;
+        return JdbcClient.create(template)
+            .sql(query)
+            .param("offeruuid", offeruuid.toString())
+            .query(new ExecutionBlockMapper())
+            .single();
+        }
+
+    /**
+     * Accept an ExecutionBlock in our database.
+     *
+     */
+    public int accept(final UUID offeruuid)
+        {
+        log.debug("Accept [{}]", offeruuid);
+        int one = template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'ACCEPTED',
+                ExpiryTime = NULL
+            WHERE
+                OfferUuid = ?
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            ;
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'REJECTED'
+            WHERE
+                ParentUuid IN (
+                    SELECT
+                        ParentUuid
+                    FROM
+                        ExecutionBlocks
+                    WHERE
+                        OfferUuid = ?
+                    )
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            """,
+            new Object[] {
+                offeruuid,
+                offeruuid
+                }
+            );
+        return one ;
+        }
+
+    /**
+     * Reject an ExecutionBlock in our database.
+     *
+     */
+    public int reject(final UUID offeruuid)
+        {
+        log.debug("Reject [{}]", offeruuid);
+        return template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'REJECTED'
+            WHERE
+                OfferUuid = ?
+            AND
+                BlockState IN ('PROPOSED', 'OFFERED')
+            """,
+            new Object[] {
+                offeruuid
+                }
+            );
+        }
+
+    /**
+     * Update any expired offers.
+     *
+     */
+    @Override
+    public int sweepUpdate(final Integer limit)
+        {
+        log.debug("Sweep [{}]", limit);
+        return template.update(
+            """
+            UPDATE
+                ExecutionBlocks
+            SET
+                BlockState = 'EXPIRED'
+            WHERE
+                Ident
+            IN (
+                SELECT
+                    Ident
+                FROM
+                    ExecutionBlocks
+                WHERE
+                    BlockState IN ('PROPOSED', 'OFFERED')
+                AND
+                    (ExpiryTime < CURRENT_TIMESTAMP())
+                ORDER BY
+                    Ident
+                LIMIT ?
+                )
+            """,
+            new Object[] {
+                ((limit != null) ? limit : Integer.valueOf(1))
+                }
+            );
+        }
+
+    /**
+     * Delete expired offers.
+     *
+     */
+    @Override
+    public int sweepDelete(final Integer limit)
+        {
+        log.debug("Sweep [{}]", limit);
+        return template.update(
+            """
+            DELETE FROM
+                ExecutionBlocks
+            WHERE
+                Ident
+            IN (
+                SELECT
+                    Ident
+                FROM
+                    ExecutionBlocks
+                WHERE
+                    BlockState IN ('EXPIRED', 'REJECTED')
+                AND
+                    (ExpiryTime < CURRENT_TIMESTAMP())
+                ORDER BY
+                    Ident
+                LIMIT ?
+                )
+            """,
+            new Object[] {
+                ((limit != null) ? limit : Integer.valueOf(1))
+                }
+            );
+        }
+
+
+    /**
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.
      *
      */
@@ -97,16 +265,13 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
     public List<ExecutionBlock> generate(final ProcessingContext context)
         {
         Interval starttime = null;
-        Duration minduration = null;
-        Duration maxduration = null;
+        Duration minduration  = null;
+        Duration maxduration  = null;
 
-        List<ProcessingContext.ScheduleItem> items = context.getScheduleItems();
-        // BUG - We only take the first item in the request.
-        if ((items != null) && (items.size() > 0))
+        if (context.getExecutionTime() != null)
             {
-            starttime = items.get(0).getStartTime();
-            minduration = items.get(0).getMinDuration();
-            maxduration = items.get(0).getMaxDuration();
+            starttime   = context.getExecutionTime().getStartTime();
+            minduration = context.getExecutionTime().getDuration();
             }
 
         if (starttime == null)
@@ -117,18 +282,15 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                 );
             }
 
-        if ((minduration == null) && (maxduration == null))
-            {
-            minduration = Duration.ofMinutes(20);
-            maxduration = Duration.ofMinutes(30);
-            }
         if (minduration == null)
             {
-            minduration = maxduration;
+            minduration = Duration.ofMinutes(30);
             }
         if (maxduration == null)
             {
-            maxduration = minduration;
+            maxduration = Duration.ofSeconds(
+                minduration.getSeconds()
+                );
             }
 
         String query =
@@ -232,6 +394,10 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
                     BlockLength <= :maxblocklength
                 )
             SELECT
+                'PROPOSED' AS BlockState,
+                NULL AS OfferUuid,
+                NULL AS ParentUuid,
+                NULL AS ExpiryTime,
                 BlockStart,
                 BlockLength,
                 MIN(FreeCores)  AS MinFreeCores,
@@ -251,15 +417,25 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
 
             query = query.replace(":totalcores",     String.valueOf(32));
             query = query.replace(":totalmemory",    String.valueOf(32));
-            query = query.replace(":rangeoffset",    String.valueOf((starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS)));
-            query = query.replace(":rangestart",     String.valueOf(0));
-            query = query.replace(":rangeend",       String.valueOf(
-                ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES) - 1
+            query = query.replace(":rangeoffset",    String.valueOf(
+                starttime.getStart().getEpochSecond() / ExecutionBlock.BLOCK_STEP_SECONDS
                 ));
-            query = query.replace(":minfreecores",   String.valueOf(context.getMinCores()));
-            query = query.replace(":minfreememory",  String.valueOf(context.getMinMemory()));
-            query = query.replace(":minblocklength", String.valueOf(minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
-            query = query.replace(":maxblocklength", String.valueOf(maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS));
+            query = query.replace(":rangestart",     String.valueOf(1));
+            query = query.replace(":rangeend",       String.valueOf(
+                ((24 * 60) / ExecutionBlock.BLOCK_STEP_MINUTES)
+                ));
+            query = query.replace(":minfreecores",   String.valueOf(
+                context.getMinCores()
+                ));
+            query = query.replace(":minfreememory",  String.valueOf(
+                context.getMinMemory()
+                ));
+            query = query.replace(":minblocklength", String.valueOf(
+                minduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS
+                ));
+            query = query.replace(":maxblocklength", String.valueOf(
+                maxduration.getSeconds() / ExecutionBlock.BLOCK_STEP_SECONDS
+                ));
 
         List<ExecutionBlock> list = JdbcClient.create(template)
             .sql(query)
@@ -283,21 +459,49 @@ public class ExecutionBlockDatabaseImpl implements ExecutionBlockDatabase
         return list ;
         }
 
+    /**
+     * Null safe translation between time formats.
+     * Handles a null timestamp from the database.
+     *
+     */
+    private static Instant timestampToInstant(final Timestamp timestamp)
+        {
+        if (timestamp != null)
+            {
+            return timestamp.toInstant();
+            }
+        else {
+            return null ;
+            }
+        }
+
     public static class ExecutionBlockMapper implements RowMapper<ExecutionBlock>
         {
         @Override
         public ExecutionBlock mapRow(ResultSet rs, int rowNum)
         throws SQLException
             {
-            ExecutionBlock block = new ExecutionBlockImpl(
-                rs.getLong("BlockStart"),
-                rs.getLong("BlockLength"),
-                rs.getInt("MinFreeCores"),
-                rs.getInt("MinFreeCores"),
-                rs.getInt("MinFreeMemory"),
-                rs.getInt("MinFreeMemory")
-                );
-            return block;
+            try {
+                ExecutionBlock block = new ExecutionBlockImpl(
+                    rs.getString("BlockState"),
+                    (UUID) rs.getObject("OfferUuid"),
+                    (UUID) rs.getObject("ParentUuid"),
+                    timestampToInstant(rs.getTimestamp("ExpiryTime")),
+                    rs.getLong("BlockStart"),
+                    rs.getLong("BlockLength"),
+                    rs.getInt("MinFreeCores"),
+                    rs.getInt("MinFreeCores"),
+                    rs.getInt("MinFreeMemory"),
+                    rs.getInt("MinFreeMemory")
+                    );
+                return block;
+                }
+            catch (IllegalArgumentException ouch)
+                {
+                throw new SQLException(
+                    ouch
+                    );
+                }
             }
         }
     }

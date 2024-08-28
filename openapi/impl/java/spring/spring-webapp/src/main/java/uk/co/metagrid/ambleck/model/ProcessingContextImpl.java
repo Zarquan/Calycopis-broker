@@ -35,18 +35,21 @@ import org.threeten.extra.Interval;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
-/**
- * A class to hold context during processing.
- *
- */
-public class ProcessingContextImpl implements ProcessingContext
+import uk.co.metagrid.ambleck.platform.Execution;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public abstract class ProcessingContextImpl<ExecutionType extends Execution>
+    implements ProcessingContext<ExecutionType>
     {
 
-    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetResponse response)
+    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ExecutionType execution)
         {
         this.baseurl  = baseurl ;
         this.request  = request ;
-        this.response = response ;
+        this.offerset = offerset ;
+        this.execution = execution ;
         }
 
     private boolean valid = true ;
@@ -69,10 +72,10 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.request;
         }
 
-    private final OfferSetResponse response;
-    public OfferSetResponse response()
+    private final OfferSetAPI offerset;
+    public OfferSetAPI getOfferSet()
         {
-        return this.response;
+        return this.offerset;
         }
 
     private final String baseurl;
@@ -81,10 +84,16 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.baseurl;
         }
 
+    protected ExecutionType execution;
+    public ExecutionType getExecution()
+        {
+        return this.execution;
+        }
+
     // Messages
     public void addMessage(final MessageItem message)
         {
-        this.response.addMessagesItem(
+        this.offerset.addMessage(
             message
             );
         }
@@ -189,7 +198,6 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.compmap.get(key);
         }
 
-    // Executable
     private AbstractExecutable executable ;
     public AbstractExecutable getExecutable()
         {
@@ -197,6 +205,7 @@ public class ProcessingContextImpl implements ProcessingContext
         }
     public void setExecutable(final AbstractExecutable executable)
         {
+        log.debug("setExecutable [{}][{}]", executable.getType(), executable.getUuid());
         this.executable = executable;
         }
 
@@ -288,42 +297,46 @@ public class ProcessingContextImpl implements ProcessingContext
 
     public class ScheduleItemImpl implements ScheduleItem
         {
-        public ScheduleItemImpl(final Interval starttime, final Duration minduration, final Duration maxduration)
+        public ScheduleItemImpl(final Interval starttime, final Duration duration)
             {
             this.starttime = starttime ;
-            this.minduration = minduration;
-            this.maxduration = maxduration;
+            this.duration  = duration;
             }
         private Interval starttime ;
         public Interval getStartTime()
             {
             return this.starttime;
             }
-        private Duration minduration;
-        public Duration getMinDuration()
+        private Duration duration;
+        public Duration getDuration()
             {
-            return this.minduration;
-            }
-        private Duration maxduration;
-        public Duration getMaxDuration()
-            {
-            return this.maxduration;
+            return this.duration;
             }
         }
 
-    private List<ScheduleItem> scheduleItems = new ArrayList<ScheduleItem>();
-    public List<ScheduleItem> getScheduleItems()
+    private ScheduleItem prepTime;
+    public ScheduleItem getPreparationTime()
         {
-        return this.scheduleItems ;
+        return this.prepTime;
         }
-    public void addScheduleItem(final Interval starttime, final Duration minduration, final Duration maxduration)
+    public void setPreparationTime(final Interval starttime, final Duration duration)
         {
-        scheduleItems.add(
-            new ScheduleItemImpl(
-                starttime,
-                minduration,
-                maxduration
-                )
+        this.prepTime = new ScheduleItemImpl(
+            starttime,
+            duration
+            );
+        }
+
+    private ScheduleItem execTime;
+    public ScheduleItem getExecutionTime()
+        {
+        return this.execTime;
+        }
+    public void setExecutionTime(final Interval starttime, final Duration duration)
+        {
+        this.execTime = new ScheduleItemImpl(
+            starttime,
+            duration
             );
         }
     }
