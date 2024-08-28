@@ -76,8 +76,11 @@ public interface ProcessingContext
         public Duration getDuration();
         }
 
+    // ScheduleItem for the Execution.
+    // ScheduleItem for the Executable.
+
     public ScheduleItem getPreparationTime();
-    public void setPreparationTime(final Interval starttime, final Duration dutarion);
+    public void setPreparationTime(final Interval starttime, final Duration duration);
 
     public ScheduleItem getExecutionTime();
     public void setExecutionTime(final Interval starttime, final Duration dutarion);

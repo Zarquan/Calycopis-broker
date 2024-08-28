@@ -412,7 +412,7 @@ components:
             Scheduling information for the component.
           xml:
             name: schedule
-          $ref: '#/components/schemas/ExecutionSchedule'
+          $ref: '#/components/schemas/StringScheduleBlock'
 
     AbstractComputeResource:
       description: >
@@ -999,34 +999,34 @@ components:
         max:
           type: string
 
-    ScheduleRequestItem:
-      description: >
-        A date and time request for an execution.
-      type: object
-      xml:
-        name: date-time
-      properties:
-        start:
-          description: >
-            The start time for the execution, expressed as an ISO 8601 time interval.
-            See : https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
-          type: string
-        duration:
-          description: >
-            The duration for the execution.
-          $ref: '#/components/schemas/MinMaxDuration'
+#    ScheduleRequestItem:
+#      description: >
+#        A date and time request for an execution.
+#      type: object
+#      xml:
+#        name: date-time
+#      properties:
+#        start:
+#          description: >
+#            The start time for the execution, expressed as an ISO 8601 time interval.
+#            See : https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
+#          type: string
+#        duration:
+#          description: >
+#            The duration for the execution.
+#          $ref: '#/components/schemas/MinMaxDuration'
 
-    ScheduleRequestList:
-      description: >
-        List of date and time request for an execution.
-      type: array
-      xml:
-        name: schedule
-        wrapped: true
-      items:
-        $ref: '#/components/schemas/ScheduleRequestItem'
+#    ScheduleRequestList:
+#      description: >
+#        List of date and time request for an execution.
+#      type: array
+#      xml:
+#        name: schedule
+#        wrapped: true
+#      items:
+#        $ref: '#/components/schemas/ScheduleRequestItem'
 
-    ScheduleBlockItem:
+    StringScheduleBlockValue:
       description: >
         Used for the predicted and observed times.
       type: object
@@ -1038,7 +1038,7 @@ components:
         duration:
           type: string
 
-    ScheduleBlock:
+    StringScheduleBlockItem:
       description: >
         Used for the predicted and observed times.
       type: object
@@ -1046,13 +1046,13 @@ components:
         name: date-time
       properties:
         preparing:
-          $ref: '#/components/schemas/ScheduleBlockItem'
+          $ref: '#/components/schemas/StringScheduleBlockValue'
         executing:
-          $ref: '#/components/schemas/ScheduleBlockItem'
+          $ref: '#/components/schemas/StringScheduleBlockValue'
         finishing:
-          $ref: '#/components/schemas/ScheduleBlockItem'
+          $ref: '#/components/schemas/StringScheduleBlockValue'
 
-    ExecutionSchedule:
+    StringScheduleBlock:
       description: >
         Schedule ...
       type: object
@@ -1060,11 +1060,11 @@ components:
         name: schedule
       properties:
         requested:
-          $ref: '#/components/schemas/ScheduleBlock'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
         offered:
-          $ref: '#/components/schemas/ScheduleBlock'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
         observed:
-          $ref: '#/components/schemas/ScheduleBlock'
+          $ref: '#/components/schemas/StringScheduleBlockItem'
 
     ExecutionResourceList:
       description: >
@@ -1101,7 +1101,7 @@ components:
             schedule:
               xml:
                 name: schedule
-              $ref: '#/components/schemas/ExecutionSchedule'
+              $ref: '#/components/schemas/StringScheduleBlock'
 
     ExecutionResponse:
       description: >

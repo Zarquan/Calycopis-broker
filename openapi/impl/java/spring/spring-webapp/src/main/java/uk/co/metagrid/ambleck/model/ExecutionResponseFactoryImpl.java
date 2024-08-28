@@ -286,19 +286,19 @@ public class ExecutionResponseFactoryImpl
                 if (offer.getSchedule() == null)
                     {
                     offer.setSchedule(
-                        new ExecutionSchedule()
+                        new StringScheduleBlock()
                         );
                     }
                 if (offer.getSchedule().getOffered() == null)
                     {
                     offer.getSchedule().setOffered(
-                        new ScheduleBlock()
+                        new StringScheduleBlockItem()
                         );
                     }
                 if (offer.getSchedule().getOffered().getExecuting() == null)
                     {
                     offer.getSchedule().getOffered().setExecuting(
-                        new ScheduleBlockItem()
+                        new StringScheduleBlockValue()
                         );
                     }
                 offer.getSchedule().getOffered().getExecuting().setStart(
@@ -1119,9 +1119,9 @@ public class ExecutionResponseFactoryImpl
      * Validate the Execution Schedule.
      *
      */
-    public void validate(final ExecutionSchedule schedule, final ProcessingContext context)
+    public void validate(final StringScheduleBlock schedule, final ProcessingContext context)
         {
-        log.debug("Processing ExecutionSchedule");
+        log.debug("Processing StringScheduleBlock");
         if (schedule != null)
             {
             //
@@ -1130,10 +1130,10 @@ public class ExecutionResponseFactoryImpl
             // Check the observed section is empty.
             // ....
 
-            ScheduleBlock requested = schedule.getRequested();
+            StringScheduleBlockItem requested = schedule.getRequested();
             if (requested != null);
                 {
-                ScheduleBlockItem preparing = requested.getPreparing();
+                StringScheduleBlockValue preparing = requested.getPreparing();
                 if (preparing != null)
                     {
                     Interval prepstart = null;
@@ -1193,7 +1193,7 @@ public class ExecutionResponseFactoryImpl
                         );
                     }
 
-                ScheduleBlockItem executing = requested.getExecuting();
+                StringScheduleBlockValue executing = requested.getExecuting();
                 if (executing != null)
                     {
                     Interval execstart = null;
