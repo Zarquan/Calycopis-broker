@@ -40,7 +40,7 @@ import uk.co.metagrid.ambleck.model.OfferSetResponseImpl;
 import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
 
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
-import uk.co.metagrid.ambleck.platform.CanfarExecutionFactory;
+import uk.co.metagrid.ambleck.platform.CanfarProcessingContextFactory;
 import uk.co.metagrid.ambleck.platform.Execution;
 
 import lombok.extern.slf4j.Slf4j;
@@ -67,10 +67,10 @@ public class OfferSetResponseFactoryImpl
      * Our CanfarExecutionFactory instance.
      *
      */
-    private final CanfarExecutionFactory canfarder ;
+    private final CanfarProcessingContextFactory canfarder ;
 
     @Autowired
-    public OfferSetResponseFactoryImpl(final ExecutionResponseFactory responder, final CanfarExecutionFactory canfarder)
+    public OfferSetResponseFactoryImpl(final ExecutionResponseFactory responder, final CanfarProcessingContextFactory canfarder)
         {
         super();
         this.responder = responder ;
@@ -115,7 +115,7 @@ public class OfferSetResponseFactoryImpl
     public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
         {
         log.debug(
-            "Creating OfferSetResponse ...."
+            "Creating OfferSetResponse"
             );
         OfferSetResponseImpl offerset = new OfferSetResponseImpl(
             OffsetDateTime.now().plusMinutes(
@@ -123,23 +123,26 @@ public class OfferSetResponseFactoryImpl
                 ),
             baseurl
             );
-        Execution canfar = canfarder.create(
+
+        ProcessingContext context = canfarder.create(
+            baseurl,
+            request,
             offerset
             );
         offerset.setExecution(
-            canfar
-            );
-        this.insert(
-            offerset
+            context.getExecution()
             );
         offerset.setName(
             request.getName()
+            );
+        this.insert(
+            offerset
             );
         responder.create(
             baseurl,
             request,
             offerset,
-            canfar
+            context
             );
         return offerset ;
         }

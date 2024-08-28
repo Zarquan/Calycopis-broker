@@ -47,6 +47,18 @@ public interface PreparationStep<ParentType extends Execution>
     public StateEnum getState();
 
     /**
+     * Get the next step in the sequence.
+     *
+     */
+    public PreparationStep getNextStep();
+
+    /**
+     * Set the next step in the sequence.
+     *
+     */
+    public void setNextStep(final PreparationStep nextStep);
+
+    /**
      * The cost in time to prepare this step.
      *
      */

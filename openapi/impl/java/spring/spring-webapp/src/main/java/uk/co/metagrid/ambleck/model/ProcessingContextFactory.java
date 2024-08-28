@@ -18,26 +18,15 @@
  *   </meta:licence>
  * </meta:header>
  *
- *
  */
-package uk.co.metagrid.ambleck.platform;
+package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
+import uk.co.metagrid.ambleck.platform.Execution;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-
-public interface ExecutionFactory
+public interface ProcessingContextFactory<ExecutionType extends Execution>
     {
-    /*
-     * Get this factory's identifier.
-     *
-     */
-    public UUID getUuid();
 
-    /**
-     * Create a new Execution.
-     *
-     */
-    public Execution create(final OfferSetAPI offerset);
-    }
+    public ProcessingContext<ExecutionType> create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset);
+    //public ProcessingContext<ExecutionType> create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ExecutionResponseAPI response);
 
+    };

@@ -34,7 +34,7 @@ import uk.co.metagrid.ambleck.platform.Execution;
  * A class to hold context during processing.
  *
  */
-public interface ProcessingContext
+public interface ProcessingContext<ExecutionType extends Execution>
     {
     public boolean valid();
     public void valid(boolean value);
@@ -85,8 +85,11 @@ public interface ProcessingContext
     public ScheduleItem getExecutionTime();
     public void setExecutionTime(final Interval starttime, final Duration dutarion);
 
-    public Execution getExecution();
+    public ExecutionType getExecution();
     //public Execution setExecution(final Execution execution);
+
+    //public void addPreparation();
+
 
     }
 

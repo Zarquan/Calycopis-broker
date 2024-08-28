@@ -22,12 +22,15 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
-
-public interface CanfarExecutionFactory
-    extends ExecutionFactory
+public interface CanfarSpacePreparationStep
+    extends CanfarPreparationStep
     {
-    public CanfarExecution create(final OfferSetAPI offerset, final ExecutionResponseAPI response);
+
+    public String getUserName();
+    public String getUserHome();
+
+    public String getSessionName();
+    public String getSessionHome();
+
     }
 

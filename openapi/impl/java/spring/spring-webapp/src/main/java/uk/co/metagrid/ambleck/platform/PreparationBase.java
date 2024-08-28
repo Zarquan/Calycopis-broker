@@ -25,17 +25,25 @@ package uk.co.metagrid.ambleck.platform;
 import java.util.UUID;
 import java.time.Duration;
 
+import com.github.f4b6a3.uuid.UuidCreator;
+
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Base class for a PreparationStep.
  *
  */
+@Slf4j
 public abstract class PreparationBase<ParentType extends Execution>
     implements PreparationStep<ParentType>
     {
+    public Duration DEFAULT_STEP_COST = Duration.ofMinutes(5) ;
 
     public PreparationBase(final ParentType parent)
         {
+        this.uuid = UuidCreator.getTimeBased();
         this.parent = parent ;
+        this.prepCost = DEFAULT_STEP_COST ;
         }
 
     private UUID uuid;
@@ -54,6 +62,17 @@ public abstract class PreparationBase<ParentType extends Execution>
     public StateEnum getState()
         {
         return this.state;
+        }
+
+    private PreparationStep nextStep;
+    public PreparationStep getNextStep()
+        {
+        return this.nextStep;
+        }
+
+    public void setNextStep(final PreparationStep nextStep)
+        {
+        this.nextStep = nextStep;
         }
 
     private Duration prepCost;

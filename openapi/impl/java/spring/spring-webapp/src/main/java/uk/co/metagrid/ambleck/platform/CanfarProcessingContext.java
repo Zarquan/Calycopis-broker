@@ -22,37 +22,13 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import uk.co.metagrid.ambleck.model.JupyterNotebook01;
+import uk.co.metagrid.ambleck.model.ProcessingContext;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-public class CanfarNotebookPreparationImpl
-    extends PreparationBase<CanfarExecution>
-    implements CanfarNotebookPreparationStep
+public interface CanfarProcessingContext
+    extends ProcessingContext<CanfarExecution>
     {
 
-    public CanfarNotebookPreparationImpl(final CanfarExecution parent, final JupyterNotebook01 config)
-        {
-        super(parent) ;
-        this.config = config;
-        }
+    public CanfarExecution getExecution();
 
-    private JupyterNotebook01 config;
-    public JupyterNotebook01 getConfig()
-        {
-        return this.config;
-        }
-
-    public String getNotebookName()
-        {
-        return this.config.getNotebook();
-        }
-
-    @Override
-    public void run()
-        {
-        log.debug("run() notebook [{}][{}]", this.getNotebookName(), this.getUuid());
-        }
     }
 

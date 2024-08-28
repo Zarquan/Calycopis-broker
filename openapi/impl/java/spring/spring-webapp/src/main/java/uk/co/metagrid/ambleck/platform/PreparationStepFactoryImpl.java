@@ -23,6 +23,11 @@
 package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
+import java.util.Map;
+import java.util.HashMap;
+
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import uk.co.metagrid.ambleck.model.FactoryBase;
 
@@ -30,6 +35,25 @@ public class PreparationStepFactoryImpl
     extends FactoryBase
     implements PreparationStepFactory
     {
+
+    /**
+     * Our internal Map of steps.
+     *
+     */
+    private Map<UUID, PreparationStep> hashmap = new HashMap<UUID, PreparationStep>();
+
+    /**
+     * Add a PreparationStep to our Map.
+     *
+     */
+    protected void insert(final PreparationStep step)
+        {
+        hashmap.put(
+            step.getUuid(),
+            step
+            ) ;
+        }
+
     /**
      * Select a PreparationStep based on it's uuid.
      * Used by callbacks to locate theirt target.
@@ -38,7 +62,7 @@ public class PreparationStepFactoryImpl
     @Override
     public PreparationStep select(final UUID uuid)
         {
-        return null ;
+        return hashmap.get(uuid) ;
         }
     }
 

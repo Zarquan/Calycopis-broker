@@ -28,12 +28,13 @@ import java.util.List;
 import java.time.Duration;
 
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.AbstractExecutable;
 
 /**
  * Public interface for an Execution session.
  *
  */
-public interface Execution<T extends PreparationStep>
+public interface Execution<StepType extends PreparationStep>
     {
 
     public UUID getUuid();
@@ -42,7 +43,11 @@ public interface Execution<T extends PreparationStep>
 
     public Duration getPrepCost();
 
-    public List<T> getPreparationSteps();
+    public List<StepType> getPreparationSteps();
+
+    public void addPreparationStep(final StepType nextStep);
+
+    //public void setExecutable(final AbstractExecutable executable);
 
     }
 

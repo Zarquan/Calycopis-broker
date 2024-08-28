@@ -31,13 +31,11 @@ import java.time.Duration;
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
 import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
 
-/**
- * Base class for an Execution session.
- *
- */
-public abstract class ExecutionBase<T extends PreparationStep>
-    //extends ExecutionResponseImpl
-    implements Execution<T>
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public abstract class ExecutionBase<StepType extends PreparationStep>
+    implements Execution<StepType>
     {
 
     public ExecutionBase(final OfferSetAPI offerset, final ExecutionResponseAPI response)
@@ -57,7 +55,7 @@ public abstract class ExecutionBase<T extends PreparationStep>
         {
         return this.response;
         }
-    public void getResponse(final ExecutionResponseAPI response)
+    public void setResponse(final ExecutionResponseAPI response)
         {
         this.response = response;
         }
@@ -68,11 +66,48 @@ public abstract class ExecutionBase<T extends PreparationStep>
         return this.uuid;
         }
 
-    private List<T> steps = new ArrayList<T>();
-    public List<T> getPreparationSteps()
+    private List<StepType> stepList = new ArrayList<StepType>();
+    public List<StepType> getPreparationSteps()
         {
-        return this.steps;
+        return this.stepList;
         }
+
+    public void addPreparationStep(final StepType nextStep)
+        {
+        log.debug("addPreparationStep [{}][{}]", nextStep.getClass().getName(), nextStep.getUuid());
+        if (nextStep != null)
+            {
+            if (this.firstStep == null)
+                {
+                this.firstStep = nextStep ;
+                }
+            if (this.lastStep != null)
+                {
+                this.lastStep.setNextStep(
+                    nextStep
+                    );
+                }
+            this.lastStep = nextStep;
+            this.stepList.add(
+                nextStep
+                );
+            }
+        }
+
+    // The last item to be added.
+    private StepType lastStep;
+    public StepType getLastStep()
+        {
+        return this.lastStep;
+        }
+
+    // The first item to be added.
+    private StepType firstStep;
+    public StepType getFirstStep()
+        {
+        return this.firstStep;
+        }
+
 
     private Duration prepCost;
     public Duration getPrepCost()

@@ -25,30 +25,43 @@ package uk.co.metagrid.ambleck.platform;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.model.FactoryBase;
+import uk.co.metagrid.ambleck.model.JupyterNotebook01;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-class CanfarPreparationStepFactoryImpl
+public class CanfarPreparationStepFactoryImpl
     extends PreparationStepFactoryImpl
     implements CanfarPreparationStepFactory
     {
-    public CanfarPreparationStepFactoryImpl()
+
+    public void createSpacePreparationStep(final CanfarExecution execution)
         {
-        super();
+        log.debug("createPreparationStep()");
+        CanfarSpacePreparationStep step = new CanfarSpacePreparationImpl(
+            execution
+            );
+        execution.addPreparationStep(
+            step
+            );
+        this.insert(
+            step
+            );
         }
 
-    public CanfarNotebookPreparationStep createNotebookStep(final CanfarExecution parent)
+    public void createNotebookPreparationStep(final CanfarExecution execution, final JupyterNotebook01 config)
         {
-        return null ;
+        log.debug("createNotebookPreparationStep()");
+        CanfarNotebookPreparationImpl step = new CanfarNotebookPreparationImpl(
+            execution,
+            config
+            );
+        execution.addPreparationStep(
+            step
+            );
+        this.insert(
+            step
+            );
         }
-
-    public CanfarDataResourceStep createDataResourceStep(final CanfarExecution parent)
-        {
-        return null ;
-        }
-
     }
-

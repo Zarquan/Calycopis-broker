@@ -37,14 +37,14 @@ import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.platform.Execution;
 
-/**
- * A class to hold context during processing.
- *
- */
-public class ProcessingContextImpl implements ProcessingContext
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+public abstract class ProcessingContextImpl<ExecutionType extends Execution>
+    implements ProcessingContext<ExecutionType>
     {
 
-    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final Execution execution)
+    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ExecutionType execution)
         {
         this.baseurl  = baseurl ;
         this.request  = request ;
@@ -84,8 +84,8 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.baseurl;
         }
 
-    private Execution execution;
-    public Execution getExecution()
+    protected ExecutionType execution;
+    public ExecutionType getExecution()
         {
         return this.execution;
         }
@@ -198,7 +198,6 @@ public class ProcessingContextImpl implements ProcessingContext
         return this.compmap.get(key);
         }
 
-    // Executable
     private AbstractExecutable executable ;
     public AbstractExecutable getExecutable()
         {
@@ -206,6 +205,7 @@ public class ProcessingContextImpl implements ProcessingContext
         }
     public void setExecutable(final AbstractExecutable executable)
         {
+        log.debug("setExecutable [{}][{}]", executable.getType(), executable.getUuid());
         this.executable = executable;
         }
 

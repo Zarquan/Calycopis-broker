@@ -217,7 +217,7 @@ public class ExecutionBlockDatabaseImpl
                 )
             """,
             new Object[] {
-                ((limit != null) ? limit : new Integer(1))
+                ((limit != null) ? limit : Integer.valueOf(1))
                 }
             );
         }
@@ -251,7 +251,7 @@ public class ExecutionBlockDatabaseImpl
                 )
             """,
             new Object[] {
-                ((limit != null) ? limit : new Integer(1))
+                ((limit != null) ? limit : Integer.valueOf(1))
                 }
             );
         }

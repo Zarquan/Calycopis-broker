@@ -27,32 +27,59 @@ import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CanfarPreparationImpl
+public class CanfarSpacePreparationImpl
     extends PreparationBase<CanfarExecution>
-    implements CanfarPreparationStep
+    implements CanfarSpacePreparationStep
     {
 
-    public CanfarPreparationImpl(final CanfarExecution parent)
+    public CanfarSpacePreparationImpl(final CanfarExecution parent)
         {
-        super(parent) ;
-        this.setPrepCost(
-            Duration.ofMinutes(5)
-            );
+        super(parent);
+        log.debug("constructor");
         }
 
+    public String getUserName()
+        {
+        return this.getParent().getUserName();
+        }
+
+    public StringBuilder getUserHomeBuilder()
+        {
+        StringBuilder builder = new StringBuilder();
+        builder.append("/home/");
+        builder.append(this.getUserName());
+        return builder;
+        }
+
+    public String getUserHome()
+        {
+        return this.getUserHomeBuilder().toString();
+        }
+
+    public String getSessionName()
+        {
+        return this.getParent().getUuid().toString();
+        }
+
+    public StringBuilder getSessionHomeBuilder()
+        {
+        StringBuilder builder = this.getUserHomeBuilder();
+        builder.append("/");
+        builder.append(this.getSessionName());
+        return builder ;
+        }
+
+    public String getSessionHome()
+        {
+        return this.getSessionHomeBuilder().toString();
+        }
 
     @Override
     public void run()
         {
-        String username = this.getParent().getUserName();
-        String sessionid = this.getParent().getUuid().toString();
-        StringBuilder builder = new StringBuilder();
-        builder.append("/home/");
-        builder.append(username);
-        builder.append("/");
-        builder.append(sessionid);
+        log.debug("run()");
         this.getParent().setSessionHome(
-            builder.toString()
+            this.getSessionHome()
             );
         // Call the VOSpace service to create session home.
         try {

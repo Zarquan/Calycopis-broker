@@ -50,7 +50,7 @@ public interface ExecutionResponseFactory
      * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
      *
      */
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response, final Execution execution);
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI response, final ProcessingContext<?> context);
 
     /**
      * Update an Execution.

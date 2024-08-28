@@ -130,7 +130,7 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final Execution execution)
+    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ProcessingContext<?> context)
         {
         log.debug("Processing a new OfferSetRequest and OfferSetResponse");
         //
@@ -194,7 +194,8 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
-
+/*
+ *
         //
         // Create our processing context.
         ProcessingContext context = new ProcessingContextImpl(
@@ -203,6 +204,8 @@ public class ExecutionResponseFactoryImpl
             offerset,
             execution
             );
+ *
+ */
 
         //
         // Validate our execution schedule.
@@ -1086,14 +1089,10 @@ public class ExecutionResponseFactoryImpl
         result.setName(
             request.getName()
             );
-/*
- *
-        validate(
-            request.getSchedule(),
-            context
-            );
- *
- */
+        //
+        // TODO
+        // Validate the notebook schedule ..
+        //
 
         String notebook = request.getNotebook();
         if ((notebook != null) && (notebook.trim().isEmpty()))
@@ -1113,11 +1112,19 @@ public class ExecutionResponseFactoryImpl
         context.setExecutable(
             result
             );
+/*
+ * TODO Add the processing step .. in setExecutable()
+        CanfarNotebookPreparationStep step = factory.createNotebookStep(
+            (CanfarExecution) parent,
+            result
+            );
+ *
+ */
         }
 
     /**
      * Validate the Execution Schedule.
-     *
+     * TODO Move this to the time classes.
      */
     public void validate(final StringScheduleBlock schedule, final ProcessingContext context)
         {

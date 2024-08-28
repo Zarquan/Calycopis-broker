@@ -22,13 +22,14 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-interface CanfarPreparationStepFactory
+import uk.co.metagrid.ambleck.model.JupyterNotebook01;
+
+public interface CanfarPreparationStepFactory
     extends PreparationStepFactory
     {
 
-    public CanfarNotebookPreparationStep createNotebookStep(final CanfarExecution parent);
+    public void createSpacePreparationStep(final CanfarExecution execution);
 
-    public CanfarDataResourceStep createDataResourceStep(final CanfarExecution parent);
+    public void createNotebookPreparationStep(final CanfarExecution execution, final JupyterNotebook01 config);
 
     }
-

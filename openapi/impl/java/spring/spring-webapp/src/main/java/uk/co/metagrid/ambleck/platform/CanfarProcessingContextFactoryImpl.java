@@ -22,47 +22,41 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.github.f4b6a3.uuid.UuidCreator;
-
-
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
 import uk.co.metagrid.ambleck.model.FactoryBase;
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.OfferSetRequest;
 import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-public class CanfarExecutionFactoryImpl
+public class CanfarProcessingContextFactoryImpl
     extends FactoryBase
-    implements CanfarExecutionFactory
+    implements CanfarProcessingContextFactory
     {
 
-    public CanfarExecutionFactoryImpl()
+    private CanfarPreparationStepFactory stepory ;
+
+    @Autowired
+    public CanfarProcessingContextFactoryImpl(final CanfarPreparationStepFactory stepory)
         {
-        super();
+        this.stepory = stepory ;
         }
 
-    public CanfarExecution create(final OfferSetAPI offerset)
+    public CanfarProcessingContext create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset)
         {
-        return create(offerset, null);
-        }
-
-    public CanfarExecution create(final OfferSetAPI offerset, final ExecutionResponseAPI response)
-        {
-        log.debug(
-            "Creating new CanfarExecution for [{}][{}]",
-            (offerset != null) ? offerset.getUuid() : null,
-            (response != null) ? response.getUuid() : null
-            );
-        return new CanfarExecutionImpl(
+        return new CanfarProcessingContextImpl(
+            stepory,
+            baseurl,
+            request,
             offerset,
-            response
+            new CanfarExecutionImpl(
+                offerset
+                )
             );
         }
     }

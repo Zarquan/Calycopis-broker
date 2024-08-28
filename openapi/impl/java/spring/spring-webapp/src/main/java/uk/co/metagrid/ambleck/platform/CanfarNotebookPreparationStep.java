@@ -27,7 +27,6 @@ extends CanfarPreparationStep
     {
 
     public String getNotebookName();
-    public void setNotebookName(final String notebook);
 
     }
 

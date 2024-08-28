@@ -35,7 +35,5 @@ public interface CanfarExecution
     public String getSessionHome();
     public void setSessionHome(final String path);
 
-    //public List<CanfarPreparationStep> getPreparationSteps();
-
     }
 
