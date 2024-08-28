@@ -106,33 +106,23 @@ EOF
     | tee "${createresponse}" \
     | yq '.offers[].schedule'
 
---START--
-offered:
-  executing:
-    start: "2024-08-27T15:00Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-27T16:00Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-27T17:00Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-27T18:00Z"
-    duration: "PT1H"
---END--
+    >   offered:
+    >     executing:
+    >       start: "2024-08-28T06:10Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-28T07:10Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-28T08:10Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-28T09:10Z"
+    >       duration: "PT1H"
 
-
-    yq '.offers[].executable.schedule' \
-       "${createresponse}"
-
---START--
-....
-....
---END--
 
 
 # -----------------------------------------------------
@@ -142,10 +132,8 @@ offered:
 
     SELECT * FROM BlocksView ;
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -182,10 +170,12 @@ EOF
     | tee "${updateresponse}" \
     | yq '{"state":.state, "schedule":.schedule}'
 
---START--
-....
-....
---END--
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-28T06:10Z"
+    >         duration: "PT1H"
 
 
 # -----------------------------------------------------
@@ -195,9 +185,7 @@ EOF
 
     SELECT * FROM ExecutionBlocks ;
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
