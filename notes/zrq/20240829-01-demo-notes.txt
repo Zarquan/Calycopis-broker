@@ -1,0 +1,320 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes for the end of iteration demo.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Where we started
+
+        Document but no code.
+        Untested ideas.
+
+    Proposed web service(s)
+
+        ExecutionPlanner
+            Resource booking and scheduling.
+
+        ExecutionWorker
+            In theory similar to UWS/CEA
+            In practice, no start, inputs and outputs are resource locations,
+            similar state transitions, but not much more.
+
+    Current web service
+
+        Evolved early in this iteration
+        ExecutionPlanner -> ExecutionBroker
+        ExecutionWorker  -> n/a
+
+            Once the user accepts an offer, the processing is automatic.
+            Execution is started automatically based on schedule.
+
+    OpenAPI
+
+IVOA P3T team developing the next generation of IVOA service specifications
+Using OpenAPI to define the WebService API and data model.
+This will effect the next versions of UWS, TAP and DataLink.
+ExecutionBroker selected as a pathfinder for this process.
+
+* Can we use OpenAPI to describe the web service ?
+* Can we use OpenAPI to generate the code ?
+* Does it help ?
+
+* Can we use OpenAPI to describe the web service ?
+Yes. Simple language syntax, easy to learn and easy to understand.
+
+* Can we use OpenAPI to generate the code ?
+Some. Depends on the toolset.
+
+Java toolset is very good.
+Generates a full set of classes for the web service interface.
+
+Python/FatsAPI toolset is patchy.
+Small simple messages are fine.
+Has problems with complex data structures, e.g. polymorphism.
+
+Human -> OpenAPI : good
+OpenAPI -> Human : good
+
+OpenAPI -> Java/Spring : good
+OpenAPI -> Python/FastAPI : not good
+
+        * Does it help ?
+          It is a good way to define a web service interface.
+          It does not define the behaviour.
+
+          Current IVOA standards
+          Human -> LaTex : variable accuracy
+
+          Future IVOA standards
+          Human -> LaTex+OpenAPI : better accuracy
+
+Service API
+
+Request for offers
+POST to /offerset
+
+--START--
+executable:
+  ....
+schedule:
+  ....
+resources:
+  compute:
+    ....
+  data:
+    ....
+  storage:
+    ....
+--END--
+
+Creates a new set of offers on the server.
+
+Response is either a 303 redirect or 200 response with in-line data.
+OpenAPI can represent both forms.
+Service implementation can swap between them.
+
+Response with offers : GET to /offerset/{uuid}
+
+--START--
+uuid: ....
+result: YES
+href: http://..../offerset/{uuid}
+offers:
+- uuid: ....
+  state: "OFFERED"
+  href: http://..../execution/{uuid}
+  ....
+  executable:
+    ....
+  schedule:
+    ....
+  resources:
+--END--
+
+Serialization format
+
+Report showing request and reply messages in YAML
+because it is human readable.
+
+Implementation can handle request and reply messages in JSON, YAML and XML.
+Same code base, different serialiser/deserialiser.
+
+        GET to /offerset/{uuid}
+
+--START--
+{
+"uuid": "....",
+"result": "YES",
+"href": "http://..../offerset/{uuid}",
+"offers": [
+  {
+  "uuid": "....",
+  "state": "OFFERED",
+  "href": "http://..../execution/{uuid}",
+    ....
+  "executable": {
+    ....
+    },
+  "schedule": {
+    ....
+    },
+  "resources": {
+    ....
+    },
+  ....
+  },
+}
+--END--
+
+
+JSON is easier for Python clients.
+YAML is easier for Human clients.
+
+Scheduling
+
+Client specifies the start time and the duration.
+
+--START--
+executable:
+  properties:
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+schedule:
+  requested:
+    executing:
+      start: "2024-08-29T10:00ZPT1H"
+      duration: "PT1H"
+--END--
+
+Timing is optional
+Server will fill in with defaults:
+start = now, range= 1d, duration = 30min
+
+(*) Prototype code ignores the start range.
+
+Compute resources
+
+Client specifies the number and size of compute resources.
+
+--START--
+executable:
+  properties:
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+resources:
+  compute:
+    - type: "urn:simple-compute-resource"
+      cores:
+        min: 4
+      memory:
+        min: 8
+--END--
+
+Compute resources are optional, server will fill in with defaults:
+1 compute node, 2 cores, 2GiB memory
+
+
+
+Scheduling algorithm tries to find the best fit given the available resources.
+
+With no conflicts it will offer a sequence of consecutive start times
+
+        |<-->|<-->|<-->|<-->|
+        +----+----+----+----+----+----+
+
+If the database already has allocated blocks, algorithm will try to fit around them
+
+             |<-->|          |<-->|<-->|
+        |<-->|    |<-------->|
+        +----+----+----+----+----+----+
+
+
+If the resources are tied up in offers, the next request will be pushed forward to the next available slot.
+
+                            |<-->|<-->|<-->|<-->|
+        |<-->|<-->|<-->|<-->|
+        |<-->|<-->|<-->|<-->|
+        |<-->|<-->|<-->|<-->|
+        |<-->|<-->|<-->|<-->|
+        +----+----+----+----+----+----+
+
+Unused offers will automatically expire, releasing the resources back to the pool.
+
+        |....|....|....|....|
+        +----+----+----+----+----+----+
+
+Accepting one of the offers will reject the others, releasing the resources back to the pool.
+
+        |<-->|....|....|....|
+        +----+----+----+----+----+----+
+
+The algorithm will try to offer twice the requested resources if they are available.
+
+        |<-->|<-->|<-->|<-->|
+                  |<-->|<-->|
+
+        |<-->|<-->|
+        |<-->|<-->|
+        |<-->|<-->|
+        +----+----+----+----+----+----+
+
+
+
+Current algorithm tries to maximise starttime, cores, memory and then duration.
+Alternative algorithms can optimse for memory/core or duration.
+Possible to combine them in the same response by offering one offer from each algorithm.
+Alternativey to make it configurable in the request?
+
+
+        The algorithm has several flaws, but it is good enough for a prototype.
+Future work can look at refining the algorithm.
+
+Data resources
+
+Client specifies where to fetch a data from and links it with a volume on a compute resource.
+
+--START--
+executable:
+  properties:
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+resources:
+  compute:
+    - name: Compute 001
+      type: urn:simple-compute-resource
+      volumes:
+        - name: Volume 001
+          path: /my-data
+          resource: Resource 001
+  data:
+    - name: Resource 001
+      type: urn:simple-data-resource
+      location: http://data.example.org/downloads/data-001
+--END--
+
+code for parsing and validating the data resource and linking it to a volume is working
+code for downloading the data is not implemented yet
+
+    Volume path can be absolute, lounted at a fixed location within the file system,
+    or relative to the session home directory.
+
+CANFAR implementation will use VOSpace API to transfer the data into the session home directory.
+
+
+
+
+
+
+
+
+
+

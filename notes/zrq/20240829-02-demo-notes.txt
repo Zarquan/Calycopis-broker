@@ -1,0 +1,1073 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes for the end of iteration demo.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                fedora \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the Java development kit.
+#[root@spring-builder]
+
+    dnf install -y \
+        which \
+        java-latest-openjdk-devel
+
+    cat >>  "${HOME}/.bashrc" << 'EOF'
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
+EOF
+
+    source "${HOME}/.bashrc"
+
+    echo "JAVA_HOME [${JAVA_HOME}]"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the client tools.
+#[root@spring-builder]
+
+    dnf install -y \
+        xmlstarlet \
+        curl \
+        jq \
+        yq
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers (YAML in YAML out)
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+schedule:
+  requested:
+    executing:
+      duration: PT1H
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/createrequest.yaml \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+--START--
+uuid: "80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+result: "YES"
+href: "http://127.0.0.1:8082/offerset/80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+created: "2024-08-29T06:18:27.163554292Z"
+expires: "2024-08-29T06:23:27.163230399Z"
+offers:
+  - uuid: "81020caa-65ce-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T06:20Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "80e5f928-65ce-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "80e18c57-65ce-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/81020caa-65ce-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T06:18:27.38331446Z"
+    modified: "2024-08-29T06:18:27.38331446Z"
+    expires: "2024-08-29T06:23:27.163230399Z"
+    offerset:
+      uuid: "80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "8102f70b-65ce-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T07:20Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "80e5f928-65ce-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "80e18c57-65ce-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/8102f70b-65ce-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T06:18:27.38978958Z"
+    modified: "2024-08-29T06:18:27.38978958Z"
+    expires: "2024-08-29T06:23:27.163230399Z"
+    offerset:
+      uuid: "80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "81031e1c-65ce-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T08:20Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "80e5f928-65ce-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "80e18c57-65ce-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/81031e1c-65ce-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T06:18:27.390883106Z"
+    modified: "2024-08-29T06:18:27.390883106Z"
+    expires: "2024-08-29T06:23:27.163230399Z"
+    offerset:
+      uuid: "80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "8103452d-65ce-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T09:20Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "80e5f928-65ce-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "80e18c57-65ce-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/8103452d-65ce-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T06:18:27.392027031Z"
+    modified: "2024-08-29T06:18:27.392027031Z"
+    expires: "2024-08-29T06:23:27.163230399Z"
+    offerset:
+      uuid: "80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/80e07ae5-65ce-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+--END--
+
+
+# -----------------------------------------------------
+# Create some offers (YAML in JSON out)
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+schedule:
+  requested:
+    executing:
+      duration: PT1H
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/createrequest.yaml \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8082/offerset" \
+    | jq '.'
+
+--START--
+{
+  "uuid": "d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+  "result": "YES",
+  "href": "http://127.0.0.1:8082/offerset/d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+  "created": "2024-08-29T06:20:48.721158116Z",
+  "expires": "2024-08-29T06:25:48.720972067Z",
+  "offers": [
+    {
+      "uuid": "d54f9f83-65ce-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T06:25Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "d540ab61-65ce-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "d540ab60-65ce-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/d54f9f83-65ce-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T06:20:48.820598324Z",
+      "modified": "2024-08-29T06:20:48.820598324Z",
+      "expires": "2024-08-29T06:25:48.720972067Z",
+      "offerset": {
+        "uuid": "d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/d540844e-65ce-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "d54fc694-65ce-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T07:25Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "d540ab61-65ce-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "d540ab60-65ce-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/d54fc694-65ce-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T06:20:48.821889983Z",
+      "modified": "2024-08-29T06:20:48.821889983Z",
+      "expires": "2024-08-29T06:25:48.720972067Z",
+      "offerset": {
+        "uuid": "d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/d540844e-65ce-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "d54feda5-65ce-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T08:25Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "d540ab61-65ce-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "d540ab60-65ce-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/d54feda5-65ce-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T06:20:48.82293079Z",
+      "modified": "2024-08-29T06:20:48.82293079Z",
+      "expires": "2024-08-29T06:25:48.720972067Z",
+      "offerset": {
+        "uuid": "d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/d540844e-65ce-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "d55014b6-65ce-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T09:25Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "d540ab61-65ce-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "d540ab60-65ce-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/d55014b6-65ce-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T06:20:48.823787418Z",
+      "modified": "2024-08-29T06:20:48.823787418Z",
+      "expires": "2024-08-29T06:25:48.720972067Z",
+      "offerset": {
+        "uuid": "d540844e-65ce-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/d540844e-65ce-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    }
+  ]
+}
+--END--
+
+
+# -----------------------------------------------------
+# Create some offers (JSON in JSON out)
+#[root@spring-builder]
+
+cat > /tmp/createrequest.json  << EOF
+{
+"executable": {
+  "name": "Test executable",
+  "type": "urn:jupyter-notebook-0.1",
+  "notebook": "http://github.com/...."
+  },
+"schedule": {
+  "requested": {
+    "executing": {
+      "duration": "PT1H"
+      }
+    }
+  }
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/json" \
+        --data-binary @/tmp/createrequest.json \
+        --header "Accept: application/json" \
+        "http://127.0.0.1:8082/offerset" \
+    | jq '.'
+
+--START--
+{
+  "uuid": "7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+  "result": "YES",
+  "href": "http://127.0.0.1:8082/offerset/7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+  "created": "2024-08-29T09:10:08.015023972Z",
+  "expires": "2024-08-29T09:15:08.01491508Z",
+  "offers": [
+    {
+      "uuid": "7cb13c4c-65e6-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T09:15Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "7ca9e94a-65e6-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "7ca9c239-65e6-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/7cb13c4c-65e6-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T09:10:08.064888677Z",
+      "modified": "2024-08-29T09:10:08.064888677Z",
+      "expires": "2024-08-29T09:15:08.01491508Z",
+      "offerset": {
+        "uuid": "7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/7ca99b27-65e6-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "7cb1635d-65e6-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T10:15Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "7ca9e94a-65e6-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "7ca9c239-65e6-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/7cb1635d-65e6-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T09:10:08.065903259Z",
+      "modified": "2024-08-29T09:10:08.065903259Z",
+      "expires": "2024-08-29T09:15:08.01491508Z",
+      "offerset": {
+        "uuid": "7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/7ca99b27-65e6-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "7cb18a6e-65e6-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T11:15Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "7ca9e94a-65e6-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "7ca9c239-65e6-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/7cb18a6e-65e6-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T09:10:08.066645793Z",
+      "modified": "2024-08-29T09:10:08.066645793Z",
+      "expires": "2024-08-29T09:15:08.01491508Z",
+      "offerset": {
+        "uuid": "7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/7ca99b27-65e6-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "7cb1b17f-65e6-11ef-83e8-cfedc5d0a92e",
+      "schedule": {
+        "offered": {
+          "executing": {
+            "start": "2024-08-29T12:15Z",
+            "duration": "PT1H"
+          }
+        }
+      },
+      "executable": {
+        "type": "urn:jupyter-notebook-0.1",
+        "uuid": "7ca9e94a-65e6-11ef-83e8-cfedc5d0a92e",
+        "name": "Test executable",
+        "notebook": "http://github.com/...."
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "urn:simple-compute-resource",
+            "uuid": "7ca9c239-65e6-11ef-83e8-cfedc5d0a92e",
+            "name": "Simple compute resource",
+            "cores": {
+              "min": 1,
+              "max": 2
+            },
+            "memory": {
+              "min": 1,
+              "max": 2
+            }
+          }
+        ]
+      },
+      "href": "http://127.0.0.1:8082/execution/7cb1b17f-65e6-11ef-83e8-cfedc5d0a92e",
+      "state": "OFFERED",
+      "created": "2024-08-29T09:10:08.067456843Z",
+      "modified": "2024-08-29T09:10:08.067456843Z",
+      "expires": "2024-08-29T09:15:08.01491508Z",
+      "offerset": {
+        "uuid": "7ca99b27-65e6-11ef-83e8-cfedc5d0a92e",
+        "href": "http://127.0.0.1:8082/offerset/7ca99b27-65e6-11ef-83e8-cfedc5d0a92e"
+      },
+      "options": [
+        {
+          "type": "urn:enum-value-option",
+          "path": "state",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    }
+  ]
+--END--
+
+
+# -----------------------------------------------------
+# Create some offers, no schedule.
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/createrequest.yaml \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+--START--
+uuid: "1c66db10-65e7-11ef-83e8-cfedc5d0a92e"
+result: "YES"
+href: "http://127.0.0.1:8082/offerset/1c66db10-65e7-11ef-83e8-cfedc5d0a92e"
+created: "2024-08-29T09:14:36.012815105Z"
+expires: "2024-08-29T09:19:36.012737907Z"
+offers:
+  - uuid: "1c6d91d5-65e7-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T09:15Z"
+          duration: "PT30M"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "1c670223-65e7-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "1c670222-65e7-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/1c6d91d5-65e7-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T09:14:36.056868967Z"
+    modified: "2024-08-29T09:14:36.056868967Z"
+    expires: "2024-08-29T09:19:36.012737907Z"
+    offerset:
+      uuid: "1c66db10-65e7-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/1c66db10-65e7-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Create some offers, starting at 10am.
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: http://github.com/....
+schedule:
+  requested:
+    executing:
+      start: "2024-08-29T10:00Z/P1D"
+      duration: "PT1H"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header "Content-Type: application/yaml" \
+        --data-binary @/tmp/createrequest.yaml \
+        --header "Accept: application/yaml" \
+        "http://127.0.0.1:8082/offerset" \
+    | yq '.'
+
+
+--START--
+uuid: "c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+result: "YES"
+href: "http://127.0.0.1:8082/offerset/c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+created: "2024-08-29T09:33:34.228423498Z"
+expires: "2024-08-29T09:38:34.228349403Z"
+offers:
+  - uuid: "c2df0efd-65e9-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T10:05Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "c2d4fcdb-65e9-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "c2d4d5ca-65e9-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/c2df0efd-65e9-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T09:33:34.295225161Z"
+    modified: "2024-08-29T09:33:34.295225161Z"
+    expires: "2024-08-29T09:38:34.228349403Z"
+    offerset:
+      uuid: "c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "c2df360e-65e9-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T11:05Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "c2d4fcdb-65e9-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "c2d4d5ca-65e9-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/c2df360e-65e9-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T09:33:34.29617396Z"
+    modified: "2024-08-29T09:33:34.29617396Z"
+    expires: "2024-08-29T09:38:34.228349403Z"
+    offerset:
+      uuid: "c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "c2df360f-65e9-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T12:05Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "c2d4fcdb-65e9-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "c2d4d5ca-65e9-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/c2df360f-65e9-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T09:33:34.29668214Z"
+    modified: "2024-08-29T09:33:34.29668214Z"
+    expires: "2024-08-29T09:38:34.228349403Z"
+    offerset:
+      uuid: "c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - uuid: "c2df5d20-65e9-11ef-83e8-cfedc5d0a92e"
+    schedule:
+      offered:
+        executing:
+          start: "2024-08-29T13:05Z"
+          duration: "PT1H"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "c2d4fcdb-65e9-11ef-83e8-cfedc5d0a92e"
+      name: "Test executable"
+      notebook: "http://github.com/...."
+    resources:
+      compute:
+        - type: "urn:simple-compute-resource"
+          uuid: "c2d4d5ca-65e9-11ef-83e8-cfedc5d0a92e"
+          name: "Simple compute resource"
+          cores:
+            min: 1
+            max: 2
+          memory:
+            min: 1
+            max: 2
+    href: "http://127.0.0.1:8082/execution/c2df5d20-65e9-11ef-83e8-cfedc5d0a92e"
+    state: "OFFERED"
+    created: "2024-08-29T09:33:34.297172252Z"
+    modified: "2024-08-29T09:33:34.297172252Z"
+    expires: "2024-08-29T09:38:34.228349403Z"
+    offerset:
+      uuid: "c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+      href: "http://127.0.0.1:8082/offerset/c2d4d5c8-65e9-11ef-83e8-cfedc5d0a92e"
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+--END--
+
