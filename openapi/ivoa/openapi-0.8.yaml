@@ -526,6 +526,7 @@ components:
         propertyName: type
         mapping:
           "urn:simple-data-resource": '#/components/schemas/SimpleDataResource'
+          "urn:Rucio-data-resource":  '#/components/schemas/RucioDataResource'
           "urn:S3-data-resource":     '#/components/schemas/S3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
@@ -573,6 +574,26 @@ components:
               description: |
                 The target object name.
                 Leaving this blank will mount the whole bucket as a directory.
+              type: string
+
+    RucioDataResource:
+      description: A Rucio data resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            endpoint:
+              description: |
+                The endpoint address of the Rucio service.
+              type: string
+            domain:
+              description: |
+                The domain name.
+              type: string
+            object:
+              description: |
+                The target object name.
               type: string
 
     AbstractExecutable:
