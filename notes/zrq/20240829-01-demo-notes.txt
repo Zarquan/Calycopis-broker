@@ -102,19 +102,17 @@ Service API
 Request for offers
 POST to /offerset
 
---START--
-executable:
-  ....
-schedule:
-  ....
-resources:
-  compute:
-    ....
-  data:
-    ....
-  storage:
-    ....
---END--
+    >   executable:
+    >     ....
+    >   schedule:
+    >     ....
+    >   resources:
+    >     compute:
+    >       ....
+    >     data:
+    >       ....
+    >     storage:
+    >       ....
 
 Creates a new set of offers on the server.
 
@@ -124,21 +122,19 @@ Service implementation can swap between them.
 
 Response with offers : GET to /offerset/{uuid}
 
---START--
-uuid: ....
-result: YES
-href: http://..../offerset/{uuid}
-offers:
-- uuid: ....
-  state: "OFFERED"
-  href: http://..../execution/{uuid}
-  ....
-  executable:
-    ....
-  schedule:
-    ....
-  resources:
---END--
+    >   uuid: ....
+    >   result: YES
+    >   href: http://..../offerset/{uuid}
+    >   offers:
+    >   - uuid: ....
+    >     state: "OFFERED"
+    >     href: http://..../execution/{uuid}
+    >     ....
+    >     executable:
+    >       ....
+    >     schedule:
+    >       ....
+    >     resources:
 
 Serialization format
 
@@ -150,30 +146,28 @@ Same code base, different serialiser/deserialiser.
 
         GET to /offerset/{uuid}
 
---START--
-{
-"uuid": "....",
-"result": "YES",
-"href": "http://..../offerset/{uuid}",
-"offers": [
-  {
-  "uuid": "....",
-  "state": "OFFERED",
-  "href": "http://..../execution/{uuid}",
-    ....
-  "executable": {
-    ....
-    },
-  "schedule": {
-    ....
-    },
-  "resources": {
-    ....
-    },
-  ....
-  },
-}
---END--
+    >   {
+    >   "uuid": "....",
+    >   "result": "YES",
+    >   "href": "http://..../offerset/{uuid}",
+    >   "offers": [
+    >     {
+    >     "uuid": "....",
+    >     "state": "OFFERED",
+    >     "href": "http://..../execution/{uuid}",
+    >       ....
+    >     "executable": {
+    >       ....
+    >       },
+    >     "schedule": {
+    >       ....
+    >       },
+    >     "resources": {
+    >       ....
+    >       },
+    >     ....
+    >     },
+    >   }
 
 
 JSON is easier for Python clients.
@@ -183,17 +177,15 @@ Scheduling
 
 Client specifies the start time and the duration.
 
---START--
-executable:
-  properties:
-  type: urn:jupyter-notebook-0.1
-  notebook: http://github.com/....
-schedule:
-  requested:
-    executing:
-      start: "2024-08-29T10:00ZPT1H"
-      duration: "PT1H"
---END--
+    >   executable:
+    >     properties:
+    >     type: urn:jupyter-notebook-0.1
+    >     notebook: http://github.com/....
+    >   schedule:
+    >     requested:
+    >       executing:
+    >         start: "2024-08-29T10:00ZPT1H"
+    >         duration: "PT1H"
 
 Timing is optional
 Server will fill in with defaults:
@@ -205,19 +197,17 @@ Compute resources
 
 Client specifies the number and size of compute resources.
 
---START--
-executable:
-  properties:
-  type: urn:jupyter-notebook-0.1
-  notebook: http://github.com/....
-resources:
-  compute:
-    - type: "urn:simple-compute-resource"
-      cores:
-        min: 4
-      memory:
-        min: 8
---END--
+    >   executable:
+    >     properties:
+    >     type: urn:jupyter-notebook-0.1
+    >     notebook: http://github.com/....
+    >   resources:
+    >     compute:
+    >       - type: "urn:simple-compute-resource"
+    >         cores:
+    >           min: 4
+    >         memory:
+    >           min: 8
 
 Compute resources are optional, server will fill in with defaults:
 1 compute node, 2 cores, 2GiB memory
@@ -282,24 +272,22 @@ Data resources
 
 Client specifies where to fetch a data from and links it with a volume on a compute resource.
 
---START--
-executable:
-  properties:
-  type: urn:jupyter-notebook-0.1
-  notebook: http://github.com/....
-resources:
-  compute:
-    - name: Compute 001
-      type: urn:simple-compute-resource
-      volumes:
-        - name: Volume 001
-          path: /my-data
-          resource: Resource 001
-  data:
-    - name: Resource 001
-      type: urn:simple-data-resource
-      location: http://data.example.org/downloads/data-001
---END--
+    >   executable:
+    >     properties:
+    >     type: urn:jupyter-notebook-0.1
+    >     notebook: http://github.com/....
+    >   resources:
+    >     compute:
+    >       - name: Compute 001
+    >         type: urn:simple-compute-resource
+    >         volumes:
+    >           - name: Volume 001
+    >             path: /my-data
+    >             resource: Resource 001
+    >     data:
+    >       - name: Resource 001
+    >         type: urn:simple-data-resource
+    >         location: http://data.example.org/downloads/data-001
 
 code for parsing and validating the data resource and linking it to a volume is working
 code for downloading the data is not implemented yet
