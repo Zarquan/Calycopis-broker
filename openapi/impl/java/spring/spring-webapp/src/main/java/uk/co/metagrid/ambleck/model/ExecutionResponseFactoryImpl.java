@@ -194,19 +194,6 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
-/*
- *
-        //
-        // Create our processing context.
-        ProcessingContext context = new ProcessingContextImpl(
-            baseurl,
-            request,
-            offerset,
-            execution
-            );
- *
- */
-
         //
         // Validate our execution schedule.
         validate(

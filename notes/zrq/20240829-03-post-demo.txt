@@ -1,0 +1,119 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Where to go next ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Complete the callback API and connect the PreparationSteps.
+    Implement the calls to CANFAR.
+    Do the real demo.
+
+    Re-structure the input parsing.
+    Create a new set of internal data objects.
+    Break the link to the OpenAPI generated classes.
+
+    Internal class structure represents the business logic.
+    Hibernate persistence using Factory classes.
+    Factories include the input parsing.
+
+    Move input parsing away from ExecutionResponseFactoryImpl.
+    Change the names of the OpenAPI generated classes to indicate where they come from.
+    OpeAPIExecutionResponse ..
+
+
+# -----------------------------------------------------
+# Build a container image to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        docker/bin/clean.sh
+
+        docker/bin/build.sh
+
+        docker/bin/push.sh
+
+    popd
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
