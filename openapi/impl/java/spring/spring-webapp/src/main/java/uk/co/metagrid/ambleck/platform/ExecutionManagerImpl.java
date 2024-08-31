@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 
 /**
@@ -52,20 +54,29 @@ public class ExecutionManagerImpl
         }
 
     private ExecutionBlockDatabase database ;
+    private ExecutionResponseFactory factory ;
 
     @Autowired
-    public ExecutionManagerImpl(final ExecutionBlockDatabase database)
+    public ExecutionManagerImpl(final ExecutionBlockDatabase database, final ExecutionResponseFactory factory)
         {
         log.debug("Creating a new ExecutionManager instance");
         this.uuid = UuidCreator.getTimeBased();
+        this.factory  = factory ;
         this.database = database ;
         }
 
     @Override
-    public int advance(final UUID uuid)
+    public ExecutionResponse advance(final UUID uuid)
         {
         log.debug("Advance [{}]", uuid);
-        return 0 ;
+        ExecutionResponse response = factory.select(
+            uuid
+            );
+        if (null != response)
+            {
+            log.debug("Found [{}]", response.getUuid());
+            }
+        return response ;
         }
     }
 

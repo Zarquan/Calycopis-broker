@@ -49,6 +49,21 @@
     Change the names of the OpenAPI generated classes to indicate where they come from.
     OpeAPIExecutionResponse ..
 
+    We have such a mess with ExecutionResponseFactoryImpl and ExecutionBlockDatabaseImpl.
+    Updating the state to ACCEPTED in ExecutionResponseFactoryImpl invokes a canned SQL
+    query inExecutionBlockDatabaseImpl that updated the sibling offers to REJECTED
+    ** in the database **, but not in the ExecutionResponseFactoryImpl HashMap.
+
+    The cron updates and deletes don't update the ExecutionResponseFactoryImpl HashMap
+    leaving orphanned objects in memory.
+
+    Do we continue to fudge it, or try the re-write ?
+    The re-write will replace everything with a set of Hibernate persistent classes.
+    The re-write is likely to take several days ...
+
+    Fudge it in ExecutionResponseFactoryImpl for now :-(
+    Just a bit more fudge, and then we re-write.
+
 
 # -----------------------------------------------------
 # Build a container image to work in.
@@ -104,6 +119,23 @@
 
 # -----------------------------------------------------
 # -----------------------------------------------------
+# Connect to the H2 console in a browser.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/'
+
+    jdbc: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
 # Test our webapp in a second terminal.
 #[user@desktop]
 
@@ -116,4 +148,207 @@
     >   ....
     >   ....
 
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+executable:
+  properties:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+    executing:
+      duration: PT1H
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offerset' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '.offers[].schedule'
+
+--START--
+offered:
+  executing:
+    start: "2024-08-30T14:15Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-30T15:15Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-30T16:15Z"
+    duration: "PT1H"
+offered:
+  executing:
+    start: "2024-08-30T17:15Z"
+    duration: "PT1H"
+--END--
+
+
+# -----------------------------------------------------
+# List the status of the offers
+#[root@spring-builder]
+
+    offerseturl=$(
+        yq '.href' '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerseturl}" \
+    | yq '.offers[] | {"state":.state, "schedule":.schedule}'
+
+--START--
+state: "OFFERED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T14:15Z"
+      duration: "PT1H"
+state: "OFFERED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T15:15Z"
+      duration: "PT1H"
+state: "OFFERED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T16:15Z"
+      duration: "PT1H"
+state: "OFFERED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T17:15Z"
+      duration: "PT1H"
+--END--
+
+
+# -----------------------------------------------------
+# Accept one of the offers ...
+#[root@spring-builder]
+
+cat > '/tmp/updaterequest.yaml' << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    updatehref=$(
+        yq '.offers[0].href' '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${updatehref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '{"uuid":.uuid, "state":.state, "schedule":.schedule}'
+
+--START--
+uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
+state: "ACCEPTED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T14:15Z"
+      duration: "PT1H"
+--END--
+
+
+# -----------------------------------------------------
+# List the status of the offers
+#[root@spring-builder]
+
+    offerseturl=$(
+        yq '.href' '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerseturl}" \
+    | yq '.offers[] | {"uuid":.uuid, "state":.state, "schedule":.schedule}'
+
+--START--
+uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
+state: "ACCEPTED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T14:15Z"
+      duration: "PT1H"
+uuid: "fc4ec1ab-66d9-11ef-8bcd-9fd5464b7261"
+state: "REJECTED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T15:15Z"
+      duration: "PT1H"
+uuid: "fc4ee8bc-66d9-11ef-8bcd-9fd5464b7261"
+state: "REJECTED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T16:15Z"
+      duration: "PT1H"
+uuid: "fc4f0fcd-66d9-11ef-8bcd-9fd5464b7261"
+state: "REJECTED"
+schedule:
+  offered:
+    executing:
+      start: "2024-08-30T17:15Z"
+      duration: "PT1H"
+--END--
+
+
+# -----------------------------------------------------
+# Increment the offer state ....
+#[root@spring-builder]
+
+    offeruuid=$(
+        yq '.uuid' '/tmp/createresponse.yaml'
+        )
+
+    stephref="http://127.0.0.1:8082/system/step/${offeruuid}"
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${stephref}" \
+    | jq '.'
+
+
+
+
+    | tee '/tmp/stepresponse.yaml' \
+    | yq '{"uuid":.uuid, "state":.state, "schedule":.schedule}'
+
+--START--
+....
+....
+--END--
 

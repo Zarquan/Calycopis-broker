@@ -462,9 +462,18 @@ public class ExecutionResponseFactoryImpl
                                     response.setState(
                                         StateEnum.ACCEPTED
                                         );
-
-                                    response.getParent().setAccepted(response);
-
+                                    response.getParent().setAccepted(
+                                        response
+                                        );
+                                    for (ExecutionResponse sibling : response.getParent().getOffers())
+                                        {
+                                        if (sibling != response)
+                                            {
+                                            sibling.setState(
+                                                StateEnum.REJECTED
+                                                );
+                                            }
+                                        }
                                     database.accept(
                                         response.getUuid()
                                         );

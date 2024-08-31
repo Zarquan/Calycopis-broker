@@ -32,6 +32,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 import uk.co.metagrid.ambleck.platform.ExecutionManager;
 import uk.co.metagrid.ambleck.platform.PreparationStep.StateEnum;
@@ -90,17 +91,22 @@ public class SystemApiDelegateImpl
 
 
     @Override
-    public ResponseEntity<String> stepUpdate(final UUID uuid)
+    public ResponseEntity<ExecutionResponse> stepUpdate(final UUID uuid)
         {
-        int result = this.manager.advance(uuid);
-        return new ResponseEntity<String>(
-            "Advance [:result:]".replace(
-                ":result:",
-                String.valueOf(
-                    result
-                    )
-                ),
-            HttpStatus.OK
+        ExecutionResponse response = manager.advance(
+            uuid
             );
+        if (null != response)
+            {
+            return new ResponseEntity<ExecutionResponse>(
+                response,
+                HttpStatus.OK
+                );
+            }
+        else {
+            return new ResponseEntity<>(
+                HttpStatus.NOT_FOUND
+                );
+            }
         }
     }

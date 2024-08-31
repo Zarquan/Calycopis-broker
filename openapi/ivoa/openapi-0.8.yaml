@@ -161,7 +161,6 @@ paths:
           application/yaml:
             schema:
               $ref: '#/components/schemas/UpdateRequest'
-      # TODO This should return UpdateRequest and 301 back to the state.
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
@@ -266,9 +265,15 @@ paths:
         "200":
           description: OK
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ExecutionResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
 
 components:
   schemas:

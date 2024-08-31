@@ -24,6 +24,8 @@ package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
 
+import uk.co.metagrid.ambleck.model.ExecutionResponse;
+
 /**
  * Public interface for an Execution manager.
  *
@@ -37,7 +39,7 @@ public interface ExecutionManager
      * Advance the state of an Execution.
      *
      */
-    public int advance(final UUID uuid);
+    public ExecutionResponse advance(final UUID uuid);
 
     }
 
