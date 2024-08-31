@@ -329,7 +329,7 @@ schedule:
 #[root@spring-builder]
 
     offeruuid=$(
-        yq '.uuid' '/tmp/createresponse.yaml'
+        yq '.uuid' '/tmp/updateresponse.yaml'
         )
 
     stephref="http://127.0.0.1:8082/system/step/${offeruuid}"
@@ -339,13 +339,7 @@ schedule:
         --show-error \
         --header 'Accept: application/yaml' \
         "${stephref}" \
-    | jq '.'
-
-
-
-
-    | tee '/tmp/stepresponse.yaml' \
-    | yq '{"uuid":.uuid, "state":.state, "schedule":.schedule}'
+    | yq '.'
 
 --START--
 ....
