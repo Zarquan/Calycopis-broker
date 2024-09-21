@@ -1146,7 +1146,7 @@ public class ExecutionResponseFactoryImpl
                         {
                         String string = preparing.getStart();
                         try {
-                            prepstart = Interval.parse​(
+                            prepstart = Interval.parse(
                                 string
                                 );
                             }
@@ -1170,7 +1170,7 @@ public class ExecutionResponseFactoryImpl
                         {
                         String string = preparing.getDuration();
                         try {
-                            preptime = Duration.parse​(
+                            preptime = Duration.parse(
                                 string
                                 );
                             }
@@ -1205,7 +1205,7 @@ public class ExecutionResponseFactoryImpl
                         {
                         String string = executing.getStart();
                         try {
-                            execstart = Interval.parse​(
+                            execstart = Interval.parse(
                                 string
                                 );
                             }
@@ -1229,7 +1229,7 @@ public class ExecutionResponseFactoryImpl
                         {
                         String string = executing.getDuration();
                         try {
-                            exectime = Duration.parse​(
+                            exectime = Duration.parse(
                                 string
                                 );
                             }
