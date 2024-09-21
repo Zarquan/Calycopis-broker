@@ -194,19 +194,6 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
-/*
- *
-        //
-        // Create our processing context.
-        ProcessingContext context = new ProcessingContextImpl(
-            baseurl,
-            request,
-            offerset,
-            execution
-            );
- *
- */
-
         //
         // Validate our execution schedule.
         validate(
@@ -475,9 +462,18 @@ public class ExecutionResponseFactoryImpl
                                     response.setState(
                                         StateEnum.ACCEPTED
                                         );
-
-                                    response.getParent().setAccepted(response);
-
+                                    response.getParent().setAccepted(
+                                        response
+                                        );
+                                    for (ExecutionResponse sibling : response.getParent().getOffers())
+                                        {
+                                        if (sibling != response)
+                                            {
+                                            sibling.setState(
+                                                StateEnum.REJECTED
+                                                );
+                                            }
+                                        }
                                     database.accept(
                                         response.getUuid()
                                         );

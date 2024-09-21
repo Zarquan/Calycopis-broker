@@ -161,7 +161,6 @@ paths:
           application/yaml:
             schema:
               $ref: '#/components/schemas/UpdateRequest'
-      # TODO This should return UpdateRequest and 301 back to the state.
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
@@ -266,9 +265,15 @@ paths:
         "200":
           description: OK
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/ExecutionResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+            application/yaml:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
 
 components:
   schemas:
@@ -526,6 +531,7 @@ components:
         propertyName: type
         mapping:
           "urn:simple-data-resource": '#/components/schemas/SimpleDataResource'
+          "urn:Rucio-data-resource":  '#/components/schemas/RucioDataResource'
           "urn:S3-data-resource":     '#/components/schemas/S3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
@@ -573,6 +579,26 @@ components:
               description: |
                 The target object name.
                 Leaving this blank will mount the whole bucket as a directory.
+              type: string
+
+    RucioDataResource:
+      description: A Rucio data resource.
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/AbstractDataResource'
+        - type: object
+          properties:
+            endpoint:
+              description: |
+                The endpoint address of the Rucio service.
+              type: string
+            domain:
+              description: |
+                The domain name.
+              type: string
+            object:
+              description: |
+                The target object name.
               type: string
 
     AbstractExecutable:
