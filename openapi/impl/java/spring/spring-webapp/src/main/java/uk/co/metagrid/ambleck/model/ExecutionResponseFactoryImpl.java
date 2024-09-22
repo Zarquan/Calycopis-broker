@@ -548,7 +548,7 @@ public class ExecutionResponseFactoryImpl
      * Validate a SimpleDataResource.
      *
      */
-    public void validate(final SimpleDataResource request, final ProcessingContext context)
+    public void validate(final SimpleDataResource request, final ProcessingContext<?> context)
         {
         // Create a new DataResource.
         SimpleDataResource result = new SimpleDataResource(
@@ -605,7 +605,7 @@ public class ExecutionResponseFactoryImpl
      * Validate a S3DataResource.
      *
      */
-    public void validate(final S3DataResource request, final ProcessingContext context)
+    public void validate(final S3DataResource request, final ProcessingContext<?> context)
         {
         // Create a new DataResource.
         SimpleDataResource result = new SimpleDataResource(
@@ -638,7 +638,7 @@ public class ExecutionResponseFactoryImpl
      * Validate an AbstractComputeResource.
      *
      */
-    public void validate(final AbstractComputeResource request, final ProcessingContext context)
+    public void validate(final AbstractComputeResource request, final ProcessingContext<?> context)
         {
         switch(request)
             {
@@ -668,7 +668,7 @@ public class ExecutionResponseFactoryImpl
      * Validate a SimpleComputeResource.
      *
      */
-    public void validate(final SimpleComputeResource request, final ProcessingContext context)
+    public void validate(final SimpleComputeResource request, final ProcessingContext<?> context)
         {
         SimpleComputeResource result = new SimpleComputeResource(
             "urn:simple-compute-resource"
@@ -1043,7 +1043,7 @@ public class ExecutionResponseFactoryImpl
      * Validate an AbstractExecutable.
      *
      */
-    public void validate(final AbstractExecutable request, final ProcessingContext context)
+    public void validate(final AbstractExecutable request, final ProcessingContext<?> context)
         {
         switch(request)
             {
@@ -1073,7 +1073,7 @@ public class ExecutionResponseFactoryImpl
      * Validate a JupyterNotebook Executable.
      *
      */
-    public void validate(final JupyterNotebook01 request, final ProcessingContext context)
+    public void validate(final JupyterNotebook01 request, final ProcessingContext<?> context)
         {
         log.debug("Validating a JupyterNotebook request [{}]", request.getName());
         JupyterNotebook01 result = new JupyterNotebook01(
@@ -1122,7 +1122,7 @@ public class ExecutionResponseFactoryImpl
      * Validate the Execution Schedule.
      * TODO Move this to the time classes.
      */
-    public void validate(final StringScheduleBlock schedule, final ProcessingContext context)
+    public void validate(final StringScheduleBlock schedule, final ProcessingContext<?> context)
         {
         log.debug("Processing StringScheduleBlock");
         if (schedule != null)

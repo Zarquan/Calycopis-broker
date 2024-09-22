@@ -39,11 +39,7 @@
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>22</java.version>
-		<!--+
-		    | Path is different on desktop and build container.  
-		    | https://stackoverflow.com/a/70450593
-		    +-->
-        <schema.yaml>${project.basedir}/../../../../ivoa/openapi-0.8.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/openapi-0.8.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+

@@ -22,15 +22,11 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
 import java.time.OffsetDateTime;
-import com.github.f4b6a3.uuid.UuidCreator;
+import java.util.ArrayList;
+import java.util.List;
 
-import uk.co.metagrid.ambleck.model.OfferSetLink;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import com.github.f4b6a3.uuid.UuidCreator;
 
 import uk.co.metagrid.ambleck.platform.Execution;
 
@@ -44,13 +40,13 @@ public class ExecutionResponseImpl
         {
         return this.parent;
         }
-    private Execution execution;
-    protected Execution getExecution()
+    private Execution<?> execution;
+    protected Execution<?> getExecution()
         {
         return this.execution ;
         }
 
-    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution execution)
+    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution<?> execution)
         {
         this.parent = parent ;
         this.execution = execution ;
@@ -121,6 +117,8 @@ public class ExecutionResponseImpl
                         )
                     );
                 break;
+            default:
+			    break;
             }
         }
     }
