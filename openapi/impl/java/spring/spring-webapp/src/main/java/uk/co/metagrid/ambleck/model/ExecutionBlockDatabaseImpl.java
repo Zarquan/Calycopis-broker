@@ -276,7 +276,7 @@ public class ExecutionBlockDatabaseImpl
 
         if (starttime == null)
             {
-            starttime = Interval.of​(
+            starttime = Interval.of(
                 Instant.now(),
                 Duration.ofMinutes(5)
                 );

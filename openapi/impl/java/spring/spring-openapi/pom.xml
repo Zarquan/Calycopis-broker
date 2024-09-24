@@ -39,7 +39,7 @@
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>22</java.version>
-        <schema.yaml>/ivoa/openapi-0.8.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/openapi-0.8.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
@@ -125,7 +125,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.10.Final</version>
+            <!--version>6.0.10.Final</version-->
         </dependency>
         <!--+
             | https://stackoverflow.com/a/76034931
@@ -137,6 +137,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+        	<groupId>org.openapitools</groupId>
+        	<artifactId>openapi-generator-maven-plugin</artifactId>
+        	<version>7.8.0</version>
+        	<scope>provided</scope>
+        </dependency>
 	</dependencies>
 
 	<build>

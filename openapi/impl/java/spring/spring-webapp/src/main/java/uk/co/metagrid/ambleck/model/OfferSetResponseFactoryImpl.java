@@ -124,7 +124,7 @@ public class OfferSetResponseFactoryImpl
             baseurl
             );
 
-        ProcessingContext context = canfarder.create(
+        ProcessingContext<?> context = canfarder.create(
             baseurl,
             request,
             offerset
