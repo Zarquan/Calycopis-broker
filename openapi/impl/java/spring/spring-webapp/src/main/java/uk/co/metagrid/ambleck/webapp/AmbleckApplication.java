@@ -27,12 +27,19 @@
  * Add JSR310.JavaTimeModule
  * https://mkyong.com/java/jackson-java-8-date-time-type-java-time-localdate-not-supported-by-default/
  *
+ * EntityScan
+ * https://stackoverflow.com/a/34884871
+ * https://stackoverflow.com/a/28684533
+
  */
 
 package uk.co.metagrid.ambleck.webapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.event.EventListener;
@@ -43,6 +50,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter ;
 
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
 import com.fasterxml.jackson.databind.SerializationFeature ;
 import com.fasterxml.jackson.databind.DeserializationFeature ;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,6 +60,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import uk.co.metagrid.ambleck.util.YamlConverter;
 
 @SpringBootApplication
+@EntityScan("uk.co.metagrid")
+@ComponentScan("uk.co.metagrid")
+@EnableJpaRepositories("uk.co.metagrid")
 @Import(
     { YamlConverter.class }
     )

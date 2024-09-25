@@ -50,8 +50,6 @@ import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 
 @Service
-// https://saranganjana.medium.com/componentscan-in-spring-boot-ec828569df26
-@ComponentScan("uk.co.metagrid.ambleck")
 public class OffersetApiDelegateImpl
     extends BaseDelegateImpl
     implements OffersetApiDelegate {

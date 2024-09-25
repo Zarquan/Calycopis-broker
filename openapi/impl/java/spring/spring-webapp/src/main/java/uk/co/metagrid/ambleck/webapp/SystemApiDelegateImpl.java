@@ -38,7 +38,6 @@ import uk.co.metagrid.ambleck.platform.ExecutionManager;
 import uk.co.metagrid.ambleck.platform.PreparationStep.StateEnum;
 
 @Service
-@ComponentScan("uk.co.metagrid.ambleck")
 public class SystemApiDelegateImpl
     extends BaseDelegateImpl
     implements SystemApiDelegate

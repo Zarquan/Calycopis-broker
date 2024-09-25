@@ -42,7 +42,9 @@
     <Loggers>
         <!-- https://stackoverflow.com/a/68471053 -->
         <Logger name ="com.zaxxer.hikari" level="OFF"/>
-        <Logger name="org.hibernate"   level="OFF" additivity="false"/>
+        <Logger name="org.hibernate"   level="INFO" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+        </Logger>
         <Logger name ="uk.co.metagrid" level="DEBUG" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Logger>
