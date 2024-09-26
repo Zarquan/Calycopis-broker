@@ -39,7 +39,7 @@
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>22</java.version>
-        <schema.yaml>${project.basedir}/ivoa/openapi-0.8.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/openapi-0.9.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
@@ -171,11 +171,9 @@
                                 ${schema.yaml}
                             </inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>uk.co.metagrid.ambleck.webapp</apiPackage>
-                            <modelPackage>uk.co.metagrid.ambleck.model</modelPackage>
-                            <supportingFilesToGenerate>
-                                ApiUtil.java
-                            </supportingFilesToGenerate>
+                            <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>
+                            <modelNamePrefix>Ivoa</modelNamePrefix>
+                            <modelPackage>net.ivoa.calycopis.openapi.model</modelPackage>
                             <configOptions>
                                 <withXml>true</withXml>
                                 <delegatePattern>true</delegatePattern>
