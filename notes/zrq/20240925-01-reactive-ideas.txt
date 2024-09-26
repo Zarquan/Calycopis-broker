@@ -1,0 +1,82 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on reactive ideas ...
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+
+    Event-Driven Reactive Programming for Java
+    https://smallrye.io/smallrye-mutiny/latest/
+
+    Reactive programming in Quarkus
+    https://quarkus.io/guides/mutiny-primer#an-event-driven-reactive-programming-api
+
+
+    Is this a good way to handle the asynchronous callbacks ?
+    https://smallrye.io/smallrye-mutiny/latest/reference/why-is-asynchronous-important/
+
+
+    Asynchronous stream processing in Java
+    https://www.reactive-streams.org/
+
+        Reactive Streams is an initiative to provide a standard for asynchronous stream processing with non-blocking back pressure.
+
+    The Reactive Manifesto
+    https://www.reactivemanifesto.org/
+
+        Shades of eXtreme Programming ...
+
+
+
+
+# -----------------------------------------------------
+
+    Hypermedia as the engine of application state (HATEOAS)
+    https://en.wikipedia.org/wiki/HATEOAS
+
+# -----------------------------------------------------
+
+    Protocol Buffers encoding
+    https://protobuf.dev/programming-guides/encoding/
+
+    Spring REST API with Protocol Buffers
+    https://www.baeldung.com/spring-rest-api-with-protocol-buffers
+
+    OpenAPI to gRPC
+    https://openapi-generator.tech/docs/generators/protobuf-schema/
+
+    OpenAPI to gRPC With Quarkus
+    https://betterprogramming.pub/openapi-to-grpc-with-quarkus-61d87e353cbe
+
+        Interesting but not for this project.
+
+
