@@ -30,16 +30,19 @@ server:
 logging:
     level:
         com.baeldung: INFO
-        org: INFO
+        net.ivoa: DEBUG
+        uk.co.metagrid: DEBUG
+        org.hibernate: INFO
         org.apache.tomcat: INFO
         org.apache.catalina: INFO
-        org.hibernate: INFO
         org.springframework: INFO
-        org.springframework.controllers: DEBUG
 
 spring:
     application:
         name: Ambleck
+    mvc:
+        # https://stackoverflow.com/a/55679297
+        log-request-details: true
     # https://www.baeldung.com/spring-boot-h2-database
     # https://stackoverflow.com/a/38047021
     datasource:

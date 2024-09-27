@@ -23,32 +23,18 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
-import java.net.URI;
-import java.util.Map;
 import java.util.UUID;
-import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.webapp.ExecutionApiDelegate;
-
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
+import net.ivoa.calycopis.openapi.webapp.ExecutionApiDelegate;
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
-
-import uk.co.metagrid.ambleck.model.UpdateRequest;
-
-import uk.co.metagrid.ambleck.message.DebugMessage;
-import uk.co.metagrid.ambleck.message.ErrorMessage;
-import uk.co.metagrid.ambleck.message.WarnMessage;
-import uk.co.metagrid.ambleck.message.InfoMessage;
 
 @Service
 public class ExecutionApiDelegateImpl
@@ -69,13 +55,13 @@ public class ExecutionApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<ExecutionResponse> executionGet(
+    public ResponseEntity<IvoaExecutionResponse> executionGet(
         final UUID uuid
         ) {
-        ExecutionResponse response = factory.select(uuid);
+        IvoaExecutionResponse response = factory.select(uuid);
         if (null != response)
             {
-            return new ResponseEntity<ExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionResponse>(
                 response,
                 HttpStatus.OK
                 );
@@ -88,17 +74,17 @@ public class ExecutionApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<ExecutionResponse> executionPost(
+    public ResponseEntity<IvoaExecutionResponse> executionPost(
         final UUID uuid,
-        final UpdateRequest request
+        final IvoaUpdateRequest request
         ) {
-        ExecutionResponse response = factory.update(
+        IvoaExecutionResponse response = factory.update(
             uuid,
             request.getUpdate()
             );
         if (null != response)
             {
-            return new ResponseEntity<ExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionResponse>(
                 response,
                 HttpStatus.OK
                 );

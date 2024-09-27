@@ -25,9 +25,8 @@
 package uk.co.metagrid.ambleck.message;
 
 import java.util.Map;
-import java.time.OffsetDateTime;
 
-import uk.co.metagrid.ambleck.model.MessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 
 public class InfoMessage extends MessageBase
     {
@@ -54,7 +53,7 @@ public class InfoMessage extends MessageBase
     public InfoMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(
-            MessageItem.LevelEnum.INFO,
+            IvoaMessageItem.LevelEnum.INFO,
             typeurl,
             template,
             params

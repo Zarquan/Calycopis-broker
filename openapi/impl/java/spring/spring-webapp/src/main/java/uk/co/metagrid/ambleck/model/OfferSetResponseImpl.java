@@ -22,40 +22,37 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.List;
 import java.time.OffsetDateTime;
+
 import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
-
-import uk.co.metagrid.ambleck.message.WarnMessage;
-
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import uk.co.metagrid.ambleck.platform.Execution;
 
 public class OfferSetResponseImpl
-    extends OfferSetResponse
+    extends IvoaOfferSetResponse
     implements OfferSetAPI
     {
 
 
-    private Execution execution;
-    protected Execution getExecution()
+    private Execution<?> execution;
+    protected Execution<?> getExecution()
         {
         return this.execution;
         }
-    protected void setExecution(final Execution execution)
+    protected void setExecution(final Execution<?> execution)
         {
         this.execution = execution;
         }
 
-    private ExecutionResponse accepted;
-    protected ExecutionResponse getAccepted()
+    private IvoaExecutionResponse accepted;
+    protected IvoaExecutionResponse getAccepted()
         {
         return this.accepted;
         }
-    public void setAccepted(final ExecutionResponse accepted)
+    public void setAccepted(final IvoaExecutionResponse accepted)
         {
         this.accepted = accepted ;
         }
@@ -79,11 +76,11 @@ public class OfferSetResponseImpl
             expires
             );
         this.setResult(
-            OfferSetResponse.ResultEnum.NO
+            IvoaOfferSetResponse.ResultEnum.NO
             );
         }
 
-    public void addMessage(final MessageItem message)
+    public void addMessage(final IvoaMessageItem message)
         {
         super.addMessagesItem(message);
         }

@@ -34,7 +34,7 @@ import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class ExecutionBase<StepType extends PreparationStep>
+public abstract class ExecutionBase<StepType extends PreparationStep<?>>
     implements Execution<StepType>
     {
 

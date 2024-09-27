@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 
@@ -66,10 +66,10 @@ public class ExecutionManagerImpl
         }
 
     @Override
-    public ExecutionResponse advance(final UUID uuid)
+    public IvoaExecutionResponse advance(final UUID uuid)
         {
         log.debug("Advance [{}]", uuid);
-        ExecutionResponse response = factory.select(
+        IvoaExecutionResponse response = factory.select(
             uuid
             );
         if (null != response)

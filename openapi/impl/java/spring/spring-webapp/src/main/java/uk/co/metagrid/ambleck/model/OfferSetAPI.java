@@ -22,30 +22,27 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.List;
-
 import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.OfferSetResponse.ResultEnum;
-
-import uk.co.metagrid.ambleck.message.WarnMessage;
-
-import uk.co.metagrid.ambleck.platform.Execution;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
 public interface OfferSetAPI
     {
 
-    public void setAccepted(ExecutionResponse accepted);
+    public void setAccepted(IvoaExecutionResponse accepted);
 
-    public List<ExecutionResponse> getOffers();
+    public List<IvoaExecutionResponse> getOffers();
 
     public UUID getUuid();
     public OffsetDateTime getExpires();
     public String getHref();
     public void setResult(ResultEnum result);
 
-    public void addMessage(final MessageItem message);
+    public void addMessage(final IvoaMessageItem message);
     public void addOffer(final ExecutionResponseImpl response);
 
     }

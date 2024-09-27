@@ -35,33 +35,30 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.event.EventListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.context.event.EventListener;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter ;
 
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
-import com.fasterxml.jackson.databind.SerializationFeature ;
-import com.fasterxml.jackson.databind.DeserializationFeature ;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature ;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import uk.co.metagrid.ambleck.util.YamlConverter;
 
 @SpringBootApplication
 @EntityScan("uk.co.metagrid")
-@ComponentScan("uk.co.metagrid")
+@ComponentScan({
+    "uk.co.metagrid",
+    "net.ivoa.calycopis"
+    })
 @EnableJpaRepositories("uk.co.metagrid")
 @Import(
     { YamlConverter.class }
@@ -86,7 +83,7 @@ public class AmbleckApplication {
                 c -> {
                     if (c instanceof MappingJackson2HttpMessageConverter)
                         {
-                        //System.out.print("Found MappingJackson2HttpMessageConverter [" + c.getClass().getName() + "]");
+                        System.out.print("Found MappingJackson2HttpMessageConverter [" + c.getClass().getName() + "]");
                         MappingJackson2HttpMessageConverter jsonMessageConverter = (MappingJackson2HttpMessageConverter) c;
                         ObjectMapper objectMapper = jsonMessageConverter.getObjectMapper();
                         objectMapper.disable(

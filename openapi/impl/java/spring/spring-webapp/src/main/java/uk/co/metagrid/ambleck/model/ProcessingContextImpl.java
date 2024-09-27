@@ -21,30 +21,31 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-
-import java.util.Map;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.InstantSource;
 import org.threeten.extra.Interval;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.ambleck.platform.Execution;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
-public abstract class ProcessingContextImpl<ExecutionType extends Execution>
+public abstract class ProcessingContextImpl<ExecutionType extends Execution<?>>
     implements ProcessingContext<ExecutionType>
     {
 
-    public ProcessingContextImpl(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ExecutionType execution)
+    public ProcessingContextImpl(final String baseurl, final IvoaOfferSetRequest request, final OfferSetAPI offerset, final ExecutionType execution)
         {
         this.baseurl  = baseurl ;
         this.request  = request ;
@@ -66,8 +67,8 @@ public abstract class ProcessingContextImpl<ExecutionType extends Execution>
         this.valid = false ;
         }
 
-    private final OfferSetRequest request;
-    public OfferSetRequest request()
+    private final IvoaOfferSetRequest request;
+    public IvoaOfferSetRequest request()
         {
         return this.request;
         }
@@ -91,7 +92,7 @@ public abstract class ProcessingContextImpl<ExecutionType extends Execution>
         }
 
     // Messages
-    public void addMessage(final MessageItem message)
+    public void addMessage(final IvoaMessageItem message)
         {
         this.offerset.addMessage(
             message
@@ -99,10 +100,10 @@ public abstract class ProcessingContextImpl<ExecutionType extends Execution>
         }
 
     // Data resources
-    private Map<String, AbstractDataResource> datamap = new HashMap<String, AbstractDataResource>();
-    private List<AbstractDataResource> datalist = new ArrayList<AbstractDataResource>();
+    private Map<String, IvoaAbstractDataResource> datamap = new HashMap<String, IvoaAbstractDataResource>();
+    private List<IvoaAbstractDataResource> datalist = new ArrayList<IvoaAbstractDataResource>();
 
-    public void addDataResource(final AbstractDataResource data)
+    public void addDataResource(final IvoaAbstractDataResource data)
         {
         UUID   uuid = data.getUuid() ;
         String name = data.getName() ;
@@ -138,21 +139,21 @@ public abstract class ProcessingContextImpl<ExecutionType extends Execution>
             );
         }
 
-    public List<AbstractDataResource> getDataResourceList()
+    public List<IvoaAbstractDataResource> getDataResourceList()
         {
         return this.datalist;
         }
 
-    public AbstractDataResource findDataResource(final String key)
+    public IvoaAbstractDataResource findDataResource(final String key)
         {
         return this.datamap.get(key);
         }
 
     // Compute resources.
-    private Map<String, AbstractComputeResource> compmap = new HashMap<String, AbstractComputeResource>();
-    private List<AbstractComputeResource> complist = new ArrayList<AbstractComputeResource>();
+    private Map<String, IvoaAbstractComputeResource> compmap = new HashMap<String, IvoaAbstractComputeResource>();
+    private List<IvoaAbstractComputeResource> complist = new ArrayList<IvoaAbstractComputeResource>();
 
-    public void addComputeResource(final AbstractComputeResource comp)
+    public void addComputeResource(final IvoaAbstractComputeResource comp)
         {
         UUID   uuid = comp.getUuid() ;
         String name = comp.getName() ;
@@ -188,22 +189,22 @@ public abstract class ProcessingContextImpl<ExecutionType extends Execution>
             );
         }
 
-    public List<AbstractComputeResource> getComputeResourceList()
+    public List<IvoaAbstractComputeResource> getComputeResourceList()
         {
         return this.complist;
         }
 
-    public AbstractComputeResource findComputeResource(final String key)
+    public IvoaAbstractComputeResource findComputeResource(final String key)
         {
         return this.compmap.get(key);
         }
 
-    private AbstractExecutable executable ;
-    public AbstractExecutable getExecutable()
+    private IvoaAbstractExecutable executable ;
+    public IvoaAbstractExecutable getExecutable()
         {
         return this.executable;
         }
-    public void setExecutable(final AbstractExecutable executable)
+    public void setExecutable(final IvoaAbstractExecutable executable)
         {
         log.debug("setExecutable [{}][{}]", executable.getType(), executable.getUuid());
         this.executable = executable;

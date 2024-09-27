@@ -29,11 +29,11 @@ import java.time.OffsetDateTime;
 
 import org.apache.commons.text.StringSubstitutor;
 
-import uk.co.metagrid.ambleck.model.MessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 
-public class MessageBase extends MessageItem
+public class MessageBase extends IvoaMessageItem
     {
-    public MessageBase(final MessageItem.LevelEnum level, final String type, final String template, Map<String,String> params)
+    public MessageBase(final IvoaMessageItem.LevelEnum level, final String type, final String template, Map<String,String> params)
         {
         super();
         this.time(

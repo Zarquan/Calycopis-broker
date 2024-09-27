@@ -28,10 +28,14 @@ import java.util.List;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
+import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
+import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
 import uk.co.metagrid.ambleck.platform.Execution;
 
 public class ExecutionResponseImpl
-    extends ExecutionResponse
+    extends IvoaExecutionResponse
     implements ExecutionResponseAPI
     {
 
@@ -46,7 +50,7 @@ public class ExecutionResponseImpl
         return this.execution ;
         }
 
-    public ExecutionResponseImpl(final ExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution<?> execution)
+    public ExecutionResponseImpl(final IvoaExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution<?> execution)
         {
         this.parent = parent ;
         this.execution = execution ;
@@ -69,7 +73,7 @@ public class ExecutionResponseImpl
             parent.getExpires()
             );
 
-        OfferSetLink offerset = new OfferSetLink();
+        IvoaOfferSetLink offerset = new IvoaOfferSetLink();
         this.setOfferset(
             offerset
             );
@@ -90,14 +94,14 @@ public class ExecutionResponseImpl
      */
     public void updateOptions()
         {
-        List<AbstractOption> options = new ArrayList<AbstractOption>();
+        List<IvoaAbstractOption> options = new ArrayList<IvoaAbstractOption>();
         this.setOptions(options);
 
         switch(this.getState())
             {
             case OFFERED:
                 options.add(
-                    new EnumValueOption(
+                    new IvoaEnumValueOption(
                         List.of("ACCEPTED", "REJECTED"),
                         "urn:enum-value-option",
                         "state"
@@ -110,7 +114,7 @@ public class ExecutionResponseImpl
             case WAITING:
             case RUNNING:
                 options.add(
-                    new EnumValueOption(
+                    new IvoaEnumValueOption(
                         List.of("CANCELLED"),
                         "urn:enum-value-option",
                         "state"

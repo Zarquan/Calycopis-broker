@@ -22,12 +22,9 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import java.util.UUID;
-import java.util.Map;
 import java.util.HashMap;
-
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Map;
+import java.util.UUID;
 
 import uk.co.metagrid.ambleck.model.FactoryBase;
 
@@ -40,13 +37,13 @@ public class PreparationStepFactoryImpl
      * Our internal Map of steps.
      *
      */
-    private Map<UUID, PreparationStep> hashmap = new HashMap<UUID, PreparationStep>();
+    private Map<UUID, PreparationStep<?>> hashmap = new HashMap<UUID, PreparationStep<?>>();
 
     /**
      * Add a PreparationStep to our Map.
      *
      */
-    protected void insert(final PreparationStep step)
+    protected void insert(final PreparationStep<?> step)
         {
         hashmap.put(
             step.getUuid(),
@@ -60,7 +57,7 @@ public class PreparationStepFactoryImpl
      *
      */
     @Override
-    public PreparationStep select(final UUID uuid)
+    public PreparationStep<?> select(final UUID uuid)
         {
         return hashmap.get(uuid) ;
         }

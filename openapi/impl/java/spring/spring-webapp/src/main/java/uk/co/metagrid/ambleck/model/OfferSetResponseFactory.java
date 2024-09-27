@@ -25,8 +25,8 @@ package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 
 public interface OfferSetResponseFactory
     {
@@ -41,13 +41,13 @@ public interface OfferSetResponseFactory
      * Select an OfferSetResponse based on its identifier.
      *
      */
-    public OfferSetResponse select(final UUID uuid);
+    public IvoaOfferSetResponse select(final UUID uuid);
 
     /**
      * Create a new OfferSetResponse based on an OfferSetRequest.
      *
      */
-    public OfferSetResponse create(final String baseurl, final OfferSetRequest request);
+    public IvoaOfferSetResponse create(final String baseurl, final IvoaOfferSetRequest request);
 
     }
 

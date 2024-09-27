@@ -35,29 +35,21 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
-
-//import java.sql.SQLException;
-//import java.util.Optional;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.InstantSource;
-import org.threeten.extra.Interval;
-import java.sql.Timestamp;
+import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
 import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.core.RowMapper;
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import org.springframework.stereotype.Repository;
+import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -262,7 +254,7 @@ public class ExecutionBlockDatabaseImpl
      *
      */
     @Override
-    public List<ExecutionBlock> generate(final ProcessingContext context)
+    public List<ExecutionBlock> generate(final ProcessingContext<?> context)
         {
         Interval starttime = null;
         Duration minduration  = null;

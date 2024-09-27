@@ -33,6 +33,29 @@
 
         Work in progress ...
 
+    Resources:
+
+        Spring Boot with Hibernate
+        https://medium.com/@phoenixrising_93140/springboot-with-hibernate-a-restful-example-d367ad50b7f1
+
+        Spring Boot JPA Repository
+        https://www.geeksforgeeks.org/spring-boot-jparepository-with-example/
+
+        Introduction to Spring Data JPA
+        https://www.baeldung.com/the-persistence-layer-with-spring-data-jpa
+
+        JPA Repositories
+        https://docs.spring.io/spring-data/jpa/docs/1.5.0.RELEASE/reference/html/jpa.repositories.html
+
+        Spring Boot JpaRepository example
+        https://howtodoinjava.com/spring-boot/spring-boot-jparepository-example/
+
+
+        https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/domain/package-summary.html
+        https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/Repository.html
+        https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html
+
+
 
 # -----------------------------------------------------
 # Start a new branch.
@@ -128,7 +151,6 @@
 
 cat > /tmp/createrequest.yaml  << EOF
 executable:
-  properties:
   name: Test executable
   type: urn:jupyter-notebook-0.1
   notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb

@@ -23,27 +23,21 @@
 
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.Map;
-import java.util.HashMap;
-
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 //import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.OfferSetResponseImpl;
-import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
-
-import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import uk.co.metagrid.ambleck.platform.CanfarProcessingContextFactory;
-import uk.co.metagrid.ambleck.platform.Execution;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -81,13 +75,13 @@ public class OfferSetResponseFactoryImpl
      * Our HashMap of OfferSetResponses.
      *
      */
-    private Map<UUID, OfferSetResponse> hashmap = new HashMap<UUID, OfferSetResponse>();
+    private Map<UUID, IvoaOfferSetResponse> hashmap = new HashMap<UUID, IvoaOfferSetResponse>();
 
     /**
      * Insert an OfferSetResponse into our HashMap.
      *
      */
-    protected void insert(final OfferSetResponse offerset)
+    protected void insert(final IvoaOfferSetResponse offerset)
         {
         this.hashmap.put(
             offerset.getUuid(),
@@ -100,7 +94,7 @@ public class OfferSetResponseFactoryImpl
      *
      */
     @Override
-    public OfferSetResponse select(final UUID uuid)
+    public IvoaOfferSetResponse select(final UUID uuid)
         {
         return this.hashmap.get(
             uuid
@@ -112,7 +106,7 @@ public class OfferSetResponseFactoryImpl
      *
      */
     @Override
-    public OfferSetResponse create(final String baseurl, final OfferSetRequest request)
+    public IvoaOfferSetResponse create(final String baseurl, final IvoaOfferSetRequest request)
         {
         log.debug(
             "Creating OfferSetResponse"

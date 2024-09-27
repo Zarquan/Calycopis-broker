@@ -21,12 +21,13 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.ambleck.platform.Execution;
 
-public interface ProcessingContextFactory<ExecutionType extends Execution>
+public interface ProcessingContextFactory<ExecutionType extends Execution<?>>
     {
 
-    public ProcessingContext<ExecutionType> create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset);
+    public ProcessingContext<ExecutionType> create(final String baseurl, final IvoaOfferSetRequest request, final OfferSetAPI offerset);
     //public ProcessingContext<ExecutionType> create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ExecutionResponseAPI response);
 
     };

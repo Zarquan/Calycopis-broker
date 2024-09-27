@@ -24,31 +24,24 @@
 package uk.co.metagrid.ambleck.webapp;
 
 import java.net.URI;
-import java.util.Map;
 import java.util.UUID;
-import java.util.Optional;
 
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.webapp.OffersetApiDelegate;
+import lombok.extern.slf4j.Slf4j;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
+import net.ivoa.calycopis.openapi.webapp.OffersetApiDelegate;
 import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
 
-import uk.co.metagrid.ambleck.message.DebugMessage;
-import uk.co.metagrid.ambleck.message.ErrorMessage;
-import uk.co.metagrid.ambleck.message.WarnMessage;
-import uk.co.metagrid.ambleck.message.InfoMessage;
-
+@Slf4j
 @Service
 public class OffersetApiDelegateImpl
     extends BaseDelegateImpl
@@ -67,28 +60,29 @@ public class OffersetApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<OfferSetResponse> offerSetGet(final UUID uuid)
+    public ResponseEntity<IvoaOfferSetResponse> offerSetGet(final UUID uuid)
         {
-        OfferSetResponse response = factory.select(uuid);
+        IvoaOfferSetResponse response = factory.select(uuid);
         if (null != response)
             {
-            return new ResponseEntity<OfferSetResponse>(
+            return new ResponseEntity<IvoaOfferSetResponse>(
                 response,
                 HttpStatus.OK
                 );
             }
         else {
-            return new ResponseEntity<OfferSetResponse>(
+            return new ResponseEntity<IvoaOfferSetResponse>(
                 HttpStatus.NOT_FOUND
                 );
             }
         }
 
     @Override
-    public ResponseEntity<OfferSetResponse> offerSetPost(
-        @RequestBody OfferSetRequest request
+    public ResponseEntity<IvoaOfferSetResponse> offerSetPost(
+        @RequestBody IvoaOfferSetRequest request
         ) {
-	    OfferSetResponse response = factory.create(
+        log.debug("offerSetPost [{}]", request.getName());
+	    IvoaOfferSetResponse response = factory.create(
 	        this.getBaseUrl(),
 	        request
 	        );
@@ -98,7 +92,7 @@ public class OffersetApiDelegateImpl
                 response.getHref()
                 )
             );
-        return new ResponseEntity<OfferSetResponse>(
+        return new ResponseEntity<IvoaOfferSetResponse>(
             response,
             headers,
             HttpStatus.SEE_OTHER

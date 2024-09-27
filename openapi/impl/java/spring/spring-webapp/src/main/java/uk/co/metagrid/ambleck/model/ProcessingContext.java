@@ -21,42 +21,45 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.List;
 
-import java.time.Instant;
-import java.time.Duration;
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.ambleck.platform.Execution;
 
 /**
  * A class to hold context during processing.
  *
  */
-public interface ProcessingContext<ExecutionType extends Execution>
+public interface ProcessingContext<ExecutionType extends Execution<?>>
     {
     public boolean valid();
     public void valid(boolean value);
     public void fail();
 
-    public OfferSetRequest request();
+    public IvoaOfferSetRequest request();
     public OfferSetAPI getOfferSet();
 
     public String baseurl();
 
-    public void addMessage(final MessageItem message);
+    public void addMessage(final IvoaMessageItem message);
 
-    public void addDataResource(final AbstractDataResource data);
-    public List<AbstractDataResource> getDataResourceList();
-    public AbstractDataResource findDataResource(final String key);
+    public void addDataResource(final IvoaAbstractDataResource data);
+    public List<IvoaAbstractDataResource> getDataResourceList();
+    public IvoaAbstractDataResource findDataResource(final String key);
 
-    public void addComputeResource(final AbstractComputeResource comp);
-    public List<AbstractComputeResource> getComputeResourceList();
-    public AbstractComputeResource findComputeResource(final String key);
+    public void addComputeResource(final IvoaAbstractComputeResource comp);
+    public List<IvoaAbstractComputeResource> getComputeResourceList();
+    public IvoaAbstractComputeResource findComputeResource(final String key);
 
-    public AbstractExecutable getExecutable();
-    public void setExecutable(final AbstractExecutable executable);
+    public IvoaAbstractExecutable getExecutable();
+    public void setExecutable(final IvoaAbstractExecutable executable);
 
     // This is a total over all the compute resources.
     public int getMinCores();
