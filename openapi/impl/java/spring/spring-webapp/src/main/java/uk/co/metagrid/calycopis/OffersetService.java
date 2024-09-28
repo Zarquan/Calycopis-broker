@@ -25,7 +25,6 @@
  */
 package uk.co.metagrid.calycopis;
 
-import java.util.UUID;
 import java.util.List;
 
 /**
