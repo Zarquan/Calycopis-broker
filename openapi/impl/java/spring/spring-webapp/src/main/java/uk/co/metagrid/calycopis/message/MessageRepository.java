@@ -20,13 +20,15 @@
  *
  *
  */
-package uk.co.metagrid.calycopis;
 
-import java.util.UUID;
+package uk.co.metagrid.calycopis.message;
 
-public interface Offerset
+import org.springframework.data.jpa.repository.JpaRepository;
+
+/**
+ * 
+ */
+public interface MessageRepository extends JpaRepository<MessageEntity, Long>
     {
-
-    public UUID getUuid();
 
     }

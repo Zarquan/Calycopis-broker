@@ -23,6 +23,7 @@
 
 package uk.co.metagrid.ambleck.webapp;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,10 @@ import org.springframework.web.context.request.NativeWebRequest;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.ExecutionApiDelegate;
-import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
+import uk.co.metagrid.calycopis.execution.Execution;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionFactory;
+import uk.co.metagrid.calycopis.execution.ExecutionResponseBean;
 
 @Service
 public class ExecutionApiDelegateImpl
@@ -42,12 +46,12 @@ public class ExecutionApiDelegateImpl
     implements ExecutionApiDelegate
     {
 
-    private final ExecutionResponseFactory factory ;
+    private final ExecutionFactory factory ;
 
     @Autowired
     public ExecutionApiDelegateImpl(
         NativeWebRequest request,
-        ExecutionResponseFactory factory
+        ExecutionFactory factory
         )
         {
         super(request);
@@ -58,16 +62,21 @@ public class ExecutionApiDelegateImpl
     public ResponseEntity<IvoaExecutionResponse> executionGet(
         final UUID uuid
         ) {
-        IvoaExecutionResponse response = factory.select(uuid);
-        if (null != response)
+        final Optional<ExecutionEntity> found = factory.select(
+            uuid
+            );
+        if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionResponse>(
-                response,
+                new ExecutionResponseBean(
+                    this.getBaseUrl(),
+                    found.get()
+                    ),
                 HttpStatus.OK
                 );
             }
         else {
-            return new ResponseEntity<>(
+            return new ResponseEntity<IvoaExecutionResponse>(
                 HttpStatus.NOT_FOUND
                 );
             }
@@ -78,6 +87,8 @@ public class ExecutionApiDelegateImpl
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
+/*
+ * 
         IvoaExecutionResponse response = factory.update(
             uuid,
             request.getUpdate()
@@ -94,6 +105,11 @@ public class ExecutionApiDelegateImpl
                 HttpStatus.NOT_FOUND
                 );
             }
+ * 
+ */
+        return new ResponseEntity<>(
+            HttpStatus.NOT_FOUND
+            );
         }
     }
 

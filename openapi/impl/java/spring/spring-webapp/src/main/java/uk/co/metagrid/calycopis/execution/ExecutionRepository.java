@@ -18,21 +18,15 @@
  *   </meta:licence>
  * </meta:header>
  *
- * Based on
- * https://www.geeksforgeeks.org/spring-boot-jparepository-with-example/
- * https://howtodoinjava.com/spring-boot/spring-boot-jparepository-example/
  *
  */
-package uk.co.metagrid.calycopis;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+package uk.co.metagrid.calycopis.execution;
 
 import java.util.UUID;
 
-@Repository
-public interface OffersetRepository
-    extends JpaRepository<OffersetEntity, UUID>
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ExecutionRepository
+extends JpaRepository<ExecutionEntity, UUID>
     {
     }
-

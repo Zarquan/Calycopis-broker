@@ -20,38 +20,28 @@
  *
  *
  */
-package uk.co.metagrid.calycopis;
 
-import jakarta.persistence.Id;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Table;
-import jakarta.persistence.Column;
+package uk.co.metagrid.calycopis.component;
 
+import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "Offersets")
-public class OffersetEntity
-    implements Offerset
+import uk.co.metagrid.calycopis.message.MessageEntity;
+
+/**
+ * Public interface for a Component
+ * 
+ */
+public interface Component
     {
 
-    @Id
-    @GeneratedValue
-    // https://www.baeldung.com/hibernate-identifiers#1-auto-generation
-    private UUID uuid;
+    public UUID getUuid();
 
-    public UUID getUuid()
-        {
-        return this.uuid ;
-        }
+    public String getName();
 
-    @Column(name = "name")
-    private String name;
+    public OffsetDateTime getCreated();
 
-    public String getName()
-        {
-        return this.name ;
-        }
+    public List<MessageEntity> getMessages();
 
     }

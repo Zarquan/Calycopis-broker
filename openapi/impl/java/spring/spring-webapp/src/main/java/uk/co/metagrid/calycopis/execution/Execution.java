@@ -18,33 +18,26 @@
  *   </meta:licence>
  * </meta:header>
  *
- * Based on
- * https://www.geeksforgeeks.org/spring-boot-jparepository-with-example/
- * https://howtodoinjava.com/spring-boot/spring-boot-jparepository-example/
  *
  */
-package uk.co.metagrid.calycopis;
 
-import java.util.List;
+package uk.co.metagrid.calycopis.execution;
+
+import java.time.OffsetDateTime;
+
+import uk.co.metagrid.calycopis.component.Component;
+import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
 /**
- * Service interface for managing Offersets.
- *
+ * Public interface for an Execution (session).
+ * 
  */
-public interface OffersetService
+public interface Execution
+    extends Component
     {
 
-    /**
-     * Save an Offerset.
-     *
-     */
-    public OffersetEntity save(OffersetEntity entity);
+    public OffsetDateTime getExpires();
 
-    /**
-     * List all the Offersets.
-     *
-     */
-    public List<OffersetEntity> list();
+    public OfferSetEntity getParent();
 
     }
-

@@ -111,7 +111,6 @@ public class BaseDelegateImpl
      */
     public String getBaseUrl()
         {
-        String servletpath = this.getServletPath();
         String contextpath = this.getContextPath();
         String requestURL  = this.getRequestURL();
         String requestURI  = this.getRequestURI();

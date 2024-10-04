@@ -389,22 +389,22 @@ components:
       properties:
         uuid:
           description: >
-            A machine readable UUID for the component, assigned by the server.
+            A machine readable UUID, assigned by the server.
           type: string
           format: uuid
         name:
           description: >
-            A human readable name for the component, assigned by the client.
+            A human readable name, assigned by the client.
           type: string
         properties:
           description: >
-            A map of extra name-value properties for the component.
+            A map of name-value properties for this component.
           xml:
             name: properties
           $ref: '#/components/schemas/NameValueMap'
         messages:
           description: >
-            Messages about the component.
+            A list of messages about this component.
           xml:
             name: messages
           type: array
@@ -412,12 +412,6 @@ components:
             $ref: '#/components/schemas/MessageItem'
             xml:
               name: message
-        schedule:
-          description: >
-            Scheduling information for the component.
-          xml:
-            name: schedule
-          $ref: '#/components/schemas/StringScheduleBlock'
 
     AbstractComputeResource:
       description: >

@@ -24,6 +24,7 @@
 package uk.co.metagrid.ambleck.webapp;
 
 import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.webapp.OffersetApiDelegate;
-import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
+import uk.co.metagrid.calycopis.offerset.OfferSet;
+import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.offerset.OfferSetResponseBean;
+//import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
+import uk.co.metagrid.calycopis.offerset.OfferSetFactory;
 
 @Slf4j
 @Service
@@ -47,12 +52,12 @@ public class OffersetApiDelegateImpl
     extends BaseDelegateImpl
     implements OffersetApiDelegate {
 
-    private final OfferSetResponseFactory factory ;
+    private final OfferSetFactory factory ;
 
     @Autowired
     public OffersetApiDelegateImpl(
         NativeWebRequest request,
-        OfferSetResponseFactory factory
+        OfferSetFactory factory
         )
         {
         super(request);
@@ -62,11 +67,16 @@ public class OffersetApiDelegateImpl
     @Override
     public ResponseEntity<IvoaOfferSetResponse> offerSetGet(final UUID uuid)
         {
-        IvoaOfferSetResponse response = factory.select(uuid);
-        if (null != response)
+        final Optional<OfferSetEntity> found = factory.select(
+            uuid
+            );
+        if (found.isPresent())
             {
             return new ResponseEntity<IvoaOfferSetResponse>(
-                response,
+                new OfferSetResponseBean(
+                    this.getBaseUrl(),
+                    found.get()
+                    ),
                 HttpStatus.OK
                 );
             }
@@ -82,9 +92,11 @@ public class OffersetApiDelegateImpl
         @RequestBody IvoaOfferSetRequest request
         ) {
         log.debug("offerSetPost [{}]", request.getName());
-	    IvoaOfferSetResponse response = factory.create(
+	    IvoaOfferSetResponse response = new OfferSetResponseBean(
 	        this.getBaseUrl(),
-	        request
+	        factory.create(
+                request
+                )
 	        );
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(
@@ -99,5 +111,3 @@ public class OffersetApiDelegateImpl
             );
 	    }
     }
-
-

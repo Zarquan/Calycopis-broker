@@ -23,50 +23,16 @@
  * https://howtodoinjava.com/spring-boot/spring-boot-jparepository-example/
  *
  */
-package uk.co.metagrid.calycopis;
+package uk.co.metagrid.calycopis.offerset;
 
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import java.util.UUID;
 
-/**
- * Service implementation for managing Offersets.
- *
- */
-@Service
-public class OffersetServiceImpl
-    implements OffersetService
+@Repository
+public interface OfferSetRepository
+    extends JpaRepository<OfferSetEntity, UUID>
     {
-
-    private OffersetRepository repository;
-
-    @Autowired
-    public OffersetServiceImpl(final OffersetRepository repository)
-        {
-        super();
-        this.repository = repository;
-        }
-
-    /**
-     * Save an Offerset.
-     *
-     */
-    public OffersetEntity save(OffersetEntity entity)
-        {
-        return repository.save(
-            entity
-            );
-        }
-
-    /**
-     * List all the Offersets.
-     *
-     */
-    public List<OffersetEntity> list()
-        {
-        return (List<OffersetEntity>) repository.findAll();
-        }
-
     }
 

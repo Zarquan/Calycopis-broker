@@ -40,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import uk.co.metagrid.ambleck.platform.CanfarProcessingContextFactory;
 
 @Slf4j
-@Component
+//@Component
 public class OfferSetResponseFactoryImpl
     extends FactoryBase
     implements OfferSetResponseFactory
