@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.storage.simple;
 
 import java.time.OffsetDateTime;
 
@@ -33,35 +33,35 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import uk.co.metagrid.calycopis.component.ComponentEntity;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 
 /**
- * An Execution Entity.
+ * A SimpleStorageResource Entity.
  *
  */
 @Entity
 @Table(
-    name = "executions"
+    name = "simplestorage"
     )
-@DiscriminatorValue(
-    value="urn:execution"
+@DiscriminatorValue(executions
+    value="urn:simple-compute"
     )
-public class ExecutionEntity
+public class SimpleStorageResourceEntity
     extends ComponentEntity
-    implements Execution
+    implements SimpleStorageResource
     {
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private OfferSetEntity parent;
+    private ExecutionEntity parent;
 
     @Override
-    public OfferSetEntity getParent()
+    public ExecutionEntity getParent()
         {
         return this.parent;
         }
 
-    public void setParent(final OfferSetEntity parent)
+    public void setParent(final ExecutionEntity parent)
         {
         this.parent = parent;
         }
@@ -70,7 +70,7 @@ public class ExecutionEntity
      * Protected constructor
      *
      */
-    protected ExecutionEntity()
+    protected SimpleStorageResourceEntity()
         {
         super();
         }
@@ -79,20 +79,10 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferSetEntity parent)
+    public SimpleStorageResourceEntity(final OfferSetEntity parent)
         {
         super();
         this.parent = parent;
-        }
-
-
-    @Column(name = "expires")
-    private OffsetDateTime expires;
-
-    @Override
-    public OffsetDateTime getExpires()
-        {
-        return this.expires;
         }
     }
 

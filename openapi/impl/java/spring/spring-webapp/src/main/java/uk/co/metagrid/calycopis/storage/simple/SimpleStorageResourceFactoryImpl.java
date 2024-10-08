@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.storage.simple;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -37,38 +37,38 @@ import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
 /**
- * An Execution Factory implementation.
+ * A SimpleStorageResource Factory implementation.
  *
  */
-    @Slf4j
-    @Component
-    public class ExecutionFactoryImpl
-        extends FactoryBaseImpl
-        implements ExecutionFactory
-        {
+@Slf4j
+@Component
+public class SimpleStorageResourceFactoryImpl
+    extends FactoryBaseImpl
+    implements SimpleStorageResourceFactory
+    {
 
-    private final ExecutionRepository repository;
+    private final SimpleStorageResourceRepository repository;
 
     @Autowired
-    public ExecutionFactoryImpl(final ExecutionRepository repository)
+    public SimpleStorageResourceFactoryImpl(final SimpleStorageResourceRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionEntity> select(UUID uuid)
+    public Optional<SimpleStorageResourceEntity> select(UUID uuid)
         {
-        Optional<ExecutionEntity> optional = this.repository.findById(
+        Optional<SimpleStorageResourceEntity> optional = this.repository.findById(
             uuid
             );
         if (optional.isPresent())
             {
-            ExecutionEntity found = optional.get();
+            SimpleStorageResourceEntity found = optional.get();
             found.addMessage(
                 LevelEnum.DEBUG,
                 "urn:debug",
-                "ExecutionEntity select(UUID)",
+                "SimpleStorageResourceEntity select(UUID)",
                 Collections.emptyMap()
                 );
             return Optional.of(
@@ -85,12 +85,13 @@ import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
         }
 
     @Override
-    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent)
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
         {
-        ExecutionEntity created = new ExecutionEntity(parent);
+        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
 
-        ExecutionEntity saved = this.repository.save(created);
+        SimpleStorageResourceEntity saved = this.repository.save(created);
+        log.debug("created [{}]", created.getUuid());
         log.debug("saved [{}]", saved.getUuid());
 
         return saved ;

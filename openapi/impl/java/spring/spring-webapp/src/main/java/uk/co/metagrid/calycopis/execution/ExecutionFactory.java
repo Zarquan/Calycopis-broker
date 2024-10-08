@@ -31,9 +31,11 @@ import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import uk.co.metagrid.calycopis.util.FactoryBase;
 
 /**
- * 
+ * An Execution Factory.
+ *
  */
-public interface ExecutionFactory extends FactoryBase
+public interface ExecutionFactory
+    extends FactoryBase
     {
     /**
      * Select an Execution based on its identifier.
@@ -48,3 +50,4 @@ public interface ExecutionFactory extends FactoryBase
     public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent);
 
     }
+

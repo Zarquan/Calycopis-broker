@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.storage.simple;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,25 +30,25 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import uk.co.metagrid.calycopis.message.MessageEntity;
 import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;
 
 /**
- * An Execution response Bean.
+ * A SimpleStorage response Bean.
  *
  */
-public class ExecutionResponseBean
-    extends IvoaExecutionResponse
+public class SimpleStorageResourceBean
+    extends IvoaSimpleStorageResource
     {
 
     /**
      * The URL path for the executions endpoint.
      *
      */
-    private static final String REQUEST_PATH = "/execution/" ;
+    private static final String REQUEST_PATH = "/simple-storage/" ;
 
 
     /**
@@ -58,16 +58,16 @@ public class ExecutionResponseBean
     private final String baseurl;
 
     /**
-     * The Execution entity to wrap.
+     * The SimpleStorageResource entity to wrap.
      *
      */
-    private final ExecutionEntity entity;
+    private final SimpleStorageResourceEntity entity;
 
     /**
      * Protected constructor.
      *
      */
-    public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
+    public SimpleStorageResourceBean(final String baseurl, final SimpleStorageResourceEntity entity)
         {
         super();
         this.baseurl = baseurl;
@@ -94,12 +94,6 @@ public class ExecutionResponseBean
     public String getName()
         {
         return entity.getName();
-        }
-
-    @Override
-    public Map<String, String> getProperties()
-        {
-        return Collections.emptyMap();
         }
 
     @Override

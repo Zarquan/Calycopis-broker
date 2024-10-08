@@ -21,11 +21,8 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.compute.simple;
 
-import java.time.OffsetDateTime;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -33,35 +30,35 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import uk.co.metagrid.calycopis.component.ComponentEntity;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 
 /**
- * An Execution Entity.
+ * A SimpleComputeResource Entity.
  *
  */
 @Entity
 @Table(
-    name = "executions"
+    name = "simplecompute"
     )
 @DiscriminatorValue(
-    value="urn:execution"
+    value="urn:simple-compute"
     )
-public class ExecutionEntity
+public class SimpleComputeResourceEntity
     extends ComponentEntity
-    implements Execution
+    implements SimpleComputeResource
     {
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private OfferSetEntity parent;
+    private ExecutionEntity parent;
 
     @Override
-    public OfferSetEntity getParent()
+    public ExecutionEntity getParent()
         {
         return this.parent;
         }
 
-    public void setParent(final OfferSetEntity parent)
+    public void setParent(final ExecutionEntity parent)
         {
         this.parent = parent;
         }
@@ -70,7 +67,7 @@ public class ExecutionEntity
      * Protected constructor
      *
      */
-    protected ExecutionEntity()
+    protected SimpleComputeResourceEntity()
         {
         super();
         }
@@ -79,20 +76,10 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferSetEntity parent)
+    public SimpleComputeResourceEntity(final ExecutionEntity parent)
         {
         super();
         this.parent = parent;
-        }
-
-
-    @Column(name = "expires")
-    private OffsetDateTime expires;
-
-    @Override
-    public OffsetDateTime getExpires()
-        {
-        return this.expires;
         }
     }
 

@@ -20,25 +20,17 @@
  *
  *
  */
+package uk.co.metagrid.calycopis.storage.simple;
 
-package uk.co.metagrid.calycopis.execution;
+import java.util.UUID;
 
-import java.time.OffsetDateTime;
-
-import uk.co.metagrid.calycopis.component.Component;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * Public interface for an Execution (session).
+ * A SimpleStorageResource JpaRepository.
  *
  */
-public interface Execution
-    extends Component
+public interface SimpleStorageResourceRepository
+extends JpaRepository<SimpleStorageResourceEntity, UUID>
     {
-
-    public OffsetDateTime getExpires();
-
-    public OfferSetEntity getParent();
-
     }
-

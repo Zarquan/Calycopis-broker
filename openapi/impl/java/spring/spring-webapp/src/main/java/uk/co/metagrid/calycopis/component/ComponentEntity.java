@@ -31,9 +31,6 @@ import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -47,7 +44,8 @@ import uk.co.metagrid.calycopis.message.MessageEntity;
 
 /**
  * JPA Entity for a Component
- * 
+ * https://www.javatpoint.com/hibernate-table-per-hierarchy-using-annotation-tutorial-example
+ *
  */
 @Entity
 @Table(name = "components")
@@ -55,14 +53,14 @@ import uk.co.metagrid.calycopis.message.MessageEntity;
     strategy = InheritanceType.JOINED
     )
 /*
- * 
+ *
 @DiscriminatorColumn(
     discriminatorType = DiscriminatorType.STRING
-    )  
+    )
 @DiscriminatorValue(
     value = "urn:base-component"
-    )  
- * 
+    )
+ *
  */
 public class ComponentEntity
     implements Component
@@ -70,7 +68,7 @@ public class ComponentEntity
 
     /**
      * Protected constructor.
-     * 
+     *
      */
     protected ComponentEntity()
         {
@@ -109,7 +107,7 @@ public class ComponentEntity
         orphanRemoval = true
         )
     private List<MessageEntity> messages = new ArrayList<MessageEntity>();
-    
+
     @Override
     public List<MessageEntity> getMessages()
         {
@@ -124,9 +122,31 @@ public class ComponentEntity
             type,
             template,
             values
-            ); 
+            );
         messages.add(
             message
             );
+        }
+
+    @Override
+    public boolean equals(Object object)
+        {
+        if (null != object)
+            {
+            if (this == object)
+                {
+                return true;
+                }
+            if (object.getClass().equals(this.getClass()))
+                {
+                if (this.uuid != null)
+                    {
+                    return this.uuid.equals(
+                        ((ComponentEntity) object).getUuid()
+                        );
+                    }
+                }
+            }
+        return false ;
         }
     }

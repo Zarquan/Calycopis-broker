@@ -21,24 +21,34 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.compute.simple;
 
-import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
-import uk.co.metagrid.calycopis.component.Component;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
+import uk.co.metagrid.calycopis.util.FactoryBase;
 
 /**
- * Public interface for an Execution (session).
+ * A SimpleComputeResource Factory.
  *
  */
-public interface Execution
-    extends Component
+public interface SimpleComputeResourceFactory
+    extends FactoryBase
     {
 
-    public OffsetDateTime getExpires();
+    /**
+     * Select a SimpleComputeResource based on its identifier.
+     *
+     */
+    public Optional<SimpleComputeResourceEntity> select(final UUID uuid);
 
-    public OfferSetEntity getParent();
+    /**
+     * Create a new SimpleComputeResource based on an OfferSetRequest.
+     *
+     */
+    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
 
     }
 

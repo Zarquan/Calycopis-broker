@@ -392,16 +392,20 @@ components:
             A machine readable UUID, assigned by the server.
           type: string
           format: uuid
+        href:
+          description: >
+            The URL to access this component, assigned by the server.
+          type: string
         name:
           description: >
             A human readable name, assigned by the client.
           type: string
-        properties:
-          description: >
-            A map of name-value properties for this component.
-          xml:
-            name: properties
-          $ref: '#/components/schemas/NameValueMap'
+#      properties:
+#        description: >
+#           A map of name-value properties for this component.
+#         xml:
+#           name: properties
+#         $ref: '#/components/schemas/NameValueMap'
         messages:
           description: >
             A list of messages about this component.
@@ -453,7 +457,7 @@ components:
               $ref: '#/components/schemas/MinMaxInteger'
             volumes:
               description: >
-                A list of resources that need to be mounted as volumes.
+                A list of resource volumes.
               type: array
               items:
                 $ref: '#/components/schemas/ComputeResourceVolume'
@@ -463,7 +467,7 @@ components:
         A resource volume mount.
       type: object
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+#       - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             path:
@@ -1125,7 +1129,7 @@ components:
 
     ExecutionResponse:
       description: >
-        The response for an execution, including uuid, href, and status.
+        An execution (session), including uuid, href, and status.
       type: object
       xml:
         name: execution
@@ -1137,8 +1141,6 @@ components:
             - state
             - href
           properties:
-            href:
-              type: string
             state:
               description: >
                 Status code for the execution.

@@ -21,24 +21,20 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
-
-import java.time.OffsetDateTime;
+package uk.co.metagrid.calycopis.compute.simple;
 
 import uk.co.metagrid.calycopis.component.Component;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.execution.Execution;
 
 /**
- * Public interface for an Execution (session).
+ * Public interface for a SimpleComputeResource.
  *
  */
-public interface Execution
+public interface SimpleComputeResource
     extends Component
     {
 
-    public OffsetDateTime getExpires();
-
-    public OfferSetEntity getParent();
+    public Execution getParent();
 
     }
 

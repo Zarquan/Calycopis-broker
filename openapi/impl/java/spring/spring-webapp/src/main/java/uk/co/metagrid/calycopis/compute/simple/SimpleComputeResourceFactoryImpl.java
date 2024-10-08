@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.compute.simple;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -33,42 +33,42 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
 /**
- * An Execution Factory implementation.
+ * A SimpleComputeResource Factory implementation.
  *
  */
-    @Slf4j
-    @Component
-    public class ExecutionFactoryImpl
-        extends FactoryBaseImpl
-        implements ExecutionFactory
-        {
+@Slf4j
+@Component
+public class SimpleComputeResourceFactoryImpl
+    extends FactoryBaseImpl
+    implements SimpleComputeResourceFactory
+    {
 
-    private final ExecutionRepository repository;
+    private final SimpleComputeResourceRepository repository;
 
     @Autowired
-    public ExecutionFactoryImpl(final ExecutionRepository repository)
+    public SimpleComputeResourceFactoryImpl(final SimpleComputeResourceRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionEntity> select(UUID uuid)
+    public Optional<SimpleComputeResourceEntity> select(UUID uuid)
         {
-        Optional<ExecutionEntity> optional = this.repository.findById(
+        Optional<SimpleComputeResourceEntity> optional = this.repository.findById(
             uuid
             );
         if (optional.isPresent())
             {
-            ExecutionEntity found = optional.get();
+            SimpleComputeResourceEntity found = optional.get();
             found.addMessage(
                 LevelEnum.DEBUG,
                 "urn:debug",
-                "ExecutionEntity select(UUID)",
+                "SimpleComputeResourceEntity select(UUID)",
                 Collections.emptyMap()
                 );
             return Optional.of(
@@ -85,12 +85,13 @@ import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
         }
 
     @Override
-    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent)
+    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
         {
-        ExecutionEntity created = new ExecutionEntity(parent);
+        SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
 
-        ExecutionEntity saved = this.repository.save(created);
+        SimpleComputeResourceEntity saved = this.repository.save(created);
+        log.debug("created [{}]", created.getUuid());
         log.debug("saved [{}]", saved.getUuid());
 
         return saved ;

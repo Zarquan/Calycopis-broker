@@ -21,34 +21,32 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.compute.simple;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import uk.co.metagrid.calycopis.message.MessageEntity;
 import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;
 
 /**
- * An Execution response Bean.
+ * A SimpleCompute response Bean.
  *
  */
-public class ExecutionResponseBean
-    extends IvoaExecutionResponse
+public class SimpleComputeResourceBean
+    extends IvoaSimpleComputeResource
     {
 
     /**
      * The URL path for the executions endpoint.
      *
      */
-    private static final String REQUEST_PATH = "/execution/" ;
+    private static final String REQUEST_PATH = "/simple-compute/" ;
 
 
     /**
@@ -58,16 +56,16 @@ public class ExecutionResponseBean
     private final String baseurl;
 
     /**
-     * The Execution entity to wrap.
+     * The SimpleComputeResource entity to wrap.
      *
      */
-    private final ExecutionEntity entity;
+    private final SimpleComputeResourceEntity entity;
 
     /**
      * Protected constructor.
      *
      */
-    public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
+    public SimpleComputeResourceBean(final String baseurl, final SimpleComputeResourceEntity entity)
         {
         super();
         this.baseurl = baseurl;
@@ -78,7 +76,7 @@ public class ExecutionResponseBean
      * Generate the href URL based on our baseurl and UUID.
      *
      */
-    @Override
+//  @Override
     public String getHref()
         {
         return this.baseurl + REQUEST_PATH + entity.getUuid();
@@ -94,12 +92,6 @@ public class ExecutionResponseBean
     public String getName()
         {
         return entity.getName();
-        }
-
-    @Override
-    public Map<String, String> getProperties()
-        {
-        return Collections.emptyMap();
         }
 
     @Override

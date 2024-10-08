@@ -26,7 +26,12 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+/**
+ * An Execution JpaRepository.
+ *
+ */
 public interface ExecutionRepository
 extends JpaRepository<ExecutionEntity, UUID>
     {
     }
+
