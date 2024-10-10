@@ -49,5 +49,11 @@ public interface ExecutionFactory
      */
     public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent);
 
+    /**
+     * Create a new Execution based on an OfferSetRequest.
+     *
+     */
+    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent, boolean save);
+
     }
 

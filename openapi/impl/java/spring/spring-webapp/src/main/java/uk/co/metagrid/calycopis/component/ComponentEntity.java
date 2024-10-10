@@ -25,6 +25,7 @@ package uk.co.metagrid.calycopis.component;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -74,6 +75,28 @@ public class ComponentEntity
         {
         }
 
+    /**
+     * Protected constructor.
+     *
+     */
+    protected ComponentEntity(final String name)
+        {
+        this(
+            name,
+            OffsetDateTime.now()
+            );
+        }
+
+    /**
+     * Protected constructor.
+     *
+     */
+    protected ComponentEntity(final String name, final OffsetDateTime created)
+        {
+        this.name = name;
+        this.created = created;
+        }
+
     @Id
     @GeneratedValue
     protected UUID uuid;
@@ -85,15 +108,14 @@ public class ComponentEntity
 
     @Column(name = "name")
     private String name;
-
+    @Override
     public String getName()
         {
-        return this.name ;
+        return this.name;
         }
 
     @Column(name = "created")
     private OffsetDateTime created;
-
     @Override
     public OffsetDateTime getCreated()
         {
@@ -114,7 +136,97 @@ public class ComponentEntity
         return messages ;
         }
 
-    public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, String> values)
+    public void addDebug(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.DEBUG,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    public void addDebug(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.DEBUG,
+            type,
+            template,
+            values
+            );
+        }
+
+    public void addInfo(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.INFO,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    public void addInfo(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.INFO,
+            type,
+            template,
+            values
+            );
+        }
+    
+    public void addWarning(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.WARN,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    public void addWarning(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.WARN,
+            type,
+            template,
+            values
+            );
+        }
+
+    public void addError(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.ERROR,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    public void addError(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.ERROR,
+            type,
+            template,
+            values
+            );
+        }
+    
+    public void addMessage(final LevelEnum level, final String type, final String template)
+        {
+        this.addMessage(
+            level,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+    
+    public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, Object> values)
         {
         MessageEntity message = new MessageEntity(
             this,

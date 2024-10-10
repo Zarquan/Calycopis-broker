@@ -38,7 +38,7 @@ public class TimeScheduleBlockImpl
         return null ;
         }
 
-    public TimeScheduleBlockItem getObserved()
+    public TimeScheduleBlockItem getActual()
         {
         return null ;
         }

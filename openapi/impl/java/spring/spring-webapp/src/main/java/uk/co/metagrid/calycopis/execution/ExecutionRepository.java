@@ -25,11 +25,13 @@ package uk.co.metagrid.calycopis.execution;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
  * An Execution JpaRepository.
  *
  */
+@Repository
 public interface ExecutionRepository
 extends JpaRepository<ExecutionEntity, UUID>
     {

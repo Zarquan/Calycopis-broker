@@ -87,14 +87,24 @@ public class SimpleComputeResourceFactoryImpl
     @Override
     public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
         {
+        return this.create(
+            request,
+            parent,
+            true
+            );
+        }
+    
+    @Override
+    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save)
+        {
         SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
-
-        SimpleComputeResourceEntity saved = this.repository.save(created);
-        log.debug("created [{}]", created.getUuid());
-        log.debug("saved [{}]", saved.getUuid());
-
-        return saved ;
+        if (save)
+            {
+            created = this.repository.save(created);
+            log.debug("created [{}]", created.getUuid());
+            }
+        return created;
         }
     }
 

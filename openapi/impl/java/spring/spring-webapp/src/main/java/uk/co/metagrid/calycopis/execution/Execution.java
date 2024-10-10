@@ -24,8 +24,10 @@
 package uk.co.metagrid.calycopis.execution;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 import uk.co.metagrid.calycopis.component.Component;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
 /**
@@ -39,6 +41,8 @@ public interface Execution
     public OffsetDateTime getExpires();
 
     public OfferSetEntity getParent();
+
+    public List<SimpleComputeResourceEntity> getComputeResources();
 
     }
 

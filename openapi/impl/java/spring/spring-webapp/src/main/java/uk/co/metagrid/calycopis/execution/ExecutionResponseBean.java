@@ -97,12 +97,6 @@ public class ExecutionResponseBean
         }
 
     @Override
-    public Map<String, String> getProperties()
-        {
-        return Collections.emptyMap();
-        }
-
-    @Override
     public List<@Valid IvoaMessageItem> getMessages()
         {
         return new ListWrapper<IvoaMessageItem, MessageEntity>(

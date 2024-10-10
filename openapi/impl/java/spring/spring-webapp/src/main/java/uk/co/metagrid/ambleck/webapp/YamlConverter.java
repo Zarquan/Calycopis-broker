@@ -25,7 +25,7 @@
  *
  */
 
-package uk.co.metagrid.ambleck.util;
+package uk.co.metagrid.ambleck.webapp;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

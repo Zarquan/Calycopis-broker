@@ -50,5 +50,10 @@ public interface SimpleComputeResourceFactory
      */
     public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
 
+    /**
+     * Create a new SimpleComputeResource based on an OfferSetRequest.
+     *
+     */
+    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
     }
 

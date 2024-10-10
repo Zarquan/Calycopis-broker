@@ -50,5 +50,11 @@ public interface SimpleDataResourceFactory
      */
     public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
 
+    /**
+     * Create a new SimpleDataResource based on an OfferSetRequest.
+     *
+     */
+    public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
+
     }
 

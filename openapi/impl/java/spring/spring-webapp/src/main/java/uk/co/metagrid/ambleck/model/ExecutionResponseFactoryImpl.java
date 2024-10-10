@@ -42,13 +42,14 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceCores;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
 import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse.StateEnum;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook01;
-import net.ivoa.calycopis.openapi.model.IvoaMinMaxInteger;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
@@ -60,6 +61,8 @@ import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockValue;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
+import wtf.metio.storageunits.model.StorageUnit;
+import wtf.metio.storageunits.model.StorageUnits;
 
 @Slf4j
 @Component
@@ -197,6 +200,7 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
+//zrq
         //
         // Validate our execution schedule.
         validate(
@@ -321,65 +325,67 @@ public class ExecutionResponseFactoryImpl
                         IvoaSimpleComputeResource simple = (IvoaSimpleComputeResource) resource ;
                         // Offer the same minimum as the request.
                         block.setMinCores(
-                            simple.getCores().getMin()
+                            context.getMinCores()
                             );
                         // Offer twice the requested maximum IF that is still less than the block.
-                        if ((simple.getCores().getMax() * 2) < block.getMaxCores())
+                        if ((context.getMinCores() * 2) < block.getMaxCores())
                             {
                             block.setMaxCores(
-                                simple.getCores().getMax() * 2
+                                context.getMinCores() * 2
                                 );
                             }
                         // Offer the same minimum as the request.
                         block.setMinMemory(
-                            simple.getMemory().getMin()
+                            context.getMinMemory()
                             );
                         // Offer twice the requested maximum IF that is still less than the block.
-                        if ((simple.getMemory().getMax() * 2) < block.getMaxMemory())
+                        if ((context.getMinMemory() * 2) < block.getMaxMemory())
                             {
                             block.setMaxMemory(
-                                simple.getMemory().getMax() * 2
+                                context.getMinMemory() * 2
                                 );
                             }
-                        IvoaSimpleComputeResource result = new IvoaSimpleComputeResource(
+                        IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
                             "urn:simple-compute-resource"
                             );
-                        result.setUuid(
+                        compute.setUuid(
                             simple.getUuid()
                             );
-                        result.setName(
+                        compute.setName(
                             simple.getName()
                             );
-                        if (result.getCores() == null)
+                        if (compute.getCores() == null)
                             {
-                            result.setCores(
-                                new IvoaMinMaxInteger()
+                            compute.setCores(
+                                new IvoaComputeResourceCores()
                                 );
                             }
-                        result.getCores().setMin(
-                            block.getMinCores()
+                        compute.getCores().setRequested(
+                            simple.getCores().getRequested()
                             );
-                        result.getCores().setMax(
+                        compute.getCores().setOffered(
                             block.getMaxCores()
                             );
-                        if (result.getMemory() == null)
+                        if (compute.getMemory() == null)
                             {
-                            result.setMemory(
-                                new IvoaMinMaxInteger()
+                            compute.setMemory(
+                                new IvoaComputeResourceMemory()
                                 );
                             }
-                        result.getMemory().setMin(
-                            block.getMinMemory()
+                        compute.getMemory().setRequested(
+                            simple.getMemory().getRequested()
                             );
-                        result.getMemory().setMax(
-                            block.getMaxMemory()
+                        compute.getMemory().setOffered(
+                            StorageUnits.gibibyte(
+                                block.getMaxMemory()
+                                ).toString()
                             );
-                        result.setVolumes(
+                        compute.setVolumes(
                             simple.getVolumes()
                             );
                         // Add the SimpleComputeResource to our response.
                         resources.addComputeItem(
-                            result
+                            compute
                             );
                         // Add the ExecutionBlock to our database.
                         database.insert(
@@ -692,49 +698,33 @@ public class ExecutionResponseFactoryImpl
             );
         //
         // Validate the compute resource itself.
-        Integer mincores = null ;
-        Integer maxcores = null ;
         Integer MIN_CORES_DEFAULT = 1 ;
-        Integer MAX_CORES_LIMIT = 16 ;
-
-        String coreunits = null;
-        String DEFAULT_CORE_UNITS = "cores" ;
+        Integer MAX_CORES_LIMIT   = 16 ;
+        Integer mincores = MIN_CORES_DEFAULT;
 
         if (request.getCores() != null)
             {
-            mincores  = request.getCores().getMin();
-            maxcores  = request.getCores().getMax();
-            coreunits = request.getCores().getUnits();
-            }
-        if (coreunits == null)
-            {
-            coreunits = DEFAULT_CORE_UNITS;
-            }
-        if (DEFAULT_CORE_UNITS.equals(coreunits) == false)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] unknown core units [${coreunits}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "coreunits",
-                        safeString(coreunits)
-                        )
-                    )
-                );
-            context.fail();
-            }
-
-        if (mincores == null)
-            {
-            mincores = MIN_CORES_DEFAULT;
-            }
-        if (maxcores == null)
-            {
-            maxcores = mincores;
+            if (request.getCores().getRequested() != null)
+                {
+                mincores  = request.getCores().getRequested();
+                }
+            if (request.getCores().getOffered() != null)
+                {
+                context.addMessage(
+                    new InfoMessage(
+                        "Compute resource [${name}][${uuid}] offered cores should not be set [${offered}]",
+                            Map.of(
+                                "name",
+                                safeString(request.getName()),
+                                "uuid",
+                                safeString(request.getUuid()),
+                                "offered",
+                                safeString(request.getCores().getOffered())
+                                )
+                            )
+                    );
+                context.fail();
+                }
             }
         if (mincores > MAX_CORES_LIMIT)
             {
@@ -755,181 +745,97 @@ public class ExecutionResponseFactoryImpl
                 );
             context.fail();
             }
-        if (maxcores > MAX_CORES_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] maximum cores exceeds available resources [${maxcores}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "maxcores",
-                        safeString(maxcores),
-                        "limit",
-                        safeString(MAX_CORES_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (mincores > maxcores)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum cores exceeds maximum [${mincores}][${maxcores}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "mincores",
-                        safeString(mincores),
-                        "maxcores",
-                        safeString(maxcores)
-                        )
-                    )
-                );
-            context.fail();
-            }
         result.setCores(
-            new IvoaMinMaxInteger()
+            new IvoaComputeResourceCores()
             );
-        result.getCores().setMin(
+        result.getCores().setRequested(
             mincores
-            );
-        result.getCores().setMax(
-            maxcores
-            );
-        result.getCores().setUnits(
-            coreunits
             );
         context.addMinCores(
             mincores
             );
-        context.addMaxCores(
-            maxcores
-            );
 
-        Integer minmemory = null ;
-        Integer maxmemory = null ;
-        Integer MIN_MEMORY_DEFAULT = 1 ;
-        Integer MAX_MEMORY_LIMIT = 16 ;
-
-        String memoryunits = null;
-        String DEFAULT_MEMORY_UNITS = "GiB" ;
+        StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
+        StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
+        StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
 
         if (request.getMemory() != null)
             {
-            minmemory   = request.getMemory().getMin();
-            maxmemory   = request.getMemory().getMax();
-            memoryunits = request.getMemory().getUnits();
+            if (request.getMemory().getRequested() != null)
+                {
+                try {
+                    minmemory = StorageUnits.parse(
+                        request.getMemory().getRequested()
+                        );
+                    }
+                catch (NumberFormatException ouch)
+                    {
+                    context.addMessage(
+                        new InfoMessage(
+                            "Compute resource [${name}][${uuid}] requested memory is invalid [${requested}]",
+                                Map.of(
+                                    "name",
+                                    safeString(request.getName()),
+                                    "uuid",
+                                    safeString(request.getUuid()),
+                                    "requested",
+                                    safeString(request.getMemory().getRequested())
+                                    )
+                                )
+                        );
+                    context.fail();
+                    }
+                }
+
+            if (request.getMemory().getOffered() != null)
+                {
+                context.addMessage(
+                    new InfoMessage(
+                        "Compute resource [${name}][${uuid}] offered memory should not be set [${offered}]",
+                            Map.of(
+                                "name",
+                                safeString(request.getName()),
+                                "uuid",
+                                safeString(request.getUuid()),
+                                "offered",
+                                safeString(request.getMemory().getOffered())
+                                )
+                            )
+                    );
+                context.fail();
+                }
             }
-        if (memoryunits == null)
-            {
-            memoryunits = DEFAULT_MEMORY_UNITS;
-            }
-        if (DEFAULT_MEMORY_UNITS.equals(memoryunits) == false)
+
+        if (minmemory.compareTo(MAX_MEMORY_LIMIT) > 0)
             {
             context.addMessage(
                 new InfoMessage(
-                    "Compute resource [${name}][${uuid}] unknown memory units [${memoryunits}]",
+                    "Compute resource [${name}][${uuid}] requested memory exceeds available resources [${requested}][${limit}]",
                     Map.of(
                         "name",
                         safeString(request.getName()),
                         "uuid",
                         safeString(request.getUuid()),
-                        "memoryunits",
-                        safeString(memoryunits)
+                        "requested",
+                        safeString(minmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
                         )
                     )
                 );
             context.fail();
             }
 
-        if (minmemory == null)
-            {
-            minmemory = MIN_MEMORY_DEFAULT;
-            }
-        if (maxmemory == null)
-            {
-            maxmemory = minmemory;
-            }
-        if (minmemory > MAX_MEMORY_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum memory exceeds available resources [${minmemory}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "minmemory",
-                        safeString(minmemory),
-                        "limit",
-                        safeString(MAX_MEMORY_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (maxmemory > MAX_MEMORY_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] maximum memory exceeds available resources [${maxmemory}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "maxmemory",
-                        safeString(maxmemory),
-                        "limit",
-                        safeString(MAX_MEMORY_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (minmemory > maxmemory)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum memory exceeds maximum [${minmemory}][${maxmemory}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "minmemory",
-                        safeString(minmemory),
-                        "maxmemory",
-                        safeString(maxmemory)
-                        )
-                    )
-                );
-            context.fail();
-            }
         result.setMemory(
-            new IvoaMinMaxInteger()
+            new IvoaComputeResourceMemory()
             );
-        result.getMemory().setMin(
-            minmemory
+        result.getMemory().setRequested(
+            minmemory.asGibibyte().toString()
             );
-        result.getMemory().setMax(
-            maxmemory
-            );
-        result.getMemory().setUnits(
-            memoryunits
-            );
+        // TODO Change context to use StorageUnit
+        // TODO Change context to use bytes.
         context.addMinMemory(
-            minmemory
-            );
-        context.addMaxMemory(
-            maxmemory
+            minmemory.inGibibyte().intValueExact()
             );
 
         //
@@ -1050,7 +956,7 @@ public class ExecutionResponseFactoryImpl
         {
         switch(request)
             {
-            case IvoaJupyterNotebook01 jupyter:
+            case IvoaJupyterNotebook jupyter:
                 validate(
                     jupyter,
                     context
@@ -1076,10 +982,10 @@ public class ExecutionResponseFactoryImpl
      * Validate a JupyterNotebook Executable.
      *
      */
-    public void validate(final IvoaJupyterNotebook01 request, final ProcessingContext<?> context)
+    public void validate(final IvoaJupyterNotebook request, final ProcessingContext<?> context)
         {
         log.debug("Validating a JupyterNotebook request [{}]", request.getName());
-        IvoaJupyterNotebook01 result = new IvoaJupyterNotebook01(
+        IvoaJupyterNotebook result = new IvoaJupyterNotebook(
             "urn:jupyter-notebook-0.1"
             );
         result.setUuid(

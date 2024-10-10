@@ -278,45 +278,45 @@ paths:
 components:
   schemas:
 
-    MinMaxInteger:
-      description: >
-        A minimum and maximum pair with units for an integer value.
-      type: object
-      properties:
-        min:
-          type: integer
-          format: int32
-        max:
-          type: integer
-          format: int32
-        units:
-          type: string
+#   MinMaxInteger:
+#     description: >
+#       A minimum and maximum pair with units for an integer value.
+#     type: object
+#     properties:
+#       min:
+#         type: integer
+#         format: int32
+#       max:
+#         type: integer
+#         format: int32
+#       units:
+#         type: string
 
-    MinMaxFloat:
-      description: >
-        A minimum and maximum pair with units for a floating point value.
-      type: object
-      properties:
-        min:
-          type: number
-          format: float
-        max:
-          type: number
-          format: float
-        units:
-          type: string
+#   MinMaxFloat:
+#     description: >
+#       A minimum and maximum pair with units for a floating point value.
+#     type: object
+#     properties:
+#       min:
+#         type: number
+#         format: float
+#       max:
+#         type: number
+#         format: float
+#       units:
+#         type: string
 
-    MinMaxString:
-      description: >
-        A minimum and maximum pair with units for a string point value.
-      type: object
-      properties:
-        min:
-          type: string
-        max:
-          type: string
-        units:
-          type: string
+#   MinMaxString:
+#     description: >
+#       A minimum and maximum pair with units for a string point value.
+#     type: object
+#     properties:
+#       min:
+#         type: string
+#       max:
+#         type: string
+#       units:
+#         type: string
 
     NameValueMap:
       description: >
@@ -445,16 +445,9 @@ components:
         - type: object
           properties:
             cores:
-              description: >
-                The number of cpu cores required.
-                Default units of `cores` are equivalent to a single physical cpu core.
-                Use `milli cores` or `m cores` to specify Kubernetes 1/1000 values.
-              $ref: '#/components/schemas/MinMaxInteger'
+              $ref: '#/components/schemas/ComputeResourceCores'
             memory:
-              description: >
-                The size of memory required.
-                Specified in SI units, default is `GiB`.
-              $ref: '#/components/schemas/MinMaxInteger'
+              $ref: '#/components/schemas/ComputeResourceMemory'
             volumes:
               description: >
                 A list of resource volumes.
@@ -462,12 +455,51 @@ components:
               items:
                 $ref: '#/components/schemas/ComputeResourceVolume'
 
+    ComputeResourceCores:
+      description: >
+        A class to represent the number of CPU cores requested and offered.
+      type: object
+      properties:
+        requested:
+          description: >
+            The number of cpu cores requested by the user.
+          type: integer
+        offered:
+          description: >
+            The number of cpu cores offered by the service.
+          type: integer
+        actual:
+          description: >
+            The number of cpu cores actually provided.
+          type: integer
+
+    ComputeResourceMemory:
+      description: >
+        A class to represent the amount memory requested and offered.
+      type: object
+      properties:
+        requested:
+          description: >
+            The amount of memory requested by the user.
+            Specified in SI units, default is `GiB`.
+          type: string
+        offered:
+          description: >
+            The amount of memory offered by the service.
+            Specified in SI units, default is `GiB`.
+          type: string
+        actual:
+          description: >
+            The amount of memory actually provided.
+            Specified in SI units, default is `GiB`.
+          type: string
+
     ComputeResourceVolume:
       description: >
-        A resource volume mount.
+        A class to represent a ComputeResource volume mount.
       type: object
       allOf:
-#       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             path:
@@ -514,10 +546,16 @@ components:
         - type: object
           properties:
             size:
-              description: >
-                The size of storage required, specified in SI units.
-                Default units are `GiB`.
-              $ref: '#/components/schemas/MinMaxInteger'
+              requested:
+                description: >
+                  The size of the storage resource requested by the user.
+                  Specified in SI units, default is `GiB`.
+                type: string
+              offered:
+                description: >
+                  The size of the storage resource offered by the service.
+                  Specified in SI units, default is `GiB`.
+                type: string
 
     AbstractDataResource:
       description: >
@@ -607,11 +645,11 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:docker-container-0.1":   '#/components/schemas/DockerContainer01'
-          "urn:singular-container-0.1": '#/components/schemas/SingularContainer01'
-          "urn:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer01'
-          "urn:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook01'
-          "urn:binder-notebook-0.1":    '#/components/schemas/BinderNotebook01'
+          "urn:docker-container-0.1":   '#/components/schemas/DockerContainer'
+          "urn:singular-container-0.1": '#/components/schemas/SingularContainer'
+          "urn:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
+          "urn:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
+          "urn:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -621,7 +659,7 @@ components:
               xml:
                 attribute: true
 
-    DockerContainer01:
+    DockerContainer:
       description: |
         A Docker or OCI container executable.
         See https://opencontainers.org/
@@ -710,7 +748,7 @@ components:
             The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
             Specifying `HTTPS` may help to meet firewall restrictions at some sites.
 
-    SingularContainer01:
+    SingularContainer:
       description: >
         A Singularity container executable.
         See https://docs.sylabs.io/guides/latest/user-guide/
@@ -724,7 +762,7 @@ components:
               description: >
                 The URL to download the container image from.
 
-    Repo2DockerContainer01:
+    Repo2DockerContainer:
       description: >
         A Repo2Docker executable.
         See https://repo2docker.readthedocs.io/en/latest/
@@ -738,7 +776,7 @@ components:
               description: >
                 The URL of the source repository.
 
-    JupyterNotebook01:
+    JupyterNotebook:
       description: >
         A Jupyter notebook executable.
         See https://jupyter.org/
@@ -753,7 +791,7 @@ components:
                 The URL of the notebook.
                 TODO - This needs to take into account different ways of referring to a notebook.
 
-    BinderNotebook01:
+    BinderNotebook:
       description: >
         A Binder notebook executable.
         See https://the-turing-way.netlify.app/communication/binder/zero-to-binder.html
@@ -1086,8 +1124,6 @@ components:
         requested:
           $ref: '#/components/schemas/StringScheduleBlockItem'
         offered:
-          $ref: '#/components/schemas/StringScheduleBlockItem'
-        observed:
           $ref: '#/components/schemas/StringScheduleBlockItem'
 
     ExecutionResourceList:

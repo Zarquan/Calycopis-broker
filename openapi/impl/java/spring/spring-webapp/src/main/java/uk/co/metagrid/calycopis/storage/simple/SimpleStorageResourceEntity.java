@@ -43,7 +43,7 @@ import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 @Table(
     name = "simplestorage"
     )
-@DiscriminatorValue(executions
+@DiscriminatorValue(
     value="urn:simple-compute"
     )
 public class SimpleStorageResourceEntity
@@ -79,7 +79,7 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final OfferSetEntity parent)
+    public SimpleStorageResourceEntity(final ExecutionEntity parent)
         {
         super();
         this.parent = parent;

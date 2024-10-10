@@ -64,7 +64,7 @@ public interface Message
      * A map of name->value properties to apply to the template.
      * @return values
      */
-    public Map<String, String> getValues();
+    public Map<String, Object> getValues();
 
    /**
      * The resulting message. 

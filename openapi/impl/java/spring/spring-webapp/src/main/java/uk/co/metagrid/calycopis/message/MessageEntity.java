@@ -78,7 +78,7 @@ public class MessageEntity
      * Public constructor
      * 
      */
-    public MessageEntity(final ComponentEntity parent, final LevelEnum level, final String type, final String template, final Map<String, String> values)
+    public MessageEntity(final ComponentEntity parent, final LevelEnum level, final String type, final String template, final Map<String, Object> values)
         {
         this.type = type;
         this.level = level;
@@ -124,7 +124,7 @@ public class MessageEntity
         }
 
     @Override
-    public Map<String, String> getValues()
+    public Map<String, Object> getValues()
         {
         return Collections.emptyMap();
         }
@@ -136,5 +136,22 @@ public class MessageEntity
     public String getMessage()
         {
         return this.message;
+        }
+
+    public static String safeString(final Object value)
+        {
+        if (value == null)
+            {
+            return "null" ;
+            }
+        else {
+            if (value instanceof String)
+                {
+                return (String) value ;
+                }
+            else {
+                return value.toString();
+                }
+            }
         }
     }

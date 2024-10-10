@@ -23,6 +23,7 @@
 
 package uk.co.metagrid.calycopis.compute.simple;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -80,6 +81,55 @@ public class SimpleComputeResourceEntity
         {
         super();
         this.parent = parent;
+        }
+
+    // Does this also have a start and end time ?
+    // Does this also go through a similar set of state changes as the parent execution ?
+    
+    @Column(name="requestedcores")
+    private long requestedcores;
+    @Override
+    public long getRequestedCores()
+        {
+        return this.requestedcores;
+        }
+
+    @Column(name="offeredcores")
+    private long offeredcores;
+    @Override
+    public long getOfferedCores()
+        {
+        return this.offeredcores;
+        }
+
+    @Override
+    public long getActualCores()
+        {
+        // Add code to poll the running service.
+        return this.getOfferedCores();
+        }
+
+    @Column(name="requestedmemory")
+    private long requestedmemory;
+    @Override
+    public long getRequestedMemory()
+        {
+        return this.requestedmemory;
+        }
+
+    @Column(name="offeredmemory")
+    private long offeredmemory;
+    @Override
+    public long getOfferedMemory()
+        {
+        return this.offeredmemory;
+        }
+
+    @Override
+    public long getActualMemory()
+        {
+        // Add code to poll the running service.
+        return this.getOfferedMemory();
         }
     }
 

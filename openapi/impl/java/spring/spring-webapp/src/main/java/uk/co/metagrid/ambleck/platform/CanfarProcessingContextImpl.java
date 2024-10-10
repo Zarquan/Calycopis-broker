@@ -26,7 +26,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook01;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.ambleck.message.WarnMessage;
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
@@ -63,7 +63,7 @@ public class CanfarProcessingContextImpl
         log.debug("setExecutable [{}][{}]", executable.getType(), executable.getUuid());
         switch(executable)
             {
-            case IvoaJupyterNotebook01 config:
+            case IvoaJupyterNotebook config:
                 stepory.createNotebookPreparationStep(
                     this.execution,
                     config

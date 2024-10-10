@@ -53,6 +53,20 @@ extends ComponentEntity
     implements OfferSet
     {
 
+    protected OfferSetEntity()
+        {
+        super();
+        }
+
+    protected OfferSetEntity(final String name, final OffsetDateTime created, final OffsetDateTime expires)
+        {
+        super(
+            name,
+            created
+            );
+        this.expires = expires;
+        }
+
     @Column(name = "expires")
     private OffsetDateTime expires;
 
@@ -97,34 +111,4 @@ extends ComponentEntity
         execution.setParent(this);
         }
 
-    /*
-     * 
-    @OneToMany(
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-        )
-    @JoinColumn(name = "parent")
-    private List<MessageEntity> messages = new ArrayList<MessageEntity>();
-    
-    @Override
-    public List<MessageEntity> getMessages()
-        {
-        return messages ;
-        }
-    
-    public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, String> values)
-        {
-        MessageEntity message = new MessageEntity(
-            level,
-            type,
-            template,
-            values
-            ); 
-        messages.add(
-            message
-            );
-        }
-     * 
-     */
     }

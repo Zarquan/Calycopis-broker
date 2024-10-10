@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
 /**
@@ -87,14 +87,24 @@ public class SimpleStorageResourceFactoryImpl
     @Override
     public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
         {
+        return this.create(
+            request,
+            parent,
+            true
+            );
+        }
+    
+    @Override
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, final boolean save)
+        {
         SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
-
-        SimpleStorageResourceEntity saved = this.repository.save(created);
-        log.debug("created [{}]", created.getUuid());
-        log.debug("saved [{}]", saved.getUuid());
-
-        return saved ;
+        if (save)
+            {
+            created = this.repository.save(created);
+            log.debug("created [{}]", created.getUuid());
+            }
+        return created;
         }
     }
 

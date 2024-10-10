@@ -40,12 +40,12 @@ import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
  * An Execution Factory implementation.
  *
  */
-    @Slf4j
-    @Component
-    public class ExecutionFactoryImpl
-        extends FactoryBaseImpl
-        implements ExecutionFactory
-        {
+@Slf4j
+@Component
+public class ExecutionFactoryImpl
+    extends FactoryBaseImpl
+    implements ExecutionFactory
+    {
 
     private final ExecutionRepository repository;
 
@@ -59,41 +59,32 @@ import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
     @Override
     public Optional<ExecutionEntity> select(UUID uuid)
         {
-        Optional<ExecutionEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
             );
-        if (optional.isPresent())
-            {
-            ExecutionEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "ExecutionEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
         }
 
     @Override
     public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent)
         {
+        return this.create(
+            request,
+            parent,
+            true
+            );
+        }
+    
+    @Override
+    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent, boolean save)
+        {
         ExecutionEntity created = new ExecutionEntity(parent);
         log.debug("created [{}]", created.getUuid());
-
-        ExecutionEntity saved = this.repository.save(created);
-        log.debug("saved [{}]", saved.getUuid());
-
-        return saved ;
+        if (save)
+            {
+            created = this.repository.save(created);
+            log.debug("created [{}]", created.getUuid());
+            }
+        return created;
         }
     }
 

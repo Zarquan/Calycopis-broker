@@ -24,15 +24,20 @@
 package uk.co.metagrid.calycopis.execution;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import uk.co.metagrid.calycopis.component.ComponentEntity;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
 /**
@@ -94,5 +99,27 @@ public class ExecutionEntity
         {
         return this.expires;
         }
+
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<SimpleComputeResourceEntity> computeresources = new ArrayList<SimpleComputeResourceEntity>();
+
+    @Override
+    public List<SimpleComputeResourceEntity> getComputeResources()
+        {
+        return computeresources;
+        }
+     
+    public void addCompute(final SimpleComputeResourceEntity compute)
+        {
+        computeresources.add(compute);
+        compute.setParent(this);
+        }
+    
+    
     }
 

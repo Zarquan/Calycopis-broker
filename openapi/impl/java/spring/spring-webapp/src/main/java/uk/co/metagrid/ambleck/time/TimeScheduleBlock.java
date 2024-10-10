@@ -25,5 +25,5 @@ public interface TimeScheduleBlock
     {
     TimeScheduleBlockItem getRequested();
     TimeScheduleBlockItem getOffered();
-    TimeScheduleBlockItem getObserved();
+    TimeScheduleBlockItem getActual();
     }

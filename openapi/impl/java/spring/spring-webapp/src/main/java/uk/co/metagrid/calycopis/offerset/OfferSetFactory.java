@@ -51,5 +51,11 @@ public interface OfferSetFactory
      */
     public OfferSetEntity create(final IvoaOfferSetRequest request);
 
+    /**
+     * Create a new OfferSet based on an OfferSetRequest.
+     *
+     */
+    public OfferSetEntity create(final IvoaOfferSetRequest request, boolean save);
+
     }
 

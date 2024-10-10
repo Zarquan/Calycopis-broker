@@ -66,7 +66,7 @@ public class MessageItemBean extends IvoaMessageItem
         }
 
     @Override
-    public Map<String, String> getValues()
+    public Map<String, Object> getValues()
         {
         return entity.getValues();
         }
@@ -76,7 +76,4 @@ public class MessageItemBean extends IvoaMessageItem
         {
         return entity.getMessage();
         }
-    
-
-    
     }

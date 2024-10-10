@@ -33,8 +33,49 @@ import uk.co.metagrid.calycopis.execution.Execution;
 public interface SimpleComputeResource
     extends Component
     {
-
+    /**
+     * Reference to the parent Execution. 
+     *
+     */
     public Execution getParent();
+
+    /**
+     * The number of CPU cores requested. 
+     *
+     */
+    public long getRequestedCores();
+
+    /**
+     * The number of CPU cores offered. 
+     *
+     */
+    public long getOfferedCores();
+
+    /**
+     * The number of CPU cores actually provided. 
+     *
+     */
+    public long getActualCores();
+
+    /**
+     * The amount of memory requested, in bytes. 
+     *
+     */
+    public long getRequestedMemory();
+
+    /**
+     * The amount of memory offered, in bytes. 
+     *
+     */
+    public long getOfferedMemory();
+
+    /**
+     * The amount of memory actually provided, in bytes. 
+     *
+     */
+    public long getActualMemory();
+
+    // volumes ...
 
     }
 

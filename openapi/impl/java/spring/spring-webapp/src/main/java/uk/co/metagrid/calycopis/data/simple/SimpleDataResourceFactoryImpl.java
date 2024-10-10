@@ -87,14 +87,24 @@ public class SimpleDataResourceFactoryImpl
     @Override
     public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
         {
+        return this.create(
+            request,
+            parent,
+            false
+            );
+        }
+
+    @Override
+    public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save)
+        {
         SimpleDataResourceEntity created = new SimpleDataResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
-
-        SimpleDataResourceEntity saved = this.repository.save(created);
-        log.debug("created [{}]", created.getUuid());
-        log.debug("saved [{}]", saved.getUuid());
-
-        return saved ;
+        if (save)
+            {
+            created = this.repository.save(created);
+            log.debug("created [{}]", created.getUuid());
+            }
+        return created;
         }
     }
 

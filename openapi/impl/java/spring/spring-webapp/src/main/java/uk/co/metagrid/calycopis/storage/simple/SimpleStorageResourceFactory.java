@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import uk.co.metagrid.calycopis.excution.ExecutionEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.util.FactoryBase;
 
 /**
@@ -48,7 +48,13 @@ public interface SimpleStorageResourceFactory
      * Create a new SimpleStorageResource based on an OfferSetRequest.
      *
      */
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
 
+    /**
+     * Create a new SimpleStorageResource based on an OfferSetRequest.
+     *
+     */
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
+    
     }
 

@@ -22,7 +22,7 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook01;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,14 +32,14 @@ public class CanfarNotebookPreparationImpl
     implements CanfarNotebookPreparationStep
     {
 
-    public CanfarNotebookPreparationImpl(final CanfarExecution parent, final IvoaJupyterNotebook01 config)
+    public CanfarNotebookPreparationImpl(final CanfarExecution parent, final IvoaJupyterNotebook config)
         {
         super(parent) ;
         this.config = config;
         }
 
-    private IvoaJupyterNotebook01 config;
-    public IvoaJupyterNotebook01 getConfig()
+    private IvoaJupyterNotebook config;
+    public IvoaJupyterNotebook getConfig()
         {
         return this.config;
         }

@@ -51,8 +51,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature ;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import uk.co.metagrid.ambleck.util.YamlConverter;
-
 @SpringBootApplication
 @EntityScan("uk.co.metagrid")
 @ComponentScan({

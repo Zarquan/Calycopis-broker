@@ -45,7 +45,8 @@ import uk.co.metagrid.calycopis.util.ListWrapper;
  * 
  */
 @Slf4j
-public class OfferSetResponseBean extends IvoaOfferSetResponse {
+public class OfferSetResponseBean
+    extends IvoaOfferSetResponse {
 
     /**
      * The URL path for the offersets endpoint.
@@ -97,12 +98,6 @@ public class OfferSetResponseBean extends IvoaOfferSetResponse {
     public String getName()
         {
         return offerset.getName();
-        }
-
-    @Override
-    public Map<String, String> getProperties()
-        {
-        return Collections.emptyMap();
         }
 
     @Override
