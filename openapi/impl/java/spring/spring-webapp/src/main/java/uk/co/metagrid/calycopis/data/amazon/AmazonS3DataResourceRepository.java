@@ -20,40 +20,17 @@
  *
  *
  */
+package uk.co.metagrid.calycopis.data.amazon;
 
-package uk.co.metagrid.calycopis.data.simple;
-
-import java.util.Optional;
 import java.util.UUID;
 
-import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.util.FactoryBase;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleDataResource Factory.
+ * A SimpleDataResource JpaRepository.
  *
  */
-public interface SimpleDataResourceFactory
-    extends FactoryBase
+public interface AmazonS3DataResourceRepository
+extends JpaRepository<AmazonS3DataResourceEntity, UUID>
     {
-
-    /**
-     * Select a SimpleDataResource based on its identifier.
-     *
-     */
-    public Optional<SimpleDataResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
-     *
-     */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location);
-
-    /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
-     *
-     */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location, boolean save);
-
     }
-

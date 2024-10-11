@@ -77,9 +77,9 @@ public class SimpleComputeResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleComputeResourceEntity(final ExecutionEntity parent)
+    public SimpleComputeResourceEntity(final ExecutionEntity parent, final String name)
         {
-        super();
+        super(name);
         this.parent = parent;
         }
 
@@ -102,13 +102,6 @@ public class SimpleComputeResourceEntity
         return this.offeredcores;
         }
 
-    @Override
-    public long getActualCores()
-        {
-        // Add code to poll the running service.
-        return this.getOfferedCores();
-        }
-
     @Column(name="requestedmemory")
     private long requestedmemory;
     @Override
@@ -123,13 +116,6 @@ public class SimpleComputeResourceEntity
     public long getOfferedMemory()
         {
         return this.offeredmemory;
-        }
-
-    @Override
-    public long getActualMemory()
-        {
-        // Add code to poll the running service.
-        return this.getOfferedMemory();
         }
     }
 

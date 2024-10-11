@@ -47,8 +47,8 @@ import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
 import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse.StateEnum;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
@@ -200,13 +200,17 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
-//zrq
+
         //
         // Validate our execution schedule.
+/*
+ * 
         validate(
             request.getSchedule(),
             context
             );
+ *         
+ */
         //
         // Validate our executable.
         validate(
@@ -254,7 +258,7 @@ public class ExecutionResponseFactoryImpl
                 //
                 // Create an offer using the resources in our context.
                 ExecutionResponseImpl offer = new ExecutionResponseImpl(
-                    IvoaExecutionResponse.StateEnum.OFFERED,
+                    IvoaExecutionSessionStatus.OFFERED,
                     baseurl,
                     context.getOfferSet(),
                     context.getExecution()
@@ -269,7 +273,7 @@ public class ExecutionResponseFactoryImpl
                     offerset.getUuid()
                     );
                 block.setState(
-                    IvoaExecutionResponse.StateEnum.OFFERED
+                        IvoaExecutionSessionStatus.OFFERED
                     );
                 block.setExpiryTime(
                     offerset.getExpires().toInstant()
@@ -280,6 +284,8 @@ public class ExecutionResponseFactoryImpl
                 offer.setExecutable(
                     context.getExecutable()
                     );
+/*
+ * 
                 if (offer.getSchedule() == null)
                     {
                     offer.setSchedule(
@@ -298,6 +304,8 @@ public class ExecutionResponseFactoryImpl
                         new IvoaStringScheduleBlockValue()
                         );
                     }
+ *                 
+ */
                 offer.getSchedule().getOffered().getExecuting().setStart(
                     OffsetDateTime.ofInstant(
                         block.getInstant(),
@@ -413,7 +421,7 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public IvoaExecutionResponse update(final UUID uuid, final IvoaAbstractUpdate request)
+    public IvoaExecutionSessionResponse update(final UUID uuid, final IvoaAbstractUpdate request)
         {
         ExecutionResponseImpl response = this.select(uuid);
         if (response != null)
@@ -447,10 +455,10 @@ public class ExecutionResponseFactoryImpl
         switch(update.getPath())
             {
             case "state" :
-                StateEnum currentstate = response.getState();
-                StateEnum updatestate  = currentstate;
+                IvoaExecutionSessionStatus currentstate = response.getState();
+                IvoaExecutionSessionStatus updatestate  = currentstate;
                 try {
-                    updatestate = StateEnum.fromValue(
+                    updatestate = IvoaExecutionSessionStatus.fromValue(
                         update.getValue()
                         );
                     }
@@ -469,17 +477,17 @@ public class ExecutionResponseFactoryImpl
                                 {
                                 case ACCEPTED:
                                     response.setState(
-                                        StateEnum.ACCEPTED
+                                        IvoaExecutionSessionStatus.ACCEPTED
                                         );
                                     response.getParent().setAccepted(
                                         response
                                         );
-                                    for (IvoaExecutionResponse sibling : response.getParent().getOffers())
+                                    for (IvoaExecutionSessionResponse sibling : response.getParent().getOffers())
                                         {
                                         if (sibling != response)
                                             {
                                             sibling.setState(
-                                                StateEnum.REJECTED
+                                                IvoaExecutionSessionStatus.REJECTED
                                                 );
                                             }
                                         }
@@ -489,7 +497,7 @@ public class ExecutionResponseFactoryImpl
                                     break;
                                 case REJECTED:
                                     response.setState(
-                                        StateEnum.REJECTED
+                                        IvoaExecutionSessionStatus.REJECTED
                                         );
                                     database.reject(
                                         response.getUuid()

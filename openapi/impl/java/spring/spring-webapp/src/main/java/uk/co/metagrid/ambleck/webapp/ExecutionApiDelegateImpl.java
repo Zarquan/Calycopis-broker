@@ -32,10 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.ExecutionApiDelegate;
-import uk.co.metagrid.calycopis.execution.Execution;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.execution.ExecutionFactory;
 import uk.co.metagrid.calycopis.execution.ExecutionResponseBean;
@@ -59,7 +58,7 @@ public class ExecutionApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionResponse> executionGet(
+    public ResponseEntity<IvoaExecutionSessionResponse> executionGet(
         final UUID uuid
         ) {
         final Optional<ExecutionEntity> found = factory.select(
@@ -67,7 +66,7 @@ public class ExecutionApiDelegateImpl
             );
         if (found.isPresent())
             {
-            return new ResponseEntity<IvoaExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
                 new ExecutionResponseBean(
                     this.getBaseUrl(),
                     found.get()
@@ -76,14 +75,14 @@ public class ExecutionApiDelegateImpl
                 );
             }
         else {
-            return new ResponseEntity<IvoaExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
                 HttpStatus.NOT_FOUND
                 );
             }
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionResponse> executionPost(
+    public ResponseEntity<IvoaExecutionSessionResponse> executionPost(
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
@@ -112,5 +111,4 @@ public class ExecutionApiDelegateImpl
             );
         }
     }
-
 

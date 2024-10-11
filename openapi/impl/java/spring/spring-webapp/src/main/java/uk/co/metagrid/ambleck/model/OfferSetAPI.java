@@ -26,16 +26,16 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
 public interface OfferSetAPI
     {
 
-    public void setAccepted(IvoaExecutionResponse accepted);
+    public void setAccepted(IvoaExecutionSessionResponse accepted);
 
-    public List<IvoaExecutionResponse> getOffers();
+    public List<IvoaExecutionSessionResponse> getOffers();
 
     public UUID getUuid();
     public OffsetDateTime getExpires();

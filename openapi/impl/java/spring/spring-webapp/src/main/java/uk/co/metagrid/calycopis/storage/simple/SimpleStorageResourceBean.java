@@ -23,15 +23,13 @@
 
 package uk.co.metagrid.calycopis.storage.simple;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import uk.co.metagrid.calycopis.message.MessageEntity;
 import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;

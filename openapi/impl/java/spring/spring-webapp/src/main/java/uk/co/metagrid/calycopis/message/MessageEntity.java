@@ -124,7 +124,7 @@ public class MessageEntity
         }
 
     @Override
-    public Map<String, Object> getValues()
+    public Map<String, String> getValues()
         {
         return Collections.emptyMap();
         }

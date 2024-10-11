@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.data.simple;
+package uk.co.metagrid.calycopis.data.amazon;
 
 import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.execution.Execution;
@@ -30,14 +30,17 @@ import uk.co.metagrid.calycopis.execution.Execution;
  * Public interface for a SimpleDataResource.
  *
  */
-public interface SimpleDataResource
+public interface AmazonS3DataResource
     extends Component
     {
 
-
     public Execution getParent();
 
-    public String getLocation();
-
+    public String getName();
+    public String getEndpoint();
+    public String getTemplate();
+    public String getBucket();
+    public String getObject();
+    
     }
 

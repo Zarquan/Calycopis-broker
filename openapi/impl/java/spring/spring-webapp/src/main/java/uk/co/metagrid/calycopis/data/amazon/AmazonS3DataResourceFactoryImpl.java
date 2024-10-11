@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.compute.simple;
+package uk.co.metagrid.calycopis.data.amazon;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -32,43 +32,42 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
 /**
- * A SimpleComputeResource Factory implementation.
+ * A SimpleDataResource Factory implementation.
  *
  */
 @Slf4j
 @Component
-public class SimpleComputeResourceFactoryImpl
+public class AmazonS3DataResourceFactoryImpl
     extends FactoryBaseImpl
-    implements SimpleComputeResourceFactory
+    implements AmazonS3DataResourceFactory
     {
 
-    private final SimpleComputeResourceRepository repository;
+    private final AmazonS3DataResourceRepository repository;
 
     @Autowired
-    public SimpleComputeResourceFactoryImpl(final SimpleComputeResourceRepository repository)
+    public AmazonS3DataResourceFactoryImpl(final AmazonS3DataResourceRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<SimpleComputeResourceEntity> select(UUID uuid)
+    public Optional<AmazonS3DataResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleComputeResourceEntity> optional = this.repository.findById(
+        Optional<AmazonS3DataResourceEntity> optional = this.repository.findById(
             uuid
             );
         if (optional.isPresent())
             {
-            SimpleComputeResourceEntity found = optional.get();
+            AmazonS3DataResourceEntity found = optional.get();
             found.addMessage(
                 LevelEnum.DEBUG,
                 "urn:debug",
-                "SimpleComputeResourceEntity select(UUID)",
+                "SimpleDataResourceEntity select(UUID)",
                 Collections.emptyMap()
                 );
             return Optional.of(
@@ -85,21 +84,29 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
+    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
         {
         return this.create(
-            request,
             parent,
-            true
+            name,
+            endpoint,
+            template,
+            bucket,
+            object,
+            false
             );
         }
-    
+
     @Override
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save)
+    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save)
         {
-        SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(
+        AmazonS3DataResourceEntity created = new AmazonS3DataResourceEntity(
             parent,
-            "name"
+            name,
+            endpoint,
+            template,
+            bucket,
+            object
             );
         log.debug("created [{}]", created.getUuid());
         if (save)

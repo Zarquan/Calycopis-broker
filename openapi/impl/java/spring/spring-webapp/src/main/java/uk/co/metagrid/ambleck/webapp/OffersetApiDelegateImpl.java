@@ -36,15 +36,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import lombok.extern.slf4j.Slf4j;
-
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.webapp.OffersetApiDelegate;
-import uk.co.metagrid.calycopis.offerset.OfferSet;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
-import uk.co.metagrid.calycopis.offerset.OfferSetResponseBean;
-//import uk.co.metagrid.ambleck.model.OfferSetResponseFactory;
 import uk.co.metagrid.calycopis.offerset.OfferSetFactory;
+import uk.co.metagrid.calycopis.offerset.OfferSetResponseBean;
 
 @Slf4j
 @Service

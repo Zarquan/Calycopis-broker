@@ -130,13 +130,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
 
     post:
       operationId: ExecutionPost
@@ -168,62 +168,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
-
-  /execution/{uuid}/state:
-    get:
-      operationId: StateGet
-      parameters:
-        - name: uuid
-          in: path
-          description: The execution identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-          style: simple
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-    post:
-      operationId: StatePost
-      parameters:
-        - name: uuid
-          in: path
-          description: The execution identifier
-          required: true
-          schema:
-            type: string
-            format: uuid
-          style: simple
-      requestBody:
-        required: true
-        content:
-          text/plain:
-            schema:
-              type: string
-      responses:
-        "303":
-          description: Redirect
-          headers:
-            Location:
-              content:
-                text/plain:
-                  schema:
-                    type: string
+                $ref: '#/components/schemas/ExecutionSessionResponse'
 
   #
-  # Update the expired offers.
+  # Update expired offers.
   /system/sweep/update:
     get:
       operationId: SweepUpdate
@@ -235,7 +189,7 @@ paths:
               schema:
                 type: string
   #
-  # Delete the expired offers.
+  # Delete expired offers.
   /system/sweep/delete:
     get:
       operationId: SweepDelete
@@ -267,13 +221,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
 
 components:
   schemas:
@@ -400,12 +354,11 @@ components:
           description: >
             A human readable name, assigned by the client.
           type: string
-#      properties:
-#        description: >
-#           A map of name-value properties for this component.
-#         xml:
-#           name: properties
-#         $ref: '#/components/schemas/NameValueMap'
+        created:
+          description: >
+            The date and time that this component was created.
+          type: string
+          format: date-time
         messages:
           description: >
             A list of messages about this component.
@@ -455,9 +408,18 @@ components:
               items:
                 $ref: '#/components/schemas/ComputeResourceVolume'
 
+    ComputeResourceSizeUnit:
+      description: >
+        A size unit for compute resources.
+        Specified in multiples of 1000^n and 1024^n.
+        https://github.com/metio/storage-units.java/
+        https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
+      type: string
+      pattern: '/^[0-9]+(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB)$/gm'
+
     ComputeResourceCores:
       description: >
-        A class to represent the number of CPU cores requested and offered.
+        The number of CPU cores requested and offered.
       type: object
       properties:
         requested:
@@ -468,31 +430,21 @@ components:
           description: >
             The number of cpu cores offered by the service.
           type: integer
-        actual:
-          description: >
-            The number of cpu cores actually provided.
-          type: integer
 
     ComputeResourceMemory:
       description: >
-        A class to represent the amount memory requested and offered.
+        The amount memory requested and offered.
       type: object
       properties:
         requested:
           description: >
-            The amount of memory requested by the user.
-            Specified in SI units, default is `GiB`.
-          type: string
+            The amount of memory requested by the user, default units are `GiB`.
+          $ref: '#/components/schemas/ComputeResourceSizeUnit'
+
         offered:
           description: >
             The amount of memory offered by the service.
-            Specified in SI units, default is `GiB`.
-          type: string
-        actual:
-          description: >
-            The amount of memory actually provided.
-            Specified in SI units, default is `GiB`.
-          type: string
+          $ref: '#/components/schemas/ComputeResourceSizeUnit'
 
     ComputeResourceVolume:
       description: >
@@ -548,14 +500,13 @@ components:
             size:
               requested:
                 description: >
-                  The size of the storage resource requested by the user.
-                  Specified in SI units, default is `GiB`.
-                type: string
+                  The size of the storage resource requested by the user, default units are `GiB`.
+                $ref: '#/components/schemas/ComputeResourceSizeUnit'
               offered:
                 description: >
                   The size of the storage resource offered by the service.
-                  Specified in SI units, default is `GiB`.
-                type: string
+                $ref: '#/components/schemas/ComputeResourceSizeUnit'
+
 
     AbstractDataResource:
       description: >
@@ -1087,7 +1038,7 @@ components:
 #        wrapped: true
 #      items:
 #        $ref: '#/components/schemas/ScheduleRequestItem'
-
+#
     StringScheduleBlockValue:
       description: >
         Used for the predicted and observed times.
@@ -1126,6 +1077,52 @@ components:
         offered:
           $ref: '#/components/schemas/StringScheduleBlockItem'
 
+    ISO8601Duration:
+      description: >
+        An ISO 8601 duration.
+      type: string
+      pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
+
+    ISO8601Interval:
+      description: >
+        An ISO 8601 interval.
+      type: string
+      pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))\/(P(?=.)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=.)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$'
+
+    ScheduleRequestBlock:
+      description: >
+        Details of when to execute the session.
+      type: object
+      properties:
+        duration:
+          $ref: '#/components/schemas/ISO8601Duration'
+        start:
+          type: array
+          items:
+            $ref: '#/components/schemas/ISO8601Interval'
+
+    ScheduleOfferItem:
+      description: >
+        Details of when the session will be executed.
+      type: object
+      properties:
+        duration:
+          $ref: '#/components/schemas/ISO8601Duration'
+        start:
+          $ref: '#/components/schemas/ISO8601Interval'
+
+    ScheduleOfferBlock:
+      description: >
+        Details of when the session will be executed.
+      type: object
+      properties:
+        preparing:
+          $ref: '#/components/schemas/ScheduleOfferItem'
+        executing:
+          $ref: '#/components/schemas/ScheduleOfferItem'
+        finishing:
+          $ref: '#/components/schemas/ScheduleOfferItem'
+
     ExecutionResourceList:
       description: >
         Combined compute and storage resource lists.
@@ -1140,16 +1137,85 @@ components:
         data:
           $ref: '#/components/schemas/DataResourceList'
 
-    ExecutionBase:
+    ExecutionSessionStatus:
+      description: >
+        Status code for an execution session.
+      type: string
+      enum:
+        - PROPOSED
+        - OFFERED
+        - ACCEPTED
+        - REJECTED
+        - EXPIRED
+        - PREPARING
+        - WAITING
+        - RUNNING
+        - FINISHING
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+
+    ExecutionSessionRequest:
       description: >
         The base class for an execution. Used in both requests and responses.
+      type: object
+      xml:
+        name: execution
+      properties:
+        name:
+          description: >
+            A human readable name.
+          type: string
+        executable:
+          xml:
+            name: executable
+          # TODO Replace with AbstractExecutableRequest.
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          xml:
+            name: resources
+          # TODO Replace with SessionRequestResourceList.
+          $ref: '#/components/schemas/ExecutionResourceList'
+        schedule:
+          xml:
+            name: schedule
+          type: object
+          properties:
+            requested:
+              xml:
+                name: requested
+              $ref: '#/components/schemas/ScheduleRequestBlock'
+
+    ExecutionSessionResponse:
+      description: >
+        An Execution session, including uuid, href, and status.
       type: object
       xml:
         name: execution
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
+          required:
+            - uuid
+            - state
+            - href
           properties:
+            offerset:
+              description: >
+                A refernce to the parent OfferSet.
+              xml:
+                name: offerset
+              $ref: '#/components/schemas/OfferSetLink'
+            state:
+              $ref: '#/components/schemas/ExecutionSessionStatus'
+            expires:
+              description: >
+                The date and time that this execution offer expires.
+                Only valid while the state is OFFERED.
+              xml:
+                name: expires
+              type: string
+              format: date-time
             executable:
               xml:
                 name: executable
@@ -1161,59 +1227,16 @@ components:
             schedule:
               xml:
                 name: schedule
-              $ref: '#/components/schemas/StringScheduleBlock'
-
-    ExecutionResponse:
-      description: >
-        An execution (session), including uuid, href, and status.
-      type: object
-      xml:
-        name: execution
-      allOf:
-        - $ref: '#/components/schemas/ExecutionBase'
-        - type: object
-          required:
-            - uuid
-            - state
-            - href
-          properties:
-            state:
-              description: >
-                Status code for the execution.
-              type: string
-              enum:
-                - PROPOSED
-                - OFFERED
-                - ACCEPTED
-                - REJECTED
-                - EXPIRED
-                - PREPARING
-                - WAITING
-                - RUNNING
-                - FINISHING
-                - COMPLETED
-                - FAILED
-                - CANCELLED
-            created:
-              description: >
-                The date and time that this execution was created.
-              type: string
-              format: date-time
-            modified:
-              description: >
-                The date and time that this execution was last modified.
-              type: string
-              format: date-time
-            expires:
-              description: >
-                The date and time that this execution offer expires.
-                Only valid while the state is OFFERED.
-              type: string
-              format: date-time
-            offerset:
-              description: >
-                A refernce to the offer's parent OfferSet.
-              $ref: '#/components/schemas/OfferSetLink'
+              type: object
+              properties:
+                requested:
+                  xml:
+                    name: requested
+                  $ref: '#/components/schemas/ScheduleRequestBlock'
+                offered:
+                  xml:
+                    name: offered
+                  $ref: '#/components/schemas/ScheduleOfferBlock'
             options:
               description: >
                 A List of options the client can apply to this Execution.
@@ -1243,7 +1266,7 @@ components:
       xml:
         name: offers-request
       allOf:
-        - $ref: '#/components/schemas/ExecutionBase'
+        - $ref: '#/components/schemas/ExecutionSessionRequest'
 
     OfferSetResponse:
       description: >
@@ -1271,40 +1294,23 @@ components:
               enum:
                 - "YES"
                 - "NO"
-            href:
-              description: >
-                The URL to access this set of offers.
-              type: string
-            created:
-              description: >
-                The date and time that this set of offers was created.
-              type: string
-              format: date-time
             expires:
               description: >
                 The date and time that this set of offers expire.
+              xml:
+                name: expires
               type: string
               format: date-time
+            # TODO Add simplified state OFFERED, ACCEPTED, REJECTED, EXPIRED, ..
             offers:
               type: array
               xml:
                 name: offers
                 wrapped: true
               items:
-                $ref: '#/components/schemas/ExecutionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
                 xml:
                   name: execution
-            messages:
-              description: >
-                A list of messages about the response.
-              type: array
-              xml:
-                name: messages
-                wrapped: true
-              items:
-                $ref: '#/components/schemas/MessageItem'
-                xml:
-                  name: message
 
     # TODO This should be is-a AbstractUpdate rather than has-a AbstractUpdate
     UpdateRequest:

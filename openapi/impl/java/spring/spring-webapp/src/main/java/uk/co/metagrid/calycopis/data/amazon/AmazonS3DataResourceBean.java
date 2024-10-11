@@ -21,32 +21,32 @@
  *
  */
 
-package uk.co.metagrid.calycopis.execution;
+package uk.co.metagrid.calycopis.data.amazon;
 
 import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import uk.co.metagrid.calycopis.message.MessageEntity;
 import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;
 
 /**
- * An Execution response Bean.
+ * A SimpleDataResource response Bean.
  *
  */
-public class ExecutionResponseBean
-    extends IvoaExecutionSessionResponse
+public class AmazonS3DataResourceBean
+    extends IvoaSimpleDataResource
     {
 
     /**
      * The URL path for the executions endpoint.
      *
      */
-    private static final String REQUEST_PATH = "/execution/" ;
+    private static final String REQUEST_PATH = "/data/simple/" ;
 
 
     /**
@@ -56,16 +56,16 @@ public class ExecutionResponseBean
     private final String baseurl;
 
     /**
-     * The Execution entity to wrap.
+     * The SimpleDataResource entity to wrap.
      *
      */
-    private final ExecutionEntity entity;
+    private final AmazonS3DataResourceEntity entity;
 
     /**
      * Protected constructor.
      *
      */
-    public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
+    public AmazonS3DataResourceBean(final String baseurl, final AmazonS3DataResourceEntity entity)
         {
         super();
         this.baseurl = baseurl;
@@ -76,7 +76,7 @@ public class ExecutionResponseBean
      * Generate the href URL based on our baseurl and UUID.
      *
      */
-    @Override
+//  @Override
     public String getHref()
         {
         return this.baseurl + REQUEST_PATH + entity.getUuid();

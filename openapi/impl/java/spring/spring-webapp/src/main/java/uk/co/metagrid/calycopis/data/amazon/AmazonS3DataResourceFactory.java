@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.data.simple;
+package uk.co.metagrid.calycopis.data.amazon;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -33,7 +33,7 @@ import uk.co.metagrid.calycopis.util.FactoryBase;
  * A SimpleDataResource Factory.
  *
  */
-public interface SimpleDataResourceFactory
+public interface AmazonS3DataResourceFactory
     extends FactoryBase
     {
 
@@ -41,19 +41,19 @@ public interface SimpleDataResourceFactory
      * Select a SimpleDataResource based on its identifier.
      *
      */
-    public Optional<SimpleDataResourceEntity> select(final UUID uuid);
+    public Optional<AmazonS3DataResourceEntity> select(final UUID uuid);
 
     /**
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location);
+    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object);
 
     /**
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location, boolean save);
+    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save);
 
     }
 

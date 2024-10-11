@@ -25,7 +25,7 @@ package uk.co.metagrid.ambleck.model;
 import java.util.UUID;
 
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 public interface ExecutionResponseFactory
@@ -41,7 +41,7 @@ public interface ExecutionResponseFactory
      * Select an Execution based on its identifier.
      *
      */
-    public IvoaExecutionResponse select(final UUID uuid);
+    public ExecutionResponseImpl select(final UUID uuid);
 
     /**
      * Process an OfferSetRequest and populate an OfferSetResponse with Execution offers.
@@ -53,6 +53,6 @@ public interface ExecutionResponseFactory
      * Update an Execution.
      *
      */
-    public IvoaExecutionResponse update(final UUID uuid, final IvoaAbstractUpdate update);
+    public IvoaExecutionSessionResponse update(final UUID uuid, final IvoaAbstractUpdate update);
 
     }

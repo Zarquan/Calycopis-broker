@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
@@ -85,19 +84,24 @@ public class SimpleDataResourceFactoryImpl
         }
 
     @Override
-    public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
+    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location)
         {
         return this.create(
-            request,
             parent,
+            name,
+            location,
             false
             );
         }
 
     @Override
-    public SimpleDataResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save)
+    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
         {
-        SimpleDataResourceEntity created = new SimpleDataResourceEntity(parent);
+        SimpleDataResourceEntity created = new SimpleDataResourceEntity(
+            parent,
+            name,
+            location
+            );
         log.debug("created [{}]", created.getUuid());
         if (save)
             {

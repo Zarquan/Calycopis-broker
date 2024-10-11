@@ -52,12 +52,6 @@ public interface SimpleComputeResource
     public long getOfferedCores();
 
     /**
-     * The number of CPU cores actually provided. 
-     *
-     */
-    public long getActualCores();
-
-    /**
      * The amount of memory requested, in bytes. 
      *
      */
@@ -68,12 +62,6 @@ public interface SimpleComputeResource
      *
      */
     public long getOfferedMemory();
-
-    /**
-     * The amount of memory actually provided, in bytes. 
-     *
-     */
-    public long getActualMemory();
 
     // volumes ...
 

@@ -30,12 +30,13 @@ import com.github.f4b6a3.uuid.UuidCreator;
 
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
 import uk.co.metagrid.ambleck.platform.Execution;
 
 public class ExecutionResponseImpl
-    extends IvoaExecutionResponse
+    extends IvoaExecutionSessionResponse
     implements ExecutionResponseAPI
     {
 
@@ -50,7 +51,7 @@ public class ExecutionResponseImpl
         return this.execution ;
         }
 
-    public ExecutionResponseImpl(final IvoaExecutionResponse.StateEnum state, final String baseurl, final OfferSetAPI parent, final Execution<?> execution)
+    public ExecutionResponseImpl(final IvoaExecutionSessionStatus state, final String baseurl, final OfferSetAPI parent, final Execution<?> execution)
         {
         this.parent = parent ;
         this.execution = execution ;
@@ -65,9 +66,6 @@ public class ExecutionResponseImpl
             );
         this.created(
             OffsetDateTime.now()
-            );
-        this.modified(
-            this.getCreated()
             );
         this.expires(
             parent.getExpires()

@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.storage.simple;
+package uk.co.metagrid.calycopis.data.amazon;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -33,19 +33,19 @@ import uk.co.metagrid.calycopis.component.ComponentEntity;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 
 /**
- * A SimpleStorageResource Entity.
+ * A SimpleDataResource Entity.
  *
  */
 @Entity
 @Table(
-    name = "simplestorage"
+    name = "amazondata"
     )
 @DiscriminatorValue(
-    value="urn:simple-compute"
+    value="urn:amazon-data"
     )
-public class SimpleStorageResourceEntity
+public class AmazonS3DataResourceEntity
     extends ComponentEntity
-    implements SimpleStorageResource
+    implements AmazonS3DataResource
     {
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
@@ -67,7 +67,7 @@ public class SimpleStorageResourceEntity
      * Protected constructor
      *
      */
-    protected SimpleStorageResourceEntity()
+    protected AmazonS3DataResourceEntity()
         {
         super();
         }
@@ -76,10 +76,42 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionEntity parent)
+    public AmazonS3DataResourceEntity(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
         {
-        super();
-        this.parent = parent;
+        super(name);
+        this.parent   = parent;
+        this.endpoint = endpoint;
+        this.template = template;
+        this.bucket   = bucket;
+        this.object   = object;
+        }
+    
+    private String endpoint;
+    @Override
+    public String getEndpoint()
+        {
+        return this.endpoint;
+        }
+
+    private String template;
+    @Override
+    public String getTemplate()
+        {
+        return this.template;
+        }
+
+    private String bucket;
+    @Override
+    public String getBucket()
+        {
+        return this.bucket;
+        }
+
+    private String object;
+    @Override
+    public String getObject()
+        {
+        return this.object;
         }
     }
 

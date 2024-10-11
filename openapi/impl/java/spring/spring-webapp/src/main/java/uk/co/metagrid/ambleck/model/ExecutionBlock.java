@@ -22,12 +22,11 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
-
-import java.time.Instant;
-import java.time.Duration;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 
 /*
  * Resources data for an Execution block in the database.
@@ -46,8 +45,8 @@ public interface ExecutionBlock
     public static final Long BLOCK_STEP_MINUTES = 5L ;
     public static final Long BLOCK_STEP_SECONDS = 60L * BLOCK_STEP_MINUTES ;
 
-    public IvoaExecutionResponse.StateEnum getState();
-    public void setState(IvoaExecutionResponse.StateEnum state);
+    public IvoaExecutionSessionStatus getState();
+    public void setState(IvoaExecutionSessionStatus state);
 
     public UUID getOfferUuid();
     public void setOfferUuid(final UUID offeruuid);

@@ -23,8 +23,6 @@
 
 package uk.co.metagrid.calycopis.storage.simple;
 
-import java.time.OffsetDateTime;
-
 import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.execution.Execution;
 

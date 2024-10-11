@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import uk.co.metagrid.ambleck.model.ExecutionResponseFactory;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 
@@ -53,7 +53,7 @@ public class ExecutionManagerImpl
         return this.uuid ;
         }
 
-    private ExecutionBlockDatabase database ;
+//  private ExecutionBlockDatabase database ;
     private ExecutionResponseFactory factory ;
 
     @Autowired
@@ -62,14 +62,14 @@ public class ExecutionManagerImpl
         log.debug("Creating a new ExecutionManager instance");
         this.uuid = UuidCreator.getTimeBased();
         this.factory  = factory ;
-        this.database = database ;
+//      this.database = database ;
         }
 
     @Override
-    public IvoaExecutionResponse advance(final UUID uuid)
+    public IvoaExecutionSessionResponse advance(final UUID uuid)
         {
         log.debug("Advance [{}]", uuid);
-        IvoaExecutionResponse response = factory.select(
+        IvoaExecutionSessionResponse response = factory.select(
             uuid
             );
         if (null != response)

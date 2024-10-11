@@ -76,10 +76,19 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionEntity parent)
+    public SimpleDataResourceEntity(final ExecutionEntity parent, final String name, final String location)
         {
-        super();
+        super(name);
         this.parent = parent;
+        this.location = location;
         }
+    
+    private String location;
+    @Override
+    public String getLocation()
+        {
+        return this.location;
+        }
+    
     }
 

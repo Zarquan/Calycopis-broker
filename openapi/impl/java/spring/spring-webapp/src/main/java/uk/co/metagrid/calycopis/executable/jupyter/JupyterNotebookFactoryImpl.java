@@ -51,12 +51,12 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl, boolean save)
+    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
         {
         JupyterNotebookEntity created = new JupyterNotebookEntity(
             parent,
             name,
-            notebookurl
+            location
             );
         log.debug("created [{}]", created.getUuid());
         if (save)

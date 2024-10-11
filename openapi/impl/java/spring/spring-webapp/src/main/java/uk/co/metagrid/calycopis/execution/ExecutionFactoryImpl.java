@@ -23,7 +23,6 @@
 
 package uk.co.metagrid.calycopis.execution;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;

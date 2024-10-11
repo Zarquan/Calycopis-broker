@@ -26,7 +26,7 @@ import java.time.OffsetDateTime;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import uk.co.metagrid.ambleck.platform.Execution;
@@ -47,12 +47,12 @@ public class OfferSetResponseImpl
         this.execution = execution;
         }
 
-    private IvoaExecutionResponse accepted;
-    protected IvoaExecutionResponse getAccepted()
+    private IvoaExecutionSessionResponse accepted;
+    protected IvoaExecutionSessionResponse getAccepted()
         {
         return this.accepted;
         }
-    public void setAccepted(final IvoaExecutionResponse accepted)
+    public void setAccepted(final IvoaExecutionSessionResponse accepted)
         {
         this.accepted = accepted ;
         }

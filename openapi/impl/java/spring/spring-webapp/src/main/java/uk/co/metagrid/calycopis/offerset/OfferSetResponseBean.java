@@ -24,15 +24,13 @@
 package uk.co.metagrid.calycopis.offerset;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
@@ -119,12 +117,12 @@ public class OfferSetResponseBean
         }
 
     @Override
-    public List<@Valid IvoaExecutionResponse> getOffers()
+    public List<@Valid IvoaExecutionSessionResponse> getOffers()
         {
-        return new ListWrapper<IvoaExecutionResponse, ExecutionEntity>(
+        return new ListWrapper<IvoaExecutionSessionResponse, ExecutionEntity>(
             offerset.getOffers()
             ){
-            public IvoaExecutionResponse wrap(final ExecutionEntity inner)
+            public IvoaExecutionSessionResponse wrap(final ExecutionEntity inner)
                 {
                 return new ExecutionResponseBean(
                      baseurl,

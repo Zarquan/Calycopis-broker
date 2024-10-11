@@ -12,6 +12,6 @@ public interface JupyterNotebook
     extends AbstractExecutable
     {
     
-    public String getNotebookUrl();
+    public String getLocation();
     
     }

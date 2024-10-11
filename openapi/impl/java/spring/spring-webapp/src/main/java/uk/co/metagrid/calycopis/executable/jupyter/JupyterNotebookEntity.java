@@ -29,17 +29,17 @@ public class JupyterNotebookEntity
         super();
         }
 
-    protected JupyterNotebookEntity(final ExecutionEntity parent, final String name, final String notebookurl)
+    protected JupyterNotebookEntity(final ExecutionEntity parent, final String name, final String location)
         {
         super(parent, name);
-        this.notebookurl = notebookurl;
+        this.location = location;
         }
 
-    private String notebookurl;
+    private String location;
     @Override
-    public String getNotebookUrl()
+    public String getLocation()
         {
-        return this.notebookurl;
+        return this.location;
         }
 
     }

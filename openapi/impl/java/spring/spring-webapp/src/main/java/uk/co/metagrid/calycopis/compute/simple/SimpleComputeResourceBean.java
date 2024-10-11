@@ -76,7 +76,7 @@ public class SimpleComputeResourceBean
      * Generate the href URL based on our baseurl and UUID.
      *
      */
-//  @Override
+    @Override
     public String getHref()
         {
         return this.baseurl + REQUEST_PATH + entity.getUuid();

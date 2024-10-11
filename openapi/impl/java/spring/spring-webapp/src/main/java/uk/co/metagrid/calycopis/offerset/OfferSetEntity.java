@@ -41,13 +41,9 @@ import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 @Table(
     name="offersets"
     )
-/*
- * 
 @DiscriminatorValue(
     value="urn:offerset"
-    )  
- * 
- */
+    )
 public class OfferSetEntity
 extends ComponentEntity
     implements OfferSet
@@ -82,6 +78,11 @@ extends ComponentEntity
     public ResultEnum getResult()
         {
         return this.result;
+        }
+
+    public void setResult(final ResultEnum result)
+        {
+        this.result = result;
         }
 
     /**

@@ -30,7 +30,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.webapp.SystemApiDelegate;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 import uk.co.metagrid.ambleck.platform.ExecutionManager;
@@ -88,14 +88,14 @@ public class SystemApiDelegateImpl
 
 
     @Override
-    public ResponseEntity<IvoaExecutionResponse> stepUpdate(final UUID uuid)
+    public ResponseEntity<IvoaExecutionSessionResponse> stepUpdate(final UUID uuid)
         {
-        IvoaExecutionResponse response = manager.advance(
+        IvoaExecutionSessionResponse response = manager.advance(
             uuid
             );
         if (null != response)
             {
-            return new ResponseEntity<IvoaExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
                 response,
                 HttpStatus.OK
                 );

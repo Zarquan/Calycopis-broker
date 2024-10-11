@@ -22,12 +22,11 @@
  */
 package uk.co.metagrid.ambleck.model;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.UUID;
 
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResponse;
-
-import java.time.Instant;
-import java.time.Duration;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 
 /*
  * Resources data for an Execution block in the database.
@@ -37,7 +36,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
     {
 
     public ExecutionBlockImpl(
-        final IvoaExecutionResponse.StateEnum blockState,
+        final IvoaExecutionSessionStatus blockState,
         final UUID offeruuid,
         final UUID parentuuid,
         final Instant expirytime,
@@ -75,7 +74,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
         final Integer maxMemory
         ) {
         this(
-            IvoaExecutionResponse.StateEnum.fromValue(
+            IvoaExecutionSessionStatus.fromValue(
                 blockState
                 ),
             offeruuid,
@@ -91,7 +90,7 @@ public class ExecutionBlockImpl implements ExecutionBlock
         }
 
     public ExecutionBlockImpl(
-        final IvoaExecutionResponse.StateEnum blockState,
+        final IvoaExecutionSessionStatus blockState,
         final UUID offeruuid,
         final UUID parentuuid,
         final Instant expirytime,
@@ -116,12 +115,12 @@ public class ExecutionBlockImpl implements ExecutionBlock
         this.maxMemory   = maxMemory ;
         }
 
-    private IvoaExecutionResponse.StateEnum blockState;
-    public IvoaExecutionResponse.StateEnum getState()
+    private IvoaExecutionSessionStatus blockState;
+    public IvoaExecutionSessionStatus getState()
         {
         return this.blockState;
         }
-    public void setState(IvoaExecutionResponse.StateEnum state)
+    public void setState(IvoaExecutionSessionStatus state)
         {
         this.blockState = state ;
         }
