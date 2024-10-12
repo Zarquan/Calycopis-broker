@@ -32,6 +32,8 @@ import uk.co.metagrid.calycopis.data.simple.SimpleDataResource;
 import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceEntity;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableEntity;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookEntity;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
+import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import wtf.metio.storageunits.model.StorageUnit;
 import wtf.metio.storageunits.model.StorageUnits;
@@ -157,6 +159,7 @@ public class NewProcessingContextImpl
 
 
     private long mincores;
+    @Override
     public long getMinCores()
         {
         return this.mincores;
@@ -167,6 +170,7 @@ public class NewProcessingContextImpl
         }
 
     private long minmemory;
+    @Override
     public long getMinMemory()
         {
         return this.minmemory;
@@ -234,7 +238,8 @@ public class NewProcessingContextImpl
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        this.request  = request;
+        this.valid = true;
+        this.request = request;
         this.offerset = offerset;
         //
         // Reject storage resources.
@@ -360,6 +365,24 @@ log.debug("---- ---- ---- ----");
 
             // 
             // Populate our OfferSet ..
+            List<OfferBlock> offerblocks = factory.getOfferBlockFactor().gererate(
+                this
+                ); 
+
+            for (OfferBlock offerblock : offerblocks)
+                {
+                log.debug("OfferBlock [{}]", offerblock.getStartTime());
+                ExecutionEntity execution = factory.getExecutionFactory().create(
+                    offerblock,
+                    offerset,
+                    this,
+                    true
+                    );
+                log.debug("ExecutionEntity [{}]", execution.getUuid());
+                offerset.addExecution(
+                    execution
+                    );
+                }
 
             //
             // Confirm our result.
@@ -367,20 +390,40 @@ log.debug("---- ---- ---- ----");
                 IvoaOfferSetResponse.ResultEnum.YES
                 );
             }
+        else {
+            //
+            // Fail our response.
+            offerset.setResult(
+                IvoaOfferSetResponse.ResultEnum.NO
+                );
+            }
         }
 
     /**
-     * Requested start intervals.
+     * List of requested start intervals.
      * 
      */
     List<Interval> startintervals = new ArrayList<Interval>();
 
+    @Override
+    public List<Interval> getStartIntervals()
+        {
+        return this.startintervals;
+        }
+
+    
     /**
      * Requested duration.
      * 
      */
     Duration exeduration = null;
 
+    @Override
+    public Duration getDuration()
+        {
+        return this.exeduration;
+        }
+    
     /**
      * Default execution duration.
      * 
@@ -539,7 +582,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
 
-        JupyterNotebookEntity entity = this.factory.getNotebookFactory().create(
+        JupyterNotebookEntity entity = this.factory.getJupyterNotebookFactory().create(
             null,
             name,
             location
@@ -674,7 +717,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
         
-        AmazonS3DataResourceEntity entity = this.factory.getS3DataFactory().create(
+        AmazonS3DataResourceEntity entity = this.factory.getAmazonDataFactory().create(
             null,
             name,
             endpoint,

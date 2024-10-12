@@ -59,7 +59,7 @@ public class JupyterNotebookFactoryImpl
             location
             );
         log.debug("created [{}]", created.getUuid());
-        if (save)
+        if (save && (parent != null))
             {
             created = this.repository.save(created);
             log.debug("created [{}]", created.getUuid());

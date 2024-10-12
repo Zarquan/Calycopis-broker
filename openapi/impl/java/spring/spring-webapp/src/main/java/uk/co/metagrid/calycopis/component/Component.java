@@ -35,13 +35,34 @@ import uk.co.metagrid.calycopis.message.MessageEntity;
  */
 public interface Component
     {
+    /**
+     * The URL path for Components.
+     *
+     */
+    public static final String REQUEST_PATH = "/component/" ;
 
+    /**
+     * Get the Component UUID.
+     *
+     */
     public UUID getUuid();
 
+    /**
+     * Get the Component name.
+     *
+     */
     public String getName();
-
+    
+    /**
+     * Get the Component creation date.
+     *
+     */
     public OffsetDateTime getCreated();
 
+    /**
+     * Get a list of messages for this Component.
+     *
+     */
     public List<MessageEntity> getMessages();
 
     }

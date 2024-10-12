@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.processing.NewProcessingContext;
 import uk.co.metagrid.calycopis.processing.NewProcessingContextFactory;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
@@ -64,8 +65,8 @@ public class OfferSetFactoryImpl
     public OfferSetFactoryImpl(final OfferSetRepository repository, final NewProcessingContextFactory contexts)
         {
         super();
-        this.contexts = contexts;
         this.repository = repository;
+        this.contexts = contexts;
         }
 
     /**
@@ -119,9 +120,23 @@ public class OfferSetFactoryImpl
                 DEFAULT_EXPIRY_TIME
                 )
 	        );
-    	log.debug("offerset [{}]", offerset.getUuid());
+    	log.debug("OfferSet [{}]", offerset.getUuid());
+
+        if (save)
+            {
+            log.debug("save(OfferSet)");
+            log.debug("OfferSet [{}]", offerset.getUuid());
+            offerset = this.repository.save(offerset);
+            log.debug("OfferSet [{}]", offerset.getUuid());
+            for (ExecutionEntity execution : offerset.getOffers())
+                {
+                log.debug("Execution [{}]", execution.getUuid());
+                }
+            }
+    	
     	//
     	// Process the request to generate some offers.
+    	// TODO make process() a static method.
     	final NewProcessingContext context = contexts.create();
     	context.process(
 	        request,
@@ -131,8 +146,14 @@ public class OfferSetFactoryImpl
     	// Save the offerset in the database. 
         if (save)
             {
-            offerset= this.repository.save(offerset);
-            log.debug("offerset [{}]", offerset.getUuid());
+            log.debug("save(OfferSet)");
+            log.debug("OfferSet [{}]", offerset.getUuid());
+            offerset = this.repository.save(offerset);
+            log.debug("OfferSet [{}]", offerset.getUuid());
+            for (ExecutionEntity execution : offerset.getOffers())
+                {
+                log.debug("Execution [{}]", execution.getUuid());
+                }
             }
     	
 /*

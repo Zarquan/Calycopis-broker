@@ -108,6 +108,7 @@
 #[root@spring-builder]
 
 cat > /tmp/createrequest.yaml  << EOF
+name: Test request
 executable:
   name: Test executable
   type: urn:jupyter-notebook-0.1
@@ -130,6 +131,168 @@ EOF
 
     >   ....
     >   ....
+
+
+
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      start:
+      - $( date --iso-8601=seconds)/PT0H
+      - $( date --iso-8601=seconds)/PT1H
+      - $( date --iso-8601=seconds)/PT8H
+      - $( date --iso-8601=seconds --date='+1 day')/PT1H
+      - $( date --iso-8601=seconds --date='+2 day')/PT1H
+      duration: PT1H
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offerset' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '.'
+
+    >   uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >   href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >   name: "Test request"
+    >   created: "2024-10-12T06:09:58.92411Z"
+    >   messages:
+    >     - type: "urn:debug"
+    >       time: "2024-10-12T06:09:59.193768835Z"
+    >       level: "DEBUG"
+    >       template: "OfferSetEntity select(UUID)"
+    >   result: "YES"
+    >   expires: "2024-10-12T06:14:58.924171Z"
+    >   offers:
+    >     - type: "urn:execution"
+    >       uuid: "5aa1abb9-3d79-4574-b2a8-efcc5de80950"
+    >       href: "http://127.0.0.1:8082/execution/5aa1abb9-3d79-4574-b2a8-efcc5de80950"
+    >       offerset:
+    >         uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >         href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >       expires: "2024-10-12T06:14:58.924171Z"
+    >       schedule:
+    >         offered:
+    >           preparing: {}
+    >           executing:
+    >             duration: "PT1H"
+    >             start: "2024-10-12T06:09:58Z/PT0S"
+    >           finishing: {}
+    >     - type: "urn:execution"
+    >       uuid: "1edf04a3-af9b-4384-a232-f2e0aee87ccb"
+    >       href: "http://127.0.0.1:8082/execution/1edf04a3-af9b-4384-a232-f2e0aee87ccb"
+    >       offerset:
+    >         uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >         href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >       expires: "2024-10-12T06:14:58.924171Z"
+    >       schedule:
+    >         offered:
+    >           preparing: {}
+    >           executing:
+    >             duration: "PT1H"
+    >             start: "2024-10-12T06:09:58Z/PT1H"
+    >           finishing: {}
+    >     - type: "urn:execution"
+    >       uuid: "d7b6c3dd-dcf4-4c07-8db1-b832be7da290"
+    >       href: "http://127.0.0.1:8082/execution/d7b6c3dd-dcf4-4c07-8db1-b832be7da290"
+    >       offerset:
+    >         uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >         href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >       expires: "2024-10-12T06:14:58.924171Z"
+    >       schedule:
+    >         offered:
+    >           preparing: {}
+    >           executing:
+    >             duration: "PT1H"
+    >             start: "2024-10-12T06:09:58Z/PT8H"
+    >           finishing: {}
+    >     - type: "urn:execution"
+    >       uuid: "e0b02862-6b46-489d-a459-d835182efc94"
+    >       href: "http://127.0.0.1:8082/execution/e0b02862-6b46-489d-a459-d835182efc94"
+    >       offerset:
+    >         uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >         href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >       expires: "2024-10-12T06:14:58.924171Z"
+    >       schedule:
+    >         offered:
+    >           preparing: {}
+    >           executing:
+    >             duration: "PT1H"
+    >             start: "2024-10-13T06:09:58Z/PT1H"
+    >           finishing: {}
+    >     - type: "urn:execution"
+    >       uuid: "232fd5bd-3a77-433d-8d04-de2aeb3a7840"
+    >       href: "http://127.0.0.1:8082/execution/232fd5bd-3a77-433d-8d04-de2aeb3a7840"
+    >       offerset:
+    >         uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >         href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >       expires: "2024-10-12T06:14:58.924171Z"
+    >       schedule:
+    >         offered:
+    >           preparing: {}
+    >           executing:
+    >             duration: "PT1H"
+    >             start: "2024-10-14T06:09:58Z/PT1H"
+    >           finishing: {}
+
+
+    yq '.offers[].schedule.offered.executing' \
+        '/tmp/createresponse.yaml'
+
+    >   duration: "PT1H"
+    >   start: "2024-10-12T06:09:58Z/PT0S"
+    >   duration: "PT1H"
+    >   start: "2024-10-12T06:09:58Z/PT1H"
+    >   duration: "PT1H"
+    >   start: "2024-10-12T06:09:58Z/PT8H"
+    >   duration: "PT1H"
+    >   start: "2024-10-13T06:09:58Z/PT1H"
+    >   duration: "PT1H"
+    >   start: "2024-10-14T06:09:58Z/PT1H"
+
+
+    requesthref=$(
+        yq '.offers[0].href' \
+            '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${requesthref:?}" \
+    | tee '/tmp/selectresponse.yaml' \
+    | yq '.'
+
+    >   type: "urn:execution"
+    >   uuid: "5aa1abb9-3d79-4574-b2a8-efcc5de80950"
+    >   href: "http://127.0.0.1:8082/execution/5aa1abb9-3d79-4574-b2a8-efcc5de80950"
+    >   offerset:
+    >     uuid: "c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >     href: "http://127.0.0.1:8082/offerset/c617b847-f4aa-4f8f-b70c-249a036e7456"
+    >   expires: "2024-10-12T06:14:58.924171Z"
+    >   schedule:
+    >     offered:
+    >       preparing: {}
+    >       executing:
+    >         duration: "PT1H"
+    >         start: "2024-10-12T06:09:58Z/PT0S"
+    >       finishing: {}
+
+
+
 
 
 

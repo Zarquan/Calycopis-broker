@@ -28,18 +28,44 @@ import java.util.List;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.message.MessageEntity;
 
 public interface OfferSet
     extends Component
     {
+    /**
+     * The database table name for OfferSets.
+     * 
+     */
+    public static final String TABLE_NAME = "offersets" ;
 
+    /**
+     * The type discriminator for OfferSets.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "urn:execution" ;
+
+    /**
+     * The URL path for OfferSets.
+     * 
+     */
+    public static final String REQUEST_PATH = "/offerset/" ;
+
+    /**
+     * Get the date/time this OfferSet expires.
+     * 
+     */
     public OffsetDateTime getExpires();
 
+    /**
+     * Get the OfferSet (YES|NO) result.
+     * 
+     */
     public ResultEnum getResult();
 
+    /**
+     * Get a list of the Execution offers.
+     * 
+     */
     public List<ExecutionEntity> getOffers();
-    
-    public List<MessageEntity> getMessages();
     
     }

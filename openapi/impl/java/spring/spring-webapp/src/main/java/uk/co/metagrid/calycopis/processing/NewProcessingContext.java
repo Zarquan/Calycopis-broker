@@ -3,6 +3,11 @@
  */
 package uk.co.metagrid.calycopis.processing;
 
+import java.time.Duration;
+import java.util.List;
+
+import org.threeten.extra.Interval;
+
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
@@ -15,6 +20,22 @@ public interface NewProcessingContext
 
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset);
 
+    /**
+     * Get a List of start intervals.
+     * 
+     */
+    public List<Interval> getStartIntervals();
+
+    /**
+     * Get the requested start Duration.
+     * 
+     */
+    public Duration getDuration();
+
+    public long getMinCores();
+    public long getMinMemory();
+
+    
 /*
  * 
     public IvoaOfferSetRequest getOfferSetRequest();

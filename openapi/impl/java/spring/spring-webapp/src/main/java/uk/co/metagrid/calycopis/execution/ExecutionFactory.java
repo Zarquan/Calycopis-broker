@@ -26,8 +26,9 @@ package uk.co.metagrid.calycopis.execution;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
+import uk.co.metagrid.calycopis.processing.NewProcessingContext;
 import uk.co.metagrid.calycopis.util.FactoryBase;
 
 /**
@@ -47,13 +48,13 @@ public interface ExecutionFactory
      * Create a new Execution based on an OfferSetRequest.
      *
      */
-    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent);
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context);
 
     /**
      * Create a new Execution based on an OfferSetRequest.
      *
      */
-    public ExecutionEntity create(final IvoaOfferSetRequest request, final OfferSetEntity parent, boolean save);
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context, boolean save);
 
     }
 

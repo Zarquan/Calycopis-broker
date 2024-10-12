@@ -40,18 +40,12 @@ import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;
 
 /**
+ * A serialization bean for OfferSets.
  * 
  */
 @Slf4j
 public class OfferSetResponseBean
     extends IvoaOfferSetResponse {
-
-    /**
-     * The URL path for the offersets endpoint.
-     * 
-     */
-    private static final String REQUEST_PATH = "/offerset/" ;
-
 
     /**
      * The base URL for the current request.
@@ -63,7 +57,7 @@ public class OfferSetResponseBean
      * The OfferSet entity to wrap.
      * 
      */
-    private final OfferSetEntity offerset;
+    private final OfferSetEntity entity;
 
 	/**
 	 * Protected constructor.
@@ -73,54 +67,74 @@ public class OfferSetResponseBean
 	    {
 	    super();
         this.baseurl = baseurl;
-        this.offerset = entity;
-	    }
-
-	/**
-	 * Generate the href URL based on our baseurl and UUID.
-	 * 
-	 */
-	@Override
-	public String getHref()
-	    {
-	    return this.baseurl + REQUEST_PATH + offerset.getUuid();
+        this.entity = entity;
 	    }
 
     @Override
     public UUID getUuid()
         {
-        return offerset.getUuid();
+        return entity.getUuid();
+        }
+
+    /**
+     * Make a href URL for an OfferSetEntity.
+     * 
+     */
+    public static String makeHref(final String baseurl, final OfferSetEntity entity)
+        {
+        return baseurl + OfferSet.REQUEST_PATH + entity.getUuid();
+        }
+
+    @Override
+    public String getHref()
+        {
+        return makeHref(baseurl, entity);
         }
 
     @Override
     public String getName()
         {
-        return offerset.getName();
-        }
-
-    @Override
-    public ResultEnum getResult()
-        {
-        return offerset.getResult();
+        return entity.getName();
         }
 
     @Override
     public OffsetDateTime getCreated()
         {
-        return offerset.getCreated();
+        return entity.getCreated();
+        }
+
+    @Override
+    public List<@Valid IvoaMessageItem> getMessages()
+        {
+        return new ListWrapper<IvoaMessageItem, MessageEntity>(
+            entity.getMessages()
+            ){
+            public IvoaMessageItem wrap(final MessageEntity inner)
+                {
+                return new MessageItemBean(
+                    inner
+                    );
+                }
+            };
         }
 
     @Override
     public OffsetDateTime getExpires()
         {
-        return offerset.getExpires();
+        return entity.getExpires();
+        }
+
+    @Override
+    public ResultEnum getResult()
+        {
+        return entity.getResult();
         }
 
     @Override
     public List<@Valid IvoaExecutionSessionResponse> getOffers()
         {
         return new ListWrapper<IvoaExecutionSessionResponse, ExecutionEntity>(
-            offerset.getOffers()
+            entity.getOffers()
             ){
             public IvoaExecutionSessionResponse wrap(final ExecutionEntity inner)
                 {
@@ -128,21 +142,6 @@ public class OfferSetResponseBean
                      baseurl,
                      inner
                      );
-                }
-            };
-        }
-
-    @Override
-    public List<@Valid IvoaMessageItem> getMessages()
-        {
-        return new ListWrapper<IvoaMessageItem, MessageEntity>(
-            offerset.getMessages()
-            ){
-            public IvoaMessageItem wrap(final MessageEntity inner)
-                {
-                return new MessageItemBean(
-                    inner
-                    );
                 }
             };
         }

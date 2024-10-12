@@ -23,11 +23,17 @@
 
 package uk.co.metagrid.calycopis.execution;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.threeten.extra.Interval;
+
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
+import uk.co.metagrid.calycopis.executable.AbstractExecutableEntity;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
 /**
@@ -37,12 +43,96 @@ import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 public interface Execution
     extends Component
     {
+    /**
+     * The database table name for Executions.
+     * 
+     */
+    public static final String TABLE_NAME = "executions" ;
+    
+    /**
+     * The type discriminator for Executions.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "urn:execution" ;
 
+    /**
+     * The URL path for Executions.
+     *
+     */
+    public static final String REQUEST_PATH = "/execution/" ;
+
+    /**
+     * Get the Execution state.
+     *
+     */
+    public IvoaExecutionSessionStatus getState();
+
+    /**
+     * Get the expiry date for an OFFERED Execution.
+     *
+     */
     public OffsetDateTime getExpires();
 
+    /**
+     * Get the parent OfferSet.
+     *
+     */
     public OfferSetEntity getParent();
 
+    /**
+     * Get the start of the start interval in seconds.
+     *
+     */
+    public long getStartInstantSeconds();
+    
+    /**
+     * Get the start of the start interval as an Instant.
+     *
+     */
+    public Instant getStartInstant();
+
+    /**
+     * Get the range for the start interval in seconds.
+     *
+     */
+    public long getStartDurationSeconds();
+
+    /**
+     * Get the range for the start interval as a Duration.
+     *
+     */
+    public Duration getStartDuration();
+
+    /**
+     * Get the start interval (instant + range) as an Interval.
+     *
+     */
+    public Interval getStartInterval();
+
+    /**
+     * Get the Execution duration in seconds.
+     *
+     */
+    public long getExeDurationSeconds();
+
+    /**
+     * Get the Execution duration as a Duration.
+     *
+     */
+    public Duration getExeDuration();
+
+    /**
+     * Get the Executable entity.
+     *
+     */
+    public AbstractExecutableEntity getExecutable();
+
+    /**
+     * Get a list of the ComputeResources.
+     *
+     */
     public List<SimpleComputeResourceEntity> getComputeResources();
+
 
     }
 

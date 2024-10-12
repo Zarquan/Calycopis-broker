@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import uk.co.metagrid.calycopis.data.amazon.AmazonS3DataResourceFactory;
 import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceFactory;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookFactory;
+import uk.co.metagrid.calycopis.execution.ExecutionFactory;
+import uk.co.metagrid.calycopis.offers.OfferBlockFactory;
 import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
 
 /**
@@ -21,39 +23,49 @@ public class NewProcessingContextFactoryImpl
     extends FactoryBaseImpl
     implements NewProcessingContextFactory
     {
-
-    private JupyterNotebookFactory notebookfactory ;
-    public JupyterNotebookFactory getNotebookFactory()
+    private final ExecutionFactory executionfactory ;
+    public ExecutionFactory getExecutionFactory()
         {
-        return this.notebookfactory;
+        return this.executionfactory;
         }
 
-    private SimpleDataResourceFactory simpledatafactory ;
+    private final OfferBlockFactory offerblockfactory ;
+    public OfferBlockFactory getOfferBlockFactor()
+        {
+        return this.offerblockfactory;
+        }
+    
+    private final JupyterNotebookFactory jpnotebookfactory ;
+    public JupyterNotebookFactory getJupyterNotebookFactory()
+        {
+        return this.jpnotebookfactory;
+        }
+
+    private final SimpleDataResourceFactory simpledatafactory ;
     public SimpleDataResourceFactory getSimpleDataFactory()
         {
         return this.simpledatafactory ;
         }
 
-    private AmazonS3DataResourceFactory s3datafactory ;
-    public AmazonS3DataResourceFactory getS3DataFactory()
+    private final AmazonS3DataResourceFactory amazondatafactory ;
+    public AmazonS3DataResourceFactory getAmazonDataFactory()
         {
-        return this.s3datafactory ;
+        return this.amazondatafactory ;
         }
 
     @Autowired
     public NewProcessingContextFactoryImpl(
-        final JupyterNotebookFactory notebookfactory,
+        final ExecutionFactory executionfactory,
+        final OfferBlockFactory offerblockfactory, 
+        final JupyterNotebookFactory jpnotebookfactory,
         final SimpleDataResourceFactory simpledatafactory,
-        final AmazonS3DataResourceFactory s3datafactory
+        final AmazonS3DataResourceFactory amazondatafactory
         ){
-        this.notebookfactory = notebookfactory;
+        this.executionfactory  = executionfactory;
+        this.offerblockfactory = offerblockfactory;
+        this.jpnotebookfactory = jpnotebookfactory;
         this.simpledatafactory = simpledatafactory;
-        this.s3datafactory = s3datafactory;
-        }
-    
-    public NewProcessingContextFactoryImpl()
-        {
-        super();
+        this.amazondatafactory = amazondatafactory;
         }
     
     @Override

@@ -53,16 +53,6 @@ import uk.co.metagrid.calycopis.message.MessageEntity;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-/*
- *
-@DiscriminatorColumn(
-    discriminatorType = DiscriminatorType.STRING
-    )
-@DiscriminatorValue(
-    value = "urn:base-component"
-    )
- *
- */
 public class ComponentEntity
     implements Component
     {

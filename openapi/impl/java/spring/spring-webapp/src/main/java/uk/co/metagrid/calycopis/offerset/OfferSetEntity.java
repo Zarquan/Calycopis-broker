@@ -33,16 +33,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 import uk.co.metagrid.calycopis.component.ComponentEntity;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 
+@Slf4j
 @Entity
 @Table(
-    name="offersets"
+    name = OfferSet.TABLE_NAME
     )
 @DiscriminatorValue(
-    value="urn:offerset"
+    value = OfferSet.TYPE_DISCRIMINATOR
     )
 public class OfferSetEntity
 extends ComponentEntity
@@ -108,8 +110,9 @@ extends ComponentEntity
  
     public void addExecution(final ExecutionEntity execution)
         {
+        log.debug("addExecution(ExecutionEntity)");
+        log.debug("ExecutionEntity [{}]", execution.getUuid());
         executions.add(execution);
         execution.setParent(this);
         }
-
     }
