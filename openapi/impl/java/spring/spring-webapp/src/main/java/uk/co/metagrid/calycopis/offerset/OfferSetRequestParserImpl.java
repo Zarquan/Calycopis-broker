@@ -1,7 +1,7 @@
 /**
  * 
  */
-package uk.co.metagrid.calycopis.processing;
+package uk.co.metagrid.calycopis.offerset;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -33,8 +33,8 @@ import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceEntity;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableEntity;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookEntity;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
+import uk.co.metagrid.calycopis.factory.CalycopisFactories;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import wtf.metio.storageunits.model.StorageUnit;
 import wtf.metio.storageunits.model.StorageUnits;
 
@@ -42,16 +42,15 @@ import wtf.metio.storageunits.model.StorageUnits;
  * 
  */
 @Slf4j
-public class NewProcessingContextImpl
-    implements NewProcessingContext
+public class OfferSetRequestParserImpl
+    implements OfferSetRequestParser
     {
     
-    private NewProcessingContextFactoryImpl factory;
+    private CalycopisFactories factories;
     
-    protected NewProcessingContextImpl(
-        final NewProcessingContextFactoryImpl factory
-        ){
-        this.factory = factory;
+    public OfferSetRequestParserImpl(final CalycopisFactories factories)
+        {
+        this.factories = factories;
         }
 
     private boolean valid;
@@ -150,13 +149,14 @@ public class NewProcessingContextImpl
     private AbstractExecutableEntity executable;
     public AbstractExecutableEntity getExecutable()
         {
+        log.debug("getExecutable() [{}]", (this.executable != null) ? this.executable.getUuid() : "null-executable");
         return this.executable;
         }
-    protected void addExecutable(final AbstractExecutableEntity executable)
+    protected void setExecutable(final AbstractExecutableEntity executable)
         {
         this.executable = executable;
+        log.debug("setExecutable() [{}]", (this.executable != null) ? this.executable.getUuid() : "null-executable");
         }
-
 
     private long mincores;
     @Override
@@ -365,14 +365,14 @@ log.debug("---- ---- ---- ----");
 
             // 
             // Populate our OfferSet ..
-            List<OfferBlock> offerblocks = factory.getOfferBlockFactor().gererate(
+            List<OfferBlock> offerblocks = factories.getOfferBlockFactory().generate(
                 this
                 ); 
 
             for (OfferBlock offerblock : offerblocks)
                 {
                 log.debug("OfferBlock [{}]", offerblock.getStartTime());
-                ExecutionEntity execution = factory.getExecutionFactory().create(
+                ExecutionEntity execution = factories.getExecutionFactory().create(
                     offerblock,
                     offerset,
                     this,
@@ -382,6 +382,15 @@ log.debug("---- ---- ---- ----");
                 offerset.addExecution(
                     execution
                     );
+                
+                // TODO Add an AbstractExecutableFactory.
+                execution.setExecutable(
+                    factories.getJupyterNotebookFactory().create(
+                        execution,
+                        ((JupyterNotebookEntity) this.executable)
+                        )
+                    );
+                
                 }
 
             //
@@ -582,12 +591,12 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
 
-        JupyterNotebookEntity entity = this.factory.getJupyterNotebookFactory().create(
+        JupyterNotebookEntity entity = this.factories.getJupyterNotebookFactory().create(
             null,
             name,
             location
             );
-        this.addExecutable(
+        this.setExecutable(
             entity
             );
         }
@@ -655,7 +664,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
 
-        SimpleDataResourceEntity entity = this.factory.getSimpleDataFactory().create(
+        SimpleDataResourceEntity entity = this.factories.getSimpleDataFactory().create(
             null,
             name,
             location
@@ -717,7 +726,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
         
-        AmazonS3DataResourceEntity entity = this.factory.getAmazonDataFactory().create(
+        AmazonS3DataResourceEntity entity = this.factories.getAmazonDataFactory().create(
             null,
             name,
             endpoint,

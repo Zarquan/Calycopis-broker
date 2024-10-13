@@ -21,7 +21,7 @@
  *
  */
 
-package uk.co.metagrid.calycopis.util;
+package uk.co.metagrid.calycopis.factory;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 

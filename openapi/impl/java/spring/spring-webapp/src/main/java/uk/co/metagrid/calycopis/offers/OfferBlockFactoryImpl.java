@@ -11,7 +11,7 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.metagrid.ambleck.model.FactoryBase;
-import uk.co.metagrid.calycopis.processing.NewProcessingContext;
+import uk.co.metagrid.calycopis.offerset.OfferSetRequestParser;
 
 /**
  * 
@@ -24,7 +24,7 @@ public class OfferBlockFactoryImpl
     {
 
     @Override
-    public List<OfferBlock> gererate(final NewProcessingContext context)
+    public List<OfferBlock> generate(final OfferSetRequestParser context)
         {
         List<OfferBlock> blocks = new ArrayList<OfferBlock>();
 

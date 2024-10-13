@@ -22,8 +22,8 @@
 #   ]
 #
 
-openapi: 3.1.0
-#openapi: 3.0.3
+#openapi: 3.1.0
+openapi: 3.0.3
 info:
   title: IVOA ExecutionBroker
   version: "0.8"
@@ -379,7 +379,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:simple-compute-resource": '#/components/schemas/SimpleComputeResource'
+          "urn:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -479,7 +479,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:simple-storage-resource": '#/components/schemas/SimpleStorageResource'
+          "urn:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -498,15 +498,16 @@ components:
         - type: object
           properties:
             size:
-              requested:
-                description: >
-                  The size of the storage resource requested by the user, default units are `GiB`.
-                $ref: '#/components/schemas/ComputeResourceSizeUnit'
-              offered:
-                description: >
-                  The size of the storage resource offered by the service.
-                $ref: '#/components/schemas/ComputeResourceSizeUnit'
-
+              type: object
+              properties:
+                requested:
+                  description: >
+                    The size of the storage resource requested by the user, default units are `GiB`.
+                  $ref: '#/components/schemas/ComputeResourceSizeUnit'
+                offered:
+                  description: >
+                    The size of the storage resource offered by the service.
+                  $ref: '#/components/schemas/ComputeResourceSizeUnit'
 
     AbstractDataResource:
       description: >
@@ -517,9 +518,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "urn:simple-data-resource": '#/components/schemas/SimpleDataResource'
-          "urn:Rucio-data-resource":  '#/components/schemas/RucioDataResource'
-          "urn:S3-data-resource":     '#/components/schemas/S3DataResource'
+          "urn:simple-data-resource-0.1": '#/components/schemas/SimpleDataResource'
+          "urn:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
+          "urn:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -1202,7 +1203,7 @@ components:
           properties:
             offerset:
               description: >
-                A refernce to the parent OfferSet.
+                A reference to the parent OfferSet.
               xml:
                 name: offerset
               $ref: '#/components/schemas/OfferSetLink'

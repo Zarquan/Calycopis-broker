@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
+import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 
 /**
  * 
@@ -22,6 +22,7 @@ public class JupyterNotebookFactoryImpl
     extends FactoryBaseImpl
     implements JupyterNotebookFactory
     {
+    
     private final JupyterNotebookRepository repository;
 
     @Autowired
@@ -40,6 +41,17 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
+    public JupyterNotebookEntity create(final String name, final String notebookurl)
+        {
+        return this.create(
+            null,
+            name,
+            notebookurl,
+            true
+            );
+        }
+
+    @Override
     public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl)
         {
         return this.create(
@@ -53,17 +65,35 @@ public class JupyterNotebookFactoryImpl
     @Override
     public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
         {
+        log.debug("create(ExecutionEntity, String, String, boolean) [{}][{}][{}][{}]",
+            ((parent!= null) ? parent.getUuid() : "null-template"),
+            name,
+            location,
+            save
+            );
         JupyterNotebookEntity created = new JupyterNotebookEntity(
             parent,
             name,
             location
             );
         log.debug("created [{}]", created.getUuid());
-        if (save && (parent != null))
+        if ((parent != null) && save)
             {
             created = this.repository.save(created);
             log.debug("created [{}]", created.getUuid());
             }
         return created;
+        }
+    
+    @Override
+    public JupyterNotebookEntity create(final ExecutionEntity parent, final JupyterNotebookEntity template)
+        {
+        log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
+        return this.create(
+            parent,
+            template.getName(),
+            template.getNotebook(),
+            true
+            );
         }
     }

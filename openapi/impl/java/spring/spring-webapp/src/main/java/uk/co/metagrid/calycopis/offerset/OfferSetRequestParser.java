@@ -1,7 +1,7 @@
 /**
  * 
  */
-package uk.co.metagrid.calycopis.processing;
+package uk.co.metagrid.calycopis.offerset;
 
 import java.time.Duration;
 import java.util.List;
@@ -9,15 +9,18 @@ import java.util.List;
 import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 
 /**
  * 
  */
-public interface NewProcessingContext
+public interface OfferSetRequestParser
     {
     public boolean valid();
 
+    /**
+     * Process an OfferSetRequest to populate an OfferSetEntity.
+     * 
+     */
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset);
 
     /**

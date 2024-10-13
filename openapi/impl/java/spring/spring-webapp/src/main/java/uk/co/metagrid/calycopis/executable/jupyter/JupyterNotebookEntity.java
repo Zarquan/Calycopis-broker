@@ -14,10 +14,10 @@ import uk.co.metagrid.calycopis.execution.ExecutionEntity;
  */
 @Entity
 @Table(
-    name = "jpnotebooks"
+    name = JupyterNotebook.TABLE_NAME
     )
 @DiscriminatorValue(
-    value="urn:jupyter-notebook"
+    value = JupyterNotebook.TYPE_DISCRIMINATOR
     )
 public class JupyterNotebookEntity
     extends AbstractExecutableEntity

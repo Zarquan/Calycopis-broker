@@ -3,7 +3,6 @@
  */
 package uk.co.metagrid.calycopis.executable.jupyter;
 
-import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.executable.AbstractExecutable;
 
 /**
@@ -28,7 +27,8 @@ public interface JupyterNotebook
      * The URL path for JupyterNotebooks.
      *
      */
-    public static final String REQUEST_PATH = Component.REQUEST_PATH ;
+    //public static final String REQUEST_PATH = "/jupyternotebooks/" ;
+    public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;
 
     /**
      * Get the location of the notebook.

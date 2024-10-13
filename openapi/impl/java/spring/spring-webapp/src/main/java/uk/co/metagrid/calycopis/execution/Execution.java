@@ -53,13 +53,13 @@ public interface Execution
      * The type discriminator for Executions.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "urn:execution" ;
+    public static final String TYPE_DISCRIMINATOR = "urn:generic-execution" ;
 
     /**
      * The URL path for Executions.
      *
      */
-    public static final String REQUEST_PATH = "/execution/" ;
+    public static final String REQUEST_PATH = "/executions/" ;
 
     /**
      * Get the Execution state.

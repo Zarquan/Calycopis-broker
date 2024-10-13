@@ -161,7 +161,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.6.0</version>
+                <version>7.9.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -178,9 +178,11 @@
                             <configOptions>
                                 <withXml>true</withXml>
                                 <delegatePattern>true</delegatePattern>
+                                <!--legacyDiscriminatorBehavior>true</legacyDiscriminatorBehavior-->
                                 <additionalModelTypeAnnotations>
                                     @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
                                 </additionalModelTypeAnnotations>
+                                <templateDirectory>${project.basedir}/openapi-generator-templates</templateDirectory>
                             </configOptions>
                         </configuration>
                     </execution>

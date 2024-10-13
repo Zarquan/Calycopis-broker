@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
+import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 
 /**
  * A SimpleDataResource Factory implementation.

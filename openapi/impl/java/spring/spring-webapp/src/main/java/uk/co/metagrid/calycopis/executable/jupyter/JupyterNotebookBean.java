@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import uk.co.metagrid.calycopis.message.MessageEntity;
@@ -21,6 +22,7 @@ import uk.co.metagrid.calycopis.util.ListWrapper;
  * IvoaJupyterNotebook to pick up the serialization annotations.
  * 
  */
+@Slf4j
 public class JupyterNotebookBean
     extends IvoaJupyterNotebook
     {
@@ -43,7 +45,7 @@ public class JupyterNotebookBean
      */
     public JupyterNotebookBean(final String baseurl, final JupyterNotebookEntity entity)
         {
-        super();
+        super(JupyterNotebook.TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         }
@@ -63,6 +65,7 @@ public class JupyterNotebookBean
     @Override
     public String getType()
         {
+        log.debug("getType() [{}]", JupyterNotebook.TYPE_DISCRIMINATOR);
         return JupyterNotebook.TYPE_DISCRIMINATOR;
         }
     

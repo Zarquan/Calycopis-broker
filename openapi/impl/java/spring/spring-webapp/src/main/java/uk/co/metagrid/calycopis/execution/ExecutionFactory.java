@@ -26,10 +26,10 @@ package uk.co.metagrid.calycopis.execution;
 import java.util.Optional;
 import java.util.UUID;
 
+import uk.co.metagrid.calycopis.factory.FactoryBase;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
-import uk.co.metagrid.calycopis.processing.NewProcessingContext;
-import uk.co.metagrid.calycopis.util.FactoryBase;
+import uk.co.metagrid.calycopis.offerset.OfferSetRequestParser;
 
 /**
  * An Execution Factory.
@@ -48,13 +48,13 @@ public interface ExecutionFactory
      * Create a new Execution based on an OfferSetRequest.
      *
      */
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context);
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context);
 
     /**
      * Create a new Execution based on an OfferSetRequest.
      *
      */
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context, boolean save);
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, boolean save);
 
     }
 

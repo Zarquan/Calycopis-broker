@@ -17,7 +17,9 @@ import uk.co.metagrid.calycopis.execution.ExecutionEntity;
  * 
  */
 @Entity
-@Table(name = "executables")
+@Table(
+    name = AbstractExecutable.TABLE_NAME
+    )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )

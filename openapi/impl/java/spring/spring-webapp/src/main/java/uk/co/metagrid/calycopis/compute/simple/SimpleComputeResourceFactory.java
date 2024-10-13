@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.util.FactoryBase;
+import uk.co.metagrid.calycopis.factory.FactoryBase;
 
 /**
  * A SimpleComputeResource Factory.

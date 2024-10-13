@@ -30,10 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import uk.co.metagrid.calycopis.factory.CalycopisRepositories;
+import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
-import uk.co.metagrid.calycopis.processing.NewProcessingContext;
-import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
+import uk.co.metagrid.calycopis.offerset.OfferSetRequestParser;
 
 /**
  * An Execution Factory implementation.
@@ -64,7 +65,7 @@ public class ExecutionFactoryImpl
         }
 
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context)
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
         {
         return this.create(
             offerblock,
@@ -75,7 +76,7 @@ public class ExecutionFactoryImpl
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context, boolean save)
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, boolean save)
         {
         ExecutionEntity created = new ExecutionEntity(
             offerblock,

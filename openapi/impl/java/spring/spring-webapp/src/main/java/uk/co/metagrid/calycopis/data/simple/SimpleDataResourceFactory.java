@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.util.FactoryBase;
+import uk.co.metagrid.calycopis.factory.FactoryBase;
 
 /**
  * A SimpleDataResource Factory.

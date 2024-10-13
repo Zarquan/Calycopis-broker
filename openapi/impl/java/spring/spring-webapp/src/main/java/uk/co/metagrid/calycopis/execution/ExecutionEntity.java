@@ -47,7 +47,7 @@ import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableEntity;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
-import uk.co.metagrid.calycopis.processing.NewProcessingContext;
+import uk.co.metagrid.calycopis.offerset.OfferSetRequestParser;
 
 /**
  * An Execution Entity.
@@ -93,7 +93,7 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final NewProcessingContext context)
+    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
         {
         super();
         this.parent  = parent;

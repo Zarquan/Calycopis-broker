@@ -1,4 +1,4 @@
-package uk.co.metagrid.calycopis.util;
+package uk.co.metagrid.calycopis.factory;
 
 import java.util.UUID;
 

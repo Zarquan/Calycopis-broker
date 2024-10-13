@@ -37,9 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.processing.NewProcessingContext;
-import uk.co.metagrid.calycopis.processing.NewProcessingContextFactory;
-import uk.co.metagrid.calycopis.util.FactoryBaseImpl;
+import uk.co.metagrid.calycopis.factory.CalycopisFactories;
+import uk.co.metagrid.calycopis.factory.CalycopisRepositories;
+import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 
 /**
  * Service for responding to OfferSet requests.
@@ -52,21 +52,24 @@ public class OfferSetFactoryImpl
     implements OfferSetFactory
     {
     /**
-     * The default expiry time for offers, in minutes.
+     * The default expiry time for offers, in seconds.
      *
      */
-    public static final int DEFAULT_EXPIRY_TIME = 5 ;
+    public static final int DEFAULT_EXPIRY_TIME_SECONDS = 5 * 60 ;
 
-    private final NewProcessingContextFactory contexts;
+    private final CalycopisFactories factories;
+
+    private final CalycopisRepositories repositories;
 
     private final OfferSetRepository repository;
 
     @Autowired
-    public OfferSetFactoryImpl(final OfferSetRepository repository, final NewProcessingContextFactory contexts)
+    public OfferSetFactoryImpl(final OfferSetRepository repository, final CalycopisFactories factories, final CalycopisRepositories repositories)
         {
         super();
+        this.factories = factories;
         this.repository = repository;
-        this.contexts = contexts;
+        this.repositories = repositories;
         }
 
     /**
@@ -117,7 +120,7 @@ public class OfferSetFactoryImpl
 	        request.getName(),
 	        OffsetDateTime.now(),
 	        OffsetDateTime.now().plusMinutes(
-                DEFAULT_EXPIRY_TIME
+                DEFAULT_EXPIRY_TIME_SECONDS
                 )
 	        );
     	log.debug("OfferSet [{}]", offerset.getUuid());
@@ -137,7 +140,9 @@ public class OfferSetFactoryImpl
     	//
     	// Process the request to generate some offers.
     	// TODO make process() a static method.
-    	final NewProcessingContext context = contexts.create();
+    	final OfferSetRequestParser context = new OfferSetRequestParserImpl(
+            this.factories
+            );
     	context.process(
 	        request,
 	        offerset
@@ -148,6 +153,10 @@ public class OfferSetFactoryImpl
             {
             log.debug("save(OfferSet)");
             log.debug("OfferSet [{}]", offerset.getUuid());
+            for (ExecutionEntity execution : offerset.getOffers())
+                {
+                log.debug("Execution [{}]", execution.getUuid());
+                }
             offerset = this.repository.save(offerset);
             log.debug("OfferSet [{}]", offerset.getUuid());
             for (ExecutionEntity execution : offerset.getOffers())
@@ -155,22 +164,6 @@ public class OfferSetFactoryImpl
                 log.debug("Execution [{}]", execution.getUuid());
                 }
             }
-    	
-/*
- * 
-        for(int i = 0 ; i < 4 ; i++)
-            {
-            created.getOffers().add(
-                (ExecutionEntity) exefactory.create(
-                    request,
-                    created,
-                    save
-                    )
-                );
-            }
- *      
- */
-        
         return offerset ;
     	}
     }

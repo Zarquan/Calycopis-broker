@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
@@ -52,6 +53,7 @@ import uk.co.metagrid.calycopis.util.ListWrapper;
  * An Execution response Bean.
  *
  */
+@Slf4j
 public class ExecutionResponseBean
     extends IvoaExecutionSessionResponse
     {
@@ -162,9 +164,11 @@ public class ExecutionResponseBean
     @Override
     public IvoaAbstractExecutable getExecutable()
         {
+        log.debug("getExecutable()");
+        log.debug("Executable [{}]", (this.entity.getExecutable() != null) ? this.entity.getExecutable().getUuid() : "null-entity");
         return beanfactory.wrap(
             this.baseurl,
-            this.entity
+            this.entity.getExecutable()
             );
         }
     

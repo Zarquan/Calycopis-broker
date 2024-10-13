@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import uk.co.metagrid.calycopis.util.FactoryBase;
+import uk.co.metagrid.calycopis.factory.FactoryBase;
 
 /**
  * Service for responding to OfferSet requests.
