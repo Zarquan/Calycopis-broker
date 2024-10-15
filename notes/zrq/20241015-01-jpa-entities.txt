@@ -152,311 +152,297 @@ EOF
         }
         '
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T08:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T10:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T12:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T14:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T08:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T10:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T12:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T14:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T08:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T10:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T12:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T14:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T09:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T11:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T13:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T15:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T09:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T11:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T13:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T15:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T09:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T11:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T13:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T15:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 6
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
---START--
-offers:
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T16:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T18:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T20:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
-  - schedule:
-      duration: "PT1H"
-      start: "2024-10-15T22:15:00Z"
-    compute:
-      - cores:
-          requested: 6
-          offered: 12
-        memory:
-          requested: "1.00 GiB"
-          offered: "2.00 GiB"
---END--
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T16:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T18:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T20:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T22:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
 
