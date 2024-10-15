@@ -48,7 +48,7 @@ public interface OfferSet
      * The URL path for OfferSets.
      * 
      */
-    public static final String REQUEST_PATH = "/offerset/" ;
+    public static final String REQUEST_PATH = "/offersets/" ;
 
     /**
      * Get the date/time this OfferSet expires.

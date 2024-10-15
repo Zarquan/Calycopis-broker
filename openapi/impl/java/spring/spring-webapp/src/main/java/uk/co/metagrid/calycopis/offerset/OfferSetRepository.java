@@ -25,11 +25,15 @@
  */
 package uk.co.metagrid.calycopis.offerset;
 
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
+/**
+ * A JpaRepository for OfferSetEntitys.
+ *
+ */
 @Repository
 public interface OfferSetRepository
     extends JpaRepository<OfferSetEntity, UUID>

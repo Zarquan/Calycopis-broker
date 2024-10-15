@@ -38,21 +38,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.webapp.OffersetApiDelegate;
+import net.ivoa.calycopis.openapi.webapp.OffersetsApiDelegate;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
 import uk.co.metagrid.calycopis.offerset.OfferSetFactory;
 import uk.co.metagrid.calycopis.offerset.OfferSetResponseBean;
 
 @Slf4j
 @Service
-public class OffersetApiDelegateImpl
+public class OffersetsApiDelegateImpl
     extends BaseDelegateImpl
-    implements OffersetApiDelegate {
+    implements OffersetsApiDelegate {
 
     private final OfferSetFactory factory ;
 
     @Autowired
-    public OffersetApiDelegateImpl(
+    public OffersetsApiDelegateImpl(
         NativeWebRequest request,
         OfferSetFactory factory
         )

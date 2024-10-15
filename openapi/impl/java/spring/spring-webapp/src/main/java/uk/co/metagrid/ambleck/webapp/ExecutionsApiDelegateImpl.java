@@ -34,21 +34,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
-import net.ivoa.calycopis.openapi.webapp.ExecutionApiDelegate;
+import net.ivoa.calycopis.openapi.webapp.ExecutionsApiDelegate;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.execution.ExecutionFactory;
 import uk.co.metagrid.calycopis.execution.ExecutionResponseBean;
 
 @Service
-public class ExecutionApiDelegateImpl
+public class ExecutionsApiDelegateImpl
     extends BaseDelegateImpl
-    implements ExecutionApiDelegate
+    implements ExecutionsApiDelegate
     {
 
     private final ExecutionFactory factory ;
 
     @Autowired
-    public ExecutionApiDelegateImpl(
+    public ExecutionsApiDelegateImpl(
         NativeWebRequest request,
         ExecutionFactory factory
         )

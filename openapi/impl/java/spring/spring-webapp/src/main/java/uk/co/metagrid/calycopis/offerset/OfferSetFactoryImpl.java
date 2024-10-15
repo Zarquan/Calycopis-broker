@@ -79,6 +79,13 @@ public class OfferSetFactoryImpl
     @Override
     public Optional<OfferSetEntity> select(final UUID uuid)
 		{
+        log.debug("select(UUID)");
+        log.debug("UUID [{}]", uuid);
+		return this.repository.findById(
+            uuid
+            ); 
+/*
+ * 
 		Optional<OfferSetEntity> optional = this.repository.findById(
             uuid
             ); 
@@ -102,6 +109,8 @@ public class OfferSetFactoryImpl
                 null
                 );
 		    }
+ *      
+ */
 		}
 
     @Override

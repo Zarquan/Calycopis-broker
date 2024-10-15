@@ -40,7 +40,7 @@ servers:
   - url: http://localhost:8080
     description: Localhost development
 paths:
-  /offerset:
+  /offersets:
     post:
       operationId: OfferSetPost
       requestBody:
@@ -84,7 +84,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OfferSetResponse'
 
-  /offerset/{uuid}:
+  /offersets/{uuid}:
     get:
       operationId: OfferSetGet
       parameters:
@@ -111,7 +111,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OfferSetResponse'
 
-  /execution/{uuid}:
+  /executions/{uuid}:
     get:
       operationId: ExecutionGet
       parameters:

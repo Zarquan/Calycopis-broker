@@ -60,6 +60,8 @@ public class ExecutionFactoryImpl
     @Override
     public Optional<ExecutionEntity> select(UUID uuid)
         {
+        log.debug("select(UUID)");
+        log.debug("UUID [{}]", uuid);
         return this.repository.findById(
             uuid
             );

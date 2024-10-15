@@ -28,8 +28,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import org.threeten.extra.Interval;
-
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import uk.co.metagrid.calycopis.component.Component;
 import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
