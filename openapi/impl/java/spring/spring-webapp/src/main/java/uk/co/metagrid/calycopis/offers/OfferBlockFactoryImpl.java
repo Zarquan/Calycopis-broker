@@ -121,6 +121,13 @@ public class OfferBlockFactoryImpl
      */
     public static final int OFFER_CPU_MEMORY_SCALE = 2;    
 
+    /**
+     * The number of rows in each category to select.
+     *  
+     */
+    public static final int QUERY_ROW_LIMIT = 4;    
+    
+    
     @Override
     public List<OfferBlock> other(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {
@@ -166,7 +173,7 @@ public class OfferBlockFactoryImpl
             {
             maxduration = MAXIMUM_DURATION;
             }
-//--        
+      //--        
         String query =
             """
             WITH ExecutionBlocks AS
@@ -175,8 +182,8 @@ public class OfferBlockFactoryImpl
                     Executions.State AS BlockState,
                     Executions.StartInstantSec / :blockstep AS BlockStart,
                     Executions.ExeDurationSec  / :blockstep AS BlockLength,
-                    COALESCE(SimpleCompute.offeredcores,  SimpleCompute.requestedcores)  AS MinCores,
-                    COALESCE(SimpleCompute.offeredmemory, SimpleCompute.requestedmemory) AS MinMemory
+                    COALESCE(SimpleCompute.offeredcores,  SimpleCompute.requestedcores)  AS UsedCores,
+                    COALESCE(SimpleCompute.offeredmemory, SimpleCompute.requestedmemory) AS UsedMemory
                 FROM
                     Executions
                 JOIN
@@ -186,13 +193,13 @@ public class OfferBlockFactoryImpl
                 WHERE
                     Executions.state IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
                 ),
-            ExpandedDataset AS
+            AvailableBlocks AS
                 (
                 SELECT
                     StartRange.StartRow AS StartRow,
                     COUNT(ExecutionBlocks.BlockStart) AS RowCount,
-                    (:totalcores  - IfNull(sum(ExecutionBlocks.MinCores),  0)) AS FreeCores,
-                    (:totalmemory - IfNull(sum(ExecutionBlocks.MinMemory), 0)) AS FreeMemory
+                    (:totalcores  - IfNull(sum(ExecutionBlocks.UsedCores),  0)) AS FreeCores,
+                    (:totalmemory - IfNull(sum(ExecutionBlocks.UsedMemory), 0)) AS FreeMemory
                 FROM
                     (
                     SELECT
@@ -212,49 +219,53 @@ public class OfferBlockFactoryImpl
                 ),
             ConsecutiveBlocks AS (
                 SELECT
-                    StartRow,
-                    (StartRow + 1) -
+                    AvailableBlocks.StartRow,
+                    (AvailableBlocks.StartRow + 1) -
                         (
                         ROW_NUMBER() OVER (
-                            PARTITION BY (FreeCores >= :minfreecores AND FreeMemory >= :minfreememory)
-                            ORDER BY StartRow
+                            PARTITION BY (
+                                AvailableBlocks.FreeCores  >= :mincores
+                                AND
+                                AvailableBlocks.FreeMemory >= :minmemory
+                                )
+                            ORDER BY AvailableBlocks.StartRow
                             )
                         ) AS BlockGroup,
                     FreeCores,
                     FreeMemory
                 FROM
-                    ExpandedDataset
+                    AvailableBlocks
                 WHERE
-                    FreeCores >= :minfreecores
+                    AvailableBlocks.FreeCores  >= :mincores
                     AND
-                    FreeMemory >= :minfreememory
+                    AvailableBlocks.FreeMemory >= :minmemory
                 ),
-            BlockInfo AS (
+            CombinedBlocks AS (
                 SELECT
-                    MIN(StartRow) AS BlockStart,
                     COUNT(*) AS BlockLength,
-                    MIN(FreeCores) AS MaxFreeCores,
-                    MIN(FreeMemory) AS MaxFreeMemory
+                    MIN(ConsecutiveBlocks.StartRow)   AS BlockStart,
+                    MIN(ConsecutiveBlocks.FreeCores)  AS FreeCores,
+                    MIN(ConsecutiveBlocks.FreeMemory) AS FreeMemory
                 FROM
                     ConsecutiveBlocks
                 WHERE
-                    BlockGroup IS NOT NULL
+                    ConsecutiveBlocks.BlockGroup IS NOT NULL
                 GROUP BY
-                    BlockGroup
+                    ConsecutiveBlocks.BlockGroup
                 HAVING
                     COUNT(*) >= :minblocklength
                 ),
             SplitBlocks AS (
                 SELECT
-                    BlockStart + :maxblocklength * (n - 1) AS BlockStart,
+                    (CombinedBlocks.BlockStart + (:maxblocklength * (n - 1))) AS BlockStart,
                     LEAST(
                         :maxblocklength,
-                        BlockLength - :maxblocklength * (n - 1)
+                        (CombinedBlocks.BlockLength - (:maxblocklength * (n - 1)))
                         ) AS BlockLength,
-                    MaxFreeCores,
-                    MaxFreeMemory
+                    CombinedBlocks.FreeCores  AS FreeCores,
+                    CombinedBlocks.FreeMemory AS FreeMemory
                 FROM
-                    BlockInfo,
+                    CombinedBlocks,
                     (
                     SELECT
                         x AS n
@@ -262,70 +273,146 @@ public class OfferBlockFactoryImpl
                         SYSTEM_RANGE(1, :maxblocklength)
                     ) AS Numbers
                 WHERE
-                    BlockStart + :maxblocklength * (n - 1) < BlockStart + BlockLength
+                    (CombinedBlocks.BlockStart + (:maxblocklength * (n - 1))) < (BlockStart + BlockLength)
                 ),
-            BlockResources AS (
+            MatchingBlocks AS (
                 SELECT
-                    BlockStart,
-                    BlockLength,
-                    StartRow,
-                    FreeCores,
-                    FreeMemory
+                    AvailableBlocks.StartRow,
+                    SplitBlocks.BlockStart,
+                    SplitBlocks.BlockLength,
+                    SplitBlocks.FreeCores,
+                    SplitBlocks.FreeMemory
                 FROM
-                    ExpandedDataset
+                    AvailableBlocks
                 JOIN
                     SplitBlocks
                 WHERE
-                    StartRow >= BlockStart
+                    AvailableBlocks.StartRow >= SplitBlocks.BlockStart
                 AND
-                    StartRow < (BlockStart + BlockLength)
+                    AvailableBlocks.StartRow < (SplitBlocks.BlockStart + SplitBlocks.BlockLength)
                 AND
-                    BlockLength >= :minblocklength
+                    SplitBlocks.BlockLength >= :minblocklength
                 AND
-                    BlockLength <= :maxblocklength
+                    SplitBlocks.BlockLength <= :maxblocklength
+                ),
+            GroupedBlocks AS (
+                SELECT
+                    MatchingBlocks.BlockStart,
+                    MatchingBlocks.BlockLength,
+                    MIN(MatchingBlocks.FreeCores)  AS FreeCores,
+                    MIN(MatchingBlocks.FreeMemory) AS FreeMemory
+                FROM
+                    MatchingBlocks
+                GROUP BY
+                    MatchingBlocks.BlockStart,
+                    MatchingBlocks.BlockLength
+                ),
+            ScaledBlocks AS (
+                SELECT
+                    GroupedBlocks.BlockStart,
+                    GroupedBlocks.BlockLength,
+                    LEAST(
+                        :maxcores,
+                        GroupedBlocks.FreeCores
+                        ) AS BlockCores,
+                    LEAST(
+                        :maxmemory,
+                        GroupedBlocks.FreeMemory
+                        ) AS BlockMemory
+                FROM
+                    GroupedBlocks
+                ),
+            EarlyBlocks AS (
+                SELECT
+                    *
+                FROM
+                    ScaledBlocks
+                ORDER BY
+                    ScaledBlocks.BlockStart    ASC,
+                    ScaledBlocks.BlockCores    DESC,
+                    ScaledBlocks.BlockMemory   DESC,
+                    ScaledBlocks.BlockLength   DESC
+                LIMIT :querylimit
+                ),
+            HiMemBlocks AS (
+                SELECT
+                    *
+                FROM
+                    ScaledBlocks
+                ORDER BY
+                    ScaledBlocks.BlockMemory   DESC,
+                    ScaledBlocks.BlockCores    DESC,
+                    ScaledBlocks.BlockStart    ASC,
+                    ScaledBlocks.BlockLength   DESC
+                LIMIT :querylimit
+                ),
+            HiCpuBlocks AS (
+                SELECT
+                    *
+                FROM
+                    ScaledBlocks
+                ORDER BY
+                    ScaledBlocks.BlockCores    DESC,
+                    ScaledBlocks.BlockMemory   DESC,
+                    ScaledBlocks.BlockStart    ASC,
+                    ScaledBlocks.BlockLength   DESC
+                LIMIT :querylimit
+                ),
+            CombinedQuery AS (
+                (
+                SELECT
+                    *
+                FROM
+                    EarlyBlocks
                 )
-            SELECT
-                BlockStart,
-                BlockLength,
-                MIN(FreeCores)  AS FreeCores,
-                MIN(FreeMemory) AS FreeMemory
-            FROM
-                BlockResources
-            GROUP BY
-                BlockStart,
-                BlockLength
-            ORDER BY
-                BlockStart  ASC,
-                FreeCores  DESC,
-                FreeMemory DESC,
-                BlockLength DESC
-            LIMIT 4
+            UNION
+                (
+                SELECT
+                    *
+                FROM
+                    HiMemBlocks
+                )
+            UNION
+                (
+                SELECT
+                    *
+                FROM
+                    HiCpuBlocks
+                )
+            )
+
+            SELECT * FROM CombinedQuery 
+
             """;
 
-            query = query.replace(":blockstep",      String.valueOf(BLOCK_STEP_SECONDS));
-            query = query.replace(":totalcores",     String.valueOf(TOTAL_AVAILABLE_CPU_CORES));
-            query = query.replace(":totalmemory",    String.valueOf(
-                TOTAL_AVAILABLE_CPU_MEMORY.longValue()
-                ));
-            query = query.replace(":rangeoffset",    String.valueOf(
+            query = query.replace(":blockstep",   String.valueOf(BLOCK_STEP_SECONDS));
+            query = query.replace(":totalcores",  String.valueOf(TOTAL_AVAILABLE_CPU_CORES));
+            query = query.replace(":totalmemory", String.valueOf(TOTAL_AVAILABLE_CPU_MEMORY.longValue()));
+            query = query.replace(":rangeoffset", String.valueOf(
                 requeststart.getStart().getEpochSecond() / BLOCK_STEP_SECONDS
                 ));
-            query = query.replace(":rangestart",     String.valueOf(1));
-            query = query.replace(":rangeend",       String.valueOf(
+            query = query.replace(":rangestart",  String.valueOf(1));
+            query = query.replace(":rangeend",    String.valueOf(
                 BLOCK_RANGE_SECONDS  / BLOCK_STEP_SECONDS
                 ));
-            query = query.replace(":minfreecores",   String.valueOf(
-                requestcores
-                ));
-            query = query.replace(":minfreememory",  String.valueOf(
-                requestmemory
-                ));
+            query = query.replace(":mincores",   String.valueOf(requestcores));
+            query = query.replace(":minmemory",  String.valueOf(requestmemory));
             query = query.replace(":minblocklength", String.valueOf(
                 requestduration.getSeconds() / BLOCK_STEP_SECONDS
                 ));
             query = query.replace(":maxblocklength", String.valueOf(
                 maxduration.getSeconds() / BLOCK_STEP_SECONDS
                 ));
+
+            query = query.replace(":maxcores", String.valueOf(
+                requestcores * OFFER_CPU_CORES_SCALE
+                ));
+            query = query.replace(":maxmemory", String.valueOf(
+                requestmemory * OFFER_CPU_MEMORY_SCALE
+                ));
+            query = query.replace(":querylimit", String.valueOf(
+                    QUERY_ROW_LIMIT
+                    ));
 //--
         log.debug("Running query ...");
         log.debug(query);
@@ -353,8 +440,8 @@ public class OfferBlockFactoryImpl
                     Duration.ofSeconds(
                         resultset.getLong("BlockLength") * BLOCK_STEP_SECONDS
                         ),
-                    resultset.getLong("FreeCores"),
-                    resultset.getLong("FreeMemory")
+                    resultset.getLong("BlockCores"),
+                    resultset.getLong("BlockMemory")
                     );
                 return block;
                 }

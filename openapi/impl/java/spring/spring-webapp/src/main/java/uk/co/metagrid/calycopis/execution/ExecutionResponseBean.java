@@ -30,9 +30,14 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.NotImplementedException;
+
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
@@ -42,6 +47,8 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferBlock;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceBean;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableBeanFactory;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableBeanFactoryImpl;
 import uk.co.metagrid.calycopis.message.MessageEntity;
@@ -209,11 +216,6 @@ public class ExecutionResponseBean
                     {
                     public String getStart()
                         {
-                        // This gives us start/duration, which is easier to read than start/end.
-                        // TODO Create a common formatter class that we use everywhere.
-                        // public String format(Instant, Duration)
-                        // Only needed if the start time is an Interval.
-                        // return entity.getStartInstant().toString() + "/" + entity.getStartDuration().toString();
                         return entity.getStartInstant().toString();
                         }
                     public String getDuration()
@@ -235,7 +237,34 @@ public class ExecutionResponseBean
     @Override
     public IvoaExecutionResourceList getResources()
         {
-        return null ;
+        return new IvoaExecutionResourceList()
+            {
+            @Override
+            public List<@Valid IvoaAbstractComputeResource> getCompute()
+                {
+                return new ListWrapper<IvoaAbstractComputeResource, SimpleComputeResourceEntity>(
+                    entity.getComputeResources()
+                    ){
+                    public IvoaAbstractComputeResource wrap(SimpleComputeResourceEntity entity)
+                        {
+                        return new SimpleComputeResourceBean(
+                            baseurl,
+                            entity
+                            );
+                        }
+                    };
+                }
+            @Override
+            public List<@Valid IvoaAbstractStorageResource> getStorage()
+                {
+                return null;
+                }
+            @Override
+            public List<@Valid IvoaAbstractDataResource> getData()
+                {
+                return null;
+                }
+            };
         }
 
     @Override

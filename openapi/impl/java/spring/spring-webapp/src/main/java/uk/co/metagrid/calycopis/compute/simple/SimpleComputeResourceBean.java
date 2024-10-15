@@ -23,16 +23,21 @@
 
 package uk.co.metagrid.calycopis.compute.simple;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceCores;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import uk.co.metagrid.calycopis.message.MessageEntity;
 import uk.co.metagrid.calycopis.message.MessageItemBean;
 import uk.co.metagrid.calycopis.util.ListWrapper;
+import wtf.metio.storageunits.model.StorageUnits;
 
 /**
  * A SimpleCompute response Bean.
@@ -107,6 +112,52 @@ public class SimpleComputeResourceBean
                     );
                 }
             };
+        }
+
+    @Override
+    public IvoaComputeResourceCores getCores()
+        {
+        return new IvoaComputeResourceCores()
+            {
+            @Override
+            public Long getRequested()
+                {
+                return entity.getRequestedCores();
+                }
+            @Override
+            public Long getOffered()
+                {
+                return entity.getOfferedCores();
+                }
+            };
+        }
+        
+    @Override
+    public IvoaComputeResourceMemory getMemory()
+        {
+        return new IvoaComputeResourceMemory()
+            {
+            @Override
+            public String getRequested()
+                {
+                return StorageUnits.binaryValueOf(
+                    entity.getRequestedMemory()
+                    ).toString();
+                }
+            @Override
+            public String getOffered()
+                {
+                return StorageUnits.binaryValueOf(
+                    entity.getOfferedMemory()
+                    ).toString();
+                }
+            };
+        }
+
+    @Override
+    public List<@Valid IvoaComputeResourceVolume> getVolumes()
+        {
+        return Collections.emptyList();
         }
     }
 

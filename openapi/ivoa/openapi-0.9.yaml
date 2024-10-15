@@ -411,11 +411,11 @@ components:
     ComputeResourceSizeUnit:
       description: >
         A size unit for compute resources.
-        Specified in multiples of 1000^n and 1024^n.
+        Specified in multiples of 1000^n and 1024^n, default units are GiB.
         https://github.com/metio/storage-units.java/
         https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
       type: string
-      pattern: '/^[0-9]+(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB)$/gm'
+      pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
 
     ComputeResourceCores:
       description: >
@@ -426,10 +426,12 @@ components:
           description: >
             The number of cpu cores requested by the user.
           type: integer
+          format: int64
         offered:
           description: >
             The number of cpu cores offered by the service.
           type: integer
+          format: int64
 
     ComputeResourceMemory:
       description: >

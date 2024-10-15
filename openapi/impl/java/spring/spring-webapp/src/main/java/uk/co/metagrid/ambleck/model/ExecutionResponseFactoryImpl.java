@@ -351,7 +351,7 @@ public class ExecutionResponseFactoryImpl
                             simple.getCores().getRequested()
                             );
                         compute.getCores().setOffered(
-                            block.getMaxCores()
+                            block.getMaxCores().longValue()
                             );
                         if (compute.getMemory() == null)
                             {
@@ -685,9 +685,9 @@ public class ExecutionResponseFactoryImpl
             );
         //
         // Validate the compute resource itself.
-        Integer MIN_CORES_DEFAULT = 1 ;
-        Integer MAX_CORES_LIMIT   = 16 ;
-        Integer mincores = MIN_CORES_DEFAULT;
+        Long MIN_CORES_DEFAULT = 1L ;
+        Long MAX_CORES_LIMIT   = 16L ;
+        Long mincores = MIN_CORES_DEFAULT;
 
         if (request.getCores() != null)
             {
@@ -739,7 +739,7 @@ public class ExecutionResponseFactoryImpl
             mincores
             );
         context.addMinCores(
-            mincores
+            mincores.intValue()
             );
 
         StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);

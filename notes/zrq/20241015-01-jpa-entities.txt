@@ -1,0 +1,462 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Move the main business logic into JPA entities in Hibernate.
+        Add persistent classes to implement the resource configuration steps.
+
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console in a browser.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/' \
+        &
+
+    jdbc: jdbc:h2:mem:testdb
+    user: sa
+    pass: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offerset' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T08:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T10:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T12:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T14:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T08:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T10:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T12:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T14:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T08:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T10:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T12:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T14:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T09:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T11:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T13:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T15:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T09:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T11:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T13:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T15:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T09:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T11:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T13:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T15:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 6
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T16:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T18:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T20:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T22:15:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
