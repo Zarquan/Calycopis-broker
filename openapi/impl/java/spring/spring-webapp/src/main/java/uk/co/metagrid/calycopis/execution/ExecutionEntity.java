@@ -35,6 +35,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -93,19 +95,20 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
+    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
         {
         super();
+        this.state   = state;
         this.parent  = parent;
         this.expires = parent.getExpires();
-        
-        this.startinstantsec  = offerblock.getStartTime().getStart().getEpochSecond();
-        this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
+        this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
+//      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
         this.exedurationsec   = context.getDuration().getSeconds();
         
         }
 
     @Column(name = "state")
+    @Enumerated(EnumType.STRING)
     private IvoaExecutionSessionStatus state;
     @Override
     public IvoaExecutionSessionStatus getState()
@@ -127,7 +130,9 @@ public class ExecutionEntity
             startinstantsec
             );
         }
-    
+  
+/*
+ * 
     @Column(name = "startdurationsec")
     private long startdurationsec;
     @Override
@@ -150,6 +155,8 @@ public class ExecutionEntity
             getStartDuration()
             );
         }
+ *     
+ */
 
     @Column(name = "exedurationsec")
     private long exedurationsec;

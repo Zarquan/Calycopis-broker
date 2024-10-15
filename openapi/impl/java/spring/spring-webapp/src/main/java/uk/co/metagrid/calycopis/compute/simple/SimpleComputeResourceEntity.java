@@ -77,43 +77,47 @@ public class SimpleComputeResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleComputeResourceEntity(final ExecutionEntity parent, final String name)
+    public SimpleComputeResourceEntity(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory)
         {
         super(name);
         this.parent = parent;
+        this.requestedcores = requestedcores;
+        this.offeredcores   = offeredcores;
+        this.requestedmemory = requestedmemory;
+        this.offeredmemory   = offeredmemory;
         }
 
     // Does this also have a start and end time ?
     // Does this also go through a similar set of state changes as the parent execution ?
     
     @Column(name="requestedcores")
-    private long requestedcores;
+    private Long requestedcores;
     @Override
-    public long getRequestedCores()
+    public Long getRequestedCores()
         {
         return this.requestedcores;
         }
 
     @Column(name="offeredcores")
-    private long offeredcores;
+    private Long offeredcores;
     @Override
-    public long getOfferedCores()
+    public Long getOfferedCores()
         {
         return this.offeredcores;
         }
 
     @Column(name="requestedmemory")
-    private long requestedmemory;
+    private Long requestedmemory;
     @Override
-    public long getRequestedMemory()
+    public Long getRequestedMemory()
         {
         return this.requestedmemory;
         }
 
     @Column(name="offeredmemory")
-    private long offeredmemory;
+    private Long offeredmemory;
     @Override
-    public long getOfferedMemory()
+    public Long getOfferedMemory()
         {
         return this.offeredmemory;
         }

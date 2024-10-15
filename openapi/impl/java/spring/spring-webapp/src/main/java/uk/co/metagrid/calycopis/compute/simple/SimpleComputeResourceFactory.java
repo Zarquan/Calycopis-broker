@@ -26,7 +26,6 @@ package uk.co.metagrid.calycopis.compute.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
 import uk.co.metagrid.calycopis.factory.FactoryBase;
 
@@ -45,15 +44,28 @@ public interface SimpleComputeResourceFactory
     public Optional<SimpleComputeResourceEntity> select(final UUID uuid);
 
     /**
-     * Create a new SimpleComputeResource based on an OfferSetRequest.
+     * Create and save a new SimpleComputeResource entity.
      *
      */
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory);
 
     /**
-     * Create a new SimpleComputeResource based on an OfferSetRequest.
+     * Create a new SimpleComputeResource entity.
      *
      */
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory, boolean save);
+
+    /**
+     * Create and save a new SimpleComputeResource entity based on a template.
+     *
+     */
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template);
+
+    /**
+     * Create and save a new SimpleComputeResource entity based on a template.
+     *
+     */
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template, long offercores, long offermemory);
+
     }
 

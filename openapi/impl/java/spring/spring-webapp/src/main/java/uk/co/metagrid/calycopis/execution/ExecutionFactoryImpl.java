@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import uk.co.metagrid.calycopis.factory.CalycopisRepositories;
 import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
@@ -71,17 +72,31 @@ public class ExecutionFactoryImpl
             offerblock,
             parent,
             context,
+            IvoaExecutionSessionStatus.OFFERED,
             true
             );
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, boolean save)
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+        {
+        return this.create(
+            offerblock,
+            parent,
+            context,
+            state,
+            true
+            );
+        }
+    
+    @Override
+    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save)
         {
         ExecutionEntity created = new ExecutionEntity(
             offerblock,
             parent,
-            context
+            context,
+            state
             );
         log.debug("created [{}]", created.getUuid());
         if (save)

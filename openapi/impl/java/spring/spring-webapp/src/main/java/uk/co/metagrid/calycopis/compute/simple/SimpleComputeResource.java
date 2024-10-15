@@ -43,25 +43,25 @@ public interface SimpleComputeResource
      * The number of CPU cores requested. 
      *
      */
-    public long getRequestedCores();
+    public Long getRequestedCores();
 
     /**
      * The number of CPU cores offered. 
      *
      */
-    public long getOfferedCores();
+    public Long getOfferedCores();
 
     /**
      * The amount of memory requested, in bytes. 
      *
      */
-    public long getRequestedMemory();
+    public Long getRequestedMemory();
 
     /**
      * The amount of memory offered, in bytes. 
      *
      */
-    public long getOfferedMemory();
+    public Long getOfferedMemory();
 
     // volumes ...
 

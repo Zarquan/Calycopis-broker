@@ -80,13 +80,13 @@ public interface Execution
     public OfferSetEntity getParent();
 
     /**
-     * Get the start of the start interval in seconds.
+     * Get the start time in seconds.
      *
      */
     public long getStartInstantSeconds();
     
     /**
-     * Get the start of the start interval as an Instant.
+     * Get the start time as an Instant.
      *
      */
     public Instant getStartInstant();
@@ -94,20 +94,20 @@ public interface Execution
     /**
      * Get the range for the start interval in seconds.
      *
-     */
     public long getStartDurationSeconds();
+     */
 
     /**
      * Get the range for the start interval as a Duration.
      *
-     */
     public Duration getStartDuration();
+     */
 
     /**
      * Get the start interval (instant + range) as an Interval.
      *
-     */
     public Interval getStartInterval();
+     */
 
     /**
      * Get the Execution duration in seconds.

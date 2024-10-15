@@ -287,7 +287,23 @@ public class ExecutionBlockDatabaseImpl
 
         String query =
             """
-            WITH ExpandedDataset AS
+
+            WITH ExecutionBlocks AS
+                (
+                SELECT
+                    State AS BlockState,
+                    StartInstantSec AS BlockStart,
+                    ExeDurationSec  AS BlockLength,
+                    AS MinCores,
+                    AS MinMemory
+                FROM
+                    Executions
+                JOIN
+                    SimpleCompute
+                ON
+                    SimpleCompute.parent = Executions.uuid
+                ),
+            ExpandedDataset AS
                 (
                 SELECT
                     StartRange.StartRow AS StartRow,

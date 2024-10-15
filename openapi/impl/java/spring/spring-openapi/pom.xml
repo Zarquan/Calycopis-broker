@@ -38,8 +38,10 @@
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>21</java.version>
+		<!--+
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+            +-->
         <schema.yaml>${project.basedir}/ivoa/openapi-0.9.yaml</schema.yaml>
 	</properties>
 	<dependencies>
@@ -161,7 +163,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.9.0</version>
+                <version>7.6.0</version>
                 <executions>
                     <execution>
                         <goals>

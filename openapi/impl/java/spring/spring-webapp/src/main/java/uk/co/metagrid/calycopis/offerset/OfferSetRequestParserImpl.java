@@ -180,60 +180,6 @@ public class OfferSetRequestParserImpl
         this.minmemory += delta;
         }
 
-/*
- * 
-    public class ScheduleItemImpl
-        implements ScheduleItem
-        {
-        public ScheduleItemImpl(final Interval starttime, final Duration duration)
-            {
-            this.starttime = starttime ;
-            this.duration  = duration;
-            }
-        private Interval starttime ;
-        public Interval getStartTime()
-            {
-            return this.starttime;
-            }
-        private Duration duration;
-        public Duration getDuration()
-            {
-            return this.duration;
-            }
-        }
-
-    private ScheduleItem preptime;
-    @Override
-    public ScheduleItem getPreparationTime()
-        {
-        return this.preptime;
-        }
-    @Override
-    public void setPreparationTime(Interval starttime, Duration duration)
-        {
-        this.preptime = new ScheduleItemImpl(
-            starttime,
-            duration
-            );
-        }
-
-    private ScheduleItem exectime;
-    @Override
-    public ScheduleItem getExecutionTime()
-        {
-        return this.exectime;
-        }
-    @Override
-    public void setExecutionTime(Interval starttime, Duration duration)
-        {
-        this.exectime = new ScheduleItemImpl(
-            starttime,
-            duration
-            );
-        }
- * 
- */
-    
     @Override
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset)
         {
@@ -336,6 +282,9 @@ public class OfferSetRequestParserImpl
                     }
                 }
             }
+
+        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO; 
+
         //
         // If everything is OK.
         if (this.valid)
@@ -365,47 +314,74 @@ log.debug("---- ---- ---- ----");
 
             // 
             // Populate our OfferSet ..
-            List<OfferBlock> offerblocks = factories.getOfferBlockFactory().generate(
-                this
-                ); 
-
-            for (OfferBlock offerblock : offerblocks)
+            for (Interval startinterval : startintervals)
                 {
-                log.debug("OfferBlock [{}]", offerblock.getStartTime());
-                ExecutionEntity execution = factories.getExecutionFactory().create(
-                    offerblock,
-                    offerset,
-                    this,
-                    true
-                    );
-                log.debug("ExecutionEntity [{}]", execution.getUuid());
-                offerset.addExecution(
-                    execution
-                    );
+                //
+                // Generate a list of offers.
+                List<OfferBlock> offerblocks = factories.getOfferBlockFactory().other(
+                    startinterval,
+                    exeduration,
+                    mincores,
+                    minmemory
+                    ); 
                 
-                // TODO Add an AbstractExecutableFactory.
-                execution.setExecutable(
-                    factories.getJupyterNotebookFactory().create(
-                        execution,
-                        ((JupyterNotebookEntity) this.executable)
-                        )
-                    );
-                
+                for (OfferBlock offerblock : offerblocks)
+                    {
+                    log.debug("OfferBlock [{}]", offerblock.getStartTime());
+                    ExecutionEntity execution = factories.getExecutionFactory().create(
+                        offerblock,
+                        offerset,
+                        this
+                        );
+                    log.debug("ExecutionEntity [{}]", execution.getUuid());
+                    offerset.addExecution(
+                        execution
+                        );
+                    
+                    // TODO Add an AbstractExecutableFactory.
+                    execution.setExecutable(
+                        factories.getJupyterNotebookFactory().create(
+                            execution,
+                            ((JupyterNotebookEntity) this.executable)
+                            )
+                        );
+    
+                    //
+                    // Need to add a scaling factor based on the offerblock.
+                    long corescale = offerblock.getCores()/this.getMinCores();
+                    long memoryscale = offerblock.getMemory()/this.getMinMemory();
+                    log.debug("----");
+                    log.debug("Cores  [{}][{}][{}]", this.getMinCores(), offerblock.getCores(), corescale);
+                    log.debug("Memory [{}][{}][{}]", this.getMinMemory(), offerblock.getMemory(), memoryscale);
+                    for (SimpleComputeResourceEntity compresource : compresourcelist)
+                        {
+                        long offercores  = compresource.getRequestedCores()  * corescale;
+                        long offermemory = compresource.getRequestedMemory() * memoryscale;
+                        log.debug("----");
+                        log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
+                        log.debug("Cores  [{}][{}][{}]", compresource.getRequestedCores(),  corescale,   offercores);
+                        log.debug("Memory [{}][{}][{}]", compresource.getRequestedMemory(), memoryscale, offermemory);
+                        execution.addCompute(
+                            factories.getSimpleComputeFactory().create(
+                                execution,
+                                compresource,
+                                offercores,
+                                offermemory
+                                )
+                            );
+                        }
+                    log.debug("----");
+                    //
+                    // Confirm we have at least one result.
+                    result = IvoaOfferSetResponse.ResultEnum.NO;
+                    }
                 }
-
-            //
-            // Confirm our result.
-            offerset.setResult(
-                IvoaOfferSetResponse.ResultEnum.YES
-                );
             }
-        else {
-            //
-            // Fail our response.
-            offerset.setResult(
-                IvoaOfferSetResponse.ResultEnum.NO
-                );
-            }
+        //
+        // Set the OfferSet result.
+        offerset.setResult(
+            result
+            );
         }
 
     /**
@@ -750,6 +726,8 @@ log.debug("---- ---- ---- ----");
      */
     public void validate(final IvoaAbstractComputeResource resource)
         {
+        log.debug("validate(IvoaAbstractComputeResource)");
+        log.debug("Compute [{}])", ((resource != null) ? resource .getName() : "null-resource"));
         switch(resource)
             {
             case IvoaSimpleComputeResource simple :
@@ -782,6 +760,9 @@ log.debug("---- ---- ---- ----");
      */
     public void validate(final IvoaSimpleComputeResource resource)
         {
+        log.debug("validate(IvoaSimpleComputeResource)");
+        log.debug("Compute [{}])", ((resource != null) ? resource .getName() : "null-resource"));
+
         Integer MIN_CORES_DEFAULT = 1 ;
         Integer MAX_CORES_LIMIT   = 16 ;
         Integer mincores = MIN_CORES_DEFAULT;
@@ -916,7 +897,18 @@ log.debug("---- ---- ---- ----");
         //
         // Process the volume mounts.
         // ....
-        
+
+        SimpleComputeResourceEntity entity = this.factories.getSimpleComputeFactory().create(
+            null,
+            resource.getName(),
+            mincores.longValue(),
+            null,
+            minmemory.inByte().longValueExact(),
+            null
+            );
+        this.addComputeResource(
+            entity
+            );
         }
     
     /**

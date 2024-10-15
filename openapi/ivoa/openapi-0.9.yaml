@@ -22,8 +22,8 @@
 #   ]
 #
 
-#openapi: 3.1.0
-openapi: 3.0.3
+openapi: 3.1.0
+#openapi: 3.0.3
 info:
   title: IVOA ExecutionBroker
   version: "0.8"
@@ -1234,10 +1234,18 @@ components:
                   xml:
                     name: requested
                   $ref: '#/components/schemas/ScheduleRequestBlock'
-                offered:
+                preparing:
                   xml:
-                    name: offered
-                  $ref: '#/components/schemas/ScheduleOfferBlock'
+                    name: preparing
+                  $ref: '#/components/schemas/ScheduleOfferItem'
+                executing:
+                  xml:
+                    name: executing
+                  $ref: '#/components/schemas/ScheduleOfferItem'
+                finishing:
+                  xml:
+                    name: finishing
+                  $ref: '#/components/schemas/ScheduleOfferItem'
             options:
               description: >
                 A List of options the client can apply to this Execution.

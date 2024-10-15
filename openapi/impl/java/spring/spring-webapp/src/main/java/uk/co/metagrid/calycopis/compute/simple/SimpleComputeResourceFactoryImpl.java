@@ -85,29 +85,69 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent)
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory)
         {
         return this.create(
-            request,
             parent,
+            name,
+            requestedcores,
+            offeredcores,
+            requestedmemory,
+            offeredmemory,
             true
             );
         }
     
     @Override
-    public SimpleComputeResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save)
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory, boolean save)
         {
         SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(
             parent,
-            "name"
+            name,
+            requestedcores,
+            offeredcores,
+            requestedmemory,
+            offeredmemory
             );
         log.debug("created [{}]", created.getUuid());
-        if (save)
+        if ((parent != null) && save)
             {
             created = this.repository.save(created);
             log.debug("created [{}]", created.getUuid());
             }
         return created;
         }
+
+    @Override
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template)
+        {
+        log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
+        return this.create(
+            parent,
+            template.getName(),
+            template.getRequestedCores(),
+            template.getOfferedCores(),
+            template.getRequestedMemory(),
+            template.getOfferedMemory(),
+            true
+            );
+        }
+
+    @Override
+    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template, long offercores, long offermemory)
+        {
+        log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
+        return this.create(
+            parent,
+            template.getName(),
+            template.getRequestedCores(),
+            offercores,
+            template.getRequestedMemory(),
+            offermemory,
+            true
+            );
+        }
+    
+    
     }
 

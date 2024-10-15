@@ -4,16 +4,16 @@
 package uk.co.metagrid.calycopis.offers;
 
 import java.time.Duration;
-
-import org.threeten.extra.Interval;
+import java.time.Instant;
 
 /**
  * 
  */
 public interface OfferBlock
     {
-    public long getMinCores();
-    public long getMinMemory();
-    public Interval getStartTime();
+    
+    public Long getCores();
+    public Long getMemory();
+    public Instant getStartTime();
     public Duration getDuration();
     }

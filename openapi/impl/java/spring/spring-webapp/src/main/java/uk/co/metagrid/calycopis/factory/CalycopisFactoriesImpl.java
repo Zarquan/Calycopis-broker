@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceFactory;
 import uk.co.metagrid.calycopis.data.amazon.AmazonS3DataResourceFactory;
 import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceFactory;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookFactory;
@@ -57,19 +58,28 @@ public class CalycopisFactoriesImpl extends FactoryBaseImpl implements Calycopis
         return this.amazondatafactory ;
         }
 
+    private SimpleComputeResourceFactory simplecomputefactory; 
+    @Override
+    public SimpleComputeResourceFactory getSimpleComputeFactory()
+        {
+        return this.simplecomputefactory;
+        }
+
     @Autowired
     public CalycopisFactoriesImpl (
         final ExecutionFactory executionfactory,
         final OfferBlockFactory offerblockfactory, 
         final JupyterNotebookFactory jpnotebookfactory,
         final SimpleDataResourceFactory simpledatafactory,
-        final AmazonS3DataResourceFactory amazondatafactory
+        final AmazonS3DataResourceFactory amazondatafactory,
+        final SimpleComputeResourceFactory simplecomputefactory
         ){
         this.executionfactory  = executionfactory;
         this.offerblockfactory = offerblockfactory;
         this.jpnotebookfactory = jpnotebookfactory;
         this.simpledatafactory = simpledatafactory;
         this.amazondatafactory = amazondatafactory;
+        this.simplecomputefactory = simplecomputefactory;
         }
 
     }

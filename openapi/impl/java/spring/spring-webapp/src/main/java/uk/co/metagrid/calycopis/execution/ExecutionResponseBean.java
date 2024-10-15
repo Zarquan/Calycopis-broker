@@ -196,41 +196,39 @@ public class ExecutionResponseBean
                 };
             
             @Override
-            public IvoaScheduleOfferBlock getOffered()
+            public IvoaScheduleOfferItem getPreparing()
                 {
-                return new IvoaScheduleOfferBlock()
+                return new IvoaScheduleOfferItem()
                     {
-                    public IvoaScheduleOfferItem getPreparing()
-                        {
-                        return new IvoaScheduleOfferItem()
-                            {
-                            };
-                        };
-                    public IvoaScheduleOfferItem getExecuting()
-                        {
-                        return new IvoaScheduleOfferItem()
-                            {
-                            public String getStart()
-                                {
-                                // This gives us start/duration, which is easier to read than start/end.
-                                // TODO Create a common formatter class that we use everywhere.
-                                // public String format(Instant, Duration)
-                                return entity.getStartInstant().toString() + "/" + entity.getStartDuration().toString();
-                                }
-                            public String getDuration()
-                                {
-                                return entity.getExeDuration().toString();
-                                }
-                            };
-                        };
-                    public IvoaScheduleOfferItem getFinishing()
-                        {
-                        return new IvoaScheduleOfferItem()
-                            {
-                            };
-                        };
                     };
-                }
+                };
+            @Override
+            public IvoaScheduleOfferItem getExecuting()
+                {
+                return new IvoaScheduleOfferItem()
+                    {
+                    public String getStart()
+                        {
+                        // This gives us start/duration, which is easier to read than start/end.
+                        // TODO Create a common formatter class that we use everywhere.
+                        // public String format(Instant, Duration)
+                        // Only needed if the start time is an Interval.
+                        // return entity.getStartInstant().toString() + "/" + entity.getStartDuration().toString();
+                        return entity.getStartInstant().toString();
+                        }
+                    public String getDuration()
+                        {
+                        return entity.getExeDuration().toString();
+                        }
+                    };
+                };
+            @Override
+            public IvoaScheduleOfferItem getFinishing()
+                {
+                return new IvoaScheduleOfferItem()
+                    {
+                    };
+                };
             };
         }
 

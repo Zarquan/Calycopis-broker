@@ -284,35 +284,14 @@ public class ExecutionResponseFactoryImpl
                 offer.setExecutable(
                     context.getExecutable()
                     );
-/*
- * 
-                if (offer.getSchedule() == null)
-                    {
-                    offer.setSchedule(
-                        new IvoaStringScheduleBlock()
-                        );
-                    }
-                if (offer.getSchedule().getOffered() == null)
-                    {
-                    offer.getSchedule().setOffered(
-                        new IvoaStringScheduleBlockItem()
-                        );
-                    }
-                if (offer.getSchedule().getOffered().getExecuting() == null)
-                    {
-                    offer.getSchedule().getOffered().setExecuting(
-                        new IvoaStringScheduleBlockValue()
-                        );
-                    }
- *                 
- */
-                offer.getSchedule().getOffered().getExecuting().setStart(
+
+                offer.getSchedule().getExecuting().setStart(
                     OffsetDateTime.ofInstant(
                         block.getInstant(),
                         ZoneId.systemDefault()
                         ).toString()
                     );
-                offer.getSchedule().getOffered().getExecuting().setDuration(
+                offer.getSchedule().getExecuting().setDuration(
                     block.getDuration().toString()
                     );
 
