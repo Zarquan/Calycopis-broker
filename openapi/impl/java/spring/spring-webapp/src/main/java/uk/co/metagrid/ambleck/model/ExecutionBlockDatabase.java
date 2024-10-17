@@ -56,7 +56,7 @@ public interface ExecutionBlockDatabase
      * Generate a list of ExecutionBlock offers based on a ProcessingContext.
      *
      */
-    public List<ExecutionBlock> generate(final ProcessingContext context);
+    public List<ExecutionBlock> generate(final ProcessingContext<?> context);
 
     /**
      * Update any expired offers.

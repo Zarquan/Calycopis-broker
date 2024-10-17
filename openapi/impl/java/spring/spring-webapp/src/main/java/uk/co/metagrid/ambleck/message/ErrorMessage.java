@@ -25,9 +25,8 @@
 package uk.co.metagrid.ambleck.message;
 
 import java.util.Map;
-import java.time.OffsetDateTime;
 
-import uk.co.metagrid.ambleck.model.MessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 
 public class ErrorMessage extends MessageBase
     {
@@ -54,7 +53,7 @@ public class ErrorMessage extends MessageBase
     public ErrorMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(
-            MessageItem.LevelEnum.ERROR,
+            IvoaMessageItem.LevelEnum.ERROR,
             typeurl,
             template,
             params

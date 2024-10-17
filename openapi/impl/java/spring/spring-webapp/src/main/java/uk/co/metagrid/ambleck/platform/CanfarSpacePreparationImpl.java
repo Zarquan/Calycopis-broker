@@ -22,8 +22,6 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import java.time.Duration;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

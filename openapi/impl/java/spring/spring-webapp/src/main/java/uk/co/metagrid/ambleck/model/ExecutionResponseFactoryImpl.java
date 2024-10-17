@@ -22,41 +22,47 @@
  */
 package uk.co.metagrid.ambleck.model;
 
-import java.util.UUID;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.time.ZoneId;
-import java.time.OffsetDateTime;
-import java.time.Instant;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval ;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.OfferSetResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
-import uk.co.metagrid.ambleck.model.ExecutionResponse.StateEnum;
-
-//import uk.co.metagrid.ambleck.model.UpdateRequest;
-import uk.co.metagrid.ambleck.model.AbstractUpdate;
-import uk.co.metagrid.ambleck.model.EnumValueUpdate;
-
-import uk.co.metagrid.ambleck.message.DebugMessage;
-import uk.co.metagrid.ambleck.message.ErrorMessage;
-import uk.co.metagrid.ambleck.message.WarnMessage;
-import uk.co.metagrid.ambleck.message.InfoMessage;
-
-import uk.co.metagrid.ambleck.platform.Execution;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceCores;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
+import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
+import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockItem;
+import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockValue;
+import uk.co.metagrid.ambleck.message.ErrorMessage;
+import uk.co.metagrid.ambleck.message.InfoMessage;
+import uk.co.metagrid.ambleck.message.WarnMessage;
+import wtf.metio.storageunits.model.StorageUnit;
+import wtf.metio.storageunits.model.StorageUnits;
 
 @Slf4j
 @Component
@@ -130,7 +136,7 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public void create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final ProcessingContext<?> context)
+    public void create(final String baseurl, final IvoaOfferSetRequest request, final OfferSetAPI offerset, final ProcessingContext<?> context)
         {
         log.debug("Processing a new OfferSetRequest and OfferSetResponse");
         //
@@ -173,7 +179,7 @@ public class ExecutionResponseFactoryImpl
         if (request.getResources() == null)
             {
             request.setResources(
-                new ExecutionResourceList()
+                new IvoaExecutionResourceList()
                 );
             }
 
@@ -181,7 +187,7 @@ public class ExecutionResponseFactoryImpl
         // If there are no compute resources, add one.
         if (request.getResources().getCompute().size() < 1)
             {
-            SimpleComputeResource compute = new SimpleComputeResource(
+            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
                 "urn:simple-compute-resource"
                 );
             compute.setUuid(
@@ -194,12 +200,17 @@ public class ExecutionResponseFactoryImpl
                 compute
                 );
             }
+
         //
         // Validate our execution schedule.
+/*
+ * 
         validate(
             request.getSchedule(),
             context
             );
+ *         
+ */
         //
         // Validate our executable.
         validate(
@@ -214,7 +225,7 @@ public class ExecutionResponseFactoryImpl
             // Validate our data resources.
             if (request.getResources().getData() != null)
                 {
-                for (AbstractDataResource resource : request.getResources().getData())
+                for (IvoaAbstractDataResource resource : request.getResources().getData())
                     {
                     validate(
                         resource,
@@ -226,7 +237,7 @@ public class ExecutionResponseFactoryImpl
             // Validate our compute resources.
             if (request.getResources().getCompute() != null)
                 {
-                for (AbstractComputeResource resource : request.getResources().getCompute())
+                for (@Valid IvoaAbstractComputeResource resource : request.getResources().getCompute())
                     {
                     validate(
                         resource,
@@ -247,7 +258,7 @@ public class ExecutionResponseFactoryImpl
                 //
                 // Create an offer using the resources in our context.
                 ExecutionResponseImpl offer = new ExecutionResponseImpl(
-                    ExecutionResponse.StateEnum.OFFERED,
+                    IvoaExecutionSessionStatus.OFFERED,
                     baseurl,
                     context.getOfferSet(),
                     context.getExecution()
@@ -262,7 +273,7 @@ public class ExecutionResponseFactoryImpl
                     offerset.getUuid()
                     );
                 block.setState(
-                    ExecutionResponse.StateEnum.OFFERED
+                        IvoaExecutionSessionStatus.OFFERED
                     );
                 block.setExpiryTime(
                     offerset.getExpires().toInstant()
@@ -273,110 +284,95 @@ public class ExecutionResponseFactoryImpl
                 offer.setExecutable(
                     context.getExecutable()
                     );
-                if (offer.getSchedule() == null)
-                    {
-                    offer.setSchedule(
-                        new StringScheduleBlock()
-                        );
-                    }
-                if (offer.getSchedule().getOffered() == null)
-                    {
-                    offer.getSchedule().setOffered(
-                        new StringScheduleBlockItem()
-                        );
-                    }
-                if (offer.getSchedule().getOffered().getExecuting() == null)
-                    {
-                    offer.getSchedule().getOffered().setExecuting(
-                        new StringScheduleBlockValue()
-                        );
-                    }
-                offer.getSchedule().getOffered().getExecuting().setStart(
+
+                offer.getSchedule().getExecuting().setStart(
                     OffsetDateTime.ofInstant(
                         block.getInstant(),
                         ZoneId.systemDefault()
                         ).toString()
                     );
-                offer.getSchedule().getOffered().getExecuting().setDuration(
+                offer.getSchedule().getExecuting().setDuration(
                     block.getDuration().toString()
                     );
 
-                ExecutionResourceList resources = new ExecutionResourceList();
-                for (AbstractDataResource resource : context.getDataResourceList())
+                IvoaExecutionResourceList resources = new IvoaExecutionResourceList();
+                for (IvoaAbstractDataResource resource : context.getDataResourceList())
                     {
                     resources.addDataItem(
                         resource
                         );
                     }
-                for (AbstractComputeResource resource : context.getComputeResourceList())
+                for (IvoaAbstractComputeResource resource : context.getComputeResourceList())
                     {
                     // Transfer cores and memory from the offer.
                     // Data model shape mismatch.
                     // This assumes we only have one SimpleComputeResource.
-                    if (resource instanceof SimpleComputeResource)
+                    if (resource instanceof IvoaSimpleComputeResource)
                         {
-                        SimpleComputeResource simple = (SimpleComputeResource) resource ;
+                        IvoaSimpleComputeResource simple = (IvoaSimpleComputeResource) resource ;
                         // Offer the same minimum as the request.
                         block.setMinCores(
-                            simple.getCores().getMin()
+                            context.getMinCores()
                             );
                         // Offer twice the requested maximum IF that is still less than the block.
-                        if ((simple.getCores().getMax() * 2) < block.getMaxCores())
+                        if ((context.getMinCores() * 2) < block.getMaxCores())
                             {
                             block.setMaxCores(
-                                simple.getCores().getMax() * 2
+                                context.getMinCores() * 2
                                 );
                             }
                         // Offer the same minimum as the request.
                         block.setMinMemory(
-                            simple.getMemory().getMin()
+                            context.getMinMemory()
                             );
                         // Offer twice the requested maximum IF that is still less than the block.
-                        if ((simple.getMemory().getMax() * 2) < block.getMaxMemory())
+                        if ((context.getMinMemory() * 2) < block.getMaxMemory())
                             {
                             block.setMaxMemory(
-                                simple.getMemory().getMax() * 2
+                                context.getMinMemory() * 2
                                 );
                             }
-                        SimpleComputeResource result = new SimpleComputeResource(
+                        IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
                             "urn:simple-compute-resource"
                             );
-                        result.setUuid(
+                        compute.setUuid(
                             simple.getUuid()
                             );
-                        result.setName(
+                        compute.setName(
                             simple.getName()
                             );
-                        if (result.getCores() == null)
+                        if (compute.getCores() == null)
                             {
-                            result.setCores(
-                                new MinMaxInteger()
+                            compute.setCores(
+                                new IvoaComputeResourceCores()
                                 );
                             }
-                        result.getCores().setMin(
-                            block.getMinCores()
+                        compute.getCores().setRequested(
+                            simple.getCores().getRequested()
                             );
-                        result.getCores().setMax(
-                            block.getMaxCores()
+                        compute.getCores().setOffered(
+                            block.getMaxCores().longValue()
                             );
-                        if (result.getMemory() == null)
+                        if (compute.getMemory() == null)
                             {
-                            result.setMemory(
-                                new MinMaxInteger()
+                            compute.setMemory(
+                                new IvoaComputeResourceMemory()
                                 );
                             }
-                        result.getMemory().setMin(
-                            block.getMinMemory()
+                        compute.getMemory().setRequested(
+                            simple.getMemory().getRequested()
                             );
-                        result.getMemory().setMax(
-                            block.getMaxMemory()
+                        compute.getMemory().setOffered(
+                            StorageUnits.gibibyte(
+                                block.getMaxMemory()
+                                ).toString()
                             );
-                        result.setVolumes(
+                        compute.setVolumes(
                             simple.getVolumes()
                             );
                         // Add the SimpleComputeResource to our response.
                         resources.addComputeItem(
-                            result
+                            compute
                             );
                         // Add the ExecutionBlock to our database.
                         database.insert(
@@ -391,7 +387,7 @@ public class ExecutionResponseFactoryImpl
                     offer
                     );
                 offerset.setResult(
-                    OfferSetResponse.ResultEnum.YES
+                        IvoaOfferSetResponse.ResultEnum.YES
                     );
                 }
             }
@@ -404,14 +400,14 @@ public class ExecutionResponseFactoryImpl
      *
      */
     @Override
-    public ExecutionResponse update(final UUID uuid, final AbstractUpdate request)
+    public IvoaExecutionSessionResponse update(final UUID uuid, final IvoaAbstractUpdate request)
         {
         ExecutionResponseImpl response = this.select(uuid);
         if (response != null)
             {
             switch(request)
                 {
-                case EnumValueUpdate update :
+                case IvoaEnumValueUpdate update :
                     this.update(
                         response,
                         update
@@ -433,15 +429,15 @@ public class ExecutionResponseFactoryImpl
      * Update an Execution.
      *
      */
-    protected void update(final ExecutionResponseImpl response, final EnumValueUpdate update)
+    protected void update(final ExecutionResponseImpl response, final IvoaEnumValueUpdate update)
         {
         switch(update.getPath())
             {
             case "state" :
-                StateEnum currentstate = response.getState();
-                StateEnum updatestate  = currentstate;
+                IvoaExecutionSessionStatus currentstate = response.getState();
+                IvoaExecutionSessionStatus updatestate  = currentstate;
                 try {
-                    updatestate = StateEnum.fromValue(
+                    updatestate = IvoaExecutionSessionStatus.fromValue(
                         update.getValue()
                         );
                     }
@@ -460,17 +456,17 @@ public class ExecutionResponseFactoryImpl
                                 {
                                 case ACCEPTED:
                                     response.setState(
-                                        StateEnum.ACCEPTED
+                                        IvoaExecutionSessionStatus.ACCEPTED
                                         );
                                     response.getParent().setAccepted(
                                         response
                                         );
-                                    for (ExecutionResponse sibling : response.getParent().getOffers())
+                                    for (IvoaExecutionSessionResponse sibling : response.getParent().getOffers())
                                         {
                                         if (sibling != response)
                                             {
                                             sibling.setState(
-                                                StateEnum.REJECTED
+                                                IvoaExecutionSessionStatus.REJECTED
                                                 );
                                             }
                                         }
@@ -480,7 +476,7 @@ public class ExecutionResponseFactoryImpl
                                     break;
                                 case REJECTED:
                                     response.setState(
-                                        StateEnum.REJECTED
+                                        IvoaExecutionSessionStatus.REJECTED
                                         );
                                     database.reject(
                                         response.getUuid()
@@ -511,18 +507,18 @@ public class ExecutionResponseFactoryImpl
      * Validate an AbstractDataResource.
      *
      */
-    public void validate(final AbstractDataResource request, final ProcessingContext context)
+    public void validate(final IvoaAbstractDataResource request, final ProcessingContext<?> context)
         {
         switch(request)
             {
-            case SimpleDataResource simple :
+            case IvoaSimpleDataResource simple :
                 validate(
                     simple,
                     context
                     );
                 break;
 
-            case S3DataResource s3 :
+            case IvoaS3DataResource s3 :
                 validate(
                     s3,
                     context
@@ -548,10 +544,10 @@ public class ExecutionResponseFactoryImpl
      * Validate a SimpleDataResource.
      *
      */
-    public void validate(final SimpleDataResource request, final ProcessingContext<?> context)
+    public void validate(final IvoaSimpleDataResource request, final ProcessingContext<?> context)
         {
         // Create a new DataResource.
-        SimpleDataResource result = new SimpleDataResource(
+        IvoaSimpleDataResource result = new IvoaSimpleDataResource(
             "urn:simple-data-resource"
             );
         if (request.getUuid() != null)
@@ -605,11 +601,11 @@ public class ExecutionResponseFactoryImpl
      * Validate a S3DataResource.
      *
      */
-    public void validate(final S3DataResource request, final ProcessingContext<?> context)
+    public void validate(final IvoaS3DataResource request, final ProcessingContext<?> context)
         {
         // Create a new DataResource.
-        SimpleDataResource result = new SimpleDataResource(
-            "urn:simple-data-resource"
+        IvoaS3DataResource result = new IvoaS3DataResource(
+            "urn:s3-data-resource"
             );
         if (request.getUuid() != null)
             {
@@ -638,11 +634,11 @@ public class ExecutionResponseFactoryImpl
      * Validate an AbstractComputeResource.
      *
      */
-    public void validate(final AbstractComputeResource request, final ProcessingContext<?> context)
+    public void validate(final IvoaAbstractComputeResource request, final ProcessingContext<?> context)
         {
         switch(request)
             {
-            case SimpleComputeResource simple :
+            case IvoaSimpleComputeResource simple :
                 validate(
                     simple,
                     context
@@ -668,9 +664,9 @@ public class ExecutionResponseFactoryImpl
      * Validate a SimpleComputeResource.
      *
      */
-    public void validate(final SimpleComputeResource request, final ProcessingContext<?> context)
+    public void validate(final IvoaSimpleComputeResource request, final ProcessingContext<?> context)
         {
-        SimpleComputeResource result = new SimpleComputeResource(
+        IvoaSimpleComputeResource result = new IvoaSimpleComputeResource(
             "urn:simple-compute-resource"
             );
         if (request.getUuid() != null)
@@ -689,49 +685,33 @@ public class ExecutionResponseFactoryImpl
             );
         //
         // Validate the compute resource itself.
-        Integer mincores = null ;
-        Integer maxcores = null ;
-        Integer MIN_CORES_DEFAULT = 1 ;
-        Integer MAX_CORES_LIMIT = 16 ;
-
-        String coreunits = null;
-        String DEFAULT_CORE_UNITS = "cores" ;
+        Long MIN_CORES_DEFAULT = 1L ;
+        Long MAX_CORES_LIMIT   = 16L ;
+        Long mincores = MIN_CORES_DEFAULT;
 
         if (request.getCores() != null)
             {
-            mincores  = request.getCores().getMin();
-            maxcores  = request.getCores().getMax();
-            coreunits = request.getCores().getUnits();
-            }
-        if (coreunits == null)
-            {
-            coreunits = DEFAULT_CORE_UNITS;
-            }
-        if (DEFAULT_CORE_UNITS.equals(coreunits) == false)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] unknown core units [${coreunits}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "coreunits",
-                        safeString(coreunits)
-                        )
-                    )
-                );
-            context.fail();
-            }
-
-        if (mincores == null)
-            {
-            mincores = MIN_CORES_DEFAULT;
-            }
-        if (maxcores == null)
-            {
-            maxcores = mincores;
+            if (request.getCores().getRequested() != null)
+                {
+                mincores  = request.getCores().getRequested();
+                }
+            if (request.getCores().getOffered() != null)
+                {
+                context.addMessage(
+                    new InfoMessage(
+                        "Compute resource [${name}][${uuid}] offered cores should not be set [${offered}]",
+                            Map.of(
+                                "name",
+                                safeString(request.getName()),
+                                "uuid",
+                                safeString(request.getUuid()),
+                                "offered",
+                                safeString(request.getCores().getOffered())
+                                )
+                            )
+                    );
+                context.fail();
+                }
             }
         if (mincores > MAX_CORES_LIMIT)
             {
@@ -752,181 +732,97 @@ public class ExecutionResponseFactoryImpl
                 );
             context.fail();
             }
-        if (maxcores > MAX_CORES_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] maximum cores exceeds available resources [${maxcores}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "maxcores",
-                        safeString(maxcores),
-                        "limit",
-                        safeString(MAX_CORES_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (mincores > maxcores)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum cores exceeds maximum [${mincores}][${maxcores}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "mincores",
-                        safeString(mincores),
-                        "maxcores",
-                        safeString(maxcores)
-                        )
-                    )
-                );
-            context.fail();
-            }
         result.setCores(
-            new MinMaxInteger()
+            new IvoaComputeResourceCores()
             );
-        result.getCores().setMin(
+        result.getCores().setRequested(
             mincores
-            );
-        result.getCores().setMax(
-            maxcores
-            );
-        result.getCores().setUnits(
-            coreunits
             );
         context.addMinCores(
-            mincores
-            );
-        context.addMaxCores(
-            maxcores
+            mincores.intValue()
             );
 
-        Integer minmemory = null ;
-        Integer maxmemory = null ;
-        Integer MIN_MEMORY_DEFAULT = 1 ;
-        Integer MAX_MEMORY_LIMIT = 16 ;
-
-        String memoryunits = null;
-        String DEFAULT_MEMORY_UNITS = "GiB" ;
+        StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
+        StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
+        StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
 
         if (request.getMemory() != null)
             {
-            minmemory   = request.getMemory().getMin();
-            maxmemory   = request.getMemory().getMax();
-            memoryunits = request.getMemory().getUnits();
+            if (request.getMemory().getRequested() != null)
+                {
+                try {
+                    minmemory = StorageUnits.parse(
+                        request.getMemory().getRequested()
+                        );
+                    }
+                catch (NumberFormatException ouch)
+                    {
+                    context.addMessage(
+                        new InfoMessage(
+                            "Compute resource [${name}][${uuid}] requested memory is invalid [${requested}]",
+                                Map.of(
+                                    "name",
+                                    safeString(request.getName()),
+                                    "uuid",
+                                    safeString(request.getUuid()),
+                                    "requested",
+                                    safeString(request.getMemory().getRequested())
+                                    )
+                                )
+                        );
+                    context.fail();
+                    }
+                }
+
+            if (request.getMemory().getOffered() != null)
+                {
+                context.addMessage(
+                    new InfoMessage(
+                        "Compute resource [${name}][${uuid}] offered memory should not be set [${offered}]",
+                            Map.of(
+                                "name",
+                                safeString(request.getName()),
+                                "uuid",
+                                safeString(request.getUuid()),
+                                "offered",
+                                safeString(request.getMemory().getOffered())
+                                )
+                            )
+                    );
+                context.fail();
+                }
             }
-        if (memoryunits == null)
-            {
-            memoryunits = DEFAULT_MEMORY_UNITS;
-            }
-        if (DEFAULT_MEMORY_UNITS.equals(memoryunits) == false)
+
+        if (minmemory.compareTo(MAX_MEMORY_LIMIT) > 0)
             {
             context.addMessage(
                 new InfoMessage(
-                    "Compute resource [${name}][${uuid}] unknown memory units [${memoryunits}]",
+                    "Compute resource [${name}][${uuid}] requested memory exceeds available resources [${requested}][${limit}]",
                     Map.of(
                         "name",
                         safeString(request.getName()),
                         "uuid",
                         safeString(request.getUuid()),
-                        "memoryunits",
-                        safeString(memoryunits)
+                        "requested",
+                        safeString(minmemory),
+                        "limit",
+                        safeString(MAX_MEMORY_LIMIT)
                         )
                     )
                 );
             context.fail();
             }
 
-        if (minmemory == null)
-            {
-            minmemory = MIN_MEMORY_DEFAULT;
-            }
-        if (maxmemory == null)
-            {
-            maxmemory = minmemory;
-            }
-        if (minmemory > MAX_MEMORY_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum memory exceeds available resources [${minmemory}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "minmemory",
-                        safeString(minmemory),
-                        "limit",
-                        safeString(MAX_MEMORY_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (maxmemory > MAX_MEMORY_LIMIT)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] maximum memory exceeds available resources [${maxmemory}][${limit}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "maxmemory",
-                        safeString(maxmemory),
-                        "limit",
-                        safeString(MAX_MEMORY_LIMIT)
-                        )
-                    )
-                );
-            context.fail();
-            }
-        if (minmemory > maxmemory)
-            {
-            context.addMessage(
-                new InfoMessage(
-                    "Compute resource [${name}][${uuid}] minimum memory exceeds maximum [${minmemory}][${maxmemory}]",
-                    Map.of(
-                        "name",
-                        safeString(request.getName()),
-                        "uuid",
-                        safeString(request.getUuid()),
-                        "minmemory",
-                        safeString(minmemory),
-                        "maxmemory",
-                        safeString(maxmemory)
-                        )
-                    )
-                );
-            context.fail();
-            }
         result.setMemory(
-            new MinMaxInteger()
+            new IvoaComputeResourceMemory()
             );
-        result.getMemory().setMin(
-            minmemory
+        result.getMemory().setRequested(
+            minmemory.asGibibyte().toString()
             );
-        result.getMemory().setMax(
-            maxmemory
-            );
-        result.getMemory().setUnits(
-            memoryunits
-            );
+        // TODO Change context to use StorageUnit
+        // TODO Change context to use bytes.
         context.addMinMemory(
-            minmemory
-            );
-        context.addMaxMemory(
-            maxmemory
+            minmemory.inGibibyte().intValueExact()
             );
 
         //
@@ -935,10 +831,10 @@ public class ExecutionResponseFactoryImpl
 
         //
         // Process the volume mounts.
-        for (ComputeResourceVolume oldvolume : request.getVolumes())
+        for (IvoaComputeResourceVolume oldvolume : request.getVolumes())
             {
             // Create a new volume
-            ComputeResourceVolume newvolume = new ComputeResourceVolume();
+            IvoaComputeResourceVolume newvolume = new IvoaComputeResourceVolume();
             if (oldvolume.getUuid() != null)
                 {
                 newvolume.setUuid(
@@ -985,7 +881,7 @@ public class ExecutionResponseFactoryImpl
                     );
                 }
 
-            AbstractDataResource found = context.findDataResource(
+            IvoaAbstractDataResource found = context.findDataResource(
                 oldvolume.getResource()
                 );
             if (found != null)
@@ -1043,11 +939,11 @@ public class ExecutionResponseFactoryImpl
      * Validate an AbstractExecutable.
      *
      */
-    public void validate(final AbstractExecutable request, final ProcessingContext<?> context)
+    public void validate(final IvoaAbstractExecutable request, final ProcessingContext<?> context)
         {
         switch(request)
             {
-            case JupyterNotebook01 jupyter:
+            case IvoaJupyterNotebook jupyter:
                 validate(
                     jupyter,
                     context
@@ -1073,10 +969,10 @@ public class ExecutionResponseFactoryImpl
      * Validate a JupyterNotebook Executable.
      *
      */
-    public void validate(final JupyterNotebook01 request, final ProcessingContext<?> context)
+    public void validate(final IvoaJupyterNotebook request, final ProcessingContext<?> context)
         {
         log.debug("Validating a JupyterNotebook request [{}]", request.getName());
-        JupyterNotebook01 result = new JupyterNotebook01(
+        IvoaJupyterNotebook result = new IvoaJupyterNotebook(
             "urn:jupyter-notebook-0.1"
             );
         result.setUuid(
@@ -1122,7 +1018,7 @@ public class ExecutionResponseFactoryImpl
      * Validate the Execution Schedule.
      * TODO Move this to the time classes.
      */
-    public void validate(final StringScheduleBlock schedule, final ProcessingContext<?> context)
+    public void validate(final IvoaStringScheduleBlock schedule, final ProcessingContext<?> context)
         {
         log.debug("Processing StringScheduleBlock");
         if (schedule != null)
@@ -1133,10 +1029,10 @@ public class ExecutionResponseFactoryImpl
             // Check the observed section is empty.
             // ....
 
-            StringScheduleBlockItem requested = schedule.getRequested();
+            IvoaStringScheduleBlockItem requested = schedule.getRequested();
             if (requested != null);
                 {
-                StringScheduleBlockValue preparing = requested.getPreparing();
+                IvoaStringScheduleBlockValue preparing = requested.getPreparing();
                 if (preparing != null)
                     {
                     Interval prepstart = null;
@@ -1196,7 +1092,7 @@ public class ExecutionResponseFactoryImpl
                         );
                     }
 
-                StringScheduleBlockValue executing = requested.getExecuting();
+                IvoaStringScheduleBlockValue executing = requested.getExecuting();
                 if (executing != null)
                     {
                     Interval execstart = null;

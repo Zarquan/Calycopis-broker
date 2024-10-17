@@ -25,7 +25,7 @@ package uk.co.metagrid.ambleck.webapp;
 import java.util.Optional;
 
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.context.request.ServletWebRequest;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -111,7 +111,6 @@ public class BaseDelegateImpl
      */
     public String getBaseUrl()
         {
-        String servletpath = this.getServletPath();
         String contextpath = this.getContextPath();
         String requestURL  = this.getRequestURL();
         String requestURI  = this.getRequestURI();

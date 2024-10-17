@@ -24,21 +24,18 @@ package uk.co.metagrid.ambleck.webapp;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Component;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.webapp.SystemApiDelegate;
 import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
 import uk.co.metagrid.ambleck.platform.ExecutionManager;
-import uk.co.metagrid.ambleck.platform.PreparationStep.StateEnum;
 
 @Service
-@ComponentScan("uk.co.metagrid.ambleck")
 public class SystemApiDelegateImpl
     extends BaseDelegateImpl
     implements SystemApiDelegate
@@ -91,14 +88,14 @@ public class SystemApiDelegateImpl
 
 
     @Override
-    public ResponseEntity<ExecutionResponse> stepUpdate(final UUID uuid)
+    public ResponseEntity<IvoaExecutionSessionResponse> stepUpdate(final UUID uuid)
         {
-        ExecutionResponse response = manager.advance(
+        IvoaExecutionSessionResponse response = manager.advance(
             uuid
             );
         if (null != response)
             {
-            return new ResponseEntity<ExecutionResponse>(
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
                 response,
                 HttpStatus.OK
                 );

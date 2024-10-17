@@ -24,15 +24,13 @@ package uk.co.metagrid.ambleck.platform;
 
 import java.util.Map;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.AbstractExecutable;
-import uk.co.metagrid.ambleck.model.ProcessingContextImpl;
-import uk.co.metagrid.ambleck.model.JupyterNotebook01;
-
-import uk.co.metagrid.ambleck.message.WarnMessage;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import uk.co.metagrid.ambleck.message.WarnMessage;
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
+import uk.co.metagrid.ambleck.model.ProcessingContextImpl;
 
 @Slf4j
 public class CanfarProcessingContextImpl
@@ -42,7 +40,7 @@ public class CanfarProcessingContextImpl
 
     private CanfarPreparationStepFactory stepory ;
 
-    public CanfarProcessingContextImpl(final CanfarPreparationStepFactory stepory, final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset, final CanfarExecution execution)
+    public CanfarProcessingContextImpl(final CanfarPreparationStepFactory stepory, final String baseurl, final IvoaOfferSetRequest request, final OfferSetAPI offerset, final CanfarExecution execution)
         {
         super(
             baseurl,
@@ -59,13 +57,13 @@ public class CanfarProcessingContextImpl
         stepory.createSpacePreparationStep(this.execution);
         }
 
-    public void setExecutable(final AbstractExecutable executable)
+    public void setExecutable(final IvoaAbstractExecutable executable)
         {
         super.setExecutable(executable);
         log.debug("setExecutable [{}][{}]", executable.getType(), executable.getUuid());
         switch(executable)
             {
-            case JupyterNotebook01 config:
+            case IvoaJupyterNotebook config:
                 stepory.createNotebookPreparationStep(
                     this.execution,
                     config

@@ -37,7 +37,7 @@
 	<name>Calycopis webapp</name>
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
-		<java.version>22</java.version>
+		<java.version>21</java.version>
         <lombok.version>1.18.34</lombok.version>
 	</properties>
 	<dependencies>
@@ -211,6 +211,12 @@
             <artifactId>commons-text</artifactId>
             <version>1.12.0</version>
         </dependency>
+
+    	<dependency>
+        	<groupId>wtf.metio.storage-units</groupId>
+        	<artifactId>storage-units-model</artifactId>
+        	<version>2023.12.20</version>
+    	</dependency>
 
         <!--+
             | Dependencies from Ambleck.

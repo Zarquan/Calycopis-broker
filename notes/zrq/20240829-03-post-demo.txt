@@ -177,24 +177,22 @@ EOF
     | tee '/tmp/createresponse.yaml' \
     | yq '.offers[].schedule'
 
---START--
-offered:
-  executing:
-    start: "2024-08-30T14:15Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-30T15:15Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-30T16:15Z"
-    duration: "PT1H"
-offered:
-  executing:
-    start: "2024-08-30T17:15Z"
-    duration: "PT1H"
---END--
+    >   offered:
+    >     executing:
+    >       start: "2024-08-30T14:15Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-30T15:15Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-30T16:15Z"
+    >       duration: "PT1H"
+    >   offered:
+    >     executing:
+    >       start: "2024-08-30T17:15Z"
+    >       duration: "PT1H"
 
 
 # -----------------------------------------------------
@@ -212,32 +210,30 @@ offered:
         "${offerseturl}" \
     | yq '.offers[] | {"state":.state, "schedule":.schedule}'
 
---START--
-state: "OFFERED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T14:15Z"
-      duration: "PT1H"
-state: "OFFERED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T15:15Z"
-      duration: "PT1H"
-state: "OFFERED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T16:15Z"
-      duration: "PT1H"
-state: "OFFERED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T17:15Z"
-      duration: "PT1H"
---END--
+    >   state: "OFFERED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T14:15Z"
+    >         duration: "PT1H"
+    >   state: "OFFERED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T15:15Z"
+    >         duration: "PT1H"
+    >   state: "OFFERED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T16:15Z"
+    >         duration: "PT1H"
+    >   state: "OFFERED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T17:15Z"
+    >         duration: "PT1H"
 
 
 # -----------------------------------------------------
@@ -266,15 +262,13 @@ EOF
     | tee '/tmp/updateresponse.yaml' \
     | yq '{"uuid":.uuid, "state":.state, "schedule":.schedule}'
 
---START--
-uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
-state: "ACCEPTED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T14:15Z"
-      duration: "PT1H"
---END--
+    >   uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T14:15Z"
+    >         duration: "PT1H"
 
 
 # -----------------------------------------------------
@@ -292,36 +286,34 @@ schedule:
         "${offerseturl}" \
     | yq '.offers[] | {"uuid":.uuid, "state":.state, "schedule":.schedule}'
 
---START--
-uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
-state: "ACCEPTED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T14:15Z"
-      duration: "PT1H"
-uuid: "fc4ec1ab-66d9-11ef-8bcd-9fd5464b7261"
-state: "REJECTED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T15:15Z"
-      duration: "PT1H"
-uuid: "fc4ee8bc-66d9-11ef-8bcd-9fd5464b7261"
-state: "REJECTED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T16:15Z"
-      duration: "PT1H"
-uuid: "fc4f0fcd-66d9-11ef-8bcd-9fd5464b7261"
-state: "REJECTED"
-schedule:
-  offered:
-    executing:
-      start: "2024-08-30T17:15Z"
-      duration: "PT1H"
---END--
+    >   uuid: "fc4db03a-66d9-11ef-8bcd-9fd5464b7261"
+    >   state: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T14:15Z"
+    >         duration: "PT1H"
+    >   uuid: "fc4ec1ab-66d9-11ef-8bcd-9fd5464b7261"
+    >   state: "REJECTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T15:15Z"
+    >         duration: "PT1H"
+    >   uuid: "fc4ee8bc-66d9-11ef-8bcd-9fd5464b7261"
+    >   state: "REJECTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T16:15Z"
+    >         duration: "PT1H"
+    >   uuid: "fc4f0fcd-66d9-11ef-8bcd-9fd5464b7261"
+    >   state: "REJECTED"
+    >   schedule:
+    >     offered:
+    >       executing:
+    >         start: "2024-08-30T17:15Z"
+    >         duration: "PT1H"
 
 
 # -----------------------------------------------------
@@ -341,8 +333,6 @@ schedule:
         "${stephref}" \
     | yq '.'
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 

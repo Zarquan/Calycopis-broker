@@ -21,7 +21,6 @@
     | </meta:header>
     |
     +-->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -38,8 +37,12 @@
 	<name>Calycopis OpenAPI</name>
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
-		<java.version>22</java.version>
-        <schema.yaml>${project.basedir}/ivoa/openapi-0.8.yaml</schema.yaml>
+		<java.version>21</java.version>
+		<!--+
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+            +-->
+        <schema.yaml>${project.basedir}/ivoa/openapi-0.9.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+
@@ -171,17 +174,17 @@
                                 ${schema.yaml}
                             </inputSpec>
                             <generatorName>spring</generatorName>
-                            <apiPackage>uk.co.metagrid.ambleck.webapp</apiPackage>
-                            <modelPackage>uk.co.metagrid.ambleck.model</modelPackage>
-                            <supportingFilesToGenerate>
-                                ApiUtil.java
-                            </supportingFilesToGenerate>
+                            <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>
+                            <modelNamePrefix>Ivoa</modelNamePrefix>
+                            <modelPackage>net.ivoa.calycopis.openapi.model</modelPackage>
                             <configOptions>
                                 <withXml>true</withXml>
                                 <delegatePattern>true</delegatePattern>
+                                <!--legacyDiscriminatorBehavior>true</legacyDiscriminatorBehavior-->
                                 <additionalModelTypeAnnotations>
                                     @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
                                 </additionalModelTypeAnnotations>
+                                <templateDirectory>${project.basedir}/openapi-generator-templates</templateDirectory>
                             </configOptions>
                         </configuration>
                     </execution>

@@ -24,7 +24,7 @@ package uk.co.metagrid.ambleck.platform;
 
 import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.ExecutionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
 /**
  * Public interface for an Execution manager.
@@ -39,7 +39,7 @@ public interface ExecutionManager
      * Advance the state of an Execution.
      *
      */
-    public ExecutionResponse advance(final UUID uuid);
+    public IvoaExecutionSessionResponse advance(final UUID uuid);
 
     }
 

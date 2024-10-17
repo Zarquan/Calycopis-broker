@@ -21,8 +21,8 @@
 
 
 -- Create our database table.
-DROP TABLE IF EXISTS ExecutionBlocks;
-CREATE TABLE ExecutionBlocks(
+DROP TABLE IF EXISTS OldExecutionBlocks;
+CREATE TABLE OldExecutionBlocks(
     Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     OfferUuid UUID,
     ParentUuid UUID,
@@ -39,8 +39,8 @@ CREATE TABLE ExecutionBlocks(
 -- SELECT * FROM ExecutionBlocks ;
 
 -- https://stackoverflow.com/a/39394592
-DROP VIEW IF EXISTS BlocksView ;
-CREATE VIEW BlocksView AS
+DROP VIEW IF EXISTS OldBlocksView ;
+CREATE VIEW OldBlocksView AS
     (
     SELECT
         Ident,
@@ -63,7 +63,7 @@ CREATE VIEW BlocksView AS
         MinMemory,
         MaxMemory
     FROM
-        ExecutionBlocks
+        OldExecutionBlocks
     );
 
 -- SELECT * FROM BlocksView ;

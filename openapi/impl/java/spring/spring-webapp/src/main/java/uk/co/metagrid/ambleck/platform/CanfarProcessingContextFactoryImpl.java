@@ -22,15 +22,13 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import uk.co.metagrid.ambleck.model.FactoryBase;
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.model.OfferSetRequest;
-import uk.co.metagrid.ambleck.model.ExecutionResponseAPI;
+import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import uk.co.metagrid.ambleck.model.FactoryBase;
+import uk.co.metagrid.ambleck.model.OfferSetAPI;
 
 @Slf4j
 @Component
@@ -47,7 +45,7 @@ public class CanfarProcessingContextFactoryImpl
         this.stepory = stepory ;
         }
 
-    public CanfarProcessingContext create(final String baseurl, final OfferSetRequest request, final OfferSetAPI offerset)
+    public CanfarProcessingContext create(final String baseurl, final IvoaOfferSetRequest request, final OfferSetAPI offerset)
         {
         return new CanfarProcessingContextImpl(
             stepory,

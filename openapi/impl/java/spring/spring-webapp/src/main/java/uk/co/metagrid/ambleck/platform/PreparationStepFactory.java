@@ -31,7 +31,7 @@ public interface PreparationStepFactory
      * Used by callbacks to locate theirt target.
      *
      */
-    public PreparationStep select(final UUID uuid);
+    public PreparationStep<?> select(final UUID uuid);
 
     }
 

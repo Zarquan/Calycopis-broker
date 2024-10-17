@@ -30,16 +30,19 @@ server:
 logging:
     level:
         com.baeldung: INFO
-        org: INFO
+        net.ivoa: DEBUG
+        uk.co.metagrid: DEBUG
+        org.hibernate: INFO
         org.apache.tomcat: INFO
         org.apache.catalina: INFO
-        org.hibernate: DEBUG
         org.springframework: INFO
-        org.springframework.controllers: DEBUG
 
 spring:
     application:
         name: Ambleck
+    mvc:
+        # https://stackoverflow.com/a/55679297
+        log-request-details: true
     # https://www.baeldung.com/spring-boot-h2-database
     # https://stackoverflow.com/a/38047021
     datasource:
@@ -49,9 +52,11 @@ spring:
         driverClassName: org.h2.Driver
         initialize: true
     jpa:
-        database-platform: org.hibernate.dialect.H2Dialect
+        # https://medium.com/@hweemyoung/when-hibernate-dialect-not-working-d2c1eca549e3
+        #database-platform: org.hibernate.dialect.H2Dialect
         hibernate:
-          ddl-auto: none
+          ddl-auto: create
+
     h2:
         console:
             enabled: true

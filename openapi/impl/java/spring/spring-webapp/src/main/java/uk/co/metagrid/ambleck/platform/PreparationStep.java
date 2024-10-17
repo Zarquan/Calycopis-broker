@@ -30,7 +30,7 @@ import java.time.Duration;
  * Public interface representing a step needed to prepare an Execution session.
  *
  */
-public interface PreparationStep<ParentType extends Execution>
+public interface PreparationStep<ParentType extends Execution<?>>
     extends Runnable
     {
     public UUID getUuid();
@@ -50,13 +50,13 @@ public interface PreparationStep<ParentType extends Execution>
      * Get the next step in the sequence.
      *
      */
-    public PreparationStep getNextStep();
+    public PreparationStep<?> getNextStep();
 
     /**
      * Set the next step in the sequence.
      *
      */
-    public void setNextStep(final PreparationStep nextStep);
+    public void setNextStep(final PreparationStep<?> nextStep);
 
     /**
      * The cost in time to prepare this step.

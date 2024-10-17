@@ -1,0 +1,788 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Move the main business logic into JPA entities in Hibernate.
+        Add persistent classes to implement the resource configuration steps.
+
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Launch a container to work in.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --publish 8082:8082 \
+                --name spring-builder \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                --volume "$(pwd)/impl/java/spring:/spring:rw,z" \
+                ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+                bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Generate the Java classes and run our webapp.
+#[root@spring-builder]
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Connect to the H2 console in a browser.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        'http://localhost:8082/h2-console/' \
+        &
+
+    jdbc: jdbc:h2:mem:testdb
+    user: sa
+    pass: password
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our webapp in a second terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offerset' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T08:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T10:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T12:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T14:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T09:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T11:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T13:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T15:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 6
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T16:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T18:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T20:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-10-15T22:15:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+
+    offersethref=$(
+        yq '.href' \
+            '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref:?}" \
+    | tee '/tmp/selectresponse.yaml' \
+    | yq '.'
+
+--START--
+uuid: "bff02559-ff7f-41e8-a983-452a951482e2"
+href: "http://127.0.0.1:8082/offerset/bff02559-ff7f-41e8-a983-452a951482e2"
+name: "Test request"
+created: "2024-10-15T08:24:33.061132Z"
+messages:
+  - type: "urn:debug"
+    time: "2024-10-15T08:24:36.490366Z"
+    level: "DEBUG"
+    template: "OfferSetEntity select(UUID)"
+  - type: "urn:debug"
+    time: "2024-10-15T08:30:23.345187Z"
+    level: "DEBUG"
+    template: "OfferSetEntity select(UUID)"
+  - type: "urn:debug"
+    time: "2024-10-15T08:30:36.955516132Z"
+    level: "DEBUG"
+    template: "OfferSetEntity select(UUID)"
+result: "NO"
+expires: "2024-10-15T13:24:33.061195Z"
+offers:
+  - type: "urn:generic-execution"
+    uuid: "e453393e-8e7b-4f90-9c93-7b223c9eb498"
+    href: "http://127.0.0.1:8082/executions/e453393e-8e7b-4f90-9c93-7b223c9eb498"
+    offerset:
+      uuid: "bff02559-ff7f-41e8-a983-452a951482e2"
+      href: "http://127.0.0.1:8082/offerset/bff02559-ff7f-41e8-a983-452a951482e2"
+    state: "OFFERED"
+    expires: "2024-10-15T13:24:33.061195Z"
+    executable:
+      type: "JupyterNotebookBean"
+      uuid: "1890c231-e70a-4600-a8ad-67d9453b3cad"
+      href: "http://127.0.0.1:8082/executables/1890c231-e70a-4600-a8ad-67d9453b3cad"
+      name: "Test executable"
+      created: "2024-10-15T08:24:36.267208Z"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "920bdd2c-ef14-4eac-adc4-b5b74a0107db"
+          href: "http://127.0.0.1:8082/simple-compute/920bdd2c-ef14-4eac-adc4-b5b74a0107db"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-10-15T08:25:00Z"
+      finishing: {}
+  - type: "urn:generic-execution"
+    uuid: "2422032c-4652-4316-81db-4704574537cd"
+    href: "http://127.0.0.1:8082/executions/2422032c-4652-4316-81db-4704574537cd"
+    offerset:
+      uuid: "bff02559-ff7f-41e8-a983-452a951482e2"
+      href: "http://127.0.0.1:8082/offerset/bff02559-ff7f-41e8-a983-452a951482e2"
+    state: "OFFERED"
+    expires: "2024-10-15T13:24:33.061195Z"
+    executable:
+      type: "JupyterNotebookBean"
+      uuid: "e82d43d6-eaa7-45b0-b191-24401fd9bf91"
+      href: "http://127.0.0.1:8082/executables/e82d43d6-eaa7-45b0-b191-24401fd9bf91"
+      name: "Test executable"
+      created: "2024-10-15T08:24:36.285679Z"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "aecb1ffe-a53d-4d77-be44-5cda9891a598"
+          href: "http://127.0.0.1:8082/simple-compute/aecb1ffe-a53d-4d77-be44-5cda9891a598"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-10-15T10:25:00Z"
+      finishing: {}
+  - type: "urn:generic-execution"
+    uuid: "63a991ba-a97f-40a0-b70c-7615a1fad4b9"
+    href: "http://127.0.0.1:8082/executions/63a991ba-a97f-40a0-b70c-7615a1fad4b9"
+    offerset:
+      uuid: "bff02559-ff7f-41e8-a983-452a951482e2"
+      href: "http://127.0.0.1:8082/offerset/bff02559-ff7f-41e8-a983-452a951482e2"
+    state: "OFFERED"
+    expires: "2024-10-15T13:24:33.061195Z"
+    executable:
+      type: "JupyterNotebookBean"
+      uuid: "61f669d5-09e8-4d7d-800f-5864e565fa0d"
+      href: "http://127.0.0.1:8082/executables/61f669d5-09e8-4d7d-800f-5864e565fa0d"
+      name: "Test executable"
+      created: "2024-10-15T08:24:36.301964Z"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "afe8cb34-c239-4cb2-88d5-275c376ca332"
+          href: "http://127.0.0.1:8082/simple-compute/afe8cb34-c239-4cb2-88d5-275c376ca332"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-10-15T12:25:00Z"
+      finishing: {}
+  - type: "urn:generic-execution"
+    uuid: "649bae0b-1032-4c28-8a08-a4ffa3259a6b"
+    href: "http://127.0.0.1:8082/executions/649bae0b-1032-4c28-8a08-a4ffa3259a6b"
+    offerset:
+      uuid: "bff02559-ff7f-41e8-a983-452a951482e2"
+      href: "http://127.0.0.1:8082/offerset/bff02559-ff7f-41e8-a983-452a951482e2"
+    state: "OFFERED"
+    expires: "2024-10-15T13:24:33.061195Z"
+    executable:
+      type: "JupyterNotebookBean"
+      uuid: "5608fba7-0374-47d3-8a47-6e26c3964da0"
+      href: "http://127.0.0.1:8082/executables/5608fba7-0374-47d3-8a47-6e26c3964da0"
+      name: "Test executable"
+      created: "2024-10-15T08:24:36.319197Z"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "63fdbb74-b51e-40a6-a1e4-fc9dc588c960"
+          href: "http://127.0.0.1:8082/simple-compute/63fdbb74-b51e-40a6-a1e4-fc9dc588c960"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-10-15T14:25:00Z"
+      finishing: {}
+--END--
+
+
+    offeredhref=$(
+        yq '.offers[0].href' \
+            '/tmp/createresponse.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offeredhref:?}" \
+    | tee '/tmp/selectresponse.yaml' \
+    | yq '.'
+
+--START--
+timestamp: "2024-10-15T08:32:35.914+00:00"
+status: 404
+error: "Not Found"
+path: "/executions/e453393e-8e7b-4f90-9c93-7b223c9eb498"
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
+--START--
+offers:
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T12:20:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T14:20:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T16:20:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+  - schedule:
+      duration: "PT1H"
+      start: "2024-10-15T18:20:00Z"
+    compute:
+      - cores:
+          requested: 6
+          offered: 12
+        memory:
+          requested: "1.00 GiB"
+          offered: "2.00 GiB"
+--END--
+
+
+    offeredhref=$(
+        yq '.offers[0].href' \
+            '/tmp/createresponse.yaml'
+        )
+
+    echo "href [${offeredhref}]"
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offeredhref:?}" \
+    | tee '/tmp/selectresponse.yaml' \
+    | yq '.'
+
+--START--
+type: "urn:generic-execution"
+uuid: "85478815-ce36-4482-8e20-ade49ec0f0a9"
+href: "http://127.0.0.1:8082/executions/85478815-ce36-4482-8e20-ade49ec0f0a9"
+offerset:
+  uuid: "e37e40c2-03ee-4077-beb1-7f2ce252775e"
+  href: "http://127.0.0.1:8082/offersets/e37e40c2-03ee-4077-beb1-7f2ce252775e"
+state: "OFFERED"
+expires: "2024-10-15T17:18:32.201865Z"
+executable:
+  type: "JupyterNotebookBean"
+  uuid: "cae69cc0-ccde-4ad8-9bf3-4273caaeb1b0"
+  href: "http://127.0.0.1:8082/executables/cae69cc0-ccde-4ad8-9bf3-4273caaeb1b0"
+  name: "Test executable"
+  created: "2024-10-15T12:18:35.421241Z"
+  notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+resources:
+  compute:
+    - type: "SimpleComputeResourceBean"
+      uuid: "276e36bc-e2a7-4502-91f2-ec796ddea93f"
+      href: "http://127.0.0.1:8082/simple-compute/276e36bc-e2a7-4502-91f2-ec796ddea93f"
+      name: "computer-001"
+      cores:
+        requested: 6
+        offered: 12
+      memory:
+        requested: "1.00 GiB"
+        offered: "2.00 GiB"
+schedule:
+  preparing: {}
+  executing:
+    duration: "PT1H"
+    start: "2024-10-15T12:20:00Z"
+  finishing: {}
+--END--
+

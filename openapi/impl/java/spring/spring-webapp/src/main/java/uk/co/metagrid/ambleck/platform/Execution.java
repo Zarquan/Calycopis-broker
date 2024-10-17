@@ -22,19 +22,17 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import java.util.UUID;
-import java.util.List;
-
 import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 
 import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.model.AbstractExecutable;
 
 /**
  * Public interface for an Execution session.
  *
  */
-public interface Execution<StepType extends PreparationStep>
+public interface Execution<StepType extends PreparationStep<?>>
     {
 
     public UUID getUuid();

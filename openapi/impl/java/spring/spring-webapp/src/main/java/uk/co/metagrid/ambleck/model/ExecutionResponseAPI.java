@@ -24,9 +24,6 @@ package uk.co.metagrid.ambleck.model;
 
 import java.util.UUID;
 
-import uk.co.metagrid.ambleck.model.OfferSetAPI;
-import uk.co.metagrid.ambleck.platform.Execution;
-
 public interface ExecutionResponseAPI
     {
 

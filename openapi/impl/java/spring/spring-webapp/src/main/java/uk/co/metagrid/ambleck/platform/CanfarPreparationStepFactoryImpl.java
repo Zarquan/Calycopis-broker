@@ -23,11 +23,9 @@
 package uk.co.metagrid.ambleck.platform;
 
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import uk.co.metagrid.ambleck.model.JupyterNotebook01;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 @Slf4j
 @Component
@@ -50,7 +48,7 @@ public class CanfarPreparationStepFactoryImpl
             );
         }
 
-    public void createNotebookPreparationStep(final CanfarExecution execution, final JupyterNotebook01 config)
+    public void createNotebookPreparationStep(final CanfarExecution execution, final IvoaJupyterNotebook config)
         {
         log.debug("createNotebookPreparationStep()");
         CanfarNotebookPreparationImpl step = new CanfarNotebookPreparationImpl(

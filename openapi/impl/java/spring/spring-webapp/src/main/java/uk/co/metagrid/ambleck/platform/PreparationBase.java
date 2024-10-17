@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public abstract class PreparationBase<ParentType extends Execution>
+public abstract class PreparationBase<ParentType extends Execution<?>>
     implements PreparationStep<ParentType>
     {
     public Duration DEFAULT_STEP_COST = Duration.ofMinutes(5) ;
@@ -64,13 +64,13 @@ public abstract class PreparationBase<ParentType extends Execution>
         return this.state;
         }
 
-    private PreparationStep nextStep;
-    public PreparationStep getNextStep()
+    private PreparationStep<?> nextStep;
+    public PreparationStep<?> getNextStep()
         {
         return this.nextStep;
         }
 
-    public void setNextStep(final PreparationStep nextStep)
+    public void setNextStep(final PreparationStep<?> nextStep)
         {
         this.nextStep = nextStep;
         }

@@ -22,7 +22,7 @@
  */
 package uk.co.metagrid.ambleck.platform;
 
-import uk.co.metagrid.ambleck.model.JupyterNotebook01;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 public interface CanfarPreparationStepFactory
     extends PreparationStepFactory
@@ -30,6 +30,6 @@ public interface CanfarPreparationStepFactory
 
     public void createSpacePreparationStep(final CanfarExecution execution);
 
-    public void createNotebookPreparationStep(final CanfarExecution execution, final JupyterNotebook01 config);
+    public void createNotebookPreparationStep(final CanfarExecution execution, final IvoaJupyterNotebook config);
 
     }

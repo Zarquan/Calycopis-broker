@@ -26,7 +26,7 @@ package uk.co.metagrid.ambleck.message;
 
 import java.util.Map;
 
-import uk.co.metagrid.ambleck.model.MessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 
 public class WarnMessage extends MessageBase
     {
@@ -53,7 +53,7 @@ public class WarnMessage extends MessageBase
     public WarnMessage(final String typeurl, final String template, Map<String,String> params)
         {
         super(
-            MessageItem.LevelEnum.INFO,
+            IvoaMessageItem.LevelEnum.INFO,
             typeurl,
             template,
             params

@@ -1,0 +1,136 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+
+Reasons for P3T
+
+Time is a cost for projects
+
+Typically it takes several (>5) days for a new developer to learn how to implement an IVOA service based on the text of the standard document.
+
+Using a combination of machine readable specification and industry standard conventions we could cut that to less than a day.
+
+Multiply that 5 dayts by a team of 10 people, and the cost in developer time represents a significant cost in money.
+5 days * 10 people = 50 days = ${several thousand}
+multiply that by 10 standards, each of which is slightly different
+= 10x ${several thousand}
+
+The cost:
+Spend 10x ${several thousand} to get your team started using the IVOA standards
+
+The benefit:
+....
+
+Time is a cost for developers
+
+Developers are used to using high level IDE tools that auto generate a lot of the boiler plate code.
+They can drop in a machine readable OpenAPI specification and get a working service within a few minutes.
+They are used to moving fast.
+
+If they need to read the details from a text document and write their own web service code from the
+ground up, they will be less keen to adopt our services.
+
+Whether we like it or not, thse are the next generation of our customers.
+
+
+Time is a cost for scientists
+
+Scientists don't want to read technical specifications.
+Scientists scan read the documents, and pass them over to their technical team.
+
+If the technical team scan read the documents and decide they are complicated to implement, they get put on the shelf.
+
+If the technical team can see it would be quick and easy to create a new service using a machine readable specification, they will be much happier about giving it a go.
+
+If the we want people to adopt our services, we need to listen to what they want.
+
+Speaking for myself :
+For a new service I want to be able to get a demo running in a container within a maximum of couple of hours.
+For a new API I want to be able to get my own demo running within a day.
+If it fails those criteria, I'll leave it on the shelf and move on.
+
+
+
+Security is an issue
+
+Some of the IVOA standards do not conform to current industry standards for web service security.
+
+In most cases the actual technical security risk is small or non-existent, but that doesn't actually matter.
+
+As far as IT services are concerned:
+If a service meets all of the current standards, then it is considered safe.
+If it doesn't meet all of the current standards, then it is considered unsafe until proven otherwise.
+If a live service fails the latest network security tests, it gets shut down.
+
+Proving the IVAO services are safe requires a lot of time and effort (money).
+
+IT services act as a filter for what gets adopted.
+    If it passes all the tests, it will be easy to get it deployed.
+    If it needs work to prove it is safe, it will get left in the backlog.
+
+    IT services are not set up to prove it is safe.
+It is up to use to prove our services are safe.
+1) by doing a lot of complicated security reviews of our standards and code
+or
+2) by conforming to the current industry standards.
+
+What is in scope
+
+The goal is to evaluate what is needed to bring our standards in line with current industry practice.
+
+Compatible with current development frameworks
+Compatible with current development toolsets and IDEs
+Comply with current security standards.
+Make as much as we can machine readable
+
+Proposed changes should have a 'why' justification from this list.
+
+What is out of scope
+
+Solving other problems
+Introducing new ideas from the backlog
+
+The primary goal is to come up with a minimal set of changes
+needed update our standards to match current
+best practice.
+
+    We can suggest other things, but they should be passed
+    on to the the relevant working groups e.g. DAL or GWS.
+
+
+
+
+
