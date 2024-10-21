@@ -1,0 +1,259 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    CanfarConfigStepFactory
+
+        generate(Execution + JupyterNotebookEntity)
+
+        Execution =>
+        CanfarJupyterNotebookSession
+        extends CanfarExecutionSession
+        extends ConfigStepGroup
+
+            getAllocationDuration()
+                sum of children
+
+            getReleaseDuration()
+                sum of children
+
+            doAllocation()
+                sequential loop
+
+            doRelease()
+                sequential loop
+
+            CanfarExecutionSession
+            setup(Execution)
+
+                this.execution   = execution
+                this.username    = username
+                this.userhome    = /home/{username}
+
+                Execution =>
+                CanfarSessionHome
+                extends StorageVolumeConfig
+
+                    + session
+                    + username
+                    + lifetime
+
+                    # Is this a storage volume ?
+                    # With size and path
+
+                    setup(CanfarExecutionSession sesson)
+                        this.session  = session;
+                        this.username = username;
+                        this.lifetime = lifetime;
+
+                    getAllocationDuration()
+                        -
+
+                    getReleaseDuration()
+                        {lifetime}
+
+                    doAllocation()
+                        session.sessionhome = {userhome}/sessions/{uuid}
+                        call vospace to create sessionhome
+                        sync call
+
+                    doRelease()
+                        wait for {lifetime}
+                        call vospace to delete sessionhome
+
+                Execution =>
+                CanfarDataResourceGroup
+                extends DataResourceGroup
+                extends ConfigStepGroup
+
+                    getAllocationDuration()
+                        sum of children
+
+                    getReleaseDuration()
+                        sum of children
+
+                    doAllocation()
+                        sequential loop
+
+                    doRelease()
+                        sequential loop
+
+                    setup(CanfarExecutionSession sesson)
+                        this.session  = session;
+
+                        for session.getExecution().getDataResources()
+
+                            CanfarFileDownload
+                                + location
+                                + filename
+
+                                setup(CanfarExecutionSession sesson, VolumeMount volume, SimpleDataResource resource)
+                                    this.session  = session;
+                                    this.resource = resource;
+
+                                    location = resource.getLocation()
+                                    filepath = volume.getMountPath()
+
+                                getAllocationDuration()
+                                    guess based on size
+
+                                getReleaseDuration()
+                                    {lifetime}
+
+                                doAllocation()
+                                    call vospace to transfer data
+                                        location
+                                        filepath
+                                    async call
+                                    poll status loop
+
+                                doRelease()
+                                    wait for {lifetime}
+                                    call vospace to delete filepath
+
+                Execution =>
+                CanfarComputeResourceGroup
+                extends ConfigStepGroup
+
+                    setup(CanfarExecutionSession sesson)
+
+                        for session.getExecution().getComputeResources()
+
+                            session.addCores(cpu cores)
+                            session.addMemory(memory)
+
+                    getAllocationDuration()
+                        -
+
+                    getReleaseDuration()
+                        -
+
+                    getDuration()
+                        -
+
+                    doAllocation()
+                        -
+
+                    doRelease()
+                        -
+
+
+            CanfarJupyterNotebookSession.setup(Execution)
+
+                Execution.getExecutable()
+                JupyterNotebookEntity =>
+                CanfarJupyterNotebookConfig
+                extends ConfigStepGroup
+
+                    setup(CanfarExecutionSession sesson, JupyterNotebookEntity)
+
+                        CanfarFileDownload
+                            + notebook.location
+                            + notebook.filename
+
+                            setup(CanfarExecutionSession sesson, VolumeMount volume, SimpleDataResource resource)
+                                this.session  = session;
+                                this.resource = resource;
+
+                                location = resource.getLocation()
+                                filepath = volume.getMountPath()
+
+                            getAllocationDuration()
+                                guess based on size
+
+                            getReleaseDuration()
+                                {lifetime}
+
+                            doAllocation()
+                                call vospace to transfer data
+                                    location
+                                    filepath
+                                async call
+                                poll status loop
+
+                            doRelease()
+                                wait for {lifetime}
+                                call vospace to delete filepath
+
+                        CanfarContainerConfig
+
+                            setup(CanfarExecutionSession sesson, ContainerInfo imageinfo)
+                                check if image is available
+                                local Harbour
+
+                            getAllocationDuration()
+                                how long does an image install take ?
+
+                            getReleaseDuration()
+                                -
+
+                            getDuration()
+                                -
+
+                            doAllocation()
+                                can we install a new image ?
+
+                            doRelease()
+                                -
+
+
+
+
+
+
+                    setup(CanfarExecutionSession sesson)
+                        -
+
+                    getAllocationDuration()
+                        -
+
+                    getReleaseDuration()
+                        -
+
+                    getDuration()
+                        -
+
+                    doAllocation()
+                        -
+
+                    doRelease()
+                        -
+
+                create the CANFAR session
+                + cpu cores
+                + memory
+                return URL to the notebook
+
+
