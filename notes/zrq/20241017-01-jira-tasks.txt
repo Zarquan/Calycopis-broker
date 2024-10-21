@@ -1,0 +1,89 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Update the Execution Broker IVOA standard
+    https://jira.skatelescope.org/browse/SP-4643
+
+        The main task for Coral.
+
+        [Exec broker IVOA] Remove bits that are wrong in the documentation
+        https://jira.skatelescope.org/browse/COR-712
+
+        [Exec broker IVOA] Reorganise the document in 2 separated sections, to follow the new IVOA format.
+        https://jira.skatelescope.org/browse/COR-724
+
+        [Exec broker IVOA] Verifying the technical accuracy of the examples
+        https://jira.skatelescope.org/browse/COR-737
+
+            In progress
+
+        [Exec broker IVOA] Demo for SRCNet
+        https://jira.skatelescope.org/browse/COR-736
+
+            Poster at ADASS
+
+            Presentation at IVOA interop
+
+            Demo? for SRCNet
+
+
+# -----------------------------------------------------
+
+    Verify Execution Broker functionality by executing a "real" SRCNet task
+    https://jira.skatelescope.org/browse/SP-4283
+
+        Identify a "working" workflow & three other "stretch" workflows
+        https://jira.skatelescope.org/browse/DAAC-295
+
+            In progress
+
+        Proving Execution Broker
+        https://jira.skatelescope.org/browse/SP-4283
+
+            In progress
+
+        Write up detailed requirements for workflows to run from Execution Broker
+        https://jira.skatelescope.org/browse/DAAC-296
+
+        Develop solution for primary ("working") workflow
+        https://jira.skatelescope.org/browse/DAAC-297
+
+
+# -----------------------------------------------------
+
+    Report on OpenAPI code generation for the Execution Broker service interface
+    https://jira.skatelescope.org/browse/SP-4644
+
+

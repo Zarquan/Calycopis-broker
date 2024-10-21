@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package uk.co.metagrid.calycopis.offerset;
 
@@ -27,30 +27,51 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResource;
 import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceEntity;
+import uk.co.metagrid.calycopis.compute.simple.SimpleComputeResourceFactory;
 import uk.co.metagrid.calycopis.data.amazon.AmazonS3DataResourceEntity;
+import uk.co.metagrid.calycopis.data.amazon.AmazonS3DataResourceFactory;
 import uk.co.metagrid.calycopis.data.simple.SimpleDataResource;
 import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceEntity;
+import uk.co.metagrid.calycopis.data.simple.SimpleDataResourceFactory;
 import uk.co.metagrid.calycopis.executable.AbstractExecutableEntity;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookEntity;
+import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookFactory;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.factory.CalycopisFactories;
+import uk.co.metagrid.calycopis.execution.ExecutionFactory;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
+import uk.co.metagrid.calycopis.offers.OfferBlockFactory;
 import wtf.metio.storageunits.model.StorageUnit;
 import wtf.metio.storageunits.model.StorageUnits;
 
 /**
- * 
+ *
  */
 @Slf4j
 public class OfferSetRequestParserImpl
     implements OfferSetRequestParser
     {
-    
-    private CalycopisFactories factories;
-    
-    public OfferSetRequestParserImpl(final CalycopisFactories factories)
-        {
-        this.factories = factories;
+
+    private final OfferBlockFactory            offerBlockFactory;
+    private final ExecutionFactory             executionFactory;
+    private final SimpleComputeResourceFactory simpleComputeFactory;
+    private final SimpleDataResourceFactory    simpleDataFactory;
+    private final AmazonS3DataResourceFactory  amazonDataFactory;
+    private final JupyterNotebookFactory       jupyterNotebookFactory;
+
+    public OfferSetRequestParserImpl(
+        final OfferBlockFactory            offerBlockFactory,
+        final ExecutionFactory             executionFactory,
+        final SimpleComputeResourceFactory simpleComputeFactory,
+        final SimpleDataResourceFactory    simpleDataFactory,
+        final AmazonS3DataResourceFactory  amazonDataFactory,
+        final JupyterNotebookFactory       jupyterNotebookFactory
+        ){
+        this.offerBlockFactory      = offerBlockFactory;
+        this.executionFactory       = executionFactory;
+        this.simpleComputeFactory   = simpleComputeFactory;
+        this.simpleDataFactory      = simpleDataFactory;
+        this.amazonDataFactory      = amazonDataFactory;
+        this.jupyterNotebookFactory = jupyterNotebookFactory;
         }
 
     private boolean valid;
@@ -80,13 +101,13 @@ public class OfferSetRequestParserImpl
         return this.offerset;
         }
 
-    private List<SimpleDataResourceEntity> dataresourcelist = new ArrayList<SimpleDataResourceEntity>();  
+    private List<SimpleDataResourceEntity> dataresourcelist = new ArrayList<SimpleDataResourceEntity>();
     public List<SimpleDataResourceEntity> getDataResourceList()
         {
         return this.dataresourcelist;
         }
 
-    private Map<String, SimpleDataResourceEntity> dataresourcemap = new HashMap<String, SimpleDataResourceEntity>();  
+    private Map<String, SimpleDataResourceEntity> dataresourcemap = new HashMap<String, SimpleDataResourceEntity>();
     public SimpleDataResourceEntity findDataResource(String key)
         {
         return dataresourcemap.get(key);
@@ -113,13 +134,13 @@ public class OfferSetRequestParserImpl
             }
         }
 
-    private List<SimpleComputeResourceEntity> compresourcelist = new ArrayList<SimpleComputeResourceEntity>();  
+    private List<SimpleComputeResourceEntity> compresourcelist = new ArrayList<SimpleComputeResourceEntity>();
     public List<SimpleComputeResourceEntity> getComputeResourceList()
         {
         return this.compresourcelist;
         }
 
-    private Map<String, SimpleComputeResourceEntity> compresourcemap = new HashMap<String, SimpleComputeResourceEntity>();  
+    private Map<String, SimpleComputeResourceEntity> compresourcemap = new HashMap<String, SimpleComputeResourceEntity>();
     public SimpleComputeResourceEntity findComputeResource(final String key)
         {
         return compresourcemap.get(key);
@@ -283,7 +304,7 @@ public class OfferSetRequestParserImpl
                 }
             }
 
-        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO; 
+        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO;
 
         //
         // If everything is OK.
@@ -312,23 +333,23 @@ for (SimpleComputeResource resource : compresourcelist)
     }
 log.debug("---- ---- ---- ----");
 
-            // 
+            //
             // Populate our OfferSet ..
             for (Interval startinterval : startintervals)
                 {
                 //
-                // Generate a list of offers.
-                List<OfferBlock> offerblocks = factories.getOfferBlockFactory().other(
+                // Generate a list of available blocks.
+                List<OfferBlock> offerblocks = offerBlockFactory.other(
                     startinterval,
                     exeduration,
                     mincores,
                     minmemory
-                    ); 
-                
+                    );
+
                 for (OfferBlock offerblock : offerblocks)
                     {
                     log.debug("OfferBlock [{}]", offerblock.getStartTime());
-                    ExecutionEntity execution = factories.getExecutionFactory().create(
+                    ExecutionEntity execution = executionFactory.create(
                         offerblock,
                         offerset,
                         this
@@ -337,17 +358,31 @@ log.debug("---- ---- ---- ----");
                     offerset.addExecution(
                         execution
                         );
-                    
+
                     // TODO Add an AbstractExecutableFactory.
                     execution.setExecutable(
-                        factories.getJupyterNotebookFactory().create(
+                        jupyterNotebookFactory.create(
                             execution,
                             ((JupyterNotebookEntity) this.executable)
                             )
                         );
-    
+
                     //
-                    // Need to add a scaling factor based on the offerblock.
+                    // TODO Add the data resources.
+                    //
+                    
+                    //
+                    // TODO simple scaling factor means we need to handle fractions ?
+                    // TODO Both CANFAR and Openstack only support fixed sizes.
+                    // We want
+                    //     foreach node
+                    //     the upper limit is the individual node multiplied by the scaling factor
+                    //     find an allowed config that is between the requested minimum and the scaled limit
+                    //     this depends on a call to the platform to check the available sizes for this user
+
+                    // this should be managed by the canfar classes
+                    // so we call out to platform with the block size and request size
+                    // platform responds with a list of compute entities that fit the limits
                     long corescale = offerblock.getCores()/this.getMinCores();
                     long memoryscale = offerblock.getMemory()/this.getMinMemory();
                     log.debug("----");
@@ -359,10 +394,10 @@ log.debug("---- ---- ---- ----");
                         long offermemory = compresource.getRequestedMemory() * memoryscale;
                         log.debug("----");
                         log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
-                        log.debug("Cores  [{}][{}][{}]", compresource.getRequestedCores(),  corescale,   offercores);
-                        log.debug("Memory [{}][{}][{}]", compresource.getRequestedMemory(), memoryscale, offermemory);
+                        log.debug("Cores  [{}][{}][{}]", compresource.getRequestedCores(),  offercores,  corescale);
+                        log.debug("Memory [{}][{}][{}]", compresource.getRequestedMemory(), offermemory, memoryscale);
                         execution.addCompute(
-                            factories.getSimpleComputeFactory().create(
+                            simpleComputeFactory.create(
                                 execution,
                                 compresource,
                                 offercores,
@@ -386,7 +421,7 @@ log.debug("---- ---- ---- ----");
 
     /**
      * List of requested start intervals.
-     * 
+     *
      */
     List<Interval> startintervals = new ArrayList<Interval>();
 
@@ -396,10 +431,10 @@ log.debug("---- ---- ---- ----");
         return this.startintervals;
         }
 
-    
+
     /**
      * Requested duration.
-     * 
+     *
      */
     Duration exeduration = null;
 
@@ -408,22 +443,22 @@ log.debug("---- ---- ---- ----");
         {
         return this.exeduration;
         }
-    
+
     /**
      * Default execution duration.
-     * 
+     *
      */
     Duration DEFAULT_EXEC_DURATION = Duration.ofHours(2);
-    
+
     /**
      * Default duration for the default start interval.
-     * 
+     *
      */
     Duration DEFAULT_START_DURATION = Duration.ofHours(2);
-    
+
     /**
      * Validate the requested Schedule.
-     * 
+     *
      */
     public void validate(final IvoaExecutionSessionRequestSchedule schedule)
         {
@@ -458,7 +493,7 @@ log.debug("---- ---- ---- ----");
                         this.fail();
                         }
                     }
-                
+
                 List<String> startstrlist = requested.getStart();
                 if (startstrlist != null)
                     {
@@ -497,13 +532,13 @@ log.debug("---- ---- ---- ----");
             Interval defaultint = Interval.of(
                 Instant.now(),
                 DEFAULT_START_DURATION
-                ); 
+                );
             log.debug("Interval list is empty, adding default [{}]", defaultint);
             startintervals.add(
                 defaultint
                 );
             }
-        
+
         if (exeduration == null)
             {
             log.debug("Duration is empty, using default [{}]", DEFAULT_EXEC_DURATION);
@@ -567,7 +602,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
 
-        JupyterNotebookEntity entity = this.factories.getJupyterNotebookFactory().create(
+        JupyterNotebookEntity entity = this.jupyterNotebookFactory.create(
             null,
             name,
             location
@@ -576,10 +611,10 @@ log.debug("---- ---- ---- ----");
             entity
             );
         }
-    
+
     /**
      * Validate an AbstractDataResource.
-     * 
+     *
      */
     private void validate(IvoaAbstractDataResource resource)
         {
@@ -617,7 +652,7 @@ log.debug("---- ---- ---- ----");
 
     /**
      * Validate a SimpleDataResource.
-     * 
+     *
      */
     private void validate(IvoaSimpleDataResource request)
         {
@@ -640,7 +675,7 @@ log.debug("---- ---- ---- ----");
             this.fail();
             }
 
-        SimpleDataResourceEntity entity = this.factories.getSimpleDataFactory().create(
+        SimpleDataResourceEntity entity = this.simpleDataFactory.create(
             null,
             name,
             location
@@ -652,7 +687,7 @@ log.debug("---- ---- ---- ----");
 
     /**
      * Validate a S3DataResource.
-     * 
+     *
      */
     private void validate(IvoaS3DataResource request)
         {
@@ -701,8 +736,8 @@ log.debug("---- ---- ---- ----");
                 );
             this.fail();
             }
-        
-        AmazonS3DataResourceEntity entity = this.factories.getAmazonDataFactory().create(
+
+        AmazonS3DataResourceEntity entity = this.amazonDataFactory.create(
             null,
             name,
             endpoint,
@@ -711,12 +746,12 @@ log.debug("---- ---- ---- ----");
             object
             );
 /*
- * 
-        // TODO Allow multiple data types. 
+ *
+        // TODO Allow multiple data types.
         this.addDataResource(
             entity
             );
- *         
+ *
  */
         }
 
@@ -773,7 +808,7 @@ log.debug("---- ---- ---- ----");
                 {
                 mincores = resource.getCores().getRequested();
                 }
-            // TODO refactor the request block. 
+            // TODO refactor the request block.
             if (resource.getCores().getOffered() != null)
                 {
                 offerset.addWarning(
@@ -838,7 +873,7 @@ log.debug("---- ---- ---- ----");
                     }
                 }
 
-            // TODO refactor the request block. 
+            // TODO refactor the request block.
             if (resource.getMemory().getOffered() != null)
                 {
                 offerset.addWarning(
@@ -898,7 +933,7 @@ log.debug("---- ---- ---- ----");
         // Process the volume mounts.
         // ....
 
-        SimpleComputeResourceEntity entity = this.factories.getSimpleComputeFactory().create(
+        SimpleComputeResourceEntity entity = this.simpleComputeFactory.create(
             null,
             resource.getName(),
             mincores.longValue(),
@@ -910,9 +945,9 @@ log.debug("---- ---- ---- ----");
             entity
             );
         }
-    
+
     /**
-     * Trim a String value, skipping it if it is null. 
+     * Trim a String value, skipping it if it is null.
      *
      */
     public static String trimString(String string)

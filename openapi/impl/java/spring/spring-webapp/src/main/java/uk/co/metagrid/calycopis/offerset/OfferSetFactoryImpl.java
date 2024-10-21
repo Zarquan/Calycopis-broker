@@ -26,7 +26,6 @@
 package uk.co.metagrid.calycopis.offerset;
 
 import java.time.OffsetDateTime;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,11 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import uk.co.metagrid.calycopis.execution.ExecutionEntity;
-import uk.co.metagrid.calycopis.factory.CalycopisFactories;
-import uk.co.metagrid.calycopis.factory.CalycopisRepositories;
 import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 
 /**
@@ -57,19 +53,16 @@ public class OfferSetFactoryImpl
      */
     public static final int DEFAULT_EXPIRY_TIME_SECONDS = 5 * 60 ;
 
-    private final CalycopisFactories factories;
-
-    private final CalycopisRepositories repositories;
-
-    private final OfferSetRepository repository;
+    private final OfferSetRequestParserFactory parserFactory;
+    
+    private final OfferSetRepository offersetRepository;
 
     @Autowired
-    public OfferSetFactoryImpl(final OfferSetRepository repository, final CalycopisFactories factories, final CalycopisRepositories repositories)
+    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParserFactory parserFactory)
         {
         super();
-        this.factories = factories;
-        this.repository = repository;
-        this.repositories = repositories;
+        this.offersetRepository = offersetRepository;
+        this.parserFactory = parserFactory;
         }
 
     /**
@@ -81,36 +74,9 @@ public class OfferSetFactoryImpl
 		{
         log.debug("select(UUID)");
         log.debug("UUID [{}]", uuid);
-		return this.repository.findById(
+		return this.offersetRepository.findById(
             uuid
             ); 
-/*
- * 
-		Optional<OfferSetEntity> optional = this.repository.findById(
-            uuid
-            ); 
-		if (optional.isPresent())
-		    {
-		    OfferSetEntity found = optional.get();
-		    found.addMessage(
-	            LevelEnum.DEBUG,
-	            "urn:debug",
-	            "OfferSetEntity select(UUID)",
-	            Collections.emptyMap()
-	            );
-		    return Optional.of(
-		         this.repository.save(
-	                 found
-	                 )
-	            );
-		    }
-		else {
-            return Optional.ofNullable(
-                null
-                );
-		    }
- *      
- */
 		}
 
     @Override
@@ -138,7 +104,7 @@ public class OfferSetFactoryImpl
             {
             log.debug("save(OfferSet)");
             log.debug("OfferSet [{}]", offerset.getUuid());
-            offerset = this.repository.save(offerset);
+            offerset = this.offersetRepository.save(offerset);
             log.debug("OfferSet [{}]", offerset.getUuid());
             for (ExecutionEntity execution : offerset.getOffers())
                 {
@@ -147,12 +113,9 @@ public class OfferSetFactoryImpl
             }
     	
     	//
-    	// Process the request to generate some offers.
-    	// TODO make process() a static method.
-    	final OfferSetRequestParser context = new OfferSetRequestParserImpl(
-            this.factories
-            );
-    	context.process(
+    	// Process the request and generate some offers.
+    	final OfferSetRequestParser parser = parserFactory.create(); 
+    	parser.process(
 	        request,
 	        offerset
 	        );
@@ -166,7 +129,7 @@ public class OfferSetFactoryImpl
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
-            offerset = this.repository.save(offerset);
+            offerset = this.offersetRepository.save(offerset);
             log.debug("OfferSet [{}]", offerset.getUuid());
             for (ExecutionEntity execution : offerset.getOffers())
                 {

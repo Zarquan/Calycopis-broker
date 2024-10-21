@@ -31,7 +31,6 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
-import uk.co.metagrid.calycopis.factory.CalycopisRepositories;
 import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
 import uk.co.metagrid.calycopis.offerset.OfferSetEntity;
