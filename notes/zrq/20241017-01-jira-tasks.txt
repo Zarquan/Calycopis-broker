@@ -47,7 +47,7 @@
         [Exec broker IVOA] Verifying the technical accuracy of the examples
         https://jira.skatelescope.org/browse/COR-737
 
-            In progress
+            Coral - in progress
 
         [Exec broker IVOA] Demo for SRCNet
         https://jira.skatelescope.org/browse/COR-736
@@ -55,6 +55,8 @@
             Poster at ADASS
 
             Presentation at IVOA interop
+
+            Coral - in progress
 
             Demo? for SRCNet
 
@@ -67,12 +69,12 @@
         Identify a "working" workflow & three other "stretch" workflows
         https://jira.skatelescope.org/browse/DAAC-295
 
-            In progress
+            DAAC - In progress
 
         Proving Execution Broker
         https://jira.skatelescope.org/browse/SP-4283
 
-            In progress
+            DAAC - In progress
 
         Write up detailed requirements for workflows to run from Execution Broker
         https://jira.skatelescope.org/browse/DAAC-296
@@ -85,5 +87,42 @@
 
     Report on OpenAPI code generation for the Execution Broker service interface
     https://jira.skatelescope.org/browse/SP-4644
+
+        Coral - in progress
+
+# -----------------------------------------------------
+
+    Dcoument describing the role of Execution Broker in SRCNet
+    https://jira.skatelescope.org/browse/SP-4696
+
+        PI25+
+
+    ExecutionBroker scheduling and resource booking
+    https://jira.skatelescope.org/browse/SP-4512
+
+        Done in Calycopis ?
+
+    ExecutionBroker modular plug-in design
+    https://jira.skatelescope.org/browse/SP-4511
+
+        Done in Calycopis ?
+
+    Science use cases for Execution Broker
+    https://jira.skatelescope.org/browse/SP-4687
+
+        Wider context - science use cases in general
+
+# -----------------------------------------------------
+
+    DataStaging broker
+    https://jira.skatelescope.org/browse/SP-4514
+
+        Data bulter API with cost analysis
+
+    Local DM Service: prepareData function linking operation
+    https://jira.skatelescope.org/browse/SP-4517
+
+        Coral - in progress
+
 
 
