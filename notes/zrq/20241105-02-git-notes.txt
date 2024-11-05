@@ -294,7 +294,9 @@ Untracked files:
         git add notes/zrq/20241105-01-todo-list.txt
         git add notes/zrq/20241105-02-git-notes.txt
 
+        git commit -m "Added todo list and git notes"
 
+        git push --set-upstream 'origin' "$(git branch --show-current)"
 
-
+    popd
 
