@@ -1,0 +1,155 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Contacts with people to talk about the use cases.
+
+    Result:
+
+        Work in progress ...
+
+        Use cases used by Rob to test VM performance ..
+        https://casaguides.nrao.edu/index.php/VLA_CASA_Imaging-CASA6.5.4
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=296957543
+
+
+
+
+# -----------------------------------------------------
+2024-10-18
+Sebastien Fabbro <sebastien.fabbro@nrc.ca>
+
+https://nrc.canada.ca/en/research-development/research-collaboration/research-centres/herzberg-astronomy-astrophysics-research-centre
+
+Hiya,
+
+We met at the SKA SRCNet meeting in Sweden where I made a presentation about
+the work we are doing to develop the IVOA ExecutionBroker service.
+If my notes are right, I think you raised question at the meeting about how
+it would support parallel processing using tools like Dask.
+
+We are working on collecting a set of science based use cases for interacting
+with the science platform that will form a set of requirements for the next
+phase of software development.
+
+Would you be interested in answering a few questions to help us understand how
+you would want to use the SKA science platform to perform data analysis?
+
+We are specifically interested in hearing from people pushing the boundaries
+of different analysis tools and technologies, beyond just simple notebooks
+and batch jobs. learning about how they see the field evolving, and where
+they think we will need to be in 5 or 10 years time.
+
+Thanks,
+-- Dave
+
+
+# -----------------------------------------------------
+2024-10-23
+https://researchers.mq.edu.au/en/persons/james-tocknell
+James Tocknell <james.tocknell@mq.edu.au>
+
+Hi James,
+
+We met at the IVOA conference at Macquarie in May this year.
+
+At the end of the conference you invited me to a meeting with yourself
+and some of your colleagues to talk about how the IVOA ExecutionBroker
+could enable researchers to execute parts of your data processing pipeline.
+
+I'm in the process of collecting a set of science use cases for the
+ExecutionBroker to guide the next stages of development and I'd like
+to follow up on the use case you were describing.
+
+Are you still interested in using something like the IVOA ExecutionBroker
+to provide access to parts of your data processing pipeline ?
+
+Cheers,
+-- Dave
+
+# -----------------------------------------------------
+2024-10-23
+"Emmanuel Bempong-Manful" <emmanuel.bempong-manful@manchester.ac.uk>
+
+Hi Emmanuel,
+
+We met a few weeks ago in the office at Manchester, and you were kind enough
+to describe some of the work that you are doing, and pointed me at this fascinating
+research paper.
+
+I'm in the process of collecting a set of science use cases for the
+a component in the SKA science platform and I'd be interested in
+seeing if we could use parts of this example as a basis for
+a use case document that describes a similar workflow
+using SKA or e-MERLIN data.
+
+Would you be willing to help by answering some real novice questions
+about what this kind of workflow might involve.
+
+Regards,
+-- Dave
+
+# -----------------------------------------------------
+2024-10-23
+"Julia Healy" <julia.healy@manchester.ac.uk>
+https://www.urban-astronomer.com/podcast/interview-with-dr-julia-healy/
+
+Hi Julia,
+
+We talked briefly about some science use cases for SKA when I was in the
+office at Manchester a few weeks ago
+
+I'm looking for some help in developing an example use case that we can
+use to demonstrate the software we are developing that will form part of
+the SKA science platform.
+
+In the first case I'm looking for a fairly simple workflow we can use,
+something along the lines of selecting a specific piece of data, possibly
+from the e-Merlin public data set, applying a data processing step and
+then displaying the result.
+
+Something really simple to start with, but something that we can evolve
+into a more complex more realistic science workflow as we add more
+capabilities to the software.
+
+Would you be willing to help by answering some real novice questions
+about what this kind of workflow might involve ?
+
+Regards,
+-- Dave
+
+
+
+
+
+
+
+
+
+
+
+
+
