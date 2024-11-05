@@ -48,11 +48,24 @@
                     )
                 )
 
-            https://messagetemplates.org/ uses {key}, but the common Java libraries use ${key}
-            https://stackoverflow.com/questions/3655424/string-replacement-in-java-similar-to-a-velocity-template
-            https://docs.oracle.com/javase/8/docs/api/java/text/MessageFormat.html
-            https://commons.apache.org/proper/commons-text/apidocs/org/apache/commons/text/StringSubstitutor.html
             We would have to write our own template processor to see what the messages look like :-(
+            https://messagetemplates.org/ uses {key}, but the common Java libraries use ${key}
+
+            https://stackoverflow.com/questions/3655424/string-replacement-in-java-similar-to-a-velocity-template
+
+            https://docs.oracle.com/javase/8/docs/api/java/text/MessageFormat.html
+                "Example message with two values, {0} and {1}"
+            https://commons.apache.org/proper/commons-text/apidocs/org/apache/commons/text/StringSubstitutor.html
+                "The {0} jumped over the {1}."
+                 new Object[] {
+                    "fox",
+                    "dog"
+                    };
+                "The ${animal} jumped over the ${target}."
+                 new Map<String, Object> {
+                    {"animal" "fox"},
+                    {"target" "dog"}
+                    };
 
             Possibly better to adopt a common pattern ${} rather than just {}.
             Or, apply a regex that replaces {} with ${} ?

@@ -1,0 +1,274 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    NVIDIA H100 Tensor Core GPU
+    https://www.nvidia.com/en-us/data-center/h100/
+
+    NVIDIA RTX 6000 Ada Generation Graphics Card
+    https://www.nvidia.com/en-gb/design-visualization/rtx-6000/
+
+    EIC/ePIC Detector: Software and Computing for the 2030s
+    https://indico.cern.ch/event/1338689/contributions/6011573/attachments/2952220/5189878/CHEP24%20-%20Cache%20Rules%20Everything%20Around%20Me%20(Google%20Slides).pdf
+
+
+    NVIDIA A100 PCIe vs SXM4 Comparison and Use Cases in 2024
+    https://datacrunch.io/blog/nvidia-a100-pcie-vs-sxm4-comparison
+
+    What's the relation between nvidia driver, cuda driver and cuda toolkit?
+    https://stackoverflow.com/questions/45293580/whats-the-relation-between-nvidia-driver-cuda-driver-and-cuda-toolkit
+
+    Your GPU Compute Capability
+    https://developer.nvidia.com/cuda-gpus#compute
+
+
+# -----------------------------------------------------
+2024-10-24
+
+"Chris Skipper" <chris.skipper@manchester.ac.uk>
+Describing GPUs for workflows
+
+Hi Chris,
+
+A few months ago I was asking Rob Beswick some questions about how astronomers
+would want to make use of GPUs in the SKA SRCNet system and your name came up
+as an expert I should contact.
+
+I'm developing the specification and prototype for the IVAO ExecutionBroker
+and I'm looking for some use cases that would help me understand how an
+astronomer would want to specify whether their software needs a GPU to
+execute and if so what kind it needs.
+
+Would you be willing to help by answering some real novice questions
+about how to describe GPU resources ?
+
+Cheers,
+-- Dave
+
+# -----------------------------------------------------
+2024-10-29
+Slack chat with MArk Holiman @ Edinburgh
+
+Dave Morris
+Quick question about Somerville .. do you offer machines with GPUs and if so, how are they managed ?
+Is it just another Openstack flavor that particular projects can select ?
+
+Mark Holliman
+We don't have any GPUs on Somerville, but the RAL cloud does and I'll be setting up some for Euclid work this year.
+AFAIK, it's just managed as another flavor which projects can select, probably controlled with availability zones
+to keep them to certain projects.
+The GPUs themselves I believe use PCI passthrough, but I won't know for sure until I start deploying them.
+
+Dave Morris
+Background research - how do astronomers think about using GPUs ?
+Would you see it as a computer with a GPU attached, or is the GPU the main thing, and the configuration
+of the host computer a secondary thing ?
+
+Mark Holliman
+The Euclid users that asked for GPU are also set on the amount of memory on the machine.
+Often their routines need at least 512GB.
+
+Dave Morris
+I'm guessing it is a sliding scale? 'old' graphics card based GPUs are PCIbus peripherals,
+but the latest dedicated AI GPUs are the main item and the host is secondary ?
+
+Mark Holliman
+Few of them try to use more than one GPU at a time too.
+I haven't seen any real "AI" routines making their our way yet. All the GPU use is either rapid image
+analysis or ML codes.
+There's a lot of talk about using AI and neural networks for tasks, but none of it has made it my way.
+I expect that'll change with LSST.
+None of the Astronomers actually have much experience coding for GPUs, let alone at scale.
+And that'll continue to be the case until today's undergrads work their way up.
+Until then, most Astronomers are going to need professional coders to make real use of GPUs.
+That's the case in Euclid now, where the PSF team demanded GPUs, stating they were needed for performance,
+yet haven't delivered a working GPU solution yet.
+
+Dave Morris
+This is really useful to know :+1:
+
+Mark Holliman
+And what they have delivered is only 10x faster than the CPU version, which doesn't make sense on a cost
+and effort basis.
+GPUs are being more actively investigated for generating simulations data (images) since this is exactly
+what they are designed to do.
+And a lot of the cosmological experiments/investigations need piles of simulations data to pound down
+their error bars.
+
+
+# -----------------------------------------------------
+2024-10-30
+"Chris Skipper" <chris.skipper@manchester.ac.uk>
+Describing GPUs for workflows
+
+Hi Chris,
+
+I'm trying to understand how astronomers think about GPUs.
+
+How would they choose which platform to run their code on? Would the GPU code be portable between platforms, or would it be very platform specific?
+
+Do they see the platform as a generic computer with a GPU, or is the GPU the main component and the computer it is attached to just plays a supporting role ?
+
+This is a summary of what I've found so far, some or all of it may be wrong.
+
+My experience on a couple of Openstack pojects I have been involved in was that a compute node with a GPU was simply offered as a different flavor of VM.
+
+Looking at a commercial providers like Digital Ocean and Linode (Akamai), they place different emphasis on the gou and host computer.
+
+When offering machine configuration for the user to choose, Linode (Akamai) list the details of the host computer, and then details of the praphic processor connected via PCI bus.
+
+     8 cores,  32GiB RAM,  640GiB disc .... RTX6000 GPU x1
+    16 cores,  64GiB RAM, 1280GiB disc .... RTX6000 GPU x2
+    20 cores,  96GiB RAM, 1920GiB disc .... RTX6000 GPU x3
+    24 cores, 128GiB RAM, 2560GiB disc .... RTX6000 GPU x4
+
+    |<--------- primary ------------>|     |<-- extra -->|
+
+Digital Ocean provide a different typs of system, which they refer to as a 'data center' Transformer Engine. Although they don't explicitly say so, these look like the VMs on offer are slices of a Grace Hopper machine where the GPU is mounted directly on the main motherboard along side the CPU, with dedicated high bandwidth interconnect between them.
+
+Here when Digital Ocean are offering machine configurations, the specification of the GPU comes first, and the host machine is second.
+
+    nVidia H100 x1,  80GiB VRAM ....  20 cores,  240GiB RAM,  5TiB disc
+    nVidia H100 x8, 640GiB VRAM .... 160 cores, 1920GiB RAM, 40TiB disc
+
+    |<------- primary -------->|     |<---------- support ------------>|
+
+Digital Ocean also provide '1-click' pre-configured systems for some of Hugging Face's models. Creating a new category of Analytics Platform as a Service (APaaS) ?
+
+All this suggests we have two distinct use cases.
+
+1) The RTX6000 graphics processor connected plugged into a conventional x86 motherboard via PCIbus, used to accelerate things like cosmological simulations.
+
+2) The H100 Transformer Engine connected directly to the CPU on the motherboard (Grace Hopper CPU+GPU architecture ?), which are used for large scale data analytics.
+
+Am I heading in the right direction ?
+
+Cheers,
+-- Dave
+
+# -----------------------------------------------------
+2024-11-05
+"Chris Skipper" <chris.skipper@manchester.ac.uk>
+Describing GPUs for workflows
+
+Hi Chris,
+
+This is exactly the kind of thing I need to know.
+I'm learning more every day :-)
+
+We are trying to develoP an abstract interface for execution platforms,
+where the user describes what their software needs,
+IN TERMS THAT MAKE SENSE TO THE USER.
+
+For example, if the user wants a compute platform with a minimum number of cpu cores and memory,
+we would send the following request to the execution platforms:
+
+  request:
+    resources:
+      compute:
+        - type: urn:generic-compute
+          cores:
+            min: 32
+          memory:
+            min: 64GiB
+
+The platform would then respond with either 'YES' or 'NO' depending on whether
+they could provide the requested resources.
+
+So the important question is, as an end user, how would you describe what you need,
+and how can we develop that into a common vocabulary for describing compute platforms.
+
+From your answer I'm hearing that the details of the host platform,
+including storage bandwidth, are at least if not more as important
+than specific type of GPU.
+
+So for your use case we could describe what you need as a generic compute,
+with a minimum number of cores and memory, plus a gpu with what we could
+call an 'nVidia-cuda' driver installed ?
+
+  request:
+    resources:
+      compute:
+        - type: urn:generic-compute
+          cores:
+            min: 32
+          memory:
+            min: 64GiB
+          gpu:
+            driver: nVidia-cuda
+
+If this metadata query was sent to a group of execution platforms,
+and two or more of the platforms responded with "YES, we can provide that",
+what criteria would you use to choose which platform to use ?
+
+Would the GPU Compute Capability be a useful measure of performance ?
+https://developer.nvidia.com/cuda-gpus#compute
+
+  response:
+    resources:
+      compute:
+        - type: urn:generic-compute
+          cores:
+            min: 32
+          memory:
+            min: 64GiB
+          gpu:
+            driver: nVidia-cuda
+            metrics:
+              nvidia-compute-capability:
+                min: 6.1
+
+Note that at this stage we get to define what the term 'nVidia-cuda' driver means.
+We are defining the terms for the vocabulary that the query/response will use.
+
+Do you care if it is an nVidia driver, or would just 'cuda' be a better
+term to describe what you need ?
+
+          gpu:
+            driver: cuda
+            metrics:
+              compute-capability:
+                min: 6.1
+
+The idea is to make things as abstract as possible, but still accurate enough to
+describe what you need.
+
+Do you need to know about what specific type of GPU hardware they have installed?
+As long as they meet your criteria for a gpu with a CUDA driver that is capable
+of at least 6.1 on the compute-capability benchmark ?
+
+If someone else can provide the same capability using a different brand of GPU,
+is that still OK as far as you are concerned ?
+
+

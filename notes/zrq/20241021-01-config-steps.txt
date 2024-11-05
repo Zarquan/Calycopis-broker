@@ -1,0 +1,130 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Skaha API
+    https://ws-uv.canfar.net/skaha/#
+
+    CANFAR storage
+    https://www.canfar.net/en/docs/storage/
+
+    SRCNet 0.1 architecture
+    https://confluence.skatelescope.org/pages/viewpage.action?spaceKey=SRCSC&title=SRCNet+v0.1+Components+and+Connectors+Architectural+View
+
+    ChatGPT - Spring JPA and threads
+    https://chatgpt.com/c/67109e56-1df0-8008-b5f5-37e5c343d9b8
+
+    Multiple Threads in Spring Boot with JPA and Rocket Science
+    https://www.reddit.com/r/SpringBoot/comments/pozhx0/multiple_threads_in_spring_boot_with_jpa_and/?rdt=64491
+
+    SpringBoot: Build Multi-threaded applications
+    https://medium.com/@kakurala/multi-threading-with-springboot-framework-b9fa84e37c3c
+
+
+# -----------------------------------------------------
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${CALYCOPIS_CODE}/openapi/ivoa:/ivoa:ro,z" \
+        --volume "${CALYCOPIS_CODE}/openapi/impl/java/spring:/spring:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /spring/spring-openapi ; ./mvnw clean install ; popd
+
+    pushd /spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+# -----------------------------------------------------
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
