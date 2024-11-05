@@ -1,0 +1,61 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Investigate when and where the two-level container issue will (may) impact SRCNet
+    https://jira.skatelescope.org/browse/SP-4493
+
+    COR-713 [Nested Containers] Test /Try some of the use cases
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=296957543
+
+    2024-10-31 Demos (Eastern)
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=294228024
+
+    VLA CASA Imaging-CASA6.5.4
+    https://casaguides.nrao.edu/index.php/VLA_CASA_Imaging-CASA6.5.4
+
+
+# -----------------------------------------------------
+
+    What's the relation between nvidia driver, cuda driver and cuda toolkit?
+    https://stackoverflow.com/questions/45293580/whats-the-relation-between-nvidia-driver-cuda-driver-and-cuda-toolkit
+
+    CUDA enabled gpus
+    https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-enabled-gpus
+
+    GPU Compute Capability
+    https://developer.nvidia.com/cuda-gpus
+    https://developer.nvidia.com/cuda-gpus#compute
+
+
