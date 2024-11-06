@@ -25,11 +25,12 @@
 
     Target:
 
-        Success
+        ACCEPTing an offer REJECTs all its siblings.
 
     Result:
 
-        Work in progress ...
+        Success.
+        ACCEPTing an offer REJECTs its siblings.
 
 # -----------------------------------------------------
 # Check our clone status.
