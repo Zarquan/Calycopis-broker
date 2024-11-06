@@ -24,13 +24,16 @@
 package net.ivoa.calycopis.execution;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import javax.validation.Valid;
 
-import org.apache.commons.lang3.NotImplementedException;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
@@ -45,13 +48,13 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferBlock;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -85,6 +88,7 @@ public class ExecutionResponseBean
         super();
         this.baseurl = baseurl;
         this.entity  = entity;
+        this.setOptions();
         }
 
     @Override
@@ -267,9 +271,46 @@ public class ExecutionResponseBean
             };
         }
 
-    @Override
-    public List<@Valid IvoaAbstractOption> getOptions()
+    public void setOptions()
         {
-        return Collections.emptyList();
+        switch(entity.getState())
+            {
+            case OFFERED:
+                {
+                this.addOptionsItem(
+                    new IvoaEnumValueOption(
+                        List.of("ACCEPTED", "REJECTED"),
+                        "urn:enum-value-option",
+                        "state"
+                        )
+                    );
+                }
+                break;
+            case ACCEPTED:
+            case WAITING:
+            case PREPARING:
+            case READY:
+            case RUNNING:
+                this.addOptionsItem(
+                    new IvoaEnumValueOption(
+                        List.of("CANCELLED"),
+                        "urn:enum-value-option",
+                        "state"
+                        )
+                    );
+                break;
+            
+            default:
+                break;
+            }
+        }
+
+    @Override
+    @JsonProperty("options")
+    @JacksonXmlProperty(localName = "options")
+    @JsonInclude(JsonInclude.Include.NON_EMPTY) 
+    public List<IvoaAbstractOption> getOptions()
+        {
+        return super.getOptions();
         }
     }

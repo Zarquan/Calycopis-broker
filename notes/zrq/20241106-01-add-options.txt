@@ -1,0 +1,272 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":    .uuid,
+                "state":   .state,
+                "options": .options
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "5a6a408b-f895-4a4f-a435-fde21948c630"
+    >       state: "OFFERED"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >       state: "OFFERED"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "25463f61-d39e-4d9f-a4c2-8386deb3ef2e"
+    >       state: "OFFERED"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "a09be18d-b818-4edc-841c-6a77dea92a81"
+    >       state: "OFFERED"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+# -----------------------------------------------------
+# Accept the second offer.
+#[root@spring-builder]
+
+    offerhref=$(
+        yq '.offers[1].href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | yq '.'
+
+    >   type: "urn:generic-execution"
+    >   uuid: "5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >   href: "http://127.0.0.1:8082/executions/5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >   offerset:
+    >     uuid: "03a3a0b9-e492-4750-9a77-17eeeb1e52d9"
+    >     href: "http://127.0.0.1:8082/offersets/03a3a0b9-e492-4750-9a77-17eeeb1e52d9"
+    >   state: "OFFERED"
+    >   expires: "2024-11-06T11:18:33.45064Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "c4e12b11-3992-4967-8931-89c16c584b4b"
+    >     href: "http://127.0.0.1:8082/executables/c4e12b11-3992-4967-8931-89c16c584b4b"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "eeee79ed-9917-47cb-835c-72e7f5099dff"
+    >         href: "http://127.0.0.1:8082/simple-compute/eeee79ed-9917-47cb-835c-72e7f5099dff"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 6
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-06T08:20:00Z"
+    >     finishing: {}
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
+
+
+cat > /tmp/updaterequest.yaml  << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '.'
+
+    >   type: "urn:generic-execution"
+    >   uuid: "5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >   href: "http://127.0.0.1:8082/executions/5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >   offerset:
+    >     uuid: "03a3a0b9-e492-4750-9a77-17eeeb1e52d9"
+    >     href: "http://127.0.0.1:8082/offersets/03a3a0b9-e492-4750-9a77-17eeeb1e52d9"
+    >   state: "ACCEPTED"
+    >   expires: "2024-11-06T11:18:33.45064Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "c4e12b11-3992-4967-8931-89c16c584b4b"
+    >     href: "http://127.0.0.1:8082/executables/c4e12b11-3992-4967-8931-89c16c584b4b"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "eeee79ed-9917-47cb-835c-72e7f5099dff"
+    >         href: "http://127.0.0.1:8082/simple-compute/eeee79ed-9917-47cb-835c-72e7f5099dff"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 6
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-06T08:20:00Z"
+    >     finishing: {}
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+
+
+    offersethref=$(
+        yq '.offerset.href' \
+            '/tmp/updateresponse.yaml' \
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref}" \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":    .uuid,
+                "state":   .state,
+                "options": .options
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "5a6a408b-f895-4a4f-a435-fde21948c630"
+    >       state: "REJECTED"
+    >       options: null
+    >     - uuid: "5c397a7e-e37e-47a1-b058-7c3e9d96c99d"
+    >       state: "ACCEPTED"
+    >       options:
+    >         - type: "urn:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "CANCELLED"
+    >     - uuid: "25463f61-d39e-4d9f-a4c2-8386deb3ef2e"
+    >       state: "REJECTED"
+    >       options: null
+    >     - uuid: "a09be18d-b818-4edc-841c-6a77dea92a81"
+    >       state: "REJECTED"
+    >       options: null
+
+    #
+    # OK, but I can't get rid of the 'null'.
+    #
+
+
