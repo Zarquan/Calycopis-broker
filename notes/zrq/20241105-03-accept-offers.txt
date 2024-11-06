@@ -44,13 +44,13 @@
 
     >   On branch 20241105-zrq-accept-offers
     >   Your branch is up to date with 'origin/20241105-zrq-accept-offers'.
-    >   
+    >
     >   Changes not staged for commit:
     >     (use "git add <file>..." to update what will be committed)
     >     (use "git restore <file>..." to discard changes in working directory)
     >   	modified:   notes/zrq/20241105-02-git-notes.txt
     >   	modified:   openapi/ivoa/openapi-0.9.yaml
-    >   
+    >
     >   Untracked files:
     >     (use "git add <file>..." to include in what will be committed)
     >   	notes/zrq/20241105-03-accept-offers.txt
@@ -264,6 +264,235 @@ EOF
     #
 
 
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
 
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "state": .state,
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - state: "OFFERED"
+    >       schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-06T03:40:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - state: "OFFERED"
+    >       schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-06T05:40:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - state: "OFFERED"
+    >       schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-06T07:40:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - state: "OFFERED"
+    >       schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-06T09:40:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+# -----------------------------------------------------
+# Accept the second offer.
+#[root@spring-builder]
+
+    offerhref=$(
+        yq '.offers[1].href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | yq '.'
+
+    >   type: "urn:generic-execution"
+    >   uuid: "62800ab6-6dbf-4c88-baba-0fd7fe6b946b"
+    >   href: "http://127.0.0.1:8082/executions/62800ab6-6dbf-4c88-baba-0fd7fe6b946b"
+    >   offerset:
+    >     uuid: "4ec95608-f87b-42b0-948c-d3c2d8f4b9f0"
+    >     href: "http://127.0.0.1:8082/offersets/4ec95608-f87b-42b0-948c-d3c2d8f4b9f0"
+    >   state: "OFFERED"
+    >   expires: "2024-11-06T08:37:52.853656Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "0b9d777e-9bd6-4e10-ab36-884da8243d63"
+    >     href: "http://127.0.0.1:8082/executables/0b9d777e-9bd6-4e10-ab36-884da8243d63"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "7433a1b0-4b62-4e24-b070-9c8c4647f8f1"
+    >         href: "http://127.0.0.1:8082/simple-compute/7433a1b0-4b62-4e24-b070-9c8c4647f8f1"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 12
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-06T05:40:00Z"
+    >     finishing: {}
+
+
+cat > /tmp/updaterequest.yaml  << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '.'
+
+    >   type: "urn:generic-execution"
+    >   uuid: "62800ab6-6dbf-4c88-baba-0fd7fe6b946b"
+    >   href: "http://127.0.0.1:8082/executions/62800ab6-6dbf-4c88-baba-0fd7fe6b946b"
+    >   offerset:
+    >     uuid: "4ec95608-f87b-42b0-948c-d3c2d8f4b9f0"
+    >     href: "http://127.0.0.1:8082/offersets/4ec95608-f87b-42b0-948c-d3c2d8f4b9f0"
+    >   state: "ACCEPTED"
+    >   expires: "2024-11-06T08:37:52.853656Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "0b9d777e-9bd6-4e10-ab36-884da8243d63"
+    >     href: "http://127.0.0.1:8082/executables/0b9d777e-9bd6-4e10-ab36-884da8243d63"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "7433a1b0-4b62-4e24-b070-9c8c4647f8f1"
+    >         href: "http://127.0.0.1:8082/simple-compute/7433a1b0-4b62-4e24-b070-9c8c4647f8f1"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 12
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-06T05:40:00Z"
+    >     finishing: {}
+
+
+    offersethref=$(
+        yq '.offerset.href' \
+            '/tmp/updateresponse.yaml' \
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref}" \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":  .uuid,
+                "state": .state
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "a8c920ad-d795-42ff-a140-bca607ee6e2a"
+    >       state: "REJECTED"
+    >     - uuid: "62800ab6-6dbf-4c88-baba-0fd7fe6b946b"
+    >       state: "ACCEPTED"
+    >     - uuid: "c52b72ca-6678-4fd2-8a84-da223f2dcfb4"
+    >       state: "REJECTED"
+    >     - uuid: "eceb0a32-3e25-43e1-a8bb-55692278694a"
+    >       state: "REJECTED"
 
 

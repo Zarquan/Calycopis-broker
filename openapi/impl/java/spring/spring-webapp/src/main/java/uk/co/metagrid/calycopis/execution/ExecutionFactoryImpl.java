@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
 import uk.co.metagrid.calycopis.offers.OfferBlock;
@@ -106,6 +108,134 @@ public class ExecutionFactoryImpl
             log.debug("created [{}]", created.getUuid());
             }
         return created;
+        }
+
+    @Override
+    // TODO return an UpdateContext, with entity, result and messages.
+    public Optional<ExecutionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+        {
+        log.debug("update(UUID)");
+        log.debug("UUID   [{}]", uuid);
+        log.debug("Update [{}]", update.getClass());
+
+        Optional<ExecutionEntity> result = this.repository.findById(
+            uuid
+            );
+        if (result.isEmpty())
+            {
+            return result ;
+            }
+        else {
+            ExecutionEntity entity = update(
+                result.get(),
+                update
+                );  
+            entity = this.repository.save(
+                entity
+                );
+            return Optional.of(
+                entity
+                );
+            }
+        }
+
+    // TODO Pass in an UpdateContext, with entity, result and messages.
+    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaAbstractUpdate update)
+        {
+        log.debug("update(Entity, Update)");
+        log.debug("Entity [{}]", entity.getUuid());
+        log.debug("Update [{}]", update.getClass());
+        switch(update)
+            {
+            case IvoaEnumValueUpdate valueupdate :
+                return this.update(
+                    entity,
+                    valueupdate
+                    );
+
+            default:
+                // We need to be able to return some error messages here.
+                // We need an ErrorResponse structure ..
+                // This is an invalid request.
+                return null ;
+            }
+        }
+
+    // TODO Pass in an UpdateContext, with entity, result and messages.
+    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaEnumValueUpdate update)
+        {
+        log.debug("update(Entity, ValueUpdate)");
+        log.debug("Entity [{}]", entity.getUuid());
+        log.debug("Update [{}][{}]", update.getPath(), update.getValue());
+        switch(update.getPath())
+            {
+            case "state" :
+                IvoaExecutionSessionStatus oldstate = entity.getState();
+                IvoaExecutionSessionStatus newstate = oldstate;
+                try {
+                    newstate = IvoaExecutionSessionStatus.fromValue(
+                        update.getValue()
+                        );
+                    }
+                catch (IllegalArgumentException ouch)
+                    {
+                    // Unknown state.
+                    }
+                //
+                // If this is a change.
+                if (newstate != oldstate)
+                    {
+                    switch(oldstate)
+                        {
+                        case OFFERED :
+                            switch(newstate)
+                                {
+                                case ACCEPTED:
+                                    entity.setState(
+                                        IvoaExecutionSessionStatus.ACCEPTED
+                                        );
+                                    /*
+                                     * 
+                                    entity.getParent().setAccepted(
+                                        entity
+                                        );
+                                     * 
+                                     */
+                                    for (ExecutionEntity sibling : entity.getParent().getOffers())
+                                        {
+                                        if (sibling != entity)
+                                            {
+                                            sibling.setState(
+                                                IvoaExecutionSessionStatus.REJECTED
+                                                );
+                                            }
+                                        }
+                                    break;
+                                case REJECTED:
+                                    entity.setState(
+                                        IvoaExecutionSessionStatus.REJECTED
+                                        );
+                                    break;
+                                default:
+                                    // Invalid state transition.
+                                    break;
+                                }
+                            break;
+
+                        default:
+                            // Invalid state transition.
+                            break;
+                        }
+                    }
+                break;
+
+            default:
+                // We need to be able to return some error messages here.
+                // We need an ErrorResponse structure ..
+                // This is an invalid request.
+                break;
+            }
+        return entity;
         }
     }
 
