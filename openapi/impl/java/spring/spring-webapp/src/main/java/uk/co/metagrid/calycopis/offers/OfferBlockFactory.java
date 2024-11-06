@@ -17,6 +17,6 @@ public interface OfferBlockFactory
     extends FactoryBase
     {
     
-    public List<OfferBlock> other(final Interval requeststart, final Duration requestduration, final Long requestcores, final Long requestmemory);
+    public List<OfferBlock> generate(final Interval requeststart, final Duration requestduration, final Long requestcores, final Long requestmemory);
 
     }

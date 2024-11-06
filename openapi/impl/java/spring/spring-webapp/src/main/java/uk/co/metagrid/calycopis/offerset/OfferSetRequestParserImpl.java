@@ -339,7 +339,7 @@ log.debug("---- ---- ---- ----");
                 {
                 //
                 // Generate a list of available blocks.
-                List<OfferBlock> offerblocks = offerBlockFactory.other(
+                List<OfferBlock> offerblocks = offerBlockFactory.generate(
                     startinterval,
                     exeduration,
                     mincores,

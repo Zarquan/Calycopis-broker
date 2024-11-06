@@ -129,7 +129,7 @@ public class OfferBlockFactoryImpl
     
     
     @Override
-    public List<OfferBlock> other(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
+    public List<OfferBlock> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {
         // If no starttime, use the default. 
         if (requeststart == null)
