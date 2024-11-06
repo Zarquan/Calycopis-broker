@@ -113,6 +113,11 @@ public class ExecutionEntity
         {
         return this.state;
         }
+    @Override
+    public void setState(final IvoaExecutionSessionStatus state)
+        {
+        this.state = state;
+        }
     
     @Column(name = "startinstantsec")
     private long startinstantsec;

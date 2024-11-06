@@ -119,12 +119,6 @@ public class OfferSetResponseBean
         }
 
     @Override
-    public OffsetDateTime getExpires()
-        {
-        return entity.getExpires();
-        }
-
-    @Override
     public ResultEnum getResult()
         {
         return entity.getResult();

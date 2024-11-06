@@ -1,0 +1,294 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Check git status
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git status
+
+    popd
+
+    >   On branch 20241021-zrq-config-steps
+    >   Your branch is up to date with 'origin/20241021-zrq-config-steps'.
+    >   
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   notes/zrq/20240718-01-internals.txt
+    >   	modified:   notes/zrq/20241017-01-jira-tasks.txt
+    >   	modified:   openapi/ivoa/openapi-0.9.yaml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20241021-01-config-steps.txt
+    >   	notes/zrq/20241023-01-usecase-emails.txt
+    >   	notes/zrq/20241029-01-gpu-options.txt
+    >   	notes/zrq/20241104-01-open-tabs.txt
+    >   	notes/zrq/20241105-01-todo-list.txt
+    >   	notes/zrq/20241105-02-accept-update.txt
+
+	modified:   notes/zrq/20240718-01-internals.txt
+    Added text to notes on errors.
+
+	modified:   notes/zrq/20241017-01-jira-tasks.txt
+    Added more notes.
+
+	modified:   openapi/ivoa/openapi-0.9.yaml
+    Recent changes - new branch ?
+
+    Two new branches
+    1) notes-catchup
+    2) state-machine
+
+    GitHub shows this branch as behind rather than ahead.
+    I think we keep a copy of these changes, and start a new branch.
+
+# -----------------------------------------------------
+# Make a local copy.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "$(dirname ${CALYCOPIS_CODE})"
+
+        cp -a "$(basename ${CALYCOPIS_CODE})" \
+            "backup-$(date +%Y%m%dT%H%M%S)"
+
+    popd
+
+
+# -----------------------------------------------------
+# Fetch the changes from upstream.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git fetch upstream
+
+        git merge upstream/main
+
+        git status
+
+        git push
+
+    popd
+
+    >   On branch main
+    >   Your branch is ahead of 'origin/main' by 6 commits.
+    >     (use "git push" to publish your local commits)
+    >   
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   notes/zrq/20240718-01-internals.txt
+    >   	modified:   notes/zrq/20241017-01-jira-tasks.txt
+    >   	modified:   openapi/ivoa/openapi-0.9.yaml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20241021-01-config-steps.txt
+    >   	notes/zrq/20241023-01-usecase-emails.txt
+    >   	notes/zrq/20241029-01-gpu-options.txt
+    >   	notes/zrq/20241104-01-open-tabs.txt
+    >   	notes/zrq/20241105-01-todo-list.txt
+    >   	notes/zrq/20241105-02-accept-update.txt
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=merge-updates
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git add \
+            notes/zrq/20240718-01-internals.txt
+        git commit -m "Added detail to the example message formats"
+
+        git add \
+            notes/zrq/20241017-01-jira-tasks.txt
+        git commit -m "Added more Jira issues"
+
+        git add \
+        	notes/zrq/20241021-01-config-steps.txt
+        git commit -m "Added daily notes"
+
+        git add \
+        	notes/zrq/20241023-01-usecase-emails.txt
+        git commit -m "Draft emails to use case providers"
+
+        git add \
+        	notes/zrq/20241029-01-gpu-options.txt
+        git commit -m "Draft emails to use case providers"
+
+        git add \
+        	notes/zrq/20241104-01-open-tabs.txt
+        git commit -m "Just a list of open tabs"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+        git status
+
+    popd
+
+    >   Enumerating objects: 35, done.
+    >   Counting objects: 100% (35/35), done.
+    >   Delta compression using up to 4 threads
+    >   Compressing objects: 100% (24/24), done.
+    >   Writing objects: 100% (30/30), 10.95 KiB | 3.65 MiB/s, done.
+    >   Total 30 (delta 15), reused 0 (delta 0), pack-reused 0 (from 0)
+    >   remote: Resolving deltas: 100% (15/15), completed with 4 local objects.
+    >   remote:
+    >   remote: Create a pull request for '20241105-zrq-merge-updates' on GitHub by visiting:
+    >   remote:      https://github.com/Zarquan/Calycopis-broker/pull/new/20241105-zrq-merge-updates
+    >   remote:
+    >   To github.com:Zarquan/Calycopis-broker.git
+    >    * [new branch]      20241105-zrq-merge-updates -> 20241105-zrq-merge-updates
+    >   branch '20241105-zrq-merge-updates' set up to track 'origin/20241105-zrq-merge-updates'.
+
+
+    >   On branch 20241105-zrq-merge-updates
+    >   Your branch is up to date with 'origin/20241105-zrq-merge-updates'.
+    >   
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   openapi/ivoa/openapi-0.9.yaml
+    >   
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20241105-01-todo-list.txt
+    >   	notes/zrq/20241105-02-accept-update.txt
+
+    #
+    # Still TODO
+    # notes/zrq/20241105-01-todo-list.txt
+    # notes/zrq/20241105-02-accept-update.txt
+    # openapi/ivoa/openapi-0.9.yaml
+    #
+
+# -----------------------------------------------------
+# Create a pull request and merge on GitHub.
+#[user@desktop]
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Fetch the changes from upstream.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git fetch upstream
+
+        git merge upstream/main
+
+        git status
+
+        git push
+
+    popd
+
+
+# -----------------------------------------------------
+# Delete old branches.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git branch -d 20241021-zrq-config-steps
+        git branch -d 20241105-zrq-merge-updates
+
+    popd
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=accept-offers
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Add the new notes.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd notes/zrq/
+            mv 20241105-02-accept-update.txt \
+               20241105-02-git-notes.txt
+        popd
+
+        git add notes/zrq/20241105-01-todo-list.txt
+        git add notes/zrq/20241105-02-git-notes.txt
+
+        git commit -m "Added todo list and git notes"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+    popd
+

@@ -86,29 +86,25 @@ public class ExecutionsApiDelegateImpl
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
-/*
- * 
-        IvoaExecutionResponse response = factory.update(
+       final Optional<ExecutionEntity> found = factory.update(
             uuid,
             request.getUpdate()
             );
-        if (null != response)
+        if (found.isPresent())
             {
-            return new ResponseEntity<IvoaExecutionResponse>(
-                response,
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
+                new ExecutionResponseBean(
+                    this.getBaseUrl(),
+                    found.get()
+                    ),
                 HttpStatus.OK
                 );
             }
         else {
-            return new ResponseEntity<>(
+            return new ResponseEntity<IvoaExecutionSessionResponse>(
                 HttpStatus.NOT_FOUND
                 );
             }
- * 
- */
-        return new ResponseEntity<>(
-            HttpStatus.NOT_FOUND
-            );
         }
     }
 

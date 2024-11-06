@@ -30,7 +30,7 @@
 		<version>3.2.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>uk.co.metagrid</groupId>
+	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-webapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
@@ -45,7 +45,7 @@
             | Include our generated classes.
             +-->
         <dependency>
-            <groupId>uk.co.metagrid</groupId>
+            <groupId>net.ivoa.calycopis</groupId>
             <artifactId>calycopis-openapi</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>

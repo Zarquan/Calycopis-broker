@@ -30,7 +30,7 @@
 		<version>3.2.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>uk.co.metagrid</groupId>
+	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-openapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -42,7 +42,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
             +-->
-        <schema.yaml>${project.basedir}/ivoa/openapi-0.9.yaml</schema.yaml>
+        <schema.yaml>${project.basedir}/ivoa/openapi-1.0.yaml</schema.yaml>
 	</properties>
 	<dependencies>
         <!--+

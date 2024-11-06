@@ -66,6 +66,12 @@ public interface Execution
     public IvoaExecutionSessionStatus getState();
 
     /**
+     * Set the Execution state.
+     *
+     */
+    void setState(final IvoaExecutionSessionStatus state);
+
+    /**
      * Get the expiry date for an OFFERED Execution.
      *
      */
@@ -130,7 +136,6 @@ public interface Execution
      *
      */
     public List<SimpleComputeResourceEntity> getComputeResources();
-
 
     }
 
