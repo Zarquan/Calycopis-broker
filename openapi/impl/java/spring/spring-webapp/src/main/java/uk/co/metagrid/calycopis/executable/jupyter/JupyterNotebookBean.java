@@ -20,9 +20,15 @@ import uk.co.metagrid.calycopis.util.ListWrapper;
  * A serialization bean for JupyterNotebooks.
  * Ideally we would like to extend ComponentBean, but we need to extend  
  * IvoaJupyterNotebook to pick up the serialization annotations.
+ * This doesn't work, the serialization mechanism skips the type URI
+ * and replaces it with the Java class name.
+ * 
+ *   executable:
+ *     type: "JupyterNotebookBean"
  * 
  */
 @Slf4j
+@Deprecated
 public class JupyterNotebookBean
     extends IvoaJupyterNotebook
     {

@@ -3,11 +3,18 @@
  */
 package uk.co.metagrid.calycopis.executable;
 
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookBean;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebook;
 import uk.co.metagrid.calycopis.executable.jupyter.JupyterNotebookEntity;
 import uk.co.metagrid.calycopis.factory.FactoryBaseImpl;
+import uk.co.metagrid.calycopis.message.MessageEntity;
+import uk.co.metagrid.calycopis.message.MessageItemBean;
+import uk.co.metagrid.calycopis.util.ListWrapper;
 
 /**
  * 
@@ -40,15 +47,73 @@ public class AbstractExecutableBeanFactoryImpl
             switch(entity)
                 {
                 case JupyterNotebookEntity jupyter:
-                    IvoaAbstractExecutable bean = new JupyterNotebookBean(
+                    /*
+                     * This returns the class name rather than the type field.
+                     * executable:
+                     *   type: "JupyterNotebookBean"
+                     * 
+                    IvoaAbstractExecutable bean = (IvoaJupyterNotebook) new JupyterNotebookBean(
                         baseurl,
                         jupyter
                         );
+                     *
+                     * This doesn't work either.
+                     * executable:
+                     *   type: "AbstractExecutableBeanFactoryImpl$1"
+                     *   
+                    IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
+                        JupyterNotebook.TYPE_DISCRIMINATOR
+                        ){
+                        @Override
+                        public UUID getUuid()
+                            {
+                            return entity.getUuid();
+                            }
+
+                        @Override
+                        public String getHref()
+                            {
+                            return baseurl + JupyterNotebook.REQUEST_PATH + entity.getUuid();
+                            }
+
+                        @Override
+                        public String getType()
+                            {
+                            log.debug("getType() [{}]", JupyterNotebook.TYPE_DISCRIMINATOR);
+                            return JupyterNotebook.TYPE_DISCRIMINATOR;
+                            }
+
+                        @Override
+                        public String getNotebook()
+                            {
+                            return jupyter.getNotebook();
+                            }
+                        };
+                     */
+                    /*
+                     * This works, but the message list needs to be wrapped.
+                     * executable:
+                     *   type: "urn:jupyter-notebook-0.1"
+                     * 
+                     */
+                    IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
+                        JupyterNotebook.TYPE_DISCRIMINATOR
+                        );
+                    bean.uuid(entity.getUuid());
+                    bean.href(baseurl + JupyterNotebook.REQUEST_PATH + entity.getUuid());
+                    bean.messages(
+                        listwrap(
+                            entity,
+                            bean
+                            )
+                        );
+                    bean.notebook(jupyter.getNotebook());
+                    
                     log.debug("Bean [{}][{}][{}]",
-                            bean.getUuid(),
-                            bean.getType(),
-                            bean.getClass().getName()
-                            );
+                        bean.getUuid(),
+                        bean.getType(),
+                        bean.getClass().getName()
+                        );
                     return bean ;
                 default:
                     throw new RuntimeException("Unexpected Executable type []");
@@ -57,5 +122,23 @@ public class AbstractExecutableBeanFactoryImpl
         else {
             return null ;
             }
+        }
+
+    /**
+     * Wrap a List of JPA MessageEntity(s) as a List of IvoaMessageItems.
+     * 
+     */
+    protected List<IvoaMessageItem> listwrap(final AbstractExecutableEntity entity, final IvoaAbstractExecutable bean)
+        {
+        return new ListWrapper<IvoaMessageItem, MessageEntity>(
+            entity.getMessages()
+            ){
+            public IvoaMessageItem wrap(final MessageEntity inner)
+                {
+                return new MessageItemBean(
+                    inner
+                    );
+                }
+            };
         }
     }
