@@ -41,13 +41,20 @@ Implementation
 
         Decide on path
             /executions/{uuid}
-            /session/{uuid}
+            /sessions/{uuid} <==
 
         Add execution status
             GET /executions/{uuid}
 
         Add ACCEPT update
             POST /executions/{uuid}
+
+        Max cores and memory
+
+        Max duration
+
+        Add support for volumes and interlinks with data resources
+
 
         Delete old code
             ambleck
@@ -57,7 +64,6 @@ Implementation
 
         Delete Python branch
 
-        Add support for volumes and interlinks with data resources
 
 
 # -----------------------------------------------------
