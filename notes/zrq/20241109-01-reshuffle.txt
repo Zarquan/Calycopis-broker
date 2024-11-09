@@ -1,0 +1,371 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Shuffle directories to move old stuff into attics.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch
+#[user@laptop]
+
+    branchname=reshuffling
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+        git status
+
+    popd
+
+
+# -----------------------------------------------------
+# Shuffle the directories.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git mv \
+            openapi/impl/java \
+            java
+
+        git mv \
+            openapi/impl/python \
+            python
+
+        pushd openapi/ivoa/
+
+            git mv \
+                openapi-0.6.yaml \
+                attic
+
+            git mv \
+                openapi-0.7.yaml \
+                attic
+
+            git mv \
+                openapi-0.8.yaml \
+                attic
+
+            git mv \
+                openapi-0.9.yaml \
+                attic
+
+        popd
+
+        pushd python
+
+            git mv \
+                chatgpt \
+                attic
+
+            git mv \
+                koxudaxi \
+                attic
+
+            git mv \
+                openapitools \
+                attic
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Fix the broken link.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd java/spring/spring-openapi
+
+
+            ls -al
+
+    >   ....
+    >   lrwxrwxrwx 1 h15033dm h15033dm    17 Sep 28 23:13 ivoa -> ../../../../ivoa/
+    >   drwxrwxr-x 3 h15033dm h15033dm  4096 Aug 15 15:46 .mvn
+    >   ....
+
+            rm ivoa
+            ln -s ../../../openapi/ivoa ivoa
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Check the project still builds.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-09T17:05:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-09T19:05:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-09T21:05:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-09T23:05:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+
+# -----------------------------------------------------
+# Accept the second offer.
+#[root@spring-builder]
+
+    offersethref=$(
+        yq '.href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+    offerhref=$(
+        yq '.offers[1].href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+cat > /tmp/updaterequest.yaml  << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '.'
+
+
+    >   type: "urn:generic-execution"
+    >   uuid: "3294dd25-0d95-4c73-954e-699167004759"
+    >   href: "http://127.0.0.1:8082/executions/3294dd25-0d95-4c73-954e-699167004759"
+    >   offerset:
+    >     uuid: "3036e417-f66e-4b9f-a158-72115d08113a"
+    >     href: "http://127.0.0.1:8082/offersets/3036e417-f66e-4b9f-a158-72115d08113a"
+    >   state: "ACCEPTED"
+    >   expires: "2024-11-09T22:03:51.952393Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "98916d1a-12d1-4c68-b4aa-381f8cd341fe"
+    >     href: "http://127.0.0.1:8082/executables/98916d1a-12d1-4c68-b4aa-381f8cd341fe"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "ee13d2a6-b08f-48b5-8360-010f10304092"
+    >         href: "http://127.0.0.1:8082/simple-compute/ee13d2a6-b08f-48b5-8360-010f10304092"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 12
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-09T19:05:00Z"
+    >     finishing: {}
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref}" \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":  .uuid,
+                "state": .state
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "fce9a10c-f5de-415d-914d-e5d3e60a542c"
+    >       state: "REJECTED"
+    >     - uuid: "3294dd25-0d95-4c73-954e-699167004759"
+    >       state: "ACCEPTED"
+    >     - uuid: "941fe538-efff-4b5d-a72e-6ce783494d5a"
+    >       state: "REJECTED"
+    >     - uuid: "3f940416-480a-4746-b6f0-cd6dce94dfbf"
+    >       state: "REJECTED"
+
+
+
