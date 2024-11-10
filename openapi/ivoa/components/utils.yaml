@@ -1,0 +1,105 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker utility classes
+  version: "0.8"
+  summary: IVOA ExecutionBroker utility classes
+  description: >
+    Utility classes used in the IVOA ExecutionBroker data model
+  contact:
+    name: Zarquan
+    url: https://github.com/Zarquan
+
+components:
+  schemas:
+
+    NameValueMap:
+      description: >
+        A map of name->value properties.
+        See https://swagger.io/docs/specification/data-models/dictionaries/
+      type: object
+      title: NameValueMap
+      additionalProperties:
+        type: string
+
+    MinMaxInteger:
+      description: >
+        A minimum and maximum pair with units for a 32bit integer value.
+      type: object
+      title: MinMaxInteger
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+        units:
+          type: string
+
+    MinMaxLong:
+      description: >
+        A minimum and maximum pair with units for a 64bit integer value.
+      type: object
+      title: MinMaxInteger
+      properties:
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+        units:
+          type: string
+
+    MinMaxFloat:
+      description: >
+        A minimum and maximum pair with units for a floating point value.
+      type: object
+      title: MinMaxFloat
+      properties:
+        min:
+          type: number
+          format: float
+        max:
+          type: number
+          format: float
+        units:
+          type: string
+
+    MinMaxString:
+      description: >
+        A minimum and maximum pair with units for a string value.
+      type: object
+      title: MinMaxString
+      properties:
+        min:
+          type: string
+        max:
+          type: string
+        units:
+          type: string
+

@@ -85,25 +85,4 @@ public class SystemApiDelegateImpl
             HttpStatus.OK
             );
         }
-
-
-    @Override
-    public ResponseEntity<IvoaExecutionSessionResponse> stepUpdate(final UUID uuid)
-        {
-        IvoaExecutionSessionResponse response = manager.advance(
-            uuid
-            );
-        if (null != response)
-            {
-            return new ResponseEntity<IvoaExecutionSessionResponse>(
-                response,
-                HttpStatus.OK
-                );
-            }
-        else {
-            return new ResponseEntity<>(
-                HttpStatus.NOT_FOUND
-                );
-            }
-        }
     }
