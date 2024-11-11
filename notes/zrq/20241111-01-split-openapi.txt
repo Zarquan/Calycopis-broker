@@ -1,0 +1,468 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Repair the damage ...
+
+    Result:
+
+        Work in progress ...
+
+
+    TODO:
+
+        ExecutionSessionStatus => ExecutionSessionPhase
+
+        ScheduleOfferBlock:
+          finishing: => releasing:
+
+
+# -----------------------------------------------------
+# Bring the separate parts together.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi/ivoa
+
+            #
+            # Move AbstractComponent back into the main file.
+            # Putting it in a separate file only makes sense if we can
+            # move the derrived classes too.
+            #
+            # Remove compute-resources.yaml, but leave components.yaml
+            # as a place to put some base classes.
+            #
+
+            pushd components
+
+                ls -1
+
+    >   components.yaml
+    >   compute-resources.yaml
+    >   messages.yaml
+    >   utils.yaml
+
+                git rm compute-resources.yaml
+
+            popd
+
+            git add openapi.yaml
+
+
+        popd
+
+        git add .
+        git commit -m "Re-combined the split components"
+
+    popd
+
+
+
+
+# -----------------------------------------------------
+# Check the project still builds.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: urn:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: urn:simple-compute-resource-0.1
+    cores:
+      requested: 6
+    memory:
+      requested: 1GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '.'
+
+ --START--
+uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+name: "Test request"
+created: "2024-11-11T04:50:31.574996Z"
+result: "NO"
+offers:
+  - type: "urn:execution-session"
+    uuid: "ae0bb81d-dd7b-45bb-bba0-8b484a327826"
+    href: "http://127.0.0.1:8082/sessions/ae0bb81d-dd7b-45bb-bba0-8b484a327826"
+    offerset:
+      uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+      href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+    state: "OFFERED"
+    expires: "2024-11-11T09:50:31.575024Z"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "626b71c1-b50d-40dc-ba99-a94a8005a5cd"
+      href: "http://127.0.0.1:8082/executables/626b71c1-b50d-40dc-ba99-a94a8005a5cd"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "ee2c36fe-4a12-473a-8b7a-99c5de8f77cb"
+          href: "http://127.0.0.1:8082/simple-compute/ee2c36fe-4a12-473a-8b7a-99c5de8f77cb"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-11-11T04:55:00Z"
+      finishing: {}
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - type: "urn:execution-session"
+    uuid: "67f2f5d0-1218-4054-8627-b82b9020f078"
+    href: "http://127.0.0.1:8082/sessions/67f2f5d0-1218-4054-8627-b82b9020f078"
+    offerset:
+      uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+      href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+    state: "OFFERED"
+    expires: "2024-11-11T09:50:31.575024Z"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "f69814c2-910b-4df8-a292-d55fa0a8718c"
+      href: "http://127.0.0.1:8082/executables/f69814c2-910b-4df8-a292-d55fa0a8718c"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "b4403a81-be0e-4bc2-9539-5b67725a0955"
+          href: "http://127.0.0.1:8082/simple-compute/b4403a81-be0e-4bc2-9539-5b67725a0955"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-11-11T06:55:00Z"
+      finishing: {}
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - type: "urn:execution-session"
+    uuid: "4d93fff1-f5f7-497e-9cdd-9b9f2d272cb7"
+    href: "http://127.0.0.1:8082/sessions/4d93fff1-f5f7-497e-9cdd-9b9f2d272cb7"
+    offerset:
+      uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+      href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+    state: "OFFERED"
+    expires: "2024-11-11T09:50:31.575024Z"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "41f089de-76ea-4b98-9322-eff5f4230176"
+      href: "http://127.0.0.1:8082/executables/41f089de-76ea-4b98-9322-eff5f4230176"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "0f4f6b7b-2b2f-4ab0-976d-64c47435bcc9"
+          href: "http://127.0.0.1:8082/simple-compute/0f4f6b7b-2b2f-4ab0-976d-64c47435bcc9"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-11-11T08:55:00Z"
+      finishing: {}
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+  - type: "urn:execution-session"
+    uuid: "72d2f7be-b20c-4256-a275-09b2c6e60119"
+    href: "http://127.0.0.1:8082/sessions/72d2f7be-b20c-4256-a275-09b2c6e60119"
+    offerset:
+      uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+      href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+    state: "OFFERED"
+    expires: "2024-11-11T09:50:31.575024Z"
+    executable:
+      type: "urn:jupyter-notebook-0.1"
+      uuid: "d30a11c1-5bd4-4073-a056-6d23964c99f1"
+      href: "http://127.0.0.1:8082/executables/d30a11c1-5bd4-4073-a056-6d23964c99f1"
+      notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    resources:
+      compute:
+        - type: "SimpleComputeResourceBean"
+          uuid: "97f81c6e-cc4c-461d-acee-65ae17122288"
+          href: "http://127.0.0.1:8082/simple-compute/97f81c6e-cc4c-461d-acee-65ae17122288"
+          name: "computer-001"
+          cores:
+            requested: 6
+            offered: 12
+          memory:
+            requested: "1.00 GiB"
+            offered: "2.00 GiB"
+    schedule:
+      preparing: {}
+      executing:
+        duration: "PT1H"
+        start: "2024-11-11T10:55:00Z"
+      finishing: {}
+    options:
+      - type: "urn:enum-value-option"
+        path: "state"
+        values:
+          - "ACCEPTED"
+          - "REJECTED"
+ --END--
+
+    yq '{
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }' \
+    '/tmp/createresponse.yaml'
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-11T04:55:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-11T06:55:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-11T08:55:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-11T10:55:00Z"
+    >       compute:
+    >         - cores:
+    >             requested: 6
+    >             offered: 12
+    >           memory:
+    >             requested: "1.00 GiB"
+    >             offered: "2.00 GiB"
+
+
+# -----------------------------------------------------
+# Accept the second offer.
+#[root@spring-builder]
+
+    offersethref=$(
+        yq '.href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+    offerhref=$(
+        yq '.offers[1].href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+cat > /tmp/updaterequest.yaml  << EOF
+update:
+  type: urn:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '.'
+
+    >   type: "urn:execution-session"
+    >   uuid: "67f2f5d0-1218-4054-8627-b82b9020f078"
+    >   href: "http://127.0.0.1:8082/sessions/67f2f5d0-1218-4054-8627-b82b9020f078"
+    >   offerset:
+    >     uuid: "efb66428-7ed5-44b4-9d98-abe383897bfa"
+    >     href: "http://127.0.0.1:8082/offersets/efb66428-7ed5-44b4-9d98-abe383897bfa"
+    >   state: "ACCEPTED"
+    >   expires: "2024-11-11T09:50:31.575024Z"
+    >   executable:
+    >     type: "urn:jupyter-notebook-0.1"
+    >     uuid: "f69814c2-910b-4df8-a292-d55fa0a8718c"
+    >     href: "http://127.0.0.1:8082/executables/f69814c2-910b-4df8-a292-d55fa0a8718c"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "b4403a81-be0e-4bc2-9539-5b67725a0955"
+    >         href: "http://127.0.0.1:8082/simple-compute/b4403a81-be0e-4bc2-9539-5b67725a0955"
+    >         name: "computer-001"
+    >         cores:
+    >           requested: 6
+    >           offered: 12
+    >         memory:
+    >           requested: "1.00 GiB"
+    >           offered: "2.00 GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-11T06:55:00Z"
+    >     finishing: {}
+    >   options:
+    >     - type: "urn:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref}" \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":  .uuid,
+                "state": .state
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "ae0bb81d-dd7b-45bb-bba0-8b484a327826"
+    >       state: "REJECTED"
+    >     - uuid: "67f2f5d0-1218-4054-8627-b82b9020f078"
+    >       state: "ACCEPTED"
+    >     - uuid: "4d93fff1-f5f7-497e-9cdd-9b9f2d272cb7"
+    >       state: "REJECTED"
+    >     - uuid: "72d2f7be-b20c-4256-a275-09b2c6e60119"
+    >       state: "REJECTED"
+
+
+
+

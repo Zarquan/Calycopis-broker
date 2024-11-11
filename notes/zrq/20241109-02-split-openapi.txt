@@ -1,0 +1,241 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Split the OpenAPI specification into separate parts.
+
+    Result:
+
+        Work in progress ...
+
+
+    TODO
+
+        ExecutionSessionStatus => ExecutionSessionPhase
+
+        ScheduleOfferBlock:
+          finishing: => releasing:
+
+
+
+# -----------------------------------------------------
+# Create a new branch
+#[user@laptop]
+
+    branchname=split-openapi
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git push --set-upstream 'origin' "$(git branch --show-current)"
+
+        git status
+
+    popd
+
+
+# -----------------------------------------------------
+# Split the OpenAPI specification.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi/ivoa/
+
+            mkdir paths
+                touch paths/offerset-request.yaml
+                touch paths/offerset-uuid.yaml
+                touch paths/session-uuid.yaml
+
+            mkdir requests
+                touch requests/offerset-request.yaml
+                touch requests/update-request.yaml
+
+            mkdir responses
+                touch responses/offerset-response.yaml
+                touch responses/session-response.yaml
+                touch responses/error-responses.yaml
+
+            mkdir components
+                touch components/components.yaml
+
+
+            #
+            # Edit the code ...
+            #
+
+    >   ....
+    >   ....
+
+        popd
+    popd
+
+
+
+# -----------------------------------------------------
+# Check the project still builds.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+    #
+    # Spectacular litany of failures.
+    # References from one spec file to the other didn't work.
+    #
+    # Needed to add title to every class so they could be found by the discriminator mapping.
+    # Even then, it only generated classes for the abstract class, not the derrived classes.
+    #
+    # With just the
+
+    #
+    # Tried using inputSpecRootDirectory parameter to include all the files.
+    # This fails with dots in the file names.
+    # FAIL openapi-1.0.yaml
+    # PASS openapi.yaml
+
+    # Then it fails to read files from a sub-directory (it lists it but doesn't read it).
+
+        [INFO] In spec root directory /openapi/ivoa found specs [openapi.yaml, components/components.yaml]
+        [INFO] Reading spec: /openapi/ivoa/openapi.yaml
+        [INFO] Reading spec: /openapi/ivoa/components/components.yaml
+        [ERROR] Failed to read file: /openapi/ivoa/components/components.yaml. It would be ignored
+
+    # It insists on putting the merged file in the same directory.
+    # Even if you use an absolute path.
+
+        java.nio.file.FileSystemException: /openapi/ivoa/_merged_spec.yaml: Read-only file system
+        java.nio.file.NoSuchFileException: /openapi/ivoa/tmp/merged-spec.yaml.yaml
+
+    # Means we have to mount the source directory rw - anti-pattern.
+
+    -   --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+    +   --volume "${CALYCOPIS_CODE}/openapi:/openapi:z" \
+
+    # Even then it makes a mess of generating the merged file.
+
+    >   ---
+    >   servers:
+    >   - url: "http://localhost:8080"
+    >   openapi: "3.1.0"
+    >   paths:
+    >     /system/sweep/delete:
+    >       $ref: "./openapi.yaml#/paths/~1system~1sweep~1delete"
+    >     /system/sweep/update:
+    >       $ref: "./openapi.yaml#/paths/~1system~1sweep~1update"
+    >     /sessions/{uuid}:
+    >       $ref: "./openapi.yaml#/paths/~1sessions~1{uuid}"
+    >     /offersets/{uuid}:
+    >       $ref: "./openapi.yaml#/paths/~1offersets~1{uuid}"
+    >     /offersets:
+    >       $ref: "./openapi.yaml#/paths/~1offersets"
+    >   info:
+    >     title: "merged spec"
+    >     description: "merged spec"
+    >     version: "1.0.0"
+
+
+
+        [INFO] Merge input spec would be used - /openapi/ivoa/merged-spec.yaml
+        [ERROR] Error resolving ./openapi.yaml#/paths/~1sessions~1{uuid}
+
+    # Going back to have everything in one file works
+
+        <inputSpec>${schema.path}/openapi.yaml</inputSpec>
+
+    # All of the derrived classes get generated, along with the discriminator code.
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
+        @JsonSubTypes({
+          @JsonSubTypes.Type(value = IvoaSimpleComputeResource.class, name = "urn:simple-compute-resource-0.1")
+        })
+
+
+    #
+    # We could do the merge separatley ..
+    # https://github.com/kpramesh2212/openapi-merger-plugin/tree/main/openapi-merger-maven-plugin
+    #
+    # ... but the references would have to assume everything in one file.
+    # not portable
+    #
+
+    #
+    # Gradually push small components into separate files and check the build each time.
+    #
+
+    #
+    # Simple things like messages can be moved to separate files.
+    # but the abstract base classes can't be moved.
+    # as soon as we put AbstractComputeResource into a separate file,
+    # we lose the derived classes and discriminator
+    # which means it doesn't generate the @JsonSubTypes(..) annotation
+    #
+
+    #
+    # If we have all of the components in a separate file, it doesn't work.
+    #
+
+    #
+    # If we put AbstractComputeResource and SimpleComputeResource together in a separate file
+    # and explicitly compile that, we get the correct inheritance and @JsonSubTypes(..) annotation.
+    # ... but we would still need to connect it to the main request and response classes ..
+    #
+
+    #
+    # Basically .. we can't.
+    #
+

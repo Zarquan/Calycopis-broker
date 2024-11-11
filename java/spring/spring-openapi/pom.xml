@@ -42,7 +42,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
             +-->
-        <schema.yaml>${project.basedir}/ivoa/openapi-1.0.yaml</schema.yaml>
+        <schema.path>${project.basedir}/ivoa</schema.path>
 	</properties>
 	<dependencies>
         <!--+
@@ -146,11 +146,63 @@
         	<version>7.8.0</version>
         	<scope>provided</scope>
         </dependency>
+
+        <dependency>
+        	<groupId>com.rameshkp</groupId>
+        	<artifactId>openapi-merger-maven-plugin</artifactId>
+        	<version>1.0.5</version>
+        	<scope>provided</scope>
+        </dependency>
+
 	</dependencies>
 
 	<build>
         <!--sourceDirectory>src/main/java, target/generated-sources/openapi/src/main/java</sourceDirectory-->
 		<plugins>
+            <!--+
+                | https://github.com/kpramesh2212/openapi-merger-plugin/tree/main/openapi-merger-maven-plugin
+            <plugin>
+                <groupId>com.rameshkp</groupId>
+                <artifactId>openapi-merger-maven-plugin</artifactId>
+                <version>1.0.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <inputDir>${project.basedir}/ivoa</inputDir>
+                            <outputDir>${project.basedir}/target/merged</outputDir>
+                            <outputFileFormat>YAML</outputFileFormat>
+                            <outputFileName>merged-schema</outputFileName>
+                            <openApi>
+                                <version>3.0.3</version>
+                                <info>
+                                    <version>1.0.0-SNAPSHOT</version>
+                                    <title>Merged Title</title>
+                                    <description>A short description of the title</description>
+                                    <termsOfService>"https://openapi-merger.com/terms-of-service"</termsOfService>
+                                    <contact>
+                                        <name>ContactName</name>
+                                        <email>contact@openapi.merger.com</email>
+                                        <url>https://openapimerger.com</url>
+                                    </contact>
+                                    <license>
+                                        <name>Apache License v2.0</name>
+                                        <url>https://apache.org/v2</url>
+                                    </license>
+                                </info>
+                                <externalDocs>
+                                    <description>External Docs</description>
+                                    <url>https://external-docs.com/url</url>
+                                </externalDocs>
+                            </openApi>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+                +-->
+
             <!--+
                 | OpenAPI generator from the Spring documentation.
                 | https://www.baeldung.com/java-openapi-generator-server#plugin
@@ -170,10 +222,14 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>
-                                ${schema.yaml}
-                            </inputSpec>
+                            <inputSpec>${schema.path}/openapi.yaml</inputSpec>
+                            <!--inputSpec>${schema.path}/components/compute-resources.yaml</inputSpec-->
+                            <!--inputSpec>${project.basedir}/target/merged/merged-schema.yaml</inputSpec-->
+                            <!--inputSpecRootDirectory>${schema.path}</inputSpecRootDirectory-->
+                            <!--inputSpecRootDirectory>/openapi/ivoa</inputSpecRootDirectory-->
+                            <!--mergedFileName>merged-spec</mergedFileName-->
                             <generatorName>spring</generatorName>
+                            <generateAliasAsModel>false</generateAliasAsModel>
                             <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>
                             <modelNamePrefix>Ivoa</modelNamePrefix>
                             <modelPackage>net.ivoa.calycopis.openapi.model</modelPackage>
@@ -190,6 +246,7 @@
                     </execution>
                 </executions>
             </plugin>
+
 		</plugins>
 	</build>
 

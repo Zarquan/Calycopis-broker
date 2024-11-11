@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.ivoa.calycopis.offers;
 
@@ -16,17 +16,17 @@ import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
-import uk.co.metagrid.ambleck.model.FactoryBase;
+import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import wtf.metio.storageunits.model.StorageUnit;
 import wtf.metio.storageunits.model.StorageUnits;
 
 /**
- * 
+ *
  */
 @Slf4j
 @Component
 public class OfferBlockFactoryImpl
-    extends FactoryBase
+    extends FactoryBaseImpl
     implements OfferBlockFactory
     {
 
@@ -36,10 +36,10 @@ public class OfferBlockFactoryImpl
         {
         this.template = template;
         }
-    
+
     // TODO Move all of these values to a PlatformConfiguration that can be shared with the OfferSetRequestParser.
     // TODO Perform the main verification checks in the OfferSetRequestParser.
-    
+
     /**
      * The the granularity of time values in the database.
      * Set to 5 minute steps.
@@ -50,88 +50,88 @@ public class OfferBlockFactoryImpl
     /**
      * How far to look ahead.
      * Set to 24 hours.
-     * This should be set by the Duration of the requested start Interval. 
+     * This should be set by the Duration of the requested start Interval.
      *
      */
-    public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L; 
-    
+    public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L;
+
     /**
      * The default start time range if none is specified in the request.
      * Set to 5 minutes.
-     *  
+     *
      */
     public static final Duration DEFAULT_START_RANGE = Duration.ofMinutes(5);
     /**
      * The maximum start time range allowed.
      * Set to 24 hours.
-     *  
+     *
      */
-    public static final Duration MAXIMUM_START_RANGE  = Duration.ofHours(24);    
+    public static final Duration MAXIMUM_START_RANGE  = Duration.ofHours(24);
 
     /**
      * The default execution duration if none is specified in the request.
      * Set to 2 hours.
-     *  
+     *
      */
-    public static final Duration DEFAULT_DURATION = Duration.ofHours(2);    
+    public static final Duration DEFAULT_DURATION = Duration.ofHours(2);
     /**
      * How much more time we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
-     *  
+     *
      */
-    public static final int OFFER_DURATION_SCALE = 2;    
+    public static final int OFFER_DURATION_SCALE = 2;
     /**
      * The maximum execution duration we are allowed to offer.
      * Set to 4 hours.
-     *  
+     *
      */
-    public static final Duration MAXIMUM_DURATION = Duration.ofHours(4);    
-    
+    public static final Duration MAXIMUM_DURATION = Duration.ofHours(4);
+
     /**
      * The default number of CPU cores if none is specified in the request.
-     *  
+     *
      */
     public static final Long DEFAULT_CPU_CORES_REQUEST = 1L ;
     /**
      * The total number of CPU cores available on the platform.
-     *  
+     *
      */
     public static final Long TOTAL_AVAILABLE_CPU_CORES = 32L ;
     /**
      * How many more CPU cores we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
-     *  
+     *
      */
-    public static final int OFFER_CPU_CORES_SCALE = 2;    
+    public static final int OFFER_CPU_CORES_SCALE = 2;
 
     /**
      * The default amount of CPU memory if none is specified in the request.
-     *  
+     *
      */
     public static final StorageUnit<?> DEFAULT_CPU_MEMORY_REQUEST = StorageUnits.gibibyte(1) ;
     /**
      * The total amount of CPU memory available on the platform.
-     *  
+     *
      */
     public static final StorageUnit<?> TOTAL_AVAILABLE_CPU_MEMORY = StorageUnits.gibibyte(32);
     /**
      * How much more memory we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
-     *  
+     *
      */
-    public static final int OFFER_CPU_MEMORY_SCALE = 2;    
+    public static final int OFFER_CPU_MEMORY_SCALE = 2;
 
     /**
      * The number of rows in each category to select.
-     *  
+     *
      */
-    public static final int QUERY_ROW_LIMIT = 4;    
-    
-    
+    public static final int QUERY_ROW_LIMIT = 4;
+
+
     @Override
     public List<OfferBlock> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {
-        // If no starttime, use the default. 
+        // If no starttime, use the default.
         if (requeststart == null)
             {
             requeststart = Interval.of(
@@ -140,7 +140,7 @@ public class OfferBlockFactoryImpl
                 );
             }
 
-        // If no startend, use the default. 
+        // If no startend, use the default.
         if (requeststart.getEnd() == Instant.MAX)
             {
             requeststart = Interval.of(
@@ -154,7 +154,7 @@ public class OfferBlockFactoryImpl
             {
             requestduration = DEFAULT_DURATION;
             }
-        
+
         if (requestcores == null)
             {
             requestcores = DEFAULT_CPU_CORES_REQUEST;
@@ -164,7 +164,7 @@ public class OfferBlockFactoryImpl
             {
             requestmemory = DEFAULT_CPU_MEMORY_REQUEST.longValue();
             }
-        
+
         // Calculate the maximum duration.
         Duration maxduration = Duration.ofSeconds(
             requestduration.getSeconds() * OFFER_DURATION_SCALE
@@ -173,7 +173,7 @@ public class OfferBlockFactoryImpl
             {
             maxduration = MAXIMUM_DURATION;
             }
-      //--        
+      //--
         String query =
             """
             WITH ExecutionBlocks AS
@@ -381,7 +381,7 @@ public class OfferBlockFactoryImpl
                 )
             )
 
-            SELECT * FROM CombinedQuery 
+            SELECT * FROM CombinedQuery
 
             """;
 

@@ -37,18 +37,18 @@ import net.ivoa.calycopis.execution.ExecutionFactory;
 import net.ivoa.calycopis.execution.ExecutionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
-import net.ivoa.calycopis.openapi.webapp.ExecutionsApiDelegate;
+import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
 
 @Service
-public class ExecutionsApiDelegateImpl
+public class SessionsApiDelegateImpl
     extends BaseDelegateImpl
-    implements ExecutionsApiDelegate
+    implements SessionsApiDelegate
     {
 
     private final ExecutionFactory factory ;
 
     @Autowired
-    public ExecutionsApiDelegateImpl(
+    public SessionsApiDelegateImpl(
         NativeWebRequest request,
         ExecutionFactory factory
         )
@@ -58,7 +58,7 @@ public class ExecutionsApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionSessionResponse> executionGet(
+    public ResponseEntity<IvoaExecutionSessionResponse> executionSessionGet(
         final UUID uuid
         ) {
         final Optional<ExecutionEntity> found = factory.select(
@@ -82,7 +82,7 @@ public class ExecutionsApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionSessionResponse> executionPost(
+    public ResponseEntity<IvoaExecutionSessionResponse> executionSessionPost(
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
