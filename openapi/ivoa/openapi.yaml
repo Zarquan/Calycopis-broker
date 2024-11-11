@@ -1123,7 +1123,7 @@ components:
           $ref: 'ScheduleOfferItem'
         executing:
           $ref: 'ScheduleOfferItem'
-        finishing:
+        releasing:
           $ref: 'ScheduleOfferItem'
 
 # sessions.yaml
