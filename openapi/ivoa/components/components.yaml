@@ -36,41 +36,4 @@ info:
 components:
   schemas:
 
-    AbstractComponent:
-      description: >
-        Abstract base class for all our components.
-        This class provides a name, a UUID identifier,
-        and a map of name->value properties.
-      type: object
-      title: AbstractComponent
-      properties:
-        uuid:
-          description: >
-            A machine readable UUID, assigned by the server.
-          type: string
-          format: uuid
-        href:
-          description: >
-            The URL to access this component, assigned by the server.
-          type: string
-        name:
-          description: >
-            A human readable name, assigned by the client.
-          type: string
-        created:
-          description: >
-            The date and time that this component was created.
-          type: string
-          format: date-time
-        messages:
-          description: >
-            A list of messages about this component.
-          xml:
-            name: messages
-          type: array
-          items:
-            $ref: './messages.yaml#/components/schemas/MessageItem'
-            xml:
-              name: message
-
 

@@ -1,0 +1,89 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Repair the damage ...
+
+    Result:
+
+        Work in progress ...
+
+
+    TODO:
+
+        ExecutionSessionStatus => ExecutionSessionPhase
+
+        ScheduleOfferBlock:
+          finishing: => releasing:
+
+
+# -----------------------------------------------------
+# Bring the separate parts together.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi/ivoa
+
+            #
+            # Move AbstractComponent back into the main file.
+            # Putting it in a separate file only makes sense if we can
+            # move the derrived classes too.
+            #
+            # Remove compute-resources.yaml, but leave components.yaml
+            # as a place to put some base classes.
+            #
+
+            pushd components
+
+                ls -1
+
+--START--
+components.yaml
+compute-resources.yaml
+messages.yaml
+utils.yaml
+--END--
+
+                git rm compute-resources.yaml
+
+            popd
+
+            git add openapi.yaml
+
+
+        popd
+
+        git add .
+        git commit -m "Re-combined the split components"
+
+    popd
+
+
+
+
+

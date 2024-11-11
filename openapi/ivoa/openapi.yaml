@@ -234,6 +234,45 @@ paths:
 components:
   schemas:
 
+# components.yaml
+
+    AbstractComponent:
+      description: >
+        Abstract base class for all our components.
+        This class provides a name, a UUID identifier,
+        and a map of name->value properties.
+      type: object
+      title: AbstractComponent
+      properties:
+        uuid:
+          description: >
+            A machine readable UUID, assigned by the server.
+          type: string
+          format: uuid
+        href:
+          description: >
+            The URL to access this component, assigned by the server.
+          type: string
+        name:
+          description: >
+            A human readable name, assigned by the client.
+          type: string
+        created:
+          description: >
+            The date and time that this component was created.
+          type: string
+          format: date-time
+        messages:
+          description: >
+            A list of messages about this component.
+          xml:
+            name: messages
+          type: array
+          items:
+            $ref: './components/messages.yaml#/components/schemas/MessageItem'
+            xml:
+              name: message
+
 # compute-resources.yaml
 
     ComputeResourceList:
@@ -260,7 +299,9 @@ components:
 #         "urn:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
           "urn:simple-compute-resource-0.1": 'SimpleComputeResource'
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -344,8 +385,9 @@ components:
       type: object
       title: ComputeResourceVolume
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             path:
@@ -389,8 +431,9 @@ components:
 #         "urn:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
           "urn:simple-storage-resource-0.1": 'SimpleStorageResource'
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -454,8 +497,9 @@ components:
           "urn:S3-data-resource-0.1":     'S3DataResource'
 
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -557,8 +601,9 @@ components:
           "urn:repo2docker-0.1":        'Repo2DockerContainer'
           "urn:binder-notebook-0.1":    'BinderNotebook'
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -1158,8 +1203,9 @@ components:
       xml:
         name: execution
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           required:
             - uuid
@@ -1259,8 +1305,9 @@ components:
       xml:
         name: offers-response
       allOf:
-        - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
+#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             result:
