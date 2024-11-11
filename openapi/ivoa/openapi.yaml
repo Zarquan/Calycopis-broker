@@ -1255,9 +1255,9 @@ components:
                   xml:
                     name: executing
                   $ref: '#/components/schemas/ScheduleOfferItem'
-                finishing:
+                releasing:
                   xml:
-                    name: finishing
+                    name: releasing
                   $ref: '#/components/schemas/ScheduleOfferItem'
             options:
               description: >
