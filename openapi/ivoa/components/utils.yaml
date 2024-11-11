@@ -47,7 +47,7 @@ components:
 
     MinMaxInteger:
       description: >
-        A minimum and maximum pair with units for a 32bit integer value.
+        A minimum and maximum pair for a 32bit integer value.
       type: object
       title: MinMaxInteger
       properties:
@@ -57,12 +57,22 @@ components:
         max:
           type: integer
           format: int32
-        units:
-          type: string
+
+    MinMaxIntegerUnits:
+      description: >
+        A minimum and maximum pair with units for a 32bit integer value.
+      type: object
+      title: MinMaxIntegerUnits
+      allOf:
+        - $ref: 'MinMaxInteger'
+        - type: object
+          properties:
+            units:
+              type: string
 
     MinMaxLong:
       description: >
-        A minimum and maximum pair with units for a 64bit integer value.
+        A minimum and maximum pair for a 64bit integer value.
       type: object
       title: MinMaxInteger
       properties:
@@ -72,8 +82,18 @@ components:
         max:
           type: integer
           format: int64
-        units:
-          type: string
+
+    MinMaxLongUnits:
+      description: >
+        A minimum and maximum pair with units for a 64bit integer value.
+      type: object
+      title: MinMaxLongUnits
+      allOf:
+        - $ref: 'MinMaxLong'
+        - type: object
+          properties:
+            units:
+              type: string
 
     MinMaxFloat:
       description: >
@@ -87,12 +107,22 @@ components:
         max:
           type: number
           format: float
-        units:
-          type: string
+
+    MinMaxFloatUnits:
+      description: >
+        A minimum and maximum pair with units for a floating point value.
+      type: object
+      title: MinMaxFloatUnits
+      allOf:
+        - $ref: 'MinMaxFloat'
+        - type: object
+          properties:
+            units:
+              type: string
 
     MinMaxString:
       description: >
-        A minimum and maximum pair with units for a string value.
+        A minimum and maximum pair for a string value.
       type: object
       title: MinMaxString
       properties:
@@ -100,6 +130,16 @@ components:
           type: string
         max:
           type: string
-        units:
-          type: string
+
+    MinMaxStringUnits:
+      description: >
+        A minimum and maximum pair with units for a string value.
+      type: object
+      title: MinMaxStringUnits
+      allOf:
+        - $ref: 'MinMaxFloat'
+        - type: object
+          properties:
+            units:
+              type: string
 

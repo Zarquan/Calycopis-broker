@@ -122,13 +122,13 @@ paths:
 #               $ref: '#/components/schemas/OfferSetResponse'
                 $ref: 'OfferSetResponse'
 
-  /executions/{uuid}:
+  /sessions/{uuid}:
     get:
-      operationId: ExecutionGet
+      operationId: ExecutionSessionGet
       parameters:
         - name: uuid
           in: path
-          description: The execution identifier
+          description: The session identifier
           required: true
           schema:
             type: string
@@ -156,11 +156,11 @@ paths:
                 $ref: 'ExecutionSessionResponse'
 
     post:
-      operationId: ExecutionPost
+      operationId: ExecutionSessionPost
       parameters:
         - name: uuid
           in: path
-          description: The execution identifier
+          description: The session identifier
           required: true
           schema:
             type: string
@@ -239,8 +239,8 @@ components:
     AbstractComponent:
       description: >
         Abstract base class for all our components.
-        This class provides a name, a UUID identifier,
-        and a map of name->value properties.
+        This class provides a name, a UUID identifier, a href URL,
+        and a list of messages.
       type: object
       title: AbstractComponent
       properties:
@@ -283,7 +283,8 @@ components:
       xml:
         name: compute
       items:
-        $ref: '#/components/schemas/AbstractComputeResource'
+#       $ref: '#/components/schemas/AbstractComputeResource'
+        $ref: 'AbstractComputeResource'
 
     AbstractComputeResource:
       description: >
@@ -315,7 +316,8 @@ components:
       type: object
       title: SimpleComputeResource
       allOf:
-        - $ref: '#/components/schemas/AbstractComputeResource'
+#       - $ref: '#/components/schemas/AbstractComputeResource'
+        - $ref: 'AbstractComputeResource'
         - type: object
           properties:
             cores:
