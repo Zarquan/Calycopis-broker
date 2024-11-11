@@ -43,21 +43,21 @@ public interface Execution
     {
     /**
      * The database table name for Executions.
-     * 
+     *
      */
     public static final String TABLE_NAME = "executions" ;
-    
+
     /**
      * The type discriminator for Executions.
-     * 
+     *
      */
-    public static final String TYPE_DISCRIMINATOR = "urn:generic-execution" ;
+    public static final String TYPE_DISCRIMINATOR = "urn:execution-session" ;
 
     /**
      * The URL path for Executions.
      *
      */
-    public static final String REQUEST_PATH = "/executions/" ;
+    public static final String REQUEST_PATH = "/sessions/" ;
 
     /**
      * Get the Execution state.
@@ -88,7 +88,7 @@ public interface Execution
      *
      */
     public long getStartInstantSeconds();
-    
+
     /**
      * Get the start time as an Instant.
      *
