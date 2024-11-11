@@ -32,8 +32,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.webapp.SystemApiDelegate;
-import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
-import uk.co.metagrid.ambleck.platform.ExecutionManager;
+//import uk.co.metagrid.ambleck.model.ExecutionBlockDatabase;
+//import uk.co.metagrid.ambleck.platform.ExecutionManager;
 
 @Service
 public class SystemApiDelegateImpl
@@ -41,25 +41,26 @@ public class SystemApiDelegateImpl
     implements SystemApiDelegate
     {
 
-    private final ExecutionManager manager ;
-    private final ExecutionBlockDatabase database ;
+//  private final ExecutionManager manager ;
+//  private final ExecutionBlockDatabase database ;
 
     @Autowired
     public SystemApiDelegateImpl(
-        final NativeWebRequest request,
-        final ExecutionManager manager,
-        final ExecutionBlockDatabase database
+        final NativeWebRequest request
+        //final ExecutionManager manager,
+        //final ExecutionBlockDatabase database
         )
         {
         super(request);
-        this.manager = manager ;
-        this.database = database ;
+        //this.manager = manager ;
+        //this.database = database ;
         }
 
     @Override
     public ResponseEntity<String> sweepUpdate()
         {
-        int result = this.database.sweepUpdate(1);
+        //int result = this.database.sweepUpdate(1);
+        int result = 0x01;
         return new ResponseEntity<String>(
             "Update [:result:]".replace(
                 ":result:",
@@ -74,7 +75,8 @@ public class SystemApiDelegateImpl
     @Override
     public ResponseEntity<String> sweepDelete()
         {
-        int result = this.database.sweepDelete(1);
+        //int result = this.database.sweepDelete(1);
+        int result = 0x01;
         return new ResponseEntity<String>(
             "Delete [:result:]".replace(
                 ":result:",
@@ -86,3 +88,4 @@ public class SystemApiDelegateImpl
             );
         }
     }
+

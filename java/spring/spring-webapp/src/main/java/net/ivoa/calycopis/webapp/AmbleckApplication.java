@@ -55,10 +55,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EntityScan(
     "net.ivoa.calycopis"
     )
-@ComponentScan({
-    "net.ivoa.calycopis",
-    "uk.co.metagrid",
-    })
+@ComponentScan(
+    "net.ivoa.calycopis"
+    )
 @EnableJpaRepositories(
     "net.ivoa.calycopis"
     )
