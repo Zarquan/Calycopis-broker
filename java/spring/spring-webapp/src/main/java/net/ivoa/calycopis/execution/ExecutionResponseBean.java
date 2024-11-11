@@ -78,7 +78,7 @@ public class ExecutionResponseBean
      *
      */
     private final ExecutionEntity entity;
-    
+
     /**
      * Protected constructor.
      *
@@ -113,7 +113,7 @@ public class ExecutionResponseBean
         {
         return entity.getName();
         }
-    
+
     @Override
     public OffsetDateTime getCreated()
         {
@@ -171,7 +171,7 @@ public class ExecutionResponseBean
     // TODO Inject this in the constructor.
     // https://github.com/ivoa/Calycopis-broker/issues/66
     private AbstractExecutableBeanFactory beanfactory = new AbstractExecutableBeanFactoryImpl();
-    
+
     @Override
     public IvoaAbstractExecutable getExecutable()
         {
@@ -182,7 +182,7 @@ public class ExecutionResponseBean
             this.entity.getExecutable()
             );
         }
-    
+
     @Override
     public IvoaExecutionSessionResponseAllOfSchedule getSchedule()
         {
@@ -197,15 +197,15 @@ public class ExecutionResponseBean
  * we would need to save the row from the original request.
  * Possible, but no real use case for it at the moment.
  * In theory it might be useful for analysis ...
- * but not now.    
- *   
+ * but not now.
+ *
                 return new IvoaScheduleRequestBlock()
                     {
                     };
- * 
+ *
  */
                 };
-            
+
             @Override
             public IvoaScheduleOfferItem getPreparing()
                 {
@@ -229,7 +229,7 @@ public class ExecutionResponseBean
                     };
                 };
             @Override
-            public IvoaScheduleOfferItem getFinishing()
+            public IvoaScheduleOfferItem getReleasing()
                 {
                 return new IvoaScheduleOfferItem()
                     {
@@ -299,7 +299,7 @@ public class ExecutionResponseBean
                         )
                     );
                 break;
-            
+
             default:
                 break;
             }
@@ -308,7 +308,7 @@ public class ExecutionResponseBean
     @Override
     @JsonProperty("options")
     @JacksonXmlProperty(localName = "options")
-    @JsonInclude(JsonInclude.Include.NON_EMPTY) 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public List<IvoaAbstractOption> getOptions()
         {
         return super.getOptions();
