@@ -55,9 +55,9 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockItem;
-import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockValue;
+//import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlock;
+//import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockItem;
+//import net.ivoa.calycopis.openapi.model.IvoaStringScheduleBlockValue;
 import uk.co.metagrid.ambleck.message.ErrorMessage;
 import uk.co.metagrid.ambleck.message.InfoMessage;
 import uk.co.metagrid.ambleck.message.WarnMessage;
@@ -204,12 +204,12 @@ public class ExecutionResponseFactoryImpl
         //
         // Validate our execution schedule.
 /*
- * 
+ *
         validate(
             request.getSchedule(),
             context
             );
- *         
+ *
  */
         //
         // Validate our executable.
@@ -1017,7 +1017,6 @@ public class ExecutionResponseFactoryImpl
     /**
      * Validate the Execution Schedule.
      * TODO Move this to the time classes.
-     */
     public void validate(final IvoaStringScheduleBlock schedule, final ProcessingContext<?> context)
         {
         log.debug("Processing StringScheduleBlock");
@@ -1153,6 +1152,8 @@ public class ExecutionResponseFactoryImpl
                 }
             }
         }
+     */
+
     }
 
 

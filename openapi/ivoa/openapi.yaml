@@ -1067,46 +1067,46 @@ components:
 
 # schedule-blocks.yaml
 
-    StringScheduleBlockValue:
-      description: >
-        Used for the predicted and observed times.
-      type: object
-      title: StringScheduleBlockValue
-      xml:
-        name: date-time
-      properties:
-        start:
-          type: string
-        duration:
-          type: string
-
-    StringScheduleBlockItem:
-      description: >
-        Used for the predicted and observed times.
-      type: object
-      title: StringScheduleBlockItem
-      xml:
-        name: date-time
-      properties:
-        preparing:
-          $ref: '#/components/schemas/StringScheduleBlockValue'
-        executing:
-          $ref: '#/components/schemas/StringScheduleBlockValue'
-        finishing:
-          $ref: '#/components/schemas/StringScheduleBlockValue'
-
-    StringScheduleBlock:
-      description: >
-        Schedule ...
-      type: object
-      title: StringScheduleBlock
-      xml:
-        name: schedule
-      properties:
-        requested:
-          $ref: '#/components/schemas/StringScheduleBlockItem'
-        offered:
-          $ref: '#/components/schemas/StringScheduleBlockItem'
+#   StringScheduleBlockValue:
+#     description: >
+#       Used for the predicted and observed times.
+#     type: object
+#     title: StringScheduleBlockValue
+#     xml:
+#       name: date-time
+#     properties:
+#       start:
+#         type: string
+#       duration:
+#         type: string
+#
+#   StringScheduleBlockItem:
+#     description: >
+#       Used for the predicted and observed times.
+#     type: object
+#     title: StringScheduleBlockItem
+#     xml:
+#       name: date-time
+#     properties:
+#       preparing:
+#         $ref: '#/components/schemas/StringScheduleBlockValue'
+#       executing:
+#         $ref: '#/components/schemas/StringScheduleBlockValue'
+#       finishing:
+#         $ref: '#/components/schemas/StringScheduleBlockValue'
+#
+#   StringScheduleBlock:
+#     description: >
+#       Schedule ...
+#     type: object
+#     title: StringScheduleBlock
+#     xml:
+#       name: schedule
+#     properties:
+#       requested:
+#         $ref: '#/components/schemas/StringScheduleBlockItem'
+#       offered:
+#         $ref: '#/components/schemas/StringScheduleBlockItem'
 
     ISO8601Duration:
       description: >
@@ -1129,11 +1129,11 @@ components:
       title: ScheduleRequestBlock
       properties:
         duration:
-          $ref: '#/components/schemas/ISO8601Duration'
+          $ref: 'ISO8601Duration'
         start:
           type: array
           items:
-            $ref: '#/components/schemas/ISO8601Interval'
+            $ref: 'ISO8601Interval'
 
     ScheduleOfferItem:
       description: >
@@ -1142,9 +1142,9 @@ components:
       title: ScheduleOfferItem
       properties:
         duration:
-          $ref: '#/components/schemas/ISO8601Duration'
+          $ref: 'ISO8601Duration'
         start:
-          $ref: '#/components/schemas/ISO8601Interval'
+          $ref: 'ISO8601Interval'
 
     ScheduleOfferBlock:
       description: >
@@ -1153,11 +1153,11 @@ components:
       title: ScheduleOfferBlock
       properties:
         preparing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
         executing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
         finishing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
 
 # sessions.yaml
 
