@@ -316,6 +316,7 @@ components:
       type: object
       title: SimpleComputeResource
       allOf:
+#       - $ref: '#/components/schemas/AbstractComputeResource'
         - $ref: 'AbstractComputeResource'
         - type: object
           properties:
