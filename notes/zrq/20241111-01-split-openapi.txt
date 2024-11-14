@@ -62,12 +62,10 @@
 
                 ls -1
 
---START--
-components.yaml
-compute-resources.yaml
-messages.yaml
-utils.yaml
---END--
+    >   components.yaml
+    >   compute-resources.yaml
+    >   messages.yaml
+    >   utils.yaml
 
                 git rm compute-resources.yaml
 
@@ -85,5 +83,35 @@ utils.yaml
 
 
 
+
+# -----------------------------------------------------
+# Check the project still builds.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
 
 

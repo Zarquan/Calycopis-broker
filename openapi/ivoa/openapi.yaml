@@ -122,13 +122,13 @@ paths:
 #               $ref: '#/components/schemas/OfferSetResponse'
                 $ref: 'OfferSetResponse'
 
-  /executions/{uuid}:
+  /sessions/{uuid}:
     get:
-      operationId: ExecutionGet
+      operationId: ExecutionSessionGet
       parameters:
         - name: uuid
           in: path
-          description: The execution identifier
+          description: The session identifier
           required: true
           schema:
             type: string
@@ -156,11 +156,11 @@ paths:
                 $ref: 'ExecutionSessionResponse'
 
     post:
-      operationId: ExecutionPost
+      operationId: ExecutionSessionPost
       parameters:
         - name: uuid
           in: path
-          description: The execution identifier
+          description: The session identifier
           required: true
           schema:
             type: string
@@ -239,8 +239,8 @@ components:
     AbstractComponent:
       description: >
         Abstract base class for all our components.
-        This class provides a name, a UUID identifier,
-        and a map of name->value properties.
+        This class provides a name, a UUID identifier, a href URL,
+        and a list of messages.
       type: object
       title: AbstractComponent
       properties:
@@ -283,7 +283,8 @@ components:
       xml:
         name: compute
       items:
-        $ref: '#/components/schemas/AbstractComputeResource'
+#       $ref: '#/components/schemas/AbstractComputeResource'
+        $ref: 'AbstractComputeResource'
 
     AbstractComputeResource:
       description: >
@@ -315,13 +316,13 @@ components:
       type: object
       title: SimpleComputeResource
       allOf:
-        - $ref: '#/components/schemas/AbstractComputeResource'
+        - $ref: 'AbstractComputeResource'
         - type: object
           properties:
             cores:
-              $ref: '#/components/schemas/ComputeResourceCores'
+              $ref: 'ComputeResourceCoresBlock'
             memory:
-              $ref: '#/components/schemas/ComputeResourceMemory'
+              $ref: 'ComputeResourceMemoryBlock'
             volumes:
               description: >
                 A list of filesystem volumes.
@@ -339,44 +340,77 @@ components:
       title: ComputeResourceSizeUnit
       pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
 
-    ComputeResourceCores:
+    ComputeResourceCoresBlock:
       description: >
         The number of CPU cores requested and offered.
       type: object
       title: ComputeResourceCores
       properties:
         requested:
-# TODO change this to a min/max int64
-# max value limits the extra that the service is allowed to allocate
-# controls which nodes get the extra
-          description: >
-            The number of cpu cores requested by the user.
-          type: integer
-          format: int64
+          $ref: 'ComputeResourceCoresRequest'
         offered:
-          description: >
-            The number of cpu cores offered by the service.
+          $ref: 'ComputeResourceCoresOffered'
+
+    ComputeResourceCoresRequest:
+      description: >
+        The number of cpu cores requested by the user.
+        The minimum sets the lower limit that the user requires.
+        The maximum limits the extra that the service can offer for this resource.
+      type: object
+      title: ComputeResourceCoresRequest
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+
+    ComputeResourceCoresOffered:
+      description: >
+        The number of cpu cores offered by the service.
+      type: object
+      title: ComputeResourceCoresOffered
+      properties:
+        value:
           type: integer
           format: int64
 
-    ComputeResourceMemory:
+    ComputeResourceMemoryBlock:
       description: >
-        The amount memory requested and offered.
+        The amount of memory requested and offered.
       type: object
       title: ComputeResourceMemory
       properties:
         requested:
-# TODO change this to a min/max int64, with separate units.
-# max value limits the extra that the service is allowed to allocate
-# controls which nodes get the extra
-          description: >
-            The amount of memory requested by the user, default units are `GiB`.
-          $ref: 'ComputeResourceSizeUnit'
+          $ref: 'ComputeResourceMemoryRequest'
         offered:
-# TODO change this to a int64, with separate units.
-          description: >
-            The amount of memory offered by the service.
-          $ref: 'ComputeResourceSizeUnit'
+          $ref: 'ComputeResourceMemoryOffered'
+
+    ComputeResourceMemoryRequest:
+      description: >
+        The amount of memory requested by the user.
+        The minimum sets the lower limit that the user requires.
+        The maximum limits the extra that the service can offer for this resource.
+        The default units are 'GiB'.
+      type: object
+      title: ComputeResourceCoresRequest
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+        - type: object
+          properties:
+            units:
+              type: string
+              pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+
+    ComputeResourceMemoryOffered:
+      description: >
+        The amount of memory offered by the service.
+      type: object
+      title: ComputeResourceMemoryOffered
+      properties:
+        value:
+          type: integer
+          format: int64
+        units:
+          type: string
+          pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+
 
 # TODO new code doesn't parse volumes !!
     ComputeResourceVolume:
