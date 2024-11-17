@@ -296,9 +296,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
-#         "urn:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
-          "urn:simple-compute-resource-0.1": 'SimpleComputeResource'
+#         "uri:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
+#         "uri:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
+          "uri:simple-compute-resource-0.1": 'SimpleComputeResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -430,8 +430,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
-          "urn:simple-storage-resource-0.1": 'SimpleStorageResource'
+#         "uri:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
+          "uri:simple-storage-resource-0.1": 'SimpleStorageResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -491,12 +491,12 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#        "urn:simple-data-resource-0.1":  '#/components/schemas/SimpleDataResource'
-#         "urn:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
-#         "urn:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
-          "urn:simple-data-resource-0.1": 'SimpleDataResource'
-          "urn:Rucio-data-resource-0.1":  'RucioDataResource'
-          "urn:S3-data-resource-0.1":     'S3DataResource'
+#         "uri:simple-data-resource-0.1":  '#/components/schemas/SimpleDataResource'
+#         "uri:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
+#         "uri:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
+          "uri:simple-data-resource-0.1": 'SimpleDataResource'
+          "uri:Rucio-data-resource-0.1":  'RucioDataResource'
+          "uri:S3-data-resource-0.1":     'S3DataResource'
 
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
@@ -592,16 +592,16 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:docker-container-0.1":   '#/components/schemas/DockerContainer'
-#         "urn:singular-container-0.1": '#/components/schemas/SingularContainer'
-#         "urn:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
-#         "urn:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
-#         "urn:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
-          "urn:docker-container-0.1":   'DockerContainer'
-          "urn:singular-container-0.1": 'SingularContainer'
-          "urn:jupyter-notebook-0.1":   'JupyterNotebook'
-          "urn:repo2docker-0.1":        'Repo2DockerContainer'
-          "urn:binder-notebook-0.1":    'BinderNotebook'
+#         "uri:docker-container-0.1":   '#/components/schemas/DockerContainer'
+#         "uri:singular-container-0.1": '#/components/schemas/SingularContainer'
+#         "uri:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
+#         "uri:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
+#         "uri:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
+          "uri:docker-container-0.1":   'DockerContainer'
+          "uri:singular-container-0.1": 'SingularContainer'
+          "uri:jupyter-notebook-0.1":   'JupyterNotebook'
+          "uri:repo2docker-0.1":        'Repo2DockerContainer'
+          "uri:binder-notebook-0.1":    'BinderNotebook'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -615,7 +615,7 @@ components:
 
     DockerContainer:
       description: |
-        A Docker or OCI container executable.
+        A Docker or OCI container.
         See https://opencontainers.org/
       type: object
       title: DockerContainer
@@ -784,14 +784,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:string-value-option":  '#/components/schemas/StringValueOption'
-#         "urn:enum-value-option":    '#/components/schemas/EnumValueOption'
-#         "urn:integer-value-option": '#/components/schemas/IntegerValueOption'
-#         "urn:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
-          "urn:string-value-option":  'StringValueOption'
-          "urn:enum-value-option":    'EnumValueOption'
-          "urn:integer-value-option": 'IntegerValueOption'
-          "urn:integer-delta-option": 'IntegerDeltaOption'
+#         "uri:string-value-option":  '#/components/schemas/StringValueOption'
+#         "uri:enum-value-option":    '#/components/schemas/EnumValueOption'
+#         "uri:integer-value-option": '#/components/schemas/IntegerValueOption'
+#         "uri:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
+          "uri:string-value-option":  'StringValueOption'
+          "uri:enum-value-option":    'EnumValueOption'
+          "uri:integer-value-option": 'IntegerValueOption'
+          "uri:integer-delta-option": 'IntegerDeltaOption'
       properties:
         type:
           type: string
@@ -908,14 +908,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:string-value-update":  '#/components/schemas/StringValueUpdate'
-#         "urn:enum-value-update":    '#/components/schemas/EnumValueUpdate'
-#         "urn:integer-value-update": '#/components/schemas/IntegerValueUpdate'
-#         "urn:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
-          "urn:string-value-update":  'StringValueUpdate'
-          "urn:enum-value-update":    'EnumValueUpdate'
-          "urn:integer-value-update": 'IntegerValueUpdate'
-          "urn:integer-delta-update": 'IntegerDeltaUpdate'
+#         "uri:string-value-update":  '#/components/schemas/StringValueUpdate'
+#         "uri:enum-value-update":    '#/components/schemas/EnumValueUpdate'
+#         "uri:integer-value-update": '#/components/schemas/IntegerValueUpdate'
+#         "uri:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
+          "uri:string-value-update":  'StringValueUpdate'
+          "uri:enum-value-update":    'EnumValueUpdate'
+          "uri:integer-value-update": 'IntegerValueUpdate'
+          "uri:integer-delta-update": 'IntegerDeltaUpdate'
       properties:
         type:
           type: string
