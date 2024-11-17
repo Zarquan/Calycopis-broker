@@ -30,7 +30,7 @@ info:
   description: >
     Utility classes used in the IVOA ExecutionBroker data model
   contact:
-    name: Zarquan
+    name: Dave Morris
     url: https://github.com/Zarquan
 
 components:
@@ -44,6 +44,20 @@ components:
       title: NameValueMap
       additionalProperties:
         type: string
+
+    ISO8601Duration:
+      description: >
+        A regular expression filter for an ISO 8601 duration.
+      type: string
+      title: ISO8601Duration
+      pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
+
+    ISO8601Interval:
+      description: >
+        A regular expression filter for an ISO 8601 interval.
+      type: string
+      title: ISO8601Interval
+      pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))\/(P(?=.)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=.)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$'
 
     MinMaxInteger:
       description: >
@@ -74,7 +88,7 @@ components:
       description: >
         A minimum and maximum pair for a 64bit integer value.
       type: object
-      title: MinMaxInteger
+      title: MinMaxLong
       properties:
         min:
           type: integer
@@ -142,4 +156,55 @@ components:
           properties:
             units:
               type: string
+
+    ComputeUnitsEnum:
+      description: >
+        Units for the size of computing resources, multiples of 1000^n and 1024^n.
+        https://github.com/metio/storage-units.java/
+        https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
+      type: string
+      title: ComputeSizeUnitsEnum
+      enum:
+        - kB
+        - kiB
+        - MB
+        - MiB
+        - GB
+        - GiB
+        - TB
+        - TiB
+        - PB
+        - PiB
+        - EB
+        - EiB
+        - ZB
+        - ZiB
+        - YB
+        - YiB
+
+    MinMaxComputeInteger:
+      description: >
+        A minimum and maximum 32bit integer with computing units.
+      type: object
+      title: MinMaxComputeInteger
+      allOf:
+        - $ref: 'MinMaxInteger'
+        - type: object
+          properties:
+            units:
+              $ref: 'ComputeUnitsEnum'
+
+    MinMaxComputeLong:
+      description: >
+        A minimum and maximum 64bit integer with computing units.
+      type: object
+      title: MinMaxComputeLong
+      allOf:
+        - $ref: 'MinMaxLong'
+        - type: object
+          properties:
+            units:
+              $ref: 'ComputeUnitsEnum'
+
+
 

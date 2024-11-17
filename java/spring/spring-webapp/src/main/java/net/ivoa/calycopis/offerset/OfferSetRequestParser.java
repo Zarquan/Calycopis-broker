@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.ivoa.calycopis.offerset;
 
@@ -11,7 +11,7 @@ import org.threeten.extra.Interval;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
- * 
+ *
  */
 public interface OfferSetRequestParser
     {
@@ -19,28 +19,31 @@ public interface OfferSetRequestParser
 
     /**
      * Process an OfferSetRequest to populate an OfferSetEntity.
-     * 
+     *
      */
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset);
 
     /**
      * Get a List of start intervals.
-     * 
+     *
      */
     public List<Interval> getStartIntervals();
 
     /**
      * Get the requested start Duration.
-     * 
+     *
      */
     public Duration getDuration();
 
     public long getMinCores();
-    public long getMinMemory();
+    public long getMaxCores();
 
-    
+    public long getMinMemory();
+    public long getMaxMemory();
+
+
 /*
- * 
+ *
     public IvoaOfferSetRequest getOfferSetRequest();
     public OfferSetEntity getOfferSetEntity();
 
@@ -76,7 +79,7 @@ public interface OfferSetRequestParser
     public ScheduleItem getExecutionTime();
     public void setExecutionTime(final Interval starttime, final Duration duration);
 
- * 
+ *
  */
 
     }
