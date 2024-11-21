@@ -1,0 +1,524 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Checking the output matches our document.
+
+    Result:
+
+        Work in progress ...
+
+
+
+# -----------------------------------------------------
+# Build the project.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: Test executable
+  type: uri:jupyter-notebook-0.1
+  notebook: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: uri:simple-compute-resource-0.1
+    cores:
+      requested:
+        min: 6
+    memory:
+      requested:
+        min: 1
+        units: GiB
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '.'
+
+    >   uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >   href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >   name: "Test request"
+    >   created: "2024-11-17T11:22:46.387401Z"
+    >   result: "NO"
+    >   offers:
+    >     - type: "urn:execution-session"
+    >       uuid: "95d27971-d0bd-43a1-b1c7-46172706b3e8"
+    >       href: "http://127.0.0.1:8082/sessions/95d27971-d0bd-43a1-b1c7-46172706b3e8"
+    >       offerset:
+    >         uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >         href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >       state: "OFFERED"
+    >       expires: "2024-11-17T16:22:46.387442Z"
+    >       executable:
+    >         type: "uri:jupyter-notebook-0.1"
+    >         uuid: "7c42fc11-75d9-4e9f-b458-3d0581dd9bbb"
+    >         href: "http://127.0.0.1:8082/executables/7c42fc11-75d9-4e9f-b458-3d0581dd9bbb"
+    >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "fcfaca11-cdd2-42ec-bcd5-0d08f020d0d8"
+    >             href: "http://127.0.0.1:8082/simple-compute/fcfaca11-cdd2-42ec-bcd5-0d08f020d0d8"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 min: 6
+    >                 max: 6
+    >               offered:
+    >                 min: 12
+    >                 max: 12
+    >             memory:
+    >               requested:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >               offered:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >       schedule:
+    >         preparing: {}
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2024-11-17T11:25:00Z"
+    >         releasing: {}
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - type: "urn:execution-session"
+    >       uuid: "8e3a6072-3e2f-4357-b797-6607b9a626d3"
+    >       href: "http://127.0.0.1:8082/sessions/8e3a6072-3e2f-4357-b797-6607b9a626d3"
+    >       offerset:
+    >         uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >         href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >       state: "OFFERED"
+    >       expires: "2024-11-17T16:22:46.387442Z"
+    >       executable:
+    >         type: "uri:jupyter-notebook-0.1"
+    >         uuid: "8f785f72-a210-45c9-9f71-2fbb757a18c2"
+    >         href: "http://127.0.0.1:8082/executables/8f785f72-a210-45c9-9f71-2fbb757a18c2"
+    >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "f8245ee8-249a-4d7e-8be7-ef76842a1f31"
+    >             href: "http://127.0.0.1:8082/simple-compute/f8245ee8-249a-4d7e-8be7-ef76842a1f31"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 min: 6
+    >                 max: 6
+    >               offered:
+    >                 min: 12
+    >                 max: 12
+    >             memory:
+    >               requested:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >               offered:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >       schedule:
+    >         preparing: {}
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2024-11-17T13:25:00Z"
+    >         releasing: {}
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - type: "urn:execution-session"
+    >       uuid: "2cdf24f7-13ad-42ea-809f-8e19c6baaedb"
+    >       href: "http://127.0.0.1:8082/sessions/2cdf24f7-13ad-42ea-809f-8e19c6baaedb"
+    >       offerset:
+    >         uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >         href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >       state: "OFFERED"
+    >       expires: "2024-11-17T16:22:46.387442Z"
+    >       executable:
+    >         type: "uri:jupyter-notebook-0.1"
+    >         uuid: "2ce4c989-511c-420d-bf90-7216cdcf8d3c"
+    >         href: "http://127.0.0.1:8082/executables/2ce4c989-511c-420d-bf90-7216cdcf8d3c"
+    >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "5bb9a6f8-2736-4c77-8bd4-257c707f19a7"
+    >             href: "http://127.0.0.1:8082/simple-compute/5bb9a6f8-2736-4c77-8bd4-257c707f19a7"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 min: 6
+    >                 max: 6
+    >               offered:
+    >                 min: 12
+    >                 max: 12
+    >             memory:
+    >               requested:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >               offered:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >       schedule:
+    >         preparing: {}
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2024-11-17T15:25:00Z"
+    >         releasing: {}
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - type: "urn:execution-session"
+    >       uuid: "e0c25155-df17-4a74-978d-692fc4d3cd0f"
+    >       href: "http://127.0.0.1:8082/sessions/e0c25155-df17-4a74-978d-692fc4d3cd0f"
+    >       offerset:
+    >         uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >         href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >       state: "OFFERED"
+    >       expires: "2024-11-17T16:22:46.387442Z"
+    >       executable:
+    >         type: "uri:jupyter-notebook-0.1"
+    >         uuid: "eb9ae05d-2963-44ee-b500-06cf93ee3940"
+    >         href: "http://127.0.0.1:8082/executables/eb9ae05d-2963-44ee-b500-06cf93ee3940"
+    >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "3c1b6268-c6ed-45b9-966e-6dd9cb1882c1"
+    >             href: "http://127.0.0.1:8082/simple-compute/3c1b6268-c6ed-45b9-966e-6dd9cb1882c1"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 min: 6
+    >                 max: 6
+    >               offered:
+    >                 min: 12
+    >                 max: 12
+    >             memory:
+    >               requested:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >               offered:
+    >                 min: 1
+    >                 max: 1
+    >                 units: "GiB"
+    >       schedule:
+    >         preparing: {}
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2024-11-17T17:25:00Z"
+    >         releasing: {}
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "state"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    yq '{
+        "offers": [
+            .offers[] |
+                {
+                "schedule": .schedule.executing,
+                "compute": [
+                    .resources.compute[] | {
+                        "cores":  .cores,
+                        "memory": .memory
+                        }
+                    ]
+                }
+            ]
+        }' \
+    '/tmp/createresponse.yaml'
+
+    >   offers:
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-17T11:25:00Z"
+    >       compute:
+    >         - cores:
+    >             requested:
+    >               min: 6
+    >               max: 6
+    >             offered:
+    >               min: 12
+    >               max: 12
+    >           memory:
+    >             requested:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >             offered:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-17T13:25:00Z"
+    >       compute:
+    >         - cores:
+    >             requested:
+    >               min: 6
+    >               max: 6
+    >             offered:
+    >               min: 12
+    >               max: 12
+    >           memory:
+    >             requested:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >             offered:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-17T15:25:00Z"
+    >       compute:
+    >         - cores:
+    >             requested:
+    >               min: 6
+    >               max: 6
+    >             offered:
+    >               min: 12
+    >               max: 12
+    >           memory:
+    >             requested:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >             offered:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >     - schedule:
+    >         duration: "PT1H"
+    >         start: "2024-11-17T17:25:00Z"
+    >       compute:
+    >         - cores:
+    >             requested:
+    >               min: 6
+    >               max: 6
+    >             offered:
+    >               min: 12
+    >               max: 12
+    >           memory:
+    >             requested:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+    >             offered:
+    >               min: 1
+    >               max: 1
+    >               units: "GiB"
+
+
+# -----------------------------------------------------
+# Accept the second offer.
+#[root@spring-builder]
+
+    offersethref=$(
+        yq '.href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+    offerhref=$(
+        yq '.offers[1].href' \
+            '/tmp/createresponse.yaml' \
+        )
+
+cat > /tmp/updaterequest.yaml  << EOF
+update:
+  type: uri:enum-value-update
+  path: state
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/updaterequest.yaml' \
+        --header 'Accept: application/yaml' \
+        "${offerhref}" \
+    | tee '/tmp/updateresponse.yaml' \
+    | yq '.'
+
+    >   type: "urn:execution-session"
+    >   uuid: "8e3a6072-3e2f-4357-b797-6607b9a626d3"
+    >   href: "http://127.0.0.1:8082/sessions/8e3a6072-3e2f-4357-b797-6607b9a626d3"
+    >   offerset:
+    >     uuid: "3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >     href: "http://127.0.0.1:8082/offersets/3bd96ffc-64b7-44f8-b4fe-39a3846336d6"
+    >   state: "ACCEPTED"
+    >   expires: "2024-11-17T16:22:46.387442Z"
+    >   executable:
+    >     type: "uri:jupyter-notebook-0.1"
+    >     uuid: "8f785f72-a210-45c9-9f71-2fbb757a18c2"
+    >     href: "http://127.0.0.1:8082/executables/8f785f72-a210-45c9-9f71-2fbb757a18c2"
+    >     notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "f8245ee8-249a-4d7e-8be7-ef76842a1f31"
+    >         href: "http://127.0.0.1:8082/simple-compute/f8245ee8-249a-4d7e-8be7-ef76842a1f31"
+    >         name: "computer-001"
+    >         cores:
+    >           requested:
+    >             min: 6
+    >             max: 6
+    >           offered:
+    >             min: 12
+    >             max: 12
+    >         memory:
+    >           requested:
+    >             min: 1
+    >             max: 1
+    >             units: "GiB"
+    >           offered:
+    >             min: 1
+    >             max: 1
+    >             units: "GiB"
+    >   schedule:
+    >     preparing: {}
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2024-11-17T13:25:00Z"
+    >     releasing: {}
+    >   options:
+    >     - type: "uri:enum-value-option"
+    >       path: "state"
+    >       values:
+    >         - "CANCELLED"
+
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offersethref}" \
+    | yq '
+        {
+        "offers": [
+            .offers[] |
+                {
+                "uuid":  .uuid,
+                "state": .state
+                }
+            ]
+        }
+        '
+
+    >   offers:
+    >     - uuid: "95d27971-d0bd-43a1-b1c7-46172706b3e8"
+    >       state: "REJECTED"
+    >     - uuid: "8e3a6072-3e2f-4357-b797-6607b9a626d3"
+    >       state: "ACCEPTED"
+    >     - uuid: "2cdf24f7-13ad-42ea-809f-8e19c6baaedb"
+    >       state: "REJECTED"
+    >     - uuid: "e0c25155-df17-4a74-978d-692fc4d3cd0f"
+    >       state: "REJECTED"
+
+
+
+
+

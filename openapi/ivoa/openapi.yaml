@@ -30,7 +30,7 @@ info:
   description: >
     IVOA ExecutionBroker interface
   contact:
-    name: Zarquan
+    name: Dave Morris
     url: https://github.com/Zarquan
   license:
     name: Creative Commons Attribution Share Alike 4.0 International
@@ -63,7 +63,8 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "303":
-          description: Redirect
+          description: >
+            A redirect response to the '/offersets/{uuid}' endpoint.
           headers:
             Location:
               required: true
@@ -71,7 +72,8 @@ paths:
                 type: string
                 format: url
         "200":
-          description: R
+          description: >
+            A simple OK response with the same contant as the '/offersets/{uuid}' endpoint.
           content:
             application/json:
               schema:
@@ -104,7 +106,8 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: OK
+          description: >
+            Required description ...
           content:
             application/json:
               schema:
@@ -137,7 +140,8 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: OK
+          description: >
+            Required description ...
           content:
             application/json:
               schema:
@@ -160,7 +164,8 @@ paths:
       parameters:
         - name: uuid
           in: path
-          description: The session identifier
+          description: >
+            The session UUID identifier
           required: true
           schema:
             type: string
@@ -187,7 +192,8 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: OK
+          description: >
+            Required description ...
           content:
             application/json:
               schema:
@@ -205,36 +211,11 @@ paths:
 #               $ref: '#/components/schemas/ExecutionSessionResponse'
                 $ref: 'ExecutionSessionResponse'
 
-  #
-  # Update expired offers.
-  /system/sweep/update:
-    get:
-      operationId: SweepUpdate
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-
-  #
-  # Delete expired offers.
-  /system/sweep/delete:
-    get:
-      operationId: SweepDelete
-      responses:
-        "200":
-          description: OK
-          content:
-            text/plain:
-              schema:
-                type: string
-
 components:
   schemas:
 
 # components.yaml
+# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     AbstractComponent:
       description: >
@@ -274,6 +255,7 @@ components:
               name: message
 
 # compute-resources.yaml
+# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     ComputeResourceList:
       description: >
@@ -296,9 +278,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
-#         "urn:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
-          "urn:simple-compute-resource-0.1": 'SimpleComputeResource'
+#         "uri:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
+#         "uri:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
+          "uri:simple-compute-resource-0.1": 'SimpleComputeResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -331,15 +313,16 @@ components:
               items:
                 $ref: '#/components/schemas/ComputeResourceVolume'
 
-    ComputeResourceSizeUnit:
-      description: >
-        A size unit for compute resources.
-        Specified in multiples of 1000^n and 1024^n, default units are GiB.
-        https://github.com/metio/storage-units.java/
-        https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
-      type: string
-      title: ComputeResourceSizeUnit
-      pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+# Replaced by an enum in utils.yaml
+#   ComputeResourceSizeUnit:
+#     description: >
+#       A size unit for compute resources.
+#       Specified in multiples of 1000^n and 1024^n, default units are GiB.
+#       https://github.com/metio/storage-units.java/
+#       https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
+#     type: string
+#     title: ComputeResourceSizeUnit
+#     pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
 
     ComputeResourceCores:
       description: >
@@ -348,18 +331,17 @@ components:
       title: ComputeResourceCores
       properties:
         requested:
-# TODO change this to a min/max int64
-# max value limits the extra that the service is allowed to allocate
-# controls which nodes get the extra
           description: >
             The number of cpu cores requested by the user.
-          type: integer
-          format: int64
+            The min value specifies the minimum that required for the session.
+            The max value limits the extra the server is allowed to offer.
+          $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
         offered:
           description: >
-            The number of cpu cores offered by the service.
-          type: integer
-          format: int64
+            The number of cpu cores offered by the server.
+            The min value specifies the initial resources available for the session.
+            The max value specifies the maximun resources available for the session.
+          $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
 
     ComputeResourceMemory:
       description: >
@@ -368,19 +350,18 @@ components:
       title: ComputeResourceMemory
       properties:
         requested:
-# TODO change this to a min/max int64, with separate units.
-# max value limits the extra that the service is allowed to allocate
-# controls which nodes get the extra
           description: >
-            The amount of memory requested by the user, default units are `GiB`.
-          $ref: 'ComputeResourceSizeUnit'
+            The amount memory requested by the user.
+            The min value specifies the minimum that required for the session.
+            The max value limits the extra the server is allowed to offer.
+          $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
         offered:
-# TODO change this to a int64, with separate units.
           description: >
-            The amount of memory offered by the service.
-          $ref: 'ComputeResourceSizeUnit'
+            The amount memory offered byt the server.
+            The min value specifies the initial resources available for the session.
+            The max value specifies the maximun resources available for the session.
+          $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
-# TODO new code doesn't parse volumes !!
     ComputeResourceVolume:
       description: >
         A class to represent a ComputeResource volume mount.
@@ -409,6 +390,7 @@ components:
               type: string
 
 # storage-resources.yaml
+# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     StorageResourceList:
       description: >
@@ -430,8 +412,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
-          "urn:simple-storage-resource-0.1": 'SimpleStorageResource'
+#         "uri:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
+          "uri:simple-storage-resource-0.1": 'SimpleStorageResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -457,19 +439,20 @@ components:
               type: object
               properties:
                 requested:
-# TODO change this to a min/max int64
-# max value limits the extra that the service is allowed to allocate
-# controls which nodes get the extra
                   description: >
-                    The size of the storage resource requested by the user, default units are `GiB`.
-                  $ref: 'ComputeResourceSizeUnit'
+                    The storage size requested by the user.
+                    The min value specifies the minimum that required for the session.
+                    The max value limits the extra the server is allowed to offer.
+                  $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
                 offered:
-    # TODO change this to a int64, with separate units.
                   description: >
-                    The size of the storage resource offered by the service.
-                  $ref: 'ComputeResourceSizeUnit'
+                    The storage size offered byt the server.
+                    The min value specifies the initial resources available for the session.
+                    The max value specifies the maximun resources available for the session.
+                  $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
 # data-resources.yaml
+# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     DataResourceList:
       description: >
@@ -479,7 +462,8 @@ components:
       xml:
         name: storage
       items:
-        $ref: '#/components/schemas/AbstractDataResource'
+#       $ref: '#/components/schemas/AbstractDataResource'
+        $ref: 'AbstractDataResource'
 
     AbstractDataResource:
       description: >
@@ -491,12 +475,12 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#        "urn:simple-data-resource-0.1":  '#/components/schemas/SimpleDataResource'
-#         "urn:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
-#         "urn:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
-          "urn:simple-data-resource-0.1": 'SimpleDataResource'
-          "urn:Rucio-data-resource-0.1":  'RucioDataResource'
-          "urn:S3-data-resource-0.1":     'S3DataResource'
+#         "uri:simple-data-resource-0.1":  '#/components/schemas/SimpleDataResource'
+#         "uri:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
+#         "uri:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
+          "uri:simple-data-resource-0.1": 'SimpleDataResource'
+          "uri:Rucio-data-resource-0.1":  'RucioDataResource'
+          "uri:S3-data-resource-0.1":     'S3DataResource'
 
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
@@ -592,16 +576,16 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:docker-container-0.1":   '#/components/schemas/DockerContainer'
-#         "urn:singular-container-0.1": '#/components/schemas/SingularContainer'
-#         "urn:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
-#         "urn:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
-#         "urn:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
-          "urn:docker-container-0.1":   'DockerContainer'
-          "urn:singular-container-0.1": 'SingularContainer'
-          "urn:jupyter-notebook-0.1":   'JupyterNotebook'
-          "urn:repo2docker-0.1":        'Repo2DockerContainer'
-          "urn:binder-notebook-0.1":    'BinderNotebook'
+#         "uri:docker-container-0.1":   '#/components/schemas/DockerContainer'
+#         "uri:singular-container-0.1": '#/components/schemas/SingularContainer'
+#         "uri:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
+#         "uri:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
+#         "uri:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
+          "uri:docker-container-0.1":   'DockerContainer'
+          "uri:singular-container-0.1": 'SingularContainer'
+          "uri:jupyter-notebook-0.1":   'JupyterNotebook'
+          "uri:repo2docker-0.1":        'Repo2DockerContainer'
+          "uri:binder-notebook-0.1":    'BinderNotebook'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -609,13 +593,15 @@ components:
         - type: object
           properties:
             type:
+              description: >
+                The component type discriminator
               type: string
               xml:
                 attribute: true
 
     DockerContainer:
       description: |
-        A Docker or OCI container executable.
+        A Docker or OCI container.
         See https://opencontainers.org/
       type: object
       title: DockerContainer
@@ -626,7 +612,7 @@ components:
             image:
               type: string
               description: >
-                The image name, with or without the repository, namespace or tag.
+                The full image identifier, with or without the repository, namespace or tag.
             namespace:
               type: string
               description: >
@@ -784,14 +770,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:string-value-option":  '#/components/schemas/StringValueOption'
-#         "urn:enum-value-option":    '#/components/schemas/EnumValueOption'
-#         "urn:integer-value-option": '#/components/schemas/IntegerValueOption'
-#         "urn:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
-          "urn:string-value-option":  'StringValueOption'
-          "urn:enum-value-option":    'EnumValueOption'
-          "urn:integer-value-option": 'IntegerValueOption'
-          "urn:integer-delta-option": 'IntegerDeltaOption'
+#         "uri:string-value-option":  '#/components/schemas/StringValueOption'
+#         "uri:enum-value-option":    '#/components/schemas/EnumValueOption'
+#         "uri:integer-value-option": '#/components/schemas/IntegerValueOption'
+#         "uri:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
+          "uri:string-value-option":  'StringValueOption'
+          "uri:enum-value-option":    'EnumValueOption'
+          "uri:integer-value-option": 'IntegerValueOption'
+          "uri:integer-delta-option": 'IntegerDeltaOption'
       properties:
         type:
           type: string
@@ -908,14 +894,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "urn:string-value-update":  '#/components/schemas/StringValueUpdate'
-#         "urn:enum-value-update":    '#/components/schemas/EnumValueUpdate'
-#         "urn:integer-value-update": '#/components/schemas/IntegerValueUpdate'
-#         "urn:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
-          "urn:string-value-update":  'StringValueUpdate'
-          "urn:enum-value-update":    'EnumValueUpdate'
-          "urn:integer-value-update": 'IntegerValueUpdate'
-          "urn:integer-delta-update": 'IntegerDeltaUpdate'
+#         "uri:string-value-update":  '#/components/schemas/StringValueUpdate'
+#         "uri:enum-value-update":    '#/components/schemas/EnumValueUpdate'
+#         "uri:integer-value-update": '#/components/schemas/IntegerValueUpdate'
+#         "uri:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
+          "uri:string-value-update":  'StringValueUpdate'
+          "uri:enum-value-update":    'EnumValueUpdate'
+          "uri:integer-value-update": 'IntegerValueUpdate'
+          "uri:integer-delta-update": 'IntegerDeltaUpdate'
       properties:
         type:
           type: string
@@ -1075,19 +1061,6 @@ components:
 #       offered:
 #         $ref: '#/components/schemas/StringScheduleBlockItem'
 
-    ISO8601Duration:
-      description: >
-        An ISO 8601 duration.
-      type: string
-      title: ISO8601Duration
-      pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
-
-    ISO8601Interval:
-      description: >
-        An ISO 8601 interval.
-      type: string
-      title: ISO8601Interval
-      pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))\/(P(?=.)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=.)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$'
 
     ScheduleRequestBlock:
       description: >
@@ -1096,11 +1069,11 @@ components:
       title: ScheduleRequestBlock
       properties:
         duration:
-          $ref: 'ISO8601Duration'
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
         start:
           type: array
           items:
-            $ref: 'ISO8601Interval'
+            $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
     ScheduleOfferItem:
       description: >
@@ -1109,9 +1082,9 @@ components:
       title: ScheduleOfferItem
       properties:
         duration:
-          $ref: 'ISO8601Duration'
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
         start:
-          $ref: 'ISO8601Interval'
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
     ScheduleOfferBlock:
       description: >
@@ -1180,12 +1153,10 @@ components:
         executable:
           xml:
             name: executable
-    # TODO Replace with AbstractExecutableRequest.
           $ref: '#/components/schemas/AbstractExecutable'
         resources:
           xml:
             name: resources
-    # TODO Replace with SessionRequestResourceList.
           $ref: '#/components/schemas/ExecutionResourceList'
         schedule:
           xml:

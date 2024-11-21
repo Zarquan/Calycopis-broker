@@ -190,6 +190,17 @@ public class OfferSetRequestParserImpl
         this.mincores += delta;
         }
 
+    private long maxcores;
+    @Override
+    public long getMaxCores()
+        {
+        return this.maxcores;
+        }
+    public void addMaxCores(long delta)
+        {
+        this.maxcores += delta;
+        }
+
     private long minmemory;
     @Override
     public long getMinMemory()
@@ -199,6 +210,17 @@ public class OfferSetRequestParserImpl
     public void addMinMemory(long delta)
         {
         this.minmemory += delta;
+        }
+
+    private long maxmemory;
+    @Override
+    public long getMaxMemory()
+        {
+        return this.maxmemory;
+        }
+    public void addMaxMemory(long delta)
+        {
+        this.maxmemory += delta;
         }
 
     @Override
@@ -318,7 +340,9 @@ log.debug("Start intervals [{}]", startintervals);
 log.debug("Execution duration [{}]", exeduration);
 
 log.debug("Min cores [{}]", mincores);
+log.debug("Max cores [{}]", maxcores);
 log.debug("Min memory [{}]", minmemory);
+log.debug("Max memory [{}]", maxmemory);
 
 log.debug("Executable [{}][{}]", executable.getName(), executable.getClass().getName());
 
@@ -370,7 +394,7 @@ log.debug("---- ---- ---- ----");
                     //
                     // TODO Add the data resources.
                     //
-                    
+
                     //
                     // TODO simple scaling factor means we need to handle fractions ?
                     // TODO Both CANFAR and Openstack only support fixed sizes.
@@ -801,14 +825,22 @@ log.debug("---- ---- ---- ----");
         Long MIN_CORES_DEFAULT =  1L ;
         Long MAX_CORES_LIMIT   = 16L ;
         Long mincores = MIN_CORES_DEFAULT;
+        Long maxcores = MIN_CORES_DEFAULT;
 
         if (resource.getCores() != null)
             {
             if (resource.getCores().getRequested() != null)
                 {
-                mincores = resource.getCores().getRequested();
+                if (resource.getCores().getRequested().getMin() != null)
+                    {
+                    mincores = resource.getCores().getRequested().getMin();
+                    }
+                if (resource.getCores().getRequested().getMax() != null)
+                    {
+                    maxcores = resource.getCores().getRequested().getMax();
+                    }
                 }
-            // TODO refactor the request block.
+
             if (resource.getCores().getOffered() != null)
                 {
                 offerset.addWarning(
@@ -828,7 +860,7 @@ log.debug("---- ---- ---- ----");
             {
             offerset.addWarning(
                 "urn:resource-limit",
-                "Requested cores exceeds available resources [${resource}][${cores}][${limit}]",
+                "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
                     resource.getName(),
@@ -840,40 +872,52 @@ log.debug("---- ---- ---- ----");
                 );
             this.fail();
             }
+        if (maxcores > MAX_CORES_LIMIT)
+            {
+            offerset.addWarning(
+                "urn:resource-limit",
+                "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
+                Map.of(
+                    "resource",
+                    resource.getName(),
+                    "cores",
+                    maxcores,
+                    "limit",
+                    MAX_CORES_LIMIT
+                    )
+                );
+            this.fail();
+            }
         this.addMinCores(
             mincores
             );
+        this.addMaxCores(
+            maxcores
+            );
 
-        StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
-        StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
-        StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
+        Long MIN_MEMORY_DEFAULT =  1L;
+        Long MAX_MEMORY_LIMIT   = 16L;
+        Long minmemory = MIN_MEMORY_DEFAULT;
+        Long maxmemory = MIN_MEMORY_DEFAULT;
+
+        //StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
+        //StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
+        //StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
 
         if (resource.getMemory() != null)
             {
             if (resource.getMemory().getRequested() != null)
                 {
-                try {
-                    minmemory = StorageUnits.parse(
-                        resource.getMemory().getRequested()
-                        );
-                    }
-                catch (NumberFormatException ouch)
+                if (resource.getMemory().getRequested().getMin() != null)
                     {
-                    offerset.addWarning(
-                        "urn:input-syntax-fail",
-                        "Unable to parse compute resource memory request [${resource}][${requested}]",
-                        Map.of(
-                            "resource",
-                            resource.getName(),
-                            "requested",
-                            resource.getMemory().getRequested()
-                            )
-                        );
-                    this.fail();
+                    minmemory = resource.getMemory().getRequested().getMin();
+                    }
+                if (resource.getMemory().getRequested().getMax() != null)
+                    {
+                    maxmemory = resource.getMemory().getRequested().getMax();
                     }
                 }
 
-            // TODO refactor the request block.
             if (resource.getMemory().getOffered() != null)
                 {
                 offerset.addWarning(
@@ -890,41 +934,26 @@ log.debug("---- ---- ---- ----");
                 }
             }
 
-        if (minmemory.compareTo(MAX_MEMORY_LIMIT) > 0)
+        if (minmemory > MAX_MEMORY_LIMIT)
             {
             offerset.addWarning(
                 "urn:resource-limit",
-                "Requested memory exceeds available resources [${resource}][${memory}][${limit}]",
+                "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
                     resource.getName(),
                     "memory",
                     minmemory,
                     "limit",
-                    MAX_CORES_LIMIT
+                    MAX_MEMORY_LIMIT
                     )
                 );
             }
-        try {
-            this.addMinMemory(
-                minmemory.inByte().longValueExact()
-                );
-            }
-        catch (ArithmeticException ouch)
-            {
-            offerset.addWarning(
-                "urn:resource-limit",
-                "Requested memory exceeds available resources [${resource}][${memory}][${message}]",
-                Map.of(
-                    "resource",
-                    resource.getName(),
-                    "memory",
-                    minmemory,
-                    "message",
-                    ouch.getMessage()
-                    )
-                );
-            }
+
+        this.addMinMemory(
+            minmemory
+            );
+
         //
         // Process the network ports.
         // ....
@@ -936,9 +965,9 @@ log.debug("---- ---- ---- ----");
         SimpleComputeResourceEntity entity = this.simpleComputeFactory.create(
             null,
             resource.getName(),
-            mincores.longValue(),
+            mincores,
             null,
-            minmemory.inByte().longValueExact(),
+            minmemory,
             null
             );
         this.addComputeResource(

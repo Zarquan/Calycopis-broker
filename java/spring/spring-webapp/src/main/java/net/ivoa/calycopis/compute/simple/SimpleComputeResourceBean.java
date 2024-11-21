@@ -36,6 +36,12 @@ import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
 import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+
+import net.ivoa.calycopis.openapi.model.IvoaMinMaxLong;
+import net.ivoa.calycopis.openapi.model.IvoaMinMaxLong1;
+import net.ivoa.calycopis.openapi.model.IvoaMinMaxComputeLong;
+import net.ivoa.calycopis.openapi.model.IvoaMinMaxComputeLong1;
+
 import net.ivoa.calycopis.util.ListWrapper;
 import wtf.metio.storageunits.model.StorageUnits;
 
@@ -120,36 +126,89 @@ public class SimpleComputeResourceBean
         return new IvoaComputeResourceCores()
             {
             @Override
-            public Long getRequested()
+            public IvoaMinMaxLong getRequested()
                 {
-                return entity.getRequestedCores();
+                return new IvoaMinMaxLong()
+                    {
+                    @Override
+                    public Long getMin()
+                        {
+                        return entity.getRequestedCores();
+                        }
+                    @Override
+                    public Long getMax()
+                        {
+                        return entity.getRequestedCores();
+                        }
+                    };
                 }
             @Override
-            public Long getOffered()
+            public IvoaMinMaxLong1 getOffered()
                 {
-                return entity.getOfferedCores();
+                return new IvoaMinMaxLong1()
+                    {
+                    @Override
+                    public Long getMin()
+                        {
+                        return entity.getOfferedCores();
+                        }
+                    @Override
+                    public Long getMax()
+                        {
+                        return entity.getOfferedCores();
+                        }
+                    };
                 }
             };
         }
-        
     @Override
     public IvoaComputeResourceMemory getMemory()
         {
         return new IvoaComputeResourceMemory()
             {
             @Override
-            public String getRequested()
+            public IvoaMinMaxComputeLong getRequested()
                 {
-                return StorageUnits.binaryValueOf(
-                    entity.getRequestedMemory()
-                    ).toString();
+                return new IvoaMinMaxComputeLong()
+                    {
+                    @Override
+                    public Long getMin()
+                        {
+                        return entity.getRequestedMemory();
+                        }
+                    @Override
+                    public Long getMax()
+                        {
+                        return entity.getRequestedMemory();
+                        }
+                    @Override
+                    public UnitsEnum getUnits()
+                        {
+                        return IvoaMinMaxComputeLong.UnitsEnum.GIB;
+                        }
+                    };
                 }
             @Override
-            public String getOffered()
+            public IvoaMinMaxComputeLong1 getOffered()
                 {
-                return StorageUnits.binaryValueOf(
-                    entity.getOfferedMemory()
-                    ).toString();
+                return new IvoaMinMaxComputeLong1()
+                    {
+                    @Override
+                    public Long getMin()
+                        {
+                        return entity.getRequestedMemory();
+                        }
+                    @Override
+                    public Long getMax()
+                        {
+                        return entity.getRequestedMemory();
+                        }
+                    @Override
+                    public UnitsEnum getUnits()
+                        {
+                        return IvoaMinMaxComputeLong1.UnitsEnum.GIB;
+                        }
+                    };
                 }
             };
         }
