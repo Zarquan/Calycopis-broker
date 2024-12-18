@@ -1,0 +1,247 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experimenting with podman machine.
+
+        https://thenewstack.io/use-podman-to-create-and-work-with-virtual-machines/
+        https://docs.podman.io/en/latest/markdown/podman-machine.1.html
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Try creating a machine.
+#[user@desktop]
+
+    podman machine init
+
+    >   Looking up Podman Machine image at quay.io/podman/machine-os:5.3 to create VM
+    >   Extracting compressed file: podman-machine-default-amd64.qcow2: done
+    >   Image resized.
+    >   Machine init complete
+    >   ....
+    >   ....
+
+
+    podman machine list
+
+    >   NAME                     VM TYPE     CREATED         LAST UP     CPUS        MEMORY      DISK SIZE
+    >   podman-machine-default*  qemu        17 seconds ago  Never       2           2GiB        100GiB
+
+
+# -----------------------------------------------------
+# Try starting the new machine.
+#[user@desktop]
+
+	podman machine start
+
+    >   Starting machine "podman-machine-default"
+    >   Error: could not find "gvproxy" in one of [/usr/local/libexec/podman /usr/local/lib/podman /usr/libexec/podman /usr/lib/podman].  To resolve this error, set the helper_binaries_dir key in the `[engine]` section of containers.conf to the directory containing your helper binaries.
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Fix the dependencies.
+#[user@desktop]
+
+    sudo dnf install podman-gvproxy
+
+    >   ....
+    >   ....
+    >   Installed:
+    >       gvisor-tap-vsock-6:0.8.1-1.fc40.x86_64
+    >       gvisor-tap-vsock-gvforwarder-6:0.8.1-1.fc40.x86_64
+
+
+# -----------------------------------------------------
+# Try starting the new machine.
+#[user@desktop]
+
+	podman machine start
+
+    >   Starting machine "podman-machine-default"
+    >   ERRO[0000] process 55627 has not ended
+    >   Error: failed to find virtiofsd: exec: "virtiofsd": executable file not found in $PATH
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Fix the dependencies.
+# https://github.com/containers/podman/issues/23127#issuecomment-2304503495
+#[user@desktop]
+
+    sudo dnf install podman-machine
+
+    >   ....
+    >   ....
+    >   Installed:
+    >       podman-machine-5:5.3.1-1.fc40.x86_64
+
+
+# -----------------------------------------------------
+# Try starting the new machine.
+#[user@desktop]
+
+	podman machine start
+
+    >   Starting machine "podman-machine-default"
+    >   
+    >   This machine is currently configured in rootless mode. If your containers
+    >   require root permissions (e.g. ports < 1024), or if you run into compatibility
+    >   issues with non-podman clients, you can switch using the following command:
+    >   
+    >   	podman machine set --rootful
+    >   
+    >   Mounting volume... /home/Zarquan:/home/Zarquan
+    >   API forwarding listening on: /run/user/1000/podman/podman-machine-default-api.sock
+    >   You can connect Docker API clients by setting DOCKER_HOST using the
+    >   following command in your terminal session:
+    >   
+    >           export DOCKER_HOST='unix:///run/user/1000/podman/podman-machine-default-api.sock'
+    >   
+    >   Machine "podman-machine-default" started successfully
+
+
+# -----------------------------------------------------
+# Connect to the new machine.
+#[user@desktop]
+
+podman machine list
+
+    >   NAME                     VM TYPE     CREATED      LAST UP            CPUS        MEMORY      DISK SIZE
+    >   podman-machine-default*  qemu        2 hours ago  Currently running  2           2GiB        100GiB
+
+
+    podman machine ssh
+
+    >   Connecting to vm podman-machine-default. To close connection, use `~.` or `exit`
+    >   Fedora CoreOS 40.20241019.3.0
+    >   Tracker: https://github.com/coreos/fedora-coreos-tracker
+    >   Discuss: https://discussion.fedoraproject.org/tag/coreos
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Try accessing files in our home directory on the host.
+#[core@localhost]
+
+    pwd
+
+    >   /var/home/core
+
+    whoami
+
+    >   core
+
+
+    ls -al /home/Zarquan/
+
+    >   total 232
+    >   drwx------. 1 core core   872 Dec 11 14:57 .
+    >   drwxr-xr-x. 4 root root    33 Dec 11 15:01 ..
+    >   -rw-------. 1 core core 31843 Dec 11 14:57 .bash_history
+    >   -rw-r--r--. 1 core core    18 Feb  9  2024 .bash_logout
+    >   -rw-r--r--. 1 core core   144 Feb  9  2024 .bash_profile
+    >   -rw-r--r--. 1 core core   746 Oct 17 03:24 .bashrc
+    >   ....
+    >   ....
+
+
+    date > /home/Zarquan/test-file
+
+
+    ls -al /home/Zarquan/
+
+    >   ....
+    >   -rw-r--r--. 1 core core    29 Dec 11 18:24 test-file
+    >   ....
+
+
+# -----------------------------------------------------
+# Check our home directory on the host.
+#[user@desktop]
+
+    ls -al /home/Zarquan/
+
+    >   ....
+    >   -rw-r--r--. 1 Zarquan Zarquan    29 Dec 11 18:24 test-file
+    >   ....
+
+    cat /home/Zarquan/
+
+    >   Wed Dec 11 18:24:51 GMT 2024
+
+
+# -----------------------------------------------------
+# Stop the virtual machine.
+#[user@desktop]
+
+    podman machine list
+
+    >   NAME                     VM TYPE     CREATED      LAST UP            CPUS        MEMORY      DISK SIZE
+    >   podman-machine-default*  qemu        5 hours ago  Currently running  2           2GiB        100GiB
+
+
+    podman machine stop
+
+    >   Waiting for VM to exit...
+    >   Machine "podman-machine-default" stopped successfully
+
+
+    podman machine list
+
+    >   NAME                     VM TYPE     CREATED      LAST UP        CPUS        MEMORY      DISK SIZE
+    >   podman-machine-default*  qemu        5 hours ago  6 seconds ago  2           2GiB        100GiB
+
+
+# -----------------------------------------------------
+# Delete the virtual machine.
+#[user@desktop]
+
+    podman machine rm
+
+    >   The following files will be deleted:
+    >   
+    >   /home/Zarquan/.config/containers/podman/machine/qemu/podman-machine-default.json
+    >   /run/user/1000/podman/podman-machine-default.sock
+    >   /run/user/1000/podman/podman-machine-default-gvproxy.sock
+    >   /run/user/1000/podman/podman-machine-default-api.sock
+    >   /run/user/1000/podman/podman-machine-default.log
+    >   /run/user/1000/podman/podman-machine-default_vm.pid
+    >   /run/user/1000/podman/qmp_podman-machine-default.sock
+    >   Are you sure you want to continue? [y/N] y
+
+    podman machine list
+
+    >   NAME        VM TYPE     CREATED     LAST UP     CPUS        MEMORY      DISK SIZE
+
+
+

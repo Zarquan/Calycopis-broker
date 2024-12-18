@@ -1,0 +1,399 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experimenting with podman machine.
+
+        https://thenewstack.io/use-podman-to-create-and-work-with-virtual-machines/
+        https://docs.podman.io/en/latest/markdown/podman-machine.1.html
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create four named virtual machines.
+#[user@desktop]
+
+    tempdir=$(mktemp --directory)
+
+    vmnames=(
+        Lopexia
+        Gonlotus
+        Cheruwis
+        Feroona
+        )
+
+    for vmname in ${vmnames[@]}
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine init \
+            --disk-size 25 \
+            --memory 125 \
+            --timezone local \
+            --volume "${tempdir}:/tempdir:rw" \
+            "${vmname}"
+    done
+
+    >   ---- ----
+    >   vmname [Lopexia]
+    >   Looking up Podman Machine image at quay.io/podman/machine-os:5.3 to create VM
+    >   Extracting compressed file: Lopexia-amd64.qcow2: done
+    >   Image resized.
+    >   Machine init complete
+    >   ....
+    >   ....
+    >   
+    >   ---- ----
+    >   vmname [Gonlotus]
+    >   Looking up Podman Machine image at quay.io/podman/machine-os:5.3 to create VM
+    >   Extracting compressed file: Gonlotus-amd64.qcow2: done
+    >   Image resized.
+    >   Machine init complete
+    >   ....
+    >   ....
+    >   
+    >   ---- ----
+    >   vmname [Cheruwis]
+    >   Looking up Podman Machine image at quay.io/podman/machine-os:5.3 to create VM
+    >   Extracting compressed file: Cheruwis-amd64.qcow2: done
+    >   Image resized.
+    >   Machine init complete
+    >   ....
+    >   ....
+    >   
+    >   ---- ----
+    >   vmname [Feroona]
+    >   Looking up Podman Machine image at quay.io/podman/machine-os:5.3 to create VM
+    >   Extracting compressed file: Feroona-amd64.qcow2: done
+    >   Image resized.
+    >   Machine init complete
+    >   ....
+    >   ....
+
+
+    podman machine list
+
+    >   NAME        VM TYPE     CREATED             LAST UP     CPUS        MEMORY      DISK SIZE
+    >   Lopexia*    qemu        About a minute ago  Never       2           125MiB      25GiB
+    >   Cheruwis    qemu        About a minute ago  Never       2           125MiB      25GiB
+    >   Feroona     qemu        About a minute ago  Never       2           125MiB      25GiB
+    >   Gonlotus    qemu        About a minute ago  Never       2           125MiB      25GiB
+
+
+# -----------------------------------------------------
+# Start the named virtual machines.
+#[user@desktop]
+
+    for vmname in ${vmnames[@]}
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine start \
+            "${vmname}"
+
+    done
+
+    >   ---- ----
+    >   vmname [Lopexia]
+    >   Starting machine "Lopexia"
+    >   ....
+    >   ....
+
+    #
+    # Gets stuck at this point.
+    # 1 cpu core at 100% for 20+ min
+    #
+
+    #
+    # Reboot the host and try again.
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    podman machine list
+
+    >   NAME        VM TYPE     CREATED         LAST UP             CPUS        MEMORY      DISK SIZE
+    >   Lopexia*    qemu        56 minutes ago  Currently starting  2           125MiB      25GiB
+    >   Cheruwis    qemu        55 minutes ago  Never               2           125MiB      25GiB
+    >   Feroona     qemu        55 minutes ago  Never               2           125MiB      25GiB
+    >   Gonlotus    qemu        55 minutes ago  Never               2           125MiB      25GiB
+
+
+    podman machine list --format json | jq '.'
+
+    >   [
+    >     {
+    >       "Name": "Cheruwis",
+    >       "Default": false,
+    >       "Created": "2024-12-12T13:30:10.187587352Z",
+    >       "Running": false,
+    >       "Starting": false,
+    >       "LastUp": "0001-01-01T00:00:00Z",
+    >       "Stream": "default",
+    >       "VMType": "qemu",
+    >       "CPUs": 2,
+    >       "Memory": "131072000",
+    >       "DiskSize": "26843545600",
+    >       "Port": 39809,
+    >       "RemoteUsername": "core",
+    >       "IdentityPath": "/home/Zarquan/.local/share/containers/podman/machine/machine",
+    >       "UserModeNetworking": true
+    >     },
+    >     {
+    >       "Name": "Feroona",
+    >       "Default": false,
+    >       "Created": "2024-12-12T13:30:19.819981698Z",
+    >       "Running": false,
+    >       "Starting": false,
+    >       "LastUp": "0001-01-01T00:00:00Z",
+    >       "Stream": "default",
+    >       "VMType": "qemu",
+    >       "CPUs": 2,
+    >       "Memory": "131072000",
+    >       "DiskSize": "26843545600",
+    >       "Port": 33751,
+    >       "RemoteUsername": "core",
+    >       "IdentityPath": "/home/Zarquan/.local/share/containers/podman/machine/machine",
+    >       "UserModeNetworking": true
+    >     },
+    >     {
+    >       "Name": "Gonlotus",
+    >       "Default": false,
+    >       "Created": "2024-12-12T13:29:59.232593923Z",
+    >       "Running": false,
+    >       "Starting": false,
+    >       "LastUp": "0001-01-01T00:00:00Z",
+    >       "Stream": "default",
+    >       "VMType": "qemu",
+    >       "CPUs": 2,
+    >       "Memory": "131072000",
+    >       "DiskSize": "26843545600",
+    >       "Port": 41411,
+    >       "RemoteUsername": "core",
+    >       "IdentityPath": "/home/Zarquan/.local/share/containers/podman/machine/machine",
+    >       "UserModeNetworking": true
+    >     },
+    >     {
+    >       "Name": "Lopexia",
+    >       "Default": true,
+    >       "Created": "2024-12-12T13:29:49.133200404Z",
+    >       "Running": false,
+    >       "Starting": true,
+    >       "LastUp": "0001-01-01T00:00:00Z",
+    >       "Stream": "default",
+    >       "VMType": "qemu",
+    >       "CPUs": 2,
+    >       "Memory": "131072000",
+    >       "DiskSize": "26843545600",
+    >       "Port": 33255,
+    >       "RemoteUsername": "core",
+    >       "IdentityPath": "/home/Zarquan/.local/share/containers/podman/machine/machine",
+    >       "UserModeNetworking": true
+    >     }
+    >   ]
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    podman machine list --format json | jq -r '.[].Name'
+
+    >   Lopexia
+    >   Cheruwis
+    >   Feroona
+    >   Gonlotus
+
+
+    for vmname in $(
+        podman machine list --format json | jq -r '.[].Name'
+        )
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine stop "${vmname}"
+
+    done
+
+
+    podman machine list --format json | jq -r '.[] | {Name, Running,  Starting}'
+
+    >   {
+    >     "Name": "Gonlotus",
+    >     "Running": false,
+    >     "Starting": false
+    >   }
+    >   {
+    >     "Name": "Lopexia",
+    >     "Running": false,
+    >     "Starting": true
+    >   }
+    >   {
+    >     "Name": "Cheruwis",
+    >     "Running": false,
+    >     "Starting": false
+    >   }
+    >   {
+    >     "Name": "Feroona",
+    >     "Running": false,
+    >     "Starting": false
+    >   }
+
+
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    for vmname in $(
+        podman machine list --format json | jq -r '.[].Name'
+        )
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine rm --force "${vmname}"
+
+    done
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Check the available dosc space.
+#[user@desktop]
+
+    jc df / | jq '.'
+
+    >   [
+    >     {
+    >       "filesystem": "/dev/mapper/luks-5b931b60-c92c-4a7e-ac7f-c3dcd3efd14a",
+    >       "1k_blocks": 243131392,
+    >       "used": 13761524,
+    >       "available": 228721692,
+    >       "mounted_on": "/",
+    >       "use_percent": 6
+    >     }
+    >   ]
+
+
+# -----------------------------------------------------
+# Create four named virtual machines.
+#[user@desktop]
+
+    tempdir=$(mktemp --directory)
+
+    vmnames=(
+        Gothse
+        Drogcole
+        Hahugia
+        Keblex
+        )
+
+    for vmname in ${vmnames[@]}
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine init \
+            --disk-size 25 \
+            --memory 1025 \
+            --timezone local \
+            --volume "${tempdir}:/tempdir:rw" \
+            "${vmname}"
+    done
+
+    >   ....
+    >   ....
+
+
+    podman machine list
+
+    >   NAME        VM TYPE     CREATED         LAST UP     CPUS        MEMORY      DISK SIZE
+    >   Keblex      qemu        17 seconds ago  Never       2           1.001GiB    25GiB
+    >   Drogcole    qemu        42 seconds ago  Never       2           1.001GiB    25GiB
+    >   Gothse*     qemu        58 seconds ago  Never       2           1.001GiB    25GiB
+    >   Hahugia     qemu        28 seconds ago  Never       2           1.001GiB    25GiB
+
+
+# -----------------------------------------------------
+# Start the named virtual machines.
+#[user@desktop]
+
+    for vmname in ${vmnames[@]}
+    do
+        echo "---- ----"
+        echo "vmname [${vmname}]"
+
+        podman machine start \
+            "${vmname}"
+
+    done
+
+    >   ---- ----
+    >   vmname [Gothse]
+    >   Starting machine "Gothse"
+    >   
+    >   This machine is currently configured in rootless mode. If your containers
+    >   require root permissions (e.g. ports < 1024), or if you run into compatibility
+    >   issues with non-podman clients, you can switch using the following command:
+    >   
+    >   	podman machine set --rootful Gothse
+    >   
+    >   Mounting volume... /tmp/tmp.W9gvPNAxp1:/tempdir
+    >   API forwarding listening on: /run/user/1000/podman/Gothse-api.sock
+    >   You can connect Docker API clients by setting DOCKER_HOST using the
+    >   following command in your terminal session:
+    >   
+    >           export DOCKER_HOST='unix:///run/user/1000/podman/Gothse-api.sock'
+    >   
+    >   Machine "Gothse" started successfully
+    >   ---- ----
+    >   vmname [Drogcole]
+    >   Starting machine "Drogcole"
+    >   Error: unable to start "Drogcole": machine Gothse is already running: only one VM can be active at a time
+    >   ---- ----
+    >   vmname [Hahugia]
+    >   Starting machine "Hahugia"
+    >   Error: unable to start "Hahugia": machine Gothse is already running: only one VM can be active at a time
+    >   ---- ----
+    >   vmname [Keblex]
+    >   Starting machine "Keblex"
+    >   Error: unable to start "Keblex": machine Gothse is already running: only one VM can be active at a time
+
+    #
+    # OK, so not as useful as a full KVM virtual machine using livvirt.
+    #
+

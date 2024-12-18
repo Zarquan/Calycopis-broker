@@ -1,0 +1,130 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    PI24 Demos
+    https://confluence.skatelescope.org/display/SRCSC/PI24+Demos
+
+
+    Online demo recording
+    Session Two - An E2E Flow of SRCNet (v0.1)
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=300778145
+
+        00:15:51
+        00:21:51
+        Demo showed a table of data objects from the ObsCore TAP service (or the DataLink service ?)
+        The identifier in the rows was a full formed ivo data ID (authority was test).
+
+            ivo://test.skao/~?sp351_soda:2023-11-02-22-08-30_LoTSS-DR2_P42Hetdex07_mosaic-blanked.fits
+
+
+        00:21:51
+        Demo showed how to move data to a specific STORM
+        including duration for how long to keep the data there
+
+            Transfer is handled as an asynchronous job.
+
+
+        00:56:55
+        Demo showed a Python library being used to access SKA data.
+
+            [astroquery.srcnet.core]
+            srcnet.get_data(namespace='testing', name='ngc2403.fits')
+
+
+        00:59:24
+        Manu's demo refers to DIDs, which are Rucio `<namespace>:<filename>` identifiers.
+
+        01:04:48
+        Manu's demo shows Rucio DIDs resolved into local paths.
+
+            {
+            UID: 101,
+            dids:
+                [
+                    {
+                    did: "wallaby:WALLABY_J103702-273359_Hydra_Kin_TR1_ModSurfDems.fits"
+                    localPath: "https://spsrc14.iaa.csic.es:18027//disk/dev/deterministic/wallaby/1d/ea/WALLABY_J103702-273359_Hydra_Kin_TR1_ModSurfDems.fits"
+                    ts: "2024-11-26T12:08:16"
+                    },
+                    ....
+                ]
+            }
+
+
+# -----------------------------------------------------
+
+    Looking through the source code to find where all this happens
+
+    Looks like the only thing that handles `ivo://...` identifiers is the portal.
+
+    src-ui-tannet
+    https://gitlab.com/ska-telescope/src/src-ui/ska-src-ui-gateway/
+
+        This is the repository for the frontend SRC net aceess to resources
+        (e.g. Data, computing resources, relative documentation).
+
+    Checked out a copy and ran grep looking for `ivo` ..
+
+        The portal code assumes a specific syntax in an `accessURL` to extract the Rucio `namespace` and `filename`.
+        https://gitlab.com/ska-telescope/src/src-ui/ska-src-ui-gateway/-/blob/main/src/search-catalog/search-results-table.tsx#L260-276
+
+        The portal code does this more than once ...
+        https://gitlab.com/ska-telescope/src/src-ui/ska-src-ui-gateway/-/blob/main/src/search-catalog/search-results-table.tsx#L316-326
+
+        The portal code makes the same assumption about the syntax of an iov:// ID value to extract the Rucio `namespace` and `filename`.
+        https://gitlab.com/ska-telescope/src/src-ui/ska-src-ui-gateway/-/blob/main/src/search-catalog/search-results-table.tsx#L361-391
+
+        `obs_publisher_did` is used to identify the selected row
+        https://gitlab.com/ska-telescope/src/src-ui/ska-src-ui-gateway/-/blob/main/src/search-catalog/search-results-table.tsx#L772-780
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
