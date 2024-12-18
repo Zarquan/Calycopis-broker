@@ -1,0 +1,635 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        https://singularity-tutorial.github.io/03-building/
+        https://docs.sylabs.io/guides/3.2/user-guide/cli/singularity_pull.html
+        https://imperialcollegelondon.github.io/2020-07-13-Containers-Online/10-singularity-containers/index.html
+
+        https://jupyter.org/hub
+        https://github.com/singularityhub/jupyter
+
+        https://singularityhub.github.io/singularity-compose/#/
+        https://github.com/singularityhub/singularity-compose-examples/tree/master/v2.0/jupyterlab
+
+
+
+# -----------------------------------------------------
+introduction
+
+Execution Broker designed to answer one question, "when, and where, can I execute this ?".
+
+The <where> is implicit in which compute platforms the EB service represents.
+The <when> depends on the size of the request and the capacity of the platform.
+The <I> part is implicit in the authentication token used as part of the request.
+The <this> part uses the EB data model to describe not just the executable itself
+but the data, storage and compute resources that it needs.
+
+There are a number of different ways to approach this kind of problem.
+
+# -----------------------------------------------------
+centrally managed solution
+
+One approach is to develop a centrally managed solution that captures details of the
+capabilities and resources of all the nodes and then tries to match them to the
+requirements needed to execute the task.
+
+The problem with this is that the centrally managed database of capabilities and resources
+is difficult to curate.
+As we increase the number of parameters we want to consider, the central system
+becomes more difficule to curate.
+
+A centrally managed system works if we assume that all of the SRCNet nodes
+all provide the same type of computing platform,
+and they are only expected to execute a fixed
+set of types of executable.
+
+This gets progressivley more complex to model as different types
+of executables, platforms, capabilities and hardware accelerators
+are added to the mix.
+
+A centrally managed system also assumes that access to the compute
+platforms are controlled by the same set of global policies,
+which will be difficult to scale to handle all of the different
+expectations that may apply at the national and institutional level.
+
+In order to be able to answer the <when> part of the question,
+the system needs to keep track of the capacity and the resources
+allocated on all of the nodes.
+Again, this is possible if we start out with all of the nodes
+offering the same basic capabilities, but it gets
+more difficult as the system evolves and we introduce different
+types of capabilities and resources.
+
+
+# -----------------------------------------------------
+delegated architecture
+
+An alternative approach is to delegate the task to a local service deployed at each of the nodes,
+which is responsible for answering the question on behalf of that node only.
+
+Locating the local service at the SRCNode enables it to be directly integrated
+with the compute platform(s) available at that node.
+This means it can use the native platform API to interact directly with the compute
+platform enabling it to control the execution of tasks on that platform.
+
+Each local service act as a broker for the compute platforms
+at that node. Hiding the details of the platform configuration and
+providing a standard API that can be used by the rest of the SRCNet.
+
+We can then add a central aggregating service on top of the local services
+that polls each of them and collects the results to present a single set of offers to the user.
+This aggregating service has the same API as the local node services, but the internal business
+logic is much simpler.
+It simply passes on the request and collects the results, without needing to
+understand the content.
+
+# -----------------------------------------------------
+inverting the question
+
+A common approach with a centrally managed solution is to enumerate the
+capabilities or services provided by the individual platforms and then
+try to match them with the capabilities required to run a task.
+
+So for example, given a request to execute a jupyter notebook,
+we search the database of capabilities for a platform that lists
+'jupyter-hub' as one of the services it provides.
+
+We can then use the 'jupyter-hub' API to execute the jupyter notebook
+on that platform.
+
+This works well if we have a one-to-one mapping between the platform capabilities
+and the types of task that we want to execute.
+
+Each task type has an equivalent well-known API to execute that type of task,
+'jupyter-hub' to run jupyter notebooks, 'kubernetes-cluster' to run Docker containers,
+and 'slurm-cluster' to run Singularity containers.
+
+This gets more complicated if we have a many-to-many mapping between the
+platform capabilities and the types of task.
+
+For example, there is more than one way to execute a Jupyter notebook.
+
+Obviously, if we have a Jupyter Hub service deployed on the node, then we can use that directly.
+
+Howver, if we don't already have Jupyter Hub service, but we have a Kubernetes cluster,
+then we could deploy a Jupyter Hub service in the Kubernetes cluster
+and then use that to run the notebook.
+
+If we don't have a Kubernetes cluster, but we have access to an Openstack system,
+then we could allocate a virtual machine in Openstack,
+deploy a Jupyter Hub service into it, and then use that to run the notebook.
+
+At the other end of the scale, if we have a CANFAR science platform deployed on the node,
+then we could use the CANFAR Skaha API to launch the Jupyter notebook in a container
+with access to the CANFAR shared storage.
+
+The same applies for execting a Docker container.
+
+If we have a Kubernetes cluster on the node then we can launch the Docker container in the cluster.
+If we don't have a Kubernetes cluster, but we do have access to an Openstack system,
+then we could allocate a virtual machine, install the Docker or Podman runtime and
+use that to launch the Docker container.
+And agin, if we have a CANFAR science platform deployed on the node,
+then we could use the Skaha API to launch the container
+with access to the CANFAR shared storage.
+
+Each of these examples varies in complexity but achieves the same result,
+executing a Jupyter notebook or Docker container on a node.
+However, in order to manage these from an central orchestrator,
+they require the nodes to grant access to platform level APIs
+to the central orchestrator, with all of the security issues that brings.
+
+It also means the central orchestrator needs to understand all of the
+different platform level APIs along wth a lot of details about how each
+of the platforms are configured.
+
+Execution Broker inverts the question.
+Rather than searching the capabilities for specific service APIs,
+an Execution Broker request describes the thing the client wants to execute
+"<this> is my docker container" and then asks the broker "can you run <this>".
+
+The broker goes through the same steps, and in the complex cases it performs
+the same gymnastics to setup the environment needed to run the executable,
+but the calls the the platform APIs come from an Execution Broker
+co-located with the platform services, inside the host data center.
+This solves a lot of the security iusses and simplifies the configuration.
+One Execution Broker service is responsible for one platform,
+so the broker configuration only has to describe that one platform.
+
+It also makes it much easier for the local system administrators to take
+ownership of their local Execution Broker service and configure it to get the
+maximum benefit out of their platform.
+
+# -----------------------------------------------------
+complex data model
+
+not just the executable, but the resources it needs too
+
+request:
+  executable:
+    ....
+  resources:
+    compute:
+      ....
+    storage:
+      ....
+    data:
+      ....
+
+and the schedule the user wants
+
+request:
+  executable:
+    ....
+  resources:
+    ....
+  schedule:
+    ....
+
+
+
+# -----------------------------------------------------
+extensible data model
+
+The EB service API and data model are designed from the ground
+up to be extensible.
+The design assumes that we don't know what types of platforms,
+resources and executables we will need to handle in the future.
+
+Rather than try to model every possible type of executable
+in one large data model, the data model for each type is described in an
+extension to the core data model.
+The data model uses a common pattern for polymorphic types based on
+a set of base classes for executable, compute resource, storage resource,
+and data resource followed by
+a 'type' URI to indicate the derived type of thing it is describing,
+followed by the specific details for that type.
+
+For example, core data model defines a base class for an executable
+that includes a name, a UUID, and a URI to identify the type.
+
+    executable:
+
+      # Common fields from AbstractExecutable
+      name: 'step 001'
+      uuid: '0e860f94-61e7-4618-8933-b54fba6c0508'
+      type: '....'
+
+To represent an executable packaged as a docker container, the data model
+defines a derived type that includes the properties needed to describe
+a docker container, including details of the container image and the
+repository to get it from.
+
+    executable:
+
+      # Common fields from AbstractExecutable
+      name: 'step 001'
+      uuid: '....'
+      type: 'https://..../docker-container-1.0'
+
+      # The type specific details for a Docker container.
+      repository: ghcr.io
+      image: ivoa/analytics/Newton-Rahpson-example
+      tag: 2024.08.30
+      digest: sha256:ac1b....fc70
+
+A Jupyter notebook needs a different set of properties,
+including the location of the notebook, and an optional list of Python
+modules that it requires.
+
+    executable:
+
+      # Common fields from AbstractExecutable
+      name: 'notebook 002'
+      uuid: '....'
+      type: 'https://..../jupyter-notebook-1.0'
+
+      # The type specific details for a Jupyter notebook.
+      notebook:
+        location: https://.../example.jpnb
+      requirements:
+        - numpi: ''
+        - astropy: '>= 6.1'
+
+Defining polymorphic types in the data model in this way is a standard pattern
+in the OpenAPI specification and maps well to the class structure of object
+orientated languages like Java and Python.
+
+This pattern enables us to define an initial set of core types,
+docker-container, singularity-containe and jupyter-notebook, etc.
+but leaves it open for us to add new types as we need them.
+
+    executable:
+
+      # Common fields from AbstractExecutable
+      name: 'notebook 002'
+      uuid: '....'
+      type: 'https://..../experimental-package-0.1'
+
+      # The type specific details for an experimental package.
+      package:
+        location: https://.../test.pkj
+      flags:
+        - mode: readwrite
+        - tint: blue
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
+edge cases - compute
+
+The problem is not one-size-fits-all
+it is a multi-faceted problem with lots of edge cases.
+
+examples at the edges include specialist processing hardware like the
+large GPUs dedicated to tensor matrix processing
+for AI applications,
+and FPGA programmable hardware for
+accelerating data pipeline processing.
+
+more common will be the general processing GPUS required for image processing
+and data cube manipulation
+
+as data sizes increase and algorithm data dependency increases
+the data access bandwidth and latency
+of the storage associated with a compute platform
+become important
+
+
+# -----------------------------------------------------
+edge cases - policy
+
+alongside the different types of compute hardware
+our users will expect us to handle complex access policies
+that take into account different levels of acces for different user groups
+
+not just groups within the SRCNet system, but we also need to be able to
+take into account local groups and local policies
+
+As an example, consider a data center with 1,000 units
+of hardware, 500 of which have been pledged
+as part of the national contribution to
+SRCNet.
+
+Some or all of the remaining 500 units of compute
+are available to users from national or local
+institute level groups.
+
+The expectation would be that local users should be able to
+make use of both their SRCNet allocation and the national
+and intitutional level allocations to run jobs that
+use all 1,000 units of compute resource.
+
+To do this, we would either need to propagate details of the national
+and intitutional level policies, groups and quotas up a central
+managment system, or we would need to delegate some of the access
+control policies to the local system.
+
+The EB interface is designed to allow this kind of delegation
+to happen, combining local and global policies.
+
+An EB service at a specific site can call the global services
+to apply the global policies
+for the 500 units of SRCNet resources
+and combine the results
+with calls to a local policy service that applies
+the national and intitutional level policies
+to the 500 units of local resources.
+
+# -----------------------------------------------------
+edge cases - data
+
+if we pass the full ivo:// identifier for data objects,
+then EB services can implement local data staging
+for local datasets.
+
+# -----------------------------------------------------
+edge cases - storage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
+combining into one model
+
+We can solve part of this with a centrallay managed solution,
+but that begins to break down as we add more detail
+to the request and expect more accuracy in the answers.
+
+Combining all the different aspects of the problem on one data model
+enebles the user to describe what they want in detail,
+and for the system to match this with all the relevant policies,
+local and global.
+
+The data model for describing the request and response includes sections for
+describing the executable thing, the data, storage and compute resources it
+requires, and the time schedule for when to execute it.
+
+
+# -----------------------------------------------------
+platform layers
+
+Part of the problem is that the SRCNet compute platforms are not homogenous.
+Most of the SRCNet sites will be running some combination of Openstack
+and/or Kubernetes, some will be running CANFAR and/or Azimuth.
+However, this is not a complete or exclusive list.
+
+There will be a lot of variation between how much of each layer
+the platform providers want to allow users to access
+
+If we look at the common layered platform that many sites are deploying.
+
+    Openstack virtual machines
+    Kubernetes cluster
+    CANFAR science platform
+
+At the moment most sites are only offering end users access to the
+CANFAR science platform.
+
+However there are edge use cases where
+they may want to offers some users access to
+a Kubernetes cluster,
+or direct level access to virtual machines.
+
+There is no technical barrier to doing this, it would be a
+local policy decision of whether they want to offer this
+to selected users.
+
+The use case for offering access to a Kubernetes cluster
+either part of a shared
+cluster, or a separate cluster on their own,
+is that a good way of publishing a complex data processing
+pipeline with multple moving parts is as a Helm chart.
+
+Allowing some users acess to a Kubernetes cluster would
+enable them to deploy and experiment with
+custom implementations of the pipeline.
+
+Another common way of publishing a simpler pipeline
+is using Docker compose to define the set of containers.
+
+This is simpler to develop and test on a local machine.
+However, is is not compatible with running the pipeline
+on a container based platform because it relies on
+being able to launch containers itself.
+
+The best way of providing a platform for this kind
+of executable is to simply provide a virtual
+machine to the end user.
+The user does not need access to the full Openstack
+API, the platform would provide an entry point to
+launch one or more pre-configured virtual machines
+for the user.
+
+These all represent existing use cases that reflect how
+people are already using compute platforms,
+involving different levels of complexity and requiring different
+levels of expertise to provide different functionality.
+
+The EX data model and web service API is designed to allow us to start small,
+with the simple generic compute environment, and grow to support any
+and all of these levels as they are required by our users.
+
+
+e.g.
+Deploying ElasticSearch using Docker
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+
+
+# -----------------------------------------------------
+platform capacity
+
+Another aspect to the question that EB ansrwes is "*when* can I execute <this> ?"
+which depends on how busy the system is at the time.
+
+All of the compute platforms that we are using have some level of capacity limits.
+The on-prem Openstack platforms
+dedicated to SRCNet are limited to the available physical
+hardware.
+The Openstack platforms that are running on national
+level HPC systems are limited by the
+quotas allocated to SRCNet.
+Compute platforms that are running on commercial cloud
+are limited by the budgets allocated to SRCNet.
+
+In order to answer the when question, we need to keep track of
+how much of the resources are already in use, and how much have
+been allocated for use in the future.
+
+If a user requests an interactive notebook session,
+and they end up in a queue with 'waiting to start ...'
+displayed on their screen for an unknown amount of time,
+their experience is not good.
+
+A better user experience would be to detect how many resources are available,
+and if there are not enough to run the notebook now, offer a later session when more
+resources will be available.
+
+People don't mind waiting, people hate uncertainty.
+https://www.youtube.com/watch?v=1ei6F3dk4gE&t=1580s
+
+# -----------------------------------------------------
+capacity monitoring
+
+This is something that is difficult to do centrally.
+Monitoring the available resources for one platform is
+a solvable problem.
+Doing the same for multiple different platforms,
+that have different types of resources
+quickly becomes very complex.
+
+if we allow for local users and local policies, then
+each platform may have a different configuration of resources
+and a different capacity measurements
+
+measuring this centrally means proagating a lot of local
+details up to the central system, making the central
+system overly complex
+
+# -----------------------------------------------------
+resource booking
+
+to support this
+the EB data model and web service API allows the user to specify when they would like to
+execute the task, and the response allows the service to offer specific time slots
+for the execution.
+
+underneath, the EB implements a basic booking system that keeps
+track of how many resources have been allocated for each session when
+
+for an interactive notebook session, the user may initially ask for a session
+that starts within the next 5min.
+If the resources are available, the platform makes an offer that starts now,
+the user accepts it and is redirected to the notebook session.
+
+If the rersources are not available within the requested time, the platform will respond with no offers available.
+
+If another platform is able to offer a session that starts within the requested time
+then the user can choose that platform instead.
+
+If there are no sessions available within the requested time, the user can choose
+to submit a new request with a more flexible start time.
+
+If the user doesn't specify a start time, then the platforms will offer
+the next available slot that can provide enough resources.
+This may end up offering slots that start late at night or on a weekend.
+which would be fine for a non-interactive task, but it would not be a good
+experience for an interactive task.
+
+The EB data model allows the user to specify a
+range of intervals for the start time.
+So for example the user can request a 4 hour session that starts
+sometime between 9am and mid-day on Monday, Tuesday or Wednesday.
+
+In response, the platforms could reply with offers
+that start at 9am, 10am and 11am on Monday,
+9am and 11am on Tuesday
+and 11am and 12am on Wednesday.
+The user can select the offer that is most convinent for them,
+reducing the uncertainty of when their session will start.
+
+# -----------------------------------------------------
+data staging
+
+
+
+
+# -----------------------------------------------------
+super compute platforms
+
+Isambard-AI
+https://www.datacenterdynamics.com/en/news/uks-fastest-supercomputer-isambard-ai-comes-online/
+Built on an HPE Cray EX-based system, at full capacity Isambard-AI will contain 5,448 Nvidia GH200
+superchips and offer 200 petaflops Linpack and 21 exaflops of AI compute.
+
+https://www.youtube.com/watch?v=OfH9dDoRvb4&t=172s
+"
+unlike a big Supercomputer like
+an Archer where you only get to use it if you have a big job,
+this machine is for everyone.
+If you just need one GPU for an hour,
+you're as welcome to use the machine if you need 1,000 GP for a month
+"
+
+How can we get access ?
+
+
+
+Dawn supercomputer
+https://www.datacenterdynamics.com/en/news/fastest-ai-supercomputer-in-the-uk-is-now-operational/
+The Dawn supercomputer contains 512 4th Generation Intel Xeon Scalable
+processors and 1,024 Intel Data Center GPU Max 1550 accelerators on
+256 Dell PowerEdge XE9640 server nodes, offering up to 128 gigabytes
+of high bandwidth memory.
+
+Neither of these platforms have a simple website describing what they are
+and how to apply for access ....
+Seems you just need to know.
+
+
