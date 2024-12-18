@@ -390,6 +390,48 @@ for local datasets.
 # -----------------------------------------------------
 edge cases - storage
 
+hyper-converged means putting the storage (back) in the compute nodes
+it makes high bandwidth storage available, but it is limited size
+needs something to manage how much is used by who and how
+check with Edinburgh ..
+
+# -----------------------------------------------------
+edge cases - schedule
+
+    9-5 office worker
+
+    midnight extreme user
+
+    weekly workshop
+
+
+
+# -----------------------------------------------------
+bring it all together
+
+    local node services
+    plugin-architecture for platforms and policies
+    aggregator for complex nodes e.g. UKSRC
+    top level aggregator for SRCNet
+    start simplest and add functionality as needed
+
+
+# -----------------------------------------------------
+future applications
+
+    concept of a long lasting 'session'
+    multiple executables available
+    shell, notebook or desktop
+
+    keep an archive of all jobs executed
+    resource for tranining  AI
+
+    better transfer time prediction
+    better execution time prediction
+    AI agent to offer hints
+
+
+
 
 
 
@@ -596,6 +638,9 @@ reducing the uncertainty of when their session will start.
 
 # -----------------------------------------------------
 data staging
+
+factor in the time needs to stage data
+defder start time until data will be ready
 
 
 
