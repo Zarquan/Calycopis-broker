@@ -1,0 +1,151 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring the SRCNet architecture ...
+        Notes on how SRCNet-0.1 handles ivo:// URIs
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Key Quality Attributes
+    https://confluence.skatelescope.org/display/SRCSC/Key+Quality+Attributes
+
+        Generic     The system needs to be able to support multiple science teams using data from SKA precursor telescopes, and eventually, support science from the SKA.
+        Scalable    The system must allow for growing data processing requirements by the astronomy community.
+        Extensible  It should be possible to add various services later. The system should also be able to be fully or partially deployed on different cloud providers and data centres.
+        Loosely coupled or decoupled    The services in the system should be sufficiently independent.
+
+# -----------------------------------------------------
+
+    SRCNet v0.1 Interfaces View
+    https://confluence.skatelescope.org/display/SRCSC/SRCNet+v0.1+Interfaces+View#SRCNetv0.1InterfacesView-DiscoverScienceDataSetsInterface
+
+
+    Data Stage Interface (Global Data Managment API (service))
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api
+
+        The SRCNet presentation layer could ask for the staging of the data in on SRCNet node.
+        That implies moving the selected data to a unique SRCNet node and putting the data available into storage visible by the computing elements.
+
+        In this first step, the presentation layer sends a set of data identifiers to the global data management API service that will decide the
+        relevant node to move the data (usually where most of the data is located) and invokes the creation of replicas into the storage that has
+        been flagged by nodes as close to the computing elements.
+
+        A second step will be invoked by the global data management API to the gatekeeper to put the data available into the user area
+        (see Prepare Data Interface)
+
+        Asynchronous
+
+            stage(String[] dataIdentifiers)
+
+                dataIdentifiers: set of data Identifiers
+
+        Output: String job_id
+
+            After completion, UWS response contains the identifier of the SRCNet node where data have been staged
+
+        Example
+
+            <Data_Management_API_Service_URL>\stage?ID=010101&ID=212110&ID=1213213
+
+        Thoughts
+
+            Is is just this simple ?
+            Is it just a GET request with multiple numeric dataIdentifiers ?
+            Not idempotent GET then.
+            No details of how long the data should remain at the node for ?
+            No relation to the code that is to be executed .. ?
+
+    Prepare Data Interface (Local Gatekeeper service)
+
+        After creating replicas of the selected data into a particular SRCNet node, the Global Data Management API will
+        invoke the gatekeeper so the selected data is made available to the users
+
+        Asynchronous
+
+            prepare(String[] dataIdentifiers)
+
+                dataIdentifiers: set of data Identifiers
+
+        Output: String job_id
+
+        Example
+
+            <GateKeeper_Service_URL>\prepare?ID=010101&ID=212110&ID=1213213
+
+        Thoughts
+
+            Is is just this simple ?
+            Is it just a GET request with multiple numeric dataIdentifierss ?
+            Does the gatekeeper understand the global dataIdentifierss or is this a different set of dataIdentifier ?
+            Not idempotent GET then.
+            No details of how long the data should remain at the node for ?
+            No relation to the code that is to be executed .. ?
+
+    Prepare Data For Users Interface (Local Prepare Data service)
+
+        Synchronous
+
+            prepareData(String[] dataIdentifiers)
+
+                dataIdentifiers: set of data Identifiers
+
+        Example log from (local) Prepare Data
+
+    >   INFO:main:Running prepareData() function.
+    >   INFO:main:Received token: eyJraWQiOiJyc2ExIiwiYWxnIjoiUl...
+    >   INFO:main:Data processed successfully using the method: symblink
+    >   INFO:main:DID: wallaby:WALLABY_J102418-264830_Hydra_TR2_mom0.fits
+    >   INFO:main:getTokenExchangeAudience
+    >   INFO:main:End: getTokenExchangeAudience
+    >   INFO:main:getPathsFromDIDs
+    >   INFO:main:DID and Path: {'did': 'wallaby:WALLABY_J102418-264830_Hydra_TR2_mom0.fits', 'path': 'dev/deterministic/wallaby/cc/b8/WALLABY_J102418-264830_Hydra_TR2_mom0.fits'}
+    >   INFO:main:End: getPathsFromDIDs
+    >   INFO-RUN: https://authn.srcdev.skao.int/api/v1/token/exchange/data-management-api?version=latest&try_use_cache=true&access_token=eyJraWQiOiJ ...
+    >   INFO-REPLICAS: b'[{"identifier":"SPSRC_STORM","associated_storage_area_id":"dcbae756-21a9-4787-bff2-2af3b7bfa1b0","replicas":["https://spsrc14.iaa.csic.es:18027/disk/dev/deterministic/wallaby/cc/b8/WALLABY_J102418-264830_Hydra_TR2_mom0.fits"]},{"identifier":"STFC_STORM","associated_storage_area_id":"448e27fe-b695-4f91-90c3-0a8f2561ccdf","replicas":["https://storm.srcdev.skao.int:443/sa/deterministic/wallaby/cc/b8/WALLABY_J102418-264830_Hydra_TR2_mom0.fits"]}]'
+    >   INFO:main:Username: mparra
+    >   INFO:main:Mounts prepared:
+    >     touch /home/ubuntu/canfar-local-storage/cavern/home/mparra/dataprepared/WALLABY_J102418-264830_Hydra_TR2_mom0.fits;
+    >     chmod 444 /home/ubuntu/canfar-local-storage/cavern/home/mparra/dataprepared/WALLABY_J102418-264830_Hydra_TR2_mom0.fits;
+    >     mount -o ro,bind /mnt/rucio/dev/deterministic/wallaby/cc/b8/WALLABY_J102418-264830_Hydra_TR2_mom0.fits /home/ubuntu/canfar-local-storage/cavern/home/mparra/dataprepared/WALLABY_J102418-264830_Hydra_TR2_mom0.fits;
+
+    #
+    # At this level, the (local) Prepare Data expects Rucio DIDs "<namespace>:<file>"
+    # It splits this into `namespace` and `file`.
+    #   namespace, name = did.split(":", 1)
+    # It calls the global Data Managment (service) to locate all the replicas.
+    #   url = f"{host}/api/v1/data/locate/{namespace}/{name}?sort=random"
+    # It uses the local path of the replica to bind mount the file into a subdirectory of the user's home directory.
+    #   /home/ubuntu/canfar-local-storage/cavern/home/<username>/dataprepared/
+    #
+    # This works, although it drops the Rucio namespace name.
+    #
+
+

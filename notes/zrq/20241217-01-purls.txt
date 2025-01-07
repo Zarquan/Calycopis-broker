@@ -1,0 +1,456 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experiment with creating purl redirects on github pages.
+        Try our own repo first before we setup an ivoa site.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create our 'purl' repository ..
+
+    https://github.com/Zarquan/purls
+
+    Configure pages to use the root directory.
+    Add my first oage ..
+
+    https://zarquan.github.io/purls/EB/types/docker-container-0.1.md
+
+# -----------------------------------------------------
+# Try adding a redirect ..
+
+    #
+    # https://dev.to/steveblue/setup-a-redirect-on-github-pages-1ok7
+
+    <!DOCTYPE html>
+    <meta charset="utf-8">
+    <title>Redirecting to https://example.com/</title>
+    <meta http-equiv="refresh" content="0; URL=https://example.com/">
+    <link rel="canonical" href="https://example.com/">
+
+    #
+    # https://stackoverflow.com/a/29334258
+
+    <!DOCTYPE HTML>
+    <html lang="en-US">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="1;url=http://rkritesh.in/embed.js/">
+            <script type="text/javascript">
+                window.location.href = "http://rkritesh.in/embed.js/"
+            </script>
+            <title>Page Redirection</title>
+        </head>
+        <body>
+            <!-- Note: don't tell people to `click` the link, just tell them that it is a link. -->
+            If you are not redirected automatically, follow the <a href='http://rkritesh.in/embed.js/'>link to example</a>
+        </body>
+    </html>
+
+    #
+    # Try the simplest to start with
+
+    <!DOCTYPE html>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+
+    #
+    # Curl just gets the raw file.
+    curl \
+        --verbose \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1
+
+    >   <!DOCTYPE html>
+    >   <meta charset="utf-8">
+    >   <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+
+
+    #
+    # Firefox downloads it as a raw file.
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1
+
+    >   <!DOCTYPE html>
+    >   <meta charset="utf-8">
+    >   <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+
+
+    #
+    # Try the more complex form ..
+
+    <!DOCTYPE HTML>
+    <html lang="en-US">
+        <head>
+            <meta charset="UTF-8">
+            <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+        </head>
+        <body>
+        </body>
+    </html>
+
+    #
+    # Curl just gets the raw file.
+    curl \
+        --verbose \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1
+
+    >   <html lang="en-US">
+    >       <head>
+    >           <meta charset="UTF-8">
+    >           <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+    >       </head>
+    >       <body>
+    >       </body>
+    >   </html>
+
+
+    #
+    # Firefox downloads it as a raw file.
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1
+
+    >   <!DOCTYPE HTML>
+    >   <html lang="en-US">
+    >       <head>
+    >           <meta charset="UTF-8">
+    >           <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+    >       </head>
+    >       <body>
+    >       </body>
+    >   </html>
+
+    #
+    # Create some copies.
+
+    cp docker-container-0.1 docker-container-0.1.html
+    cp docker-container-0.1 docker-container
+    cp docker-container-0.1 docker-container.html
+
+
+    #
+    # Curl just gets the raw file.
+    curl \
+        --verbose \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1.html
+
+    >   <!DOCTYPE HTML>
+    >   <html lang="en-US">
+    >       <head>
+    >           <meta charset="UTF-8">
+    >           <meta http-equiv="refresh" content="0; URL=https://zarquan.github.io/purls/EB/types/docker-container-0.1.md">
+    >       </head>
+    >       <body>
+    >       </body>
+    >   </html>
+
+    #
+    # Firefox follows the redirect :-)
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/types/docker-container-0.1.html
+
+
+    #
+    # Replace one of the html pages with a sym-link.
+    git rm docker-container.html
+    ln -s docker-container-0.1.md docker-container.html
+    git add docker-container.html
+
+    #
+    # Add a new page using a sym-link.
+    ln -s docker-container-0.1.md oci-container-0.1.html
+    ln -s docker-container-0.1.md oci-container.html
+
+    ls -al
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 Zarquan Zarquan 240 Dec 17 14:06 docker-container
+    >   -rw-rw-r--. 1 Zarquan Zarquan 240 Dec 17 13:48 docker-container-0.1
+    >   -rw-r--r--. 1 Zarquan Zarquan 240 Dec 17 14:05 docker-container-0.1.html
+    >   -rw-rw-r--. 1 Zarquan Zarquan  57 Dec 17 13:28 docker-container-0.1.md
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  23 Dec 17 14:58 docker-container.html -> docker-container-0.1.md
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  23 Dec 17 15:00 oci-container-0.1.html -> docker-container-0.1.md
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  23 Dec 17 15:00 oci-container.html -> docker-container-0.1.md
+
+
+    #
+    # Curl just gets the MD file.
+    curl \
+        --verbose \
+        https://zarquan.github.io/purls/EB/types/oci-container.html
+
+    >   An executable wrapped as a Docker or OCI container.
+
+
+    #
+    # Firefox gets the MD file
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/types/oci-container.html
+
+    >   An executable wrapped as a Docker or OCI container.
+
+
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/types/oci-container
+
+
+
+    #
+    # HTML meta redirect works in browsers.
+    # Filesystem sym-links work on the server.
+    #
+
+    #
+    # If we create an ivoa purls repo, then the URLs would look like this.
+
+    https://ivoa.github.io/purls/EB/oci-container
+    https://ivoa.github.io/purls/EB/types/oci-container
+
+    #
+    # Do the symlinks render the MD correctly ?
+
+
+
+
+
+# -----------------------------------------------------
+# Drop the `types` directory and use symlinks.
+
+
+    git mv types/docker-container-0.1.md .
+
+    git rm -r types
+
+    >   rm 'EB/types/docker-container'
+    >   rm 'EB/types/docker-container-0.1'
+    >   rm 'EB/types/docker-container-0.1.html'
+    >   rm 'EB/types/docker-container.html'
+    >   rm 'EB/types/oci-container-0.1.html'
+    >   rm 'EB/types/oci-container.html'
+
+
+    ln -s docker-container-0.1.md docker-container
+    ln -s docker-container-0.1.md docker-container-0.1
+
+    ls -al
+
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  23 Dec 17 17:30 docker-container -> docker-container-0.1.md
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  23 Dec 17 17:30 docker-container-0.1 -> docker-container-0.1.md
+    >   -rw-rw-r--. 1 Zarquan Zarquan  57 Dec 17 13:28 docker-container-0.1.md
+
+    git add .
+
+    git commit -m "Refactored to use symlinks"
+
+    git push
+
+    #
+    # Add some MD markup.
+
+    pluma docker-container-0.1.md &
+
+
+
+    #
+    # Try them out in Firefox ..
+
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/docker-container
+
+        => download
+
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/docker-container-0.1
+
+        => download
+
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/docker-container-0.1.md
+
+        => mono-font text file
+
+    firefox \
+        --new-window \
+        https://zarquan.github.io/purls/EB/docker-container-0.1.html
+
+        => HTML generated from MD
+
+    #
+    # Almost but not quite what we wanted.
+    #
+    # So we would need to create the .md files, and then use .html in the URLs
+    # to see the rendered versions.
+    # What we actually want are the plain no-suffix files to get rendered.
+    #
+
+    #
+    # We could just use json or yaml to represent the types.
+    #
+    # What we want :
+
+        https://zarquan.github.io/purls/EB/docker-container
+        https://zarquan.github.io/purls/EB/docker-container-0.1
+        https://zarquan.github.io/purls/EB/docker-container-0.1.html
+
+        All return the same content
+
+
+    #
+    # What we could have :
+
+        https://zarquan.github.io/purls/EB/docker-container
+        https://zarquan.github.io/purls/EB/docker-container-0.1
+        https://zarquan.github.io/purls/EB/docker-container-0.1.yaml
+
+        All return the same content using symlinks.
+
+        type:
+          name: docker-container-0.1
+          base: abstract-executable
+          title: Docker container
+          description: <
+            This type describes an executable published as a Docker or OCI container.
+          references:
+            - text: Docker Inc
+              href: https://www.docker.com/
+            - text: Open Container Initiative (OCI)
+              href: https://opencontainers.org/
+
+
+# -----------------------------------------------------
+# Drop the `md` and `html` rendering and use YAML.
+
+cat > docker-container-0.1.yaml << 'EOF'
+type:
+  name: docker-container-0.1
+  base: abstract-executable
+  title: Docker container
+  description: <
+    This type describes an executable published as a Docker or OCI container.
+  references:
+    - text: Docker Inc
+      href: https://www.docker.com/
+    - text: Open Container Initiative (OCI)
+      href: https://opencontainers.org/
+EOF
+
+
+    ln -s docker-container-0.1.yaml docker-container
+    ln -s docker-container-0.1.yaml docker-container-0.1
+
+    ls -al
+
+    >   ....
+    >   ....
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  25 Dec 17 18:50 docker-container -> docker-container-0.1.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan  25 Dec 17 18:50 docker-container-0.1 -> docker-container-0.1.yaml
+    >   -rw-r--r--. 1 Zarquan Zarquan 341 Dec 17 18:50 docker-container-0.1.yaml
+
+    git add .
+    git commit -m "Convert to YAML"
+    git push
+
+    #
+    # This is really close to publishing the YAML schema at the type URL.
+    # Which is an interesting idea ...
+    #
+
+
+    firefox \
+        https://zarquan.github.io/purls/EB/docker-container
+
+        => download
+
+    firefox \
+        https://zarquan.github.io/purls/EB/docker-container-0.1
+
+        => download
+
+    firefox \
+        https://zarquan.github.io/purls/EB/docker-container-0.1.yaml
+
+        => mono-font text file
+
+
+
+    curl \
+        https://zarquan.github.io/purls/EB/docker-container
+
+    >   type:
+    >     name: docker-container-0.1
+    >     base: abstract-executable
+    >     title: Docker container
+    >     description: <
+    >       This type describes an executable published as a Docker or OCI container.
+    >     references:
+    >       - text: Docker Inc
+    >         href: https://www.docker.com/
+    >       - text: Open Container Initiative (OCI)
+    >         href: https://opencontainers.org/
+
+
+    curl \
+        https://zarquan.github.io/purls/EB/docker-container-0.1
+
+    >   type:
+    >     name: docker-container-0.1
+    >     base: abstract-executable
+    >     title: Docker container
+    >     description: <
+    >       This type describes an executable published as a Docker or OCI container.
+    >     references:
+    >       - text: Docker Inc
+    >         href: https://www.docker.com/
+    >       - text: Open Container Initiative (OCI)
+    >         href: https://opencontainers.org/
+
+
+    curl \
+        https://zarquan.github.io/purls/EB/docker-container-0.1.yaml
+
+    >   type:
+    >     name: docker-container-0.1
+    >     title: Docker container
+    >     description: <
+    >       This type describes an executable published as a Docker or OCI container.
+    >     references:
+    >       - text: Docker Inc
+    >         href: https://www.docker.com/
+    >       - text: Open Container Initiative (OCI)
+    >         href: https://opencontainers.org/
+
+

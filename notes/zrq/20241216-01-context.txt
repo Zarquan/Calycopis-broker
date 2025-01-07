@@ -1,0 +1,634 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes for the SRCNet context document.
+
+        COR-755 [ExecBroker] What the Execution Broker does and how it can contribute to SRCNet
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=306954710
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Found buried in a meeting page ..
+
+    2024-10-02 SRC Operations Group (Western)
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=294243010
+
+        Datalink running, e.g. https://datalink.ivoa.srcdev.skao.int/rucio/links?id=testing:PTF10tce.fits
+
+        DaCHS (TAP) running: https://dachs.ivoa.srcdev.skao.int/__system__/tap/run
+
+
+
+# -----------------------------------------------------
+# Try querying our TAP service ..
+#
+
+    curl \
+        --data "LANG=ADQL" \
+        --data "QUERY=SELECT TOP 5 * FROM ivoa.obscore" \
+        --data "RESPONSEFORMAT=text/xml" \
+        https://dachs.ivoa.srcdev.skao.int:443/__system__/tap/run/sync \
+    | xmlstarlet fo \
+    | tee /tmp/results.vot
+
+
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3"
+    >       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4"
+    >       xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd"
+    >       >
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcdev.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT ivoa.obscore.dataproduct_type, ivoa.obscore.dataproduct_subtype, ivoa.obscore.calib_level, ivoa.obscore.obs_collection, ivoa.obscore.obs_id, ivoa.obscore.obs_title, ivoa.obscore.obs_publisher_did, ivoa.obscore.obs_creator_did, ivoa.obscore.access_url, ivoa.obscore.access_format, ivoa.obscore.access_estsize, ivoa.obscore.target_name, ivoa.obscore.target_class, ivoa.obscore.s_ra, ivoa.obscore.s_dec, ivoa.obscore.s_fov, ivoa.obscore.s_region, ivoa.obscore.s_resolution, ivoa.obscore.t_min, ivoa.obscore.t_max, ivoa.obscore.t_exptime, ivoa.obscore.t_resolution, ivoa.obscore.em_min, ivoa.obscore.em_max, ivoa.obscore.em_res_power, ivoa.obscore.o_ucd, ivoa.obscore.pol_states, ivoa.obscore.facility_name, ivoa.obscore.instrument_name, ivoa.obscore.s_xel1, ivoa.obscore.s_xel2, ivoa.obscore.t_xel, ivoa.obscore.em_xel, ivoa.obscore.pol_xel, ivoa.obscore.s_pixel_scale, ivoa.obscore.em_ucd, ivoa.obscore.preview, ivoa.obscore.source_table FROM ivoa.obscore LIMIT 5"/>
+    >       <INFO name="query" value="SELECT TOP 5 * FROM ivoa.obscore"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcdev.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcdev.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <COOSYS ID="system" system="ICRS"/>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <GROUP utype="stc:CatalogEntryLocation">
+    >           <PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+    >           <PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+    >           <PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/>
+    >           <FIELDref ref="s_region" utype="stc:AstroCoordArea.Polygon"/>
+    >         </GROUP>
+    >         <GROUP ID="ndwlpdpggdpa" name="note-calib">
+    >           <DESCRIPTION>
+    >   The calib_level flag takes the following values:
+    >
+    >   === ===========================================================
+    >    0  Raw Instrumental data requiring instrument-specific tools
+    >    1  Instrumental data processable with standard tools
+    >    2  Calibrated, science-ready data without instrument signature
+    >    3  Enhanced data products (e.g., mosaics)
+    >   === ===========================================================</DESCRIPTION>
+    >           <FIELDref ref="calib_level"/>
+    >         </GROUP>
+    >         <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
+    >           <DESCRIPTION>High level scientific classification of the data product, taken from an enumeration</DESCRIPTION>
+    >           <VALUES>
+    >             <OPTION name="image" value="image"/>
+    >             <OPTION name="cube" value="cube"/>
+    >             <OPTION name="spectrum" value="spectrum"/>
+    >             <OPTION name="sed" value="sed"/>
+    >             <OPTION name="timeseries" value="timeseries"/>
+    >             <OPTION name="visibility" value="visibility"/>
+    >             <OPTION name="event" value="event"/>
+    >           </VALUES>
+    >         </FIELD>
+    >         <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
+    >           <DESCRIPTION>Data product specific type</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
+    >           <DESCRIPTION>Amount of data processing that has been applied to the data</DESCRIPTION>
+    >           <VALUES null="-32768"/>
+    >         </FIELD>
+    >         <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
+    >           <DESCRIPTION>Name of a data collection (e.g., project name) this data belongs to</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
+    >           <DESCRIPTION>Free-from title of the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
+    >           <DESCRIPTION>The URL at which to obtain the data set.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_format" arraysize="*" datatype="char" name="access_format" ucd="meta.code.mime" utype="obscore:access.format">
+    >           <DESCRIPTION>MIME type of the resource at access_url</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_estsize" datatype="long" name="access_estsize" ucd="phys.size;meta.file" unit="kbyte" utype="obscore:access.size">
+    >           <DESCRIPTION>Estimated size of data product</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="target_name" arraysize="*" datatype="char" name="target_name" ucd="meta.id;src" utype="obscore:Target.Name">
+    >           <DESCRIPTION>Object a targeted observation targeted</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="target_class" arraysize="*" datatype="char" name="target_class" ucd="src.class" utype="obscore:target.class">
+    >           <DESCRIPTION>Class of the target object (star, QSO, ...)</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_ra" datatype="double" name="s_ra" ucd="pos.eq.ra" unit="deg" utype="obscore:char.spatialaxis.coverage.location.coord.position2d.value2.c1">
+    >           <DESCRIPTION>RA of (center of) observation, ICRS</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_dec" datatype="double" name="s_dec" ucd="pos.eq.dec" unit="deg" utype="obscore:char.spatialaxis.coverage.location.coord.position2d.value2.c2">
+    >           <DESCRIPTION>Dec of (center of) observation, ICRS</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_fov" datatype="double" name="s_fov" ucd="phys.angSize;instr.fov" unit="deg" utype="obscore:char.spatialaxis.coverage.bounds.extent.diameter">
+    >           <DESCRIPTION>Approximate spatial extent for the region covered by the observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_region" arraysize="*" datatype="char" name="s_region" ucd="pos.outline;obs.field" utype="obscore:char.spatialaxis.coverage.support.area" xtype="adql:REGION">
+    >           <DESCRIPTION>Region covered by the observation, as a polygon</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_resolution" datatype="double" name="s_resolution" ucd="pos.angResolution" unit="arcsec" utype="obscore:Char.SpatialAxis.Resolution.refval.value">
+    >           <DESCRIPTION>Best spatial resolution within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_min" datatype="double" name="t_min" ucd="time.start;obs.exposure" unit="d" utype="obscore:char.timeaxis.coverage.bounds.limits.starttime" xtype="mjd">
+    >           <DESCRIPTION>Lower bound of times represented in the data set, as MJD</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_max" datatype="double" name="t_max" ucd="time.end;obs.exposure" unit="d" utype="obscore:char.timeaxis.coverage.bounds.limits.stoptime" xtype="mjd">
+    >           <DESCRIPTION>Upper bound of times represented in the data set, as MJD</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_exptime" datatype="float" name="t_exptime" ucd="time.duration;obs.exposure" unit="s" utype="obscore:char.timeaxis.coverage.support.extent">
+    >           <DESCRIPTION>Total exposure time</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_resolution" datatype="float" name="t_resolution" ucd="time.resolution" unit="s" utype="obscore:char.timeaxis.resolution.refval.value">
+    >           <DESCRIPTION>Minimal significant time interval along the time axis</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_min" datatype="double" name="em_min" ucd="em.wl;stat.min" unit="m" utype="obscore:char.spectralaxis.coverage.bounds.limits.lolimit">
+    >           <DESCRIPTION>Minimal wavelength represented within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_max" datatype="double" name="em_max" ucd="em.wl;stat.max" unit="m" utype="obscore:char.spectralaxis.coverage.bounds.limits.hilimit">
+    >           <DESCRIPTION>Maximal wavelength represented within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_res_power" datatype="double" name="em_res_power" ucd="spect.resolution" utype="obscore:char.spectralaxis.resolution.resolpower.refval">
+    >           <DESCRIPTION>Spectral resolving power lambda/delta lamda</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="o_ucd" arraysize="*" datatype="char" name="o_ucd" ucd="meta.ucd" utype="obscore:char.observableaxis.ucd">
+    >           <DESCRIPTION>UCD for the product's observable</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="pol_states" arraysize="*" datatype="char" name="pol_states" ucd="meta.code;phys.polarization" utype="obscore:Char.PolarizationAxis.stateList">
+    >           <DESCRIPTION>List of polarization states in the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="facility_name" arraysize="*" datatype="char" name="facility_name" ucd="meta.id;instr.tel" utype="obscore:Provenance.ObsConfig.facility.name">
+    >           <DESCRIPTION>Name of the facility at which data was taken</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="instrument_name" arraysize="*" datatype="char" name="instrument_name" ucd="meta.id;instr" utype="obscore:Provenance.ObsConfig.instrument.name">
+    >           <DESCRIPTION>Name of the instrument that produced the data</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_xel1" datatype="long" name="s_xel1" ucd="meta.number" utype="obscore:Char.SpatialAxis.numBins1">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the first spatial axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="s_xel2" datatype="long" name="s_xel2" ucd="meta.number" utype="obscore:Char.SpatialAxis.numBins2">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the second spatial axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="t_xel" datatype="long" name="t_xel" ucd="meta.number" utype="obscore:Char.TimeAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the time axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="em_xel" datatype="long" name="em_xel" ucd="meta.number" utype="obscore:Char.SpectralAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the spectral axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="pol_xel" datatype="long" name="pol_xel" ucd="meta.number" utype="obscore:Char.PolarizationAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the polarization axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="s_pixel_scale" datatype="double" name="s_pixel_scale" ucd="phys.angSize;instr.pixel" unit="arcsec" utype="obscore:Char.SpatialAxis.Sampling.RefVal.SamplingPeriod">
+    >           <DESCRIPTION>Sampling period in world coordinate units along the spatial axis</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_ucd" arraysize="*" datatype="char" name="em_ucd" ucd="meta.ucd" utype="obscore:Char.SpectralAxis.ucd">
+    >           <DESCRIPTION>Nature of the product's spectral axis (typically, em.freq, em.wl, or em.energy)</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="preview" arraysize="*" datatype="char" name="preview" ucd="meta.ref.url;meta.preview">
+    >           <DESCRIPTION>URL of a preview (low-resolution, quick-to-retrieve representation) of the data.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="source_table" arraysize="*" datatype="char" name="source_table" ucd="meta.id;meta.table">
+    >           <DESCRIPTION>Name of a TAP-queriable table this data originates from. This source table usually provides more information on the the data than what is given in obscore. See the TAP_SCHEMA of the originating TAP server for details.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>cube</TD>
+    >               <TD/>
+    >               <TD>2</TD>
+    >               <TD>WALLABY</TD>
+    >               <TD>WALLABY_J163749-621352</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163749-621352/source_data_Norma_TR1</TD>
+    >               <TD/>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163749-621352_Norma_TR1_spec.fits</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD>WALLABY J163749-621352</TD>
+    >               <TD/>
+    >               <TD>249.46613454813826</TD>
+    >               <TD>-62.22818300841795</TD>
+    >               <TD>0.11716746280436537</TD>
+    >               <TD/>
+    >               <TD>25.088283046836125</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>0.21433167263990777</TD>
+    >               <TD>0.2145617687358093</TD>
+    >               <TD>NaN</TD>
+    >               <TD>phot.count</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>ASKAP</TD>
+    >               <TD>53</TD>
+    >               <TD>46</TD>
+    >               <TD>-1</TD>
+    >               <TD>81</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>cube</TD>
+    >               <TD/>
+    >               <TD>2</TD>
+    >               <TD>WALLABY</TD>
+    >               <TD>WALLABY_J163834-601517</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163834-601517/source_data_Norma_TR1</TD>
+    >               <TD/>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163834-601517_Norma_TR1_mom0.png</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD>WALLABY J163834-601517</TD>
+    >               <TD/>
+    >               <TD>249.6490812051552</TD>
+    >               <TD>-60.24926741980242</TD>
+    >               <TD>0.11018352595093722</TD>
+    >               <TD/>
+    >               <TD>25.088046059879943</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>0.21331496586575924</TD>
+    >               <TD>0.21359641558751635</TD>
+    >               <TD>NaN</TD>
+    >               <TD>phot.count</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>ASKAP</TD>
+    >               <TD>42</TD>
+    >               <TD>51</TD>
+    >               <TD>-1</TD>
+    >               <TD>100</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>cube</TD>
+    >               <TD/>
+    >               <TD>2</TD>
+    >               <TD>WALLABY</TD>
+    >               <TD>WALLABY_J163644-573547</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163644-573547/source_data_Norma_TR1</TD>
+    >               <TD/>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163644-573547_Norma_TR1_chan.fits</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD>WALLABY J163644-573547</TD>
+    >               <TD/>
+    >               <TD>249.18268214447804</TD>
+    >               <TD>-57.59572362558447</TD>
+    >               <TD>0.09324984736712538</TD>
+    >               <TD/>
+    >               <TD>25.08731442389262</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>0.21156427749791082</TD>
+    >               <TD>0.21170260995562123</TD>
+    >               <TD>NaN</TD>
+    >               <TD>phot.count</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>ASKAP</TD>
+    >               <TD>38</TD>
+    >               <TD>41</TD>
+    >               <TD>-1</TD>
+    >               <TD>50</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>cube</TD>
+    >               <TD/>
+    >               <TD>2</TD>
+    >               <TD>WALLABY</TD>
+    >               <TD>WALLABY_J163650-601632</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163650-601632/kinematic_model_Norma_TR1</TD>
+    >               <TD/>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_AvgMod.txt</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD>WALLABY J163650-601632</TD>
+    >               <TD/>
+    >               <TD>249.2070316586127</TD>
+    >               <TD>-60.27431696531978</TD>
+    >               <TD>0.1680784331365838</TD>
+    >               <TD/>
+    >               <TD>30.10438933236594</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>0.21330078680049144</TD>
+    >               <TD>0.21364023736786958</TD>
+    >               <TD>NaN</TD>
+    >               <TD>phot.count</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>ASKAP</TD>
+    >               <TD>77</TD>
+    >               <TD>65</TD>
+    >               <TD>-1</TD>
+    >               <TD>121</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>cube</TD>
+    >               <TD/>
+    >               <TD>2</TD>
+    >               <TD>WALLABY</TD>
+    >               <TD>WALLABY_J163650-601632</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163650-601632/kinematic_model_Norma_TR1</TD>
+    >               <TD/>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD>WALLABY J163650-601632</TD>
+    >               <TD/>
+    >               <TD>249.2070316586127</TD>
+    >               <TD>-60.27431696531978</TD>
+    >               <TD>0.1680784331365838</TD>
+    >               <TD/>
+    >               <TD>30.10438933236594</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>0.21330078680049144</TD>
+    >               <TD>0.21364023736786958</TD>
+    >               <TD>NaN</TD>
+    >               <TD>phot.count</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>ASKAP</TD>
+    >               <TD>77</TD>
+    >               <TD>65</TD>
+    >               <TD>-1</TD>
+    >               <TD>121</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="links" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcdev.skao.int:443/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
+
+    #
+    # Matching up the first few fields ..
+    #
+
+    <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
+    <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
+    <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
+    <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
+    <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
+    <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
+    <FIELD ID="access_format" arraysize="*" datatype="char" name="access_format" ucd="meta.code.mime" utype="obscore:access.format">
+    <FIELD ID="access_estsize" datatype="long" name="access_estsize" ucd="phys.size;meta.file" unit="kbyte" utype="obscore:access.size">
+
+    <TD>cube</TD>
+    <TD/>
+    <TD>2</TD>
+    <TD>WALLABY</TD>
+    <TD>WALLABY_J163650-601632</TD>
+    <TD/>
+    <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163650-601632/kinematic_model_Norma_TR1</TD>
+    <TD/>
+    <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    <TD>application/x-votable+xml;content=datalink</TD>
+    <TD>-1</TD>
+
+
+    #
+    # Try query the data link service.
+    #
+
+    curl \
+        --silent \
+        --insecure \
+        'https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits' \
+    | jq '.'
+
+    >   {
+    >     "detail": "
+    >       HTTP error occurred: 404
+    >       Client Error: Not Found for url:
+    >           https://data-management.srcdev.skao.int/api/v1/metadata/testing/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits?plugin=POSTGRES_JSON,
+    >       response: {
+    >           \"detail\":\"
+    >               HTTP error occurred: 404
+    >               Client Error: NOT FOUND for url:
+    >                   https://rucio.srcdev.skao.int/dids/testing/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits/meta?plugin=POSTGRES_JSON,
+    >               response: {
+    >                   \\\"ExceptionClass\\\": \\\"DataIdentifierNotFound\\\",
+    >                   \\\"ExceptionMessage\\\": \\\"No metadata found for did 'testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits\\\"
+    >                   }
+    >               \"
+    >           }
+    >       "
+    >   }
+
+    #
+    # Nested mess of escaped JSON in escaped JSON in escaped JSON ..
+    # but basically, it didn't find the thing we asked for
+    #
+
+    #
+    # but based on previous explorations, I know the Rucio domain
+    # for this object should be 'wallaby' rather than 'testing'
+    #
+    # .. or is there another object in the 'wallaby' domain ?
+    #
+
+    curl \
+        --silent \
+        --insecure \
+        'https://ivoa.datalink.srcdev.skao.int/rucio/links?id=wallaby:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits'
+
+    >   <?xml version="1.0" encoding="UTF-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+    >       <RESOURCE type="results">
+    >           <TABLE>
+    >               <FIELD name="ID" datatype="char" arraysize="*" ucd="meta.id;meta.main" />
+    >               <FIELD name="access_url" datatype="char" arraysize="*" ucd="meta.ref.url" />
+    >               <FIELD name="service_def" datatype="char" arraysize="*" ucd="meta.ref" />
+    >               <FIELD name="error_message" datatype="char" arraysize="*" ucd="meta.code.error" />
+    >               <FIELD name="semantics" datatype="char" arraysize="*" ucd="meta.code" />
+    >               <FIELD name="description" datatype="char" arraysize="*" ucd="meta.note" />
+    >               <FIELD name="content_type" datatype="char" arraysize="*" ucd="meta.code.mime" />
+    >               <FIELD name="content_length" datatype="long" ucd="phys.size;meta.file" unit="byte" />
+    >               <FIELD name="content_qualifier" datatype="char" arraysize="*" ucd="meta.code" />
+    >               <DATA>
+    >                   <TABLEDATA>
+    >                       <TR>
+    >                           <TD>ivo://auth.example.org/datasets/fits?wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    >                           <TD>https://spsrc14.iaa.csic.es:18027/disk/dev/deterministic/wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    >                           <TD />
+    >                           <TD />
+    >                           <TD>#this</TD>
+    >                           <TD>WALLABY_J163650-601632</TD>
+    >                           <TD>application/fits</TD>
+    >                           <TD>768960</TD>
+    >                           <TD />
+    >                       </TR>
+    >                   </TABLEDATA>
+    >               </DATA>
+    >           </TABLE>
+    >       </RESOURCE>
+
+    #
+    # Tried again and got a different result ..
+    #
+
+    curl \
+        --silent \
+        --insecure \
+        'https://ivoa.datalink.srcdev.skao.int/rucio/links?id=wallaby:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits'
+
+    >   {
+    >     "detail":
+    >       "
+    >       HTTP error occurred: 401
+    >       Client Error: Unauthorized for url: https://data-management.srcdev.skao.int/api/v1/metadata/wallaby/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits?plugin=POSTGRES_JSON,
+    >       response: {
+    >           \"detail\":
+    >               \"
+    >               HTTP error occurred: 401
+    >               Client Error: Unauthorized for url:
+    >                   https://permissions.srcdev.skao.int/api/v1/authorise/route/data-management-api?version=1&route=%2Fmetadata%2F%7Bnamespace%7D%2F%7Bname%7D&method=GET&token=eyJr....cYKg,
+    >                   response:
+    >                       {
+    >                       \\\"detail\\\":\\\"Token is inactive. This may be due to an invalid or expired token.\\\"
+    >                       }
+    >               \"
+    >           }
+    >       "
+    >   }
+
+
+    #
+    # This suggests there is a race condition between the DataLink service and the token refresh daemon ?
+    # The services were under maintenance today so possibly not something to worry about.
+    #
+
+    #
+    # Anyway, back to the results.
+    #
+    #
+    # The ObsCore obs_publisher_did is
+    #   <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163650-601632/kinematic_model_Norma_TR1</TD>
+    # The ObsCore access_url is
+    #   <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    #
+    # The DataLink ID is
+    #   <TD>ivo://auth.example.org/datasets/fits?wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    # The DataLink access_url is
+    #   <TD>https://spsrc14.iaa.csic.es:18027/disk/dev/deterministic/wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    # The DataLink content_type is
+    #   <TD>application/fits</TD>
+    # The DataLink content_length is
+    #   <TD>768960</TD>
+    #
+
+    #
+    # Try downloading the file.
+    #
+
+    curl \
+        --verbose \
+        'https://spsrc14.iaa.csic.es:18027/disk/dev/deterministic/wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits'
+
+    >   ....
+    >   ....
+    >   < HTTP/1.1 401 Unauthorized
+    >   < Set-Cookie: JSESSIONID=node0qdrdhvswlzb11cox6upxglc5w2494.node0; Path=/; Secure
+    >   < Expires: Thu, 01 Jan 1970 00:00:00 GMT
+    >   < WWW-Authenticate: Bearer
+    >   < X-Content-Type-Options: nosniff
+    >   < X-XSS-Protection: 1; mode=block
+    >   < Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+    >   < X-Frame-Options: DENY
+    >   < Content-Length: 0
+    >   <
+
+    #
+    # But we aren't allowed to .. boring
+    #
+
+
+

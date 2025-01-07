@@ -1,0 +1,129 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Plans ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Emails to follow up
+
+        Erin - Tue 17/12/2024
+        Resource usage and prov
+
+            The IVOA provenance model is not rich enough to satisfy our eMERLIN use cases
+            (especially as an SRCNet precursor) and while I’m sure there are metadata models
+            for resource usage, I’m not sure where to start aside from your work with
+            Execution Broker type situations.
+
+            Thus, I’m wondering if you know of re-usable data models for either of these
+            spheres that are in use somewhere (or has work already begun by SRCNet on
+            Exec. Broker resource metadata) so that we can recycle work or make for more
+            interoperability?
+
+        ADASS 2024
+
+            Please note that the proceedings submission deadline has been extended to Friday 17th January.
+            Write up experiences with using OpenAPI to define web services.
+
+        Xiaotong Li <xiaotong.li@eng.ox.ac.uk>
+
+            I am attending ADASS virtually due to work commitments,
+            but I would be more than happy to meet with you online :)
+
+            My expertise lies in CUDA programming using GPUs, though I am less familiar with hardware selection.
+            While I am not sure how much assistance I can provide in the area that you mentioned,
+            I'd be glad to meet if you think it would be helpful.
+
+        James Tocknell <james.tocknell@mq.edu.au>
+
+            Subject: Re: IVOA ExecutionBroker for data processing
+
+        Chris Skipper <chris.skipper@manchester.ac.uk>
+
+            Yes, I think GPU compute capability is an essential parameter for requesting GPU resources.
+            If a user is writing GPU-enabled code in a python-type language then a lot of the implementation
+            is hidden from the programmer, and python will likely use whatever resources are available.
+            But if the code was written in CUDA, then it would have very strict requirements on the minimum
+            compute capability that could be used. e.g. if CUDA's atomicAdd() function has been used on 64-bit
+            floats then it will only work with compute capability 6.0 and over.
+
+# -----------------------------------------------------
+
+    Jira tickets ..
+
+    COR-755
+        [ExecBroker] Write a confluence page describing what the Execution Broker does and how it can contribute to SRCNet
+        https://jira.skatelescope.org/browse/COR-755
+
+    DAAC-296
+        Write up detailed requirements for workflows to run from Execution Broker
+        https://jira.skatelescope.org/browse/DAAC-296
+
+    DAAC-297
+        Develop solution for primary ("working") workflow
+        https://jira.skatelescope.org/browse/DAAC-297
+
+        Prototype
+
+            Need to complete the CANFAR integration
+
+        IVOA document
+
+            Need to update the technical specification
+
+# -----------------------------------------------------
+
+    IVOA Product type
+    https://www.ivoa.net/rdf/product-type/2024-05-19/product-type.html
+
+        This vocabulary gives a high level classification for data products in
+        astronomy. It is derived from a word list used by obscore to facilitate
+        by-product type discovery (“find spectra”) and is intended to cover
+        similar use cases elsewhere (e.g., “find services serving spectra” in
+        Registry). A related use case this is supposed to cover is “route data
+        products to applications that can handle them,” in particular in
+        Datalink content_qualifier.
+
+
+# -----------------------------------------------------
+
+    Calycopis adass
+    Move ADASS docs to anything other than docs, leaving space for github.io pages.
+    https://github.com/ivoa/Calycopis-broker/issues/96
+
+    Calycopis adass
+    Write the 2024 paper
+    https://github.com/ivoa/Calycopis-broker/issues/97
+
+
+
+
+
