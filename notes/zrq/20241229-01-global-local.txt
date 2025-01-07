@@ -1,0 +1,74 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ideas for handling global and local spaces.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Use VOSpace to crteate a hierarchy where there isn't one.
+
+    VOSpace nodes may refer to data objects or collections in Rucio.
+    VOSpace nodes may refer to in other storage services.
+
+    VOSpace creates a hierarchical namespace that makes sense to the user.
+
+
+    /srcnet/global/users/<username>/...
+
+    /srcnet/global/projects/<projname>/...
+
+    then local platform copies
+
+    /srcnet/local/<platform>/users/<username>/...
+
+    /srcnet/local/<platform>/projects/<projname>/...
+
+
+    If user copies data from 'global' to 'platform',
+    the system maintains a link back to the original
+    in 'global'.
+
+    If the local copy is changed, it is marked and changed.
+    If the global copy is changed, the local copy is marked as stale.
+    The user can elect to sync up to global or down to local.
+
+    Parts of the local view may map to posix filesystems.
+    Viewed in the posix filesystem they are just files.
+    Viewed in VOSpace shows the links to upstream global files.
+
+    Kind of like a tree view of a git repository,
+    with metadata about the links to the clone origin.
+
+
+
+
+
