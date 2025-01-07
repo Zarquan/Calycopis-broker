@@ -25,7 +25,10 @@
 
     Target:
 
-        Success
+        Notes for the SRCNet context document.
+
+        COR-755 [ExecBroker] What the Execution Broker does and how it can contribute to SRCNet
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=306954710
 
     Result:
 
@@ -85,7 +88,7 @@
     >         <GROUP ID="ndwlpdpggdpa" name="note-calib">
     >           <DESCRIPTION>
     >   The calib_level flag takes the following values:
-    >   
+    >
     >   === ===========================================================
     >    0  Raw Instrumental data requiring instrument-specific tools
     >    1  Instrumental data processable with standard tools

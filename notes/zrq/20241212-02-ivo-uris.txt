@@ -26,6 +26,7 @@
     Target:
 
         Exploring the SRCNet architecture ...
+        Notes on how SRCNet-0.1 handles ivo:// URIs
 
     Result:
 

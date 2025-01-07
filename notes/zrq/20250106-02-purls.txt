@@ -1,0 +1,242 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Another try at implemeting the purls ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Read the help pages on archive.org and discovered the 'partial match' purl type.
+    We can register the partial path and the purl processor will append the tail.
+
+    We register as a partial match
+
+        https://www.purl.org/ivoa.net/EB/
+
+    pointing to
+
+        https://github.com/Zarquan/purls/blob/main/EB/
+
+    then a request for
+
+        https://www.purl.org/ivoa.net/EB/something
+
+    will get redirected to
+
+        https://github.com/Zarquan/purls/blob/main/EB/something
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/docker-container
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   location: https://purl.archive.org/ivoa.net/EB/docker-container
+    >   ....
+    >   HTTP/1.1 302 FOUND
+    >   location: https://github.com/Zarquan/purls/blob/main/EB/docker-container
+    >   ....
+    >   HTTP/2 200
+
+
+# -----------------------------------------------------
+
+    Tried registering just the base URL, but that produces an error.
+
+    https://www.purl.org/ivoa.net/
+    -> FAIL
+
+# -----------------------------------------------------
+
+    Change the redirect to the raw YAML content ..
+
+    https://www.purl.org/ivoa.net/EB/
+    -> https://raw.githubusercontent.com/Zarquan/purls/refs/heads/main/EB/
+
+    #
+    # The purl.org URL works
+    curl \
+        --location \
+        https://www.purl.org/ivoa.net/EB/docker-container
+
+    >   docker-container-0.1.yaml
+
+    #
+    # The archive.org URL works
+    curl \
+        --location \
+        https://purl.archive.org/ivoa.net/EB/docker-container
+
+    >   docker-container-0.1.yaml
+
+    #
+    # The redirect works and the symlink in git means we get the contents of the YAML file.
+    #
+
+    #
+    # We can't register the top level URL, so we need to register one per standard.
+    # Which means we probably don't need the purl git repository.
+    # Each standard can redirect to its own git repo.
+    #
+
+    https://www.purl.org/ivoa.net/EB/
+    -> https://github.com/ivoa-std/ExecutionBroker/tree/main/purls
+
+    #
+    # Next question ..
+    # Does the purl point to a YAML description or the schema ?
+    # If it points to the schema, is it a separate schema file per type, or a fragment of the main document.
+    # Ideally, a separate schema for each type, establishes the pattern for others to use.
+    # In practice, the schema needs to be part of the main schema to work with the generators.
+    #
+
+    # As a fragment of the main schema
+    https://github.com/ivoa-std/ExecutionBroker/blob/main/openapi/openapi.yaml#/components/schemas/DockerContainer
+
+    # As a separate schema for each type
+    https://github.com/ivoa-std/ExecutionBroker/blob/main/openapi/components/docker-container-0.1.yaml
+
+    #
+    # Unless we can create a script that merges the parts automagically.
+    # http://goswagger.io/go-swagger/
+
+        The swagger toolkit allows some transformation to be carried out with a specification.
+
+        expansion: this expands all $ref’s in a spec
+        minimal flattening: carries on minimal transformation to a spec to be workable for the swagger codegen
+        full flattening: performs minimal flattening and in addition, replaces all complex constructs in schemas by named definitions
+        mixin: merges one or more specifications into a primary spec
+
+# -----------------------------------------------------
+
+    #
+    # We should give this a try ..
+    # http://goswagger.io/go-swagger/usage/mixin/
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+        pushd openapi
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                quay.io/goswagger/swagger \
+                mixin --format yaml /ivoa/openapi.yaml /ivoa/components/messages.yaml
+
+    >   ....
+    >   ....
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --volume "$(pwd)/ivoa:/ivoa:ro,z" \
+                quay.io/goswagger/swagger \
+                flatten /ivoa/openapi.yaml
+
+    >   ....
+    >   ....
+
+    #
+    # These don't do what we expect.
+    # They ignore all the request and response content.
+    #
+    # Because go-swagger only supports OpenAPI-2.x, and there are no plans to convert it to OpenAPI-3.x
+    # https://github.com/go-swagger/go-swagger/issues/1122
+
+    #
+    # OK, that's a few hours wasted.
+    # Read the small print.
+    #
+
+# -----------------------------------------------------
+
+    #
+    # This looks like it might be useful ..
+    # https://mikefarah.gitbook.io/yq/operators/load
+    #
+    # Load the contents of a YAML file from disc, using filename from the source document.
+    # https://mikefarah.gitbook.io/yq/operators/load#replace-all-nodes-with-referenced-file
+    #
+
+# -----------------------------------------------------
+
+    ExecutionBroker purls
+    Refactor the types directory into schema for purls.
+    https://github.com/ivoa-std/ExecutionBroker/issues/102
+
+        #
+        # If we want the purls to point to the schema, then they can't be in the purls directory ?
+        # Unless all the schema is in the purls directory.
+        #
+        # I think we can publish just the `schema` directory ?
+        # https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-from-a-branch
+        #
+
+        #
+        # Move the `types` directory to `schema`.
+        # Shorten the directory names.
+        #
+
+        # Old pages
+        https://github.com/ivoa-std/ExecutionBroker/blob/main/types/executable-types/oci-container.md
+
+        # Schema files
+        https://github.com/ivoa-std/ExecutionBroker/blob/main/schema/executable/oci-container.yaml
+
+        # New purls
+        https://www.purl.org/ivoa.net/EB/types/executable/oci-container
+        https://www.purl.org/ivoa.net/EB/types/executable/docker-container
+        https://www.purl.org/ivoa.net/EB/types/executable/singularity-container
+
+        # Short form for the document
+        https://www.purl.org/..../singularity-container
+
+        # GitHub pages
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/oci-container
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/oci-container-1.0
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/oci-container-1.0.yaml
+
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/docker-container
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/docker-container-1.0
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/docker-container-1.0.yaml
+
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/singularity-container
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/singularity-container-1.0
+        https://ivoa-std.github.io/ExecutionBroker/types/executable/singularity-container-1.0.yaml
+
+
+
+
+
+
+
