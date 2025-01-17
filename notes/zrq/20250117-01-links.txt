@@ -1,0 +1,73 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        List of current URLs
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Document describing the role of Execution Broker in SRCNet
+    https://jira.skatelescope.org/browse/SP-4696
+
+    [ExecBroker] Write a confluence page describing what the Execution Broker does and how it can contribute to SRCNet
+    https://jira.skatelescope.org/browse/COR-755
+
+    [Exec broker] Face to face meeting with the architecture team to discuss how ExecutionBroker fits into SRCNet 0.2
+    https://jira.skatelescope.org/browse/COR-756
+
+    [Exec broker] Updates to the ExecutionBroker specification based on feedback from the architecture team
+    https://jira.skatelescope.org/browse/COR-788
+
+    COR-755 [ExecBroker] What the Execution Broker does and how it can contribute to SRCNet
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=306954710
+
+    Data Access (pyvo.dal)
+    https://pyvo.readthedocs.io/en/latest/dal/index.html#table-access-protocol
+
+    DatalinkResults (pyvo.dal)
+    https://pyvo.readthedocs.io/en/latest/api/pyvo.dal.adhoc.DatalinkResults.html#pyvo.dal.adhoc.DatalinkResults.getdataset
+
+    IVOA Vocabulary: Datalink core
+    https://www.ivoa.net/rdf/datalink/core/2022-01-27/datalink.html
+
+    ObsCore
+    https://www.ivoa.net/documents/ObsCore/20170509/REC-ObsCore-v1.1-20170509.pdf
+
+    A Short Course on pyVO
+    https://docs.g-vo.org/pyvo/notes.pdf
+
+    https://github.com/hendhd/ivoa_newcomers/blob/main/IVOA_interop/newcomers.tex
+    https://github.com/hendhd/taenaris/blob/main/pysrc/example2/obscore.py
+
+
+    How to configure Faceted Search in Drupal - An easy step-by-step guide
+    https://www.specbee.com/blogs/configure-faceted-search-in-drupal
+
+
