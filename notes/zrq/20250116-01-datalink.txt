@@ -1,0 +1,284 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experimenting with live ObsTAP services to see how they implement DataLink
+
+    Result:
+
+        Very slow progress ...
+
+# -----------------------------------------------------
+
+
+    podman run --rm -it fedora
+
+
+        dnf install python3
+        dnf install pip3
+
+        pip install pyvo
+
+
+        python
+
+import pyvo
+from astropy.coordinates import SkyCoord
+
+#
+# Loads of messing around in Python trying to get this part to work.
+# Lots and lots of errors and stack traces, but nothing explains _why_.
+#
+
+coord = SkyCoord.from_name("M87")
+
+pyvo.registry.search(
+    pyvo.registry.Spatial(
+            [
+            float(coord.ra.deg),
+            float(coord.dec.deg)
+            ]
+        )
+    )
+# Lots of CONE, SIA and SSA services, no TAP services
+
+pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    )
+# Lots of TAP services
+
+pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    pyvo.registry.Spatial(
+            [
+            float(coord.ra.deg),
+            float(coord.dec.deg)
+            ]
+        )
+    )
+# Empty set
+# No ObsCore TAP services with spatial foorprint.
+
+#
+# Find some ObsCore TAP services
+for voservice in pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    ):
+
+    print()
+    print(
+        voservice.res_title
+        )
+    tapservice = voservice.get_service(
+        "tap"
+        )
+    print(
+        tapservice.baseurl
+        )
+
+    >   MAST STScI CAOM and ObsCore TAP service
+    >   https://mast.stsci.edu/vo-tap/api/v0.1/caom
+    >   
+    >   UCL DaCHS server TAP service
+    >   http://astroweb.projects.phys.ucl.ac.uk:8000/tap
+    >   ....
+    >   ....
+    >   ....
+    >   ....
+    >   ARI's Gaia TAP Service
+    >   https://gaia.ari.uni-heidelberg.de/tap
+    >   
+    >   VOXastro Data Center TAP service
+    >   http://rcsed-vo.sai.msu.ru/tap
+
+#
+# Query to find ObsCore records with DataLink URLs.
+# Using LIKE to match the access_format is very slow, but the data isn't consistent.
+# Some sites use "application/x-votable+xml;content=datalink", and some sites use "application/x-votable+xml; content=datalink", with a space.
+# Leave out obs_id because some of the services don't have this column.
+#
+query = """
+    SELECT
+        TOP 4
+        dataproduct_type,
+        obs_publisher_did,
+        access_url,
+        access_format
+    FROM
+        ivoa.obscore
+    WHERE
+        access_format
+    LIKE '%content=datalink'
+    """
+
+for voservice in pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    ):
+
+    print()
+    print(
+        voservice.res_title
+        )
+    tapmeta = voservice.get_service(
+        "tap"
+        )
+    print(
+        tapmeta.baseurl
+        )
+
+    tapservice = pyvo.dal.TAPService(
+        tapmeta.baseurl
+        )
+    print(tapservice)
+
+    try:
+
+        resultset = tapservice.run_sync(query)
+
+        if (len(resultset) == 0) :
+
+            print("Empty result set")
+
+        else:
+
+            print(resultset.to_table())
+
+    except Exception as ouch:
+
+        print(ouch)
+
+
+    >   ....
+    >   ....
+    >   The VO @ ASTRON TAP service
+    >   https://vo.astron.nl/tap
+    >   TAPService(baseurl : 'https://vo.astron.nl/tap', description : 'None')
+    >   Empty result set
+    >   
+    >   AIASCR VO Services TAP service
+    >   http://vos2.asu.cas.cz/tap
+    >   TAPService(baseurl : 'http://vos2.asu.cas.cz/tap', description : 'None')
+    >   Field query: Query timed out (took too long).
+    >   Meanwhile, if this failure happened with a cross match, please try exchanging the large and the small catalog in POINT and CIRCLE.
+    >   
+    >   CSIRO Australia Telescope Online Archive TAP Service
+    >   https://atoavo.atnf.csiro.au/tap
+    >   TAPService(baseurl : 'https://atoavo.atnf.csiro.au/tap', description : 'None')
+    >   Empty result set
+    >   
+    >   CSIRO ASKAP Science Data Archive TAP Service
+    >   https://casda.csiro.au/casda_vo_tools/tap
+    >   TAPService(baseurl : 'https://casda.csiro.au/casda_vo_tools/tap', description : 'None')
+    >   dataproduct_type obs_publisher_did                                 access_url                                               access_format
+    >   ---------------- ----------------- -------------------------------------------------------------------------- ------------------------------------------
+    >           spectrum  spectrum-1419164 https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=spectrum-1419164 application/x-votable+xml;content=datalink
+    >           spectrum  spectrum-1419191 https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=spectrum-1419191 application/x-votable+xml;content=datalink
+    >           spectrum  spectrum-1419211 https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=spectrum-1419211 application/x-votable+xml;content=datalink
+    >           spectrum  spectrum-1419217 https://data.csiro.au/casda_vo_proxy/vo/datalink/links?ID=spectrum-1419217 application/x-votable+xml;content=datalink
+    >   ....
+    >   ....
+
+
+#
+# Query to find ObsCore records.
+# Leave out obs_id because some of the services don't have this column.
+#
+query = """
+    SELECT
+        TOP 10
+        dataproduct_type,
+        obs_publisher_did,
+        access_url,
+        access_format
+    FROM
+        ivoa.obscore
+    """
+
+for voservice in pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    ):
+
+    print()
+    print(
+        voservice.res_title
+        )
+    tapmeta = voservice.get_service(
+        "tap"
+        )
+    print(
+        tapmeta.baseurl
+        )
+
+    tapservice = pyvo.dal.TAPService(
+        tapmeta.baseurl
+        )
+    print(tapservice)
+
+    try:
+
+        resultset = tapservice.run_sync(query)
+
+        if (len(resultset) == 0) :
+
+            print("Empty result set")
+
+        else:
+
+            print(resultset.to_table())
+
+    except Exception as ouch:
+
+        print(ouch)
+
+
+
+
+
+
+
+
+
+
+            for datalinks in resultset.iter_datalinks():
+                print(
+                    next(
+                        datalinks.bysemantics(
+                            "#this"
+                            )
+                        )["access_url"])
+
+
+

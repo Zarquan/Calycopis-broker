@@ -79,9 +79,24 @@
 
     Jira tickets ..
 
+    SP-4696
+        Document describing the role of Execution Broker in SRCNet
+        https://jira.skatelescope.org/browse/SP-4696
+
     COR-755
         [ExecBroker] Write a confluence page describing what the Execution Broker does and how it can contribute to SRCNet
         https://jira.skatelescope.org/browse/COR-755
+
+    COR-756
+        [Exec broker] Face to face meeting with the architecture team to discuss how ExecutionBroker fits into SRCNet 0.2
+        https://jira.skatelescope.org/browse/COR-756
+
+    COR-788
+        [Exec broker] Updates to the ExecutionBroker specification based on feedback from the architecture team
+        https://jira.skatelescope.org/browse/COR-788
+
+
+# -----------------------------------------------------
 
     DAAC-296
         Write up detailed requirements for workflows to run from Execution Broker
@@ -122,8 +137,6 @@
     Calycopis adass
     Write the 2024 paper
     https://github.com/ivoa/Calycopis-broker/issues/97
-
-
 
 
 
