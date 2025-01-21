@@ -1,0 +1,1386 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Repoprting some issues with registered services.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run a container to work in.
+#[user@desktop]
+
+    podman run --rm -it fedora
+
+        dnf install -y python3
+        dnf install -y pip3
+
+        pip install pyvo
+
+        python
+
+# -----------------------------------------------------
+# Run our Python tests.
+#[root@container]
+
+import pyvo
+from astropy.coordinates import SkyCoord
+
+coord = SkyCoord.from_name("M87")
+
+# -----------------------------------------------------
+# Get a list ot ObsCore TAP services.
+#[root@container]
+
+pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    )
+
+    >   <DALResultsTable length=42>
+    >                ivoid               ...
+    >                                    ...
+    >                object              ...
+    >   -------------------------------- ...
+    >    ivo://archive.stsci.edu/caomtap ...
+    >          ivo://astro.ucl.ac.uk/tap ...
+    >                ivo://astron.nl/tap ...
+    >               ivo://asu.cas.cz/tap ...
+    >          ivo://au.csiro/atoavo/tap ...
+    >           ivo://au.csiro/casda/tap ...
+    >                 ivo://byu.arvo/tap ...
+    >            ivo://cadc.nrc.ca/argus ...
+    >        ivo://cefca/j-pas/j-pas-edr ...
+    >                                ... ...
+    >       ivo://nci.org.au/wigglez/tap ...
+    >              ivo://org.gavo.dc/tap ...
+    >         ivo://padc.obspm.astro/tap ...
+    >            ivo://padc.obspm.he/tap ...
+    >        ivo://padc.obspm.nancay/tap ...
+    >                     ivo://pvol/tap ...
+    >             ivo://spectrum.iaa/tap ...
+    >   ivo://uni-heidelberg.de/gaia/tap ...
+    >             ivo://voxastro.org/tap ...
+
+
+# -----------------------------------------------------
+# Define our test query function.
+#[root@container]
+
+def test_query(sync, query):
+
+    for voservice in pyvo.registry.search(
+        pyvo.registry.Datamodel(
+            "obscore"
+            )
+        ):
+
+        print()
+        print(
+            voservice.res_title
+            )
+        print(
+            voservice.get_contact()
+            )
+        tapmeta = voservice.get_service(
+            "tap"
+            )
+        tapservice = pyvo.dal.TAPService(
+            tapmeta.baseurl
+            )
+        print(
+            tapmeta.baseurl
+            )
+
+        try:
+
+            if (sync):
+                resultset = tapservice.run_sync(
+                    query
+                    )
+            else:
+                resultset = tapservice.run_async(
+                    query
+                    )
+
+            if (len(resultset) == 0) :
+
+                print("Empty result set")
+
+            else:
+
+                print(resultset.to_table())
+
+        except Exception as ouch:
+
+            print("Exception", ouch)
+
+
+# -----------------------------------------------------
+# Simple sync query to test our code.
+#[root@container]
+
+test_query(
+    True,
+    """
+    SELECT
+        TOP 4
+        access_format
+    FROM
+        ivoa.obscore
+    """
+    )
+
+    >   MAST STScI CAOM and ObsCore TAP service
+    >   STScI Archive <archive@stsci.edu>
+    >   https://mast.stsci.edu/vo-tap/api/v0.1/caom
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/jpeg
+    >      image/jpeg
+    >   
+    >   UCL DaCHS server TAP service
+    >   Patrick Guio (+44 20 7679 0672) <p.guio@ucl.ac.uk>
+    >   http://astroweb.projects.phys.ucl.ac.uk:8000/tap
+    >   Empty result set
+    >   
+    >   The VO @ ASTRON TAP service
+    >   Michael Sipior <vo@astron.nl>
+    >   https://vo.astron.nl/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   AIASCR VO Services TAP service
+    >   Petr Skoda (+420 323620361) <skoda@sunstel.asu.cas.cz>
+    >   http://vos2.asu.cas.cz/tap
+    >   /usr/local/lib/python3.13/site-packages/pyvo/dal/query.py:339: DALOverflowWarning: Partial result set. Potential causes MAXREC, async storage space, etc.
+    >     warn("Partial result set. Potential causes MAXREC, async storage space, etc.",
+    >         access_format
+    >   -------------------------
+    >                  image/fits
+    >   application/x-votable+xml
+    >                  image/fits
+    >   application/x-votable+xml
+    >   
+    >   CSIRO Australia Telescope Online Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://atoavo.atnf.csiro.au/tap
+    >   access_format
+    >   -------------
+    >            FITS
+    >            FITS
+    >            FITS
+    >            FITS
+    >   
+    >   CSIRO ASKAP Science Data Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://casda.csiro.au/casda_vo_tools/tap
+    >         access_format
+    >   -------------------------
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   
+    >   ArVO Byurakan TAP service
+    >   Areg Mickaelian (+37491195914) <aregmick@yahoo.com<>
+    >   http://arvo-registry.sci.am/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   CADC Archive Query Service
+    >   John Ouellette <john.ouellette@nrc-cnrc.gc.ca>
+    >   https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   J-PAS EDR Catalogue (November, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jpas-edr
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR1 Catalogue (July, 2018)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr1
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR2 Catalogue (July, 2020)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr2
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR3 Catalogue (July, 2022)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr3
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-NEP PDR202107 Catalogue (July, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jnep-pdr202107
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   MINIJ-PAS PDR201912 Catalogue (December, 2019)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/minijpas-pdr201912
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   Smithsonian Astrophysical Observatory Telescope Data Center TAP service
+    >   SAO TDC <tdchelp@cfa.harvard.edu>
+    >   http://oirsa.cfa.harvard.edu:8080/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   ChiVO TAP service
+    >   Mauricio Solar <msolar@inf.utfsm.cl>
+    >   https://vo.chivo.cl/tap
+    >   Exception ConnectionError: HTTPSConnectionPool(host='vo.chivo.cl', port=443): Max retries exceeded with url: /tap/sync (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f5f1fc7b750>: Failed to resolve 'vo.chivo.cl' ([Errno -3] Temporary failure in name resolution)"))
+    >   
+    >   ESO TAP_OBS: a TAP service to browse and access raw and reduced data, and to query the ambient measurements, of the La Silla Paranal Observatory.
+    >   Archive Science Group <support@eso.org>
+    >   https://archive.eso.org/tap_obs
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   FAI archives TAP service
+    >   FAI NVO Team <izmailova@fai.kz>
+    >   https://dachs.fai.kz/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   Planetary web services @ FUB TAP service
+    >   Sebastian Walter <s.walter@fu-berlin.de>
+    >   http://dachs.planet.fu-berlin.de/tap
+    >   Empty result set
+    >   
+    >   EVN Data Archive TAP service
+    >   Mark Kettenis (+31 521 596524) <kettenis@jive.eu>
+    >   http://evn-vo.jive.eu/tap
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   JVO ALMA VO Service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/alma
+    >   access_format
+    >   
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   AKARI Asteroid Flux Catalogue Version 1
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/catalog/asteroid_flux
+    >        access_format
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   AKARI/IRC NIR Low-resolution Spectral Catalogue of Diffuse Sky Patches
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/diffuse_sky_patch
+    >        access_format
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   AKARI/IRC NIR Spectral Atlas of Galactic Planetary Nebulae
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/galactic_planetary_nebulae
+    >        access_format
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   AKARI/IRC MIR-S slit-less spectroscopic catalogue
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/slitless_mir_spec
+    >        access_format
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   AKARI ObsTAP service
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/ivoa/obscore
+    >        access_format
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   HALCA VSOP (the VLBI Space Observatory Programme) Correlated Data
+    >   JVO help desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca
+    >         access_format
+    >   
+    >   -------------------------
+    >   application/x-fits-uvfits
+    >   application/x-fits-uvfits
+    >   application/x-fits-uvfits
+    >   application/x-fits-uvfits
+    >   
+    >   The VSOP (the VLBI Space Observatory Programme) 5 GHz AGN (Active Galactic Nuclei) Survey Program Analysis Data
+    >   JVO help desk <admin@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca_agn
+    >        access_format
+    >   
+    >   -----------------------
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   application/x-directory
+    >   
+    >   Hitomi Master Catalog
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/hitomi
+    >   access_format
+    >   
+    >   -------------
+    >       text/html
+    >       text/html
+    >       text/html
+    >       text/html
+    >   
+    >   Nobeyama Radio Telescope FITS Archive
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/nobeyama/
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   Subaru Suprime-Cam data service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/spcam
+    >   access_format
+    >   
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   CeSAM Virtual Observatory Server TAP service
+    >   CeSAM VO team <cesam-vo@lam.fr>
+    >   https://vo.lam.fr/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   MACHO TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://machotap.asvo.nci.org.au/ncitap//tap
+    >   Exception Missing REQUEST paramater.
+    >   
+    >   WiggleZ Final Data Release TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://wiggleztap.asvo.nci.org.au/ncitap//tap
+    >   Exception Missing REQUEST paramater.
+    >   
+    >   GAVO Data Center TAP service
+    >   GAVO Data Centre Team (+49 6221 54 1837) <gavo@ari.uni-heidelberg.de>
+    >   http://dc.g-vo.org/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   PADC TAP Server on voparis-tap-astro.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-astro.obspm.fr/tap
+    >         access_format
+    >   -------------------------
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   application/x-votable+xml
+    >   
+    >   PADC TAP Server on voparis-tap-he.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-he.obspm.fr/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   CDN VO Server TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://vogate.obs-nancay.fr/tap
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   PVOL EPN-TAP TAP service
+    >   Ricardo Hueso (Delete this line if you don't want to give it) <ricardo.hueso@ehu.eus>
+    >   http://pvol2.ehu.eus:8083/tap
+    >   Empty result set
+    >   
+    >   Cross section values TAP service
+    >   Jaime Jimenez (0034958230651) <jjimenez@iaa.es>
+    >   http://spectrum.iaa.es/tap
+    >   Empty result set
+    >   
+    >   ARI's Gaia TAP Service
+    >   Jon juaristi Campillo <juaristi@uni-heidelberg.de>
+    >   https://gaia.ari.uni-heidelberg.de/tap
+    >   access_format
+    >   -------------
+    >         VOTable
+    >         VOTable
+    >         VOTable
+    >         VOTable
+    >   
+    >   VOXastro Data Center TAP service
+    >   VOXAstro admin (+18572505718) <chil@sai.msu.ru>
+    >   http://rcsed-vo.sai.msu.ru/tap
+    >   Empty result set
+
+
+# -----------------------------------------------------
+# Simple async query to test our code.
+#[root@container]
+
+test_query(
+    False,
+    """
+    SELECT
+        TOP 4
+        access_format
+    FROM
+        ivoa.obscore
+    """
+    )
+
+    >   MAST STScI CAOM and ObsCore TAP service
+    >   STScI Archive <archive@stsci.edu>
+    >   https://mast.stsci.edu/vo-tap/api/v0.1/caom
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/jpeg
+    >      image/jpeg
+    >   
+    >   UCL DaCHS server TAP service
+    >   Patrick Guio (+44 20 7679 0672) <p.guio@ucl.ac.uk>
+    >   http://astroweb.projects.phys.ucl.ac.uk:8000/tap
+    >   Empty result set
+    >   
+    >   The VO @ ASTRON TAP service
+    >   Michael Sipior <vo@astron.nl>
+    >   https://vo.astron.nl/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   AIASCR VO Services TAP service
+    >   Petr Skoda (+420 323620361) <skoda@sunstel.asu.cas.cz>
+    >   http://vos2.asu.cas.cz/tap
+    >   /usr/local/lib/python3.13/site-packages/pyvo/dal/query.py:339: DALOverflowWarning: Partial result set. Potential causes MAXREC, async storage space, etc.
+    >     warn("Partial result set. Potential causes MAXREC, async storage space, etc.",
+    >         access_format
+    >   -------------------------
+    >                  image/fits
+    >   application/x-votable+xml
+    >                  image/fits
+    >   application/x-votable+xml
+    >   
+    >   CSIRO Australia Telescope Online Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://atoavo.atnf.csiro.au/tap
+    >   Exception Cannot parse datetime 2025-01-23T05:29:22.781+1100
+    >   
+    >   CSIRO ASKAP Science Data Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://casda.csiro.au/casda_vo_tools/tap
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   ArVO Byurakan TAP service
+    >   Areg Mickaelian (+37491195914) <aregmick@yahoo.com<>
+    >   http://arvo-registry.sci.am/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   CADC Archive Query Service
+    >   John Ouellette <john.ouellette@nrc-cnrc.gc.ca>
+    >   https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   J-PAS EDR Catalogue (November, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jpas-edr
+    >   WARNING: UnknownElementWarning: None:28:2: UnknownElementWarning: Unknown element jobInfo [pyvo.utils.xml.elements]
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR1 Catalogue (July, 2018)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr1
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR2 Catalogue (July, 2020)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr2
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR3 Catalogue (July, 2022)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr3
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-NEP PDR202107 Catalogue (July, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jnep-pdr202107
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   MINIJ-PAS PDR201912 Catalogue (December, 2019)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/minijpas-pdr201912
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   Smithsonian Astrophysical Observatory Telescope Data Center TAP service
+    >   SAO TDC <tdchelp@cfa.harvard.edu>
+    >   http://oirsa.cfa.harvard.edu:8080/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >      image/fits
+    >   
+    >   ChiVO TAP service
+    >   Mauricio Solar <msolar@inf.utfsm.cl>
+    >   https://vo.chivo.cl/tap
+    >   Exception HTTPSConnectionPool(host='vo.chivo.cl', port=443): Max retries exceeded with url: /tap/async (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f5f1fc7afd0>: Failed to resolve 'vo.chivo.cl' ([Errno -3] Temporary failure in name resolution)"))
+    >   
+    >   ESO TAP_OBS: a TAP service to browse and access raw and reduced data, and to query the ambient measurements, of the La Silla Paranal Observatory.
+    >   Archive Science Group <support@eso.org>
+    >   https://archive.eso.org/tap_obs
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   application/x-votable+xml;content=datalink
+    >   
+    >   FAI archives TAP service
+    >   FAI NVO Team <izmailova@fai.kz>
+    >   https://dachs.fai.kz/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   Planetary web services @ FUB TAP service
+    >   Sebastian Walter <s.walter@fu-berlin.de>
+    >   http://dachs.planet.fu-berlin.de/tap
+    >   Empty result set
+    >   
+    >   EVN Data Archive TAP service
+    >   Mark Kettenis (+31 521 596524) <kettenis@jive.eu>
+    >   http://evn-vo.jive.eu/tap
+    >   Exception Query Error: Job hung in EXECUTING
+    >   
+    >   JVO ALMA VO Service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/alma
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI Asteroid Flux Catalogue Version 1
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/catalog/asteroid_flux
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC NIR Low-resolution Spectral Catalogue of Diffuse Sky Patches
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/diffuse_sky_patch
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC NIR Spectral Atlas of Galactic Planetary Nebulae
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/galactic_planetary_nebulae
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC MIR-S slit-less spectroscopic catalogue
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/slitless_mir_spec
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI ObsTAP service
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/ivoa/obscore
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   HALCA VSOP (the VLBI Space Observatory Programme) Correlated Data
+    >   JVO help desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   The VSOP (the VLBI Space Observatory Programme) 5 GHz AGN (Active Galactic Nuclei) Survey Program Analysis Data
+    >   JVO help desk <admin@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca_agn
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Hitomi Master Catalog
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/hitomi
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Nobeyama Radio Telescope FITS Archive
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/nobeyama/
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Subaru Suprime-Cam data service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/spcam
+    >   Exception None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   CeSAM Virtual Observatory Server TAP service
+    >   CeSAM VO team <cesam-vo@lam.fr>
+    >   https://vo.lam.fr/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   MACHO TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://machotap.asvo.nci.org.au/ncitap//tap
+    >   Exception 404 Client Error: 404 for url: https://machotap.asvo.nci.org.au/ncitap/tap/async/phase
+    >   
+    >   WiggleZ Final Data Release TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://wiggleztap.asvo.nci.org.au/ncitap//tap
+    >   Exception 404 Client Error: 404 for url: https://wiggleztap.asvo.nci.org.au/ncitap/tap/async/phase
+    >   
+    >   GAVO Data Center TAP service
+    >   GAVO Data Centre Team (+49 6221 54 1837) <gavo@ari.uni-heidelberg.de>
+    >   http://dc.g-vo.org/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   application/fits
+    >   
+    >   PADC TAP Server on voparis-tap-astro.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-astro.obspm.fr/tap
+    >   Exception Query Error: Job hung in EXECUTING
+    >   
+    >   PADC TAP Server on voparis-tap-he.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-he.obspm.fr/tap
+    >   Exception Query Error: Job hung in EXECUTING
+    >   
+    >   CDN VO Server TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://vogate.obs-nancay.fr/tap
+    >   Exception Query Error: Job hung in EXECUTING
+    >   
+    >   PVOL EPN-TAP TAP service
+    >   Ricardo Hueso (Delete this line if you don't want to give it) <ricardo.hueso@ehu.eus>
+    >   http://pvol2.ehu.eus:8083/tap
+    >   Empty result set
+    >   
+    >   Cross section values TAP service
+    >   Jaime Jimenez (0034958230651) <jjimenez@iaa.es>
+    >   http://spectrum.iaa.es/tap
+    >   Empty result set
+    >   
+    >   ARI's Gaia TAP Service
+    >   Jon juaristi Campillo <juaristi@uni-heidelberg.de>
+    >   https://gaia.ari.uni-heidelberg.de/tap
+    >   access_format
+    >   -------------
+    >         VOTable
+    >         VOTable
+    >         VOTable
+    >         VOTable
+    >   
+    >   VOXastro Data Center TAP service
+    >   VOXAstro admin (+18572505718) <chil@sai.msu.ru>
+    >   http://rcsed-vo.sai.msu.ru/tap
+    >   Empty result set
+
+
+# -----------------------------------------------------
+# Only print the errors.
+#[root@container]
+
+def only_errors(sync, query):
+
+    for voservice in pyvo.registry.search(
+        pyvo.registry.Datamodel(
+            "obscore"
+            )
+        ):
+
+        tapmeta = voservice.get_service(
+            "tap"
+            )
+        tapservice = pyvo.dal.TAPService(
+            tapmeta.baseurl
+            )
+
+        try:
+
+            if (sync):
+                resultset = tapservice.run_sync(
+                    query
+                    )
+            else:
+                resultset = tapservice.run_async(
+                    query
+                    )
+
+        except Exception as ouch:
+
+            print()
+            print(
+                voservice.res_title
+                )
+            print(
+                voservice.get_contact()
+                )
+            print(
+                tapmeta.baseurl
+                )
+
+            print("Exception [", ouch, "]")
+
+only_errors(
+    True,
+    """
+    SELECT
+        TOP 4
+        access_format
+    FROM
+        ivoa.obscore
+    """
+    )
+
+    >   /usr/local/lib/python3.13/site-packages/pyvo/dal/query.py:339: DALOverflowWarning: Partial result set. Potential causes MAXREC, async storage space, etc.
+    >     warn("Partial result set. Potential causes MAXREC, async storage space, etc.",
+    >   
+    >   ChiVO TAP service
+    >   Mauricio Solar <msolar@inf.utfsm.cl>
+    >   https://vo.chivo.cl/tap
+    >   Exception [ ConnectionError: HTTPSConnectionPool(host='vo.chivo.cl', port=443): Max retries exceeded with url: /tap/sync (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f5f1fc78b90>: Failed to resolve 'vo.chivo.cl' ([Errno -3] Temporary failure in name resolution)")) ]
+    >   
+    >   MACHO TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://machotap.asvo.nci.org.au/ncitap//tap
+    >   Exception [ Missing REQUEST paramater. ]
+    >   
+    >   WiggleZ Final Data Release TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://wiggleztap.asvo.nci.org.au/ncitap//tap
+    >   Exception [ Missing REQUEST paramater. ]
+
+
+only_errors(
+    False,
+    """
+    SELECT
+        TOP 4
+        access_format
+    FROM
+        ivoa.obscore
+    """
+    )
+
+    >   /usr/local/lib/python3.13/site-packages/pyvo/dal/query.py:339: DALOverflowWarning: Partial result set. Potential causes MAXREC, async storage space, etc.
+    >     warn("Partial result set. Potential causes MAXREC, async storage space, etc.",
+    >   
+    >   CSIRO Australia Telescope Online Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://atoavo.atnf.csiro.au/tap
+    >   Exception [ Cannot parse datetime 2025-01-23T05:43:48.335+1100 ]
+    >   
+    >   CSIRO ASKAP Science Data Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://casda.csiro.au/casda_vo_tools/tap
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   WARNING: UnknownElementWarning: None:28:2: UnknownElementWarning: Unknown element jobInfo [pyvo.utils.xml.elements]
+    >   
+    >   ChiVO TAP service
+    >   Mauricio Solar <msolar@inf.utfsm.cl>
+    >   https://vo.chivo.cl/tap
+    >   Exception [ HTTPSConnectionPool(host='vo.chivo.cl', port=443): Max retries exceeded with url: /tap/async (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f5f1fc79950>: Failed to resolve 'vo.chivo.cl' ([Errno -3] Temporary failure in name resolution)")) ]
+    >   
+    >   EVN Data Archive TAP service
+    >   Mark Kettenis (+31 521 596524) <kettenis@jive.eu>
+    >   http://evn-vo.jive.eu/tap
+    >   Exception [ Query Error: Job hung in EXECUTING ]
+    >   
+    >   JVO ALMA VO Service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/alma
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   AKARI Asteroid Flux Catalogue Version 1
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/catalog/asteroid_flux
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   AKARI/IRC NIR Low-resolution Spectral Catalogue of Diffuse Sky Patches
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/diffuse_sky_patch
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   AKARI/IRC NIR Spectral Atlas of Galactic Planetary Nebulae
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/galactic_planetary_nebulae
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   AKARI/IRC MIR-S slit-less spectroscopic catalogue
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/slitless_mir_spec
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   AKARI ObsTAP service
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/ivoa/obscore
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   HALCA VSOP (the VLBI Space Observatory Programme) Correlated Data
+    >   JVO help desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   The VSOP (the VLBI Space Observatory Programme) 5 GHz AGN (Active Galactic Nuclei) Survey Program Analysis Data
+    >   JVO help desk <admin@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca_agn
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   Hitomi Master Catalog
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/hitomi
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   Nobeyama Radio Telescope FITS Archive
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/nobeyama/
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   Subaru Suprime-Cam data service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/spcam
+    >   Exception [ None:2:0: E19: File does not appear to be a VOTABLE ]
+    >   
+    >   MACHO TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://machotap.asvo.nci.org.au/ncitap//tap
+    >   Exception [ 404 Client Error: 404 for url: https://machotap.asvo.nci.org.au/ncitap/tap/async/phase ]
+    >   
+    >   WiggleZ Final Data Release TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://wiggleztap.asvo.nci.org.au/ncitap//tap
+    >   Exception [ 404 Client Error: 404 for url: https://wiggleztap.asvo.nci.org.au/ncitap/tap/async/phase ]
+    >   
+    >   PADC TAP Server on voparis-tap-astro.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-astro.obspm.fr/tap
+    >   Exception [ Query Error: Job hung in EXECUTING ]
+    >   
+    >   PADC TAP Server on voparis-tap-he.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-he.obspm.fr/tap
+    >   Exception [ Query Error: Job hung in EXECUTING ]
+    >   
+    >   CDN VO Server TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://vogate.obs-nancay.fr/tap
+    >   Exception [ Query Error: Job hung in EXECUTING ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
+# Query the ObsCore services to find what DataLink access_formats they provide.
+# Some sites use "application/x-votable+xml;content=datalink", and some sites use "application/x-votable+xml; content=datalink", with a space.
+# We have to run the query async because we get a lot of timeouts.
+# The access_formats field is not indexed and the DISTINCT query has to trawl through all the records.
+#[root@container]
+
+test_query(
+    False,
+    """
+    SELECT
+        DISTINCT
+        access_format
+    FROM
+        ivoa.obscore
+    """
+    )
+
+    >   MAST STScI CAOM and ObsCore TAP service
+    >   STScI Archive <archive@stsci.edu>
+    >   https://mast.stsci.edu/vo-tap/api/v0.1/caom
+    >   Query Error: ('HYT00', '[HYT00] [Microsoft][ODBC Driver 18 for SQL Server]Query timeout expired (0) (SQLExecDirectW)')
+    >   
+    >   UCL DaCHS server TAP service
+    >   Patrick Guio (+44 20 7679 0672) <p.guio@ucl.ac.uk>
+    >   http://astroweb.projects.phys.ucl.ac.uk:8000/tap
+    >   Empty result set
+    >   
+    >   The VO @ ASTRON TAP service
+    >   Michael Sipior <vo@astron.nl>
+    >   https://vo.astron.nl/tap
+    >         access_format
+    >   --------------------------
+    >   application/x-fits-psrfits
+    >                   image/fits
+    >                    text/html
+    >   
+    >   AIASCR VO Services TAP service
+    >   Petr Skoda (+420 323620361) <skoda@sunstel.asu.cas.cz>
+    >   http://vos2.asu.cas.cz/tap
+    >         access_format
+    >   -------------------------
+    >                  image/fits
+    >   
+    >                   image/png
+    >   application/x-votable+xml
+    >   
+    >   CSIRO Australia Telescope Online Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://atoavo.atnf.csiro.au/tap
+    >   Cannot parse datetime 2025-01-23T04:09:57.257+1100
+    >   
+    >   CSIRO ASKAP Science Data Archive TAP Service
+    >   CSIRO VO Support <vo-support@csiro.au>
+    >   https://casda.csiro.au/casda_vo_tools/tap
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   ArVO Byurakan TAP service
+    >   Areg Mickaelian (+37491195914) <aregmick@yahoo.com<>
+    >   http://arvo-registry.sci.am/tap
+    >   504 Server Error: Gateway Time-out for url: http://arvo-registry.sci.am/__system__/tap/run/tap/async/uobjLu?WAIT=-1
+    >   
+    >   CADC Archive Query Service
+    >   John Ouellette <john.ouellette@nrc-cnrc.gc.ca>
+    >   https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/argus
+    >   Query Error: UndeclaredThrowableException:null
+    >   
+    >   J-PAS EDR Catalogue (November, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jpas-edr
+    >   WARNING: UnknownElementWarning: None:28:2: UnknownElementWarning: Unknown element jobInfo [pyvo.utils.xml.elements]
+    >                  access_format
+    >   -------------------------------------------
+    >                                    image/fits
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR1 Catalogue (July, 2018)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr1
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR2 Catalogue (July, 2020)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr2
+    >                  access_format
+    >   -------------------------------------------
+    >                                    image/fits
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-PLUS DR3 Catalogue (July, 2022)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <j-plus@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jplus-dr3
+    >                  access_format
+    >   -------------------------------------------
+    >                                    image/fits
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   J-NEP PDR202107 Catalogue (July, 2024)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/jnep-pdr202107
+    >                  access_format
+    >   -------------------------------------------
+    >                                    image/fits
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   MINIJ-PAS PDR201912 Catalogue (December, 2019)
+    >   Centro de Estudios de Física del Cosmos de Aragón (CEFCA) <cefca@cefca.es>
+    >   https://archive.cefca.es/catalogues/vo/tap/minijpas-pdr201912
+    >                  access_format
+    >   -------------------------------------------
+    >   application/x-votable+xml; content=datalink
+    >   
+    >   Smithsonian Astrophysical Observatory Telescope Data Center TAP service
+    >   SAO TDC <tdchelp@cfa.harvard.edu>
+    >   http://oirsa.cfa.harvard.edu:8080/tap
+    >   access_format
+    >   -------------
+    >      image/fits
+    >   
+    >   ChiVO TAP service
+    >   Mauricio Solar <msolar@inf.utfsm.cl>
+    >   https://vo.chivo.cl/tap
+    >   HTTPSConnectionPool(host='vo.chivo.cl', port=443): Max retries exceeded with url: /tap/async (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x7f5f1fc7b4d0>: Failed to resolve 'vo.chivo.cl' ([Errno -3] Temporary failure in name resolution)"))
+    >   
+    >   ESO TAP_OBS: a TAP service to browse and access raw and reduced data, and to query the ambient measurements, of the La Silla Paranal Observatory.
+    >   Archive Science Group <support@eso.org>
+    >   https://archive.eso.org/tap_obs
+    >                 access_format
+    >   ------------------------------------------
+    >   application/x-votable+xml;content=datalink
+    >                                    text/html
+    >   
+    >   FAI archives TAP service
+    >   FAI NVO Team <izmailova@fai.kz>
+    >   https://dachs.fai.kz/tap
+    >    access_format
+    >   ----------------
+    >   application/fits
+    >   
+    >   Planetary web services @ FUB TAP service
+    >   Sebastian Walter <s.walter@fu-berlin.de>
+    >   http://dachs.planet.fu-berlin.de/tap
+    >   Empty result set
+    >   
+    >   EVN Data Archive TAP service
+    >   Mark Kettenis (+31 521 596524) <kettenis@jive.eu>
+    >   http://evn-vo.jive.eu/tap
+    >   Query Error: Job hung in EXECUTING
+    >   
+    >   JVO ALMA VO Service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/alma
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI Asteroid Flux Catalogue Version 1
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/catalog/asteroid_flux
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC NIR Low-resolution Spectral Catalogue of Diffuse Sky Patches
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/diffuse_sky_patch
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC NIR Spectral Atlas of Galactic Planetary Nebulae
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/galactic_planetary_nebulae
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI/IRC MIR-S slit-less spectroscopic catalogue
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/spectrum/slitless_mir_spec
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   AKARI ObsTAP service
+    >   JVO Help Desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/akari/ivoa/obscore
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   HALCA VSOP (the VLBI Space Observatory Programme) Correlated Data
+    >   JVO help desk <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   The VSOP (the VLBI Space Observatory Programme) 5 GHz AGN (Active Galactic Nuclei) Survey Program Analysis Data
+    >   JVO help desk <admin@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/halca_agn
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Hitomi Master Catalog
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/hitomi
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Nobeyama Radio Telescope FITS Archive
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/nobeyama/
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   Subaru Suprime-Cam data service
+    >   JVO admin <help_desk@jvo.nao.ac.jp>
+    >   http://jvo.nao.ac.jp/skynode/do/tap/spcam
+    >   None:2:0: E19: File does not appear to be a VOTABLE
+    >   
+    >   CeSAM Virtual Observatory Server TAP service
+    >   CeSAM VO team <cesam-vo@lam.fr>
+    >   https://vo.lam.fr/tap
+    >    access_format
+    >   ----------------
+    >         image/fits
+    >   application/fits
+    >   
+    >   MACHO TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://machotap.asvo.nci.org.au/ncitap//tap
+    >   404 Client Error: 404 for url: https://machotap.asvo.nci.org.au/ncitap/tap/async/phase
+    >   
+    >   WiggleZ Final Data Release TAP
+    >   NCI ASVO <asvo@nci.org.au>
+    >   http://wiggleztap.asvo.nci.org.au/ncitap//tap
+    >   404 Client Error: 404 for url: https://wiggleztap.asvo.nci.org.au/ncitap/tap/async/phase
+    >   
+    >   GAVO Data Center TAP service
+    >   GAVO Data Centre Team (+49 6221 54 1837) <gavo@ari.uni-heidelberg.de>
+    >   http://dc.g-vo.org/tap
+    >                 access_format
+    >   ------------------------------------------
+    >                             application/fits
+    >                    application/x-votable+xml
+    >   application/x-votable+xml;content=datalink
+    >       application/x-votable;content=datalink
+    >                                   image/fits
+    >                                   text/plain
+    >   
+    >   PADC TAP Server on voparis-tap-astro.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-astro.obspm.fr/tap
+    >   Query Error: Job hung in EXECUTING
+    >   
+    >   PADC TAP Server on voparis-tap-he.obspm.fr TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://voparis-tap-he.obspm.fr/tap
+    >   Query Error: Job hung in EXECUTING
+    >   
+    >   CDN VO Server TAP service
+    >   PADC support team (0033140512082) <vo.paris@obspm.fr>
+    >   http://vogate.obs-nancay.fr/tap
+    >   Query Error: Job hung in EXECUTING
+    >   
+    >   PVOL EPN-TAP TAP service
+    >   Ricardo Hueso (Delete this line if you don't want to give it) <ricardo.hueso@ehu.eus>
+    >   http://pvol2.ehu.eus:8083/tap
+    >   Empty result set
+    >   
+    >   Cross section values TAP service
+    >   Jaime Jimenez (0034958230651) <jjimenez@iaa.es>
+    >   http://spectrum.iaa.es/tap
+    >   Empty result set
+    >   
+    >   ARI's Gaia TAP Service
+    >   Jon juaristi Campillo <juaristi@uni-heidelberg.de>
+    >   https://gaia.ari.uni-heidelberg.de/tap
+    >   access_format
+    >   -------------
+    >         VOTable
+    >   
+    >   VOXastro Data Center TAP service
+    >   VOXAstro admin (+18572505718) <chil@sai.msu.ru>
+    >   http://rcsed-vo.sai.msu.ru/tap
+    >   Empty result set
+
+
+
+

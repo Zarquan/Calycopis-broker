@@ -48,6 +48,9 @@
     COR-755 [ExecBroker] What the Execution Broker does and how it can contribute to SRCNet
     https://confluence.skatelescope.org/pages/viewpage.action?pageId=306954710
 
+    PrepareData workshop
+    https://confluence.skatelescope.org/display/SRCSC/PI25+-+prepareData+Workshop
+
     Data Access (pyvo.dal)
     https://pyvo.readthedocs.io/en/latest/dal/index.html#table-access-protocol
 
