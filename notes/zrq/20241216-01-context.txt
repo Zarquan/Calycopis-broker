@@ -594,6 +594,8 @@
     #   <TD>ivo://cadc.nrc.ca/WALLABY?WALLABY_J163650-601632/kinematic_model_Norma_TR1</TD>
     # The ObsCore access_url is
     #   <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?id=testing:WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
+    # The ObsCore access_format is
+    #   <TD>application/x-votable+xml;content=datalink</TD>
     #
     # The DataLink ID is
     #   <TD>ivo://auth.example.org/datasets/fits?wallaby/4a/2f/WALLABY_J163650-601632_Norma_Kin_TR1_ModCube.fits</TD>
