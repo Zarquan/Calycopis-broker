@@ -32,7 +32,8 @@
         Very slow progress ...
 
 # -----------------------------------------------------
-
+# Run a container to work in.
+#[user@desktop]
 
     podman run --rm -it fedora
 
@@ -107,7 +108,7 @@ for voservice in pyvo.registry.search(
 
     >   MAST STScI CAOM and ObsCore TAP service
     >   https://mast.stsci.edu/vo-tap/api/v0.1/caom
-    >   
+    >
     >   UCL DaCHS server TAP service
     >   http://astroweb.projects.phys.ucl.ac.uk:8000/tap
     >   ....
@@ -116,7 +117,7 @@ for voservice in pyvo.registry.search(
     >   ....
     >   ARI's Gaia TAP Service
     >   https://gaia.ari.uni-heidelberg.de/tap
-    >   
+    >
     >   VOXastro Data Center TAP service
     >   http://rcsed-vo.sai.msu.ru/tap
 
@@ -185,18 +186,18 @@ for voservice in pyvo.registry.search(
     >   https://vo.astron.nl/tap
     >   TAPService(baseurl : 'https://vo.astron.nl/tap', description : 'None')
     >   Empty result set
-    >   
+    >
     >   AIASCR VO Services TAP service
     >   http://vos2.asu.cas.cz/tap
     >   TAPService(baseurl : 'http://vos2.asu.cas.cz/tap', description : 'None')
     >   Field query: Query timed out (took too long).
     >   Meanwhile, if this failure happened with a cross match, please try exchanging the large and the small catalog in POINT and CIRCLE.
-    >   
+    >
     >   CSIRO Australia Telescope Online Archive TAP Service
     >   https://atoavo.atnf.csiro.au/tap
     >   TAPService(baseurl : 'https://atoavo.atnf.csiro.au/tap', description : 'None')
     >   Empty result set
-    >   
+    >
     >   CSIRO ASKAP Science Data Archive TAP Service
     >   https://casda.csiro.au/casda_vo_tools/tap
     >   TAPService(baseurl : 'https://casda.csiro.au/casda_vo_tools/tap', description : 'None')
@@ -211,7 +212,7 @@ for voservice in pyvo.registry.search(
 
 
 #
-# Query to find ObsCore records.
+# Query ObsCore services.
 # Leave out obs_id because some of the services don't have this column.
 #
 query = """
@@ -262,6 +263,9 @@ for voservice in pyvo.registry.search(
     except Exception as ouch:
 
         print(ouch)
+
+
+
 
 
 
