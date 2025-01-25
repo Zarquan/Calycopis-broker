@@ -154,6 +154,19 @@
         	<scope>provided</scope>
         </dependency>
 
+        <!--+
+            | Fix to get the test dependencies to load in Eclipse.
+            | These classes are referenced from the OpenAPI generated test classes.
+            +-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+        </dependency>
+
 	</dependencies>
 
 	<build>
