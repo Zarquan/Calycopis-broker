@@ -88,7 +88,8 @@ components:
       type: array
       title: MessageList
       items:
-        $ref: '#/components/schemas/MessageItem'
+#       $ref: '#/components/schemas/MessageItem'
+        $ref: 'MessageItem'
         xml:
           name: message
 

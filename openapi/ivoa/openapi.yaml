@@ -303,9 +303,9 @@ components:
         - type: object
           properties:
             cores:
-              $ref: '#/components/schemas/ComputeResourceCores'
+              $ref: 'ComputeResourceCoresBlock'
             memory:
-              $ref: '#/components/schemas/ComputeResourceMemory'
+              $ref: 'ComputeResourceMemoryBlock'
             volumes:
               description: >
                 A list of filesystem volumes.
@@ -324,43 +324,76 @@ components:
 #     title: ComputeResourceSizeUnit
 #     pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
 
-    ComputeResourceCores:
+    ComputeResourceCoresBlock:
       description: >
         The number of CPU cores requested and offered.
       type: object
       title: ComputeResourceCores
       properties:
         requested:
-          description: >
-            The number of cpu cores requested by the user.
-            The min value specifies the minimum that required for the session.
-            The max value limits the extra the server is allowed to offer.
-          $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+          $ref: 'ComputeResourceCoresRequested'
         offered:
-          description: >
-            The number of cpu cores offered by the server.
-            The min value specifies the initial resources available for the session.
-            The max value specifies the maximun resources available for the session.
-          $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+          $ref: 'ComputeResourceCoresOffered'
 
-    ComputeResourceMemory:
+    ComputeResourceCoresRequested:
       description: >
-        The amount memory requested and offered.
+        The number of cpu cores requested by the user.
+        The minimum sets the lower limit that the user requires.
+        The maximum limits the extra that the service can offer for this resource.
+      type: object
+      title: ComputeResourceCoresRequest
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+
+    ComputeResourceCoresOffered:
+      description: >
+        The number of cpu cores offered by the service.
+      type: object
+      title: ComputeResourceCoresOffered
+      properties:
+        value:
+          type: integer
+          format: int64
+
+    ComputeResourceMemoryBlock:
+      description: >
+        The amount of memory requested and offered.
       type: object
       title: ComputeResourceMemory
       properties:
         requested:
-          description: >
-            The amount memory requested by the user.
-            The min value specifies the minimum that required for the session.
-            The max value limits the extra the server is allowed to offer.
-          $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+          $ref: 'ComputeResourceMemoryRequested'
         offered:
-          description: >
-            The amount memory offered byt the server.
-            The min value specifies the initial resources available for the session.
-            The max value specifies the maximun resources available for the session.
-          $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+          $ref: 'ComputeResourceMemoryOffered'
+
+    ComputeResourceMemoryRequested:
+      description: >
+        The amount of memory requested by the user.
+        The minimum sets the lower limit that the user requires.
+        The maximum limits the extra that the service can offer for this resource.
+        The default units are 'GiB'.
+      type: object
+      title: ComputeResourceCoresRequest
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+        - type: object
+          properties:
+            units:
+              type: string
+              pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+
+    ComputeResourceMemoryOffered:
+      description: >
+        The amount of memory offered by the service.
+      type: object
+      title: ComputeResourceMemoryOffered
+      properties:
+        value:
+          type: integer
+          format: int64
+        units:
+          type: string
+          pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
 
     ComputeResourceVolume:
       description: >
