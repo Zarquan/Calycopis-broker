@@ -179,7 +179,7 @@ public class SimpleComputeResourceBean
                     public String getUnits()
                         {
                         // return IvoaMinMaxComputeLong.UnitsEnum.GIB;
-                        return "GIB";
+                        return "GiB";
                         }
                     };
                 }
@@ -198,7 +198,7 @@ public class SimpleComputeResourceBean
                     public String getUnits()
                         {
                         //return IvoaMinMaxComputeLong1.UnitsEnum.GIB;
-                        return "GIB";
+                        return "GiB";
                         }
                     };
                 }
