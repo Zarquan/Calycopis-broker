@@ -326,6 +326,8 @@ public class OfferSetRequestParserImpl
                 }
             }
 
+        //
+        // Start with NO, and set to YES when we have at least one offer.
         IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO;
 
         //
@@ -432,7 +434,7 @@ log.debug("---- ---- ---- ----");
                     log.debug("----");
                     //
                     // Confirm we have at least one result.
-                    result = IvoaOfferSetResponse.ResultEnum.NO;
+                    result = IvoaOfferSetResponse.ResultEnum.YES;
                     }
                 }
             }
