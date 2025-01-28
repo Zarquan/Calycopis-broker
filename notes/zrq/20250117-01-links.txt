@@ -69,8 +69,20 @@
     https://github.com/hendhd/ivoa_newcomers/blob/main/IVOA_interop/newcomers.tex
     https://github.com/hendhd/taenaris/blob/main/pysrc/example2/obscore.py
 
+# -----------------------------------------------------
 
     How to configure Faceted Search in Drupal - An easy step-by-step guide
     https://www.specbee.com/blogs/configure-faceted-search-in-drupal
+
+# -----------------------------------------------------
+
+    PI25 - Coral Team Iteration 25.4 Planning
+    https://confluence.skatelescope.org/display/SRCSC/PI25+-+Coral+Team+Iteration+25.4+Planning
+
+    PI25 - Coral Team Sprint 25.3 Review & Retrospective
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=311697243
+
+    API for registry agnostic container image discovery - Part I
+    https://jira.skatelescope.org/browse/SP-4949
 
 

@@ -303,103 +303,97 @@ components:
         - type: object
           properties:
             cores:
-              $ref: 'ComputeResourceCoresBlock'
+              $ref: 'SimpleComputeCores'
             memory:
-              $ref: 'ComputeResourceMemoryBlock'
+              $ref: 'SimpleComputeMemory'
             volumes:
               description: >
                 A list of filesystem volumes.
               type: array
               items:
-                $ref: '#/components/schemas/ComputeResourceVolume'
+                $ref: '#/components/schemas/SimpleComputeVolume'
 
-# Replaced by an enum in utils.yaml
-#   ComputeResourceSizeUnit:
-#     description: >
-#       A size unit for compute resources.
-#       Specified in multiples of 1000^n and 1024^n, default units are GiB.
-#       https://github.com/metio/storage-units.java/
-#       https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
-#     type: string
-#     title: ComputeResourceSizeUnit
-#     pattern: '/^([0-9]+(\.[0-9]+){0,1})(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
-
-    ComputeResourceCoresBlock:
+    SimpleComputeCores:
       description: >
         The number of CPU cores requested and offered.
       type: object
-      title: ComputeResourceCores
+      title: SimpleComputeCores
       properties:
         requested:
-          $ref: 'ComputeResourceCoresRequested'
+          $ref: 'SimpleComputeCoresRequested'
         offered:
-          $ref: 'ComputeResourceCoresOffered'
+          $ref: 'SimpleComputeCoresOffered'
 
-    ComputeResourceCoresRequested:
+    SimpleComputeCoresRequested:
       description: >
-        The number of cpu cores requested by the user.
-        The minimum sets the lower limit that the user requires.
-        The maximum limits the extra that the service can offer for this resource.
+        The number of CPU cores requested by the user.
+        The minimum represents the lower limit that the excution requires.
+        The maximum represents the highest number of cores that the excution can use.
+        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
       type: object
-      title: ComputeResourceCoresRequest
-      allOf:
-        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
-
-    ComputeResourceCoresOffered:
-      description: >
-        The number of cpu cores offered by the service.
-      type: object
-      title: ComputeResourceCoresOffered
-      properties:
-        value:
-          type: integer
-          format: int64
-
-    ComputeResourceMemoryBlock:
-      description: >
-        The amount of memory requested and offered.
-      type: object
-      title: ComputeResourceMemory
-      properties:
-        requested:
-          $ref: 'ComputeResourceMemoryRequested'
-        offered:
-          $ref: 'ComputeResourceMemoryOffered'
-
-    ComputeResourceMemoryRequested:
-      description: >
-        The amount of memory requested by the user.
-        The minimum sets the lower limit that the user requires.
-        The maximum limits the extra that the service can offer for this resource.
-        The default units are 'GiB'.
-      type: object
-      title: ComputeResourceCoresRequest
+      title: SimpleComputeCoresRequested
       allOf:
         - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
         - type: object
           properties:
-            units:
-              type: string
-              pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+            minimal:
+              type: boolean
+              default: false
 
-    ComputeResourceMemoryOffered:
+    SimpleComputeCoresOffered:
+      description: >
+        The number of CPU cores offered by the service.
+        The minimum represents the number of cores that the sessions starts with.
+        The maximum represents the number of cores that the session is able to expand to.
+      type: object
+      title: SimpleComputeCoresOffered
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+
+    SimpleComputeMemory:
+      description: >
+        The amount of memory requested and offered.
+      type: object
+      title: SimpleComputeMemory
+      properties:
+        requested:
+          $ref: 'SimpleComputeMemoryRequested'
+        offered:
+          $ref: 'SimpleComputeMemoryOffered'
+
+    SimpleComputeMemoryRequested:
+      description: >
+        The amount of memory requested by the user.
+        The minimum represents the lower limit that the excution requires.
+        The maximum represents the highest amount of memory that the excution can use.
+        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
+        The default units are 'GiB'.
+      type: object
+      title: SimpleComputeMemoryRequested
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    SimpleComputeMemoryOffered:
       description: >
         The amount of memory offered by the service.
+        The minimum represents the amount of memory that the sessions starts with.
+        The maximum represents the amount of memory that the session is able to expand to.
+        The default units are 'GiB'.
       type: object
-      title: ComputeResourceMemoryOffered
-      properties:
-        value:
-          type: integer
-          format: int64
-        units:
-          type: string
-          pattern: '/^(kB|KiB|MB|MiB|GB|GiB|TB|TiB|PB|PiB){0,1}$/gm'
+      title: SimpleComputeMemoryOffered
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
-    ComputeResourceVolume:
+    SimpleComputeVolume:
       description: >
         A class to represent a ComputeResource volume mount.
       type: object
-      title: ComputeResourceVolume
+      title: SimpleComputeVolume
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -462,27 +456,56 @@ components:
       description: >
         A simple storage resource.
       type: object
-      name: SimpleStorageResource
+      name:  SimpleStorageResource
       title: SimpleStorageResource
       allOf:
         - $ref: '#/components/schemas/AbstractStorageResource'
         - type: object
           properties:
             size:
-              type: object
-              properties:
-                requested:
-                  description: >
-                    The storage size requested by the user.
-                    The min value specifies the minimum that required for the session.
-                    The max value limits the extra the server is allowed to offer.
-                  $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
-                offered:
-                  description: >
-                    The storage size offered byt the server.
-                    The min value specifies the initial resources available for the session.
-                    The max value specifies the maximun resources available for the session.
-                  $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+              $ref: 'SimpleStorageSize'
+
+    SimpleStorageSize:
+      description: >
+        The size of storage requested and offered.
+      type: object
+      name:  SimpleStorageSize
+      title: SimpleStorageSize
+      properties:
+        requested:
+          $ref: 'SimpleStorageSizeRequested'
+        offered:
+          $ref: 'SimpleStorageSizeOffered'
+
+    SimpleStorageSizeRequested:
+      description: >
+        The size of storage requested by the user.
+        The minimum represents the lower limit that the excution requires.
+        The maximum represents the largest size that the excution can use.
+        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
+        The default units are 'GiB'.
+      type: object
+      name:  SimpleStorageSizeRequested
+      title: SimpleStorageSizeRequested
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    SimpleStorageSizeOffered:
+      description: >
+        The size of storage offerd by the service.
+        The minimum represents the size that the storage is allocated.
+        The maximum represents the size that the storage is able to expand to.
+        The default units are 'GiB'.
+      type: object
+      name:  SimpleStorageSizeOffered
+      title: SimpleStorageSizeOffered
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
 # data-resources.yaml
 # Tried moving this to a separate file, but had issues with generating the polymorphic classes.

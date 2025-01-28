@@ -31,19 +31,17 @@ import javax.validation.Valid;
 
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
-import net.ivoa.calycopis.openapi.model.IvoaComputeResourceCores;
-import net.ivoa.calycopis.openapi.model.IvoaComputeResourceMemory;
-import net.ivoa.calycopis.openapi.model.IvoaComputeResourceVolume;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresOffered;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryOffered;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
-import net.ivoa.calycopis.openapi.model.IvoaMinMaxLong;
-import net.ivoa.calycopis.openapi.model.IvoaMinMaxLong1;
-import net.ivoa.calycopis.openapi.model.IvoaMinMaxComputeLong;
-import net.ivoa.calycopis.openapi.model.IvoaMinMaxComputeLong1;
-
 import net.ivoa.calycopis.util.ListWrapper;
-import wtf.metio.storageunits.model.StorageUnits;
 
 /**
  * A SimpleCompute response Bean.
@@ -121,15 +119,14 @@ public class SimpleComputeResourceBean
         }
 
     @Override
-    public IvoaComputeResourceCores getCores()
+    public IvoaSimpleComputeCores getCores()
         {
-        return new IvoaComputeResourceCores()
+        return new IvoaSimpleComputeCores()
             {
             @Override
-            public IvoaMinMaxLong getRequested()
+            public IvoaSimpleComputeCoresRequested getRequested()
                 {
-                return new IvoaMinMaxLong()
-                    {
+                return new IvoaSimpleComputeCoresRequested() {
                     @Override
                     public Long getMin()
                         {
@@ -140,12 +137,17 @@ public class SimpleComputeResourceBean
                         {
                         return entity.getRequestedCores();
                         }
+                    @Override
+                    public Boolean getMinimal()
+                        {
+                        return false;
+                        }
                     };
                 }
             @Override
-            public IvoaMinMaxLong1 getOffered()
+            public IvoaSimpleComputeCoresOffered getOffered()
                 {
-                return new IvoaMinMaxLong1()
+                return new IvoaSimpleComputeCoresOffered()
                     {
                     @Override
                     public Long getMin()
@@ -162,14 +164,14 @@ public class SimpleComputeResourceBean
             };
         }
     @Override
-    public IvoaComputeResourceMemory getMemory()
+    public IvoaSimpleComputeMemory getMemory()
         {
-        return new IvoaComputeResourceMemory()
+        return new IvoaSimpleComputeMemory()
             {
             @Override
-            public IvoaMinMaxComputeLong getRequested()
+            public IvoaSimpleComputeMemoryRequested getRequested()
                 {
-                return new IvoaMinMaxComputeLong()
+                return new IvoaSimpleComputeMemoryRequested()
                     {
                     @Override
                     public Long getMin()
@@ -184,14 +186,19 @@ public class SimpleComputeResourceBean
                     @Override
                     public UnitsEnum getUnits()
                         {
-                        return IvoaMinMaxComputeLong.UnitsEnum.GIB;
+                        return UnitsEnum.GIB;
+                        }
+                    @Override
+                    public Boolean getMinimal()
+                        {
+                        return false;
                         }
                     };
                 }
             @Override
-            public IvoaMinMaxComputeLong1 getOffered()
+            public IvoaSimpleComputeMemoryOffered getOffered()
                 {
-                return new IvoaMinMaxComputeLong1()
+                return new IvoaSimpleComputeMemoryOffered()
                     {
                     @Override
                     public Long getMin()
@@ -206,7 +213,7 @@ public class SimpleComputeResourceBean
                     @Override
                     public UnitsEnum getUnits()
                         {
-                        return IvoaMinMaxComputeLong1.UnitsEnum.GIB;
+                        return UnitsEnum.GIB;
                         }
                     };
                 }
@@ -214,7 +221,7 @@ public class SimpleComputeResourceBean
         }
 
     @Override
-    public List<@Valid IvoaComputeResourceVolume> getVolumes()
+    public List<@Valid IvoaSimpleComputeVolume> getVolumes()
         {
         return Collections.emptyList();
         }

@@ -1,0 +1,89 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+DONE
+
+    Setting min/max for cores and memory cause issues with VM flavors
+    https://github.com/ivoa/Calycopis-broker/issues/102
+
+    Apply same changes to SimpleStorageResource
+    https://github.com/ivoa/Calycopis-broker/issues/111
+
+    Restore min/max for cores and memory
+    https://github.com/ivoa/Calycopis-broker/issues/77
+
+    Fix description for MinMax values
+    https://github.com/ivoa/Calycopis-broker/issues/90
+
+
+    Move ISO8601Duration and ISO8601Interval to utils.yaml
+    https://github.com/ivoa/Calycopis-broker/issues/94
+
+TODO
+
+    Remove expires date on offerset
+    https://github.com/ivoa/Calycopis-broker/issues/78
+
+    Add min/max values to the SimpleComputeResourceEntity
+    https://github.com/ivoa/Calycopis-broker/issues/110
+
+    Bean type is lost in serialization, needs a factory.
+    See AbstractExecutableBeanFactoryImpl for notebooks.
+    https://github.com/ivoa/Calycopis-broker/issues/93
+
+    Need to extend AbstractExecutableBeanFactoryImpl to handle other types.
+    https://github.com/ivoa/Calycopis-broker/issues/104
+
+    We need to create webapp paths for executables and resources.
+    https://github.com/ivoa/Calycopis-broker/issues/103
+
+    Add handler classes for executables and resources.
+    https://github.com/ivoa/Calycopis-broker/issues/105
+
+    Remove parent offerset reference
+    https://github.com/ivoa/Calycopis-broker/issues/106
+
+    Resolve schema component references
+    https://github.com/ivoa/Calycopis-broker/issues/107
+
+    Implement the purl URIs and resources
+    https://github.com/ivoa/Calycopis-broker/issues/108
+
+
+
+
+
+
+
