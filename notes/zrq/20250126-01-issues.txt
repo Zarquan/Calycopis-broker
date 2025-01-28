@@ -33,8 +33,31 @@
 
 # -----------------------------------------------------
 
+DONE
+
     Setting min/max for cores and memory cause issues with VM flavors
     https://github.com/ivoa/Calycopis-broker/issues/102
+
+    Apply same changes to SimpleStorageResource
+    https://github.com/ivoa/Calycopis-broker/issues/111
+
+    Restore min/max for cores and memory
+    https://github.com/ivoa/Calycopis-broker/issues/77
+
+    Fix description for MinMax values
+    https://github.com/ivoa/Calycopis-broker/issues/90
+
+
+    Move ISO8601Duration and ISO8601Interval to utils.yaml
+    https://github.com/ivoa/Calycopis-broker/issues/94
+
+TODO
+
+    Remove expires date on offerset
+    https://github.com/ivoa/Calycopis-broker/issues/78
+
+    Add min/max values to the SimpleComputeResourceEntity
+    https://github.com/ivoa/Calycopis-broker/issues/110
 
     Bean type is lost in serialization, needs a factory.
     See AbstractExecutableBeanFactoryImpl for notebooks.

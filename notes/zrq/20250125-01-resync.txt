@@ -126,11 +126,13 @@ resources:
       requested:
         min: 5
         max: 15
+        minimal: true
     memory:
       requested:
         min: 3
         max: 9
         units: GiB
+        minimal: true
 EOF
 
     curl \
@@ -145,50 +147,54 @@ EOF
     | yq '.'
 
 
-    >   uuid: "3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
-    >   href: "http://127.0.0.1:8082/offersets/3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
+    >   uuid: "f8f77b41-91a0-408d-9d9e-e86ea1b088af"
+    >   href: "http://127.0.0.1:8082/offersets/f8f77b41-91a0-408d-9d9e-e86ea1b088af"
     >   name: "Test request"
-    >   created: "2025-01-26T17:20:15.412862Z"
+    >   created: "2025-01-27T09:16:59.379126Z"
     >   result: "YES"
     >   offers:
     >     - type: "urn:execution-session"
-    >       uuid: "9064efbe-8eec-48e4-95a8-99e3d4d0bd49"
-    >       href: "http://127.0.0.1:8082/sessions/9064efbe-8eec-48e4-95a8-99e3d4d0bd49"
+    >       uuid: "16f03bba-98af-425a-9a6d-9ced1b6b03e3"
+    >       href: "http://127.0.0.1:8082/sessions/16f03bba-98af-425a-9a6d-9ced1b6b03e3"
     >       offerset:
-    >         uuid: "3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
-    >         href: "http://127.0.0.1:8082/offersets/3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
+    >         uuid: "f8f77b41-91a0-408d-9d9e-e86ea1b088af"
+    >         href: "http://127.0.0.1:8082/offersets/f8f77b41-91a0-408d-9d9e-e86ea1b088af"
     >       state: "OFFERED"
-    >       expires: "2025-01-26T22:20:15.41295Z"
+    >       expires: "2025-01-27T14:16:59.379183Z"
     >       executable:
     >         type: "uri:jupyter-notebook-0.1"
-    >         uuid: "58490059-e795-41fc-b93a-8fc48b6d7299"
-    >         href: "http://127.0.0.1:8082/executables/58490059-e795-41fc-b93a-8fc48b6d7299"
+    >         uuid: "f10ae838-b401-4bb3-a41c-117ce9e98145"
+    >         href: "http://127.0.0.1:8082/executables/f10ae838-b401-4bb3-a41c-117ce9e98145"
     >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
     >       resources:
     >         compute:
     >           - type: "SimpleComputeResourceBean"
-    >             uuid: "ba75ada1-900b-4c12-bdc5-a6386c954238"
-    >             href: "http://127.0.0.1:8082/simple-compute/ba75ada1-900b-4c12-bdc5-a6386c954238"
+    >             uuid: "9cd68d59-c4c5-46ca-877c-9093705f92aa"
+    >             href: "http://127.0.0.1:8082/simple-compute/9cd68d59-c4c5-46ca-877c-9093705f92aa"
     >             name: "computer-001"
     >             cores:
     >               requested:
     >                 min: 5
     >                 max: 5
+    >                 minimal: false
     >               offered:
-    >                 value: 10
+    >                 min: 10
+    >                 max: 10
     >             memory:
     >               requested:
     >                 min: 3
     >                 max: 3
-    >                 units: "GIB"
+    >                 units: "GiB"
+    >                 minimal: false
     >               offered:
-    >                 value: 3
-    >                 units: "GIB"
+    >                 min: 3
+    >                 max: 3
+    >                 units: "GiB"
     >       schedule:
     >         preparing: {}
     >         executing:
     >           duration: "PT1H"
-    >           start: "2025-01-26T17:25:00Z"
+    >           start: "2025-01-27T09:20:00Z"
     >         releasing: {}
     >       options:
     >         - type: "uri:enum-value-option"
@@ -197,43 +203,47 @@ EOF
     >             - "ACCEPTED"
     >             - "REJECTED"
     >     - type: "urn:execution-session"
-    >       uuid: "a1d07420-7bc9-4121-9e53-466ad194278d"
-    >       href: "http://127.0.0.1:8082/sessions/a1d07420-7bc9-4121-9e53-466ad194278d"
+    >       uuid: "02de94cf-a925-4a5b-9341-7b4d3fbc57ad"
+    >       href: "http://127.0.0.1:8082/sessions/02de94cf-a925-4a5b-9341-7b4d3fbc57ad"
     >       offerset:
-    >         uuid: "3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
-    >         href: "http://127.0.0.1:8082/offersets/3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
+    >         uuid: "f8f77b41-91a0-408d-9d9e-e86ea1b088af"
+    >         href: "http://127.0.0.1:8082/offersets/f8f77b41-91a0-408d-9d9e-e86ea1b088af"
     >       state: "OFFERED"
-    >       expires: "2025-01-26T22:20:15.41295Z"
+    >       expires: "2025-01-27T14:16:59.379183Z"
     >       executable:
     >         type: "uri:jupyter-notebook-0.1"
-    >         uuid: "7ad76824-2682-4500-b24d-5a7050ea3778"
-    >         href: "http://127.0.0.1:8082/executables/7ad76824-2682-4500-b24d-5a7050ea3778"
+    >         uuid: "9141e7f0-69db-4108-acf6-8abd13d6476a"
+    >         href: "http://127.0.0.1:8082/executables/9141e7f0-69db-4108-acf6-8abd13d6476a"
     >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
     >       resources:
     >         compute:
     >           - type: "SimpleComputeResourceBean"
-    >             uuid: "99236e7b-00a6-4ab0-895c-6de5d0ad6343"
-    >             href: "http://127.0.0.1:8082/simple-compute/99236e7b-00a6-4ab0-895c-6de5d0ad6343"
+    >             uuid: "57d91958-4b7b-4235-935d-b4738d1d1d08"
+    >             href: "http://127.0.0.1:8082/simple-compute/57d91958-4b7b-4235-935d-b4738d1d1d08"
     >             name: "computer-001"
     >             cores:
     >               requested:
     >                 min: 5
     >                 max: 5
+    >                 minimal: false
     >               offered:
-    >                 value: 10
+    >                 min: 10
+    >                 max: 10
     >             memory:
     >               requested:
     >                 min: 3
     >                 max: 3
-    >                 units: "GIB"
+    >                 units: "GiB"
+    >                 minimal: false
     >               offered:
-    >                 value: 3
-    >                 units: "GIB"
+    >                 min: 3
+    >                 max: 3
+    >                 units: "GiB"
     >       schedule:
     >         preparing: {}
     >         executing:
     >           duration: "PT1H"
-    >           start: "2025-01-26T19:25:00Z"
+    >           start: "2025-01-27T11:20:00Z"
     >         releasing: {}
     >       options:
     >         - type: "uri:enum-value-option"
@@ -242,43 +252,47 @@ EOF
     >             - "ACCEPTED"
     >             - "REJECTED"
     >     - type: "urn:execution-session"
-    >       uuid: "e9d66b5b-37d7-46ac-9aa0-f0b76d5f268b"
-    >       href: "http://127.0.0.1:8082/sessions/e9d66b5b-37d7-46ac-9aa0-f0b76d5f268b"
+    >       uuid: "aa0c22e9-f282-44fc-9114-a1d5581a19c4"
+    >       href: "http://127.0.0.1:8082/sessions/aa0c22e9-f282-44fc-9114-a1d5581a19c4"
     >       offerset:
-    >         uuid: "3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
-    >         href: "http://127.0.0.1:8082/offersets/3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
+    >         uuid: "f8f77b41-91a0-408d-9d9e-e86ea1b088af"
+    >         href: "http://127.0.0.1:8082/offersets/f8f77b41-91a0-408d-9d9e-e86ea1b088af"
     >       state: "OFFERED"
-    >       expires: "2025-01-26T22:20:15.41295Z"
+    >       expires: "2025-01-27T14:16:59.379183Z"
     >       executable:
     >         type: "uri:jupyter-notebook-0.1"
-    >         uuid: "1fbbdb37-9831-49f3-8877-d968929f9680"
-    >         href: "http://127.0.0.1:8082/executables/1fbbdb37-9831-49f3-8877-d968929f9680"
+    >         uuid: "91d71324-4b9f-4c90-aa27-eca8389c2b29"
+    >         href: "http://127.0.0.1:8082/executables/91d71324-4b9f-4c90-aa27-eca8389c2b29"
     >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
     >       resources:
     >         compute:
     >           - type: "SimpleComputeResourceBean"
-    >             uuid: "c61369e9-92f6-4ca6-9d5d-36beefdf7b49"
-    >             href: "http://127.0.0.1:8082/simple-compute/c61369e9-92f6-4ca6-9d5d-36beefdf7b49"
+    >             uuid: "0414779f-89e1-475b-a658-2f5b5154e912"
+    >             href: "http://127.0.0.1:8082/simple-compute/0414779f-89e1-475b-a658-2f5b5154e912"
     >             name: "computer-001"
     >             cores:
     >               requested:
     >                 min: 5
     >                 max: 5
+    >                 minimal: false
     >               offered:
-    >                 value: 10
+    >                 min: 10
+    >                 max: 10
     >             memory:
     >               requested:
     >                 min: 3
     >                 max: 3
-    >                 units: "GIB"
+    >                 units: "GiB"
+    >                 minimal: false
     >               offered:
-    >                 value: 3
-    >                 units: "GIB"
+    >                 min: 3
+    >                 max: 3
+    >                 units: "GiB"
     >       schedule:
     >         preparing: {}
     >         executing:
     >           duration: "PT1H"
-    >           start: "2025-01-26T21:25:00Z"
+    >           start: "2025-01-27T13:20:00Z"
     >         releasing: {}
     >       options:
     >         - type: "uri:enum-value-option"
@@ -287,43 +301,47 @@ EOF
     >             - "ACCEPTED"
     >             - "REJECTED"
     >     - type: "urn:execution-session"
-    >       uuid: "4c59f59c-4ce7-45cc-bf20-4acb7dce2bec"
-    >       href: "http://127.0.0.1:8082/sessions/4c59f59c-4ce7-45cc-bf20-4acb7dce2bec"
+    >       uuid: "fe0966d9-d852-491b-9a3b-fc9f53fb3b4e"
+    >       href: "http://127.0.0.1:8082/sessions/fe0966d9-d852-491b-9a3b-fc9f53fb3b4e"
     >       offerset:
-    >         uuid: "3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
-    >         href: "http://127.0.0.1:8082/offersets/3fcbc661-05b3-4cd3-9c27-8c6b7df537c3"
+    >         uuid: "f8f77b41-91a0-408d-9d9e-e86ea1b088af"
+    >         href: "http://127.0.0.1:8082/offersets/f8f77b41-91a0-408d-9d9e-e86ea1b088af"
     >       state: "OFFERED"
-    >       expires: "2025-01-26T22:20:15.41295Z"
+    >       expires: "2025-01-27T14:16:59.379183Z"
     >       executable:
     >         type: "uri:jupyter-notebook-0.1"
-    >         uuid: "b570bfd9-5eb0-49a1-80ba-ce61c05fab6e"
-    >         href: "http://127.0.0.1:8082/executables/b570bfd9-5eb0-49a1-80ba-ce61c05fab6e"
+    >         uuid: "ac5d70ba-46b7-40ff-96e9-351f47749b74"
+    >         href: "http://127.0.0.1:8082/executables/ac5d70ba-46b7-40ff-96e9-351f47749b74"
     >         notebook: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
     >       resources:
     >         compute:
     >           - type: "SimpleComputeResourceBean"
-    >             uuid: "eb822638-8795-4f3a-892b-f76970aeb6e3"
-    >             href: "http://127.0.0.1:8082/simple-compute/eb822638-8795-4f3a-892b-f76970aeb6e3"
+    >             uuid: "a03107d1-ee01-4d70-b032-540fcd5c7254"
+    >             href: "http://127.0.0.1:8082/simple-compute/a03107d1-ee01-4d70-b032-540fcd5c7254"
     >             name: "computer-001"
     >             cores:
     >               requested:
     >                 min: 5
     >                 max: 5
+    >                 minimal: false
     >               offered:
-    >                 value: 10
+    >                 min: 10
+    >                 max: 10
     >             memory:
     >               requested:
     >                 min: 3
     >                 max: 3
-    >                 units: "GIB"
+    >                 units: "GiB"
+    >                 minimal: false
     >               offered:
-    >                 value: 3
-    >                 units: "GIB"
+    >                 min: 3
+    >                 max: 3
+    >                 units: "GiB"
     >       schedule:
     >         preparing: {}
     >         executing:
     >           duration: "PT1H"
-    >           start: "2025-01-26T23:25:00Z"
+    >           start: "2025-01-27T15:20:00Z"
     >         releasing: {}
     >       options:
     >         - type: "uri:enum-value-option"
@@ -335,6 +353,7 @@ EOF
     #
     # OK, it works.
     # For a limited value of 'works'.
+    # Still some simple issues that need fixing.
     #
 
 
