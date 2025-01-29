@@ -278,9 +278,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
-#         "uri:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
-          "uri:simple-compute-resource-0.1": 'SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -439,8 +437,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
-          "uri:simple-storage-resource-0.1": 'SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml": '#/components/schemas/SimpleStorageResource'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -632,16 +629,11 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:docker-container-0.1":   '#/components/schemas/DockerContainer'
-#         "uri:singular-container-0.1": '#/components/schemas/SingularContainer'
-#         "uri:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
-#         "uri:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
-#         "uri:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
-          "uri:docker-container-0.1":   'DockerContainer'
-          "uri:singular-container-0.1": 'SingularContainer'
-          "uri:jupyter-notebook-0.1":   'JupyterNotebook'
-          "uri:repo2docker-0.1":        'Repo2DockerContainer'
-          "uri:binder-notebook-0.1":    'BinderNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml":      '#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml": '#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml":      '#/components/schemas/JupyterNotebook'
+          "uri:repo2docker-0.1":     'Repo2DockerContainer'
+          "uri:binder-notebook-0.1": 'BinderNotebook'
       allOf:
 #       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
 #       - $ref: '#/components/schemas/AbstractComponent'
@@ -657,48 +649,69 @@ components:
 
     DockerContainer:
       description: |
-        A Docker or OCI container.
+        A Docker or OCI container executable.
         See https://opencontainers.org/
       type: object
       title: DockerContainer
       allOf:
-        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
         - type: object
           properties:
             image:
-              type: string
-              description: >
-                The full image identifier, with or without the repository, namespace or tag.
-            namespace:
-              type: string
-              description: >
-                The namespace within the repository, if not already specified in the image name.
-            tag:
-              type: string
-              description: The image tag, if not already specified in the image name.
-            repository:
-              type: string
-              description: The respository tag, if not already specified in the image name.
-            platform:
-              type: string
-              description: >
-                The target CPU architecture the container is built for.
-                The default is `linux/amd64`.
+              ident:
+                type: string
+                description: |
+                  The full image identifier, including repository, namespace and tag.
+              name:
+                type: string
+                description: |
+                  The full image name.
+              namespace:
+                type: string
+                description: |
+                  The namespace within the repository.
+              tag:
+                type: string
+                description: |
+                  The image tag.
+              repository:
+                type: string
+                description: |
+                  The respository hostname.
+              platform:
+                architecture:
+                  type: string
+                  description: |
+                    The CPU architecture the image is built for.
+                    The default is `amd64`.
+                os:
+                  type: string
+                  description: |
+                    The operating system the image is built for.
+                    The default is `linux`.
+              digest:
+                type: string
+                description: |
+                  The image digest, generated as a as sha256 checksum when the image is built.
+                  The unique digest can be used to verify the contents of a downloaded image.
             privileged:
               type: boolean
               default: false
-              description: >
+              description: |
                 Set the privileged flag on execution.
                 The default is `false`.
                 See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
             entrypoint:
               type: string
-              description: Overwrite the default ENTRYPOINT of the image.
+              description: |
+                Overwrite the default ENTRYPOINT of the image.
             environment:
-              description: A name=>value map of environment variables to pass to the container.
-              $ref: './components/utils.yaml#/components/schemas/NameValueMap'
+              description: |
+                A name => value map of environment variables to pass to the container.
+              $ref: '../../components/utils.yaml#/components/schemas/NameValueMap'
             network:
-              description: Details of the network access available to the container.
+              description: |
+                Details of the network access available to the container.
               $ref: '#/components/schemas/DockerNetworkSpec'
 
     DockerNetworkSpec:
@@ -708,7 +721,7 @@ components:
       title: DockerNetworkSpec
       properties:
         ports:
-          description: >
+          description: |
             An array of network ports to publish.
           type: array
           items:
@@ -722,19 +735,20 @@ components:
       properties:
         address:
           type: string
-          description: >
+          description: |
             The IP address of the external network interface.
             The client should not set this value.
             The service will update this with a publicly accessible interface address when it sets up the execution.
         external:
           type: string
-          description: >
+          description: |
             The host machine's external port number to connect.
             The client should not set this value.
             The service will update this with the corrent port number when it sets up the execution.
         internal:
           type: string
-          description: The port number on the container to publish.
+          description: |
+            The port number on the container to publish.
         protocol:
           type: string
           enum:
@@ -742,28 +756,28 @@ components:
             - TCP
             - HTTP
             - HTTPS
-          description: >
+          description: |
             The network protocol to use, default is `TCP`.
             The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
             Specifying `HTTPS` may help to meet firewall restrictions at some sites.
 
-    SingularContainer:
-      description: >
+    SingularityContainer:
+      description: |
         A Singularity container executable.
         See https://docs.sylabs.io/guides/latest/user-guide/
       type: object
       title: SingularContainer
       allOf:
-        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            image:
+            location:
               type: string
-              description: >
+              description: |
                 The URL to download the container image from.
 
     Repo2DockerContainer:
-      description: >
+      description: |
         A Repo2Docker executable.
         See https://repo2docker.readthedocs.io/en/latest/
       type: object
@@ -772,9 +786,9 @@ components:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            source:
+            location:
               type: string
-              description: >
+              description: |
                 The URL of the source repository.
 
     JupyterNotebook:
@@ -787,9 +801,9 @@ components:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            notebook:
+            location:
               type: string
-              description: >
+              description: |
                 The URL of the notebook.
                 TODO - This needs to take into account different ways of referring to a notebook.
 

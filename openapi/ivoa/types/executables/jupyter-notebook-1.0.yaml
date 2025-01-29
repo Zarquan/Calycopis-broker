@@ -1,0 +1,57 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker log messages
+  version: "1.0"
+  summary: IVOA ExecutionBroker JupyterNotebook
+  description: |
+    OpenAPI schema for a Jupyter notebook in IVOA ExecutionBroker
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    JupyterNotebook:
+      description: |
+        A Jupyter notebook executable.
+        See https://jupyter.org/
+      type: object
+      title: JupyterNotebook
+      allOf:
+        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
+        - type: object
+          properties:
+            location:
+              type: string
+              description: |
+                The URL of the notebook.
+                TODO - This needs to take into account different ways of referring to a notebook.
+
