@@ -1,0 +1,583 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Create purl documents for the types.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create new branches.
+#[user@desktop]
+
+    branchname=purl-docs
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+# -----------------------------------------------------
+# Create the purl documents.
+#[user@desktop]
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        git mv openapi schema
+
+        pushd schema
+
+            source "${HOME:?}/calycopis.env"
+            cp "${CALYCOPIS_CODE}/openapi/ivoa/openapi.yaml" "openapi.yaml"
+            cp "${CALYCOPIS_CODE}/openapi/ivoa/components/components.yaml" "components"
+            cp "${CALYCOPIS_CODE}/openapi/ivoa/components/messages.yaml" "components"
+            cp "${CALYCOPIS_CODE}/openapi/ivoa/components/utils.yaml" "components"
+
+            mkdir types
+            pushd types
+
+                mkdir executables
+                pushd executables
+
+                    pluma docker-container-1.0.yaml &
+                    ln -s docker-container-1.0.yaml docker-container-1.0
+                    ln -s docker-container-1.0.yaml docker-container
+
+                    pluma singularity-container-1.0.yaml &
+                    ln -s singularity-container-1.0.yaml singularity-container-1.0
+                    ln -s singularity-container-1.0.yaml singularity-container
+
+                popd
+            popd
+        popd
+
+        pushd docs
+            ln -s ../schema schema
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Publish the purl documents.
+#[user@desktop]
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        git add .
+        git commit -m "Added schema files for containers"
+        git push --set-upstream origin 20250128-zrq-purl-docs
+
+    popd
+
+# -----------------------------------------------------
+# Merge the changes into main.
+#[user@desktop]
+
+    #
+    # Create a PullRequest on GitHub and merge it.
+    #
+
+
+# -----------------------------------------------------
+# Test our GitHub.io URLs.
+#[user@desktop]
+
+    curl --head https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/2 404
+    >   ....
+    >   ....
+
+
+
+# -----------------------------------------------------
+# Replace the symlink.
+#[user@desktop]
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        git rm docs/schema
+        git mv schema docs/schema
+
+    popd
+
+
+# -----------------------------------------------------
+# Publish the changes.
+#[user@desktop]
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        git add .
+        git commit -m "Moved schema files into docs"
+        git push
+
+
+    popd
+
+# -----------------------------------------------------
+# Merge the changes into main.
+#[user@desktop]
+
+    #
+    # Create a PullRequest on GitHub and merge it.
+    #
+
+
+# -----------------------------------------------------
+# Test our GitHub.io URLs.
+#[user@desktop]
+
+    curl --head https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   ....
+    >   ....
+
+
+    curl --head https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0
+
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: application/octet-stream
+    >   ....
+    >   ....
+
+
+    curl --head https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container
+
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: application/octet-stream
+    >   ....
+    >   ....
+
+
+    #
+    # Symlinks within the docs directory work.
+    # Symlinks outside the docs directory don't work.
+    #
+
+
+# -----------------------------------------------------
+# Test our Purl.org URLs.
+#[user@desktop]
+
+    curl --head https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Tue, 28 Jan 2025 06:46:05 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+    >   cache-control: no-cache
+
+
+    curl --head https://purl.archive.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Tue, 28 Jan 2025 06:46:45 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 281
+    >   Connection: keep-alive
+    >   location: https://raw.githubusercontent.com/Zarquan/purls/refs/heads/main/EB//schema/types/executables/docker-container-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+
+    #
+    # Hmm, that's not right.
+    # Kind of a mangled mix of both methods ... which won't work.
+    # So we don't _need_ to put the files in /docs.
+    # Do we want to ?
+    #
+
+    #
+    # Let's try updating the PURLs.
+    #
+
+
+
+# -----------------------------------------------------
+# Update our Purl.org URLs.
+#[user@desktop]
+
+    https://purl.archive.org/edit_purl/ivoa.net/EB
+
+        /ivoa.net/EB => https://ivoa-std.github.io/ExecutionBroker
+
+
+# -----------------------------------------------------
+# Test our Purl.org URLs.
+#[user@desktop]
+
+    curl --head https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Tue, 28 Jan 2025 07:03:48 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+    >   cache-control: no-cache
+
+
+    curl --head https://purl.archive.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Tue, 28 Jan 2025 07:04:21 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 256
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+
+    curl --head https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our Purl.org URLs.
+#[user@desktop]
+
+    firefox \
+        --new-window \
+        https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   ....
+    >   ....
+
+
+        https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+
+    >   openapi: 3.1.0
+    >   info:
+    >     title: IVOA ExecutionBroker log messages
+    >     version: "1.0"
+    >     summary: IVOA ExecutionBroker DockerContainer
+    >     description: |
+    >       OpenAPI schema for a Docker container in IVOA ExecutionBroker
+    >     contact:
+    >       name: Dave Morris
+    >       url: https://github.com/Zarquan
+    >     license:
+    >       name: Creative Commons Attribution Share Alike 4.0 International
+    >       identifier: CC-BY-SA-4.0
+    >   ....
+    >   ....
+
+        #
+        # URL length for citations ...
+        #
+
+        0        1         2         3         4         5         6         7         8
+        12345678901234567890123456789012345678901234567890123456789012345678901234567890123
+        https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+        https://www.purl.org/ivoa.net/EB/..../docker-container-1.0.yaml
+        https://www.purl.org/..../docker-container-1.0.yaml
+
+
+# -----------------------------------------------------
+# Create some more purl documents.
+#[user@desktop]
+
+    source "${HOME:?}/execbroker.env"
+    pushd "${EXECBROKER_CODE}"
+
+        pushd docs/schema/types
+
+            pushd executables
+
+                pluma jupyter-notebook-1.0.yaml &
+                ln -s jupyter-notebook-1.0.yaml jupyter-notebook-1.0
+                ln -s jupyter-notebook-1.0.yaml jupyter-notebook
+
+            popd
+
+            mkdir resources
+            pushd resources
+
+                mkdir compute
+                pushd compute
+
+                    pluma simple-compute-1.0.yaml &
+                    ln -s simple-compute-1.0.yaml simple-compute-1.0
+                    ln -s simple-compute-1.0.yaml simple-compute
+
+                popd
+
+                mkdir storage
+                pushd storage
+
+                    pluma simple-storage-1.0.yaml &
+                    ln -s simple-storage-1.0.yaml simple-storage-1.0
+                    ln -s simple-storage-1.0.yaml simple-storage
+
+                popd
+            popd
+        popd
+
+
+
+# -----------------------------------------------------
+# Update the discriminator keys to use PURLs.
+#[user@desktop]
+
+    AbstractComputeResource:
+      description: >
+        Abstract base class for compute resources.
+      type: object
+      title: AbstractComputeResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
+      ....
+      ....
+
+    AbstractStorageResource:
+      description: >
+        Abstract base class for storage resources.
+      type: object
+      title: AbstractStorageResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml": '#/components/schemas/SimpleStorageResource'
+      ....
+      ....
+
+    AbstractExecutable:
+      description: Abstract base class for executables.
+      type: object
+      title: AbstractExecutable
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml":      '#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml": '#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml":      '#/components/schemas/JupyterNotebook'
+          "uri:repo2docker-0.1":     'Repo2DockerContainer'
+          "uri:binder-notebook-0.1": 'BinderNotebook'
+      ....
+      ....
+
+# -----------------------------------------------------
+# Check our discriminator keys.
+#[user@desktop]
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml
+
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:15:56 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml
+    >   cache-control: no-cache
+    >   
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:15:57 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 260
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/resources/compute/simple-compute-1.0.yaml
+    >   
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   content-length: 5287
+    >   ....
+    >   ....
+
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:18:37 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml
+    >   cache-control: no-cache
+    >   
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:18:39 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 260
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/resources/storage/simple-storage-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+    >   
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   content-length: 2904
+    >   ....
+    >   ....
+
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:19:15 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml
+    >   cache-control: no-cache
+    >   
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:19:16 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 256
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/docker-container-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+    >   
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   content-length: 5136
+    >   ....
+    >   ....
+
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:19:56 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml
+    >   cache-control: no-cache
+    >   
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:19:57 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 261
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/singularity-container-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+    >   
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   content-length: 1416
+    >   ....
+    >   ....
+
+
+    curl \
+        --head \
+        --location \
+        https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml
+
+    >   HTTP/1.1 307 Temporary Redirect
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:20:20 GMT
+    >   Content-Length: 0
+    >   Connection: keep-alive
+    >   location: https://purl.archive.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml
+    >   cache-control: no-cache
+    >   
+    >   HTTP/1.1 302 FOUND
+    >   Server: nginx
+    >   Date: Wed, 29 Jan 2025 07:20:21 GMT
+    >   Content-Type: text/html; charset=utf-8
+    >   Content-Length: 256
+    >   Connection: keep-alive
+    >   location: https://ivoa-std.github.io/ExecutionBroker/schema/types/executables/jupyter-notebook-1.0.yaml
+    >   access-control-allow-origin: *
+    >   vary: Cookie
+    >   
+    >   HTTP/2 200
+    >   server: GitHub.com
+    >   content-type: text/yaml
+    >   content-length: 1443
+    >   ....
+    >   ....
+

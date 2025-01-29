@@ -46,19 +46,13 @@ paths:
         content:
           application/json:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/OfferSetRequest'
-#             $ref: '#/components/schemas/OfferSetRequest'
-              $ref: 'OfferSetRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
           application/xml:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/OfferSetRequest'
-#             $ref: '#/components/schemas/OfferSetRequest'
-              $ref: 'OfferSetRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
           application/yaml:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/OfferSetRequest'
-#             $ref: '#/components/schemas/OfferSetRequest'
-              $ref: 'OfferSetRequest'
+              $ref: '#/components/schemas/OfferSetRequest'
         required: true
       # TODO Errors return error codes and ErrorResponse.
       responses:
@@ -77,19 +71,13 @@ paths:
           content:
             application/json:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
             application/xml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
             application/yaml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
 
   /offersets/{uuid}:
     get:
@@ -111,19 +99,13 @@ paths:
           content:
             application/json:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
             application/xml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
             application/yaml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/OfferSetResponse'
-#               $ref: '#/components/schemas/OfferSetResponse'
-                $ref: 'OfferSetResponse'
+                $ref: '#/components/schemas/OfferSetResponse'
 
   /sessions/{uuid}:
     get:
@@ -145,19 +127,13 @@ paths:
           content:
             application/json:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/xml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/yaml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
 
     post:
       operationId: ExecutionSessionPost
@@ -176,19 +152,13 @@ paths:
         content:
           application/json:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/UpdateRequest'
-#             $ref: '#/components/schemas/UpdateRequest'
-              $ref: 'UpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
           application/xml:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/UpdateRequest'
-#             $ref: '#/components/schemas/UpdateRequest'
-              $ref: 'UpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
           application/yaml:
             schema:
-#             $ref: './components/components.yaml#/components/schemas/UpdateRequest'
-#             $ref: '#/components/schemas/UpdateRequest'
-              $ref: 'UpdateRequest'
+              $ref: '#/components/schemas/UpdateRequest'
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
@@ -197,25 +167,18 @@ paths:
           content:
             application/json:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/xml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
             application/yaml:
               schema:
-#               $ref: './components/components.yaml#/components/schemas/ExecutionSessionResponse'
-#               $ref: '#/components/schemas/ExecutionSessionResponse'
-                $ref: 'ExecutionSessionResponse'
+                $ref: '#/components/schemas/ExecutionSessionResponse'
 
 components:
   schemas:
 
 # components.yaml
-# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     AbstractComponent:
       description: >
@@ -265,8 +228,7 @@ components:
       xml:
         name: compute
       items:
-#       $ref: '#/components/schemas/AbstractComputeResource'
-        $ref: 'AbstractComputeResource'
+        $ref: '#/components/schemas/AbstractComputeResource'
 
     AbstractComputeResource:
       description: >
@@ -278,13 +240,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:simple-compute-resource-0.1": '#/components/schemas/SimpleComputeResource'
-#         "uri:simple-compute-resource-0.1": './components/compute-resources.yaml#/components/schemas/SimpleComputeResource'
-          "uri:simple-compute-resource-0.1": 'SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             type:
@@ -298,8 +256,7 @@ components:
       type: object
       title: SimpleComputeResource
       allOf:
-#       - $ref: '#/components/schemas/AbstractComputeResource'
-        - $ref: 'AbstractComputeResource'
+        - $ref: '#/components/schemas/AbstractComputeResource'
         - type: object
           properties:
             cores:
@@ -357,9 +314,9 @@ components:
       title: SimpleComputeMemory
       properties:
         requested:
-          $ref: 'SimpleComputeMemoryRequested'
+          $ref: '#/components/schemas/SimpleComputeMemoryRequested'
         offered:
-          $ref: 'SimpleComputeMemoryOffered'
+          $ref: '#/components/schemas/SimpleComputeMemoryOffered'
 
     SimpleComputeMemoryRequested:
       description: >
@@ -395,9 +352,7 @@ components:
       type: object
       title: SimpleComputeVolume
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             path:
@@ -439,11 +394,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:simple-storage-resource-0.1": '#/components/schemas/SimpleStorageResource'
-          "uri:simple-storage-resource-0.1": 'SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml": '#/components/schemas/SimpleStorageResource'
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - $ref: 'AbstractComponent'
         - type: object
           properties:
@@ -473,9 +426,9 @@ components:
       title: SimpleStorageSize
       properties:
         requested:
-          $ref: 'SimpleStorageSizeRequested'
+          $ref: '#/components/schemas/SimpleStorageSizeRequested'
         offered:
-          $ref: 'SimpleStorageSizeOffered'
+          $ref: '#/components/schemas/SimpleStorageSizeOffered'
 
     SimpleStorageSizeRequested:
       description: >
@@ -518,8 +471,7 @@ components:
       xml:
         name: storage
       items:
-#       $ref: '#/components/schemas/AbstractDataResource'
-        $ref: 'AbstractDataResource'
+        $ref: '#/components/schemas/AbstractDataResource'
 
     AbstractDataResource:
       description: >
@@ -531,17 +483,12 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:simple-data-resource-0.1":  '#/components/schemas/SimpleDataResource'
-#         "uri:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
-#         "uri:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
-          "uri:simple-data-resource-0.1": 'SimpleDataResource'
-          "uri:Rucio-data-resource-0.1":  'RucioDataResource'
-          "uri:S3-data-resource-0.1":     'S3DataResource'
+          "uri:simple-data-resource-0.1": '#/components/schemas/SimpleDataResource'
+          "uri:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
+          "uri:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
 
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             type:
@@ -632,20 +579,13 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:docker-container-0.1":   '#/components/schemas/DockerContainer'
-#         "uri:singular-container-0.1": '#/components/schemas/SingularContainer'
-#         "uri:jupyter-notebook-0.1":   '#/components/schemas/JupyterNotebook'
-#         "uri:repo2docker-0.1":        '#/components/schemas/Repo2DockerContainer'
-#         "uri:binder-notebook-0.1":    '#/components/schemas/BinderNotebook'
-          "uri:docker-container-0.1":   'DockerContainer'
-          "uri:singular-container-0.1": 'SingularContainer'
-          "uri:jupyter-notebook-0.1":   'JupyterNotebook'
-          "uri:repo2docker-0.1":        'Repo2DockerContainer'
-          "uri:binder-notebook-0.1":    'BinderNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml":      '#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml": '#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml":      '#/components/schemas/JupyterNotebook'
+          "uri:repo2docker-0.1":     'Repo2DockerContainer'
+          "uri:binder-notebook-0.1": 'BinderNotebook'
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             type:
@@ -657,7 +597,7 @@ components:
 
     DockerContainer:
       description: |
-        A Docker or OCI container.
+        A Docker or OCI container executable.
         See https://opencontainers.org/
       type: object
       title: DockerContainer
@@ -666,39 +606,60 @@ components:
         - type: object
           properties:
             image:
-              type: string
-              description: >
-                The full image identifier, with or without the repository, namespace or tag.
-            namespace:
-              type: string
-              description: >
-                The namespace within the repository, if not already specified in the image name.
-            tag:
-              type: string
-              description: The image tag, if not already specified in the image name.
-            repository:
-              type: string
-              description: The respository tag, if not already specified in the image name.
-            platform:
-              type: string
-              description: >
-                The target CPU architecture the container is built for.
-                The default is `linux/amd64`.
+              ident:
+                type: string
+                description: |
+                  The full image identifier, including repository, namespace and tag.
+              name:
+                type: string
+                description: |
+                  The full image name.
+              namespace:
+                type: string
+                description: |
+                  The namespace within the repository.
+              tag:
+                type: string
+                description: |
+                  The image tag.
+              repository:
+                type: string
+                description: |
+                  The respository hostname.
+              platform:
+                architecture:
+                  type: string
+                  description: |
+                    The CPU architecture the image is built for.
+                    The default is `amd64`.
+                os:
+                  type: string
+                  description: |
+                    The operating system the image is built for.
+                    The default is `linux`.
+              digest:
+                type: string
+                description: |
+                  The image digest, generated as a as sha256 checksum when the image is built.
+                  The unique digest can be used to verify the contents of a downloaded image.
             privileged:
               type: boolean
               default: false
-              description: >
+              description: |
                 Set the privileged flag on execution.
                 The default is `false`.
                 See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
             entrypoint:
               type: string
-              description: Overwrite the default ENTRYPOINT of the image.
+              description: |
+                Overwrite the default ENTRYPOINT of the image.
             environment:
-              description: A name=>value map of environment variables to pass to the container.
+              description: |
+                A name => value map of environment variables to pass to the container.
               $ref: './components/utils.yaml#/components/schemas/NameValueMap'
             network:
-              description: Details of the network access available to the container.
+              description: |
+                Details of the network access available to the container.
               $ref: '#/components/schemas/DockerNetworkSpec'
 
     DockerNetworkSpec:
@@ -708,7 +669,7 @@ components:
       title: DockerNetworkSpec
       properties:
         ports:
-          description: >
+          description: |
             An array of network ports to publish.
           type: array
           items:
@@ -722,19 +683,20 @@ components:
       properties:
         address:
           type: string
-          description: >
+          description: |
             The IP address of the external network interface.
             The client should not set this value.
             The service will update this with a publicly accessible interface address when it sets up the execution.
         external:
           type: string
-          description: >
+          description: |
             The host machine's external port number to connect.
             The client should not set this value.
             The service will update this with the corrent port number when it sets up the execution.
         internal:
           type: string
-          description: The port number on the container to publish.
+          description: |
+            The port number on the container to publish.
         protocol:
           type: string
           enum:
@@ -742,13 +704,13 @@ components:
             - TCP
             - HTTP
             - HTTPS
-          description: >
+          description: |
             The network protocol to use, default is `TCP`.
             The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
             Specifying `HTTPS` may help to meet firewall restrictions at some sites.
 
-    SingularContainer:
-      description: >
+    SingularityContainer:
+      description: |
         A Singularity container executable.
         See https://docs.sylabs.io/guides/latest/user-guide/
       type: object
@@ -757,13 +719,13 @@ components:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            image:
+            location:
               type: string
-              description: >
+              description: |
                 The URL to download the container image from.
 
     Repo2DockerContainer:
-      description: >
+      description: |
         A Repo2Docker executable.
         See https://repo2docker.readthedocs.io/en/latest/
       type: object
@@ -772,9 +734,9 @@ components:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            source:
+            location:
               type: string
-              description: >
+              description: |
                 The URL of the source repository.
 
     JupyterNotebook:
@@ -787,9 +749,9 @@ components:
         - $ref: '#/components/schemas/AbstractExecutable'
         - type: object
           properties:
-            notebook:
+            location:
               type: string
-              description: >
+              description: |
                 The URL of the notebook.
                 TODO - This needs to take into account different ways of referring to a notebook.
 
@@ -826,14 +788,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:string-value-option":  '#/components/schemas/StringValueOption'
-#         "uri:enum-value-option":    '#/components/schemas/EnumValueOption'
-#         "uri:integer-value-option": '#/components/schemas/IntegerValueOption'
-#         "uri:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
-          "uri:string-value-option":  'StringValueOption'
-          "uri:enum-value-option":    'EnumValueOption'
-          "uri:integer-value-option": 'IntegerValueOption'
-          "uri:integer-delta-option": 'IntegerDeltaOption'
+          "uri:string-value-option":  '#/components/schemas/StringValueOption'
+          "uri:enum-value-option":    '#/components/schemas/EnumValueOption'
+          "uri:integer-value-option": '#/components/schemas/IntegerValueOption'
+          "uri:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
       properties:
         type:
           type: string
@@ -950,14 +908,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-#         "uri:string-value-update":  '#/components/schemas/StringValueUpdate'
-#         "uri:enum-value-update":    '#/components/schemas/EnumValueUpdate'
-#         "uri:integer-value-update": '#/components/schemas/IntegerValueUpdate'
-#         "uri:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
-          "uri:string-value-update":  'StringValueUpdate'
-          "uri:enum-value-update":    'EnumValueUpdate'
-          "uri:integer-value-update": 'IntegerValueUpdate'
-          "uri:integer-delta-update": 'IntegerDeltaUpdate'
+          "uri:string-value-update":  '#/components/schemas/StringValueUpdate'
+          "uri:enum-value-update":    '#/components/schemas/EnumValueUpdate'
+          "uri:integer-value-update": '#/components/schemas/IntegerValueUpdate'
+          "uri:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
       properties:
         type:
           type: string
@@ -1045,6 +999,7 @@ components:
                 The units to use for the change.
               type: string
 
+    # TODO Move this to utils ?
     MinMaxDuration:
       description: >
         A duration time block describing how long the execution will take.
@@ -1073,50 +1028,6 @@ components:
           xml:
             name: update
           $ref: '#/components/schemas/AbstractUpdate'
-
-# schedule-blocks.yaml
-
-#   StringScheduleBlockValue:
-#     description: >
-#       Used for the predicted and observed times.
-#     type: object
-#     title: StringScheduleBlockValue
-#     xml:
-#       name: date-time
-#     properties:
-#       start:
-#         type: string
-#       duration:
-#         type: string
-#
-#   StringScheduleBlockItem:
-#     description: >
-#       Used for the predicted and observed times.
-#     type: object
-#     title: StringScheduleBlockItem
-#     xml:
-#       name: date-time
-#     properties:
-#       preparing:
-#         $ref: '#/components/schemas/StringScheduleBlockValue'
-#       executing:
-#         $ref: '#/components/schemas/StringScheduleBlockValue'
-#       finishing:
-#         $ref: '#/components/schemas/StringScheduleBlockValue'
-#
-#   StringScheduleBlock:
-#     description: >
-#       Schedule ...
-#     type: object
-#     title: StringScheduleBlock
-#     xml:
-#       name: schedule
-#     properties:
-#       requested:
-#         $ref: '#/components/schemas/StringScheduleBlockItem'
-#       offered:
-#         $ref: '#/components/schemas/StringScheduleBlockItem'
-
 
     ScheduleRequestBlock:
       description: >
@@ -1149,11 +1060,11 @@ components:
       title: ScheduleOfferBlock
       properties:
         preparing:
-          $ref: 'ScheduleOfferItem'
+          $ref: '#/components/schemas/ScheduleOfferItem'
         executing:
-          $ref: 'ScheduleOfferItem'
+          $ref: '#/components/schemas/ScheduleOfferItem'
         releasing:
-          $ref: 'ScheduleOfferItem'
+          $ref: '#/components/schemas/ScheduleOfferItem'
 
 # sessions.yaml
 
@@ -1166,11 +1077,11 @@ components:
         name: resources
       properties:
         compute:
-          $ref: 'ComputeResourceList'
+          $ref: '#/components/schemas/ComputeResourceList'
         storage:
-          $ref: 'StorageResourceList'
+          $ref: '#/components/schemas/StorageResourceList'
         data:
-          $ref: 'DataResourceList'
+          $ref: '#/components/schemas/DataResourceList'
 
     ExecutionSessionStatus:
       description: >
@@ -1232,9 +1143,7 @@ components:
       xml:
         name: execution
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           required:
             - uuid
@@ -1334,9 +1243,7 @@ components:
       xml:
         name: offers-response
       allOf:
-#       - $ref: './components/components.yaml#/components/schemas/AbstractComponent'
-#       - $ref: '#/components/schemas/AbstractComponent'
-        - $ref: 'AbstractComponent'
+        - $ref: '#/components/schemas/AbstractComponent'
         - type: object
           properties:
             result:

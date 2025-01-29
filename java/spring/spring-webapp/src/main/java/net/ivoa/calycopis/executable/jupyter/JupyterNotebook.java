@@ -21,7 +21,7 @@ public interface JupyterNotebook
      * The type discriminator for JupyterNotebooks.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "urn:jupyter-notebook-0.1" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
 
     /**
      * The URL path for JupyterNotebooks.

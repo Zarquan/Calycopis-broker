@@ -616,7 +616,7 @@ log.debug("---- ---- ---- ----");
             request.getName()
             );
         String location = trimString(
-            request.getNotebook()
+            request.getLocation()
             );
 
         if ((location == null) || (location.isEmpty()))
