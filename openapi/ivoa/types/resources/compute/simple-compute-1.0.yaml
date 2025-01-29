@@ -39,25 +39,22 @@ info:
 components:
   schemas:
 
-    SimpleComputeResource:
+    SimpleComputeSpec:
       description: |
         A simple compute resource.
       type: object
       title: SimpleComputeResource
-      allOf:
-        - $ref: '../../openapi.yaml#/components/schemas/AbstractComputeResource'
-        - type: object
-          properties:
-            cores:
-              $ref: '#/components/schemas/SimpleComputeCores'
-            memory:
-              $ref: '#/components/schemas/SimpleComputeMemory'
-            volumes:
-              description: >
-                A list of filesystem volumes.
-              type: array
-              items:
-                $ref: '#/components/schemas/SimpleComputeVolume'
+      properties:
+        cores:
+          $ref: '#/components/schemas/SimpleComputeCores'
+        memory:
+          $ref: '#/components/schemas/SimpleComputeMemory'
+        volumes:
+          description: |
+            A list of filesystem volumes.
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleComputeVolume'
 
     SimpleComputeCores:
       description: |
@@ -66,9 +63,9 @@ components:
       title: SimpleComputeCores
       properties:
         requested:
-          $ref: '#/components/schemas/SimpleComputeCoresRequested'
+          $ref: 'SimpleComputeCoresRequested'
         offered:
-          $ref: '#/components/schemas/SimpleComputeCoresOffered'
+          $ref: 'SimpleComputeCoresOffered'
 
     SimpleComputeCoresRequested:
       description: |
@@ -79,7 +76,7 @@ components:
       type: object
       title: SimpleComputeCoresRequested
       allOf:
-        - $ref: '../../components/utils.yaml#/components/schemas/MinMaxLong'
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
         - type: object
           properties:
             minimal:
@@ -94,7 +91,7 @@ components:
       type: object
       title: SimpleComputeCoresOffered
       allOf:
-        - $ref: '../../components/utils.yaml#/components/schemas/MinMaxLong'
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
 
     SimpleComputeMemory:
       description: |
@@ -103,9 +100,9 @@ components:
       title: SimpleComputeMemory
       properties:
         requested:
-          $ref: '#/components/schemas/SimpleComputeMemoryRequested'
+          $ref: 'SimpleComputeMemoryRequested'
         offered:
-          $ref: '#/components/schemas/SimpleComputeMemoryOffered'
+          $ref: 'SimpleComputeMemoryOffered'
 
     SimpleComputeMemoryRequested:
       description: |
@@ -117,7 +114,7 @@ components:
       type: object
       title: SimpleComputeMemoryRequested
       allOf:
-        - $ref: '../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
         - type: object
           properties:
             minimal:
@@ -133,7 +130,7 @@ components:
       type: object
       title: SimpleComputeMemoryOffered
       allOf:
-        - $ref: '../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
     SimpleComputeVolume:
       description: |
@@ -141,7 +138,7 @@ components:
       type: object
       title: SimpleComputeVolume
       allOf:
-        - $ref: '../../openapi.yaml#/components/schemas/AbstractComponent'
+        - $ref: '../../../openapi.yaml#/components/schemas/AbstractComponent'
         - type: object
           properties:
             path:

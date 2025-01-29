@@ -39,72 +39,90 @@ info:
 components:
   schemas:
 
-    DockerContainer:
+    DockerContainerSpec:
       description: |
-        A Docker or OCI container executable.
+        Details for a Docker or OCI container executable.
         See https://opencontainers.org/
       type: object
       title: DockerContainer
-      allOf:
-        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
-        - type: object
-          properties:
-            image:
-              ident:
-                type: string
-                description: |
-                  The full image identifier, including repository, namespace and tag.
-              name:
-                type: string
-                description: |
-                  The full image name.
-              namespace:
-                type: string
-                description: |
-                  The namespace within the repository.
-              tag:
-                type: string
-                description: |
-                  The image tag.
-              repository:
-                type: string
-                description: |
-                  The respository hostname.
-              platform:
-                architecture:
-                  type: string
-                  description: |
-                    The CPU architecture the image is built for.
-                    The default is `amd64`.
-                os:
-                  type: string
-                  description: |
-                    The operating system the image is built for.
-                    The default is `linux`.
-              digest:
-                type: string
-                description: |
-                  The image digest, generated as a as sha256 checksum when the image is built.
-                  The unique digest can be used to verify the contents of a downloaded image.
-            privileged:
-              type: boolean
-              default: false
-              description: |
-                Set the privileged flag on execution.
-                The default is `false`.
-                See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
-            entrypoint:
-              type: string
-              description: |
-                Overwrite the default ENTRYPOINT of the image.
-            environment:
-              description: |
-                A name => value map of environment variables to pass to the container.
-              $ref: '../../components/utils.yaml#/components/schemas/NameValueMap'
-            network:
-              description: |
-                Details of the network access available to the container.
-              $ref: '#/components/schemas/DockerNetworkSpec'
+      properties:
+        image:
+          description: |
+            Details of the container image.
+          $ref: '#/components/schemas/DockerImageSpec'
+        privileged:
+          type: boolean
+          default: false
+          description: |
+            Set the privileged flag on execution.
+            The default is `false`.
+            See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
+        entrypoint:
+          type: string
+          description: |
+            Overwrite the default ENTRYPOINT of the image.
+        environment:
+          description: |
+            A name => value map of environment variables to pass to the container.
+          $ref: '../../components/utils.yaml#/components/schemas/NameValueMap'
+        network:
+          description: |
+            Details of the network access available to the container.
+          $ref: '#/components/schemas/DockerNetworkSpec'
+
+
+    DockerImageSpec:
+      description: |
+        Details of the container image.
+      type: object
+      title: DockerImageSpec
+      properties:
+        ident:
+          type: string
+          description: |
+            The full image identifier, including repository, namespace and tag.
+        name:
+          type: string
+          description: |
+            The full image name.
+        namespace:
+          type: string
+          description: |
+            The namespace within the repository.
+        tag:
+          type: string
+          description: |
+            The image tag.
+        repository:
+          type: string
+          description: |
+            The respository hostname.
+        platform:
+          $ref: '#/components/schemas/DockerPlatformSpec'
+        digest:
+          type: string
+          description: |
+            The image digest, generated as a as sha256 checksum when the image is built.
+            The unique digest can be used to verify the contents of a downloaded image.
+
+    DockerPlatformSpec:
+      description: |
+        Details of the platform the container image is built for.
+      type: object
+      title: DockerPlatformSpec
+      properties:
+        architecture:
+          type: string
+          default: amd64
+          description: |
+            The CPU architecture the image is built for.
+            The default is `amd64`.
+        os:
+          type: string
+          default: linux
+          description: |
+            The operating system the image is built for.
+            The default is `linux`.
 
     DockerNetworkSpec:
       description: |

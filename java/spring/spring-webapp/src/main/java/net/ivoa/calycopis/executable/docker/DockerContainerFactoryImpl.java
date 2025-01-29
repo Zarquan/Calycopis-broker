@@ -1,7 +1,7 @@
 /**
- * 
+ *
  */
-package net.ivoa.calycopis.executable.jupyter;
+package net.ivoa.calycopis.executable.docker;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,26 +14,26 @@ import net.ivoa.calycopis.execution.ExecutionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 
 /**
- * 
+ *
  */
 @Slf4j
 @Component
-public class JupyterNotebookFactoryImpl
+public class DockerContainerFactoryImpl
     extends FactoryBaseImpl
-    implements JupyterNotebookFactory
+    implements DockerContainerFactory
     {
-    
-    private final JupyterNotebookRepository repository;
+
+    private final DockerContainerRepository repository;
 
     @Autowired
-    public JupyterNotebookFactoryImpl(final JupyterNotebookRepository repository)
+    public DockerContainerFactoryImpl(final DockerContainerRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<JupyterNotebookEntity> select(final UUID uuid)
+    public Optional<DockerContainerEntity> select(final UUID uuid)
         {
         return this.repository.findById(
             uuid
@@ -41,40 +41,36 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final String name, final String notebookurl)
+    public DockerContainerEntity create(final String name)
         {
         return this.create(
             null,
             name,
-            notebookurl,
             true
             );
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl)
+    public DockerContainerEntity create(final ExecutionEntity parent, final String name)
         {
         return this.create(
             parent,
             name,
-            notebookurl,
             true
             );
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
+    public DockerContainerEntity create(final ExecutionEntity parent, final String name, boolean save)
         {
-        log.debug("create(ExecutionEntity, String, String, boolean) [{}][{}][{}][{}]",
+        log.debug("create(ExecutionEntity, String, boolean) [{}][{}][{}][{}]",
             ((parent!= null) ? parent.getUuid() : "null-template"),
             name,
-            location,
             save
             );
-        JupyterNotebookEntity created = new JupyterNotebookEntity(
+        DockerContainerEntity created = new DockerContainerEntity(
             parent,
-            name,
-            location
+            name
             );
         log.debug("created [{}]", created.getUuid());
         if ((parent != null) && save)
@@ -84,15 +80,14 @@ public class JupyterNotebookFactoryImpl
             }
         return created;
         }
-    
+
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final JupyterNotebookEntity template)
+    public DockerContainerEntity create(final ExecutionEntity parent, final DockerContainerEntity template)
         {
         log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
         return this.create(
             parent,
             template.getName(),
-            template.getLocation(),
             true
             );
         }

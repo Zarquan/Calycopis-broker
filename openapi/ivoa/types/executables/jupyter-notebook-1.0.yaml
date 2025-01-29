@@ -39,19 +39,16 @@ info:
 components:
   schemas:
 
-    JupyterNotebook:
+    JupyterNotebookSpec:
       description: |
-        A Jupyter notebook executable.
+        Details for a Jupyter notebook executable.
         See https://jupyter.org/
       type: object
       title: JupyterNotebook
-      allOf:
-        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
-        - type: object
-          properties:
-            location:
-              type: string
-              description: |
-                The URL of the notebook.
-                TODO - This needs to take into account different ways of referring to a notebook.
+      properties:
+        location:
+          type: string
+          description: |
+            The URL of the notebook.
+            TODO - This needs to take into account different ways of referring to a notebook.
 

@@ -34,6 +34,6 @@ public interface JupyterNotebook
      * Get the location of the notebook.
      *
      */
-    public String getNotebook();
+    public String getLocation();
     
     }

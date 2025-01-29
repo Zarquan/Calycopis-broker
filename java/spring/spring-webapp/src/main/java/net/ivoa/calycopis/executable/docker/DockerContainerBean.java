@@ -1,7 +1,7 @@
 /**
- * 
+ *
  */
-package net.ivoa.calycopis.executable.jupyter;
+package net.ivoa.calycopis.executable.docker;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -12,25 +12,25 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
- * A serialization bean for JupyterNotebooks.
- * Ideally we would like to extend ComponentBean, but we need to extend  
- * IvoaJupyterNotebook to pick up the serialization annotations.
+ * A serialization bean for DockerContainers.
+ * Ideally we would like to extend ComponentBean, but we need to extend
+ * IvoaDockerContainer to pick up the serialization annotations.
  * This doesn't work, the serialization mechanism skips the type URI
  * and replaces it with the Java class name.
- * 
+ *
  *   executable:
- *     type: "JupyterNotebookBean"
- * 
+ *     type: "DockerContainerBean"
+ *
  */
 @Slf4j
 @Deprecated
-public class JupyterNotebookBean
-    extends IvoaJupyterNotebook
+public class DockerContainerBean
+    extends IvoaDockerContainer
     {
 
     /**
@@ -40,18 +40,18 @@ public class JupyterNotebookBean
     private final String baseurl;
 
     /**
-     * The JupyterNotebookEntity to wrap.
+     * The DockerContainerEntity to wrap.
      *
      */
-    private final JupyterNotebookEntity entity;
-    
+    private final DockerContainerEntity entity;
+
     /**
      * Protected constructor.
      *
      */
-    public JupyterNotebookBean(final String baseurl, final JupyterNotebookEntity entity)
+    public DockerContainerBean(final String baseurl, final DockerContainerEntity entity)
         {
-        super(JupyterNotebook.TYPE_DISCRIMINATOR);
+        super(DockerContainer.TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         }
@@ -65,28 +65,28 @@ public class JupyterNotebookBean
     @Override
     public String getHref()
         {
-        return this.baseurl + JupyterNotebook.REQUEST_PATH + entity.getUuid();
+        return this.baseurl + DockerContainer.REQUEST_PATH + entity.getUuid();
         }
 
     @Override
     public String getType()
         {
-        log.debug("getType() [{}]", JupyterNotebook.TYPE_DISCRIMINATOR);
-        return JupyterNotebook.TYPE_DISCRIMINATOR;
+        log.debug("getType() [{}]", DockerContainer.TYPE_DISCRIMINATOR);
+        return DockerContainer.TYPE_DISCRIMINATOR;
         }
-    
+
     @Override
     public String getName()
         {
         return entity.getName();
         }
-    
+
     @Override
     public OffsetDateTime getCreated()
         {
         return this.entity.getCreated();
         }
-    
+
     @Override
     public List<@Valid IvoaMessageItem> getMessages()
         {
@@ -100,11 +100,5 @@ public class JupyterNotebookBean
                     );
                 }
             };
-        }
-
-    @Override
-    public String getLocation()
-        {
-        return this.entity.getLocation();
         }
     }
