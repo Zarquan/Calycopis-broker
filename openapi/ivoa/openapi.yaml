@@ -262,8 +262,7 @@ components:
 
 # -----------------
 # Having this in the main document works OK.
-# Putting this in the separate document fails.
-# The generator replaces a set of classes with Object :
+# The generator replaces some of the classes with Object :
 #     SimpleComputeCoresRequested,
 #     SimpleComputeCoresOffered,
 #     SimpleComputeMemoryRequested,
