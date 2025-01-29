@@ -12,7 +12,7 @@ import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebookStub;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.util.ListWrapper;
 
@@ -30,7 +30,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Slf4j
 @Deprecated
 public class JupyterNotebookBean
-    extends IvoaJupyterNotebook
+    extends IvoaJupyterNotebookStub
     {
 
     /**

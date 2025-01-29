@@ -12,7 +12,7 @@ import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebookStub;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.util.ListWrapper;
 
@@ -96,7 +96,7 @@ public class AbstractExecutableBeanFactoryImpl
                      *   type: "urn:jupyter-notebook-0.1"
                      * 
                      */
-                    IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
+                    IvoaJupyterNotebookStub bean = new IvoaJupyterNotebookStub(
                         JupyterNotebook.TYPE_DISCRIMINATOR
                         );
                     bean.uuid(entity.getUuid());

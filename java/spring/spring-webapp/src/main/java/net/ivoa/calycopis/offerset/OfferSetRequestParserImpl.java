@@ -33,7 +33,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionRequestSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebookStub;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
@@ -581,7 +581,7 @@ log.debug("---- ---- ---- ----");
         log.debug("validate(IvoaAbstractExecutable)");
         switch(executable)
             {
-            case IvoaJupyterNotebook notebook:
+            case IvoaJupyterNotebookStub notebook:
                 validate(
                     notebook
                     );
@@ -607,7 +607,7 @@ log.debug("---- ---- ---- ----");
      * Validate a JupyterNotebook Executable.
      *
      */
-    public void validate(final IvoaJupyterNotebook request)
+    public void validate(final IvoaJupyterNotebookStub request)
         {
         log.debug("validate(IvoaJupyterNotebook)");
         log.debug("JupyterNotebook [{}]", request.getName());
