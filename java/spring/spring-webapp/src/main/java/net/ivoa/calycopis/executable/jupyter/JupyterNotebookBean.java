@@ -103,7 +103,7 @@ public class JupyterNotebookBean
         }
 
     @Override
-    public String getNotebook()
+    public String getLocation()
         {
         return this.entity.getNotebook();
         }
