@@ -39,18 +39,15 @@ info:
 components:
   schemas:
 
-    SingularityContainer:
+    SingularityContainerSpec:
       description: |
-        A Singularity container executable.
+        Details for a Singularity container executable.
         See https://docs.sylabs.io/guides/latest/user-guide/
       type: object
       title: SingularContainer
-      allOf:
-        - $ref: '../../openapi.yaml#/components/schemas/AbstractExecutable'
-        - type: object
-          properties:
-            location:
-              type: string
-              description: |
-                The URL to download the container image from.
+      properties:
+        location:
+          type: string
+          description: |
+            The URL to download the container image from.
 

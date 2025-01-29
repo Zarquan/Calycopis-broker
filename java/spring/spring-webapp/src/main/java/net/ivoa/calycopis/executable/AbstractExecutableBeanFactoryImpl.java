@@ -107,7 +107,7 @@ public class AbstractExecutableBeanFactoryImpl
                             bean
                             )
                         );
-                    bean.location(jupyter.getNotebook());
+                    bean.location(jupyter.getLocation());
                     
                     log.debug("Bean [{}][{}][{}]",
                         bean.getUuid(),

@@ -136,23 +136,23 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+            <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
         	<groupId>org.openapitools</groupId>
         	<artifactId>openapi-generator-maven-plugin</artifactId>
-        	<version>7.8.0</version>
+        	<version>7.11.0</version>
         	<scope>provided</scope>
         </dependency>
 
-        <dependency>
+        <!--dependency>
         	<groupId>com.rameshkp</groupId>
         	<artifactId>openapi-merger-maven-plugin</artifactId>
         	<version>1.0.5</version>
         	<scope>provided</scope>
-        </dependency>
+        </dependency-->
 
         <!--+
             | Fix to get the test dependencies to load in Eclipse.
@@ -254,6 +254,7 @@
                                     @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
                                 </additionalModelTypeAnnotations>
                                 <templateDirectory>${project.basedir}/openapi-generator-templates</templateDirectory>
+                                <!--openApiNullable>false</openApiNullable-->
                             </configOptions>
                         </configuration>
                     </execution>

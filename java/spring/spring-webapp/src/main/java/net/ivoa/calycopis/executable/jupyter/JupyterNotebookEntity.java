@@ -37,7 +37,7 @@ public class JupyterNotebookEntity
 
     private String location;
     @Override
-    public String getNotebook()
+    public String getLocation()
         {
         return this.location;
         }
