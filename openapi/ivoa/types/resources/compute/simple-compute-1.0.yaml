@@ -75,13 +75,20 @@ components:
         The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
       type: object
       title: SimpleComputeCoresRequested
-      allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
-        - type: object
-          properties:
-            minimal:
-              type: boolean
-              default: false
+#      allOf:
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+#        - $ref: 'LocalMinMaxLong'
+#        - type: object
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
 
     SimpleComputeCoresOffered:
       description: |
@@ -91,7 +98,20 @@ components:
       type: object
       title: SimpleComputeCoresOffered
       allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+        - $ref: 'SimpleMinMaxLong'
+
+    SimpleMinMaxLong:
+      description: >
+        A 64bit integer minimum and maximum pair.
+      type: object
+      properties:
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
 
     SimpleComputeMemory:
       description: |

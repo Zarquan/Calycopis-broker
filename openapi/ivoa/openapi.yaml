@@ -256,54 +256,49 @@ components:
       type: object
       title: SimpleComputeResource
       allOf:
-        - $ref: '#/components/schemas/AbstractComputeResource'
-#       - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
-        - $ref: 'SimpleComputeSpec'
+        - $ref: 'AbstractComputeResource'
+#       - $ref: 'LocalComputeSpec'
+        - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
 
 # -----------------
-# Having this in the main document works OK.
-# The generator replaces some of the classes with Object :
-#     SimpleComputeCoresRequested,
-#     SimpleComputeCoresOffered,
-#     SimpleComputeMemoryRequested,
-#     SimpleComputeMemoryOffered
+# Having everything in the main schema works.
 
-    SimpleComputeSpec:
+    LocalComputeSpec:
       description: |
         A simple compute resource.
       type: object
-      title: SimpleComputeResource
+      title: LocalComputeSpec
       properties:
         cores:
-          $ref: '#/components/schemas/SimpleComputeCores'
+          $ref: '#/components/schemas/LocalComputeCores'
         memory:
-          $ref: '#/components/schemas/SimpleComputeMemory'
+          $ref: '#/components/schemas/LocalComputeMemory'
         volumes:
           description: |
             A list of filesystem volumes.
           type: array
           items:
-            $ref: '#/components/schemas/SimpleComputeVolume'
+            $ref: '#/components/schemas/LocalComputeVolume'
 
-    SimpleComputeCores:
+    LocalComputeCores:
       description: |
         The number of CPU cores requested and offered.
       type: object
-      title: SimpleComputeCores
+      title: LocalComputeCores
       properties:
         requested:
-          $ref: 'SimpleComputeCoresRequested'
+          $ref: 'LocalComputeCoresRequested'
         offered:
-          $ref: 'SimpleComputeCoresOffered'
+          $ref: 'LocalComputeCoresOffered'
 
-    SimpleComputeCoresRequested:
+    LocalComputeCoresRequested:
       description: |
         The number of CPU cores requested by the user.
         The minimum represents the lower limit that the excution requires.
         The maximum represents the highest number of cores that the excution can use.
         The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
       type: object
-      title: SimpleComputeCoresRequested
+      title: LocalComputeCoresRequested
       allOf:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
         - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
@@ -313,29 +308,29 @@ components:
               type: boolean
               default: false
 
-    SimpleComputeCoresOffered:
+    LocalComputeCoresOffered:
       description: |
         The number of CPU cores offered by the service.
         The minimum represents the number of cores that the sessions starts with.
         The maximum represents the number of cores that the session is able to expand to.
       type: object
-      title: SimpleComputeCoresOffered
+      title: LocalComputeCoresOffered
       allOf:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
         - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
 
-    SimpleComputeMemory:
+    LocalComputeMemory:
       description: |
         The amount of memory requested and offered.
       type: object
-      title: SimpleComputeMemory
+      title: LocalComputeMemory
       properties:
         requested:
-          $ref: 'SimpleComputeMemoryRequested'
+          $ref: 'LocalComputeMemoryRequested'
         offered:
-          $ref: 'SimpleComputeMemoryOffered'
+          $ref: 'LocalComputeMemoryOffered'
 
-    SimpleComputeMemoryRequested:
+    LocalComputeMemoryRequested:
       description: |
         The amount of memory requested by the user.
         The minimum represents the lower limit that the excution requires.
@@ -343,7 +338,7 @@ components:
         The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
         The default units are 'GiB'.
       type: object
-      title: SimpleComputeMemoryRequested
+      title: LocalComputeMemoryRequested
       allOf:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
         - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
@@ -353,23 +348,23 @@ components:
               type: boolean
               default: false
 
-    SimpleComputeMemoryOffered:
+    LocalComputeMemoryOffered:
       description: |
         The amount of memory offered by the service.
         The minimum represents the amount of memory that the sessions starts with.
         The maximum represents the amount of memory that the session is able to expand to.
         The default units are 'GiB'.
       type: object
-      title: SimpleComputeMemoryOffered
+      title: LocalComputeMemoryOffered
       allOf:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
         - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
-    SimpleComputeVolume:
+    LocalComputeVolume:
       description: |
         A class to represent a ComputeResource volume mount.
       type: object
-      title: SimpleComputeVolume
+      title: LocalComputeVolume
       allOf:
 #       - $ref: '../../../openapi.yaml#/components/schemas/AbstractComponent'
         - $ref: 'AbstractComponent'
@@ -390,6 +385,8 @@ components:
               description: >
                 The name or UUID of the resource to mount.
               type: string
+
+
 
 # -----------------
 
