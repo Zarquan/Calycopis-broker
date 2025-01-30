@@ -469,3 +469,33 @@
     # but I suspect there will probably be more gotchas down the line.
     #
 
+    #
+    # Note - this breaks.
+    #
+
+    SimpleComputeMemoryRequested:
+      ....
+      allOf:
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        ....
+
+    #
+    # but this works
+    #
+
+    SimpleComputeMemoryRequested:
+      ....
+      properties:
+        ....
+        units:
+          $ref: '../../../components/utils.yaml#/components/schemas/ComputeUnitsEnum'
+
+    #
+    # Although every time we use this it generates yet another class.
+    # SimpleComputeMemoryRequested.ComputeUnitsEnum
+    # and
+    # SimpleComputeMemoryOffered.ComputeUnitsEnum
+    # are two separate classes
+    # :-(
+    #
+
