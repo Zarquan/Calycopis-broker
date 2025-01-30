@@ -218,7 +218,6 @@ components:
               name: message
 
 # compute-resources.yaml
-# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     ComputeResourceList:
       description: >
@@ -260,7 +259,6 @@ components:
         - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
 
 # storage-resources.yaml
-# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     StorageResourceList:
       description: >
@@ -348,7 +346,6 @@ components:
         - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
 
 # data-resources.yaml
-# Tried moving this to a separate file, but had issues with generating the polymorphic classes.
 
     DataResourceList:
       description: >
