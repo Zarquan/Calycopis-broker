@@ -1,0 +1,501 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Trying to find a way to split the OpenAPI schema into parts.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branche.
+#[user@desktop]
+
+    branchname=schema-split
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+# -----------------------------------------------------
+
+    #
+    # Several reasons for this.
+    # 1) The intention is that 3rd parties can provide schema files for their own object types.
+    # 2) We want to be able to re-use the type schema in several places.
+    # 3) We want to make the system modular.
+    #
+
+    #
+    # Placing a stub in the main schema file alongside the discriminator map and using an allOf
+    # element in th e stub to include the details from the type specific schema file.
+    # Works for some cases, and fails in others.
+    #
+
+    #
+    # These all work, because the schemas they are pointing to are simple.
+    #
+
+    DockerContainer:
+      description: |
+        A Docker or OCI container executable.
+        See https://opencontainers.org/
+      type: object
+      title: DockerContainer
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: './types/executables/docker-container-1.0.yaml#/components/schemas/DockerContainerSpec'
+
+    SingularityContainer:
+      description: |
+        A Singularity container executable.
+        See https://docs.sylabs.io/guides/latest/user-guide/
+      type: object
+      title: SingularContainer
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: './types/executables/singularity-container-1.0.yaml#/components/schemas/SingularityContainerSpec'
+
+    JupyterNotebook:
+      description: >
+        A Jupyter notebook executable.
+        See https://jupyter.org/
+      type: object
+      title: JupyterNotebook
+      allOf:
+        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: './types/executables/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebookSpec'
+
+
+    #
+    # SimpleComputeResource doesn't work, because the schema it is pointing to isn't actually that simple.
+    # Starting with the abstract class with the discriminator mapping pointing to the a class in the same schema.
+    #
+
+    AbstractComputeResource:
+      ....
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+          ....
+
+    #
+    # Local stub class in the same schema as the abstract class.
+    # Referencing the main `spec` class in the same schema.
+    #
+
+    SimpleComputeResource:
+      description: >
+        A simple compute resource.
+      type: object
+      title: SimpleComputeResource
+      allOf:
+        - $ref: 'AbstractComputeResource'
+        - $ref: 'SimpleComputeSpec'
+#       - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
+
+    #
+    # Three layers of nested classes.
+    #
+
+    SimpleComputeSpec:
+      ....
+      properties:
+        cores:
+          $ref: '#/components/schemas/SimpleComputeCores'
+        ....
+
+    SimpleComputeCores:
+      ....
+      properties:
+        requested:
+          $ref: 'SimpleComputeCoresRequested'
+        ....
+
+    SimpleComputeCoresRequested:
+      ....
+      allOf:
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    #
+    # This is what we get if we have the whole schema in one file.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private IvoaSimpleComputeCoresRequested requested;
+
+        private IvoaSimpleComputeCoresOffered offered;
+
+        ....
+
+        }
+
+    #
+    # If we move the `spec` schema into a separate file.
+    #
+
+    SimpleComputeResource:
+      description: >
+        A simple compute resource.
+      type: object
+      title: SimpleComputeResource
+      allOf:
+        - $ref: 'AbstractComputeResource'
+#       - $ref: 'SimpleComputeSpec'
+        - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
+
+
+    #
+    # This is what we get if we split the schema into a separate file.
+    # The requested and offered properties are Object and no classes are generated for
+    # IvoaSimpleComputeCoresRequested or IvoaSimpleComputeCoresOffered.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private JsonNullable<Object> requested = JsonNullable.<Object>undefined();
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # IvoaSimpleComputeCoresRequested is not a simple class ...
+    # It uses an allOf to import another class from another file.
+    #
+
+    SimpleComputeCoresRequested:
+      ....
+      type: object
+      title: SimpleComputeCoresRequested
+      allOf:
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    #
+    # What happens if we simplfy it ?
+    #
+
+    SimpleComputeCoresRequested:
+      ....
+      type: object
+      title: SimpleComputeCoresRequested
+      properties:
+        minimal:
+          type: boolean
+          default: false
+
+    #
+    # The simple class for requested is generated, and the more
+    # complex class for offered is truncated to Object.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private IvoaSimpleComputeCoresRequested requested;
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # What happens if we bring the MinMaxLong into a local class in the simple-compute schema ?
+    #
+
+    SimpleComputeCoresRequested:
+      ....
+      type: object
+      title: SimpleComputeCoresRequested
+      allOf:
+        - $ref: 'LocalMinMaxLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    LocalMinMaxLong:
+      description: >
+        A 64bit integer minimum and maximum pair.
+      type: object
+      title: MinMaxLong
+      properties:
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+
+    #
+    # Nope ..
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private JsonNullable<Object> requested = JsonNullable.<Object>undefined();
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # What happens if we bring the MinMaxLong properties into SimpleComputeCoresRequested ?
+    #
+
+    SimpleComputeCoresRequested:
+      ....
+      type: object
+      title: SimpleComputeCoresRequested
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+
+    #
+    # OK, that works.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private IvoaSimpleComputeCoresRequested requested;
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # So ....
+    # If we have the stub abd the spec class in the main schema, then this works.
+    #
+
+    SimpleComputeResource:
+      ....
+      allOf:
+        - $ref: 'AbstractComputeResource'
+        - $ref: 'LocalComputeSpec'
+
+# -----------------
+# Having everything in the main schema works.
+
+    LocalComputeSpec:
+      ....
+      properties:
+        cores:
+          $ref: 'LocalComputeCores'
+        memory:
+          $ref: 'LocalComputeMemory'
+        volumes:
+          description: |
+            A list of filesystem volumes.
+          type: array
+          items:
+            $ref: 'LocalComputeVolume'
+
+    LocalComputeCores:
+      ....
+      properties:
+        requested:
+          $ref: 'LocalComputeCoresRequested'
+        offered:
+          $ref: 'LocalComputeCoresOffered'
+
+    LocalComputeCoresRequested:
+      ....
+      allOf:
+        - $ref: './components/utils.yaml#/components/schemas/MinMaxLong'
+        - type: object
+          properties:
+            minimal:
+              type: boolean
+              default: false
+
+    #
+    # Generates the right classes for requested and offered.
+    #
+
+    public class IvoaLocalComputeCores {
+
+        private IvoaLocalComputeCoresRequested requested;
+
+        private IvoaLocalComputeCoresOffered offered;
+
+        }
+
+    #
+    # Swapping back to the separate schema file.
+    #
+
+    SimpleComputeResource:
+      ....
+      allOf:
+        - $ref: 'AbstractComputeResource'
+        - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
+
+    #
+    # Generates the right class for IvoaSimpleComputeCoresRequested, but not for offered.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private IvoaSimpleComputeCoresRequested requested;
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # Because IvoaSimpleComputeCoresRequested only has properties, but
+    # IvoaSimpleComputeCoresOffered uses allOf to import MinMaxLong.
+    #
+
+    SimpleComputeCoresRequested:
+      ....
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+
+    SimpleComputeCoresOffered:
+      ....
+      allOf:
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+
+    #
+    # This still fails, even if we move the MinMaxLong into the same schema file.
+    #
+
+    SimpleComputeCoresOffered:
+      ....
+      allOf:
+        - $ref: 'SimpleMinMaxLong'
+
+    SimpleMinMaxLong:
+      ....
+      properties:
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+
+    #
+    # Generates the right class for IvoaSimpleComputeCoresRequested, but not for offered.
+    #
+
+    public class IvoaSimpleComputeCores {
+
+        private IvoaSimpleComputeCoresRequested requested;
+
+        private JsonNullable<Object> offered = JsonNullable.<Object>undefined();
+
+        ....
+
+        }
+
+    #
+    # When everything is in the same file, no problems.
+    # When SimpleComputeSpec and it's children are in a separate file,
+    # it breaks when one of the children uses `allOf` to inherit from another class.
+    #
+    # Seems like we can avoid it for now by not using `allOf` any of the children,
+    # but I suspect there will probably be more gotchas down the line.
+    #
+
+    #
+    # Note - this breaks.
+    #
+
+    SimpleComputeMemoryRequested:
+      ....
+      allOf:
+        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        ....
+
+    #
+    # but this works
+    #
+
+    SimpleComputeMemoryRequested:
+      ....
+      properties:
+        ....
+        units:
+          $ref: '../../../components/utils.yaml#/components/schemas/ComputeUnitsEnum'
+
+    #
+    # Although every time we use this it generates yet another class.
+    # SimpleComputeMemoryRequested.ComputeUnitsEnum
+    # and
+    # SimpleComputeMemoryOffered.ComputeUnitsEnum
+    # are two separate classes
+    # :-(
+    #
+

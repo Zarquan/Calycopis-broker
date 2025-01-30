@@ -75,13 +75,20 @@ components:
         The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
       type: object
       title: SimpleComputeCoresRequested
-      allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
-        - type: object
-          properties:
-            minimal:
-              type: boolean
-              default: false
+#     allOf:
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+#       - $ref: 'SimpleMinMaxLong'
+#       - type: object
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
 
     SimpleComputeCoresOffered:
       description: |
@@ -90,8 +97,31 @@ components:
         The maximum represents the number of cores that the session is able to expand to.
       type: object
       title: SimpleComputeCoresOffered
-      allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+#     allOf:
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
+#       - $ref: 'SimpleMinMaxLong'
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+
+#   SimpleMinMaxLong:
+#     description: >
+#       A 64bit integer minimum and maximum pair.
+#     type: object
+#     properties:
+#       min:
+#         type: integer
+#         format: int64
+#       max:
+#         type: integer
+#         format: int64
 
     SimpleComputeMemory:
       description: |
@@ -113,13 +143,21 @@ components:
         The default units are 'GiB'.
       type: object
       title: SimpleComputeMemoryRequested
-      allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
-        - type: object
-          properties:
-            minimal:
-              type: boolean
-              default: false
+#     allOf:
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+#       - type: object
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+        units:
+          $ref: '../../../components/utils.yaml#/components/schemas/ComputeUnitsEnum'
 
     SimpleComputeMemoryOffered:
       description: |
@@ -129,8 +167,20 @@ components:
         The default units are 'GiB'.
       type: object
       title: SimpleComputeMemoryOffered
-      allOf:
-        - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+#     allOf:
+#       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
+      properties:
+        minimal:
+          type: boolean
+          default: false
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+        units:
+          $ref: '../../../components/utils.yaml#/components/schemas/ComputeUnitsEnum'
 
     SimpleComputeVolume:
       description: |

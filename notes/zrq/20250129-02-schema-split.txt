@@ -33,7 +33,7 @@
 
 
 # -----------------------------------------------------
-# Create new branches.
+# Create a new branche.
 #[user@desktop]
 
     branchname=schema-split
