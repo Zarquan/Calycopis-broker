@@ -59,7 +59,7 @@ public class SimpleComputeResourceBean
      * The URL path for simple compute resources.
      *
      */
-    private static final String REQUEST_PATH = "/simple-compute/" ;
+    private static final String REQUEST_PATH = "/resources/compute/" ;
 
     /**
      * The base URL for the current request.

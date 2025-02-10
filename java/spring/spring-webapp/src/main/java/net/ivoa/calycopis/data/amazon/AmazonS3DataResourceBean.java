@@ -51,7 +51,7 @@ public class AmazonS3DataResourceBean
      * The URL path for S3 data resources.
      *
      */
-    private static final String REQUEST_PATH = "/data/S3-data-resources/" ;
+    private static final String REQUEST_PATH = "/resources/data/" ;
 
     /**
      * The base URL for the current request.

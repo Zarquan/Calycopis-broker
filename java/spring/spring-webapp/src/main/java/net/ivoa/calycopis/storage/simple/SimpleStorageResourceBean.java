@@ -51,7 +51,7 @@ public class SimpleStorageResourceBean
      * The URL path for the executions endpoint.
      *
      */
-    private static final String REQUEST_PATH = "/simple-storage/" ;
+    private static final String REQUEST_PATH = "/resources/storage/" ;
 
 
     /**

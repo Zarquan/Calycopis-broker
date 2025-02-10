@@ -51,7 +51,7 @@ public class SimpleDataResourceBean
      * The URL path for simple data resources.
      *
      */
-    private static final String REQUEST_PATH = "/data/simple-data-resources/" ;
+    private static final String REQUEST_PATH = "/resources/data/" ;
 
     /**
      * The base URL for the current request.
