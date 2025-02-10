@@ -24,9 +24,9 @@
 
 openapi: 3.1.0
 info:
-  title: IVOA ExecutionBroker log messages
+  title: IVOA ExecutionBroker simple compute resource
   version: "1.0"
-  summary: IVOA ExecutionBroker SimpleComputeResource
+  summary: IVOA ExecutionBroker simple compute resource
   description: |
     OpenAPI schema for a simple compute resource in IVOA ExecutionBroker
   contact:
