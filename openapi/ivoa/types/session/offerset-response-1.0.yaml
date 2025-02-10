@@ -41,7 +41,7 @@ components:
 
     OfferSetResponse:
       description: >
-        A set of executions offered in response to a request,
+        A set of execution sessions offered in response to a request,
         including a uuid, href, and an expiry date for the set.
       type: object
       title: OfferSetResponse

@@ -41,7 +41,7 @@ components:
 
     OfferSetRequest:
       description: >
-        A request for a set of offers for an execution.
+        A request for a set of execution session offers.
       type: object
       title: OfferSetRequest
       xml:

@@ -41,7 +41,7 @@ components:
 
     ExecutionSessionResponse:
       description: >
-        An Execution session, including uuid, href, and status.
+        An execution session response, including uuid, href, and status.
       type: object
       title: ExecutionSessionResponse
       xml:
