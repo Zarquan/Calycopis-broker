@@ -38,10 +38,10 @@ import net.ivoa.calycopis.execution.ExecutionEntity;
  */
 @Entity
 @Table(
-    name = "simplestorage"
+    name = "simplestorageresources"
     )
 @DiscriminatorValue(
-    value="urn:simple-compute"
+    value="uri:simple-storage-resource"
     )
 public class SimpleStorageResourceEntity
     extends ComponentEntity

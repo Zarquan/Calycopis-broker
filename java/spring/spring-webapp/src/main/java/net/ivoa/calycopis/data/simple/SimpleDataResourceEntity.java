@@ -33,15 +33,15 @@ import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionEntity;
 
 /**
- * A SimpleDataResource Entity.
+ * A Simple data resource.
  *
  */
 @Entity
 @Table(
-    name = "simpledata"
+    name = "simpledataresources"
     )
 @DiscriminatorValue(
-    value="urn:simple-data"
+    value="uri:simple-data-resource"
     )
 public class SimpleDataResourceEntity
     extends ComponentEntity

@@ -34,15 +34,13 @@ import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionEntity;
 
 /**
- * A SimpleComputeResource Entity.
+ * A Simple compute resource.
  *
  */
 @Entity
-@Table(
-    name = SimpleComputeResource.TABLE_NAME
-    )
+@Table(name = "simplecomputeresources")
 @DiscriminatorValue(
-    value = SimpleComputeResource.TYPE_DISCRIMINATOR
+    value = "uri:simple-compute-resources"
     )
 public class SimpleComputeResourceEntity
     extends ComponentEntity

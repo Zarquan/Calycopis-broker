@@ -41,10 +41,10 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 @Slf4j
 @Entity
 @Table(
-    name = OfferSet.TABLE_NAME
+    name = "offersets"
     )
 @DiscriminatorValue(
-    value = OfferSet.TYPE_DISCRIMINATOR
+    value = "uri:offerset"
     )
 public class OfferSetEntity
 extends ComponentEntity

@@ -33,12 +33,6 @@ public interface OfferSet
     extends Component
     {
     /**
-     * The database table name for OfferSets.
-     * 
-     */
-    public static final String TABLE_NAME = "offersets" ;
-
-    /**
      * The type discriminator for OfferSets.
      * 
      */

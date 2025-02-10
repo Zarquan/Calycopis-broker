@@ -33,15 +33,15 @@ import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionEntity;
 
 /**
- * A SimpleDataResource Entity.
+ * An Amazon S3 data resource.
  *
  */
 @Entity
 @Table(
-    name = "amazondata"
+    name = "s3dataresources"
     )
 @DiscriminatorValue(
-    value="urn:amazon-data"
+    value = "uri:S3-data-resource"
     )
 public class AmazonS3DataResourceEntity
     extends ComponentEntity

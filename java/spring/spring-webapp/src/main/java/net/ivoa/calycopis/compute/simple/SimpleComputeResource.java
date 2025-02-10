@@ -33,17 +33,6 @@ import net.ivoa.calycopis.execution.Execution;
 public interface SimpleComputeResource
     extends Component
     {
-    /**
-     * The database table name for SimpleComputeResources.
-     * 
-     */
-    public static final String TABLE_NAME = "simplecompute" ;
-
-    /**
-     * The type discriminator for SimpleComputeResources.
-     * 
-     */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml" ;
 
     /**
      * Reference to the parent Execution. 

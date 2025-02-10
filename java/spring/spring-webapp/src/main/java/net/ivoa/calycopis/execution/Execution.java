@@ -42,12 +42,6 @@ public interface Execution
     extends Component
     {
     /**
-     * The database table name for Executions.
-     *
-    public static final String TABLE_NAME = "executions" ;
-     */
-
-    /**
      * The URL path for Executions.
      *
      */

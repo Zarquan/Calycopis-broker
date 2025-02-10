@@ -43,7 +43,9 @@ import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
  * 
  */
 @Entity
-@Table(name = "messages")
+@Table(
+    name = "messages"
+    )
 public class MessageEntity
     implements Message
     {

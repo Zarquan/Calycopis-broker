@@ -12,12 +12,6 @@ public interface DockerContainer
     extends AbstractExecutable
     {
     /**
-     * The database table name for DockerContainers.
-     *
-     */
-    public static final String TABLE_NAME = "dockercont" ;
-
-    /**
      * The type discriminator for DockerContainers.
      *
      */

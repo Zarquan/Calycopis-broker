@@ -58,7 +58,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
     name = "executions"
     )
 @DiscriminatorValue(
-    value = "uri:executions"
+    value = "uri:execution"
     )
 public class ExecutionEntity
     extends ComponentEntity

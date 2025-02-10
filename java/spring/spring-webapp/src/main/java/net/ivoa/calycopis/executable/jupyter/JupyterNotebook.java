@@ -12,12 +12,6 @@ public interface JupyterNotebook
     extends AbstractExecutable
     {
     /**
-     * The database table name for JupyterNotebooks.
-     * 
-     */
-    public static final String TABLE_NAME = "jpnotebooks" ;
-
-    /**
      * The type discriminator for JupyterNotebooks.
      * 
      */
