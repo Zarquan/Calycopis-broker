@@ -22,14 +22,11 @@ import net.ivoa.calycopis.util.ListWrapper;
  * the generated Ivoa bean class to get the serialization annotations.
  * 
  */
-public class AbstractExecutableBean
+public abstract class AbstractExecutableBean
     extends IvoaAbstractExecutable
     {
 
-    public String getRequestPath()
-        {
-        return Component.REQUEST_PATH ;
-        }
+    public abstract String getRequestPath();
     
     /**
      * The base URL for the current request.
