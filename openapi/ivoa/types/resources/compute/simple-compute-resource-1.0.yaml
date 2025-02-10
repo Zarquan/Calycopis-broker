@@ -40,10 +40,11 @@ components:
   schemas:
 
     SimpleComputeSpec:
+      type: object
+      name:  SimpleComputeResource
+      title: SimpleComputeResource
       description: |
         A simple compute resource.
-      type: object
-      title: SimpleComputeResource
       properties:
         cores:
           $ref: '#/components/schemas/SimpleComputeCores'

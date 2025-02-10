@@ -51,7 +51,7 @@ public class OfferSetResponseBean
      * The OpenAPI type identifier for an oferset response.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/session/offerset-response-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0.yaml" ;
 
     /**
      * The URL path for OfferSets.

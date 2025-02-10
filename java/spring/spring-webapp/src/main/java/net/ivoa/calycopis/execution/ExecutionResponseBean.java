@@ -67,7 +67,18 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class ExecutionResponseBean
     extends IvoaExecutionSessionResponse
     {
-    
+    /**
+     * The type identifier for an execution session response.
+     *
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml" ;
+
+    /**
+     * The URL path for an execution session.
+     *
+     */
+    public static final String REQUEST_PATH = "/sessions/" ;
+
     /**
      * The base URL for the current request.
      *
@@ -87,7 +98,7 @@ public class ExecutionResponseBean
     public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
         {
         super();
-        super.type(ExecutionResponse.TYPE_DISCRIMINATOR);
+        super.type(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         this.setOptions();
@@ -102,7 +113,7 @@ public class ExecutionResponseBean
     @Override
     public String getHref()
         {
-        return baseurl + Execution.REQUEST_PATH + entity.getUuid();
+        return baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override

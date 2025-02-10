@@ -34,13 +34,13 @@ public class JupyterNotebookBean
     extends IvoaJupyterNotebook
     {
     /**
-     * The type discriminator for JupyterNotebooks.
+     * The type discriminator for Jupyter notebooks.
      * 
      */
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
 
     /**
-     * The URL path for JupyterNotebooks.
+     * The URL path for Jupyter notebooks.
      *
      */
     public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;

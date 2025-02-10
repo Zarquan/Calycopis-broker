@@ -243,7 +243,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml": '#/components/schemas/SimpleComputeResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
 
@@ -254,7 +254,7 @@ components:
       title: SimpleComputeResource
       allOf:
         - $ref: 'AbstractComputeResource'
-        - $ref: './types/resources/compute/simple-compute-1.0.yaml#/components/schemas/SimpleComputeSpec'
+        - $ref: './types/resources/compute/simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeSpec'
 
 # storage-resources.yaml
 
@@ -278,7 +278,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-1.0.yaml": '#/components/schemas/SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0.yaml": '#/components/schemas/SimpleStorageResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -296,52 +296,7 @@ components:
       title: SimpleStorageResource
       allOf:
         - $ref: '#/components/schemas/AbstractStorageResource'
-        - type: object
-          properties:
-            size:
-              $ref: 'SimpleStorageSize'
-
-    SimpleStorageSize:
-      description: >
-        The size of storage requested and offered.
-      type: object
-      name:  SimpleStorageSize
-      title: SimpleStorageSize
-      properties:
-        requested:
-          $ref: '#/components/schemas/SimpleStorageSizeRequested'
-        offered:
-          $ref: '#/components/schemas/SimpleStorageSizeOffered'
-
-    SimpleStorageSizeRequested:
-      description: >
-        The size of storage requested by the user.
-        The minimum represents the lower limit that the excution requires.
-        The maximum represents the largest size that the excution can use.
-        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
-        The default units are 'GiB'.
-      type: object
-      name:  SimpleStorageSizeRequested
-      title: SimpleStorageSizeRequested
-      allOf:
-        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
-        - type: object
-          properties:
-            minimal:
-              type: boolean
-              default: false
-
-    SimpleStorageSizeOffered:
-      description: >
-        The size of storage offerd by the service.
-        The minimum represents the size that the storage is allocated.
-        The maximum represents the size that the storage is able to expand to.
-        The default units are 'GiB'.
-      type: object
-      name:  SimpleStorageSizeOffered
-      title: SimpleStorageSizeOffered
-      allOf:
-        - $ref: './components/utils.yaml#/components/schemas/MinMaxComputeLong'
+        - $ref: './types/resources/storage/simple-storage-resource-1.0.yaml#/components/schemas/SimpleStorageSpec'
 
 # data-resources.yaml
 

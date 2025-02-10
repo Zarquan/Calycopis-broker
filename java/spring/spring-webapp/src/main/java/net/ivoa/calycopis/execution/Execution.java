@@ -41,11 +41,6 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 public interface Execution
     extends Component
     {
-    /**
-     * The URL path for Executions.
-     *
-     */
-    public static final String REQUEST_PATH = "/sessions/" ;
 
     /**
      * Get the Execution state.

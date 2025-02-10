@@ -45,7 +45,7 @@ public class SimpleStorageResourceBean
      * The OpenAPI type identifier for simple storage resources.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resources-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0.yaml" ;
 
     /**
      * The URL path for the executions endpoint.
