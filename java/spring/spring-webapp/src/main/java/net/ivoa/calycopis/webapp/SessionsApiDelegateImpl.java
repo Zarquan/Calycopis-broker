@@ -32,9 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
-import net.ivoa.calycopis.execution.ExecutionFactory;
-import net.ivoa.calycopis.execution.ExecutionResponseBean;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
@@ -45,12 +45,12 @@ public class SessionsApiDelegateImpl
     implements SessionsApiDelegate
     {
 
-    private final ExecutionFactory factory ;
+    private final ExecutionSessionFactory factory ;
 
     @Autowired
     public SessionsApiDelegateImpl(
         NativeWebRequest request,
-        ExecutionFactory factory
+        ExecutionSessionFactory factory
         )
         {
         super(request);
@@ -61,13 +61,13 @@ public class SessionsApiDelegateImpl
     public ResponseEntity<IvoaExecutionSessionResponse> executionSessionGet(
         final UUID uuid
         ) {
-        final Optional<ExecutionEntity> found = factory.select(
+        final Optional<ExecutionSessionEntity> found = factory.select(
             uuid
             );
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                new ExecutionResponseBean(
+                new ExecutionSessionResponseBean(
                     this.getBaseUrl(),
                     found.get()
                     ),
@@ -86,14 +86,14 @@ public class SessionsApiDelegateImpl
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
-       final Optional<ExecutionEntity> found = factory.update(
+       final Optional<ExecutionSessionEntity> found = factory.update(
             uuid,
             request.getUpdate()
             );
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                new ExecutionResponseBean(
+                new ExecutionSessionResponseBean(
                     this.getBaseUrl(),
                     found.get()
                     ),

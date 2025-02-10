@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
@@ -106,7 +106,7 @@ public class OfferSetFactoryImpl
             log.debug("OfferSet [{}]", offerset.getUuid());
             offerset = this.offersetRepository.save(offerset);
             log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionEntity execution : offerset.getOffers())
+            for (ExecutionSessionEntity execution : offerset.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
@@ -125,13 +125,13 @@ public class OfferSetFactoryImpl
             {
             log.debug("save(OfferSet)");
             log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionEntity execution : offerset.getOffers())
+            for (ExecutionSessionEntity execution : offerset.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
             offerset = this.offersetRepository.save(offerset);
             log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionEntity execution : offerset.getOffers())
+            for (ExecutionSessionEntity execution : offerset.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }

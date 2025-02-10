@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.storage.simple;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.Execution;
+import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleStorageResource.
@@ -34,7 +34,7 @@ public interface SimpleStorageResource
     extends Component
     {
 
-    public Execution getParent();
+    public ExecutionSession getParent();
 
     }
 

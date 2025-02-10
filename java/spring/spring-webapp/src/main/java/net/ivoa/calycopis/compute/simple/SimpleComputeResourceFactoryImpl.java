@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
@@ -85,7 +85,7 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory)
+    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory)
         {
         return this.create(
             parent,
@@ -99,7 +99,7 @@ public class SimpleComputeResourceFactoryImpl
         }
     
     @Override
-    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory, boolean save)
+    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory, boolean save)
         {
         SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(
             parent,
@@ -119,7 +119,7 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template)
+    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final SimpleComputeResourceEntity template)
         {
         log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
         return this.create(
@@ -134,7 +134,7 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(final ExecutionEntity parent, final SimpleComputeResourceEntity template, long offercores, long offermemory)
+    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final SimpleComputeResourceEntity template, long offercores, long offermemory)
         {
         log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
         return this.create(

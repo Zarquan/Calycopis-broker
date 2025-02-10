@@ -55,14 +55,14 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
  */
 @Entity
 @Table(
-    name = "executions"
+    name = "sessions"
     )
 @DiscriminatorValue(
-    value = "uri:execution"
+    value = "uri:execution-session"
     )
-public class ExecutionEntity
+public class ExecutionSessionEntity
     extends ComponentEntity
-    implements Execution
+    implements ExecutionSession
     {
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
@@ -84,7 +84,7 @@ public class ExecutionEntity
      * Protected constructor
      *
      */
-    protected ExecutionEntity()
+    protected ExecutionSessionEntity()
         {
         super();
         }
@@ -93,7 +93,7 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+    public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
         {
         super();
         this.state   = state;

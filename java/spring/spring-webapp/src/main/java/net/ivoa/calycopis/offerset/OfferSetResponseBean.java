@@ -31,8 +31,8 @@ import javax.validation.Valid;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
-import net.ivoa.calycopis.execution.ExecutionResponseBean;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
@@ -147,12 +147,12 @@ public class OfferSetResponseBean
     @Override
     public List<@Valid IvoaExecutionSessionResponse> getOffers()
         {
-        return new ListWrapper<IvoaExecutionSessionResponse, ExecutionEntity>(
+        return new ListWrapper<IvoaExecutionSessionResponse, ExecutionSessionEntity>(
             entity.getOffers()
             ){
-            public IvoaExecutionSessionResponse wrap(final ExecutionEntity inner)
+            public IvoaExecutionSessionResponse wrap(final ExecutionSessionEntity inner)
                 {
-                return new ExecutionResponseBean(
+                return new ExecutionSessionResponseBean(
                      baseurl,
                      inner
                      );

@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.data.amazon;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.Execution;
+import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleDataResource.
@@ -34,7 +34,7 @@ public interface AmazonS3DataResource
     extends Component
     {
 
-    public Execution getParent();
+    public ExecutionSession getParent();
 
     public String getName();
     public String getEndpoint();

@@ -38,38 +38,38 @@ import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
  * An Execution Factory.
  *
  */
-public interface ExecutionFactory
+public interface ExecutionSessionFactory
     extends FactoryBase
     {
     /**
      * Select an Execution based on its identifier.
      *
      */
-    public Optional<ExecutionEntity> select(final UUID uuid);
+    public Optional<ExecutionSessionEntity> select(final UUID uuid);
 
     /**
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context);
 
     /**
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state);
 
     /**
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save);
 
     /**
      * Apply an Update request to an Execution.
      *
      */
-    public Optional<ExecutionEntity> update(final UUID uuid, IvoaAbstractUpdate request);
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, IvoaAbstractUpdate request);
     
     }
 

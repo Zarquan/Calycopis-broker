@@ -27,7 +27,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * A Docker container executable.
@@ -50,7 +50,7 @@ public class DockerContainerEntity
         super();
         }
 
-    protected DockerContainerEntity(final ExecutionEntity parent, final String name)
+    protected DockerContainerEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(parent, name);
         }

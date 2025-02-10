@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class AbstractExecutableEntity
         super();
         }
     
-    protected AbstractExecutableEntity(final ExecutionEntity parent, final String name)
+    protected AbstractExecutableEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(name);
         this.parent = parent;
@@ -41,10 +41,10 @@ public class AbstractExecutableEntity
     
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionEntity parent;
+    private ExecutionSessionEntity parent;
 
     @Override
-    public ExecutionEntity getParent()
+    public ExecutionSessionEntity getParent()
         {
         return this.parent;
         }

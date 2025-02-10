@@ -30,7 +30,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * A Simple data resource.
@@ -50,15 +50,15 @@ public class SimpleDataResourceEntity
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionEntity parent;
+    private ExecutionSessionEntity parent;
 
     @Override
-    public ExecutionEntity getParent()
+    public ExecutionSessionEntity getParent()
         {
         return this.parent;
         }
 
-    public void setParent(final ExecutionEntity parent)
+    public void setParent(final ExecutionSessionEntity parent)
         {
         this.parent = parent;
         }
@@ -76,7 +76,7 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionEntity parent, final String name, final String location)
+    public SimpleDataResourceEntity(final ExecutionSessionEntity parent, final String name, final String location)
         {
         super(name);
         this.parent = parent;

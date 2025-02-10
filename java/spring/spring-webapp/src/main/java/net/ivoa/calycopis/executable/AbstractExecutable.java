@@ -4,7 +4,7 @@
 package net.ivoa.calycopis.executable;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
@@ -28,6 +28,6 @@ public interface AbstractExecutable
      * Get the parent ExecutionEntity.  
      *
      */
-    public ExecutionEntity getParent();
+    public ExecutionSessionEntity getParent();
 
     }

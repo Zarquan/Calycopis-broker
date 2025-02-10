@@ -26,7 +26,7 @@ package net.ivoa.calycopis.data.amazon;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
@@ -47,13 +47,13 @@ public interface AmazonS3DataResourceFactory
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object);
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object);
 
     /**
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save);
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save);
 
     }
 

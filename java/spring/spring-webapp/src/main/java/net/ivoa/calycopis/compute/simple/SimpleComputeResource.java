@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.compute.simple;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.Execution;
+import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleComputeResource.
@@ -38,7 +38,7 @@ public interface SimpleComputeResource
      * Reference to the parent Execution. 
      *
      */
-    public Execution getParent();
+    public ExecutionSession getParent();
 
     /**
      * The number of CPU cores requested. 

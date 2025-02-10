@@ -26,7 +26,7 @@ package net.ivoa.calycopis.data.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
@@ -47,13 +47,13 @@ public interface SimpleDataResourceFactory
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location);
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location);
 
     /**
      * Create a new SimpleDataResource based on an OfferSetRequest.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location, boolean save);
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save);
 
     }
 

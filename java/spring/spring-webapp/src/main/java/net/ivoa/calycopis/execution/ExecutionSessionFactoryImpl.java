@@ -44,22 +44,22 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
  */
 @Slf4j
 @Component
-public class ExecutionFactoryImpl
+public class ExecutionSessionFactoryImpl
     extends FactoryBaseImpl
-    implements ExecutionFactory
+    implements ExecutionSessionFactory
     {
 
-    private final ExecutionRepository repository;
+    private final ExecutionSessionRepository repository;
 
     @Autowired
-    public ExecutionFactoryImpl(final ExecutionRepository repository)
+    public ExecutionSessionFactoryImpl(final ExecutionSessionRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionEntity> select(UUID uuid)
+    public Optional<ExecutionSessionEntity> select(UUID uuid)
         {
         log.debug("select(UUID)");
         log.debug("UUID [{}]", uuid);
@@ -69,7 +69,7 @@ public class ExecutionFactoryImpl
         }
 
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
         {
         return this.create(
             offerblock,
@@ -81,7 +81,7 @@ public class ExecutionFactoryImpl
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
         {
         return this.create(
             offerblock,
@@ -93,9 +93,9 @@ public class ExecutionFactoryImpl
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save)
         {
-        ExecutionEntity created = new ExecutionEntity(
+        ExecutionSessionEntity created = new ExecutionSessionEntity(
             offerblock,
             parent,
             context,
@@ -112,13 +112,13 @@ public class ExecutionFactoryImpl
 
     @Override
     // TODO return an UpdateContext, with entity, result and messages.
-    public Optional<ExecutionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<ExecutionEntity> result = this.repository.findById(
+        Optional<ExecutionSessionEntity> result = this.repository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -126,7 +126,7 @@ public class ExecutionFactoryImpl
             return result ;
             }
         else {
-            ExecutionEntity entity = update(
+            ExecutionSessionEntity entity = update(
                 result.get(),
                 update
                 );  
@@ -140,7 +140,7 @@ public class ExecutionFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
-    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaAbstractUpdate update)
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -162,7 +162,7 @@ public class ExecutionFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
-    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaEnumValueUpdate update)
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, ValueUpdate)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -201,7 +201,7 @@ public class ExecutionFactoryImpl
                                         );
                                      * 
                                      */
-                                    for (ExecutionEntity sibling : entity.getParent().getOffers())
+                                    for (ExecutionSessionEntity sibling : entity.getParent().getOffers())
                                         {
                                         if (sibling != entity)
                                             {

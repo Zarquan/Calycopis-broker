@@ -64,7 +64,7 @@ import net.ivoa.calycopis.util.ListWrapper;
  *
  */
 @Slf4j
-public class ExecutionResponseBean
+public class ExecutionSessionResponseBean
     extends IvoaExecutionSessionResponse
     {
     /**
@@ -89,13 +89,13 @@ public class ExecutionResponseBean
      * The Execution entity to wrap.
      *
      */
-    private final ExecutionEntity entity;
+    private final ExecutionSessionEntity entity;
 
     /**
      * Protected constructor.
      *
      */
-    public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
+    public ExecutionSessionResponseBean(final String baseurl, final ExecutionSessionEntity entity)
         {
         super();
         super.type(TYPE_DISCRIMINATOR);

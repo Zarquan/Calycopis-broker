@@ -35,10 +35,10 @@ import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 
 /**
- * Public interface for an Execution (session).
+ * Public interface for an execution session.
  *
  */
-public interface Execution
+public interface ExecutionSession
     extends Component
     {
 

@@ -6,7 +6,7 @@ package net.ivoa.calycopis.platfom;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntity;
 
@@ -20,13 +20,13 @@ extends FactoryBase
      * Generate a top level ConfigStep for an Execution session.
      * 
      */
-    public ConfigStepEntity generate(final ExecutionEntity execution);
+    public ConfigStepEntity generate(final ExecutionSessionEntity execution);
     
     /**
      * Generate a ConfigStep for an Execution session.
      * 
      */
-    public ConfigStepEntity generate(final ConfigStepEntity parent, final ExecutionEntity execution);
+    public ConfigStepEntity generate(final ConfigStepEntity parent, final ExecutionSessionEntity execution);
 
     /**
      * Generate a ConfigStep for an Executable.

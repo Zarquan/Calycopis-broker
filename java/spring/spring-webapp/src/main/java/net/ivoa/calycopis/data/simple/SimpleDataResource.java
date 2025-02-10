@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.data.simple;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.Execution;
+import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleDataResource.
@@ -35,7 +35,7 @@ public interface SimpleDataResource
     {
 
 
-    public Execution getParent();
+    public ExecutionSession getParent();
 
     public String getLocation();
 

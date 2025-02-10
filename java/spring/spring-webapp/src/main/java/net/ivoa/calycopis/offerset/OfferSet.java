@@ -26,7 +26,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
 public interface OfferSet
@@ -48,6 +48,6 @@ public interface OfferSet
      * Get a list of the Execution offers.
      * 
      */
-    public List<ExecutionEntity> getOffers();
+    public List<ExecutionSessionEntity> getOffers();
     
     }
