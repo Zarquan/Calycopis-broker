@@ -31,16 +31,15 @@ import javax.validation.Valid;
 
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresOffered;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryOffered;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresOffered;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryOffered;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -76,7 +75,7 @@ public class SimpleComputeResourceBean
      */
     public SimpleComputeResourceBean(final String baseurl, final SimpleComputeResourceEntity entity)
         {
-        super();
+        super(SimpleComputeResource.TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
         }

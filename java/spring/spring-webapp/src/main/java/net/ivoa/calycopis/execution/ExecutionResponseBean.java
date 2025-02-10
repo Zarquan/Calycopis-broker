@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
@@ -66,6 +67,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class ExecutionResponseBean
     extends IvoaExecutionSessionResponse
     {
+    
     /**
      * The base URL for the current request.
      *
@@ -85,6 +87,7 @@ public class ExecutionResponseBean
     public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
         {
         super();
+        super.type(ExecutionResponse.TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         this.setOptions();
@@ -100,11 +103,6 @@ public class ExecutionResponseBean
     public String getHref()
         {
         return baseurl + Execution.REQUEST_PATH + entity.getUuid();
-        }
-
-    public String getType()
-        {
-        return Execution.TYPE_DISCRIMINATOR;
         }
 
     @Override

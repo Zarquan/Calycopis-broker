@@ -43,10 +43,8 @@ public interface SimpleComputeResource
      * The type discriminator for SimpleComputeResources.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml" ;
 
-
-    
     /**
      * Reference to the parent Execution. 
      *
