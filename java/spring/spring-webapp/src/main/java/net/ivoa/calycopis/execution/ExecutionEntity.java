@@ -55,10 +55,10 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
  */
 @Entity
 @Table(
-    name = Execution.TABLE_NAME
+    name = "executions"
     )
 @DiscriminatorValue(
-    value = Execution.TYPE_DISCRIMINATOR
+    value = "uri:executions"
     )
 public class ExecutionEntity
     extends ComponentEntity
