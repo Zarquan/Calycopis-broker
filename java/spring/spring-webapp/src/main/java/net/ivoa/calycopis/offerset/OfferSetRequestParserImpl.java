@@ -60,7 +60,7 @@ public class OfferSetRequestParserImpl
 
     public OfferSetRequestParserImpl(
         final OfferBlockFactory            offerBlockFactory,
-        final ExecutionSessionFactory             executionFactory,
+        final ExecutionSessionFactory      executionFactory,
         final SimpleComputeResourceFactory simpleComputeFactory,
         final SimpleDataResourceFactory    simpleDataFactory,
         final AmazonS3DataResourceFactory  amazonDataFactory,
@@ -409,24 +409,27 @@ log.debug("---- ---- ---- ----");
                     // this should be managed by the canfar classes
                     // so we call out to platform with the block size and request size
                     // platform responds with a list of compute entities that fit the limits
-                    long corescale = offerblock.getCores()/this.getMinCores();
+                    long corescale   = offerblock.getCores()/this.getMinCores();
                     long memoryscale = offerblock.getMemory()/this.getMinMemory();
                     log.debug("----");
+                    log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
                     log.debug("Cores  [{}][{}][{}]", this.getMinCores(), offerblock.getCores(), corescale);
                     log.debug("Memory [{}][{}][{}]", this.getMinMemory(), offerblock.getMemory(), memoryscale);
                     for (SimpleComputeResourceEntity compresource : compresourcelist)
                         {
-                        long offercores  = compresource.getRequestedCores()  * corescale;
-                        long offermemory = compresource.getRequestedMemory() * memoryscale;
+                        long offercores  = compresource.getMinRequestedCores()  * corescale;
+                        long offermemory = compresource.getMinRequestedMemory() * memoryscale;
                         log.debug("----");
                         log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
-                        log.debug("Cores  [{}][{}][{}]", compresource.getRequestedCores(),  offercores,  corescale);
-                        log.debug("Memory [{}][{}][{}]", compresource.getRequestedMemory(), offermemory, memoryscale);
+                        log.debug("Cores  [{}][{}][{}]", compresource.getMinRequestedCores(),  offercores,  corescale);
+                        log.debug("Memory [{}][{}][{}]", compresource.getMinRequestedMemory(), offermemory, memoryscale);
                         execution.addCompute(
                             simpleComputeFactory.create(
                                 execution,
                                 compresource,
                                 offercores,
+                                offercores,
+                                offermemory,
                                 offermemory
                                 )
                             );
@@ -828,6 +831,7 @@ log.debug("---- ---- ---- ----");
         Long MAX_CORES_LIMIT   = 16L ;
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
+        Boolean minimalcores  = false;
 
         if (resource.getCores() != null)
             {
@@ -840,6 +844,10 @@ log.debug("---- ---- ---- ----");
                 if (resource.getCores().getRequested().getMax() != null)
                     {
                     maxcores = resource.getCores().getRequested().getMax();
+                    }
+                if (resource.getCores().getRequested().getMinimal() != null)
+                    {
+                    minimalcores = resource.getCores().getRequested().getMinimal();
                     }
                 }
 
@@ -901,7 +909,8 @@ log.debug("---- ---- ---- ----");
         Long MAX_MEMORY_LIMIT   = 16L;
         Long minmemory = MIN_MEMORY_DEFAULT;
         Long maxmemory = MIN_MEMORY_DEFAULT;
-
+        Boolean minimalmemory = false;
+        
         //StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
         //StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
         //StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
@@ -917,6 +926,10 @@ log.debug("---- ---- ---- ----");
                 if (resource.getMemory().getRequested().getMax() != null)
                     {
                     maxmemory = resource.getMemory().getRequested().getMax();
+                    }
+                if (resource.getMemory().getRequested().getMinimal() != null)
+                    {
+                    minimalmemory = resource.getMemory().getRequested().getMinimal();
                     }
                 }
 
@@ -952,10 +965,30 @@ log.debug("---- ---- ---- ----");
                 );
             }
 
+        if (maxmemory > MAX_MEMORY_LIMIT)
+            {
+            offerset.addWarning(
+                "urn:resource-limit",
+                "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                Map.of(
+                    "resource",
+                    resource.getName(),
+                    "memory",
+                    maxmemory,
+                    "limit",
+                    MAX_MEMORY_LIMIT
+                    )
+                );
+            }
+        
         this.addMinMemory(
             minmemory
             );
 
+        this.addMaxMemory(
+            maxmemory
+            );
+        
         //
         // Process the network ports.
         // ....
@@ -968,9 +1001,15 @@ log.debug("---- ---- ---- ----");
             null,
             resource.getName(),
             mincores,
+            maxcores,
+            null,
             null,
             minmemory,
-            null
+            maxmemory,
+            null,
+            null,
+            minimalcores,
+            minimalmemory
             );
         this.addComputeResource(
             entity

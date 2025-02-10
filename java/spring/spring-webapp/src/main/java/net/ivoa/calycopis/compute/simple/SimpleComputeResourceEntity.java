@@ -77,49 +77,115 @@ public class SimpleComputeResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleComputeResourceEntity(final ExecutionSessionEntity parent, final String name, Long requestedcores, Long offeredcores, Long requestedmemory, Long offeredmemory)
-        {
+    public SimpleComputeResourceEntity(
+        final ExecutionSessionEntity parent,
+        final String name,
+        final Long minrequestedcores,
+        final Long maxrequestedcores,
+        final Long minofferedcores,
+        final Long maxofferedcores,
+        final Long minrequestedmemory,
+        final Long maxrequestedmemory,
+        final Long minofferedmemory,
+        final Long maxofferedmemory,
+        final Boolean minimalcores,
+        final Boolean minimalmemory
+        ){
         super(name);
         this.parent = parent;
-        this.requestedcores = requestedcores;
-        this.offeredcores   = offeredcores;
-        this.requestedmemory = requestedmemory;
-        this.offeredmemory   = offeredmemory;
+        this.minrequestedcores = minrequestedcores;
+        this.maxrequestedcores = maxrequestedcores;
+        this.minofferedcores   = minofferedcores;
+        this.maxofferedcores   = maxofferedcores;
+        this.minrequestedmemory = minrequestedmemory;
+        this.maxrequestedmemory = maxrequestedmemory;
+        this.minofferedmemory   = minofferedmemory;
+        this.maxofferedmemory   = maxofferedmemory;
+        this.minimalcores  = minimalcores;
+        this.minimalmemory = minimalmemory;
         }
 
     // Does this also have a start and end time ?
     // Does this also go through a similar set of state changes as the parent execution ?
     
-    @Column(name="requestedcores")
-    private Long requestedcores;
+    @Column(name="minrequestedcores")
+    private Long minrequestedcores;
     @Override
-    public Long getRequestedCores()
+    public Long getMinRequestedCores()
         {
-        return this.requestedcores;
+        return this.minrequestedcores;
         }
 
-    @Column(name="offeredcores")
-    private Long offeredcores;
+    @Column(name="maxrequestedcores")
+    private Long maxrequestedcores;
     @Override
-    public Long getOfferedCores()
+    public Long getMaxRequestedCores()
         {
-        return this.offeredcores;
+        return this.maxrequestedcores;
+        }
+    
+    @Column(name="minofferedcores")
+    private Long minofferedcores;
+    @Override
+    public Long getMinOfferedCores()
+        {
+        return this.minofferedcores;
         }
 
-    @Column(name="requestedmemory")
-    private Long requestedmemory;
+    @Column(name="maxofferedcores")
+    private Long maxofferedcores;
     @Override
-    public Long getRequestedMemory()
+    public Long getMaxOfferedCores()
         {
-        return this.requestedmemory;
+        return this.maxofferedcores;
+        }
+    
+    @Column(name="minrequestedmemory")
+    private Long minrequestedmemory;
+    @Override
+    public Long getMinRequestedMemory()
+        {
+        return this.minrequestedmemory;
         }
 
-    @Column(name="offeredmemory")
-    private Long offeredmemory;
+    @Column(name="maxrequestedmemory")
+    private Long maxrequestedmemory;
     @Override
-    public Long getOfferedMemory()
+    public Long getMaxRequestedMemory()
         {
-        return this.offeredmemory;
+        return this.maxrequestedmemory;
+        }
+    
+    @Column(name="minofferedmemory")
+    private Long minofferedmemory;
+    @Override
+    public Long getMinOfferedMemory()
+        {
+        return this.minofferedmemory;
+        }
+
+    @Column(name="maxofferedmemory")
+    private Long maxofferedmemory;
+    @Override
+    public Long getMaxOfferedMemory()
+        {
+        return this.maxofferedmemory;
+        }
+
+    @Column(name="minimalcores")
+    private Boolean minimalcores;
+    @Override
+    public Boolean getMinimalCores()
+        {
+        return this.minimalcores;
+        }
+
+    @Column(name="minimalmemory")
+    private Boolean minimalmemory;
+    @Override
+    public Boolean getMinimalMemory()
+        {
+        return this.minimalmemory;
         }
     }
 

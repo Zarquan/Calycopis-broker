@@ -39,7 +39,7 @@ import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 
 /**
- * An Execution Factory implementation.
+ * An ExecutionSessionFactory implementation.
  *
  */
 @Slf4j

@@ -102,9 +102,6 @@ components:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxLong'
 #       - $ref: 'SimpleMinMaxLong'
       properties:
-        minimal:
-          type: boolean
-          default: false
         min:
           type: integer
           format: int64
@@ -171,9 +168,6 @@ components:
 #     allOf:
 #       - $ref: '../../../components/utils.yaml#/components/schemas/MinMaxComputeLong'
       properties:
-        minimal:
-          type: boolean
-          default: false
         min:
           type: integer
           format: int64

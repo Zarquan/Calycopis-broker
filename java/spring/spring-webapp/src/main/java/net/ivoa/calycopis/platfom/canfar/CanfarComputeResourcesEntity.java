@@ -62,8 +62,8 @@ public class CanfarComputeResourcesEntity
             // We have to pick one of these.
             // Update the compute resource offer to match.
             
-            this.totalcores  += compute.getRequestedCores();
-            this.totalmemory += compute.getRequestedMemory();
+            this.totalcores  += compute.getMinRequestedCores();
+            this.totalmemory += compute.getMinRequestedMemory();
 
             }
         }

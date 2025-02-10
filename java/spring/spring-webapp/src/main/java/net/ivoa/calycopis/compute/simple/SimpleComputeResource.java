@@ -41,29 +41,65 @@ public interface SimpleComputeResource
     public ExecutionSession getParent();
 
     /**
-     * The number of CPU cores requested. 
+     * The minimum number of CPU cores requested.
      *
      */
-    public Long getRequestedCores();
+    public Long getMinRequestedCores();
 
     /**
-     * The number of CPU cores offered. 
+     * The maximum number of CPU cores requested. 
      *
      */
-    public Long getOfferedCores();
+    public Long getMaxRequestedCores();
 
     /**
-     * The amount of memory requested, in bytes. 
+     * The minimum number of CPU cores offered. 
      *
      */
-    public Long getRequestedMemory();
+    public Long getMinOfferedCores();
 
     /**
-     * The amount of memory offered, in bytes. 
+     * The maximum number of CPU cores offered. 
      *
      */
-    public Long getOfferedMemory();
+    public Long getMaxOfferedCores();
 
+    /**
+     * The minimum amount of memory requested, in bytes, 
+     *
+     */
+    public Long getMinRequestedMemory();
+
+    /**
+     * The maximum amount of memory requested, in bytes, 
+     *
+     */
+    public Long getMaxRequestedMemory();
+
+    /**
+     * The minimum amount of memory offered, in bytes. 
+     *
+     */
+    public Long getMinOfferedMemory();
+
+    /**
+     * The maximum amount of memory offered, in bytes. 
+     *
+     */
+    public Long getMaxOfferedMemory();
+
+    /**
+     * The minimal flag for the CPU cores request. 
+     *
+     */
+    public Boolean getMinimalCores();
+    
+    /**
+     * The minimal flag for the memory request. 
+     *
+     */
+    public Boolean getMinimalMemory();
+    
     // volumes ...
 
     }

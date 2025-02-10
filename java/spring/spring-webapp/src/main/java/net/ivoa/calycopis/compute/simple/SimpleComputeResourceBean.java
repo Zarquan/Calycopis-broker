@@ -133,17 +133,17 @@ public class SimpleComputeResourceBean
                     @Override
                     public Long getMin()
                         {
-                        return entity.getRequestedCores();
+                        return entity.getMinRequestedCores();
                         }
                     @Override
                     public Long getMax()
                         {
-                        return entity.getRequestedCores();
+                        return entity.getMaxRequestedCores();
                         }
                     @Override
                     public Boolean getMinimal()
                         {
-                        return false;
+                        return entity.getMinimalCores();
                         }
                     };
                 }
@@ -155,12 +155,12 @@ public class SimpleComputeResourceBean
                     @Override
                     public Long getMin()
                         {
-                        return entity.getOfferedCores();
+                        return entity.getMinOfferedCores();
                         }
                     @Override
                     public Long getMax()
                         {
-                        return entity.getOfferedCores();
+                        return entity.getMaxOfferedCores();
                         }
                     };
                 }
@@ -179,12 +179,12 @@ public class SimpleComputeResourceBean
                     @Override
                     public Long getMin()
                         {
-                        return entity.getRequestedMemory();
+                        return entity.getMinRequestedMemory();
                         }
                     @Override
                     public Long getMax()
                         {
-                        return entity.getRequestedMemory();
+                        return entity.getMaxRequestedMemory();
                         }
                     @Override
                     public UnitsEnum getUnits()
@@ -194,7 +194,7 @@ public class SimpleComputeResourceBean
                     @Override
                     public Boolean getMinimal()
                         {
-                        return false;
+                        return entity.getMinimalMemory();
                         }
                     };
                 }
@@ -206,12 +206,12 @@ public class SimpleComputeResourceBean
                     @Override
                     public Long getMin()
                         {
-                        return entity.getRequestedMemory();
+                        return entity.getMinOfferedMemory();
                         }
                     @Override
                     public Long getMax()
                         {
-                        return entity.getRequestedMemory();
+                        return entity.getMaxOfferedMemory();
                         }
                     @Override
                     public UnitsEnum getUnits()
