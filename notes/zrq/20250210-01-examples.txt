@@ -119,7 +119,7 @@ schedule:
 resources:
   compute:
   - name: computer-001
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml
     cores:
       requested:
         min: 5

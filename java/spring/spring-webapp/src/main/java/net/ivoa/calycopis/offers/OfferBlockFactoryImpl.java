@@ -179,19 +179,19 @@ public class OfferBlockFactoryImpl
             WITH ExecutionBlocks AS
                 (
                 SELECT
-                    Executions.State AS BlockState,
-                    Executions.StartInstantSec / :blockstep AS BlockStart,
-                    Executions.ExeDurationSec  / :blockstep AS BlockLength,
+                    Sessions.State AS BlockState,
+                    Sessions.StartInstantSec / :blockstep AS BlockStart,
+                    Sessions.ExeDurationSec  / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.offeredcores,  SimpleComputeResources.requestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.offeredmemory, SimpleComputeResources.requestedmemory) AS UsedMemory
                 FROM
-                    Executions
+                    Sessions
                 JOIN
                     SimpleComputeResources
                 ON
-                    SimpleComputeResources.parent = Executions.uuid
+                    SimpleComputeResources.parent = Sessions.uuid
                 WHERE
-                    Executions.state IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
+                    Sessions.state IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
                 ),
             AvailableBlocks AS
                 (
