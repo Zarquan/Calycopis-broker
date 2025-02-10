@@ -38,7 +38,9 @@ import net.ivoa.calycopis.execution.ExecutionEntity;
  *
  */
 @Entity
-@Table(name = "simplecomputeresources")
+@Table(
+    name = "simplecomputeresources"
+    )
 @DiscriminatorValue(
     value = "uri:simple-compute-resources"
     )
