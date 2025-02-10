@@ -201,6 +201,10 @@ components:
           description: >
             A human readable name, assigned by the client.
           type: string
+        type:
+          type: string
+          xml:
+            attribute: true
         created:
           description: >
             The date and time that this component was created.
@@ -242,12 +246,6 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml": '#/components/schemas/SimpleComputeResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
-        - type: object
-          properties:
-            type:
-              type: string
-              xml:
-                attribute: true
 
     SimpleComputeResource:
       description: >
@@ -837,36 +835,6 @@ components:
         - FAILED
         - CANCELLED
 
-    ExecutionSessionRequest:
-      description: >
-        The base class for an execution. Used in both requests and responses.
-      type: object
-      title: ExecutionSessionRequest
-      xml:
-        name: execution
-      properties:
-        name:
-          description: >
-            A human readable name.
-          type: string
-        executable:
-          xml:
-            name: executable
-          $ref: '#/components/schemas/AbstractExecutable'
-        resources:
-          xml:
-            name: resources
-          $ref: '#/components/schemas/ExecutionResourceList'
-        schedule:
-          xml:
-            name: schedule
-          type: object
-          properties:
-            requested:
-              xml:
-                name: requested
-              $ref: '#/components/schemas/ScheduleRequestBlock'
-
     ExecutionSessionResponse:
       description: >
         An Execution session, including uuid, href, and status.
@@ -881,6 +849,7 @@ components:
             - uuid
             - state
             - href
+            - type
           properties:
             state:
               $ref: '#/components/schemas/ExecutionSessionStatus'
@@ -937,8 +906,28 @@ components:
       title: OfferSetRequest
       xml:
         name: offers-request
-      allOf:
-        - $ref: '#/components/schemas/ExecutionSessionRequest'
+      properties:
+        name:
+          description: >
+            A human readable name.
+          type: string
+        executable:
+          xml:
+            name: executable
+          $ref: '#/components/schemas/AbstractExecutable'
+        resources:
+          xml:
+            name: resources
+          $ref: '#/components/schemas/ExecutionResourceList'
+        schedule:
+          xml:
+            name: schedule
+          type: object
+          properties:
+            requested:
+              xml:
+                name: requested
+              $ref: '#/components/schemas/ScheduleRequestBlock'
 
     OfferSetResponse:
       description: >
@@ -966,7 +955,6 @@ components:
               enum:
                 - "YES"
                 - "NO"
-#           # TODO Add simplified state OFFERED, ACCEPTED, REJECTED, EXPIRED, ..
             offers:
               type: array
               xml:

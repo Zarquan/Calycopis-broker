@@ -32,9 +32,9 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
@@ -486,7 +486,7 @@ log.debug("---- ---- ---- ----");
      * Validate the requested Schedule.
      *
      */
-    public void validate(final IvoaExecutionSessionRequestSchedule schedule)
+    public void validate(final IvoaOfferSetRequestSchedule schedule)
         {
         log.debug("validate(IvoaExecutionSessionRequestSchedule)");
         if (schedule != null)
