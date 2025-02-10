@@ -54,7 +54,6 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -130,27 +129,6 @@ public class ExecutionResponseBean
                 {
                 return new MessageItemBean(
                     inner
-                    );
-                }
-            };
-        }
-
-    @Override
-    public IvoaOfferSetLink getOfferset()
-        {
-        return new IvoaOfferSetLink()
-            {
-            @Override
-            public UUID getUuid()
-                {
-                return entity.getParent().getUuid();
-                }
-            @Override
-            public String getHref()
-                {
-                return OfferSetResponseBean.makeHref(
-                    baseurl,
-                    entity.getParent()
                     );
                 }
             };

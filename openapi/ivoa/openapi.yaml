@@ -882,12 +882,6 @@ components:
             - state
             - href
           properties:
-            offerset:
-              description: >
-                A reference to the parent OfferSet.
-              xml:
-                name: offerset
-              $ref: '#/components/schemas/OfferSetLink'
             state:
               $ref: '#/components/schemas/ExecutionSessionStatus'
             expires:
@@ -936,22 +930,6 @@ components:
 
 # offersets.yaml
 
-    OfferSetLink:
-      description: >
-        A reference from an offer to it's parent offerset.
-      type: object
-      title: OfferSetLink
-      properties:
-        uuid:
-          description: >
-            The UUID identifier of the parent OfferSet.
-          type: string
-          format: uuid
-        href:
-          description: >
-            The URL of the parent OfferSet.
-          type: string
-
     OfferSetRequest:
       description: >
         A request for a set of offers for an execution.
@@ -971,7 +949,6 @@ components:
       required:
         - uuid
         - href
-        - expires
       xml:
         name: offers-response
       allOf:
