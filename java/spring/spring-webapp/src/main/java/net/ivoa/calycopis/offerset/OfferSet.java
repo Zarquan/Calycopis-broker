@@ -42,7 +42,7 @@ public interface OfferSet
      * The type discriminator for OfferSets.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "urn:execution" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/execution-offerset-1.0.yaml" ;
 
     /**
      * The URL path for OfferSets.

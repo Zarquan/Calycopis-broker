@@ -29,6 +29,7 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionEntity;
 import net.ivoa.calycopis.execution.ExecutionResponseBean;
@@ -95,6 +96,12 @@ public class OfferSetResponseBean
     public String getName()
         {
         return entity.getName();
+        }
+
+    @Schema(name = "type", description = "The type identifier.")
+    public String getType()
+        {
+        return OfferSet.TYPE_DISCRIMINATOR;
         }
 
     @Override
