@@ -1,0 +1,79 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Miro board - PI24/Coral
+    https://miro.com/app/board/uXjVL_RtOQQ=/?moveToWidget=3458764608522782942&cot=14
+
+    Test Campaign Workload Preparation for SRCNet v0.1
+    https://jira.skatelescope.org/browse/SP-4999
+    [backlog]
+
+        Convert the tests into Jupyter notebooks.
+
+# -----------------------------------------------------
+
+    Update the Execution Broker IVOA standard
+    https://jira.skatelescope.org/browse/SP-4643
+    [done]
+
+    Draw out the internal compute APIs as a plugin infrastructure
+    https://jira.skatelescope.org/browse/SP-4294
+    [backlog]
+
+    ExecutionBroker modular plug-in design
+    https://jira.skatelescope.org/browse/SP-4511
+    [backlog]
+
+    Distributed Data Computing v0.1 - Roadmap
+    https://jira.skatelescope.org/browse/SP-4868
+    [implementing]
+
+    Data life-cycle and prepareData
+    https://jira.skatelescope.org/browse/SP-5013
+    [backlog]
+
+    Architectural Design for Federated Execution in SRCNet v0.2
+    https://jira.skatelescope.org/browse/SP-5012
+
+    Document describing the role of Execution Broker in SRCNet
+    https://jira.skatelescope.org/browse/SP-4696
+    [backlog]
+
+        Includes a face to face meeting at SKAO.
+
+
+
+

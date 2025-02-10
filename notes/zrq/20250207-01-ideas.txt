@@ -1,0 +1,130 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Examples for the architecture view.
+    Need examples of all of the messages.
+
+    Also useful in other places, e.g. the main IVOA document.
+
+    Use the prototype to generate a series of messages
+    save them in JSON and YAML form in GitHub
+    short form and long form
+    long for contains the whole message
+    short form contains a subset of the message edited to show the important parts only
+    short form won't be valid yaml/json though
+
+    offerset-request-001-full.json
+    offerset-request-001-full.yaml
+
+    offerset-request-001-part-001-json.txt
+    offerset-request-001-part-001-yaml.txt
+
+    automate the generation of the partial messages where we can
+    means we can change the model and re-generate the examples
+
+    do we need to datestamp them ?
+    if we are changing the data model and re-generating the messages,
+    version number or datestamp in the model version.
+
+    should we have that anyway
+    beginning of the message has a type field
+    URI has the message type in it
+
+    yes, but do we also need to datestamp the files ?
+    no, we can have directories for versions
+
+    examples
+       |
+       +-- v1.0
+             |
+             +-- offerset
+                    |
+                    +-- request
+                    |      |
+                    |      +-- offerset-request-001-full.json
+                    |      +-- offerset-request-001-full.yaml
+                    |      +-- offerset-request-001-part-001-json.txt
+                    |      \-- offerset-request-001-part-001-yaml.txt
+                    |
+                    +-- response
+                           |
+                           +-- offerset-response-001-full.json
+                           +-- offerset-response-001-full.yaml
+                           +-- offerset-response-001-part-001-json.txt
+                           \-- offerset-response-001-part-001-yaml.txt
+
+
+# -----------------------------------------------------
+# SKA DataProducts
+# https://www.skao.int/sites/default/files/documents/SKA-TEL-SKO-0001818-01_DataProdSummary-signed_0.pdf
+#
+    contrb directory in the data model
+
+    core
+      components
+      types
+        executables
+        resources
+
+    contrib
+      skao
+        types
+          executables
+          resources
+            data
+              OLDP Observation-level Data Product
+              PLDP Project-level Data Product
+              ADP  Advanced Data Product
+
+    Data model for each of the data products.
+    This can include metadata about the data product
+    plus, an implied assumption about where to get the data from
+
+
+# -----------------------------------------------------
+# SKA identifiers
+# https://www.skao.int/sites/default/files/documents/SKA-TEL-SKO-0001818-01_DataProdSummary-signed_0.pdf
+# https://www.ivoa.net/documents/DatasetDM/20170928/WD-DatasetDM-1.0-20170928.pdf
+# https://www.ivoa.net/documents/IVOAIdentifiers/20160523/REC-Identifiers-2.0.pdf
+# https://www.ivoa.net/documents/ObsCore/20170509/REC-ObsCore-v1.1-20170509.pdf
+#
+# https://registry.euro-vo.org/evor/#results
+#
+
+    add the data product type into the publisher DID so that
+    a client can figure out what it is and where to get it from
+
+
+
