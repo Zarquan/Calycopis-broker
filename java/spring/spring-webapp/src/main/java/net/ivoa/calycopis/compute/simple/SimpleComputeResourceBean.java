@@ -50,10 +50,10 @@ public class SimpleComputeResourceBean
     extends IvoaSimpleComputeResource
     {
     /**
-     * The OpenAPI type for simple compute resources.
+     * The OpenAPI type identifier for simple compute resources.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml" ;
 
     /**
      * The URL path for simple compute resources.

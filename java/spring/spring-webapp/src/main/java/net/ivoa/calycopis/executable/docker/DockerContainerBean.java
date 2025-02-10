@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.executable.AbstractExecutable;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -34,6 +35,18 @@ public class DockerContainerBean
     {
 
     /**
+     * The OpenAPI type identifier for DockerContainers.
+     *
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml" ;
+
+    /**
+     * The URL path for DockerContainers.
+     *
+     */
+    public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;
+
+    /**
      * The base URL for the current request.
      *
      */
@@ -51,7 +64,7 @@ public class DockerContainerBean
      */
     public DockerContainerBean(final String baseurl, final DockerContainerEntity entity)
         {
-        super(DockerContainer.TYPE_DISCRIMINATOR);
+        super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         }
@@ -71,8 +84,8 @@ public class DockerContainerBean
     @Override
     public String getType()
         {
-        log.debug("getType() [{}]", DockerContainer.TYPE_DISCRIMINATOR);
-        return DockerContainer.TYPE_DISCRIMINATOR;
+        log.debug("getType() [{}]", TYPE_DISCRIMINATOR);
+        return TYPE_DISCRIMINATOR;
         }
 
     @Override

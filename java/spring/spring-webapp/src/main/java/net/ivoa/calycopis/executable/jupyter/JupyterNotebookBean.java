@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.executable.AbstractExecutable;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
@@ -32,6 +33,17 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class JupyterNotebookBean
     extends IvoaJupyterNotebook
     {
+    /**
+     * The type discriminator for JupyterNotebooks.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
+
+    /**
+     * The URL path for JupyterNotebooks.
+     *
+     */
+    public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;
 
     /**
      * The base URL for the current request.
@@ -51,7 +63,7 @@ public class JupyterNotebookBean
      */
     public JupyterNotebookBean(final String baseurl, final JupyterNotebookEntity entity)
         {
-        super(JupyterNotebook.TYPE_DISCRIMINATOR);
+        super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         }
@@ -71,8 +83,8 @@ public class JupyterNotebookBean
     @Override
     public String getType()
         {
-        log.debug("getType() [{}]", JupyterNotebook.TYPE_DISCRIMINATOR);
-        return JupyterNotebook.TYPE_DISCRIMINATOR;
+        log.debug("getType() [{}]", TYPE_DISCRIMINATOR);
+        return TYPE_DISCRIMINATOR;
         }
     
     @Override

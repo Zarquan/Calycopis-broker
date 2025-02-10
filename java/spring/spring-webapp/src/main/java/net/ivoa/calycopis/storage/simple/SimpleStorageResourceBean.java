@@ -41,6 +41,11 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class SimpleStorageResourceBean
     extends IvoaSimpleStorageResource
     {
+    /**
+     * The OpenAPI type identifier for simple storage resources.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resources-1.0.yaml" ;
 
     /**
      * The URL path for the executions endpoint.
@@ -67,7 +72,7 @@ public class SimpleStorageResourceBean
      */
     public SimpleStorageResourceBean(final String baseurl, final SimpleStorageResourceEntity entity)
         {
-        super();
+        super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
         }

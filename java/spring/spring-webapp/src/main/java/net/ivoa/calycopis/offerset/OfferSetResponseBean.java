@@ -47,6 +47,18 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Slf4j
 public class OfferSetResponseBean
     extends IvoaOfferSetResponse {
+    /**
+     * The OpenAPI type identifier for an oferset response.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/session/offerset-response-1.0.yaml" ;
+
+    /**
+     * The URL path for OfferSets.
+     * 
+     */
+    public static final String REQUEST_PATH = "/offersets/" ;
+
 
     /**
      * The base URL for the current request.
@@ -67,6 +79,7 @@ public class OfferSetResponseBean
 	public OfferSetResponseBean(final String baseurl, final OfferSetEntity entity)
 	    {
 	    super();
+	    super.type(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity = entity;
 	    }
@@ -83,7 +96,7 @@ public class OfferSetResponseBean
      */
     public static String makeHref(final String baseurl, final OfferSetEntity entity)
         {
-        return baseurl + OfferSet.REQUEST_PATH + entity.getUuid();
+        return baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override
@@ -97,13 +110,13 @@ public class OfferSetResponseBean
         {
         return entity.getName();
         }
-
+/*
     @Schema(name = "type", description = "The type identifier.")
     public String getType()
         {
-        return OfferSet.TYPE_DISCRIMINATOR;
+        return TYPE_DISCRIMINATOR;
         }
-
+ */
     @Override
     public OffsetDateTime getCreated()
         {

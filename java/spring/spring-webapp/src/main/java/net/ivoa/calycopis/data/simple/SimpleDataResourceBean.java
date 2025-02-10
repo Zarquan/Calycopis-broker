@@ -42,7 +42,7 @@ public class SimpleDataResourceBean
     extends IvoaSimpleDataResource
     {
     /**
-     * The OpenAPI type for simple data resources.
+     * The OpenAPI type identifier for simple data resources.
      * 
      */
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0.yaml" ;

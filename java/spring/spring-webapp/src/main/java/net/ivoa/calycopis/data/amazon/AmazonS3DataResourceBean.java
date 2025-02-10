@@ -42,7 +42,7 @@ public class AmazonS3DataResourceBean
     extends IvoaSimpleDataResource
     {
     /**
-     * The OpenAPI type for S3 data resources.
+     * The OpenAPI type identifier for S3 data resources.
      * 
      */
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0.yaml" ;

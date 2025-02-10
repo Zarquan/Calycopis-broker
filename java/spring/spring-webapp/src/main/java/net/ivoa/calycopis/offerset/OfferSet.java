@@ -33,18 +33,6 @@ public interface OfferSet
     extends Component
     {
     /**
-     * The type discriminator for OfferSets.
-     * 
-     */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/execution-offerset-1.0.yaml" ;
-
-    /**
-     * The URL path for OfferSets.
-     * 
-     */
-    public static final String REQUEST_PATH = "/offersets/" ;
-
-    /**
      * Get the date/time this OfferSet expires.
      * 
      */
