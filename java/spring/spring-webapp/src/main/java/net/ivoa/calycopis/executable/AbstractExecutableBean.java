@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
