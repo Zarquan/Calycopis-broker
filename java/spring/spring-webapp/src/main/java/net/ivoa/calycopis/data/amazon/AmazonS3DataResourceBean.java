@@ -41,13 +41,17 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class AmazonS3DataResourceBean
     extends IvoaSimpleDataResource
     {
+    /**
+     * The OpenAPI type for S3 data resources.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0.yaml" ;
 
     /**
-     * The URL path for the executions endpoint.
+     * The URL path for S3 data resources.
      *
      */
-    private static final String REQUEST_PATH = "/data/simple/" ;
-
+    private static final String REQUEST_PATH = "/data/S3-data-resources/" ;
 
     /**
      * The base URL for the current request.

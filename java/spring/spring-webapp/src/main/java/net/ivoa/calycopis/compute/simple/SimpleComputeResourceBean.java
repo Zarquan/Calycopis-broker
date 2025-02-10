@@ -49,13 +49,17 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class SimpleComputeResourceBean
     extends IvoaSimpleComputeResource
     {
+    /**
+     * The OpenAPI type for simple compute resources.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-1.0.yaml" ;
 
     /**
-     * The URL path for the executions endpoint.
+     * The URL path for simple compute resources.
      *
      */
     private static final String REQUEST_PATH = "/simple-compute/" ;
-
 
     /**
      * The base URL for the current request.
@@ -75,7 +79,7 @@ public class SimpleComputeResourceBean
      */
     public SimpleComputeResourceBean(final String baseurl, final SimpleComputeResourceEntity entity)
         {
-        super(SimpleComputeResource.TYPE_DISCRIMINATOR);
+        super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
         }
