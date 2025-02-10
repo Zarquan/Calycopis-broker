@@ -320,9 +320,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "uri:simple-data-resource-0.1": '#/components/schemas/SimpleDataResource'
-          "uri:Rucio-data-resource-0.1":  '#/components/schemas/RucioDataResource'
-          "uri:S3-data-resource-0.1":     '#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0.yaml": '#/components/schemas/SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0.yaml":  '#/components/schemas/RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0.yaml":     '#/components/schemas/S3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -333,78 +333,34 @@ components:
                 attribute: true
 
     SimpleDataResource:
+      type: object
+      name:  SimpleDataResource
+      title: SimpleDataResource
       description: >
           A simple downloadable data resource.
-          This type of resource should always be mounted read-only.
-      type: object
-      title: SimpleDataResource
       allOf:
         - $ref: '#/components/schemas/AbstractDataResource'
-        - type: object
-          properties:
-            location:
-              description: |
-                The URL of the data to import.
-              type: string
-# TODO add checksums
-# TODO add a size estimate
-# TODO add download time estimate
-# TODO add status flag ... WAITING|PREPARING|READY|RELEASING|COMPLETED|CANCELLED|FAILED
+        - $ref: './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResourceSpec'
 
     S3DataResource:
-      description: A S3 data resource.
       type: object
+      name:  S3DataResource
       title: S3DataResource
+      description: >
+          A data resource in a S3 storage system.
       allOf:
         - $ref: '#/components/schemas/AbstractDataResource'
-        - type: object
-          properties:
-            endpoint:
-              description: |
-                The endpoint address of the S3 service.
-              type: string
-            template:
-              description: |
-                The URL template for the S3 service.
-              type: string
-            bucket:
-              description: |
-                The target bucket name.
-              type: string
-            object:
-              description: |
-                The target object name.
-                Leaving this blank will mount the whole bucket as a directory.
-              type: string
-# TODO add checksums
-# TODO add a size estimate
-# TODO add download time estimate
-# TODO add status flag ... WAITING|PREPARING|READY|RELEASING|COMPLETED|CANCELLED|FAILED
+        - $ref: './types/resources/data/S3-data-resource-1.0.yaml#/components/schemas/S3DataResourceSpec'
 
     RucioDataResource:
-      description: A Rucio data resource.
       type: object
+      name:  RucioDataResource
       title: RucioDataResource
+      description: >
+          A data resource in a Rucio storage system.
       allOf:
         - $ref: '#/components/schemas/AbstractDataResource'
-        - type: object
-          properties:
-            endpoint:
-              description: |
-                The endpoint address of the Rucio service.
-              type: string
-            domain:
-              description: |
-                The domain name.
-              type: string
-            object:
-              description: |
-                The target object name.
-              type: string
-# TODO add checksums
-# TODO add a size estimate
-# TODO add download time estimate
-# TODO add status flag ... WAITING|PREPARING|READY|RELEASING|COMPLETED|CANCELLED|FAILED
+        - $ref: './types/resources/data/Rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResourceSpec'
 
     AbstractExecutable:
       description: Abstract base class for executables.
