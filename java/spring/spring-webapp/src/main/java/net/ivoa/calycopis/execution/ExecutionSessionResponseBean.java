@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.execution;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -198,6 +199,15 @@ public class ExecutionSessionResponseBean
                 {
                 return new IvoaScheduleOfferItem()
                     {
+                    Duration delay = Duration.ofMinutes(10) ;
+                    public String getStart()
+                        {
+                        return entity.getStartInstant().minus(delay).toString();
+                        }
+                    public String getDuration()
+                        {
+                        return delay.toString();
+                        }
                     };
                 };
             @Override
@@ -220,6 +230,15 @@ public class ExecutionSessionResponseBean
                 {
                 return new IvoaScheduleOfferItem()
                     {
+                    Duration delay = Duration.ofMinutes(5) ;
+                    public String getStart()
+                        {
+                        return entity.getStartInstant().plus(entity.getExeDuration()).toString();
+                        }
+                    public String getDuration()
+                        {
+                        return delay.toString();
+                        }
                     };
                 };
             };
