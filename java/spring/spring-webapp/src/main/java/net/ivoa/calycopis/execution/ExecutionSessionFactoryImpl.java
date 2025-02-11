@@ -36,7 +36,7 @@ import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParser;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
  * An ExecutionSessionFactory implementation.
@@ -75,31 +75,31 @@ public class ExecutionSessionFactoryImpl
             offerblock,
             parent,
             context,
-            IvoaExecutionSessionStatus.OFFERED,
+            IvoaExecutionSessionPhase.OFFERED,
             true
             );
         }
     
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase)
         {
         return this.create(
             offerblock,
             parent,
             context,
-            state,
+            phase,
             true
             );
         }
     
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase, boolean save)
         {
         ExecutionSessionEntity created = new ExecutionSessionEntity(
             offerblock,
             parent,
             context,
-            state
+            phase
             );
         log.debug("created [{}]", created.getUuid());
         if (save)
@@ -169,11 +169,11 @@ public class ExecutionSessionFactoryImpl
         log.debug("Update [{}][{}]", update.getPath(), update.getValue());
         switch(update.getPath())
             {
-            case "state" :
-                IvoaExecutionSessionStatus oldstate = entity.getState();
-                IvoaExecutionSessionStatus newstate = oldstate;
+            case "phase" :
+                IvoaExecutionSessionPhase oldstate = entity.getPhase();
+                IvoaExecutionSessionPhase newstate = oldstate;
                 try {
-                    newstate = IvoaExecutionSessionStatus.fromValue(
+                    newstate = IvoaExecutionSessionPhase.fromValue(
                         update.getValue()
                         );
                     }
@@ -191,8 +191,8 @@ public class ExecutionSessionFactoryImpl
                             switch(newstate)
                                 {
                                 case ACCEPTED:
-                                    entity.setState(
-                                        IvoaExecutionSessionStatus.ACCEPTED
+                                    entity.setPhase(
+                                        IvoaExecutionSessionPhase.ACCEPTED
                                         );
                                     /*
                                      * 
@@ -205,15 +205,15 @@ public class ExecutionSessionFactoryImpl
                                         {
                                         if (sibling != entity)
                                             {
-                                            sibling.setState(
-                                                IvoaExecutionSessionStatus.REJECTED
+                                            sibling.setPhase(
+                                                IvoaExecutionSessionPhase.REJECTED
                                                 );
                                             }
                                         }
                                     break;
                                 case REJECTED:
-                                    entity.setState(
-                                        IvoaExecutionSessionStatus.REJECTED
+                                    entity.setPhase(
+                                        IvoaExecutionSessionPhase.REJECTED
                                         );
                                     break;
                                 default:

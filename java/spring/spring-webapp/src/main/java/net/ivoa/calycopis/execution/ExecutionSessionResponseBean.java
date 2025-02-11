@@ -54,7 +54,7 @@ import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
@@ -145,9 +145,9 @@ public class ExecutionSessionResponseBean
         }
 
     @Override
-    public IvoaExecutionSessionStatus getState()
+    public IvoaExecutionSessionPhase getPhase()
         {
-        return entity.getState() ;
+        return entity.getPhase() ;
         }
 
     @Override
@@ -279,7 +279,7 @@ public class ExecutionSessionResponseBean
 
     public void setOptions()
         {
-        switch(entity.getState())
+        switch(entity.getPhase())
             {
             case OFFERED:
                 {
@@ -287,7 +287,7 @@ public class ExecutionSessionResponseBean
                     new IvoaEnumValueOption(
                         List.of("ACCEPTED", "REJECTED"),
                         "urn:enum-value-option",
-                        "state"
+                        "phase"
                         )
                     );
                 }
@@ -301,7 +301,7 @@ public class ExecutionSessionResponseBean
                     new IvoaEnumValueOption(
                         List.of("CANCELLED"),
                         "urn:enum-value-option",
-                        "state"
+                        "phase"
                         )
                     );
                 break;

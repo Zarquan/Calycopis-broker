@@ -185,7 +185,7 @@ public class OfferBlockFactoryImpl
             WITH ExecutionBlocks AS
                 (
                 SELECT
-                    Sessions.State AS BlockState,
+                    Sessions.phase AS BlockPhase,
                     Sessions.StartInstantSec / :blockstep AS BlockStart,
                     Sessions.ExeDurationSec  / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
@@ -197,7 +197,7 @@ public class OfferBlockFactoryImpl
                 ON
                     SimpleComputeResources.parent = Sessions.uuid
                 WHERE
-                    Sessions.state IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
+                    Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
                 ),
             AvailableBlocks AS
                 (
@@ -417,8 +417,8 @@ public class OfferBlockFactoryImpl
                 requestmemory * OFFER_CPU_MEMORY_SCALE
                 ));
             query = query.replace(":querylimit", String.valueOf(
-                    QUERY_ROW_LIMIT
-                    ));
+                QUERY_ROW_LIMIT
+                ));
 //--
         log.debug("Running query ...");
         log.debug(query);

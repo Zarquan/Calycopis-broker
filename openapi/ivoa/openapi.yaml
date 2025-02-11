@@ -724,7 +724,7 @@ components:
         data:
           $ref: '#/components/schemas/DataResourceList'
 
-    ExecutionSessionStatus:
+    ExecutionSessionPhase:
       description: >
         Status code for an execution session.
       type: string
@@ -762,8 +762,8 @@ components:
             - href
             - type
           properties:
-            state:
-              $ref: '#/components/schemas/ExecutionSessionStatus'
+            phase:
+              $ref: '#/components/schemas/ExecutionSessionPhase'
             expires:
               description: >
                 The date and time that this execution offer expires.
