@@ -40,8 +40,6 @@ import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import wtf.metio.storageunits.model.StorageUnit;
-import wtf.metio.storageunits.model.StorageUnits;
 
 /**
  *
@@ -52,7 +50,7 @@ public class OfferSetRequestParserImpl
     {
 
     private final OfferBlockFactory            offerBlockFactory;
-    private final ExecutionSessionFactory             executionFactory;
+    private final ExecutionSessionFactory      executionFactory;
     private final SimpleComputeResourceFactory simpleComputeFactory;
     private final SimpleDataResourceFactory    simpleDataFactory;
     private final AmazonS3DataResourceFactory  amazonDataFactory;

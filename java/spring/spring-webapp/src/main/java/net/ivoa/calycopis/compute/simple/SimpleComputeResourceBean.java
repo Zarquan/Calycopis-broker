@@ -187,11 +187,6 @@ public class SimpleComputeResourceBean
                         return entity.getMaxRequestedMemory();
                         }
                     @Override
-                    public UnitsEnum getUnits()
-                        {
-                        return UnitsEnum.GIB;
-                        }
-                    @Override
                     public Boolean getMinimal()
                         {
                         return entity.getMinimalMemory();
@@ -212,11 +207,6 @@ public class SimpleComputeResourceBean
                     public Long getMax()
                         {
                         return entity.getMaxOfferedMemory();
-                        }
-                    @Override
-                    public UnitsEnum getUnits()
-                        {
-                        return UnitsEnum.GIB;
                         }
                     };
                 }

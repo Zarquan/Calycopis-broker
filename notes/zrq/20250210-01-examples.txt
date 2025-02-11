@@ -129,7 +129,6 @@ resources:
       requested:
         min: 3
         max: 9
-        units: GiB
         minimal: true
 EOF
 
