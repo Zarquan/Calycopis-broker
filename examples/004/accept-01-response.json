@@ -1,0 +1,66 @@
+{
+  "uuid": "2dbe3980-13c2-44dc-8499-4cd423cad0b0",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+  "href": "http://127.0.0.1:8082/sessions/2dbe3980-13c2-44dc-8499-4cd423cad0b0",
+  "phase": "ACCEPTED",
+  "expires": "2025-02-12T14:07:14.862977Z",
+  "executable": {
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "uuid": "521ddc05-0c51-44a1-ac45-3250faaab599",
+    "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+  },
+  "resources": {
+    "compute": [
+      {
+        "type": "SimpleComputeResourceBean",
+        "uuid": "ac3e018e-87ae-4797-a240-190bbb099927",
+        "name": "computer-004",
+        "cores": {
+          "requested": {
+            "minimal": false,
+            "min": 5,
+            "max": 15
+          },
+          "offered": {
+            "min": 10,
+            "max": 10
+          }
+        },
+        "memory": {
+          "requested": {
+            "minimal": false,
+            "min": 3,
+            "max": 9
+          },
+          "offered": {
+            "min": 6,
+            "max": 6
+          }
+        }
+      }
+    ]
+  },
+  "schedule": {
+    "preparing": {
+      "duration": "PT10M",
+      "start": "2025-02-12T11:00:00Z"
+    },
+    "executing": {
+      "duration": "PT1H",
+      "start": "2025-02-12T11:10:00Z"
+    },
+    "releasing": {
+      "duration": "PT5M",
+      "start": "2025-02-12T12:10:00Z"
+    }
+  },
+  "options": [
+    {
+      "type": "uri:enum-value-option",
+      "path": "phase",
+      "values": [
+        "CANCELLED"
+      ]
+    }
+  ]
+}

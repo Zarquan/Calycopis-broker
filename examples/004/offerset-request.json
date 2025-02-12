@@ -1,0 +1,33 @@
+{
+"name": "example-004",
+"executable": {
+    "name": "executable-004",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    },
+"schedule": {
+    "requested": {
+        "duration": "PT1H"
+        }
+    },
+"resources": {
+    "compute": [
+            {
+            "name": "computer-004",
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "cores": {
+                "requested": {
+                    "min": 5,
+                    "max": 15
+                    }
+                },
+            "memory": {
+                "requested": {
+                    "min": 3,
+                    "max": 9
+                    }
+                }
+            }
+        ]
+    }
+}
