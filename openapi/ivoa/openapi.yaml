@@ -253,7 +253,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml": '#/components/schemas/SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": '#/components/schemas/SimpleComputeResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
 
@@ -288,7 +288,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0.yaml": '#/components/schemas/SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": '#/components/schemas/SimpleStorageResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -330,9 +330,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0.yaml": '#/components/schemas/SimpleDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0.yaml":  '#/components/schemas/RucioDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0.yaml":     '#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": '#/components/schemas/SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0":  '#/components/schemas/RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     '#/components/schemas/S3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -381,9 +381,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml":      '#/components/schemas/DockerContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0.yaml": '#/components/schemas/SingularityContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml":      '#/components/schemas/JupyterNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0":      '#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0": '#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      '#/components/schemas/JupyterNotebook'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object

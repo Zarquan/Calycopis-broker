@@ -37,7 +37,7 @@ public class JupyterNotebookBean
      * The type discriminator for Jupyter notebooks.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0" ;
 
     /**
      * The base URL for the current request.

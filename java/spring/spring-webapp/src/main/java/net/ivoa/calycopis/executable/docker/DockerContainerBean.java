@@ -38,7 +38,7 @@ public class DockerContainerBean
      * The OpenAPI type identifier for DockerContainers.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0" ;
 
     /**
      * The base URL for the current request.

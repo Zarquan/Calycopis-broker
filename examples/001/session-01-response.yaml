@@ -1,16 +1,16 @@
-uuid: "39db2808-06c8-4bde-90bf-9cb8e6982f5f"
-type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
-href: "http://127.0.0.1:8082/sessions/39db2808-06c8-4bde-90bf-9cb8e6982f5f"
+uuid: "39a308e9-addd-45bc-89f4-8daa85418d39"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+href: "http://127.0.0.1:8082/sessions/39a308e9-addd-45bc-89f4-8daa85418d39"
 phase: "OFFERED"
-expires: "2025-02-12T11:44:00.26113Z"
+expires: "2025-02-12T12:50:52.513612Z"
 executable:
-  type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
-  uuid: "e7be79e9-483d-4732-8737-d7263ab9c498"
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+  uuid: "abb892d7-812b-4fdc-b2d6-d6f5aa78e15b"
   location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
 resources:
   compute:
     - type: "SimpleComputeResourceBean"
-      uuid: "560c485a-8ee8-4364-958a-51d2c5086957"
+      uuid: "81982a4a-f1db-4d3f-b4fd-e8892c321e6b"
       name: "computer-001"
       cores:
         requested:
@@ -31,13 +31,13 @@ resources:
 schedule:
   preparing:
     duration: "PT10M"
-    start: "2025-02-12T08:35:00Z"
+    start: "2025-02-12T09:45:00Z"
   executing:
     duration: "PT1H"
-    start: "2025-02-12T08:45:00Z"
+    start: "2025-02-12T09:55:00Z"
   releasing:
     duration: "PT5M"
-    start: "2025-02-12T09:45:00Z"
+    start: "2025-02-12T10:55:00Z"
 options:
   - type: "uri:enum-value-option"
     path: "phase"

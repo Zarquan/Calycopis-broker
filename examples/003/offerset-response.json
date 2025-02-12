@@ -1,26 +1,26 @@
 {
-  "uuid": "8207a6c8-70c1-49c9-858e-4fc428b6c10e",
-  "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0.yaml",
-  "created": "2025-02-12T07:39:09.936358882Z",
-  "href": "http://127.0.0.1:8082/offersets/8207a6c8-70c1-49c9-858e-4fc428b6c10e",
+  "uuid": "c9b7b9ca-82cc-4897-9d57-7f8673d31632",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0",
+  "created": "2025-02-12T07:55:03.651318096Z",
+  "href": "http://127.0.0.1:8082/offersets/c9b7b9ca-82cc-4897-9d57-7f8673d31632",
   "result": "YES",
   "offers": [
     {
-      "uuid": "484b4c43-664e-4f7e-996e-bf94798f4de1",
-      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
-      "href": "http://127.0.0.1:8082/sessions/484b4c43-664e-4f7e-996e-bf94798f4de1",
+      "uuid": "213df009-d653-4022-a806-ac72b35d5b12",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "href": "http://127.0.0.1:8082/sessions/213df009-d653-4022-a806-ac72b35d5b12",
       "phase": "OFFERED",
-      "expires": "2025-02-12T12:39:09.936368573Z",
+      "expires": "2025-02-12T12:55:03.651334179Z",
       "executable": {
-        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
-        "uuid": "88578c44-75fe-4bcf-939f-eef2147d3f90",
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "6754ec9e-57b4-44ac-8337-e6d0cda9928e",
         "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "SimpleComputeResourceBean",
-            "uuid": "15bbe5b9-2c18-4296-bd34-387fb19a48ac",
+            "uuid": "fa6a9ddc-4001-48bf-94dd-ed1a54304161",
             "name": "Simple compute resource",
             "cores": {
               "requested": {
@@ -50,15 +50,15 @@
       "schedule": {
         "preparing": {
           "duration": "PT10M",
-          "start": "2025-02-12T07:30:00Z"
+          "start": "2025-02-12T07:50:00Z"
         },
         "executing": {
           "duration": "PT2H",
-          "start": "2025-02-12T07:40:00Z"
+          "start": "2025-02-12T08:00:00Z"
         },
         "releasing": {
           "duration": "PT5M",
-          "start": "2025-02-12T09:40:00Z"
+          "start": "2025-02-12T10:00:00Z"
         }
       },
       "options": [
@@ -73,21 +73,21 @@
       ]
     },
     {
-      "uuid": "feb61a63-5c58-4aa1-8fd6-2340480b0fbb",
-      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
-      "href": "http://127.0.0.1:8082/sessions/feb61a63-5c58-4aa1-8fd6-2340480b0fbb",
+      "uuid": "b732724f-be20-4e7b-bd44-f57dbc8bd54d",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "href": "http://127.0.0.1:8082/sessions/b732724f-be20-4e7b-bd44-f57dbc8bd54d",
       "phase": "OFFERED",
-      "expires": "2025-02-12T12:39:09.936368573Z",
+      "expires": "2025-02-12T12:55:03.651334179Z",
       "executable": {
-        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
-        "uuid": "8f39835e-ada5-427b-8dd4-7e0f7347a19c",
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "1ed36783-6bae-4c6d-baad-9d16c618ccf9",
         "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "SimpleComputeResourceBean",
-            "uuid": "7f03ab94-bad5-4ee8-a021-85d075150f5f",
+            "uuid": "f2c97b85-f15d-47f9-9b54-92de47c5a517",
             "name": "Simple compute resource",
             "cores": {
               "requested": {
@@ -117,15 +117,15 @@
       "schedule": {
         "preparing": {
           "duration": "PT10M",
-          "start": "2025-02-12T11:30:00Z"
+          "start": "2025-02-12T11:50:00Z"
         },
         "executing": {
           "duration": "PT2H",
-          "start": "2025-02-12T11:40:00Z"
+          "start": "2025-02-12T12:00:00Z"
         },
         "releasing": {
           "duration": "PT5M",
-          "start": "2025-02-12T13:40:00Z"
+          "start": "2025-02-12T14:00:00Z"
         }
       },
       "options": [
@@ -140,21 +140,21 @@
       ]
     },
     {
-      "uuid": "8d0989e2-1b53-4e6b-bc8a-a03e84cac2e9",
-      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
-      "href": "http://127.0.0.1:8082/sessions/8d0989e2-1b53-4e6b-bc8a-a03e84cac2e9",
+      "uuid": "3a66d8ab-7452-4042-86a0-16d2001eadcb",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "href": "http://127.0.0.1:8082/sessions/3a66d8ab-7452-4042-86a0-16d2001eadcb",
       "phase": "OFFERED",
-      "expires": "2025-02-12T12:39:09.936368573Z",
+      "expires": "2025-02-12T12:55:03.651334179Z",
       "executable": {
-        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
-        "uuid": "6ca51c09-4bb5-4627-be7f-67652afcb128",
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "c72ea05a-16b5-40d4-bad4-41efecfcded4",
         "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "SimpleComputeResourceBean",
-            "uuid": "8d1ce260-cc33-4db7-8419-50ae83768488",
+            "uuid": "0dee1c0d-5b0a-4e8b-bedf-5c46dcb19d02",
             "name": "Simple compute resource",
             "cores": {
               "requested": {
@@ -184,15 +184,15 @@
       "schedule": {
         "preparing": {
           "duration": "PT10M",
-          "start": "2025-02-12T15:30:00Z"
+          "start": "2025-02-12T15:50:00Z"
         },
         "executing": {
           "duration": "PT2H",
-          "start": "2025-02-12T15:40:00Z"
+          "start": "2025-02-12T16:00:00Z"
         },
         "releasing": {
           "duration": "PT5M",
-          "start": "2025-02-12T17:40:00Z"
+          "start": "2025-02-12T18:00:00Z"
         }
       },
       "options": [
@@ -207,21 +207,21 @@
       ]
     },
     {
-      "uuid": "eb6e697b-41cf-4bb1-8946-93086c43f814",
-      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
-      "href": "http://127.0.0.1:8082/sessions/eb6e697b-41cf-4bb1-8946-93086c43f814",
+      "uuid": "a43407bf-8a25-4ed1-8d3e-5d1e221932f9",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "href": "http://127.0.0.1:8082/sessions/a43407bf-8a25-4ed1-8d3e-5d1e221932f9",
       "phase": "OFFERED",
-      "expires": "2025-02-12T12:39:09.936368573Z",
+      "expires": "2025-02-12T12:55:03.651334179Z",
       "executable": {
-        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
-        "uuid": "05af5e8f-9401-4158-b5a1-b660b648b27f",
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "2cfa3754-c3b8-45cb-b123-7db9aa8ba8d4",
         "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "SimpleComputeResourceBean",
-            "uuid": "32acc3fb-d8d9-4cc7-85a2-1d221a889217",
+            "uuid": "29b9a56d-7f20-457d-a3ea-b5715d4b58aa",
             "name": "Simple compute resource",
             "cores": {
               "requested": {
@@ -251,15 +251,15 @@
       "schedule": {
         "preparing": {
           "duration": "PT10M",
-          "start": "2025-02-12T19:30:00Z"
+          "start": "2025-02-12T19:50:00Z"
         },
         "executing": {
           "duration": "PT2H",
-          "start": "2025-02-12T19:40:00Z"
+          "start": "2025-02-12T20:00:00Z"
         },
         "releasing": {
           "duration": "PT5M",
-          "start": "2025-02-12T21:40:00Z"
+          "start": "2025-02-12T22:00:00Z"
         }
       },
       "options": [
