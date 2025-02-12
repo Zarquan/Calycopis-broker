@@ -24,24 +24,22 @@ import net.ivoa.calycopis.data.simple.SimpleDataResourceFactory;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookFactory;
-import net.ivoa.calycopis.execution.ExecutionEntity;
-import net.ivoa.calycopis.execution.ExecutionFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionFactory;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import wtf.metio.storageunits.model.StorageUnit;
-import wtf.metio.storageunits.model.StorageUnits;
 
 /**
  *
@@ -52,7 +50,7 @@ public class OfferSetRequestParserImpl
     {
 
     private final OfferBlockFactory            offerBlockFactory;
-    private final ExecutionFactory             executionFactory;
+    private final ExecutionSessionFactory      executionFactory;
     private final SimpleComputeResourceFactory simpleComputeFactory;
     private final SimpleDataResourceFactory    simpleDataFactory;
     private final AmazonS3DataResourceFactory  amazonDataFactory;
@@ -60,7 +58,7 @@ public class OfferSetRequestParserImpl
 
     public OfferSetRequestParserImpl(
         final OfferBlockFactory            offerBlockFactory,
-        final ExecutionFactory             executionFactory,
+        final ExecutionSessionFactory      executionFactory,
         final SimpleComputeResourceFactory simpleComputeFactory,
         final SimpleDataResourceFactory    simpleDataFactory,
         final AmazonS3DataResourceFactory  amazonDataFactory,
@@ -375,7 +373,7 @@ log.debug("---- ---- ---- ----");
                 for (OfferBlock offerblock : offerblocks)
                     {
                     log.debug("OfferBlock [{}]", offerblock.getStartTime());
-                    ExecutionEntity execution = executionFactory.create(
+                    ExecutionSessionEntity execution = executionFactory.create(
                         offerblock,
                         offerset,
                         this
@@ -409,24 +407,27 @@ log.debug("---- ---- ---- ----");
                     // this should be managed by the canfar classes
                     // so we call out to platform with the block size and request size
                     // platform responds with a list of compute entities that fit the limits
-                    long corescale = offerblock.getCores()/this.getMinCores();
+                    long corescale   = offerblock.getCores()/this.getMinCores();
                     long memoryscale = offerblock.getMemory()/this.getMinMemory();
                     log.debug("----");
+                    log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
                     log.debug("Cores  [{}][{}][{}]", this.getMinCores(), offerblock.getCores(), corescale);
                     log.debug("Memory [{}][{}][{}]", this.getMinMemory(), offerblock.getMemory(), memoryscale);
                     for (SimpleComputeResourceEntity compresource : compresourcelist)
                         {
-                        long offercores  = compresource.getRequestedCores()  * corescale;
-                        long offermemory = compresource.getRequestedMemory() * memoryscale;
+                        long offercores  = compresource.getMinRequestedCores()  * corescale;
+                        long offermemory = compresource.getMinRequestedMemory() * memoryscale;
                         log.debug("----");
                         log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
-                        log.debug("Cores  [{}][{}][{}]", compresource.getRequestedCores(),  offercores,  corescale);
-                        log.debug("Memory [{}][{}][{}]", compresource.getRequestedMemory(), offermemory, memoryscale);
+                        log.debug("Cores  [{}][{}][{}]", compresource.getMinRequestedCores(),  offercores,  corescale);
+                        log.debug("Memory [{}][{}][{}]", compresource.getMinRequestedMemory(), offermemory, memoryscale);
                         execution.addCompute(
                             simpleComputeFactory.create(
                                 execution,
                                 compresource,
                                 offercores,
+                                offercores,
+                                offermemory,
                                 offermemory
                                 )
                             );
@@ -486,7 +487,7 @@ log.debug("---- ---- ---- ----");
      * Validate the requested Schedule.
      *
      */
-    public void validate(final IvoaExecutionSessionRequestSchedule schedule)
+    public void validate(final IvoaOfferSetRequestSchedule schedule)
         {
         log.debug("validate(IvoaExecutionSessionRequestSchedule)");
         if (schedule != null)
@@ -828,6 +829,7 @@ log.debug("---- ---- ---- ----");
         Long MAX_CORES_LIMIT   = 16L ;
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
+        Boolean minimalcores  = false;
 
         if (resource.getCores() != null)
             {
@@ -840,6 +842,10 @@ log.debug("---- ---- ---- ----");
                 if (resource.getCores().getRequested().getMax() != null)
                     {
                     maxcores = resource.getCores().getRequested().getMax();
+                    }
+                if (resource.getCores().getRequested().getMinimal() != null)
+                    {
+                    minimalcores = resource.getCores().getRequested().getMinimal();
                     }
                 }
 
@@ -901,7 +907,8 @@ log.debug("---- ---- ---- ----");
         Long MAX_MEMORY_LIMIT   = 16L;
         Long minmemory = MIN_MEMORY_DEFAULT;
         Long maxmemory = MIN_MEMORY_DEFAULT;
-
+        Boolean minimalmemory = false;
+        
         //StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
         //StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
         //StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
@@ -917,6 +924,10 @@ log.debug("---- ---- ---- ----");
                 if (resource.getMemory().getRequested().getMax() != null)
                     {
                     maxmemory = resource.getMemory().getRequested().getMax();
+                    }
+                if (resource.getMemory().getRequested().getMinimal() != null)
+                    {
+                    minimalmemory = resource.getMemory().getRequested().getMinimal();
                     }
                 }
 
@@ -952,10 +963,30 @@ log.debug("---- ---- ---- ----");
                 );
             }
 
+        if (maxmemory > MAX_MEMORY_LIMIT)
+            {
+            offerset.addWarning(
+                "urn:resource-limit",
+                "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                Map.of(
+                    "resource",
+                    resource.getName(),
+                    "memory",
+                    maxmemory,
+                    "limit",
+                    MAX_MEMORY_LIMIT
+                    )
+                );
+            }
+        
         this.addMinMemory(
             minmemory
             );
 
+        this.addMaxMemory(
+            maxmemory
+            );
+        
         //
         // Process the network ports.
         // ....
@@ -968,9 +999,15 @@ log.debug("---- ---- ---- ----");
             null,
             resource.getName(),
             mincores,
+            maxcores,
+            null,
             null,
             minmemory,
-            null
+            maxmemory,
+            null,
+            null,
+            minimalcores,
+            minimalmemory
             );
         this.addComputeResource(
             entity

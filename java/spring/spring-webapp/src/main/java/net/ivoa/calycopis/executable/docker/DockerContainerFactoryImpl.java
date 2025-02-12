@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 
 /**
@@ -51,7 +51,7 @@ public class DockerContainerFactoryImpl
         }
 
     @Override
-    public DockerContainerEntity create(final ExecutionEntity parent, final String name)
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name)
         {
         return this.create(
             parent,
@@ -61,7 +61,7 @@ public class DockerContainerFactoryImpl
         }
 
     @Override
-    public DockerContainerEntity create(final ExecutionEntity parent, final String name, boolean save)
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name, boolean save)
         {
         log.debug("create(ExecutionEntity, String, boolean) [{}][{}][{}][{}]",
             ((parent!= null) ? parent.getUuid() : "null-template"),
@@ -82,7 +82,7 @@ public class DockerContainerFactoryImpl
         }
 
     @Override
-    public DockerContainerEntity create(final ExecutionEntity parent, final DockerContainerEntity template)
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final DockerContainerEntity template)
         {
         log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
         return this.create(

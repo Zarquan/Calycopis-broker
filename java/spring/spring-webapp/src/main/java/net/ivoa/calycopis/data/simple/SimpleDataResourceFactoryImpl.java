@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 
@@ -84,7 +84,7 @@ public class SimpleDataResourceFactoryImpl
         }
 
     @Override
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location)
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location)
         {
         return this.create(
             parent,
@@ -95,7 +95,7 @@ public class SimpleDataResourceFactoryImpl
         }
 
     @Override
-    public SimpleDataResourceEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
         {
         SimpleDataResourceEntity created = new SimpleDataResourceEntity(
             parent,

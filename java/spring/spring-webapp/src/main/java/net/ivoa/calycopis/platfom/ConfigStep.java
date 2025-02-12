@@ -23,12 +23,6 @@ public interface ConfigStep
 extends Component
     {
     /**
-     * The database table name for ConfigSteps.
-     * 
-     */
-    public static final String TABLE_NAME = "configsteps" ;
-
-    /**
      * The URL path for ConfigSteps.
      *
      */

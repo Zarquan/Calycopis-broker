@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.execution;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
@@ -52,9 +54,8 @@ import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetLink;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -64,9 +65,21 @@ import net.ivoa.calycopis.util.ListWrapper;
  *
  */
 @Slf4j
-public class ExecutionResponseBean
+public class ExecutionSessionResponseBean
     extends IvoaExecutionSessionResponse
     {
+    /**
+     * The type identifier for an execution session response.
+     *
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0" ;
+
+    /**
+     * The URL path for an execution session.
+     *
+     */
+    public static final String REQUEST_PATH = "/sessions/" ;
+
     /**
      * The base URL for the current request.
      *
@@ -77,15 +90,16 @@ public class ExecutionResponseBean
      * The Execution entity to wrap.
      *
      */
-    private final ExecutionEntity entity;
+    private final ExecutionSessionEntity entity;
 
     /**
      * Protected constructor.
      *
      */
-    public ExecutionResponseBean(final String baseurl, final ExecutionEntity entity)
+    public ExecutionSessionResponseBean(final String baseurl, final ExecutionSessionEntity entity)
         {
         super();
+        super.type(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity  = entity;
         this.setOptions();
@@ -100,12 +114,7 @@ public class ExecutionResponseBean
     @Override
     public String getHref()
         {
-        return baseurl + Execution.REQUEST_PATH + entity.getUuid();
-        }
-
-    public String getType()
-        {
-        return Execution.TYPE_DISCRIMINATOR;
+        return baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override
@@ -136,30 +145,9 @@ public class ExecutionResponseBean
         }
 
     @Override
-    public IvoaOfferSetLink getOfferset()
+    public IvoaExecutionSessionPhase getPhase()
         {
-        return new IvoaOfferSetLink()
-            {
-            @Override
-            public UUID getUuid()
-                {
-                return entity.getParent().getUuid();
-                }
-            @Override
-            public String getHref()
-                {
-                return OfferSetResponseBean.makeHref(
-                    baseurl,
-                    entity.getParent()
-                    );
-                }
-            };
-        }
-
-    @Override
-    public IvoaExecutionSessionStatus getState()
-        {
-        return entity.getState() ;
+        return entity.getPhase() ;
         }
 
     @Override
@@ -211,6 +199,15 @@ public class ExecutionResponseBean
                 {
                 return new IvoaScheduleOfferItem()
                     {
+                    Duration delay = Duration.ofMinutes(10) ;
+                    public String getStart()
+                        {
+                        return entity.getStartInstant().minus(delay).toString();
+                        }
+                    public String getDuration()
+                        {
+                        return delay.toString();
+                        }
                     };
                 };
             @Override
@@ -233,6 +230,15 @@ public class ExecutionResponseBean
                 {
                 return new IvoaScheduleOfferItem()
                     {
+                    Duration delay = Duration.ofMinutes(5) ;
+                    public String getStart()
+                        {
+                        return entity.getStartInstant().plus(entity.getExeDuration()).toString();
+                        }
+                    public String getDuration()
+                        {
+                        return delay.toString();
+                        }
                     };
                 };
             };
@@ -273,7 +279,7 @@ public class ExecutionResponseBean
 
     public void setOptions()
         {
-        switch(entity.getState())
+        switch(entity.getPhase())
             {
             case OFFERED:
                 {
@@ -281,7 +287,7 @@ public class ExecutionResponseBean
                     new IvoaEnumValueOption(
                         List.of("ACCEPTED", "REJECTED"),
                         "urn:enum-value-option",
-                        "state"
+                        "phase"
                         )
                     );
                 }
@@ -295,7 +301,7 @@ public class ExecutionResponseBean
                     new IvoaEnumValueOption(
                         List.of("CANCELLED"),
                         "urn:enum-value-option",
-                        "state"
+                        "phase"
                         )
                     );
                 break;

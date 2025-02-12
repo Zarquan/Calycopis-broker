@@ -47,7 +47,7 @@ import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParser;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
  * An Execution Entity.
@@ -55,14 +55,14 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
  */
 @Entity
 @Table(
-    name = Execution.TABLE_NAME
+    name = "sessions"
     )
 @DiscriminatorValue(
-    value = Execution.TYPE_DISCRIMINATOR
+    value = "uri:execution-session"
     )
-public class ExecutionEntity
+public class ExecutionSessionEntity
     extends ComponentEntity
-    implements Execution
+    implements ExecutionSession
     {
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
@@ -84,7 +84,7 @@ public class ExecutionEntity
      * Protected constructor
      *
      */
-    protected ExecutionEntity()
+    protected ExecutionSessionEntity()
         {
         super();
         }
@@ -93,10 +93,10 @@ public class ExecutionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+    public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase)
         {
         super();
-        this.state   = state;
+        this.phase   = phase;
         this.parent  = parent;
         this.expires = parent.getExpires();
         this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
@@ -105,18 +105,18 @@ public class ExecutionEntity
         
         }
 
-    @Column(name = "state")
+    @Column(name = "phase")
     @Enumerated(EnumType.STRING)
-    private IvoaExecutionSessionStatus state;
+    private IvoaExecutionSessionPhase phase;
     @Override
-    public IvoaExecutionSessionStatus getState()
+    public IvoaExecutionSessionPhase getPhase()
         {
-        return this.state;
+        return this.phase;
         }
     @Override
-    public void setState(final IvoaExecutionSessionStatus state)
+    public void setPhase(final IvoaExecutionSessionPhase phase)
         {
-        this.state = state;
+        this.phase = phase;
         }
     
     @Column(name = "startinstantsec")

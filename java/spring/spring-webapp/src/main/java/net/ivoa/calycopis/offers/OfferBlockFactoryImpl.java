@@ -61,6 +61,7 @@ public class OfferBlockFactoryImpl
      *
      */
     public static final Duration DEFAULT_START_RANGE = Duration.ofMinutes(5);
+
     /**
      * The maximum start time range allowed.
      * Set to 24 hours.
@@ -74,12 +75,14 @@ public class OfferBlockFactoryImpl
      *
      */
     public static final Duration DEFAULT_DURATION = Duration.ofHours(2);
+
     /**
      * How much more time we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
      *
      */
     public static final int OFFER_DURATION_SCALE = 2;
+
     /**
      * The maximum execution duration we are allowed to offer.
      * Set to 4 hours.
@@ -92,11 +95,13 @@ public class OfferBlockFactoryImpl
      *
      */
     public static final Long DEFAULT_CPU_CORES_REQUEST = 1L ;
+
     /**
      * The total number of CPU cores available on the platform.
      *
      */
     public static final Long TOTAL_AVAILABLE_CPU_CORES = 32L ;
+
     /**
      * How many more CPU cores we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
@@ -109,11 +114,13 @@ public class OfferBlockFactoryImpl
      *
      */
     public static final StorageUnit<?> DEFAULT_CPU_MEMORY_REQUEST = StorageUnits.gibibyte(1) ;
+
     /**
      * The total amount of CPU memory available on the platform.
      *
      */
     public static final StorageUnit<?> TOTAL_AVAILABLE_CPU_MEMORY = StorageUnits.gibibyte(32);
+
     /**
      * How much more memory we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
@@ -126,7 +133,6 @@ public class OfferBlockFactoryImpl
      *
      */
     public static final int QUERY_ROW_LIMIT = 4;
-
 
     @Override
     public List<OfferBlock> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
@@ -179,19 +185,19 @@ public class OfferBlockFactoryImpl
             WITH ExecutionBlocks AS
                 (
                 SELECT
-                    Executions.State AS BlockState,
-                    Executions.StartInstantSec / :blockstep AS BlockStart,
-                    Executions.ExeDurationSec  / :blockstep AS BlockLength,
-                    COALESCE(SimpleCompute.offeredcores,  SimpleCompute.requestedcores)  AS UsedCores,
-                    COALESCE(SimpleCompute.offeredmemory, SimpleCompute.requestedmemory) AS UsedMemory
+                    Sessions.phase AS BlockPhase,
+                    Sessions.StartInstantSec / :blockstep AS BlockStart,
+                    Sessions.ExeDurationSec  / :blockstep AS BlockLength,
+                    COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
+                    COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM
-                    Executions
+                    Sessions
                 JOIN
-                    SimpleCompute
+                    SimpleComputeResources
                 ON
-                    SimpleCompute.parent = Executions.uuid
+                    SimpleComputeResources.parent = Sessions.uuid
                 WHERE
-                    Executions.state IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
+                    Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
                 ),
             AvailableBlocks AS
                 (
@@ -411,8 +417,8 @@ public class OfferBlockFactoryImpl
                 requestmemory * OFFER_CPU_MEMORY_SCALE
                 ));
             query = query.replace(":querylimit", String.valueOf(
-                    QUERY_ROW_LIMIT
-                    ));
+                QUERY_ROW_LIMIT
+                ));
 //--
         log.debug("Running query ...");
         log.debug(query);

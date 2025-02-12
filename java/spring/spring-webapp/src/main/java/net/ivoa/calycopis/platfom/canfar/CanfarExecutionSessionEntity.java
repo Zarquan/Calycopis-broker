@@ -6,7 +6,7 @@ package net.ivoa.calycopis.platfom.canfar;
 import java.time.Duration;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.platfom.ConfigStepEntity;
 import net.ivoa.calycopis.platfom.vospace.VOSpaceConfigStep;
 import net.ivoa.calycopis.platfom.vospace.VOSpaceFileImportEntity;
@@ -22,7 +22,7 @@ public class CanfarExecutionSessionEntity
     {
     public static Duration DEFAULT_SESSION_HOME_LIFETIME ;
             
-    private ExecutionEntity execution;
+    private ExecutionSessionEntity execution;
 
     // Details of the CANFAR service.
     
@@ -37,7 +37,7 @@ public class CanfarExecutionSessionEntity
         super();
         }
 
-    protected CanfarExecutionSessionEntity(final CanfarPlatformConfig platform, final ExecutionEntity execution, final String username)
+    protected CanfarExecutionSessionEntity(final CanfarPlatformConfig platform, final ExecutionSessionEntity execution, final String username)
         {
         super(
             platform,

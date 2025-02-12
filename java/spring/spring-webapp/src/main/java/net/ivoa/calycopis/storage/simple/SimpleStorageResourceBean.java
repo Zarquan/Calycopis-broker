@@ -41,13 +41,11 @@ import net.ivoa.calycopis.util.ListWrapper;
 public class SimpleStorageResourceBean
     extends IvoaSimpleStorageResource
     {
-
     /**
-     * The URL path for the executions endpoint.
-     *
+     * The OpenAPI type identifier for simple storage resources.
+     * 
      */
-    private static final String REQUEST_PATH = "/simple-storage/" ;
-
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0" ;
 
     /**
      * The base URL for the current request.
@@ -67,19 +65,9 @@ public class SimpleStorageResourceBean
      */
     public SimpleStorageResourceBean(final String baseurl, final SimpleStorageResourceEntity entity)
         {
-        super();
+        super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
-        }
-
-    /**
-     * Generate the href URL based on our baseurl and UUID.
-     *
-     */
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override

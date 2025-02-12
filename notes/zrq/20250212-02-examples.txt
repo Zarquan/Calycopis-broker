@@ -1,0 +1,253 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Generate our examples.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Generate a YAML example ...
+#[root@spring-builder]
+
+    examples=/examples/002
+    rm -rf "${examples}"
+    mkdir  "${examples}"
+
+    #
+    # A minimal request for Jupyter notebook sessions in YAML.
+cat > "${examples}/offerset-request.yaml"  << EOF
+executable:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+EOF
+
+    #
+    # Request the offers using YAML.
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examples}/offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | tee "${examples}/offerset-response.yaml"
+
+    >   uuid: "cc8027ab-f6d2-4781-8146-44e8532e5c92"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-02-12T07:54:35.0418067Z"
+    >   href: "http://127.0.0.1:8082/offersets/cc8027ab-f6d2-4781-8146-44e8532e5c92"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "44a6b86d-c803-45f0-99d6-5bcbaab346c7"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       href: "http://127.0.0.1:8082/sessions/44a6b86d-c803-45f0-99d6-5bcbaab346c7"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T12:54:35.042465167Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "e35e9384-d405-4b27-9374-49302a64baa4"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "60e03eb2-ca37-44a0-817a-1c81abf4dd28"
+    >             name: "Simple compute resource"
+    >             cores:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >             memory:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-12T07:45:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-02-12T07:55:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T09:55:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "5e74deeb-d57d-4633-a0eb-b4fd9c51ed8e"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       href: "http://127.0.0.1:8082/sessions/5e74deeb-d57d-4633-a0eb-b4fd9c51ed8e"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T12:54:35.042465167Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "8c1e82eb-1542-4ebc-a470-18e23093c42f"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "723996c4-e3f2-4cee-be19-200358fd78cb"
+    >             name: "Simple compute resource"
+    >             cores:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >             memory:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-12T11:45:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-02-12T11:55:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T13:55:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "e1aa5cb1-43b3-4508-af43-f00c3d46a082"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       href: "http://127.0.0.1:8082/sessions/e1aa5cb1-43b3-4508-af43-f00c3d46a082"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T12:54:35.042465167Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "f95cab97-eed1-424e-a1d9-18f6421a0d00"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "afa2912a-cc1c-4290-8bf9-51183cf69049"
+    >             name: "Simple compute resource"
+    >             cores:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >             memory:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-12T15:45:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-02-12T15:55:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T17:55:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "08399a1f-90f2-4ef3-bd8f-4990b21275c5"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       href: "http://127.0.0.1:8082/sessions/08399a1f-90f2-4ef3-bd8f-4990b21275c5"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T12:54:35.042465167Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "b60595c1-8ae5-4902-8fa2-003916e9ed99"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "5d8e0c4b-475a-44d0-8848-949af159993a"
+    >             name: "Simple compute resource"
+    >             cores:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >             memory:
+    >               requested:
+    >                 minimal: false
+    >                 min: 1
+    >                 max: 1
+    >               offered:
+    >                 min: 2
+    >                 max: 2
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-12T19:45:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-02-12T19:55:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T21:55:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+

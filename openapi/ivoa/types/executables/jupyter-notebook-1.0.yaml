@@ -24,9 +24,9 @@
 
 openapi: 3.1.0
 info:
-  title: IVOA ExecutionBroker log messages
+  title: IVOA ExecutionBroker Jupyter notebook
   version: "1.0"
-  summary: IVOA ExecutionBroker JupyterNotebook
+  summary: IVOA ExecutionBroker Jupyter notebook
   description: |
     OpenAPI schema for a Jupyter notebook in IVOA ExecutionBroker
   contact:

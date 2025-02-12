@@ -26,7 +26,7 @@ package net.ivoa.calycopis.storage.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
@@ -48,13 +48,13 @@ public interface SimpleStorageResourceFactory
      * Create a new SimpleStorageResource based on an OfferSetRequest.
      *
      */
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent);
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent);
 
     /**
      * Create a new SimpleStorageResource based on an OfferSetRequest.
      *
      */
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionEntity parent, boolean save);
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, boolean save);
     
     }
 

@@ -32,8 +32,8 @@ import org.springframework.stereotype.Repository;
  *
  */
 @Repository
-public interface ExecutionRepository
-    extends JpaRepository<ExecutionEntity, UUID>
+public interface ExecutionSessionRepository
+    extends JpaRepository<ExecutionSessionEntity, UUID>
     {
     }
 

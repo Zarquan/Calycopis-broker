@@ -30,7 +30,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * A SimpleStorageResource Entity.
@@ -38,10 +38,10 @@ import net.ivoa.calycopis.execution.ExecutionEntity;
  */
 @Entity
 @Table(
-    name = "simplestorage"
+    name = "simplestorageresources"
     )
 @DiscriminatorValue(
-    value="urn:simple-compute"
+    value="uri:simple-storage-resource"
     )
 public class SimpleStorageResourceEntity
     extends ComponentEntity
@@ -50,15 +50,15 @@ public class SimpleStorageResourceEntity
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionEntity parent;
+    private ExecutionSessionEntity parent;
 
     @Override
-    public ExecutionEntity getParent()
+    public ExecutionSessionEntity getParent()
         {
         return this.parent;
         }
 
-    public void setParent(final ExecutionEntity parent)
+    public void setParent(final ExecutionSessionEntity parent)
         {
         this.parent = parent;
         }
@@ -76,7 +76,7 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionEntity parent)
+    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent)
         {
         super();
         this.parent = parent;

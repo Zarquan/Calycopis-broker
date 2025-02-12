@@ -30,18 +30,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
- * A SimpleDataResource Entity.
+ * An Amazon S3 data resource.
  *
  */
 @Entity
 @Table(
-    name = "amazondata"
+    name = "s3dataresources"
     )
 @DiscriminatorValue(
-    value="urn:amazon-data"
+    value = "uri:S3-data-resource"
     )
 public class AmazonS3DataResourceEntity
     extends ComponentEntity
@@ -50,15 +50,15 @@ public class AmazonS3DataResourceEntity
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionEntity parent;
+    private ExecutionSessionEntity parent;
 
     @Override
-    public ExecutionEntity getParent()
+    public ExecutionSessionEntity getParent()
         {
         return this.parent;
         }
 
-    public void setParent(final ExecutionEntity parent)
+    public void setParent(final ExecutionSessionEntity parent)
         {
         this.parent = parent;
         }
@@ -76,7 +76,7 @@ public class AmazonS3DataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public AmazonS3DataResourceEntity(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
+    public AmazonS3DataResourceEntity(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
         {
         super(name);
         this.parent   = parent;

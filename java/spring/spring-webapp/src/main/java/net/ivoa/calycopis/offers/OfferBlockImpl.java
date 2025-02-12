@@ -9,6 +9,7 @@ import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * Data object to hold the resources for an offer.
  * 
  */
 @Slf4j

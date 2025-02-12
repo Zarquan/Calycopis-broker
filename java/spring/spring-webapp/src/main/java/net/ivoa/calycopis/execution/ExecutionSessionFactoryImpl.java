@@ -36,30 +36,30 @@ import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParser;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * An Execution Factory implementation.
+ * An ExecutionSessionFactory implementation.
  *
  */
 @Slf4j
 @Component
-public class ExecutionFactoryImpl
+public class ExecutionSessionFactoryImpl
     extends FactoryBaseImpl
-    implements ExecutionFactory
+    implements ExecutionSessionFactory
     {
 
-    private final ExecutionRepository repository;
+    private final ExecutionSessionRepository repository;
 
     @Autowired
-    public ExecutionFactoryImpl(final ExecutionRepository repository)
+    public ExecutionSessionFactoryImpl(final ExecutionSessionRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionEntity> select(UUID uuid)
+    public Optional<ExecutionSessionEntity> select(UUID uuid)
         {
         log.debug("select(UUID)");
         log.debug("UUID [{}]", uuid);
@@ -69,37 +69,37 @@ public class ExecutionFactoryImpl
         }
 
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
         {
         return this.create(
             offerblock,
             parent,
             context,
-            IvoaExecutionSessionStatus.OFFERED,
+            IvoaExecutionSessionPhase.OFFERED,
             true
             );
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase)
         {
         return this.create(
             offerblock,
             parent,
             context,
-            state,
+            phase,
             true
             );
         }
     
     @Override
-    public ExecutionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionStatus state, boolean save)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase, boolean save)
         {
-        ExecutionEntity created = new ExecutionEntity(
+        ExecutionSessionEntity created = new ExecutionSessionEntity(
             offerblock,
             parent,
             context,
-            state
+            phase
             );
         log.debug("created [{}]", created.getUuid());
         if (save)
@@ -112,13 +112,13 @@ public class ExecutionFactoryImpl
 
     @Override
     // TODO return an UpdateContext, with entity, result and messages.
-    public Optional<ExecutionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<ExecutionEntity> result = this.repository.findById(
+        Optional<ExecutionSessionEntity> result = this.repository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -126,7 +126,7 @@ public class ExecutionFactoryImpl
             return result ;
             }
         else {
-            ExecutionEntity entity = update(
+            ExecutionSessionEntity entity = update(
                 result.get(),
                 update
                 );  
@@ -140,7 +140,7 @@ public class ExecutionFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
-    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaAbstractUpdate update)
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -162,18 +162,18 @@ public class ExecutionFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
-    protected ExecutionEntity update(final ExecutionEntity entity , final IvoaEnumValueUpdate update)
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, ValueUpdate)");
         log.debug("Entity [{}]", entity.getUuid());
         log.debug("Update [{}][{}]", update.getPath(), update.getValue());
         switch(update.getPath())
             {
-            case "state" :
-                IvoaExecutionSessionStatus oldstate = entity.getState();
-                IvoaExecutionSessionStatus newstate = oldstate;
+            case "phase" :
+                IvoaExecutionSessionPhase oldstate = entity.getPhase();
+                IvoaExecutionSessionPhase newstate = oldstate;
                 try {
-                    newstate = IvoaExecutionSessionStatus.fromValue(
+                    newstate = IvoaExecutionSessionPhase.fromValue(
                         update.getValue()
                         );
                     }
@@ -191,8 +191,8 @@ public class ExecutionFactoryImpl
                             switch(newstate)
                                 {
                                 case ACCEPTED:
-                                    entity.setState(
-                                        IvoaExecutionSessionStatus.ACCEPTED
+                                    entity.setPhase(
+                                        IvoaExecutionSessionPhase.ACCEPTED
                                         );
                                     /*
                                      * 
@@ -201,19 +201,19 @@ public class ExecutionFactoryImpl
                                         );
                                      * 
                                      */
-                                    for (ExecutionEntity sibling : entity.getParent().getOffers())
+                                    for (ExecutionSessionEntity sibling : entity.getParent().getOffers())
                                         {
                                         if (sibling != entity)
                                             {
-                                            sibling.setState(
-                                                IvoaExecutionSessionStatus.REJECTED
+                                            sibling.setPhase(
+                                                IvoaExecutionSessionPhase.REJECTED
                                                 );
                                             }
                                         }
                                     break;
                                 case REJECTED:
-                                    entity.setState(
-                                        IvoaExecutionSessionStatus.REJECTED
+                                    entity.setPhase(
+                                        IvoaExecutionSessionPhase.REJECTED
                                         );
                                     break;
                                 default:

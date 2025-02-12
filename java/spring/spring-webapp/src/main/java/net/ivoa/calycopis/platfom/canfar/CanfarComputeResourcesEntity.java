@@ -5,7 +5,7 @@ package net.ivoa.calycopis.platfom.canfar;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
@@ -16,12 +16,12 @@ public class CanfarComputeResourcesEntity
     implements CanfarComputeResourcesGroup
     {
 
-    private ExecutionEntity execution;
+    private ExecutionSessionEntity execution;
     
     private Long totalcores  = 0L;
     private Long totalmemory = 0L;
     
-    protected CanfarComputeResourcesEntity(final CanfarConfigStepEntity parent, final CanfarPlatformConfig platform, final ExecutionEntity execution)
+    protected CanfarComputeResourcesEntity(final CanfarConfigStepEntity parent, final CanfarPlatformConfig platform, final ExecutionSessionEntity execution)
         {
         super(
             parent,
@@ -62,8 +62,8 @@ public class CanfarComputeResourcesEntity
             // We have to pick one of these.
             // Update the compute resource offer to match.
             
-            this.totalcores  += compute.getRequestedCores();
-            this.totalmemory += compute.getRequestedMemory();
+            this.totalcores  += compute.getMinRequestedCores();
+            this.totalmemory += compute.getMinRequestedMemory();
 
             }
         }

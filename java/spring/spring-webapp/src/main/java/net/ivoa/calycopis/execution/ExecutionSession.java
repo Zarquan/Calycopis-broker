@@ -32,44 +32,27 @@ import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionStatus;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * Public interface for an Execution (session).
+ * Public interface for an execution session.
  *
  */
-public interface Execution
+public interface ExecutionSession
     extends Component
     {
-    /**
-     * The database table name for Executions.
-     *
-     */
-    public static final String TABLE_NAME = "executions" ;
 
     /**
-     * The type discriminator for Executions.
+     * Get the Execution phase.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "urn:execution-session" ;
+    public IvoaExecutionSessionPhase getPhase();
 
     /**
-     * The URL path for Executions.
+     * Set the Execution phase.
      *
      */
-    public static final String REQUEST_PATH = "/sessions/" ;
-
-    /**
-     * Get the Execution state.
-     *
-     */
-    public IvoaExecutionSessionStatus getState();
-
-    /**
-     * Set the Execution state.
-     *
-     */
-    void setState(final IvoaExecutionSessionStatus state);
+    void setPhase(final IvoaExecutionSessionPhase phase);
 
     /**
      * Get the expiry date for an OFFERED Execution.

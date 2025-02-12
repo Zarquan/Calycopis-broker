@@ -3,7 +3,7 @@
  */
 package net.ivoa.calycopis.platfom.canfar;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.platfom.ConfigStepEntity;
 import net.ivoa.calycopis.platfom.ConfigStepFactory;
 
@@ -17,12 +17,12 @@ extends ConfigStepFactory
      * Generate a top level ConfigStep for an Execution session.
      * 
      */
-    public ConfigStepEntity generate(final ExecutionEntity execution);
+    public ConfigStepEntity generate(final ExecutionSessionEntity execution);
     
     /**
      * Generate a ConfigStep for an Execution session.
      * 
      */
-    public ConfigStepEntity generate(final ConfigStepEntity parent, final ExecutionEntity execution);
+    public ConfigStepEntity generate(final ConfigStepEntity parent, final ExecutionSessionEntity execution);
 
     }

@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 
@@ -84,7 +84,7 @@ public class AmazonS3DataResourceFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
         {
         return this.create(
             parent,
@@ -98,7 +98,7 @@ public class AmazonS3DataResourceFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save)
         {
         AmazonS3DataResourceEntity created = new AmazonS3DataResourceEntity(
             parent,

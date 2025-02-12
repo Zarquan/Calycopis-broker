@@ -29,9 +29,10 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
-import net.ivoa.calycopis.execution.ExecutionResponseBean;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
@@ -46,6 +47,18 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Slf4j
 public class OfferSetResponseBean
     extends IvoaOfferSetResponse {
+    /**
+     * The OpenAPI type identifier for an oferset response.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0" ;
+
+    /**
+     * The URL path for OfferSets.
+     * 
+     */
+    public static final String REQUEST_PATH = "/offersets/" ;
+
 
     /**
      * The base URL for the current request.
@@ -66,6 +79,7 @@ public class OfferSetResponseBean
 	public OfferSetResponseBean(final String baseurl, final OfferSetEntity entity)
 	    {
 	    super();
+	    super.type(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity = entity;
 	    }
@@ -82,7 +96,7 @@ public class OfferSetResponseBean
      */
     public static String makeHref(final String baseurl, final OfferSetEntity entity)
         {
-        return baseurl + OfferSet.REQUEST_PATH + entity.getUuid();
+        return baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override
@@ -96,7 +110,13 @@ public class OfferSetResponseBean
         {
         return entity.getName();
         }
-
+/*
+    @Schema(name = "type", description = "The type identifier.")
+    public String getType()
+        {
+        return TYPE_DISCRIMINATOR;
+        }
+ */
     @Override
     public OffsetDateTime getCreated()
         {
@@ -127,12 +147,12 @@ public class OfferSetResponseBean
     @Override
     public List<@Valid IvoaExecutionSessionResponse> getOffers()
         {
-        return new ListWrapper<IvoaExecutionSessionResponse, ExecutionEntity>(
+        return new ListWrapper<IvoaExecutionSessionResponse, ExecutionSessionEntity>(
             entity.getOffers()
             ){
-            public IvoaExecutionSessionResponse wrap(final ExecutionEntity inner)
+            public IvoaExecutionSessionResponse wrap(final ExecutionSessionEntity inner)
                 {
-                return new ExecutionResponseBean(
+                return new ExecutionSessionResponseBean(
                      baseurl,
                      inner
                      );

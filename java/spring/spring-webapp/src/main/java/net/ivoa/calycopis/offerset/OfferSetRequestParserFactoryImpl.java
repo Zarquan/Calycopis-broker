@@ -11,7 +11,7 @@ import net.ivoa.calycopis.compute.simple.SimpleComputeResourceFactory;
 import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceFactory;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceFactory;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookFactory;
-import net.ivoa.calycopis.execution.ExecutionFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionFactory;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offers.OfferBlockFactory;
 
@@ -26,7 +26,7 @@ public class OfferSetRequestParserFactoryImpl
     {
 
     private final OfferBlockFactory            offerBlockFactory;
-    private final ExecutionFactory             executionFactory;
+    private final ExecutionSessionFactory             executionFactory;
     private final SimpleComputeResourceFactory simpleComputeFactory;
     private final SimpleDataResourceFactory    simpleDataFactory;
     private final AmazonS3DataResourceFactory  amazonDataFactory;
@@ -35,7 +35,7 @@ public class OfferSetRequestParserFactoryImpl
     @Autowired
     public OfferSetRequestParserFactoryImpl(
         final OfferBlockFactory            offerBlockFactory,
-        final ExecutionFactory             executionFactory,
+        final ExecutionSessionFactory             executionFactory,
         final SimpleComputeResourceFactory simpleComputeFactory,
         final SimpleDataResourceFactory    simpleDataFactory,
         final AmazonS3DataResourceFactory  amazonDataFactory,

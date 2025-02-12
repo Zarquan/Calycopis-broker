@@ -26,30 +26,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
 public interface OfferSet
     extends Component
     {
-    /**
-     * The database table name for OfferSets.
-     * 
-     */
-    public static final String TABLE_NAME = "offersets" ;
-
-    /**
-     * The type discriminator for OfferSets.
-     * 
-     */
-    public static final String TYPE_DISCRIMINATOR = "urn:execution" ;
-
-    /**
-     * The URL path for OfferSets.
-     * 
-     */
-    public static final String REQUEST_PATH = "/offersets/" ;
-
     /**
      * Get the date/time this OfferSet expires.
      * 
@@ -66,6 +48,6 @@ public interface OfferSet
      * Get a list of the Execution offers.
      * 
      */
-    public List<ExecutionEntity> getOffers();
+    public List<ExecutionSessionEntity> getOffers();
     
     }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebook;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookBean;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.message.MessageEntity;
@@ -97,10 +98,9 @@ public class AbstractExecutableBeanFactoryImpl
                      * 
                      */
                     IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
-                        JupyterNotebook.TYPE_DISCRIMINATOR
+                        JupyterNotebookBean.TYPE_DISCRIMINATOR
                         );
                     bean.uuid(entity.getUuid());
-                    bean.href(baseurl + JupyterNotebook.REQUEST_PATH + entity.getUuid());
                     bean.messages(
                         listwrap(
                             entity,

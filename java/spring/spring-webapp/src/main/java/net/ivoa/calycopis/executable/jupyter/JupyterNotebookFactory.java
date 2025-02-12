@@ -6,7 +6,7 @@ package net.ivoa.calycopis.executable.jupyter;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
@@ -27,18 +27,18 @@ public interface JupyterNotebookFactory
      * Create and save a new JupyterNotebook entity.
      *
      */
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl);
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String notebookurl);
 
     /**
      * Create a new JupyterNotebook entity.
      *
      */
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl, boolean save);
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String notebookurl, boolean save);
 
     /**
      * Create and save a new JupyterNotebook entity based on a template.
      *
      */
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final JupyterNotebookEntity template);
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final JupyterNotebookEntity template);
 
     }

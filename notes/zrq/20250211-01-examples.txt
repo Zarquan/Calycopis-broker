@@ -1,0 +1,988 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Updating and fixing issues before publishing examples.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Build the project.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:ro,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Create some offers ...
+#[root@spring-builder]
+
+cat > /tmp/createrequest.yaml  << EOF
+name: Test request
+executable:
+  name: executable-001
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml
+    cores:
+      requested:
+        min: 5
+        max: 15
+        minimal: true
+    memory:
+      requested:
+        min: 3
+        max: 9
+        minimal: true
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/createrequest.yaml' \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee '/tmp/createresponse.yaml' \
+    | yq '.'
+
+    >   uuid: "0670df52-0656-4e57-9224-bb49bd206afa"
+    >   href: "http://127.0.0.1:8082/offersets/0670df52-0656-4e57-9224-bb49bd206afa"
+    >   name: "Test request"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0.yaml"
+    >   created: "2025-02-11T19:21:13.730953Z"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "d4d2ecc7-c7c8-47b1-be7d-1d7427fd2eb1"
+    >       href: "http://127.0.0.1:8082/sessions/d4d2ecc7-c7c8-47b1-be7d-1d7427fd2eb1"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T00:21:13.731006Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >         uuid: "d5fc3931-b064-4864-bcfb-d68882384e0e"
+    >         href: "http://127.0.0.1:8082/executables/d5fc3931-b064-4864-bcfb-d68882384e0e"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "0a5144c3-4939-4106-8bd8-3106d34c4617"
+    >             href: "http://127.0.0.1:8082/resources/compute/0a5144c3-4939-4106-8bd8-3106d34c4617"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 minimal: true
+    >                 min: 5
+    >                 max: 15
+    >               offered:
+    >                 min: 10
+    >                 max: 10
+    >             memory:
+    >               requested:
+    >                 minimal: true
+    >                 min: 3
+    >                 max: 9
+    >               offered:
+    >                 min: 6
+    >                 max: 6
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-11T19:15:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-02-11T19:25:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-11T20:25:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "b7e4b412-323d-4acd-b489-db010c41b246"
+    >       href: "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T00:21:13.731006Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >         uuid: "b6d71c18-1b72-4276-8164-5544cedc3964"
+    >         href: "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "69e133b4-336c-457a-b6ab-ce60070273e0"
+    >             href: "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 minimal: true
+    >                 min: 5
+    >                 max: 15
+    >               offered:
+    >                 min: 10
+    >                 max: 10
+    >             memory:
+    >               requested:
+    >                 minimal: true
+    >                 min: 3
+    >                 max: 9
+    >               offered:
+    >                 min: 6
+    >                 max: 6
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-11T21:15:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-02-11T21:25:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-11T22:25:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "a0f6ceca-5442-459e-9fec-0695a43f7fd8"
+    >       href: "http://127.0.0.1:8082/sessions/a0f6ceca-5442-459e-9fec-0695a43f7fd8"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T00:21:13.731006Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >         uuid: "ef9d1612-0489-40c8-ad7a-757f9d32f90a"
+    >         href: "http://127.0.0.1:8082/executables/ef9d1612-0489-40c8-ad7a-757f9d32f90a"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "553134d8-251a-4e80-8c8f-7429d0ef13dc"
+    >             href: "http://127.0.0.1:8082/resources/compute/553134d8-251a-4e80-8c8f-7429d0ef13dc"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 minimal: true
+    >                 min: 5
+    >                 max: 15
+    >               offered:
+    >                 min: 10
+    >                 max: 10
+    >             memory:
+    >               requested:
+    >                 minimal: true
+    >                 min: 3
+    >                 max: 9
+    >               offered:
+    >                 min: 6
+    >                 max: 6
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-11T23:15:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-02-11T23:25:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T00:25:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "95c6ad01-52f6-44af-93f7-1c84213bc184"
+    >       href: "http://127.0.0.1:8082/sessions/95c6ad01-52f6-44af-93f7-1c84213bc184"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >       phase: "OFFERED"
+    >       expires: "2025-02-12T00:21:13.731006Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >         uuid: "b999206f-a193-4156-ac4c-0c3a1f82c64a"
+    >         href: "http://127.0.0.1:8082/executables/b999206f-a193-4156-ac4c-0c3a1f82c64a"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "SimpleComputeResourceBean"
+    >             uuid: "2f800447-d075-434a-97ca-5945f09062e5"
+    >             href: "http://127.0.0.1:8082/resources/compute/2f800447-d075-434a-97ca-5945f09062e5"
+    >             name: "computer-001"
+    >             cores:
+    >               requested:
+    >                 minimal: true
+    >                 min: 5
+    >                 max: 15
+    >               offered:
+    >                 min: 10
+    >                 max: 10
+    >             memory:
+    >               requested:
+    >                 minimal: true
+    >                 min: 3
+    >                 max: 9
+    >               offered:
+    >                 min: 6
+    >                 max: 6
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-02-12T01:15:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-02-12T01:25:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-02-12T02:25:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+
+
+    #
+    # Capture the URL of the offerset.
+    #
+
+    offerseturl=$(
+        yq '.href' '/tmp/createresponse.yaml'
+        )
+
+    #
+    # Display the offerset in JSON.
+    #
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/json' \
+        "${offerseturl}" \
+    | tee '/tmp/createresponse.json' \
+    | jq '.'
+
+    >   {
+    >     "uuid": "0670df52-0656-4e57-9224-bb49bd206afa",
+    >     "href": "http://127.0.0.1:8082/offersets/0670df52-0656-4e57-9224-bb49bd206afa",
+    >     "name": "Test request",
+    >     "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0.yaml",
+    >     "created": "2025-02-11T19:21:13.730953Z",
+    >     "result": "YES",
+    >     "offers": [
+    >       {
+    >         "uuid": "d4d2ecc7-c7c8-47b1-be7d-1d7427fd2eb1",
+    >         "href": "http://127.0.0.1:8082/sessions/d4d2ecc7-c7c8-47b1-be7d-1d7427fd2eb1",
+    >         "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >         "phase": "OFFERED",
+    >         "expires": "2025-02-12T00:21:13.731006Z",
+    >         "executable": {
+    >           "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >           "uuid": "d5fc3931-b064-4864-bcfb-d68882384e0e",
+    >           "href": "http://127.0.0.1:8082/executables/d5fc3931-b064-4864-bcfb-d68882384e0e",
+    >           "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "SimpleComputeResourceBean",
+    >               "uuid": "0a5144c3-4939-4106-8bd8-3106d34c4617",
+    >               "href": "http://127.0.0.1:8082/resources/compute/0a5144c3-4939-4106-8bd8-3106d34c4617",
+    >               "name": "computer-001",
+    >               "cores": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 5,
+    >                   "max": 15
+    >                 },
+    >                 "offered": {
+    >                   "min": 10,
+    >                   "max": 10
+    >                 }
+    >               },
+    >               "memory": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 3,
+    >                   "max": 9
+    >                 },
+    >                 "offered": {
+    >                   "min": 6,
+    >                   "max": 6
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         },
+    >         "schedule": {
+    >           "preparing": {
+    >             "duration": "PT10M",
+    >             "start": "2025-02-11T19:15:00Z"
+    >           },
+    >           "executing": {
+    >             "duration": "PT1H",
+    >             "start": "2025-02-11T19:25:00Z"
+    >           },
+    >           "releasing": {
+    >             "duration": "PT5M",
+    >             "start": "2025-02-11T20:25:00Z"
+    >           }
+    >         },
+    >         "options": [
+    >           {
+    >             "type": "uri:enum-value-option",
+    >             "path": "phase",
+    >             "values": [
+    >               "ACCEPTED",
+    >               "REJECTED"
+    >             ]
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "uuid": "b7e4b412-323d-4acd-b489-db010c41b246",
+    >         "href": "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246",
+    >         "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >         "phase": "OFFERED",
+    >         "expires": "2025-02-12T00:21:13.731006Z",
+    >         "executable": {
+    >           "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >           "uuid": "b6d71c18-1b72-4276-8164-5544cedc3964",
+    >           "href": "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964",
+    >           "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "SimpleComputeResourceBean",
+    >               "uuid": "69e133b4-336c-457a-b6ab-ce60070273e0",
+    >               "href": "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0",
+    >               "name": "computer-001",
+    >               "cores": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 5,
+    >                   "max": 15
+    >                 },
+    >                 "offered": {
+    >                   "min": 10,
+    >                   "max": 10
+    >                 }
+    >               },
+    >               "memory": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 3,
+    >                   "max": 9
+    >                 },
+    >                 "offered": {
+    >                   "min": 6,
+    >                   "max": 6
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         },
+    >         "schedule": {
+    >           "preparing": {
+    >             "duration": "PT10M",
+    >             "start": "2025-02-11T21:15:00Z"
+    >           },
+    >           "executing": {
+    >             "duration": "PT1H",
+    >             "start": "2025-02-11T21:25:00Z"
+    >           },
+    >           "releasing": {
+    >             "duration": "PT5M",
+    >             "start": "2025-02-11T22:25:00Z"
+    >           }
+    >         },
+    >         "options": [
+    >           {
+    >             "type": "uri:enum-value-option",
+    >             "path": "phase",
+    >             "values": [
+    >               "ACCEPTED",
+    >               "REJECTED"
+    >             ]
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "uuid": "a0f6ceca-5442-459e-9fec-0695a43f7fd8",
+    >         "href": "http://127.0.0.1:8082/sessions/a0f6ceca-5442-459e-9fec-0695a43f7fd8",
+    >         "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >         "phase": "OFFERED",
+    >         "expires": "2025-02-12T00:21:13.731006Z",
+    >         "executable": {
+    >           "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >           "uuid": "ef9d1612-0489-40c8-ad7a-757f9d32f90a",
+    >           "href": "http://127.0.0.1:8082/executables/ef9d1612-0489-40c8-ad7a-757f9d32f90a",
+    >           "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "SimpleComputeResourceBean",
+    >               "uuid": "553134d8-251a-4e80-8c8f-7429d0ef13dc",
+    >               "href": "http://127.0.0.1:8082/resources/compute/553134d8-251a-4e80-8c8f-7429d0ef13dc",
+    >               "name": "computer-001",
+    >               "cores": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 5,
+    >                   "max": 15
+    >                 },
+    >                 "offered": {
+    >                   "min": 10,
+    >                   "max": 10
+    >                 }
+    >               },
+    >               "memory": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 3,
+    >                   "max": 9
+    >                 },
+    >                 "offered": {
+    >                   "min": 6,
+    >                   "max": 6
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         },
+    >         "schedule": {
+    >           "preparing": {
+    >             "duration": "PT10M",
+    >             "start": "2025-02-11T23:15:00Z"
+    >           },
+    >           "executing": {
+    >             "duration": "PT1H",
+    >             "start": "2025-02-11T23:25:00Z"
+    >           },
+    >           "releasing": {
+    >             "duration": "PT5M",
+    >             "start": "2025-02-12T00:25:00Z"
+    >           }
+    >         },
+    >         "options": [
+    >           {
+    >             "type": "uri:enum-value-option",
+    >             "path": "phase",
+    >             "values": [
+    >               "ACCEPTED",
+    >               "REJECTED"
+    >             ]
+    >           }
+    >         ]
+    >       },
+    >       {
+    >         "uuid": "95c6ad01-52f6-44af-93f7-1c84213bc184",
+    >         "href": "http://127.0.0.1:8082/sessions/95c6ad01-52f6-44af-93f7-1c84213bc184",
+    >         "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >         "phase": "OFFERED",
+    >         "expires": "2025-02-12T00:21:13.731006Z",
+    >         "executable": {
+    >           "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >           "uuid": "b999206f-a193-4156-ac4c-0c3a1f82c64a",
+    >           "href": "http://127.0.0.1:8082/executables/b999206f-a193-4156-ac4c-0c3a1f82c64a",
+    >           "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >         },
+    >         "resources": {
+    >           "compute": [
+    >             {
+    >               "type": "SimpleComputeResourceBean",
+    >               "uuid": "2f800447-d075-434a-97ca-5945f09062e5",
+    >               "href": "http://127.0.0.1:8082/resources/compute/2f800447-d075-434a-97ca-5945f09062e5",
+    >               "name": "computer-001",
+    >               "cores": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 5,
+    >                   "max": 15
+    >                 },
+    >                 "offered": {
+    >                   "min": 10,
+    >                   "max": 10
+    >                 }
+    >               },
+    >               "memory": {
+    >                 "requested": {
+    >                   "minimal": true,
+    >                   "min": 3,
+    >                   "max": 9
+    >                 },
+    >                 "offered": {
+    >                   "min": 6,
+    >                   "max": 6
+    >                 }
+    >               }
+    >             }
+    >           ]
+    >         },
+    >         "schedule": {
+    >           "preparing": {
+    >             "duration": "PT10M",
+    >             "start": "2025-02-12T01:15:00Z"
+    >           },
+    >           "executing": {
+    >             "duration": "PT1H",
+    >             "start": "2025-02-12T01:25:00Z"
+    >           },
+    >           "releasing": {
+    >             "duration": "PT5M",
+    >             "start": "2025-02-12T02:25:00Z"
+    >           }
+    >         },
+    >         "options": [
+    >           {
+    >             "type": "uri:enum-value-option",
+    >             "path": "phase",
+    >             "values": [
+    >               "ACCEPTED",
+    >               "REJECTED"
+    >             ]
+    >           }
+    >         ]
+    >       }
+    >     ]
+    >   }
+
+    #
+    # Capture the URL of the second offer.
+    #
+
+    offer001url=$(
+        yq '.offers[1].href' '/tmp/createresponse.yaml'
+        )
+
+    #
+    # Display the second offer in YAML.
+    #
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offer001url}" \
+    | tee '/tmp/offered001.yaml' \
+    | yq '.'
+
+    >   uuid: "b7e4b412-323d-4acd-b489-db010c41b246"
+    >   href: "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >   phase: "OFFERED"
+    >   expires: "2025-02-12T00:21:13.731006Z"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >     uuid: "b6d71c18-1b72-4276-8164-5544cedc3964"
+    >     href: "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964"
+    >     location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "69e133b4-336c-457a-b6ab-ce60070273e0"
+    >         href: "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0"
+    >         name: "computer-001"
+    >         cores:
+    >           requested:
+    >             minimal: true
+    >             min: 5
+    >             max: 15
+    >           offered:
+    >             min: 10
+    >             max: 10
+    >         memory:
+    >           requested:
+    >             minimal: true
+    >             min: 3
+    >             max: 9
+    >           offered:
+    >             min: 6
+    >             max: 6
+    >   schedule:
+    >     preparing:
+    >       duration: "PT10M"
+    >       start: "2025-02-11T21:15:00Z"
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2025-02-11T21:25:00Z"
+    >     releasing:
+    >       duration: "PT5M"
+    >       start: "2025-02-11T22:25:00Z"
+    >   options:
+    >     - type: "uri:enum-value-option"
+    >       path: "phase"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
+
+
+    #
+    # Display the second offer in JSON.
+    #
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/json' \
+        "${offer001url}" \
+    | tee '/tmp/offered001.json' \
+    | jq '.'
+
+    >   {
+    >     "uuid": "b7e4b412-323d-4acd-b489-db010c41b246",
+    >     "href": "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246",
+    >     "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >     "phase": "OFFERED",
+    >     "expires": "2025-02-12T00:21:13.731006Z",
+    >     "executable": {
+    >       "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >       "uuid": "b6d71c18-1b72-4276-8164-5544cedc3964",
+    >       "href": "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964",
+    >       "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >     },
+    >     "resources": {
+    >       "compute": [
+    >         {
+    >           "type": "SimpleComputeResourceBean",
+    >           "uuid": "69e133b4-336c-457a-b6ab-ce60070273e0",
+    >           "href": "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0",
+    >           "name": "computer-001",
+    >           "cores": {
+    >             "requested": {
+    >               "minimal": true,
+    >               "min": 5,
+    >               "max": 15
+    >             },
+    >             "offered": {
+    >               "min": 10,
+    >               "max": 10
+    >             }
+    >           },
+    >           "memory": {
+    >             "requested": {
+    >               "minimal": true,
+    >               "min": 3,
+    >               "max": 9
+    >             },
+    >             "offered": {
+    >               "min": 6,
+    >               "max": 6
+    >             }
+    >           }
+    >         }
+    >       ]
+    >     },
+    >     "schedule": {
+    >       "preparing": {
+    >         "duration": "PT10M",
+    >         "start": "2025-02-11T21:15:00Z"
+    >       },
+    >       "executing": {
+    >         "duration": "PT1H",
+    >         "start": "2025-02-11T21:25:00Z"
+    >       },
+    >       "releasing": {
+    >         "duration": "PT5M",
+    >         "start": "2025-02-11T22:25:00Z"
+    >       }
+    >     },
+    >     "options": [
+    >       {
+    >         "type": "uri:enum-value-option",
+    >         "path": "phase",
+    >         "values": [
+    >           "ACCEPTED",
+    >           "REJECTED"
+    >         ]
+    >       }
+    >     ]
+    >   }
+
+
+    #
+    # Accept the second offer.
+    #
+cat > /tmp/acceptupdate.yaml << EOF
+update:
+  type:  uri:enum-value-update
+  path:  phase
+  value: ACCEPTED
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary '@/tmp/acceptupdate.yaml' \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${offer001url}" \
+    | tee '/tmp/accepted001.yaml' \
+    | yq '.'
+
+    >   uuid: "b7e4b412-323d-4acd-b489-db010c41b246"
+    >   href: "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml"
+    >   phase: "ACCEPTED"
+    >   expires: "2025-02-12T00:21:13.731006Z"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml"
+    >     uuid: "b6d71c18-1b72-4276-8164-5544cedc3964"
+    >     href: "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964"
+    >     location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >   resources:
+    >     compute:
+    >       - type: "SimpleComputeResourceBean"
+    >         uuid: "69e133b4-336c-457a-b6ab-ce60070273e0"
+    >         href: "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0"
+    >         name: "computer-001"
+    >         cores:
+    >           requested:
+    >             minimal: true
+    >             min: 5
+    >             max: 15
+    >           offered:
+    >             min: 10
+    >             max: 10
+    >         memory:
+    >           requested:
+    >             minimal: true
+    >             min: 3
+    >             max: 9
+    >           offered:
+    >             min: 6
+    >             max: 6
+    >   schedule:
+    >     preparing:
+    >       duration: "PT10M"
+    >       start: "2025-02-11T21:15:00Z"
+    >     executing:
+    >       duration: "PT1H"
+    >       start: "2025-02-11T21:25:00Z"
+    >     releasing:
+    >       duration: "PT5M"
+    >       start: "2025-02-11T22:25:00Z"
+    >   options:
+    >     - type: "uri:enum-value-option"
+    >       path: "phase"
+    >       values:
+    >         - "CANCELLED"
+
+
+    #
+    # Display the second offer in JSON.
+    #
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/json' \
+        "${offer001url}" \
+    | tee '/tmp/accepted001.json' \
+    | jq '.'
+
+    >   {
+    >     "uuid": "b7e4b412-323d-4acd-b489-db010c41b246",
+    >     "href": "http://127.0.0.1:8082/sessions/b7e4b412-323d-4acd-b489-db010c41b246",
+    >     "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+    >     "phase": "ACCEPTED",
+    >     "expires": "2025-02-12T00:21:13.731006Z",
+    >     "executable": {
+    >       "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+    >       "uuid": "b6d71c18-1b72-4276-8164-5544cedc3964",
+    >       "href": "http://127.0.0.1:8082/executables/b6d71c18-1b72-4276-8164-5544cedc3964",
+    >       "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >     },
+    >     "resources": {
+    >       "compute": [
+    >         {
+    >           "type": "SimpleComputeResourceBean",
+    >           "uuid": "69e133b4-336c-457a-b6ab-ce60070273e0",
+    >           "href": "http://127.0.0.1:8082/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0",
+    >           "name": "computer-001",
+    >           "cores": {
+    >             "requested": {
+    >               "minimal": true,
+    >               "min": 5,
+    >               "max": 15
+    >             },
+    >             "offered": {
+    >               "min": 10,
+    >               "max": 10
+    >             }
+    >           },
+    >           "memory": {
+    >             "requested": {
+    >               "minimal": true,
+    >               "min": 3,
+    >               "max": 9
+    >             },
+    >             "offered": {
+    >               "min": 6,
+    >               "max": 6
+    >             }
+    >           }
+    >         }
+    >       ]
+    >     },
+    >     "schedule": {
+    >       "preparing": {
+    >         "duration": "PT10M",
+    >         "start": "2025-02-11T21:15:00Z"
+    >       },
+    >       "executing": {
+    >         "duration": "PT1H",
+    >         "start": "2025-02-11T21:25:00Z"
+    >       },
+    >       "releasing": {
+    >         "duration": "PT5M",
+    >         "start": "2025-02-11T22:25:00Z"
+    >       }
+    >     },
+    >     "options": [
+    >       {
+    >         "type": "uri:enum-value-option",
+    >         "path": "phase",
+    >         "values": [
+    >           "CANCELLED"
+    >         ]
+    >       }
+    >     ]
+    >   }
+
+    #
+    # Get the executable part in YAML.
+    #
+    exec001url=$(
+        yq '.executable.href' '/tmp/accepted001.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${exec001url}" \
+    | tee '/tmp/exec001.yaml' \
+    | yq '.'
+
+    >   timestamp: "2025-02-11T19:24:19.669+00:00"
+    >   status: 404
+    >   error: "Not Found"
+    >   path: "/executables/b6d71c18-1b72-4276-8164-5544cedc3964"
+
+
+
+    #
+    # Get the first compute resource in YAML.
+    #
+    comp001url=$(
+        yq '.resources.compute[0].href' '/tmp/accepted001.yaml'
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --location \
+        --header 'Accept: application/yaml' \
+        "${comp001url}" \
+    | tee '/tmp/comp001.yaml' \
+    | yq '.'
+
+    >   timestamp: "2025-02-11T19:24:55.500+00:00"
+    >   status: 404
+    >   error: "Not Found"
+    >   path: "/resources/compute/69e133b4-336c-457a-b6ab-ce60070273e0"
+
+

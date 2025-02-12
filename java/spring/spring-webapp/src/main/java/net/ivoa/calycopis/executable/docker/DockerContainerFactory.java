@@ -6,7 +6,7 @@ package net.ivoa.calycopis.executable.docker;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
@@ -27,18 +27,18 @@ public interface DockerContainerFactory
      * Create and save a new DockerContainer entity.
      *
      */
-    public DockerContainerEntity create(final ExecutionEntity parent, final String name);
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name);
 
     /**
      * Create a new DockerContainer entity.
      *
      */
-    public DockerContainerEntity create(final ExecutionEntity parent, final String name, boolean save);
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name, boolean save);
 
     /**
      * Create and save a new DockerContainer entity based on a template.
      *
      */
-    public DockerContainerEntity create(final ExecutionEntity parent, final DockerContainerEntity template);
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final DockerContainerEntity template);
 
     }

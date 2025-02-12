@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.execution.ExecutionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 
 /**
@@ -52,7 +52,7 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String notebookurl)
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String notebookurl)
         {
         return this.create(
             parent,
@@ -63,7 +63,7 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final String name, final String location, boolean save)
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
         {
         log.debug("create(ExecutionEntity, String, String, boolean) [{}][{}][{}][{}]",
             ((parent!= null) ? parent.getUuid() : "null-template"),
@@ -86,7 +86,7 @@ public class JupyterNotebookFactoryImpl
         }
     
     @Override
-    public JupyterNotebookEntity create(final ExecutionEntity parent, final JupyterNotebookEntity template)
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final JupyterNotebookEntity template)
         {
         log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
         return this.create(
