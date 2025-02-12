@@ -164,7 +164,7 @@ EOF
     | jq '.' \
     | tee "${examples}/offerset-response.json"
 
-    >   
+    >
     >   {
     >     "uuid": "8719010f-4e8a-4e3c-9bda-d750c2d0ba9b",
     >     "name": "example-004",
