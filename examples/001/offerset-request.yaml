@@ -1,0 +1,20 @@
+name: example-001
+executable:
+  name: executable-001
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+  - name: computer-001
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml
+    cores:
+      requested:
+        min: 5
+        max: 15
+    memory:
+      requested:
+        min: 3
+        max: 9

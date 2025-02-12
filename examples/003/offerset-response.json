@@ -1,0 +1,277 @@
+{
+  "uuid": "8207a6c8-70c1-49c9-858e-4fc428b6c10e",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0.yaml",
+  "created": "2025-02-12T07:39:09.936358882Z",
+  "href": "http://127.0.0.1:8082/offersets/8207a6c8-70c1-49c9-858e-4fc428b6c10e",
+  "result": "YES",
+  "offers": [
+    {
+      "uuid": "484b4c43-664e-4f7e-996e-bf94798f4de1",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+      "href": "http://127.0.0.1:8082/sessions/484b4c43-664e-4f7e-996e-bf94798f4de1",
+      "phase": "OFFERED",
+      "expires": "2025-02-12T12:39:09.936368573Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+        "uuid": "88578c44-75fe-4bcf-939f-eef2147d3f90",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "SimpleComputeResourceBean",
+            "uuid": "15bbe5b9-2c18-4296-bd34-387fb19a48ac",
+            "name": "Simple compute resource",
+            "cores": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            },
+            "memory": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT10M",
+          "start": "2025-02-12T07:30:00Z"
+        },
+        "executing": {
+          "duration": "PT2H",
+          "start": "2025-02-12T07:40:00Z"
+        },
+        "releasing": {
+          "duration": "PT5M",
+          "start": "2025-02-12T09:40:00Z"
+        }
+      },
+      "options": [
+        {
+          "type": "uri:enum-value-option",
+          "path": "phase",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "feb61a63-5c58-4aa1-8fd6-2340480b0fbb",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+      "href": "http://127.0.0.1:8082/sessions/feb61a63-5c58-4aa1-8fd6-2340480b0fbb",
+      "phase": "OFFERED",
+      "expires": "2025-02-12T12:39:09.936368573Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+        "uuid": "8f39835e-ada5-427b-8dd4-7e0f7347a19c",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "SimpleComputeResourceBean",
+            "uuid": "7f03ab94-bad5-4ee8-a021-85d075150f5f",
+            "name": "Simple compute resource",
+            "cores": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            },
+            "memory": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT10M",
+          "start": "2025-02-12T11:30:00Z"
+        },
+        "executing": {
+          "duration": "PT2H",
+          "start": "2025-02-12T11:40:00Z"
+        },
+        "releasing": {
+          "duration": "PT5M",
+          "start": "2025-02-12T13:40:00Z"
+        }
+      },
+      "options": [
+        {
+          "type": "uri:enum-value-option",
+          "path": "phase",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "8d0989e2-1b53-4e6b-bc8a-a03e84cac2e9",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+      "href": "http://127.0.0.1:8082/sessions/8d0989e2-1b53-4e6b-bc8a-a03e84cac2e9",
+      "phase": "OFFERED",
+      "expires": "2025-02-12T12:39:09.936368573Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+        "uuid": "6ca51c09-4bb5-4627-be7f-67652afcb128",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "SimpleComputeResourceBean",
+            "uuid": "8d1ce260-cc33-4db7-8419-50ae83768488",
+            "name": "Simple compute resource",
+            "cores": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            },
+            "memory": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT10M",
+          "start": "2025-02-12T15:30:00Z"
+        },
+        "executing": {
+          "duration": "PT2H",
+          "start": "2025-02-12T15:40:00Z"
+        },
+        "releasing": {
+          "duration": "PT5M",
+          "start": "2025-02-12T17:40:00Z"
+        }
+      },
+      "options": [
+        {
+          "type": "uri:enum-value-option",
+          "path": "phase",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "uuid": "eb6e697b-41cf-4bb1-8946-93086c43f814",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0.yaml",
+      "href": "http://127.0.0.1:8082/sessions/eb6e697b-41cf-4bb1-8946-93086c43f814",
+      "phase": "OFFERED",
+      "expires": "2025-02-12T12:39:09.936368573Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml",
+        "uuid": "05af5e8f-9401-4158-b5a1-b660b648b27f",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "SimpleComputeResourceBean",
+            "uuid": "32acc3fb-d8d9-4cc7-85a2-1d221a889217",
+            "name": "Simple compute resource",
+            "cores": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            },
+            "memory": {
+              "requested": {
+                "minimal": false,
+                "min": 1,
+                "max": 1
+              },
+              "offered": {
+                "min": 2,
+                "max": 2
+              }
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT10M",
+          "start": "2025-02-12T19:30:00Z"
+        },
+        "executing": {
+          "duration": "PT2H",
+          "start": "2025-02-12T19:40:00Z"
+        },
+        "releasing": {
+          "duration": "PT5M",
+          "start": "2025-02-12T21:40:00Z"
+        }
+      },
+      "options": [
+        {
+          "type": "uri:enum-value-option",
+          "path": "phase",
+          "values": [
+            "ACCEPTED",
+            "REJECTED"
+          ]
+        }
+      ]
+    }
+  ]
+}
