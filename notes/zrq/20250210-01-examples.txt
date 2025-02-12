@@ -51,7 +51,7 @@
 
 # -----------------------------------------------------
 # Build the project.
-#[user@laptop]
+#[user@desktop]
 
     source "${HOME:?}/calycopis.env"
 
