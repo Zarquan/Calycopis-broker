@@ -101,7 +101,6 @@ public class AbstractExecutableBeanFactoryImpl
                         JupyterNotebookBean.TYPE_DISCRIMINATOR
                         );
                     bean.uuid(entity.getUuid());
-                    bean.href(baseurl + JupyterNotebookBean.REQUEST_PATH + entity.getUuid());
                     bean.messages(
                         listwrap(
                             entity,

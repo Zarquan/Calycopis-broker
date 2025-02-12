@@ -56,12 +56,6 @@ public class SimpleComputeResourceBean
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0.yaml" ;
 
     /**
-     * The URL path for simple compute resources.
-     *
-     */
-    private static final String REQUEST_PATH = "/resources/compute/" ;
-
-    /**
      * The base URL for the current request.
      *
      */
@@ -82,16 +76,6 @@ public class SimpleComputeResourceBean
         super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
-        }
-
-    /**
-     * Generate the href URL based on our baseurl and UUID.
-     *
-     */
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override

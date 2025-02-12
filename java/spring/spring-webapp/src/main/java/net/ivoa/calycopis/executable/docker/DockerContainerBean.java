@@ -41,12 +41,6 @@ public class DockerContainerBean
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0.yaml" ;
 
     /**
-     * The URL path for DockerContainers.
-     *
-     */
-    public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;
-
-    /**
      * The base URL for the current request.
      *
      */
@@ -73,12 +67,6 @@ public class DockerContainerBean
     public UUID getUuid()
         {
         return entity.getUuid();
-        }
-
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + DockerContainer.REQUEST_PATH + entity.getUuid();
         }
 
     @Override

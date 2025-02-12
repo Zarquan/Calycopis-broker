@@ -193,10 +193,6 @@ components:
             A machine readable UUID, assigned by the server.
           type: string
           format: uuid
-        href:
-          description: >
-            The URL to access this component, assigned by the server.
-          type: string
         name:
           description: >
             A human readable name, assigned by the client.
@@ -220,6 +216,20 @@ components:
             $ref: './components/messages.yaml#/components/schemas/MessageItem'
             xml:
               name: message
+
+    AccessibleComponent:
+      description: >
+        Extends the abstract base class to add href.
+      type: object
+      title: AccessibleComponent
+      allOf:
+        - $ref: '#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            href:
+              description: >
+                The URL to access this component, assigned by the server.
+              type: string
 
 # compute-resources.yaml
 
@@ -754,7 +764,7 @@ components:
       xml:
         name: execution
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: '#/components/schemas/AccessibleComponent'
         - type: object
           required:
             - uuid
@@ -852,7 +862,7 @@ components:
       xml:
         name: offers-response
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: '#/components/schemas/AccessibleComponent'
         - type: object
           properties:
             result:

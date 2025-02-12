@@ -40,12 +40,6 @@ public class JupyterNotebookBean
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0.yaml" ;
 
     /**
-     * The URL path for Jupyter notebooks.
-     *
-     */
-    public static final String REQUEST_PATH = AbstractExecutable.REQUEST_PATH ;
-
-    /**
      * The base URL for the current request.
      *
      */
@@ -72,12 +66,6 @@ public class JupyterNotebookBean
     public UUID getUuid()
         {
         return entity.getUuid();
-        }
-
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + JupyterNotebook.REQUEST_PATH + entity.getUuid();
         }
 
     @Override

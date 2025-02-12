@@ -55,12 +55,6 @@ public abstract class AbstractExecutableBean
         {
         return entity.getUuid();
         }
-
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + this.getRequestPath() + entity.getUuid();
-        }
     
     @Override
     public String getName()

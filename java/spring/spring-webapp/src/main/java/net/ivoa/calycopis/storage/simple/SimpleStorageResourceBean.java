@@ -48,13 +48,6 @@ public class SimpleStorageResourceBean
     public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0.yaml" ;
 
     /**
-     * The URL path for the executions endpoint.
-     *
-     */
-    private static final String REQUEST_PATH = "/resources/storage/" ;
-
-
-    /**
      * The base URL for the current request.
      *
      */
@@ -75,16 +68,6 @@ public class SimpleStorageResourceBean
         super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity= entity;
-        }
-
-    /**
-     * Generate the href URL based on our baseurl and UUID.
-     *
-     */
-    @Override
-    public String getHref()
-        {
-        return this.baseurl + REQUEST_PATH + entity.getUuid();
         }
 
     @Override
