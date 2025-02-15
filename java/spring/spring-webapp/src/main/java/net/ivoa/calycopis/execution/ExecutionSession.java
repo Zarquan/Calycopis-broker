@@ -30,6 +30,7 @@ import java.util.List;
 
 import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
@@ -120,5 +121,11 @@ public interface ExecutionSession
      */
     public List<SimpleComputeResourceEntity> getComputeResources();
 
+    /**
+     * Get a list of the DataResources.
+     *
+     */
+    public List<SimpleDataResourceEntity> getDataResources();
+    
     }
 
