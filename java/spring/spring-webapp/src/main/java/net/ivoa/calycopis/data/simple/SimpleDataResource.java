@@ -33,10 +33,16 @@ import net.ivoa.calycopis.execution.ExecutionSession;
 public interface SimpleDataResource
     extends Component
     {
-
-
+    /**
+     * Get the parent ExecutionSession.  
+     *
+     */
     public ExecutionSession getParent();
 
+    /**
+     * Get the data location.
+     *
+     */
     public String getLocation();
 
     }

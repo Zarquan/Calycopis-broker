@@ -43,6 +43,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
@@ -215,10 +216,30 @@ public class ExecutionSessionEntity
         return computeresources;
         }
      
-    public void addCompute(final SimpleComputeResourceEntity compute)
+    public void addComputeResource(final SimpleComputeResourceEntity resource)
         {
-        computeresources.add(compute);
-        compute.setParent(this);
+        computeresources.add(resource);
+        resource.setParent(this);
+        }
+
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<SimpleDataResourceEntity> dataresources = new ArrayList<SimpleDataResourceEntity>();
+
+    @Override
+    public List<SimpleDataResourceEntity> getDataResources()
+        {
+        return dataresources;
+        }
+     
+    public void addDataResource(final SimpleDataResourceEntity resource)
+        {
+        dataresources.add(resource);
+        resource.setParent(this);
         }
     }
 

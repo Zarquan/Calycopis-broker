@@ -41,6 +41,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.message.MessageEntity;
+import net.ivoa.calycopis.message.MessageSubject;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 
 /**
@@ -54,7 +55,7 @@ import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
     strategy = InheritanceType.JOINED
     )
 public class ComponentEntity
-    implements Component
+    implements Component, MessageSubject
     {
 
     /**
@@ -126,6 +127,7 @@ public class ComponentEntity
         return messages ;
         }
 
+    @Override
     public void addDebug(final String type, final String template)
         {
         this.addMessage(
@@ -136,6 +138,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addDebug(final String type, final String template, final Map<String, Object> values)
         {
         this.addMessage(
@@ -146,6 +149,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addInfo(final String type, final String template)
         {
         this.addMessage(
@@ -156,6 +160,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addInfo(final String type, final String template, final Map<String, Object> values)
         {
         this.addMessage(
@@ -166,6 +171,7 @@ public class ComponentEntity
             );
         }
     
+    @Override
     public void addWarning(final String type, final String template)
         {
         this.addMessage(
@@ -176,6 +182,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addWarning(final String type, final String template, final Map<String, Object> values)
         {
         this.addMessage(
@@ -186,6 +193,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addError(final String type, final String template)
         {
         this.addMessage(
@@ -196,6 +204,7 @@ public class ComponentEntity
             );
         }
 
+    @Override
     public void addError(final String type, final String template, final Map<String, Object> values)
         {
         this.addMessage(
@@ -206,6 +215,7 @@ public class ComponentEntity
             );
         }
     
+    @Override
     public void addMessage(final LevelEnum level, final String type, final String template)
         {
         this.addMessage(
@@ -215,7 +225,8 @@ public class ComponentEntity
             Collections.emptyMap()
             );
         }
-    
+
+    @Override
     public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, Object> values)
         {
         MessageEntity message = new MessageEntity(

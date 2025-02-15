@@ -1,0 +1,159 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        DataResources, StorageResources and ComputeVolumes  ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Validation
+
+        Create a set of data objects that represent the request.
+        Are the separate objects, or elements from the original request.
+        Validating the request arranges the request components?
+
+        The executable.
+        The storage resources
+            Create the initial set of storage resources.
+        The data resources
+            If the data resource refers to an existing storage resource,
+            check to see if the total space is enough and then link it.
+            If the data resource doesn't have a storage resource, create a new one
+            with just enough space.
+        The compute resources
+            Create each compute resource
+                Create each compute volume
+                    Check for a matching data resource.
+                    If found, check for the corresponding storage resource.
+                        If found, check that we haven't mounted it already.
+                        If we haven't mounted it yet, link the storage resource and the volume mount.
+                    If no matching data rersource, check for a matching storage resource.
+                        If found, check that we haven't mounted it already.
+                        If we haven't mounted it yet, link the storage resource and the volume mount.
+
+        Data resource has an estimated preparing (download) duration.
+        Needs to complete preparing before the execution starts
+        Storage resource has an estimated preparing duration.
+        Needs to complete preparing before the download starts
+
+        Volume starts with the name of the data resource.
+        Validation process creates the missing storage resource and updates the reference.
+
+        * we can have multiple data resources in the same storage volume,
+          if it is a directory.
+
+    Allocation
+
+        Assume compute is more expensive.
+        Handle compute and storage separatley.
+
+        Create the offer blocks for the compute.
+        Then try to create offers for storage based on the compute start time and duration.
+        Using lifetime offsets linked to the compute schedule.
+
+        Doing it separately means we can delegate the storage allocation to a separate service ?
+
+        Keep it simple to start with, the storage space always says yes.
+        Request has a min and max size.
+        Like compute, the max is a hint that it can't use more.
+        Like compute, we add a minimal flag to limit over allocation.
+        Storage booking system returns a single offer, with max and min
+        set to the min of the request rounded up to the nearest GiB.
+
+
+
+
+
+
+
+
+
+
+    ExecutionSessionEntity
+    executable
+
+    resources:
+        compute:
+            - SimpleComputeResource
+                volumes:
+                    - SimpleComputeVolume
+                      path: ....
+                      mode: ....
+                      resources:
+                        requested:
+                            data: .... original DataResource
+                            storage:
+                        offered:
+                            data: .... original DataResource
+                            storage: .... updated to SimpleStorageSpace
+
+        storage:
+            - SimpleStorageSpace (created if not given)
+              uuid:  ...
+              phase: ...
+              schedule:
+                requested: null
+                offered:
+                  preparing:
+                    start:
+                    duration:
+                  available:
+                    start:
+                    duration:
+                  releasing:
+                    start:
+                    duration:
+
+        data
+            - SimpleDataResource
+              uuid: ...
+              source:
+                location: ...
+              phase: ...
+              schedule:
+                requested: null
+                offered:
+                  preparing:
+                    start:
+                    duration:
+                  available:
+                    start:
+                    duration:
+                  releasing:
+                    start:
+                    duration:
+
+              # Where do we put the data ?
+              storeage:
+                requested: null
+                offered: .... generated SimpleStorageSpace
+
+
+
