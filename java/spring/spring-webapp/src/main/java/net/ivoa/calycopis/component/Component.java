@@ -35,11 +35,6 @@ import net.ivoa.calycopis.message.MessageEntity;
  */
 public interface Component
     {
-    /**
-     * The URL path for Components.
-     *
-     */
-    public static final String REQUEST_PATH = "/component/" ;
 
     /**
      * Get the Component UUID.
