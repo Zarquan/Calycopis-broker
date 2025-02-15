@@ -50,13 +50,15 @@ public class OfferSetRequestParserStateImpl
     implements OfferSetRequestParserState
     {
 
-    private final OfferBlockFactory            offerBlockFactory;
-    private final ExecutionSessionFactory      executionFactory;
-    private final SimpleComputeResourceFactory simpleComputeFactory;
-    private final SimpleDataResourceFactory    simpleDataFactory;
-    private final AmazonS3DataResourceFactory  amazonDataFactory;
-    private final JupyterNotebookFactory       jupyterNotebookFactory;
+    private OfferBlockFactory            offerBlockFactory;
+    private ExecutionSessionFactory      executionFactory;
+    private SimpleComputeResourceFactory simpleComputeFactory;
+    private SimpleDataResourceFactory    simpleDataFactory;
+    private AmazonS3DataResourceFactory  amazonDataFactory;
+    private JupyterNotebookFactory       jupyterNotebookFactory;
 
+/*
+ * 
     public OfferSetRequestParserStateImpl(
         final OfferBlockFactory            offerBlockFactory,
         final ExecutionSessionFactory      executionFactory,
@@ -72,13 +74,40 @@ public class OfferSetRequestParserStateImpl
         this.amazonDataFactory      = amazonDataFactory;
         this.jupyterNotebookFactory = jupyterNotebookFactory;
         }
+ *     
+ */
 
-    private boolean valid;
+    /**
+     * Public constructor.
+     * 
+     */
+    public OfferSetRequestParserStateImpl(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
+        {
+        this.offersetRequest = offersetRequest;
+        this.offersetEntity = offersetEntity;
+        }
+   
+    private final IvoaOfferSetRequest offersetRequest;
+    @Override
+    public IvoaOfferSetRequest getOfferSetRequest()
+        {
+        return this.offersetRequest;
+        }
+
+    private final OfferSetEntity offersetEntity;
+    @Override
+    public OfferSetEntity getOfferSetEntity()
+        {
+        return this.offersetEntity;
+        }
+
+    private boolean valid = true ;
     @Override
     public boolean valid()
         {
         return this.valid;
         }
+    @Override
     public void valid(boolean value)
         {
         this.valid = value;
@@ -88,27 +117,18 @@ public class OfferSetRequestParserStateImpl
         this.valid = false;
         }
 
-    /*
-     * 
-    private IvoaOfferSetRequest offersetRequest;
-    public IvoaOfferSetRequest getOfferSetRequest()
+    private IvoaAbstractExecutable requestExecutable;
+    public IvoaAbstractExecutable getRequesedtExecutable()
         {
-        return this.offersetRequest;
+        return this.requestExecutable;
         }
-     * 
-     */ 
-
-    private OfferSetEntity offersetEntity;
-    public OfferSetEntity getOfferSetEntity()
+    public void setRequestedExecutable(final IvoaAbstractExecutable executable)
         {
-        return this.offersetEntity;
+        this.requestExecutable = executable;
         }
-    /*
-     *  
-     */
 
     
-
+    
     private List<SimpleDataResourceEntity> dataResourceList = new ArrayList<SimpleDataResourceEntity>();
     public List<SimpleDataResourceEntity> getDataResourceList()
         {
@@ -236,7 +256,7 @@ public class OfferSetRequestParserStateImpl
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
         this.valid = true;
         //this.offersetRequest = request;
-        this.offersetEntity = offerset;
+        //this.offersetEntity = offerset;
         //
         // Reject storage resources.
         if (request.getResources() != null)
@@ -302,9 +322,11 @@ public class OfferSetRequestParserStateImpl
             );
         //
         // Validate our executable.
+/*
         this.validate(
             request.getExecutable()
             );
+ */
         //
         // Validate our resources.
         if (request.getResources() != null)
@@ -459,8 +481,6 @@ log.debug("---- ---- ---- ----");
      *
      */
     List<Interval> startintervals = new ArrayList<Interval>();
-
-    @Override
     public List<Interval> getStartIntervals()
         {
         return this.startintervals;
@@ -472,8 +492,6 @@ log.debug("---- ---- ---- ----");
      *
      */
     Duration exeduration = null;
-
-    @Override
     public Duration getDuration()
         {
         return this.exeduration;
@@ -581,71 +599,6 @@ log.debug("---- ---- ---- ----");
             }
         }
 
-    /**
-     * Validate an AbstractExecutable.
-     *
-     */
-    public void validate(final IvoaAbstractExecutable executable)
-        {
-        log.debug("validate(IvoaAbstractExecutable)");
-        switch(executable)
-            {
-            case IvoaJupyterNotebook notebook:
-                validate(
-                    notebook
-                    );
-                break;
-
-            default:
-                offersetEntity.addWarning(
-                    "urn:unknown-resource-type",
-                    "Unknown executable type [${type}][${class}]",
-                    Map.of(
-                        "type",
-                        executable.getType(),
-                        "class",
-                        executable.getClass().getName()
-                        )
-                    );
-                this.fail();
-                break;
-            }
-        }
-
-    /**
-     * Validate a JupyterNotebook Executable.
-     *
-     */
-    public void validate(final IvoaJupyterNotebook request)
-        {
-        log.debug("validate(IvoaJupyterNotebook)");
-        log.debug("JupyterNotebook [{}]", request.getName());
-
-        String name = trimString(
-            request.getName()
-            );
-        String location = trimString(
-            request.getLocation()
-            );
-
-        if ((location == null) || (location.isEmpty()))
-            {
-            offersetEntity.addWarning(
-                "urn:missing-required-value",
-                "Notebook location required"
-                );
-            this.fail();
-            }
-
-        JupyterNotebookEntity entity = this.jupyterNotebookFactory.create(
-            null,
-            name,
-            location
-            );
-        this.setExecutable(
-            entity
-            );
-        }
 
     /**
      * Validate an AbstractDataResource.

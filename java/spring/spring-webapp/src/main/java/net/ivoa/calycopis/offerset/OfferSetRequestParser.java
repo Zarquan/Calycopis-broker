@@ -13,7 +13,7 @@ public interface OfferSetRequestParser
     extends FactoryBase
     {
     /**
-     * Process an OfferSetRequest to populate an OfferSetEntity.
+     * Process an OfferSetRequest and populate an OfferSetEntity.
      *
      */
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset);

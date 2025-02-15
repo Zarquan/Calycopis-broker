@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.message.MessageSubject;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
@@ -15,19 +17,53 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
  */
 public interface OfferSetRequestParserState
     {
+    /**
+     * Get the OfferSet request.
+     *  
+     */
+    public IvoaOfferSetRequest getOfferSetRequest();
+
+    /**
+     * Get the OfferSet entity we are creating.
+     *  
+     */
+    public OfferSetEntity getOfferSetEntity();
+
+    /**
+     * Flag to indicate that the parser hasn't encountered any errors.
+     *  
+     */
     public boolean valid();
 
     /**
+     * Set the valid flag.
+     *  
+     */
+    public void valid(boolean value);
+
+    /**
+     * Get the requested executable.
+     * 
+     */
+    public IvoaAbstractExecutable getRequesedtExecutable();
+
+    /**
+     * Set the requested executable.
+     * 
+     */
+    public void setRequestedExecutable(final IvoaAbstractExecutable executable);
+    
+    /**
      * Get a List of start intervals.
      *
-     */
     public List<Interval> getStartIntervals();
+     */
 
     /**
      * Get the requested start Duration.
      *
-     */
     public Duration getDuration();
+     */
 
     public long getMinCores();
     public long getMaxCores();
@@ -38,8 +74,6 @@ public interface OfferSetRequestParserState
 
 /*
  *
-    public IvoaOfferSetRequest getOfferSetRequest();
-    public OfferSetEntity getOfferSetEntity();
 
     public List<SimpleDataResourceEntity> getDataResourceList();
     public SimpleDataResourceEntity findDataResource(final String key);
