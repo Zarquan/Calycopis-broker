@@ -32,12 +32,12 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
- * A validator implementation to handle IvoaAbstractExecutables.
+ * A factory for ExecutableValidators.
  *   
  */
 @Component
-public class ExecutableValidatorImpl
-implements ExecutableValidator
+public class ExecutableValidatorFactoryImpl
+    implements ExecutableValidatorFactory
     {
     /**
      * Our list of ExecutableValidators.

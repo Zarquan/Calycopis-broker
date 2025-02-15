@@ -15,8 +15,8 @@ import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.validator.ExecutableValidator;
-import net.ivoa.calycopis.validator.StorageValidator;
+import net.ivoa.calycopis.validator.ExecutableValidatorFactory ;
+import net.ivoa.calycopis.validator.StorageValidatorFactory ;
 
 /**
  * 
@@ -27,24 +27,18 @@ public class OfferSetRequestParserImpl
     extends FactoryBaseImpl
     implements OfferSetRequestParser
     {
-    
-    private OfferBlockFactory            offerBlockFactory;
-    private ExecutionSessionFactory      executionFactory;
-    private SimpleComputeResourceFactory simpleComputeFactory;
-    private SimpleDataResourceFactory    simpleDataFactory;
-    private AmazonS3DataResourceFactory  amazonDataFactory;
 
-    private final ExecutableValidator executableValidator ;
-    private final StorageValidator storageValidator ;
+    private final ExecutableValidatorFactory executableValidators;
+    private final StorageValidatorFactory    storageValidators;
 
     @Autowired
     public OfferSetRequestParserImpl(
-        final ExecutableValidator executableValidator,
-        final StorageValidator    storageValidator 
+        final ExecutableValidatorFactory executableValidators,
+        final StorageValidatorFactory    storageValidators 
         ){
         super();
-        this.executableValidator = executableValidator ;
-        this.storageValidator = storageValidator ;
+        this.executableValidators = executableValidators ;
+        this.storageValidators    = storageValidators ;
         }
 
     @Override
@@ -56,7 +50,7 @@ public class OfferSetRequestParserImpl
             ); 
         //
         // Validate the requested executable.
-        executableValidator.validate(
+        executableValidators.validate(
             offersetRequest.getExecutable(),
             state
             );            
@@ -68,7 +62,7 @@ public class OfferSetRequestParserImpl
                 {
                 for (IvoaAbstractStorageResource storageResource : offersetRequest.getResources().getStorage())
                     {
-                    storageValidator.validate(
+                    storageValidators.validate(
                         storageResource,
                         state
                         );            

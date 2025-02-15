@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Component;
+
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
@@ -33,7 +35,9 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
  * A validator implementation to handle IvoaAbstractStorageResources.
  * 
  */
-public class StorageValidatorImpl implements StorageValidator
+@Component
+public class StorageValidatorFactoryImpl
+    implements StorageValidatorFactory
     {
     /**
      * Our list of StorageValidators.
