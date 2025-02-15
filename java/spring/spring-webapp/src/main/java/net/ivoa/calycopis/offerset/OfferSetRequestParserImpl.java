@@ -26,6 +26,7 @@ import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionFactory;
+import net.ivoa.calycopis.message.MessageSubject;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -39,6 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
@@ -87,78 +89,85 @@ public class OfferSetRequestParserImpl
         this.valid = false;
         }
 
-    private IvoaOfferSetRequest request;
+    /*
+     * 
+    private IvoaOfferSetRequest offersetRequest;
     public IvoaOfferSetRequest getOfferSetRequest()
         {
-        return this.request;
+        return this.offersetRequest;
         }
+     * 
+     */ 
 
-    private OfferSetEntity offerset;
+    private OfferSetEntity offersetEntity;
     public OfferSetEntity getOfferSetEntity()
         {
-        return this.offerset;
+        return this.offersetEntity;
         }
+    /*
+     *  
+     */
 
-    private List<SimpleDataResourceEntity> dataresourcelist = new ArrayList<SimpleDataResourceEntity>();
+    private List<SimpleDataResourceEntity> dataResourceList = new ArrayList<SimpleDataResourceEntity>();
     public List<SimpleDataResourceEntity> getDataResourceList()
         {
-        return this.dataresourcelist;
+        return this.dataResourceList;
         }
 
-    private Map<String, SimpleDataResourceEntity> dataresourcemap = new HashMap<String, SimpleDataResourceEntity>();
+    private Map<String, SimpleDataResourceEntity> dataResourceMap = new HashMap<String, SimpleDataResourceEntity>();
     public SimpleDataResourceEntity findDataResource(String key)
         {
-        return dataresourcemap.get(key);
+        return dataResourceMap.get(key);
         }
 
     protected void addDataResource(final SimpleDataResourceEntity data)
         {
-        dataresourcelist.add(
+        dataResourceList.add(
             data
             );
         if (data.getUuid() != null)
             {
-            dataresourcemap.put(
+            dataResourceMap.put(
                 data.getUuid().toString(),
                 data
                 );
             }
         if (data.getName() != null)
             {
-            dataresourcemap.put(
+            dataResourceMap.put(
                 data.getName(),
                 data
                 );
             }
         }
 
-    private List<SimpleComputeResourceEntity> compresourcelist = new ArrayList<SimpleComputeResourceEntity>();
+    private List<SimpleComputeResourceEntity> compResourceList = new ArrayList<SimpleComputeResourceEntity>();
     public List<SimpleComputeResourceEntity> getComputeResourceList()
         {
-        return this.compresourcelist;
+        return this.compResourceList;
         }
 
-    private Map<String, SimpleComputeResourceEntity> compresourcemap = new HashMap<String, SimpleComputeResourceEntity>();
+    private Map<String, SimpleComputeResourceEntity> compResourceMap = new HashMap<String, SimpleComputeResourceEntity>();
     public SimpleComputeResourceEntity findComputeResource(final String key)
         {
-        return compresourcemap.get(key);
+        return compResourceMap.get(key);
         }
 
     protected void addComputeResource(final SimpleComputeResourceEntity comp)
         {
-        compresourcelist.add(
+        compResourceList.add(
             comp
             );
         if (comp.getUuid() != null)
             {
-            compresourcemap.put(
+            compResourceMap.put(
                 comp.getUuid().toString(),
                 comp
                 );
             }
         if (comp.getName() != null)
             {
-            compresourcemap.put(
+            compResourceMap.put(
                 comp.getName(),
                 comp
                 );
@@ -177,48 +186,48 @@ public class OfferSetRequestParserImpl
         log.debug("setExecutable() [{}]", (this.executable != null) ? this.executable.getUuid() : "null-executable");
         }
 
-    private long mincores;
+    private long totalMinCores;
     @Override
     public long getMinCores()
         {
-        return this.mincores;
+        return this.totalMinCores;
         }
     public void addMinCores(long delta)
         {
-        this.mincores += delta;
+        this.totalMinCores += delta;
         }
 
-    private long maxcores;
+    private long totalMaxCores;
     @Override
     public long getMaxCores()
         {
-        return this.maxcores;
+        return this.totalMaxCores;
         }
     public void addMaxCores(long delta)
         {
-        this.maxcores += delta;
+        this.totalMaxCores += delta;
         }
 
-    private long minmemory;
+    private long totalMinMemory;
     @Override
     public long getMinMemory()
         {
-        return this.minmemory;
+        return this.totalMinMemory;
         }
     public void addMinMemory(long delta)
         {
-        this.minmemory += delta;
+        this.totalMinMemory += delta;
         }
 
-    private long maxmemory;
+    private long totalMaxMemory;
     @Override
     public long getMaxMemory()
         {
-        return this.maxmemory;
+        return this.totalMaxMemory;
         }
     public void addMaxMemory(long delta)
         {
-        this.maxmemory += delta;
+        this.totalMaxMemory += delta;
         }
 
     @Override
@@ -226,8 +235,8 @@ public class OfferSetRequestParserImpl
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
         this.valid = true;
-        this.request = request;
-        this.offerset = offerset;
+        //this.offersetRequest = request;
+        this.offersetEntity = offerset;
         //
         // Reject storage resources.
         if (request.getResources() != null)
@@ -339,19 +348,19 @@ log.debug("Generating offers ....");
 log.debug("Start intervals [{}]", startintervals);
 log.debug("Execution duration [{}]", exeduration);
 
-log.debug("Min cores [{}]", mincores);
-log.debug("Max cores [{}]", maxcores);
-log.debug("Min memory [{}]", minmemory);
-log.debug("Max memory [{}]", maxmemory);
+log.debug("Min cores [{}]", totalMinCores);
+log.debug("Max cores [{}]", totalMaxCores);
+log.debug("Min memory [{}]", totalMinMemory);
+log.debug("Max memory [{}]", totalMaxMemory);
 
 log.debug("Executable [{}][{}]", executable.getName(), executable.getClass().getName());
 
-for (SimpleDataResource resource : dataresourcelist)
+for (SimpleDataResource resource : dataResourceList)
     {
     log.debug("Data resource [{}][{}]", resource.getName(), resource.getClass().getName());
     }
 
-for (SimpleComputeResource resource : compresourcelist)
+for (SimpleComputeResource resource : compResourceList)
     {
     log.debug("Computing resource [{}][{}]", resource.getName(), resource.getClass().getName());
     }
@@ -366,8 +375,8 @@ log.debug("---- ---- ---- ----");
                 List<OfferBlock> offerblocks = offerBlockFactory.generate(
                     startinterval,
                     exeduration,
-                    mincores,
-                    minmemory
+                    totalMinCores,
+                    totalMinMemory
                     );
 
                 for (OfferBlock offerblock : offerblocks)
@@ -403,7 +412,6 @@ log.debug("---- ---- ---- ----");
                     //     the upper limit is the individual node multiplied by the scaling factor
                     //     find an allowed config that is between the requested minimum and the scaled limit
                     //     this depends on a call to the platform to check the available sizes for this user
-
                     // this should be managed by the canfar classes
                     // so we call out to platform with the block size and request size
                     // platform responds with a list of compute entities that fit the limits
@@ -413,7 +421,7 @@ log.debug("---- ---- ---- ----");
                     log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
                     log.debug("Cores  [{}][{}][{}]", this.getMinCores(), offerblock.getCores(), corescale);
                     log.debug("Memory [{}][{}][{}]", this.getMinMemory(), offerblock.getMemory(), memoryscale);
-                    for (SimpleComputeResourceEntity compresource : compresourcelist)
+                    for (SimpleComputeResourceEntity compresource : compResourceList)
                         {
                         long offercores  = compresource.getMinRequestedCores()  * corescale;
                         long offermemory = compresource.getMinRequestedMemory() * memoryscale;
@@ -421,7 +429,7 @@ log.debug("---- ---- ---- ----");
                         log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
                         log.debug("Cores  [{}][{}][{}]", compresource.getMinRequestedCores(),  offercores,  corescale);
                         log.debug("Memory [{}][{}][{}]", compresource.getMinRequestedMemory(), offermemory, memoryscale);
-                        execution.addCompute(
+                        execution.addComputeResource(
                             simpleComputeFactory.create(
                                 execution,
                                 compresource,
@@ -507,7 +515,7 @@ log.debug("---- ---- ---- ----");
                         }
                     catch (Exception ouch)
                         {
-                        offerset.addWarning(
+                        offersetEntity.addWarning(
                             "urn:input-syntax-fail",
                             "Unable to parse duration [${string}][${message}]",
                             Map.of(
@@ -537,7 +545,7 @@ log.debug("---- ---- ---- ----");
                             }
                         catch (Exception ouch)
                             {
-                            offerset.addWarning(
+                            offersetEntity.addWarning(
                                 "urn:input-syntax-fail",
                                 "Unable to parse interval [${string}][${message}]",
                                 Map.of(
@@ -589,7 +597,7 @@ log.debug("---- ---- ---- ----");
                 break;
 
             default:
-                offerset.addWarning(
+                offersetEntity.addWarning(
                     "urn:unknown-resource-type",
                     "Unknown executable type [${type}][${class}]",
                     Map.of(
@@ -622,7 +630,7 @@ log.debug("---- ---- ---- ----");
 
         if ((location == null) || (location.isEmpty()))
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:missing-required-value",
                 "Notebook location required"
                 );
@@ -660,7 +668,7 @@ log.debug("---- ---- ---- ----");
             break;
 
         default:
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:unknown-resource-type",
                 "Unknown resource type [${resource}][${type}][${class}]",
                 Map.of(
@@ -695,7 +703,7 @@ log.debug("---- ---- ---- ----");
 
         if ((location == null) || (location.isEmpty()))
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:missing-required-value",
                 "Data location required"
                 );
@@ -739,7 +747,7 @@ log.debug("---- ---- ---- ----");
 
         if ((endpoint == null) || (endpoint.isEmpty()))
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:missing-required-value",
                 "S3 service endpoint required"
                 );
@@ -748,7 +756,7 @@ log.debug("---- ---- ---- ----");
 
         if ((template == null) || (template.isEmpty()))
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:missing-required-value",
                 "S3 service template required"
                 );
@@ -757,7 +765,7 @@ log.debug("---- ---- ---- ----");
 
         if ((bucket == null) || (bucket.isEmpty()))
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:missing-required-value",
                 "S3 bucket name required"
                 );
@@ -799,7 +807,7 @@ log.debug("---- ---- ---- ----");
                 break;
 
             default:
-                offerset.addWarning(
+                offersetEntity.addWarning(
                     "urn:unknown-resource-type",
                     "Unknown resource type [${resource}][${type}][${class}]",
                     Map.of(
@@ -820,10 +828,10 @@ log.debug("---- ---- ---- ----");
      * Validate a SimpleComputeResource.
      *
      */
-    public void validate(final IvoaSimpleComputeResource resource)
+    public void validate(final IvoaSimpleComputeResource compResourceRequest)
         {
         log.debug("validate(IvoaSimpleComputeResource)");
-        log.debug("Compute [{}])", ((resource != null) ? resource .getName() : "null-resource"));
+        log.debug("Compute [{}])", ((compResourceRequest != null) ? compResourceRequest .getName() : "null-resource"));
 
         Long MIN_CORES_DEFAULT =  1L ;
         Long MAX_CORES_LIMIT   = 16L ;
@@ -831,34 +839,34 @@ log.debug("---- ---- ---- ----");
         Long maxcores = MIN_CORES_DEFAULT;
         Boolean minimalcores  = false;
 
-        if (resource.getCores() != null)
+        if (compResourceRequest.getCores() != null)
             {
-            if (resource.getCores().getRequested() != null)
+            if (compResourceRequest.getCores().getRequested() != null)
                 {
-                if (resource.getCores().getRequested().getMin() != null)
+                if (compResourceRequest.getCores().getRequested().getMin() != null)
                     {
-                    mincores = resource.getCores().getRequested().getMin();
+                    mincores = compResourceRequest.getCores().getRequested().getMin();
                     }
-                if (resource.getCores().getRequested().getMax() != null)
+                if (compResourceRequest.getCores().getRequested().getMax() != null)
                     {
-                    maxcores = resource.getCores().getRequested().getMax();
+                    maxcores = compResourceRequest.getCores().getRequested().getMax();
                     }
-                if (resource.getCores().getRequested().getMinimal() != null)
+                if (compResourceRequest.getCores().getRequested().getMinimal() != null)
                     {
-                    minimalcores = resource.getCores().getRequested().getMinimal();
+                    minimalcores = compResourceRequest.getCores().getRequested().getMinimal();
                     }
                 }
 
-            if (resource.getCores().getOffered() != null)
+            if (compResourceRequest.getCores().getOffered() != null)
                 {
-                offerset.addWarning(
+                offersetEntity.addWarning(
                     "urn:service-defined",
                     "Offered cores should not be set [${resource}][${offered}]",
                     Map.of(
                         "resource",
-                        resource.getName(),
+                        compResourceRequest.getName(),
                         "offered",
-                        resource.getCores().getOffered()
+                        compResourceRequest.getCores().getOffered()
                         )
                     );
                 this.fail();
@@ -866,12 +874,12 @@ log.debug("---- ---- ---- ----");
             }
         if (mincores > MAX_CORES_LIMIT)
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:resource-limit",
                 "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    resource.getName(),
+                    compResourceRequest.getName(),
                     "cores",
                     mincores,
                     "limit",
@@ -882,12 +890,12 @@ log.debug("---- ---- ---- ----");
             }
         if (maxcores > MAX_CORES_LIMIT)
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:resource-limit",
                 "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    resource.getName(),
+                    compResourceRequest.getName(),
                     "cores",
                     maxcores,
                     "limit",
@@ -913,34 +921,34 @@ log.debug("---- ---- ---- ----");
         //StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
         //StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
 
-        if (resource.getMemory() != null)
+        if (compResourceRequest.getMemory() != null)
             {
-            if (resource.getMemory().getRequested() != null)
+            if (compResourceRequest.getMemory().getRequested() != null)
                 {
-                if (resource.getMemory().getRequested().getMin() != null)
+                if (compResourceRequest.getMemory().getRequested().getMin() != null)
                     {
-                    minmemory = resource.getMemory().getRequested().getMin();
+                    minmemory = compResourceRequest.getMemory().getRequested().getMin();
                     }
-                if (resource.getMemory().getRequested().getMax() != null)
+                if (compResourceRequest.getMemory().getRequested().getMax() != null)
                     {
-                    maxmemory = resource.getMemory().getRequested().getMax();
+                    maxmemory = compResourceRequest.getMemory().getRequested().getMax();
                     }
-                if (resource.getMemory().getRequested().getMinimal() != null)
+                if (compResourceRequest.getMemory().getRequested().getMinimal() != null)
                     {
-                    minimalmemory = resource.getMemory().getRequested().getMinimal();
+                    minimalmemory = compResourceRequest.getMemory().getRequested().getMinimal();
                     }
                 }
 
-            if (resource.getMemory().getOffered() != null)
+            if (compResourceRequest.getMemory().getOffered() != null)
                 {
-                offerset.addWarning(
+                offersetEntity.addWarning(
                     "urn:service-defined",
                     "Offered memory should not be set [${resource}][${offered}]",
                     Map.of(
                         "resource",
-                        resource.getName(),
+                        compResourceRequest.getName(),
                         "offered",
-                        resource.getMemory().getOffered()
+                        compResourceRequest.getMemory().getOffered()
                         )
                     );
                 this.fail();
@@ -949,12 +957,12 @@ log.debug("---- ---- ---- ----");
 
         if (minmemory > MAX_MEMORY_LIMIT)
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:resource-limit",
                 "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    resource.getName(),
+                    compResourceRequest.getName(),
                     "memory",
                     minmemory,
                     "limit",
@@ -965,12 +973,12 @@ log.debug("---- ---- ---- ----");
 
         if (maxmemory > MAX_MEMORY_LIMIT)
             {
-            offerset.addWarning(
+            offersetEntity.addWarning(
                 "urn:resource-limit",
                 "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    resource.getName(),
+                    compResourceRequest.getName(),
                     "memory",
                     maxmemory,
                     "limit",
@@ -991,13 +999,9 @@ log.debug("---- ---- ---- ----");
         // Process the network ports.
         // ....
 
-        //
-        // Process the volume mounts.
-        // ....
-
-        SimpleComputeResourceEntity entity = this.simpleComputeFactory.create(
+        SimpleComputeResourceEntity computeResourceEntity = this.simpleComputeFactory.create(
             null,
-            resource.getName(),
+            compResourceRequest.getName(),
             mincores,
             maxcores,
             null,
@@ -1010,8 +1014,26 @@ log.debug("---- ---- ---- ----");
             minimalmemory
             );
         this.addComputeResource(
-            entity
+            computeResourceEntity
             );
+
+        //
+        // Process the volume mounts.
+        if (compResourceRequest.getVolumes() != null)
+            {
+            for (IvoaSimpleComputeVolume volumeRequest : compResourceRequest.getVolumes())
+                {
+                SimpleDataResourceEntity dataresource = findDataResource(volumeRequest.getResource());
+                if (dataresource != null)
+                    {
+                    // Create a volume linking the data resource to the compute resource.
+                    
+                    }
+                else {
+                    // error unmatched data resource ...
+                    }
+                }
+            }
         }
 
     /**
