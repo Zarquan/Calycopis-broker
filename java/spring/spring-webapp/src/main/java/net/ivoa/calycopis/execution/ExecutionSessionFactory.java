@@ -29,7 +29,7 @@ import java.util.UUID;
 import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParser;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
@@ -51,19 +51,19 @@ public interface ExecutionSessionFactory
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context);
 
     /**
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase);
 
     /**
      * Create a new Execution based on the contents of an OfferSetRequestParser.
      *
      */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase, boolean save);
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase, boolean save);
 
     /**
      * Apply an Update request to an Execution.

@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParser;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
@@ -69,7 +69,7 @@ public class ExecutionSessionFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context)
         {
         return this.create(
             offerblock,
@@ -81,7 +81,7 @@ public class ExecutionSessionFactoryImpl
         }
     
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase)
         {
         return this.create(
             offerblock,
@@ -93,7 +93,7 @@ public class ExecutionSessionFactoryImpl
         }
     
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase, boolean save)
+    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase, boolean save)
         {
         ExecutionSessionEntity created = new ExecutionSessionEntity(
             offerblock,
