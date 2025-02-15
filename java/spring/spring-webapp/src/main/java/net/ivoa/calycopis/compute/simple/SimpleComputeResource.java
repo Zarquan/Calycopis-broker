@@ -35,7 +35,7 @@ public interface SimpleComputeResource
     {
 
     /**
-     * Reference to the parent Execution. 
+     * Reference to the parent ExecutionSession. 
      *
      */
     public ExecutionSession getParent();
