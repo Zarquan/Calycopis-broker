@@ -20,14 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.compute;
+
+import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
- * Public interface for an ExecutableValidator factory.
+ * Factory interface for compute resource validators.
  *  
  */
-public interface ExecutableValidatorFactory
-    extends ExecutableValidator
+@Deprecated
+public interface ComputeResourceValidatorFactory
+    extends FactoryBase, ComputeResourceValidator 
     {
 
     }

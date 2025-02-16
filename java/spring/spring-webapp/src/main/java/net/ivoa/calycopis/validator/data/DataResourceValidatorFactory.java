@@ -20,26 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.data;
 
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
- * Public interface for an IvoaAbstractExecutable validator.
+ * Factory interface for data resource validators.
  *  
  */
-public interface ExecutableValidator
-    extends Validator
+@Deprecated
+public interface DataResourceValidatorFactory
+    extends FactoryBase, DataResourceValidator 
     {
-
-    /**
-     * Validate an IvoaAbstractExecutable.
-     *
-     */
-    public ValidatorResult validate(
-        final IvoaAbstractExecutable executable,
-        final OfferSetRequestParserState state
-        );
 
     }

@@ -20,12 +20,16 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.executable;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.Validator.ResultEnum;
+import net.ivoa.calycopis.validator.Validator.ResultSet;
+import net.ivoa.calycopis.validator.Validator.ResultSetBean;
 
 /**
  * A validator implementation to handle IvoaJupyterNotebooks.
@@ -33,16 +37,16 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
  */
 @Slf4j
 public class JupyterNotebookValidator
-implements ExecutableValidator
+implements Validator<IvoaAbstractExecutable>
     {
     
     @Override
-    public ValidatorResult validate(
+    public ResultSet<IvoaAbstractExecutable> validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaAbstractExecutable)");
-        log.debug("Executable [{}]", requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaJupyterNotebook jupyterNotebook:
@@ -51,7 +55,9 @@ implements ExecutableValidator
                     state
                     );
             default:
-                return ValidatorResult.CONTINUE;
+                return new ResultSetBean<IvoaAbstractExecutable>(
+                    ResultEnum.CONTINUE
+                    );
             }
         }
 
@@ -59,12 +65,14 @@ implements ExecutableValidator
      * Validate an IvoaJupyterNotebook.
      *
      */
-    public ValidatorResult validate(
+    public ResultSet<IvoaAbstractExecutable> validate(
         final IvoaJupyterNotebook requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaJupyterNotebook)");
-        log.debug("Notebook [{}]", requested.getName());
+        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+
+        IvoaJupyterNotebook result = new IvoaJupyterNotebook();
 
         //
         // Validate the location.
@@ -75,20 +83,27 @@ implements ExecutableValidator
                 "Notebook location required"
                 );
             state.valid(false);
-            return ValidatorResult.FAILED;
+            return new ResultSetBean<IvoaAbstractExecutable>(
+                ResultEnum.FAILED
+                );
             }
         else {
-            requested.setLocation(
-                requested.getLocation().trim()
-                );
-            if (requested.getLocation().isEmpty())
+            String trimmed = requested.getLocation().trim(); 
+            if (trimmed.isEmpty())
                 {
                 state.getOfferSetEntity().addWarning(
                     "urn:missing-required-value",
                     "Notebook location required"
                     );
                 state.valid(false);
-                return ValidatorResult.FAILED;
+                return new ResultSetBean<IvoaAbstractExecutable>(
+                    ResultEnum.FAILED
+                    );
+                }
+            else {
+                result.setLocation(
+                    trimmed
+                    );
                 }
             }
         //
@@ -98,27 +113,22 @@ implements ExecutableValidator
             // No name is fine.
             }
         else {
-            String name = requested.getName().trim();
-            if (name.isEmpty())
+            String trimmed = requested.getName().trim();
+            if (trimmed.isEmpty())
                 {
-                // Empty name is not allowed.
-                requested.setName(null);
+                // No name is fine.
                 }
             else {
-                requested.setName(
-                    name
+                result.setName(
+                    trimmed
                     );
                 }
             }
-
-        //
-        // Add our executable to the state.
-        state.setRequestedExecutable(
-            requested
-            );
         //
         // Everything is good, so accept the request.
-        return ValidatorResult.ACCEPTED;
-
+        return new ResultSetBean<IvoaAbstractExecutable>(
+            ResultEnum.ACCEPTED,
+            result
+            );
         }
     }

@@ -20,26 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.compute;
 
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.validator.Validator;
 
 /**
- * Public interface for an IvoaAbstractStorageResource validator.
+ * Public interface for a compute resource validator.
  *  
  */
-public interface StorageValidator
-    extends Validator
+@Deprecated
+public interface ComputeResourceValidator
+    extends Validator<IvoaAbstractComputeResource>
     {
-
-    /**
-     * Validate an IvoaAbstractStorageResource.
-     *
-     */
-    public ValidatorResult validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserState state
-        );
-
     }

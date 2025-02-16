@@ -20,14 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.storage;
+
+import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
- * Public interface for an IvoaAbstractStorageResource validator.
+ * Factory for storage resource validators.
  *  
  */
-public interface StorageValidatorFactory
-    extends StorageValidator
+@Deprecated
+public interface StorageResourceValidatorFactory
+    extends FactoryBase, StorageResourceValidator 
     {
 
     }

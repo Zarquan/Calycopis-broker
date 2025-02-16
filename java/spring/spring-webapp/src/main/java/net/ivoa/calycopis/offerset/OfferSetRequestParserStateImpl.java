@@ -32,7 +32,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
@@ -83,15 +82,22 @@ public class OfferSetRequestParserStateImpl
      */
     public OfferSetRequestParserStateImpl(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
         {
-        this.offersetRequest = offersetRequest;
-        this.offersetEntity = offersetEntity;
+        this.originalRequest  = offersetRequest;
+        this.offersetEntity   = offersetEntity;
         }
    
-    private final IvoaOfferSetRequest offersetRequest;
+    private final IvoaOfferSetRequest originalRequest;
     @Override
-    public IvoaOfferSetRequest getOfferSetRequest()
+    public IvoaOfferSetRequest getOriginalOfferSetRequest()
         {
-        return this.offersetRequest;
+        return this.originalRequest;
+        }
+
+    private IvoaOfferSetRequest validatedRequest;
+    @Override
+    public IvoaOfferSetRequest getValidatedOfferSetRequest()
+        {
+        return this.validatedRequest;
         }
 
     private final OfferSetEntity offersetEntity;

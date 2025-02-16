@@ -4,11 +4,7 @@
 package net.ivoa.calycopis.offerset;
 
 import java.time.Duration;
-import java.util.List;
 
-import org.threeten.extra.Interval;
-
-import net.ivoa.calycopis.message.MessageSubject;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
@@ -18,11 +14,18 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 public interface OfferSetRequestParserState
     {
     /**
-     * Get the OfferSet request.
+     * Get the original OfferSet request.
      *  
      */
-    public IvoaOfferSetRequest getOfferSetRequest();
+    public IvoaOfferSetRequest getOriginalOfferSetRequest();
 
+    /**
+     * Get the validated OfferSet request.
+     *  
+     */
+    public IvoaOfferSetRequest getValidatedOfferSetRequest();
+    
+    
     /**
      * Get the OfferSet entity we are creating.
      *  
@@ -62,8 +65,8 @@ public interface OfferSetRequestParserState
     /**
      * Get the requested start Duration.
      *
-    public Duration getDuration();
      */
+    public Duration getDuration();
 
     public long getMinCores();
     public long getMaxCores();

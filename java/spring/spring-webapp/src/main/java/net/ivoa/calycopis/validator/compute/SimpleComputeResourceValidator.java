@@ -20,52 +20,54 @@
  *
  *
  */
-package net.ivoa.calycopis.validator;
+package net.ivoa.calycopis.validator.compute;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
- * A validator implementation to handle IvoaSimpleStorageResources.
+ * A validator implementation to handle simple data resources.
  * 
  */
 @Slf4j
-public class SimpleStorageValidator
-implements StorageValidator
+public class SimpleComputeResourceValidator
+implements ComputeResourceValidator
     {
 
     @Override
-    public ValidatorResult validate(
-        final IvoaAbstractStorageResource requested,
+    public ResultEnum validate(
+        final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserState state
         ){
-    log.debug("validate(IvoaAbstractStorageResource)");
-    switch(requested)
-        {
-        case IvoaSimpleStorageResource simpleStorageResource :
-            return validate(
-                simpleStorageResource,
-                state
-                );
-        default:
-            return ValidatorResult.CONTINUE;
+        log.debug("validate(IvoaAbstractComputeResource)");
+        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        switch(requested)
+            {
+            case IvoaSimpleComputeResource simple:
+                return validate(
+                    simple,
+                    state
+                    );
+            default:
+                return ResultEnum.CONTINUE;
+            }
         }
-    }
 
     /**
-     * Validate an IvoaSimpleStorageResource.
+     * Validate a simple data resource.
      *
      */
-    public ValidatorResult validate(
-        final IvoaSimpleStorageResource requested,
+    public ResultEnum validate(
+        final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserState state
         ){
-        log.debug("validate(IvoaSimpleStorageResource)");
-        log.debug("IvoaSimpleStorageResource[{}]", requested.getName());
+        log.debug("validate(IvoaSimpleComputeResource)");
+        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
         
         
-        return ValidatorResult.CONTINUE;
+        return ResultEnum.CONTINUE;
         }
+
     }

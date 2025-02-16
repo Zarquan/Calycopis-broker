@@ -22,12 +22,34 @@
  */
 package net.ivoa.calycopis.validator;
 
+import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+
 /**
  * Public interface for a validator.
  *  
  */
-public interface Validator
+public interface Validator<ObjectType>
     {
+    /**
+     * Public interface for a validation result.
+     * 
+     */
+    public interface ResultSet<ResultType>
+        {
+        /**
+         * Get the validation result enum.
+         * 
+         */
+        public ResultEnum getEnum();
+
+        /**
+         * Get the validated object.
+         * 
+         */
+        public ResultType getObject();
+
+        }
+
     /**
      * Result enum for the validation process.
      * CONTINUE means this validator didn't recognise the object. 
@@ -35,10 +57,51 @@ public interface Validator
      * FAILED means this validator recognised but failed the object.
      * 
      */
-    enum ValidatorResult{
+    enum ResultEnum{
         CONTINUE(),
         ACCEPTED(),
         FAILED();
         }
+
+    /**
+     * Simple bean implementation of ResultSet.
+     *  
+     */
+    public class ResultSetBean<ResultType>
+    implements ResultSet<ResultType>
+        {
+        public ResultSetBean(final ResultEnum result)
+            {
+            this(result, null);
+            }
+        public ResultSetBean(final ResultEnum result, ResultType object)
+            {
+            this.result = result;
+            this.object = object;
+            }
+
+        private ResultEnum result;
+        @Override
+        public ResultEnum getEnum()
+            {
+            return this.result;
+            }
+
+        private ResultType object;
+        @Override
+        public ResultType getObject()
+            {
+            return this.object;
+            }
+        }
+    
+    /**
+     * Validate an executable.
+     *
+     */
+    public Validator.ResultSet<ObjectType> validate(
+        final ObjectType requested,
+        final OfferSetRequestParserState state
+        );
 
     }
