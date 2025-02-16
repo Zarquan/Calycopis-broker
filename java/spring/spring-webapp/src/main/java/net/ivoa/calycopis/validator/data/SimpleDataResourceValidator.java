@@ -24,8 +24,13 @@ package net.ivoa.calycopis.validator.data;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.Validator.ResultEnum;
+import net.ivoa.calycopis.validator.Validator.ResultSetBean;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -33,11 +38,11 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
  */
 @Slf4j
 public class SimpleDataResourceValidator
-implements DataResourceValidator
+implements Validator<IvoaAbstractDataResource>
     {
 
     @Override
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractDataResource> validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -51,7 +56,9 @@ implements DataResourceValidator
                     state
                     );
             default:
-                return ResultEnum.CONTINUE;
+            return new ResultSetBean<IvoaAbstractDataResource>(
+                ResultEnum.CONTINUE
+                );
             }
         }
 
@@ -59,7 +66,7 @@ implements DataResourceValidator
      * Validate a simple data resource.
      *
      */
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractDataResource> validate(
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -74,7 +81,13 @@ implements DataResourceValidator
         // Check for a storage location.
         //
         
-        return ResultEnum.CONTINUE;
-        }
+        IvoaSimpleDataResource result = new IvoaSimpleDataResource();
+        
+        result.setName(requested.getName());
 
+        return new ResultSetBean<IvoaAbstractDataResource>(
+            ResultEnum.ACCEPTED,
+            result
+            );
+        }
     }

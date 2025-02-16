@@ -22,15 +22,13 @@
  */
 package net.ivoa.calycopis.validator.storage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.ValidatorBaseImpl;
 
 /**
  * A factory for storage resource validators.
@@ -38,57 +36,42 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
  */
 @Component
 public class StorageResourceValidatorFactoryImpl
-    extends FactoryBaseImpl
-    implements StorageResourceValidatorFactory
+extends ValidatorBaseImpl<IvoaAbstractStorageResource>
+implements FactoryBase, Validator<IvoaAbstractStorageResource>
     {
     /**
-     * Our list of StorageValidators.
-     * TODO Make this configurable ...
+     * Public constructor, creates hard coded list of validators.
+     * TODO Make this configurable. 
      * 
      */
-    private List<StorageResourceValidator> validators = new ArrayList<StorageResourceValidator>();
+    public StorageResourceValidatorFactoryImpl()
         {
-        validators.add(
+        super();
+        this.validators.add(
             new SimpleStorageResourceValidator()
             );
         }
     
     @Override
-    public ResultEnum validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserState state
+    public Validator.ResultSet<IvoaAbstractStorageResource> unknown(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractStorageResource resource
         ){
-        ResultEnum result = null ; 
-        //
-        // Try each of the validators in our list.
-        for (StorageResourceValidator validator : validators)
-            {
-            result = validator.validate(
-                requested,
-                state
-                );
-            if (result != ResultEnum.CONTINUE)
-                {
-                break ; 
-                }
-            }
-        //
-        // If we didn't find a matching validator, add a warning and fail the validation.
-        if (result == ResultEnum.CONTINUE)
-            {
-            state.getOfferSetEntity().addWarning(
-                "urn:unknown-resource-type",
-                "Unknown resource type [${type}][${class}]",
-                Map.of(
-                    "type",
-                    requested.getType(),
-                    "class",
-                    requested.getClass().getName()
-                    )
-                );
-            state.valid(false);
-            result = ResultEnum.FAILED;
-            }
-        return result;
+        return unknown(
+            state,
+            resource.getType(),
+            resource.getClass().getName()
+            );
+        }
+
+    @Override
+    public void save(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractStorageResource resource
+        ){
+        state.getValidatedOfferSetRequest().getResources().addStorageItem(
+            resource
+            );
         }
     }
+

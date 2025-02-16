@@ -24,8 +24,13 @@ package net.ivoa.calycopis.validator.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.Validator.ResultEnum;
+import net.ivoa.calycopis.validator.Validator.ResultSetBean;
 
 /**
  * A validator implementation to handle simple storage resources.
@@ -33,11 +38,11 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
  */
 @Slf4j
 public class SimpleStorageResourceValidator
-implements StorageResourceValidator
+implements Validator<IvoaAbstractStorageResource>
     {
 
     @Override
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractStorageResource> validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserState state
         ){
@@ -51,7 +56,9 @@ implements StorageResourceValidator
                 state
                 );
         default:
-            return ResultEnum.CONTINUE;
+            return new ResultSetBean<IvoaAbstractStorageResource>(
+                ResultEnum.CONTINUE
+                );
         }
     }
 
@@ -59,15 +66,24 @@ implements StorageResourceValidator
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractStorageResource> validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
+        //
+        // Check for a storage location.
+        //
         
+        IvoaSimpleStorageResource result = new IvoaSimpleStorageResource();
+        
+        result.setName(requested.getName());
 
-        return ResultEnum.CONTINUE;
+        return new ResultSetBean<IvoaAbstractStorageResource>(
+            ResultEnum.ACCEPTED,
+            result
+            );
         }
     }

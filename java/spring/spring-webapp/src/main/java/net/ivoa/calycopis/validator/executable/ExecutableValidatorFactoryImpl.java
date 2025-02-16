@@ -22,17 +22,13 @@
  */
 package net.ivoa.calycopis.validator.executable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.factory.FactoryBase;
-import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.ValidatorBaseImpl;
 
 /**
  * A factory for IvoaAbstractExecutable validators.
@@ -40,62 +36,41 @@ import net.ivoa.calycopis.validator.Validator;
  */
 @Component
 public class ExecutableValidatorFactoryImpl
-    extends FactoryBaseImpl
+    extends ValidatorBaseImpl<IvoaAbstractExecutable>
     implements FactoryBase, Validator<IvoaAbstractExecutable>
     {
     /**
-     * Our list of ExecutableValidators.
-     * TODO Make this configurable ...
+     * Public constructor, creates hard coded list of validators.
+     * TODO Make this configurable. 
      * 
      */
-    private List<Validator<IvoaAbstractExecutable>> validators = new ArrayList<Validator<IvoaAbstractExecutable>>();
+    public ExecutableValidatorFactoryImpl()
         {
-        validators.add(
+        super();
+        this.validators.add(
             new JupyterNotebookValidator()
             );
         }
     
     @Override
-    public ResultSet<IvoaAbstractExecutable> validate(
-        final IvoaAbstractExecutable requested,
-        final OfferSetRequestParserState state
+    public void save(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractExecutable executable
         ){
-        //
-        // Try each of the validators in our list.
-        for (Validator<IvoaAbstractExecutable> validator : validators)
-            {
-            ResultSet<IvoaAbstractExecutable> result = validator.validate(
-                requested,
-                state
-                );
-            switch(result.getEnum())
-                {
-                case ResultEnum.ACCEPTED:
-                    state.getValidatedOfferSetRequest().setExecutable(
-                        result.getObject()
-                        );
-                    return result ;
-                case ResultEnum.FAILED:
-                    return result ;
-                default:
-                    continue;
-                }
-            }
-        //
-        // If we didn't find a matching validator, add a warning and fail the validation.
-        state.getOfferSetEntity().addWarning(
-            "urn:unknown-type",
-            "Unknown executable type [${type}][${class}]",
-            Map.of(
-                "type",
-                requested.getType(),
-                "class",
-                requested.getClass().getName()
-                )
+        state.getValidatedOfferSetRequest().setExecutable(
+            executable
             );
-        state.valid(false);
-        return new ResultSetBean<IvoaAbstractExecutable>(
-            ResultEnum.FAILED
+        }
+
+    @Override
+    public Validator.ResultSet<IvoaAbstractExecutable> unknown(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractExecutable executable
+        ){
+        return super.unknown(
+            state,
+            executable.getType(),
+            executable.getClass().getName()
             );
         }
     }

@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.validator.Validator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -33,11 +34,11 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
  */
 @Slf4j
 public class SimpleComputeResourceValidator
-implements ComputeResourceValidator
+implements Validator<IvoaAbstractComputeResource>
     {
 
     @Override
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractComputeResource> validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserState state
         ){
@@ -51,23 +52,30 @@ implements ComputeResourceValidator
                     state
                     );
             default:
-                return ResultEnum.CONTINUE;
+                return new ResultSetBean<IvoaAbstractComputeResource>(
+                    ResultEnum.CONTINUE
+                    );
             }
         }
 
     /**
-     * Validate a simple data resource.
+     * Validate an IvoaAbstractComputeResource.
      *
      */
-    public ResultEnum validate(
+    public Validator.ResultSet<IvoaAbstractComputeResource> validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleComputeResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        
-        
-        return ResultEnum.CONTINUE;
-        }
 
+        IvoaSimpleComputeResource result = new IvoaSimpleComputeResource();
+        
+        result.setName(requested.getName());
+
+        return new ResultSetBean<IvoaAbstractComputeResource>(
+            ResultEnum.ACCEPTED,
+            result
+            );
+        }
     }

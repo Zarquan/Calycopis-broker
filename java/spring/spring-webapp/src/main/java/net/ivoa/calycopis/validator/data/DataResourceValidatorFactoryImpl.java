@@ -28,9 +28,16 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.Validator.ResultEnum;
+import net.ivoa.calycopis.validator.Validator.ResultSet;
+import net.ivoa.calycopis.validator.ValidatorBaseImpl;
+import net.ivoa.calycopis.validator.compute.SimpleComputeResourceValidator;
 
 /**
  * A factory for data resource validators.
@@ -38,57 +45,41 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
  */
 @Component
 public class DataResourceValidatorFactoryImpl
-    extends FactoryBaseImpl
-    implements DataResourceValidatorFactory
+    extends ValidatorBaseImpl<IvoaAbstractDataResource>
+    implements FactoryBase, Validator<IvoaAbstractDataResource>
     {
     /**
-     * Our list of StorageValidators.
-     * TODO Make this configurable ...
+     * Public constructor, creates hard coded list of validators.
+     * TODO Make this configurable. 
      * 
      */
-    private List<DataResourceValidator> validators = new ArrayList<DataResourceValidator>();
+    public DataResourceValidatorFactoryImpl()
         {
-        validators.add(
+        super();
+        this.validators.add(
             new SimpleDataResourceValidator()
             );
         }
     
     @Override
-    public ResultEnum validate(
-        final IvoaAbstractDataResource requested,
-        final OfferSetRequestParserState state
+    public Validator.ResultSet<IvoaAbstractDataResource> unknown(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractDataResource resource
         ){
-        ResultEnum result = null ; 
-        //
-        // Try each of the validators in our list.
-        for (DataResourceValidator validator : validators)
-            {
-            result = validator.validate(
-                requested,
-                state
-                );
-            if (result != ResultEnum.CONTINUE)
-                {
-                break ; 
-                }
-            }
-        //
-        // If we didn't find a matching validator, add a warning and fail the validation.
-        if (result == ResultEnum.CONTINUE)
-            {
-            state.getOfferSetEntity().addWarning(
-                "urn:unknown-resource-type",
-                "Unknown resource type [${type}][${class}]",
-                Map.of(
-                    "type",
-                    requested.getType(),
-                    "class",
-                    requested.getClass().getName()
-                    )
-                );
-            state.valid(false);
-            result = ResultEnum.FAILED;
-            }
-        return result;
+        return unknown(
+            state,
+            resource.getType(),
+            resource.getClass().getName()
+            );
+        }
+
+    @Override
+    public void save(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractDataResource resource
+        ){
+        state.getValidatedOfferSetRequest().getResources().addDataItem(
+            resource
+            );
         }
     }

@@ -22,6 +22,8 @@
  */
 package net.ivoa.calycopis.validator;
 
+import java.util.Map;
+
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 
 /**
@@ -30,6 +32,19 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
  */
 public interface Validator<ObjectType>
     {
+    /**
+     * Result enum for the validation process.
+     * CONTINUE means this validator didn't recognise the object. 
+     * ACCEPTED means this validator recognised and validated the object. 
+     * FAILED means this validator recognised but failed the object.
+     * 
+     */
+    enum ResultEnum{
+        CONTINUE(),
+        ACCEPTED(),
+        FAILED();
+        }
+
     /**
      * Public interface for a validation result.
      * 
@@ -48,19 +63,6 @@ public interface Validator<ObjectType>
          */
         public ResultType getObject();
 
-        }
-
-    /**
-     * Result enum for the validation process.
-     * CONTINUE means this validator didn't recognise the object. 
-     * ACCEPTED means this validator recognised and validated the object. 
-     * FAILED means this validator recognised but failed the object.
-     * 
-     */
-    enum ResultEnum{
-        CONTINUE(),
-        ACCEPTED(),
-        FAILED();
         }
 
     /**
@@ -96,12 +98,11 @@ public interface Validator<ObjectType>
         }
     
     /**
-     * Validate an executable.
+     * Validate a request component.
      *
      */
     public Validator.ResultSet<ObjectType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         );
-
     }

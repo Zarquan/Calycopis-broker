@@ -22,84 +22,55 @@
  */
 package net.ivoa.calycopis.validator.compute;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.factory.FactoryBase;
-import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
-import net.ivoa.calycopis.validator.Validator.ResultSet;
-import net.ivoa.calycopis.validator.Validator.ResultSetBean;
+import net.ivoa.calycopis.validator.ValidatorBaseImpl;
 
 /**
- * A factory for IvoaAbstractComputeResource validators.
+ * A factory for compute resource validators.
  * 
  */
 @Component
 public class ComputeResourceValidatorFactoryImpl
-    extends FactoryBaseImpl
+    extends ValidatorBaseImpl<IvoaAbstractComputeResource>
     implements FactoryBase, Validator<IvoaAbstractComputeResource>
     {
     /**
-     * Our list of StorageValidators.
-     * TODO Make this configurable ...
+     * Public constructor, creates hard coded list of validators.
+     * TODO Make this configurable. 
      * 
      */
-    private List<Validator<IvoaAbstractComputeResource>> validators = new ArrayList<Validator<IvoaAbstractComputeResource>>();
+    public ComputeResourceValidatorFactoryImpl()
         {
-        validators.add(
+        super();
+        this.validators.add(
             new SimpleComputeResourceValidator()
             );
         }
-    
+
     @Override
-    public ResultSet<IvoaAbstractComputeResource> validate(
-        final IvoaAbstractComputeResource requested,
-        final OfferSetRequestParserState state
+    public Validator.ResultSet<IvoaAbstractComputeResource> unknown(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractComputeResource resource
         ){
-        //
-        // Try each of the validators in our list.
-        for (Validator<IvoaAbstractComputeResource> validator : validators)
-            {
-            ResultSet<IvoaAbstractComputeResource> result = validator.validate(
-                requested,
-                state
-                );
-            switch(result.getEnum())
-                {
-                case ResultEnum.ACCEPTED:
-                    state.getValidatedOfferSetRequest().getResources().addComputeItem(
-                        result.getObject()
-                        );
-                    return result ;
-                case ResultEnum.FAILED:
-                    return result ;
-                default:
-                    continue;
-                }
-            }
-        //
-        // If we didn't find a matching validator, add a warning and fail the validation.
-        state.getOfferSetEntity().addWarning(
-            "urn:unknown-resource-type",
-            "Unknown resource type [${type}][${class}]",
-            Map.of(
-                "type",
-                requested.getType(),
-                "class",
-                requested.getClass().getName()
-                )
+        return unknown(
+            state,
+            resource.getType(),
+            resource.getClass().getName()
             );
-        state.valid(false);
-        return new ResultSetBean<IvoaAbstractComputeResource>(
-            ResultEnum.FAILED
+        }
+
+    @Override
+    public void save(
+        final OfferSetRequestParserState state,
+        final IvoaAbstractComputeResource resource
+        ){
+        state.getValidatedOfferSetRequest().getResources().addComputeItem(
+            resource
             );
         }
     }
