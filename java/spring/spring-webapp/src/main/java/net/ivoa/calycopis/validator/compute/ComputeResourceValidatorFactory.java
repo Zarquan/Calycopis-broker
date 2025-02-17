@@ -25,12 +25,11 @@ package net.ivoa.calycopis.validator.compute;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.validator.ValidatorFactory;
+import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
  * A factory for compute resource validators.

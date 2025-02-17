@@ -27,6 +27,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator.Result;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 

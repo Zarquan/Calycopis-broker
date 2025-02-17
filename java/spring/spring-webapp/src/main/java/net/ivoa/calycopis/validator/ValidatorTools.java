@@ -31,7 +31,7 @@ import net.ivoa.calycopis.validator.Validator.ResultEnum;
  * Provides a set of tools.
  *  
  */
-public class ValidatorTools<ResultType, EntityType>
+public class ValidatorTools<ObjectType, EntityType>
     {
 
     /**
@@ -51,8 +51,8 @@ public class ValidatorTools<ResultType, EntityType>
      * Create an ACCEPTED result.
      * 
      */
-    public Result<ResultType, EntityType> acceptResult(
-        final ResultType resultObject
+    public Result<ObjectType, EntityType> acceptResult(
+        final ObjectType resultObject
         ){
         return wrapResult(
             ResultEnum.ACCEPTED,
@@ -64,7 +64,7 @@ public class ValidatorTools<ResultType, EntityType>
      * Create a CONTINUE result.
      * 
      */
-    public Result<ResultType, EntityType> continueResult()
+    public Result<ObjectType, EntityType> continueResult()
         {
         return wrapResult(
             ResultEnum.CONTINUE,
@@ -76,7 +76,7 @@ public class ValidatorTools<ResultType, EntityType>
      * Create a FAILED result.
      * 
      */
-    public Result<ResultType, EntityType> failResult()
+    public Result<ObjectType, EntityType> failResult()
         {
         return wrapResult(
             ResultEnum.FAILED,
@@ -88,11 +88,11 @@ public class ValidatorTools<ResultType, EntityType>
      * Wrap a result.
      * 
      */
-    public Result<ResultType, EntityType> wrapResult(
+    public Result<ObjectType, EntityType> wrapResult(
         final ResultEnum resultEnum,
-        final ResultType resultObject
+        final ObjectType resultObject
         ){
-        return new ResultBean<ResultType, EntityType>(
+        return new ResultBean<ObjectType, EntityType>(
             resultEnum,
             resultObject
             );

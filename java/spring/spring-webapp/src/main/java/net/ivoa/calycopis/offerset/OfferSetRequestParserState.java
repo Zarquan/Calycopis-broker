@@ -9,11 +9,17 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.executable.AbstractExecutable;
+import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.validator.Validator;
 
 /**
  *
@@ -54,79 +60,67 @@ public interface OfferSetRequestParserState
      * Get the validated executable.
      * 
      */
-    public IvoaAbstractExecutable getExecutable();
+    public Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> getExecutable();
 
     /**
      * Set the validated executable.
      * 
      */
-    public void setExecutable(final IvoaAbstractExecutable executable);
+    public void setExecutable(final Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> result);
 
     /**
      * Add a validated ComputeResource.
      * 
      */
-    public void addComputeResource(final IvoaAbstractComputeResource resource);
+    public void addComputeResource(final Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> resource);
 
     /**
      * Find a validated ComputeResource.
      * 
      */
-    public IvoaAbstractComputeResource findComputeResource(final String key);
+    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> findComputeResource(final String key);
 
     /**
      * List the validated ComputeResources.
      * 
      */
-    public List<IvoaAbstractComputeResource> getComputeResources();
+    public List<Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>> getComputeResources();
 
     /**
      * Add a validated StorageResource.
      * 
      */
-    public void addStorageResource(final IvoaAbstractStorageResource resource);
+    public void addStorageResource(final Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> resource);
 
     /**
      * Find a validated StorageResource.
      * 
      */
-    public IvoaAbstractStorageResource findStorageResource(final String key);
+    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> findStorageResource(final String key);
 
     /**
      * List the validated StorageResources.
      * 
      */
-    public List<IvoaAbstractStorageResource> getStorageResources();
+    public List<Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>> getStorageResources();
     
     /**
      * Add a validated DataResource.
      * 
      */
-    public void addDataResource(final IvoaAbstractDataResource resource);
+    public void addDataResource(final Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> resource);
 
     /**
      * Find a validated DataResource.
      * 
      */
-    public IvoaAbstractDataResource findDataResource(final String key);
+    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> findDataResource(final String key);
 
     /**
      * List the validated DataResources.
      * 
      */
-    public List<IvoaAbstractDataResource> getDataResources();
-
-    /*
-     * 
-    public interface DataStorageLink
-        {
-        public IvoaAbstractDataResource getDataResource();
-        public IvoaAbstractStorageResource getStorageResource();
-        }
-
-    public DataStorageLink findDataStorageLink(final String key);
-     * 
-     */
+    public List<Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity>> getDataResources();
 
     /**
      * Get a List of start intervals.

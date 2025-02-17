@@ -48,7 +48,7 @@ public interface Validator<ObjectType, EntityType>
      * Public interface for a validation result.
      * 
      */
-    public static interface Result<ResultType, EntityType>
+    public static interface Result<ObjectType, EntityType>
         {
         /**
          * Get the validation result enum.
@@ -60,7 +60,7 @@ public interface Validator<ObjectType, EntityType>
          * Get the validated object.
          * 
          */
-        public ResultType getObject();
+        public ObjectType getObject();
 
         /**
          * Get the corresponding Builder to build an entity.
@@ -74,14 +74,14 @@ public interface Validator<ObjectType, EntityType>
      * Simple bean implementation of ResultSet.
      *  
      */
-    public static class ResultBean<ResultType, EntityType>
-    implements Result<ResultType, EntityType>
+    public static class ResultBean<ObjectType, EntityType>
+    implements Result<ObjectType, EntityType>
         {
         public ResultBean(final ResultEnum result)
             {
             this(result, null);
             }
-        public ResultBean(final ResultEnum result, ResultType object)
+        public ResultBean(final ResultEnum result, ObjectType object)
             {
             this.result = result;
             this.object = object;
@@ -94,9 +94,9 @@ public interface Validator<ObjectType, EntityType>
             return this.result;
             }
 
-        private ResultType object;
+        private ObjectType object;
         @Override
-        public ResultType getObject()
+        public ObjectType getObject()
             {
             return this.object;
             }
