@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,29 +21,12 @@
  *
  */
 
-package net.ivoa.calycopis.data.simple;
-
-import net.ivoa.calycopis.data.AbstractDataResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
+package net.ivoa.calycopis.compute;
 
 /**
- * Public interface for a SimpleDataResource.
- *
+ * 
  */
-public interface SimpleDataResource
-    extends AbstractDataResource
+public interface AbstractComputeResource
     {
-    /**
-     * Get the parent ExecutionSession.  
-     *
-     */
-    public ExecutionSession getParent();
-
-    /**
-     * Get the data location.
-     *
-     */
-    public String getLocation();
 
     }
-

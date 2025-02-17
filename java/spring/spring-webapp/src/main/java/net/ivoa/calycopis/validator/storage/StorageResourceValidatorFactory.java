@@ -20,44 +20,45 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.compute;
+package net.ivoa.calycopis.validator.storage;
 
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.factory.FactoryBase;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorBaseImpl;
+import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
- * A factory for compute resource validators.
+ * A factory for storage resource validators.
  * 
  */
 @Component
-public class ComputeResourceValidatorFactoryImpl
-    extends ValidatorBaseImpl<IvoaAbstractComputeResource>
-    implements FactoryBase, Validator<IvoaAbstractComputeResource>
+public class StorageResourceValidatorFactory
+extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+implements ValidatorFactory<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public ComputeResourceValidatorFactoryImpl()
+    public StorageResourceValidatorFactory()
         {
         super();
         this.validators.add(
-            new SimpleComputeResourceValidator()
+            new SimpleStorageResourceValidator()
             );
         }
-
+    
     @Override
-    public Validator.ResultSet<IvoaAbstractComputeResource> unknown(
+    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> unknownResult(
         final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
+        final IvoaAbstractStorageResource resource
         ){
-        return unknown(
+        return unknownResult(
             state,
             resource.getType(),
             resource.getClass().getName()
@@ -67,10 +68,11 @@ public class ComputeResourceValidatorFactoryImpl
     @Override
     public void save(
         final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
+        final IvoaAbstractStorageResource resource
         ){
-        state.getValidatedOfferSetRequest().getResources().addComputeItem(
+        state.getValidatedOfferSetRequest().getResources().addStorageItem(
             resource
             );
         }
     }
+

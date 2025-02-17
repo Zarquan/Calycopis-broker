@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.compute.simple;
 
 import net.ivoa.calycopis.component.Component;
+import net.ivoa.calycopis.compute.AbstractComputeResource;
 import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
@@ -31,7 +32,7 @@ import net.ivoa.calycopis.execution.ExecutionSession;
  *
  */
 public interface SimpleComputeResource
-    extends Component
+    extends Component, AbstractComputeResource
     {
 
     /**

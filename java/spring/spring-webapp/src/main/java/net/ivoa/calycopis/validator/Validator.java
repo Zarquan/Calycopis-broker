@@ -22,15 +22,14 @@
  */
 package net.ivoa.calycopis.validator;
 
-import java.util.Map;
-
+import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 
 /**
- * Public interface for a validator.
+ * Public interface for a Validator.
  *  
  */
-public interface Validator<ObjectType>
+public interface Validator<ObjectType, EntityType>
     {
     /**
      * Result enum for the validation process.
@@ -49,7 +48,7 @@ public interface Validator<ObjectType>
      * Public interface for a validation result.
      * 
      */
-    public interface ResultSet<ResultType>
+    public static interface Result<ResultType, EntityType>
         {
         /**
          * Get the validation result enum.
@@ -63,20 +62,26 @@ public interface Validator<ObjectType>
          */
         public ResultType getObject();
 
+        /**
+         * Get the corresponding Builder to build an entity.
+         * 
+         */
+        public Builder<EntityType> getBuilder();
+        
         }
 
     /**
      * Simple bean implementation of ResultSet.
      *  
      */
-    public class ResultSetBean<ResultType>
-    implements ResultSet<ResultType>
+    public static class ResultBean<ResultType, EntityType>
+    implements Result<ResultType, EntityType>
         {
-        public ResultSetBean(final ResultEnum result)
+        public ResultBean(final ResultEnum result)
             {
             this(result, null);
             }
-        public ResultSetBean(final ResultEnum result, ResultType object)
+        public ResultBean(final ResultEnum result, ResultType object)
             {
             this.result = result;
             this.object = object;
@@ -95,13 +100,19 @@ public interface Validator<ObjectType>
             {
             return this.object;
             }
+        @Override
+        public Builder<EntityType> getBuilder()
+            {
+            // TODO Auto-generated method stub
+            return null;
+            }
         }
-    
+
     /**
-     * Validate a request component.
+     * Validate a component.
      *
      */
-    public Validator.ResultSet<ObjectType> validate(
+    public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         );

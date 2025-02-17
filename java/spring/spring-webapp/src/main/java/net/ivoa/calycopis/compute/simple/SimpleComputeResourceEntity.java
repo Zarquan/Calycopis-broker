@@ -30,7 +30,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.component.ComponentEntity;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
     value = "uri:simple-compute-resources"
     )
 public class SimpleComputeResourceEntity
-    extends ComponentEntity
+    extends AbstractComputeResourceEntity
     implements SimpleComputeResource
     {
 

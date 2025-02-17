@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,29 +21,32 @@
  *
  */
 
-package net.ivoa.calycopis.data.simple;
+package net.ivoa.calycopis.storage;
 
-import net.ivoa.calycopis.data.AbstractDataResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.component.ComponentEntity;
 
 /**
- * Public interface for a SimpleDataResource.
- *
+ * 
  */
-public interface SimpleDataResource
-    extends AbstractDataResource
+public class AbstractStorageResourceEntity
+extends ComponentEntity
+implements AbstractStorageResource
     {
     /**
-     * Get the parent ExecutionSession.  
-     *
+     * Protected constructor.
+     * 
      */
-    public ExecutionSession getParent();
+    protected AbstractStorageResourceEntity()
+        {
+        super();
+        }
 
     /**
-     * Get the data location.
-     *
+     * Protected constructor.
+     * 
      */
-    public String getLocation();
-
+    protected AbstractStorageResourceEntity(String name)
+        {
+        super(name);
+        }
     }
-

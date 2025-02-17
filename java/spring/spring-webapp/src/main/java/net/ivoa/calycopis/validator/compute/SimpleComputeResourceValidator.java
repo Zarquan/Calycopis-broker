@@ -22,11 +22,22 @@
  */
 package net.ivoa.calycopis.validator.compute;
 
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.ValidatorTools;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -34,11 +45,12 @@ import net.ivoa.calycopis.validator.Validator;
  */
 @Slf4j
 public class SimpleComputeResourceValidator
-implements Validator<IvoaAbstractComputeResource>
+extends ValidatorTools<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
 
     @Override
-    public Validator.ResultSet<IvoaAbstractComputeResource> validate(
+    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserState state
         ){
@@ -52,30 +64,284 @@ implements Validator<IvoaAbstractComputeResource>
                     state
                     );
             default:
-                return new ResultSetBean<IvoaAbstractComputeResource>(
-                    ResultEnum.CONTINUE
-                    );
+                return continueResult();
             }
         }
+
+    /**
+     * Hard coded defaults.
+     * TODO make these configurable.
+     * 
+     */
+    public static final Long MIN_CORES_DEFAULT =  1L ;
+
+    /**
+     * Hard coded defaults.
+     * TODO make these configurable.
+     * 
+     */
+    public static final Long MAX_CORES_LIMIT   = 16L ;
+
+    /**
+     * Hard coded defaults.
+     * TODO make these configurable.
+     * 
+     */
+    public static final Long MIN_MEMORY_DEFAULT =  1L;
+
+    /**
+     * Hard coded defaults.
+     * TODO make these configurable.
+     * 
+     */
+    public static final Long MAX_MEMORY_LIMIT   = 16L;
 
     /**
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public Validator.ResultSet<IvoaAbstractComputeResource> validate(
+    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleComputeResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
+        boolean success = true ;
         IvoaSimpleComputeResource result = new IvoaSimpleComputeResource();
+
+        Long mincores = MIN_CORES_DEFAULT;
+        Long maxcores = MIN_CORES_DEFAULT;
+
+        Boolean minimalcores  = false;
+
+        if (requested.getCores() != null)
+            {
+            if (requested.getCores().getRequested() != null)
+                {
+                if (requested.getCores().getRequested().getMin() != null)
+                    {
+                    mincores = requested.getCores().getRequested().getMin();
+                    }
+                if (requested.getCores().getRequested().getMax() != null)
+                    {
+                    maxcores = requested.getCores().getRequested().getMax();
+                    }
+                if (requested.getCores().getRequested().getMinimal() != null)
+                    {
+                    minimalcores = requested.getCores().getRequested().getMinimal();
+                    }
+                }
+
+            if (requested.getCores().getOffered() != null)
+                {
+                state.getOfferSetEntity().addWarning(
+                    "urn:service-defined",
+                    "Offered cores should not be set [${resource}][${offered}]",
+                    Map.of(
+                        "resource",
+                        requested.getName(),
+                        "offered",
+                        requested.getCores().getOffered()
+                        )
+                    );
+                success = false;
+                }
+            }
+        if (mincores > MAX_CORES_LIMIT)
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:resource-limit",
+                "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
+                Map.of(
+                    "resource",
+                    requested.getName(),
+                    "cores",
+                    mincores,
+                    "limit",
+                    MAX_CORES_LIMIT
+                    )
+                );
+            success = false;
+            }
+        if (maxcores > MAX_CORES_LIMIT)
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:resource-limit",
+                "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
+                Map.of(
+                    "resource",
+                    requested.getName(),
+                    "cores",
+                    maxcores,
+                    "limit",
+                    MAX_CORES_LIMIT
+                    )
+                );
+            success = false;
+            }
+
+        Long minmemory = MIN_MEMORY_DEFAULT;
+        Long maxmemory = MIN_MEMORY_DEFAULT;
+        Boolean minimalmemory = false;
         
+        if (requested.getMemory() != null)
+            {
+            if (requested.getMemory().getRequested() != null)
+                {
+                if (requested.getMemory().getRequested().getMin() != null)
+                    {
+                    minmemory = requested.getMemory().getRequested().getMin();
+                    }
+                if (requested.getMemory().getRequested().getMax() != null)
+                    {
+                    maxmemory = requested.getMemory().getRequested().getMax();
+                    }
+                if (requested.getMemory().getRequested().getMinimal() != null)
+                    {
+                    minimalmemory = requested.getMemory().getRequested().getMinimal();
+                    }
+                }
+
+            if (requested.getMemory().getOffered() != null)
+                {
+                state.getOfferSetEntity().addWarning(
+                    "urn:service-defined",
+                    "Offered memory should not be set by client [${resource}][${offered}]",
+                    Map.of(
+                        "resource",
+                        requested.getName(),
+                        "offered",
+                        requested.getMemory().getOffered()
+                        )
+                    );
+                success = false;
+                }
+            }
+
+        if (minmemory > MAX_MEMORY_LIMIT)
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:resource-limit",
+                "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                Map.of(
+                    "resource",
+                    requested.getName(),
+                    "memory",
+                    minmemory,
+                    "limit",
+                    MAX_MEMORY_LIMIT
+                    )
+                );
+            success = false;
+            }
+
+        if (maxmemory > MAX_MEMORY_LIMIT)
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:resource-limit",
+                "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                Map.of(
+                    "resource",
+                    requested.getName(),
+                    "memory",
+                    maxmemory,
+                    "limit",
+                    MAX_MEMORY_LIMIT
+                    )
+                );
+            success = false;
+            }
+        
+        //
+        // Process the network ports.
+        // ....
+
         result.setName(requested.getName());
 
-        return new ResultSetBean<IvoaAbstractComputeResource>(
-            ResultEnum.ACCEPTED,
+        IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
+        IvoaSimpleComputeCoresRequested coresRequested = new IvoaSimpleComputeCoresRequested(); 
+        coresRequested.setMin(mincores);
+        coresRequested.setMax(maxcores);
+        coresRequested.setMinimal(minimalcores);
+        cores.setRequested(coresRequested);
+        result.setCores(cores);
+
+        IvoaSimpleComputeMemory memory = new IvoaSimpleComputeMemory();
+        IvoaSimpleComputeMemoryRequested memoryRequested = new IvoaSimpleComputeMemoryRequested(); 
+        memoryRequested.setMin(minmemory);
+        memoryRequested.setMax(maxmemory);
+        memoryRequested.setMinimal(minimalmemory);
+        memory.setRequested(memoryRequested);
+        result.setMemory(memory);
+        
+        //
+        // Process the volume mounts.
+        if (requested.getVolumes() != null)
+            {
+            for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
+                {
+                // Try finding a storage resource.
+                IvoaAbstractStorageResource storage = state.findStorageResource(volumeRequest.getResource());
+                // If we din't find a storage resource.
+                if (storage == null)
+                    {
+                    // Try finding a data resource.
+                    IvoaAbstractDataResource data = state.findDataResource(volumeRequest.getResource());
+                    // If we found a data resource.
+                    if (data != null)
+                        {
+                        // Try finding a corresponding storage resource.
+                        storage = null;
+                        }
+                    }
+                
+                if (storage  != null)
+                    {
+                    // Create a volume linking the storage resource to the compute resource.
+                    
+                    }
+                else {
+                    // error unmatched data resource ...
+                    }
+                }
+            }
+
+        //
+        // Add the results to our parser state.
+        state.addComputeResource(
             result
             );
+        state.addMinCores(
+            mincores
+            );
+        state.addMaxCores(
+            maxcores
+            );
+        state.addMinMemory(
+            minmemory
+            );
+        state.addMaxMemory(
+            maxmemory
+            );
+
+        //
+        // Everything is good, so accept the request.
+        // TODO Need to add a reference to the builder.
+        if (success)
+            {
+            state.addComputeResource(
+                result
+                );
+            return acceptResult(
+                result
+                );
+            }
+        //
+        // Something wasn't right, fail the validation.
+        else {
+            state.valid(false);
+            return failResult();
+            }
         }
     }

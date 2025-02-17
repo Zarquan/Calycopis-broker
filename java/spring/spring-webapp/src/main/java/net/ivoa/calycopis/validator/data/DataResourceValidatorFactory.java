@@ -22,38 +22,30 @@
  */
 package net.ivoa.calycopis.validator.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.factory.FactoryBase;
-import net.ivoa.calycopis.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
-import net.ivoa.calycopis.validator.Validator.ResultSet;
-import net.ivoa.calycopis.validator.ValidatorBaseImpl;
-import net.ivoa.calycopis.validator.compute.SimpleComputeResourceValidator;
+import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
  * A factory for data resource validators.
  * 
  */
 @Component
-public class DataResourceValidatorFactoryImpl
-    extends ValidatorBaseImpl<IvoaAbstractDataResource>
-    implements FactoryBase, Validator<IvoaAbstractDataResource>
+public class DataResourceValidatorFactory
+    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    implements ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public DataResourceValidatorFactoryImpl()
+    public DataResourceValidatorFactory()
         {
         super();
         this.validators.add(
@@ -62,11 +54,11 @@ public class DataResourceValidatorFactoryImpl
         }
     
     @Override
-    public Validator.ResultSet<IvoaAbstractDataResource> unknown(
+    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> unknownResult(
         final OfferSetRequestParserState state,
         final IvoaAbstractDataResource resource
         ){
-        return unknown(
+        return unknownResult(
             state,
             resource.getType(),
             resource.getClass().getName()

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,30 +20,16 @@
  *
  *
  */
+package net.ivoa.calycopis.validator;
 
-package net.ivoa.calycopis.data.simple;
-
-import net.ivoa.calycopis.data.AbstractDataResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.factory.FactoryBase;
 
 /**
- * Public interface for a SimpleDataResource.
- *
+ * Public interface for a ValidatorFactory.
+ * 
  */
-public interface SimpleDataResource
-    extends AbstractDataResource
+public interface ValidatorFactory<ObjectType, EntityType>
+    extends FactoryBase, Validator<ObjectType, EntityType>
     {
-    /**
-     * Get the parent ExecutionSession.  
-     *
-     */
-    public ExecutionSession getParent();
-
-    /**
-     * Get the data location.
-     *
-     */
-    public String getLocation();
 
     }
-

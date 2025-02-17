@@ -23,15 +23,15 @@
 
 package net.ivoa.calycopis.storage.simple;
 
-import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.storage.AbstractStorageResource;
 
 /**
  * Public interface for a SimpleStorageResource.
  *
  */
 public interface SimpleStorageResource
-    extends Component
+    extends AbstractStorageResource
     {
 
     public ExecutionSession getParent();

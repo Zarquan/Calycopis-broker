@@ -24,13 +24,11 @@ package net.ivoa.calycopis.validator.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
-import net.ivoa.calycopis.validator.Validator.ResultSetBean;
+import net.ivoa.calycopis.validator.ValidatorTools;
 
 /**
  * A validator implementation to handle simple storage resources.
@@ -38,11 +36,12 @@ import net.ivoa.calycopis.validator.Validator.ResultSetBean;
  */
 @Slf4j
 public class SimpleStorageResourceValidator
-implements Validator<IvoaAbstractStorageResource>
+extends ValidatorTools<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+implements Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
 
     @Override
-    public Validator.ResultSet<IvoaAbstractStorageResource> validate(
+    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserState state
         ){
@@ -56,9 +55,7 @@ implements Validator<IvoaAbstractStorageResource>
                 state
                 );
         default:
-            return new ResultSetBean<IvoaAbstractStorageResource>(
-                ResultEnum.CONTINUE
-                );
+            return continueResult();
         }
     }
 
@@ -66,24 +63,39 @@ implements Validator<IvoaAbstractStorageResource>
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public Validator.ResultSet<IvoaAbstractStorageResource> validate(
+    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
+        boolean success = true ;
+        IvoaSimpleStorageResource result = new IvoaSimpleStorageResource();
+
         //
         // Check for a storage location.
         //
-        
-        IvoaSimpleStorageResource result = new IvoaSimpleStorageResource();
-        
-        result.setName(requested.getName());
 
-        return new ResultSetBean<IvoaAbstractStorageResource>(
-            ResultEnum.ACCEPTED,
-            result
-            );
+        //
+        // Everything is good.
+        // Create our result and add it to our state.
+        // TODO Need to add a reference to the builder.
+        if (success)
+            {
+            result.setName(requested.getName());
+            state.addStorageResource(
+                result
+                );
+            return acceptResult(
+                result
+                );
+            }
+        //
+        // Something wasn't right, fail the validation.
+        else {
+            state.valid(false);
+            return failResult();
+            }
         }
     }

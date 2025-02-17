@@ -14,16 +14,16 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
  * Base class for validator factories.
  * 
  */
-public abstract class ValidatorBaseImpl<ObjectType>
+public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
     extends FactoryBaseImpl
-    implements Validator<ObjectType>
+    implements Validator<ObjectType, EntityType>
     {
 
     /**
      * Our list of validators.
      * 
      */
-    protected List<Validator<ObjectType>> validators = new ArrayList<Validator<ObjectType>>();
+    protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
 
     /**
      * Save a validated result.
@@ -38,7 +38,7 @@ public abstract class ValidatorBaseImpl<ObjectType>
      * Report an unknown type.
      *
      */
-    public abstract Validator.ResultSet<ObjectType> unknown(
+    public abstract Validator.Result<ObjectType, EntityType> unknownResult(
         final OfferSetRequestParserState state,
         final ObjectType object
         );
@@ -47,7 +47,7 @@ public abstract class ValidatorBaseImpl<ObjectType>
      * Report an unknown type.
      *
      */
-    public Validator.ResultSet<ObjectType> unknown(
+    public Validator.Result<ObjectType, EntityType> unknownResult(
         final OfferSetRequestParserState state,
         final String typeName,
         final String className
@@ -63,21 +63,21 @@ public abstract class ValidatorBaseImpl<ObjectType>
                 )
             );
         state.valid(false);
-        return new ResultSetBean<ObjectType>(
+        return new ResultBean<ObjectType, EntityType>(
             ResultEnum.FAILED
             );
         }
 
     @Override
-    public ResultSet<ObjectType> validate(
+    public Result<ObjectType, EntityType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         ){
         //
         // Try each of the validators in our list.
-        for (Validator<ObjectType> validator : validators)
+        for (Validator<ObjectType, EntityType> validator : validators)
             {
-            ResultSet<ObjectType> result = validator.validate(
+            Result<ObjectType, EntityType> result = validator.validate(
                 requested,
                 state
                 );
@@ -97,7 +97,7 @@ public abstract class ValidatorBaseImpl<ObjectType>
             }
         //
         // Fail the validation if we didn't find a matching validator.
-        return unknown(
+        return unknownResult(
             state,
             requested
             );

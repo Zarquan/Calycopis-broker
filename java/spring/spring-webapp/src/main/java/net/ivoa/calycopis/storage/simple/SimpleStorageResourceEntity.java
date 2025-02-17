@@ -29,8 +29,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 
 /**
  * A SimpleStorageResource Entity.
@@ -44,7 +44,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
     value="uri:simple-storage-resource"
     )
 public class SimpleStorageResourceEntity
-    extends ComponentEntity
+    extends AbstractStorageResourceEntity
     implements SimpleStorageResource
     {
 

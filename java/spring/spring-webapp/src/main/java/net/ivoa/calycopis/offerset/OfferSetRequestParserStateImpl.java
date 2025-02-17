@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.threeten.extra.Interval;
 
@@ -31,6 +32,7 @@ import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
@@ -40,12 +42,14 @@ import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.validator.ValidatorTools;
 
 /**
  *
  */
 @Slf4j
 public class OfferSetRequestParserStateImpl
+extends ValidatorTools
     implements OfferSetRequestParserState
     {
 
@@ -56,33 +60,16 @@ public class OfferSetRequestParserStateImpl
     private AmazonS3DataResourceFactory  amazonDataFactory;
     private JupyterNotebookFactory       jupyterNotebookFactory;
 
-/*
- * 
-    public OfferSetRequestParserStateImpl(
-        final OfferBlockFactory            offerBlockFactory,
-        final ExecutionSessionFactory      executionFactory,
-        final SimpleComputeResourceFactory simpleComputeFactory,
-        final SimpleDataResourceFactory    simpleDataFactory,
-        final AmazonS3DataResourceFactory  amazonDataFactory,
-        final JupyterNotebookFactory       jupyterNotebookFactory
-        ){
-        this.offerBlockFactory      = offerBlockFactory;
-        this.executionFactory       = executionFactory;
-        this.simpleComputeFactory   = simpleComputeFactory;
-        this.simpleDataFactory      = simpleDataFactory;
-        this.amazonDataFactory      = amazonDataFactory;
-        this.jupyterNotebookFactory = jupyterNotebookFactory;
-        }
- *     
- */
-
     /**
      * Public constructor.
      * 
      */
-    public OfferSetRequestParserStateImpl(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
-        {
+    public OfferSetRequestParserStateImpl(
+        final IvoaOfferSetRequest offersetRequest,
+        final OfferSetEntity offersetEntity
+        ){
         this.originalRequest  = offersetRequest;
+        this.validatedRequest = new IvoaOfferSetRequest();
         this.offersetEntity   = offersetEntity;
         }
    
@@ -123,102 +110,185 @@ public class OfferSetRequestParserStateImpl
         this.valid = false;
         }
 
-    private IvoaAbstractExecutable requestExecutable;
-    public IvoaAbstractExecutable getRequesedtExecutable()
+    private IvoaAbstractExecutable executable;
+    @Override
+    public IvoaAbstractExecutable getExecutable()
         {
-        return this.requestExecutable;
+        return this.executable;
         }
-    public void setRequestedExecutable(final IvoaAbstractExecutable executable)
+    public void setExecutable(final IvoaAbstractExecutable executable)
         {
-        this.requestExecutable = executable;
+        this.executable = executable;
         }
-
     
-    
-    private List<SimpleDataResourceEntity> dataResourceList = new ArrayList<SimpleDataResourceEntity>();
-    public List<SimpleDataResourceEntity> getDataResourceList()
-        {
-        return this.dataResourceList;
-        }
+    private List<IvoaAbstractDataResource> dataResourceList = new ArrayList<IvoaAbstractDataResource>();
+    private Map<String, IvoaAbstractDataResource> dataResourceMap = new HashMap<String, IvoaAbstractDataResource>();
 
-    private Map<String, SimpleDataResourceEntity> dataResourceMap = new HashMap<String, SimpleDataResourceEntity>();
-    public SimpleDataResourceEntity findDataResource(String key)
+    @Override
+    public IvoaAbstractDataResource findDataResource(String key)
         {
         return dataResourceMap.get(key);
         }
 
-    protected void addDataResource(final SimpleDataResourceEntity data)
+    @Override
+    public void addDataResource(final IvoaAbstractDataResource resource)
         {
         dataResourceList.add(
-            data
+                resource
             );
-        if (data.getUuid() != null)
+        if (resource.getUuid() != null)
             {
             dataResourceMap.put(
-                data.getUuid().toString(),
-                data
+                resource.getUuid().toString(),
+                resource
                 );
             }
-        if (data.getName() != null)
+        if (resource.getName() != null)
             {
             dataResourceMap.put(
-                data.getName(),
-                data
+                resource.getName(),
+                resource
                 );
             }
         }
 
-    private List<SimpleComputeResourceEntity> compResourceList = new ArrayList<SimpleComputeResourceEntity>();
-    public List<SimpleComputeResourceEntity> getComputeResourceList()
-        {
-        return this.compResourceList;
-        }
+    private List<IvoaAbstractComputeResource> compResourceList = new ArrayList<IvoaAbstractComputeResource>();
+    private Map<String, IvoaAbstractComputeResource> compResourceMap = new HashMap<String, IvoaAbstractComputeResource>();
 
-    private Map<String, SimpleComputeResourceEntity> compResourceMap = new HashMap<String, SimpleComputeResourceEntity>();
-    public SimpleComputeResourceEntity findComputeResource(final String key)
+    @Override
+    public IvoaAbstractComputeResource findComputeResource(String key)
         {
+        log.debug("findComputeResource(String)");
+        log.debug("Key [{}]", key);
         return compResourceMap.get(key);
         }
 
-    protected void addComputeResource(final SimpleComputeResourceEntity comp)
+    @Override
+    public void addComputeResource(final IvoaAbstractComputeResource resource)
         {
         compResourceList.add(
-            comp
+                resource
             );
-        if (comp.getUuid() != null)
+        if (resource.getUuid() != null)
             {
             compResourceMap.put(
-                comp.getUuid().toString(),
-                comp
+                resource.getUuid().toString(),
+                resource
                 );
             }
-        if (comp.getName() != null)
+        if (resource.getName() != null)
             {
             compResourceMap.put(
-                comp.getName(),
-                comp
+                resource.getName(),
+                resource
                 );
             }
         }
 
-    private AbstractExecutableEntity executable;
-    public AbstractExecutableEntity getExecutable()
+    private List<IvoaAbstractStorageResource> storageResourceList = new ArrayList<IvoaAbstractStorageResource>();
+    private Map<String, IvoaAbstractStorageResource> storageResourceMap = new HashMap<String, IvoaAbstractStorageResource>();
+
+    @Override
+    public IvoaAbstractStorageResource findStorageResource(String key)
         {
-        log.debug("getExecutable() [{}]", (this.executable != null) ? this.executable.getUuid() : "null-executable");
-        return this.executable;
+        log.debug("findStorageResource(String)");
+        log.debug("Key [{}]", key);
+        return storageResourceMap.get(key);
         }
-    protected void setExecutable(final AbstractExecutableEntity executable)
+
+    @Override
+    public void addStorageResource(final IvoaAbstractStorageResource resource)
         {
-        this.executable = executable;
-        log.debug("setExecutable() [{}]", (this.executable != null) ? this.executable.getUuid() : "null-executable");
+        storageResourceList.add(
+                resource
+            );
+        if (resource.getUuid() != null)
+            {
+            storageResourceMap.put(
+                resource.getUuid().toString(),
+                resource
+                );
+            }
+        if (resource.getName() != null)
+            {
+            storageResourceMap.put(
+                resource.getName(),
+                resource
+                );
+            }
+        }
+    
+    /**
+     * A Map of DataResources to StorageResources.
+     * 
+     */
+    private Map<String, IvoaAbstractStorageResource> dataStorageMap = new HashMap<String, IvoaAbstractStorageResource>();
+    
+    /**
+     * Link a StorageResource to a DataResource.
+     * 
+     */
+    public void addDataStorageResource(final IvoaAbstractDataResource data, final IvoaAbstractStorageResource stor)
+        {
+        log.debug("addDataStorageResource(IvoaAbstractDataResource, IvoaAbstractStorageResource )");
+        String dataUuid = ((data.getUuid() != null) ? data.getUuid().toString() : null);
+        String storUuid = ((stor.getUuid() != null) ? stor.getUuid().toString() : null);
+        log.debug("DataResource [{}][{}]", data.getName(), dataUuid);
+        log.debug("StorResource [{}][{}]", stor.getName(), storUuid);
+
+        if (dataStorageMap.get(dataUuid) != null)
+            {
+            log.error("Duplicate DataResource entry [{}][{}]", data.getName(), dataUuid);
+            }
+        else {
+            dataStorageMap.put(
+                dataUuid,
+                stor
+                );
+            }
+        }
+    
+    /**
+     * Get the StorageResource for a DataResource.
+     * 
+     */
+    public IvoaAbstractStorageResource findDataStorageResource(final IvoaAbstractDataResource data)
+        {
+        log.debug("findDataStorageResource(IvoaAbstractDataResource)");
+        String dataUuid = ((data.getUuid() != null) ? data.getUuid().toString() : null);
+        log.debug("DataResource [{}][{}]", data.getName(), dataUuid);
+        return dataStorageMap.get(
+            data.getUuid().toString()
+            );
+        }
+
+    /**
+     * A list of requested start intervals.
+     *
+     */
+    private List<Interval> startintervals = new ArrayList<Interval>();
+    public List<Interval> getStartIntervals()
+        {
+        return this.startintervals;
+        }
+
+    /**
+     * The requested duration.
+     *
+     */
+    private Duration exeduration = null;
+    public Duration getDuration()
+        {
+        return this.exeduration;
         }
 
     private long totalMinCores;
     @Override
-    public long getMinCores()
+    public long getTotalMinCores()
         {
         return this.totalMinCores;
         }
+    @Override
     public void addMinCores(long delta)
         {
         this.totalMinCores += delta;
@@ -226,10 +296,11 @@ public class OfferSetRequestParserStateImpl
 
     private long totalMaxCores;
     @Override
-    public long getMaxCores()
+    public long getTotalMaxCores()
         {
         return this.totalMaxCores;
         }
+    @Override
     public void addMaxCores(long delta)
         {
         this.totalMaxCores += delta;
@@ -237,10 +308,11 @@ public class OfferSetRequestParserStateImpl
 
     private long totalMinMemory;
     @Override
-    public long getMinMemory()
+    public long getTotalMinMemory()
         {
         return this.totalMinMemory;
         }
+    @Override
     public void addMinMemory(long delta)
         {
         this.totalMinMemory += delta;
@@ -248,118 +320,23 @@ public class OfferSetRequestParserStateImpl
 
     private long totalMaxMemory;
     @Override
-    public long getMaxMemory()
+    public long getTotalMaxMemory()
         {
         return this.totalMaxMemory;
         }
+    @Override
     public void addMaxMemory(long delta)
         {
         this.totalMaxMemory += delta;
         }
 
+    
+    
+    
     public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
         this.valid = true;
-        //this.offersetRequest = request;
-        //this.offersetEntity = offerset;
-        //
-        // Reject storage resources.
-        if (request.getResources() != null)
-            {
-            if (request.getResources().getStorage() != null)
-                {
-                if (request.getResources().getStorage().size() > 0)
-                    {
-                    log.warn("Storage resources not supported");
-                    offerset.addWarning(
-                        "urn:not-supported-message",
-                        "Storage resources not supported"
-                        );
-                    this.fail();
-                    }
-                }
-            }
-        //
-        // Reject multiple compute resources.
-        if (request.getResources() != null)
-            {
-            if (request.getResources().getCompute() != null)
-                {
-                if (request.getResources().getCompute().size() > 1)
-                    {
-                    log.warn("Multiple compute resources not supported");
-                    offerset.addWarning(
-                        "urn:not-supported-message",
-                        "Multiple compute resources not supported"
-                        );
-                    this.fail();
-                    }
-                }
-            }
-        //
-        // If there is no resource list, add one.
-        if (request.getResources() == null)
-            {
-            log.debug("Adding empty resources block");
-            request.setResources(
-                new IvoaExecutionResourceList()
-                );
-            }
-        //
-        // If there are no compute resources, add one.
-        if (request.getResources().getCompute().isEmpty())
-            {
-            log.debug("Adding empty compute resource");
-            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
-                "urn:simple-compute-resource"
-                );
-            compute.setName(
-                "Simple compute resource"
-                );
-            request.getResources().addComputeItem(
-                compute
-                );
-            }
-        //
-        // Validate our schedule
-        this.validate(
-            request.getSchedule()
-            );
-        //
-        // Validate our executable.
-/*
-        this.validate(
-            request.getExecutable()
-            );
- */
-        //
-        // Validate our resources.
-        if (request.getResources() != null)
-            {
-            //
-            // Validate our data resources.
-            if (request.getResources().getData() != null)
-                {
-                for (IvoaAbstractDataResource resource : request.getResources().getData())
-                    {
-                    this.validate(
-                        resource
-                        );
-                    }
-                }
-            //
-            // Validate our compute resources.
-            if (request.getResources().getCompute() != null)
-                {
-                for (IvoaAbstractComputeResource resource : request.getResources().getCompute())
-                    {
-                    this.validate(
-                        resource
-                        );
-                    }
-                }
-            }
 
         //
         // Start with NO, and set to YES when we have at least one offer.
@@ -443,12 +420,12 @@ log.debug("---- ---- ---- ----");
                     // this should be managed by the canfar classes
                     // so we call out to platform with the block size and request size
                     // platform responds with a list of compute entities that fit the limits
-                    long corescale   = offerblock.getCores()/this.getMinCores();
-                    long memoryscale = offerblock.getMemory()/this.getMinMemory();
+                    long corescale   = offerblock.getCores()/this.getTotalMinCores();
+                    long memoryscale = offerblock.getMemory()/this.getTotalMinMemory();
                     log.debug("----");
                     log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
-                    log.debug("Cores  [{}][{}][{}]", this.getMinCores(), offerblock.getCores(), corescale);
-                    log.debug("Memory [{}][{}][{}]", this.getMinMemory(), offerblock.getMemory(), memoryscale);
+                    log.debug("Cores  [{}][{}][{}]", this.getTotalMinCores(), offerblock.getCores(), corescale);
+                    log.debug("Memory [{}][{}][{}]", this.getTotalMinMemory(), offerblock.getMemory(), memoryscale);
                     for (SimpleComputeResourceEntity compresource : compResourceList)
                         {
                         long offercores  = compresource.getMinRequestedCores()  * corescale;
@@ -482,529 +459,5 @@ log.debug("---- ---- ---- ----");
             );
         }
 
-    /**
-     * List of requested start intervals.
-     *
-     */
-    List<Interval> startintervals = new ArrayList<Interval>();
-    public List<Interval> getStartIntervals()
-        {
-        return this.startintervals;
-        }
 
-
-    /**
-     * Requested duration.
-     *
-     */
-    Duration exeduration = null;
-    public Duration getDuration()
-        {
-        return this.exeduration;
-        }
-
-    /**
-     * Default execution duration.
-     *
-     */
-    Duration DEFAULT_EXEC_DURATION = Duration.ofHours(2);
-
-    /**
-     * Default duration for the default start interval.
-     *
-     */
-    Duration DEFAULT_START_DURATION = Duration.ofHours(2);
-
-    /**
-     * Validate the requested Schedule.
-     *
-     */
-    public void validate(final IvoaOfferSetRequestSchedule schedule)
-        {
-        log.debug("validate(IvoaExecutionSessionRequestSchedule)");
-        if (schedule != null)
-            {
-            IvoaScheduleRequestBlock requested = schedule.getRequested();
-            if (requested != null)
-                {
-                String durationstr = requested.getDuration();
-                if (durationstr != null)
-                    {
-                    try {
-                        Duration durationval = Duration.parse(
-                            durationstr
-                            );
-                        this.exeduration = durationval;
-                        log.debug("Duration [{}][{}]", durationstr, durationval);
-                        }
-                    catch (Exception ouch)
-                        {
-                        offersetEntity.addWarning(
-                            "urn:input-syntax-fail",
-                            "Unable to parse duration [${string}][${message}]",
-                            Map.of(
-                                "value",
-                                durationstr,
-                                "message",
-                                ouch.getMessage()
-                                )
-                            );
-                        this.fail();
-                        }
-                    }
-
-                List<String> startstrlist = requested.getStart();
-                if (startstrlist != null)
-                    {
-                    for (String startstr : startstrlist)
-                        {
-                        try {
-                            Interval startint = Interval.parse(
-                                startstr
-                                );
-                            this.startintervals.add(
-                                startint
-                                );
-                            log.debug("Interval [{}][{}]", startstr, startint);
-                            }
-                        catch (Exception ouch)
-                            {
-                            offersetEntity.addWarning(
-                                "urn:input-syntax-fail",
-                                "Unable to parse interval [${string}][${message}]",
-                                Map.of(
-                                    "value",
-                                    startstr,
-                                    "message",
-                                    ouch.getMessage()
-                                    )
-                                );
-                            this.fail();
-                            }
-                        }
-                    }
-                }
-            }
-
-        if (startintervals.isEmpty())
-            {
-            Interval defaultint = Interval.of(
-                Instant.now(),
-                DEFAULT_START_DURATION
-                );
-            log.debug("Interval list is empty, adding default [{}]", defaultint);
-            startintervals.add(
-                defaultint
-                );
-            }
-
-        if (exeduration == null)
-            {
-            log.debug("Duration is empty, using default [{}]", DEFAULT_EXEC_DURATION);
-            exeduration = DEFAULT_EXEC_DURATION;
-            }
-        }
-
-
-    /**
-     * Validate an AbstractDataResource.
-     *
-     */
-    private void validate(IvoaAbstractDataResource resource)
-        {
-        switch(resource)
-        {
-        case IvoaSimpleDataResource simple :
-            validate(
-                simple
-                );
-            break;
-
-        case IvoaS3DataResource s3 :
-            validate(
-                s3
-                );
-            break;
-
-        default:
-            offersetEntity.addWarning(
-                "urn:unknown-resource-type",
-                "Unknown resource type [${resource}][${type}][${class}]",
-                Map.of(
-                    "resource",
-                    resource.getName(),
-                    "type",
-                    resource.getType(),
-                    "class",
-                    resource.getClass().getName()
-                    )
-                );
-            this.fail();
-            break;
-            }
-        }
-
-    /**
-     * Validate a SimpleDataResource.
-     *
-     */
-    private void validate(IvoaSimpleDataResource request)
-        {
-        log.debug("validate(IvoaSimpleDataResource)");
-        log.debug("DataResource [{}]", request.getName());
-
-        String name = trimString(
-            request.getName()
-            );
-        String location = trimString(
-            request.getLocation()
-            );
-
-        if ((location == null) || (location.isEmpty()))
-            {
-            offersetEntity.addWarning(
-                "urn:missing-required-value",
-                "Data location required"
-                );
-            this.fail();
-            }
-
-        SimpleDataResourceEntity entity = this.simpleDataFactory.create(
-            null,
-            name,
-            location
-            );
-        this.addDataResource(
-            entity
-            );
-        }
-
-    /**
-     * Validate a S3DataResource.
-     *
-     */
-    private void validate(IvoaS3DataResource request)
-        {
-        log.debug("validate(IvoaSimpleDataResource)");
-        log.debug("DataResource [{}]", request.getName());
-
-        String name = trimString(
-            request.getName()
-            );
-        String endpoint = trimString(
-            request.getEndpoint()
-            );
-        String template = trimString(
-            request.getTemplate()
-            );
-        String bucket = trimString(
-            request.getBucket()
-            );
-        String object = trimString(
-            request.getObject()
-            );
-
-        if ((endpoint == null) || (endpoint.isEmpty()))
-            {
-            offersetEntity.addWarning(
-                "urn:missing-required-value",
-                "S3 service endpoint required"
-                );
-            this.fail();
-            }
-
-        if ((template == null) || (template.isEmpty()))
-            {
-            offersetEntity.addWarning(
-                "urn:missing-required-value",
-                "S3 service template required"
-                );
-            this.fail();
-            }
-
-        if ((bucket == null) || (bucket.isEmpty()))
-            {
-            offersetEntity.addWarning(
-                "urn:missing-required-value",
-                "S3 bucket name required"
-                );
-            this.fail();
-            }
-
-        AmazonS3DataResourceEntity entity = this.amazonDataFactory.create(
-            null,
-            name,
-            endpoint,
-            template,
-            bucket,
-            object
-            );
-/*
- *
-        // TODO Allow multiple data types.
-        this.addDataResource(
-            entity
-            );
- *
- */
-        }
-
-    /**
-     * Validate an AbstractComputeResource.
-     *
-     */
-    public void validate(final IvoaAbstractComputeResource resource)
-        {
-        log.debug("validate(IvoaAbstractComputeResource)");
-        log.debug("Compute [{}])", ((resource != null) ? resource .getName() : "null-resource"));
-        switch(resource)
-            {
-            case IvoaSimpleComputeResource simple :
-                validate(
-                    simple
-                    );
-                break;
-
-            default:
-                offersetEntity.addWarning(
-                    "urn:unknown-resource-type",
-                    "Unknown resource type [${resource}][${type}][${class}]",
-                    Map.of(
-                        "resource",
-                        resource.getName(),
-                        "type",
-                        resource.getType(),
-                        "class",
-                        resource.getClass().getName()
-                        )
-                    );
-                this.fail();
-                break;
-            }
-        }
-
-    /**
-     * Validate a SimpleComputeResource.
-     *
-     */
-    public void validate(final IvoaSimpleComputeResource compResourceRequest)
-        {
-        log.debug("validate(IvoaSimpleComputeResource)");
-        log.debug("Compute [{}])", ((compResourceRequest != null) ? compResourceRequest .getName() : "null-resource"));
-
-        Long MIN_CORES_DEFAULT =  1L ;
-        Long MAX_CORES_LIMIT   = 16L ;
-        Long mincores = MIN_CORES_DEFAULT;
-        Long maxcores = MIN_CORES_DEFAULT;
-        Boolean minimalcores  = false;
-
-        if (compResourceRequest.getCores() != null)
-            {
-            if (compResourceRequest.getCores().getRequested() != null)
-                {
-                if (compResourceRequest.getCores().getRequested().getMin() != null)
-                    {
-                    mincores = compResourceRequest.getCores().getRequested().getMin();
-                    }
-                if (compResourceRequest.getCores().getRequested().getMax() != null)
-                    {
-                    maxcores = compResourceRequest.getCores().getRequested().getMax();
-                    }
-                if (compResourceRequest.getCores().getRequested().getMinimal() != null)
-                    {
-                    minimalcores = compResourceRequest.getCores().getRequested().getMinimal();
-                    }
-                }
-
-            if (compResourceRequest.getCores().getOffered() != null)
-                {
-                offersetEntity.addWarning(
-                    "urn:service-defined",
-                    "Offered cores should not be set [${resource}][${offered}]",
-                    Map.of(
-                        "resource",
-                        compResourceRequest.getName(),
-                        "offered",
-                        compResourceRequest.getCores().getOffered()
-                        )
-                    );
-                this.fail();
-                }
-            }
-        if (mincores > MAX_CORES_LIMIT)
-            {
-            offersetEntity.addWarning(
-                "urn:resource-limit",
-                "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
-                Map.of(
-                    "resource",
-                    compResourceRequest.getName(),
-                    "cores",
-                    mincores,
-                    "limit",
-                    MAX_CORES_LIMIT
-                    )
-                );
-            this.fail();
-            }
-        if (maxcores > MAX_CORES_LIMIT)
-            {
-            offersetEntity.addWarning(
-                "urn:resource-limit",
-                "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
-                Map.of(
-                    "resource",
-                    compResourceRequest.getName(),
-                    "cores",
-                    maxcores,
-                    "limit",
-                    MAX_CORES_LIMIT
-                    )
-                );
-            this.fail();
-            }
-        this.addMinCores(
-            mincores
-            );
-        this.addMaxCores(
-            maxcores
-            );
-
-        Long MIN_MEMORY_DEFAULT =  1L;
-        Long MAX_MEMORY_LIMIT   = 16L;
-        Long minmemory = MIN_MEMORY_DEFAULT;
-        Long maxmemory = MIN_MEMORY_DEFAULT;
-        Boolean minimalmemory = false;
-        
-        //StorageUnit<?> MIN_MEMORY_DEFAULT = StorageUnits.gibibyte(1);
-        //StorageUnit<?> MAX_MEMORY_LIMIT   = StorageUnits.gibibyte(16);
-        //StorageUnit<?> minmemory = MIN_MEMORY_DEFAULT;
-
-        if (compResourceRequest.getMemory() != null)
-            {
-            if (compResourceRequest.getMemory().getRequested() != null)
-                {
-                if (compResourceRequest.getMemory().getRequested().getMin() != null)
-                    {
-                    minmemory = compResourceRequest.getMemory().getRequested().getMin();
-                    }
-                if (compResourceRequest.getMemory().getRequested().getMax() != null)
-                    {
-                    maxmemory = compResourceRequest.getMemory().getRequested().getMax();
-                    }
-                if (compResourceRequest.getMemory().getRequested().getMinimal() != null)
-                    {
-                    minimalmemory = compResourceRequest.getMemory().getRequested().getMinimal();
-                    }
-                }
-
-            if (compResourceRequest.getMemory().getOffered() != null)
-                {
-                offersetEntity.addWarning(
-                    "urn:service-defined",
-                    "Offered memory should not be set [${resource}][${offered}]",
-                    Map.of(
-                        "resource",
-                        compResourceRequest.getName(),
-                        "offered",
-                        compResourceRequest.getMemory().getOffered()
-                        )
-                    );
-                this.fail();
-                }
-            }
-
-        if (minmemory > MAX_MEMORY_LIMIT)
-            {
-            offersetEntity.addWarning(
-                "urn:resource-limit",
-                "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
-                Map.of(
-                    "resource",
-                    compResourceRequest.getName(),
-                    "memory",
-                    minmemory,
-                    "limit",
-                    MAX_MEMORY_LIMIT
-                    )
-                );
-            }
-
-        if (maxmemory > MAX_MEMORY_LIMIT)
-            {
-            offersetEntity.addWarning(
-                "urn:resource-limit",
-                "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
-                Map.of(
-                    "resource",
-                    compResourceRequest.getName(),
-                    "memory",
-                    maxmemory,
-                    "limit",
-                    MAX_MEMORY_LIMIT
-                    )
-                );
-            }
-        
-        this.addMinMemory(
-            minmemory
-            );
-
-        this.addMaxMemory(
-            maxmemory
-            );
-        
-        //
-        // Process the network ports.
-        // ....
-
-        SimpleComputeResourceEntity computeResourceEntity = this.simpleComputeFactory.create(
-            null,
-            compResourceRequest.getName(),
-            mincores,
-            maxcores,
-            null,
-            null,
-            minmemory,
-            maxmemory,
-            null,
-            null,
-            minimalcores,
-            minimalmemory
-            );
-        this.addComputeResource(
-            computeResourceEntity
-            );
-
-        //
-        // Process the volume mounts.
-        if (compResourceRequest.getVolumes() != null)
-            {
-            for (IvoaSimpleComputeVolume volumeRequest : compResourceRequest.getVolumes())
-                {
-                SimpleDataResourceEntity dataresource = findDataResource(volumeRequest.getResource());
-                if (dataresource != null)
-                    {
-                    // Create a volume linking the data resource to the compute resource.
-                    
-                    }
-                else {
-                    // error unmatched data resource ...
-                    }
-                }
-            }
-        }
-
-    /**
-     * Trim a String value, skipping it if it is null.
-     *
-     */
-    public static String trimString(String string)
-        {
-        if (string != null)
-            {
-            string = string.trim();
-            }
-        return string;
-        }
     }

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 
@@ -35,7 +35,7 @@ import net.ivoa.calycopis.validator.ValidatorTools;
  * 
  */
 @Slf4j
-public class SimpleDataResourceValidator
+public class S3DataResourceValidator
 extends ValidatorTools<IvoaAbstractDataResource, AbstractDataResourceEntity>
 implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
@@ -47,10 +47,10 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        if (requested instanceof IvoaSimpleDataResource)
+        if (requested instanceof IvoaS3DataResource)
             {
             return validate(
-                (IvoaSimpleDataResource) requested,
+                (IvoaS3DataResource) requested,
                 state
                 );
             }
@@ -60,47 +60,81 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         }
 
     /**
-     * Validate a simple data resource.
+     * Validate an S3 data resource.
      *
      */
     public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> validate(
-        final IvoaSimpleDataResource requested,
+        final IvoaS3DataResource requested,
         final OfferSetRequestParserState state
         ){
-        log.debug("validate(IvoaSimpleDataResource)");
+        log.debug("validate(IvoaS3DataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleDataResource result = new IvoaSimpleDataResource();
+        IvoaS3DataResource result = new IvoaS3DataResource();
 
         String name = trimString(
             requested.getName()
             );
-        String location = trimString(
-            requested.getLocation()
+        String endpoint = trimString(
+            requested.getEndpoint()
+            );
+        String template = trimString(
+                requested.getTemplate()
+            );
+        String bucket = trimString(
+                requested.getBucket()
+            );
+        String object = trimString(
+                requested.getObject()
             );
 
-        if ((location == null) || (location.isEmpty()))
+        if ((endpoint == null) || (endpoint.isEmpty()))
             {
             state.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
-                "Data location required"
+                "S3 service endpoint required"
                 );
-            success = false ;
+            success = false;
             }
+
+        if ((template == null) || (template.isEmpty()))
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "S3 service template required"
+                );
+            success = false;
+            }
+
+        if ((bucket == null) || (bucket.isEmpty()))
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "S3 bucket name required"
+                );
+            success = false;
+            }
+
+        //
+        // Accumulate state and return the fail here.
+        //
         
         //
         // Check for a storage location.
         //
 
+        result.setName(name);
+        result.setEndpoint(endpoint);
+        result.setTemplate(template);
+        result.setBucket(bucket);
+        result.setObject(object);
+
         //
-        // Everything is good.
-        // Create our result and add it to our state.
+        // Everything is good, so accept the request.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            result.setName(name);
-            result.setName(location);
             state.addDataResource(
                 result
                 );

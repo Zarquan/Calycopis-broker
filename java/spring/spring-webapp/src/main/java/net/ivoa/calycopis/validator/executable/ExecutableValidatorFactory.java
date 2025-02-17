@@ -24,27 +24,28 @@ package net.ivoa.calycopis.validator.executable;
 
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.factory.FactoryBase;
+import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorBaseImpl;
+import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
  * A factory for IvoaAbstractExecutable validators.
  *   
  */
 @Component
-public class ExecutableValidatorFactoryImpl
-    extends ValidatorBaseImpl<IvoaAbstractExecutable>
-    implements FactoryBase, Validator<IvoaAbstractExecutable>
+public class ExecutableValidatorFactory
+    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+    implements ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public ExecutableValidatorFactoryImpl()
+    public ExecutableValidatorFactory()
         {
         super();
         this.validators.add(
@@ -63,11 +64,11 @@ public class ExecutableValidatorFactoryImpl
         }
 
     @Override
-    public Validator.ResultSet<IvoaAbstractExecutable> unknown(
+    public Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> unknownResult(
         final OfferSetRequestParserState state,
         final IvoaAbstractExecutable executable
         ){
-        return super.unknown(
+        return super.unknownResult(
             state,
             executable.getType(),
             executable.getClass().getName()
