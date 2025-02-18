@@ -129,27 +129,31 @@ extends ValidatorTools
     @Override
     public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> findDataResource(String key)
         {
+        log.debug("findDataResource(String)");
+        log.debug("Key [{}]", key);
         return dataResourceMap.get(key);
         }
 
     @Override
-    public void addDataResource(final Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> result)
+    public void addDataResource(final Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> resource)
         {
+        log.debug("addDataResource(String)");
+        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
         dataResourceList.add(
-            result
+            resource
             );
-        if (result.getObject().getUuid() != null)
+        if (resource.getObject().getUuid() != null)
             {
             dataResourceMap.put(
-                result.getObject().getUuid().toString(),
-                result
+                resource.getObject().getUuid().toString(),
+                resource
                 );
             }
-        if (result.getObject().getName() != null)
+        if (resource.getObject().getName() != null)
             {
             dataResourceMap.put(
-                result.getObject().getName(),
-                result
+                resource.getObject().getName(),
+                resource
                 );
             }
         }
@@ -166,23 +170,25 @@ extends ValidatorTools
         }
 
     @Override
-    public void addComputeResource(final Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> result)
+    public void addComputeResource(final Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> resource)
         {
+        log.debug("addComputeResource(String)");
+        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
         compResourceList.add(
-            result
+            resource
             );
-        if (result.getObject().getUuid() != null)
+        if (resource.getObject().getUuid() != null)
             {
             compResourceMap.put(
-                result.getObject().getUuid().toString(),
-                result
+                resource.getObject().getUuid().toString(),
+                resource
                 );
             }
-        if (result.getObject().getName() != null)
+        if (resource.getObject().getName() != null)
             {
             compResourceMap.put(
-                result.getObject().getName(),
-                result
+                resource.getObject().getName(),
+                resource
                 );
             }
         }
@@ -201,8 +207,10 @@ extends ValidatorTools
     @Override
     public void addStorageResource(final Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> resource)
         {
+        log.debug("addStorageResource(String)");
+        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
         storageResourceList.add(
-                resource
+            resource
             );
         if (resource.getObject().getUuid() != null)
             {
