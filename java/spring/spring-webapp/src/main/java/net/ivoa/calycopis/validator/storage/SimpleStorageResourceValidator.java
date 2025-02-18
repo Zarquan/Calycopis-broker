@@ -26,44 +26,45 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 
 /**
- * A validator implementation to handle simple storage resources.
+ * A Validator implementation to handle simple storage resources.
  * 
  */
 @Slf4j
 public class SimpleStorageResourceValidator
-extends ValidatorTools<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
-implements Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+extends ValidatorTools
+implements StorageResourceValidator
     {
 
     @Override
-    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> validate(
+    public StorageResourceValidator.Result validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserState state
         ){
-    log.debug("validate(IvoaAbstractStorageResource)");
-    log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-    switch(requested)
-        {
-        case IvoaSimpleStorageResource simple:
-            return validate(
-                simple,
-                state
-                );
-        default:
-            return continueResult();
+        log.debug("validate(IvoaAbstractStorageResource)");
+        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        switch(requested)
+            {
+            case IvoaSimpleStorageResource simple:
+                return validate(
+                        simple,
+                        state
+                        );
+            default:
+                return new ResultBean(
+                    Validator.ResultEnum.CONTINUE
+                    );
+            }
         }
-    }
 
     /**
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> validate(
+    public StorageResourceValidator.Result validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserState state
         ){
@@ -71,31 +72,41 @@ implements Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource result = new IvoaSimpleStorageResource();
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource();
 
         //
-        // Check for a storage location.
+        // Check for maximum limits,
+        // Validate the lifetime values,
         //
 
+        validated.setName(requested.getName());
+        
         //
         // Everything is good.
         // Create our result and add it to our state.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            result.setName(requested.getName());
-            state.addStorageResource(
+            log.debug("Success - creating the StorageResourceValidator.Result.");
+            StorageResourceValidator.Result result = new ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                );
+            state.getValidatedOfferSetRequest().getResources().addStorageItem(
+                validated
+                );
+            state.addStorageResourceValidatorResult(
                 result
                 );
-            return acceptResult(
-                result
-                );
+            return result;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             state.valid(false);
-            return failResult();
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
             }
         }
     }

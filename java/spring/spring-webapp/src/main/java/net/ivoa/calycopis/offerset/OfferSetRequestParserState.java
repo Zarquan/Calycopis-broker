@@ -4,22 +4,15 @@
 package net.ivoa.calycopis.offerset;
 
 import java.time.Duration;
-
 import java.util.List;
 
 import org.threeten.extra.Interval;
 
-import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.executable.AbstractExecutable;
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
+import net.ivoa.calycopis.validator.data.DataResourceValidator;
+import net.ivoa.calycopis.validator.executable.ExecutableValidator;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  *
@@ -60,67 +53,67 @@ public interface OfferSetRequestParserState
      * Get the validated executable.
      * 
      */
-    public Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> getExecutable();
+    public ExecutableValidator.Result getExecutable();
 
     /**
      * Set the validated executable.
      * 
      */
-    public void setExecutable(final Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> result);
+    public void setExecutable(final ExecutableValidator.Result result);
 
     /**
      * Add a validated ComputeResource.
      * 
      */
-    public void addComputeResource(final Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> resource);
+    public void addComputeResourceValidatorResult(final ComputeResourceValidator.Result result);
 
     /**
      * Find a validated ComputeResource.
      * 
      */
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> findComputeResource(final String key);
+    public ComputeResourceValidator.Result findComputeResourceValidatorResult(final String key);
 
     /**
      * List the validated ComputeResources.
      * 
      */
-    public List<Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>> getComputeResources();
+    public List<ComputeResourceValidator.Result> getComputeResourcesValidatorResults();
 
     /**
      * Add a validated StorageResource.
      * 
      */
-    public void addStorageResource(final Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> resource);
+    public void addStorageResourceValidatorResult(final StorageResourceValidator.Result resource);
 
     /**
      * Find a validated StorageResource.
      * 
      */
-    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> findStorageResource(final String key);
+    public StorageResourceValidator.Result findStorageResourceValidatorResult(final String key);
 
     /**
      * List the validated StorageResources.
      * 
      */
-    public List<Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>> getStorageResources();
+    public List<StorageResourceValidator.Result> getStorageResourceValidatorResults();
     
     /**
      * Add a validated DataResource.
      * 
      */
-    public void addDataResource(final Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> resource);
+    public void addDataValidatorResult(final DataResourceValidator.Result resource);
 
     /**
      * Find a validated DataResource.
      * 
      */
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> findDataResource(final String key);
+    public DataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**
      * List the validated DataResources.
      * 
      */
-    public List<Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity>> getDataResources();
+    public List<DataResourceValidator.Result> getDataResourceValidatorResults();
 
     /**
      * Get a List of start intervals.

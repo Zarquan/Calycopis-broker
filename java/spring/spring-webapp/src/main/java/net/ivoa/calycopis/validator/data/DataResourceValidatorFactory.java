@@ -20,58 +20,19 @@
  *
  *
  */
+
 package net.ivoa.calycopis.validator.data;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
- * A factory for data resource validators.
+ * Public interface for a DataResource ValidatorFactory.
  * 
  */
-@Component
-public class DataResourceValidatorFactory
-    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
+public interface DataResourceValidatorFactory
+extends ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * 
-     */
-    public DataResourceValidatorFactory()
-        {
-        super();
-        this.validators.add(
-            new SimpleDataResourceValidator()
-            );
-        }
-    
-    @Override
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> unknownResult(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractDataResource resource
-        ){
-        return unknownResult(
-            state,
-            resource.getType(),
-            resource.getClass().getName()
-            );
-        }
 
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractDataResource resource
-        ){
-        state.getValidatedOfferSetRequest().getResources().addDataItem(
-            resource
-            );
-        }
     }

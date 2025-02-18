@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.validator.data;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
@@ -36,12 +35,12 @@ import net.ivoa.calycopis.validator.ValidatorTools;
  */
 @Slf4j
 public class S3DataResourceValidator
-extends ValidatorTools<IvoaAbstractDataResource, AbstractDataResourceEntity>
-implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
+extends ValidatorTools
+implements DataResourceValidator
     {
 
     @Override
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> validate(
+    public DataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -55,7 +54,9 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
                 );
             }
         else {
-            return continueResult();
+            return new ResultBean(
+                Validator.ResultEnum.CONTINUE
+                );
             }
         }
 
@@ -63,7 +64,7 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * Validate an S3 data resource.
      *
      */
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> validate(
+    public DataResourceValidator.Result validate(
         final IvoaS3DataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -71,21 +72,21 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaS3DataResource result = new IvoaS3DataResource();
+        IvoaS3DataResource validated = new IvoaS3DataResource();
 
-        String name = trimString(
+        String name = trim(
             requested.getName()
             );
-        String endpoint = trimString(
+        String endpoint = trim(
             requested.getEndpoint()
             );
-        String template = trimString(
+        String template = trim(
                 requested.getTemplate()
             );
-        String bucket = trimString(
+        String bucket = trim(
                 requested.getBucket()
             );
-        String object = trimString(
+        String object = trim(
                 requested.getObject()
             );
 
@@ -124,29 +125,37 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         // Check for a storage location.
         //
 
-        result.setName(name);
-        result.setEndpoint(endpoint);
-        result.setTemplate(template);
-        result.setBucket(bucket);
-        result.setObject(object);
+        validated.setName(name);
+        validated.setEndpoint(endpoint);
+        validated.setTemplate(template);
+        validated.setBucket(bucket);
+        validated.setObject(object);
 
         //
         // Everything is good, so accept the request.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            state.addDataResource(
+            log.debug("Success - creating the Validator.Result.");
+            DataResourceValidator.Result result = new ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                );
+            state.getValidatedOfferSetRequest().getResources().addDataItem(
+                validated
+                );
+            state.addDataValidatorResult(
                 result
                 );
-            return acceptResult(
-                result
-                );
+            return result;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             state.valid(false);
-            return failResult();
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
             }
         }
     }

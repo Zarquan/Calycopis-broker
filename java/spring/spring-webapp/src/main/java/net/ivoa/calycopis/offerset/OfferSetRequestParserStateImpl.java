@@ -47,6 +47,10 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
+import net.ivoa.calycopis.validator.data.DataResourceValidator;
+import net.ivoa.calycopis.validator.executable.ExecutableValidator;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  *
@@ -112,57 +116,58 @@ extends ValidatorTools
         this.valid = false;
         }
 
-    private Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> executable;
+    private ExecutableValidator.Result executable;
     @Override
-    public Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> getExecutable()
+    public ExecutableValidator.Result getExecutable()
         {
         return this.executable;
         }
-    public void setExecutable(final Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> executable)
+    public void setExecutable(final ExecutableValidator.Result executable)
         {
         this.executable = executable;
         }
     
-    private List<Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> > dataResourceList = new ArrayList<Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity>> ();
-    private Map<String, Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity>> dataResourceMap = new HashMap<String, Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> >();
+    private List<DataResourceValidator.Result> dataResourceList = new ArrayList<DataResourceValidator.Result> ();
+    private Map<String, DataResourceValidator.Result> dataResourceMap = new HashMap<String, DataResourceValidator.Result>();
 
     @Override
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> findDataResource(String key)
+    public DataResourceValidator.Result findDataValidatorResult(String key)
         {
-        log.debug("findDataResource(String)");
+        log.debug("findDataValidatorResult(String)");
         log.debug("Key [{}]", key);
         return dataResourceMap.get(key);
         }
 
     @Override
-    public void addDataResource(final Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> resource)
+    public void addDataValidatorResult(final DataResourceValidator.Result result)
         {
         log.debug("addDataResource(String)");
-        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
+        log.debug("Resource [{}][{}]", result.getObject().getUuid(), result.getObject().getName());
         dataResourceList.add(
-            resource
+            result
             );
-        if (resource.getObject().getUuid() != null)
+        // TODO use the single key method
+        if (result.getObject().getUuid() != null)
             {
             dataResourceMap.put(
-                resource.getObject().getUuid().toString(),
-                resource
+                result.getObject().getUuid().toString(),
+                result
                 );
             }
-        if (resource.getObject().getName() != null)
+        if (result.getObject().getName() != null)
             {
             dataResourceMap.put(
-                resource.getObject().getName(),
-                resource
+                result.getObject().getName(),
+                result
                 );
             }
         }
 
-    private List<Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>> compResourceList = new ArrayList<Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>>();
-    private Map<String, Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>> compResourceMap = new HashMap<String, Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity>>();
+    private List<ComputeResourceValidator.Result> compResourceList = new ArrayList<ComputeResourceValidator.Result>();
+    private Map<String, ComputeResourceValidator.Result> compResourceMap = new HashMap<String, ComputeResourceValidator.Result>();
 
     @Override
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> findComputeResource(String key)
+    public ComputeResourceValidator.Result findComputeResourceValidatorResult(String key)
         {
         log.debug("findComputeResource(String)");
         log.debug("Key [{}]", key);
@@ -170,7 +175,7 @@ extends ValidatorTools
         }
 
     @Override
-    public void addComputeResource(final Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> resource)
+    public void addComputeResourceValidatorResult(final ComputeResourceValidator.Result resource)
         {
         log.debug("addComputeResource(String)");
         log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
@@ -193,11 +198,11 @@ extends ValidatorTools
             }
         }
 
-    private List<Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>> storageResourceList = new ArrayList<Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>>();
-    private Map<String, Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>> storageResourceMap = new HashMap<String, Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity>>();
+    private List<StorageResourceValidator.Result> storageResourceList = new ArrayList<StorageResourceValidator.Result>();
+    private Map<String, StorageResourceValidator.Result> storageResourceMap = new HashMap<String, StorageResourceValidator.Result>();
 
     @Override
-    public Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> findStorageResource(String key)
+    public StorageResourceValidator.Result findStorageResourceValidatorResult(String key)
         {
         log.debug("findStorageResource(String)");
         log.debug("Key [{}]", key);
@@ -205,7 +210,7 @@ extends ValidatorTools
         }
 
     @Override
-    public void addStorageResource(final Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> resource)
+    public void addStorageResourceValidatorResult(final StorageResourceValidator.Result resource)
         {
         log.debug("addStorageResource(String)");
         log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
@@ -232,43 +237,60 @@ extends ValidatorTools
      * A Map of DataResources to StorageResources.
      * 
      */
-    private Map<String, IvoaAbstractStorageResource> dataStorageMap = new HashMap<String, IvoaAbstractStorageResource>();
+    private Map<String, StorageResourceValidator.Result> dataStorageMap = new HashMap<String, StorageResourceValidator.Result>();
+
+    /**
+     * Generate a hashable identifier for a DataResourceValidator.Result.
+     *  
+     */
+    public String makeKey(final DataResourceValidator.Result dataResult)
+        {
+        log.debug("makeKey(DataResourceValidator.Result)");
+        IvoaAbstractDataResource dataObject = dataResult.getObject() ;
+        if (dataObject != null)
+            {
+            UUID dataUuid = dataObject.getUuid();
+            if (dataUuid != null)
+                {
+                return dataUuid.toString();
+                }
+            else {
+                trim(dataObject.getName());
+                }
+            }
+        return null ;
+        }
     
     /**
      * Link a StorageResource to a DataResource.
      * 
      */
-    public void addDataStorageResource(final IvoaAbstractDataResource data, final IvoaAbstractStorageResource stor)
-        {
-        log.debug("addDataStorageResource(IvoaAbstractDataResource, IvoaAbstractStorageResource )");
-        String dataUuid = ((data.getUuid() != null) ? data.getUuid().toString() : null);
-        String storUuid = ((stor.getUuid() != null) ? stor.getUuid().toString() : null);
-        log.debug("DataResource [{}][{}]", data.getName(), dataUuid);
-        log.debug("StorResource [{}][{}]", stor.getName(), storUuid);
-
-        if (dataStorageMap.get(dataUuid) != null)
-            {
-            log.error("Duplicate DataResource entry [{}][{}]", data.getName(), dataUuid);
-            }
-        else {
-            dataStorageMap.put(
-                dataUuid,
-                stor
-                );
-            }
+    public void addDataStorageResult(
+        final DataResourceValidator.Result dataResult,
+        final StorageResourceValidator.Result storageResult
+        ){
+        log.debug("addDataStorageResult(DataResourceValidator.Result, StorageResourceValidator.Result)");
+        // TODO
+        // Check for a duplicate already in the map ?
+        String datakey = makeKey(dataResult); 
+        log.debug("DataResourceValidator.Result [{}]", datakey);
+        dataStorageMap.put(
+            datakey,
+            storageResult
+            );
         }
-    
+
     /**
      * Get the StorageResource for a DataResource.
      * 
      */
-    public IvoaAbstractStorageResource findDataStorageResource(final IvoaAbstractDataResource data)
+    public StorageResourceValidator.Result findDataStorageResult(final DataResourceValidator.Result dataResult)
         {
-        log.debug("findDataStorageResource(IvoaAbstractDataResource)");
-        String dataUuid = ((data.getUuid() != null) ? data.getUuid().toString() : null);
-        log.debug("DataResource [{}][{}]", data.getName(), dataUuid);
+        log.debug("findDataStorageResource(DataResourceValidator.Result)");
         return dataStorageMap.get(
-            data.getUuid().toString()
+            makeKey(
+                dataResult
+                )
             );
         }
 

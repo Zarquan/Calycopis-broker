@@ -26,7 +26,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
     protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
 
     /**
-     * Save a validated result.
+     * Save a validated object in the parser state.
      * 
      */
     public abstract void save(
@@ -35,10 +35,32 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
         );
     
     /**
+     * Create a result with just the enum.
+     * 
+     */
+    public Validator.Result<ObjectType, EntityType> result(
+        final ResultEnum value
+        ){
+        return result(
+            value,
+            null
+            );
+        }
+
+    /**
+     * Create a result with enum and object.
+     * 
+     */
+    public abstract Validator.Result<ObjectType, EntityType> result(
+        final ResultEnum value,
+        final ObjectType object
+        );
+
+    /**
      * Report an unknown type.
      *
      */
-    public abstract Validator.Result<ObjectType, EntityType> unknownResult(
+    public abstract void unknown(
         final OfferSetRequestParserState state,
         final ObjectType object
         );
@@ -47,7 +69,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
      * Report an unknown type.
      *
      */
-    public Validator.Result<ObjectType, EntityType> unknownResult(
+    public void unknown(
         final OfferSetRequestParserState state,
         final String typeName,
         final String className
@@ -63,13 +85,10 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
                 )
             );
         state.valid(false);
-        return new ResultBean<ObjectType, EntityType>(
-            ResultEnum.FAILED
-            );
         }
 
     @Override
-    public Result<ObjectType, EntityType> validate(
+    public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         ){
@@ -97,9 +116,12 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
             }
         //
         // Fail the validation if we didn't find a matching validator.
-        return unknownResult(
+        unknown(
             state,
             requested
             );
+        return result(
+            ResultEnum.FAILED
+            ); 
         }
     }

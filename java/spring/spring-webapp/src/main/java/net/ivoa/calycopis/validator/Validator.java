@@ -71,7 +71,7 @@ public interface Validator<ObjectType, EntityType>
         }
 
     /**
-     * Simple bean implementation of ResultSet.
+     * Simple bean implementation of Result.
      *  
      */
     public static class ResultBean<ObjectType, EntityType>

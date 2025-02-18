@@ -22,23 +22,21 @@
  */
 package net.ivoa.calycopis.validator;
 
-import net.ivoa.calycopis.validator.Validator.Result;
-import net.ivoa.calycopis.validator.Validator.ResultBean;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
+import java.util.UUID;
 
 /**
  * Base class for Validatior implementations.
  * Provides a set of tools.
  *  
  */
-public class ValidatorTools<ObjectType, EntityType>
+public class ValidatorTools
     {
 
     /**
-     * Trim a String value, skipping it if it is null.
+     * Null-safe String trim.
      *
      */
-    public static String trimString(String string)
+    public static String trim(String string)
         {
         if (string != null)
             {
@@ -48,53 +46,18 @@ public class ValidatorTools<ObjectType, EntityType>
         }
 
     /**
-     * Create an ACCEPTED result.
+     * Null-safe UUID toString.
      * 
      */
-    public Result<ObjectType, EntityType> acceptResult(
-        final ObjectType resultObject
-        ){
-        return wrapResult(
-            ResultEnum.ACCEPTED,
-            resultObject
-            );
-        }
-
-    /**
-     * Create a CONTINUE result.
-     * 
-     */
-    public Result<ObjectType, EntityType> continueResult()
+    public String string(final UUID uuid)
         {
-        return wrapResult(
-            ResultEnum.CONTINUE,
-            null
-            );
-        }
-
-    /**
-     * Create a FAILED result.
-     * 
-     */
-    public Result<ObjectType, EntityType> failResult()
-        {
-        return wrapResult(
-            ResultEnum.FAILED,
-            null
-            );
+        if (null != uuid)
+            {
+            return uuid.toString();
+            }
+        else {
+            return null ;
+            }
         }
     
-    /**
-     * Wrap a result.
-     * 
-     */
-    public Result<ObjectType, EntityType> wrapResult(
-        final ResultEnum resultEnum,
-        final ObjectType resultObject
-        ){
-        return new ResultBean<ObjectType, EntityType>(
-            resultEnum,
-            resultObject
-            );
-        }
     }

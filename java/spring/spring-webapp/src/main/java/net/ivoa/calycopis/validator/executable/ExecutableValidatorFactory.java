@@ -20,58 +20,19 @@
  *
  *
  */
+
 package net.ivoa.calycopis.validator.executable;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
- * A factory for IvoaAbstractExecutable validators.
- *   
+ * Public interface for an Executable ValidatorFactory.
+ * 
  */
-@Component
-public class ExecutableValidatorFactory
-    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
-    implements ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
+public interface ExecutableValidatorFactory
+extends ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * 
-     */
-    public ExecutableValidatorFactory()
-        {
-        super();
-        this.validators.add(
-            new JupyterNotebookValidator()
-            );
-        }
-    
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractExecutable executable
-        ){
-        state.getValidatedOfferSetRequest().setExecutable(
-            executable
-            );
-        }
 
-    @Override
-    public Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> unknownResult(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractExecutable executable
-        ){
-        return super.unknownResult(
-            state,
-            executable.getType(),
-            executable.getClass().getName()
-            );
-        }
     }

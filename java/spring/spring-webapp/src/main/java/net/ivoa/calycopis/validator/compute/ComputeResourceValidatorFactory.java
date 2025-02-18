@@ -20,59 +20,18 @@
  *
  *
  */
+
 package net.ivoa.calycopis.validator.compute;
 
-import org.springframework.stereotype.Component;
-
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorFactory;
-import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
- * A factory for compute resource validators.
  * 
  */
-@Component
-public class ComputeResourceValidatorFactory
-    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
-    implements ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+public interface ComputeResourceValidatorFactory
+extends ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
-    
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * 
-     */
-    public ComputeResourceValidatorFactory()
-        {
-        super();
-        this.validators.add(
-            new SimpleComputeResourceValidator()
-            );
-        }
 
-    @Override
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> unknownResult(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
-        ){
-        return unknownResult(
-            state,
-            resource.getType(),
-            resource.getClass().getName()
-            );
-        }
-
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
-        ){
-        state.getValidatedOfferSetRequest().getResources().addComputeItem(
-            resource
-            );
-        }
     }

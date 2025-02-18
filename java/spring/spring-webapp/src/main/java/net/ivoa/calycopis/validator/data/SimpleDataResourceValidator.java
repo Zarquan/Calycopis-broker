@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.validator.data;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
@@ -31,17 +30,17 @@ import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 
 /**
- * A validator implementation to handle simple data resources.
+ * A Validator implementation to handle simple data resources.
  * 
  */
 @Slf4j
 public class SimpleDataResourceValidator
-extends ValidatorTools<IvoaAbstractDataResource, AbstractDataResourceEntity>
-implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
+extends ValidatorTools
+implements DataResourceValidator
     {
 
     @Override
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> validate(
+    public DataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -55,7 +54,9 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
                 );
             }
         else {
-            return continueResult();
+            return new ResultBean(
+                Validator.ResultEnum.CONTINUE
+                );
             }
         }
 
@@ -63,7 +64,7 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * Validate a simple data resource.
      *
      */
-    public Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> validate(
+    public DataResourceValidator.Result validate(
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserState state
         ){
@@ -71,12 +72,12 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleDataResource result = new IvoaSimpleDataResource();
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
 
-        String name = trimString(
+        String name = trim(
             requested.getName()
             );
-        String location = trimString(
+        String location = trim(
             requested.getLocation()
             );
 
@@ -93,26 +94,35 @@ implements Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         // Check for a storage location.
         //
 
+        validated.setName(name);
+        validated.setName(location);
+        
         //
         // Everything is good.
         // Create our result and add it to our state.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            result.setName(name);
-            result.setName(location);
-            state.addDataResource(
+            log.debug("Success - creating the Validator.Result.");
+            DataResourceValidator.Result result = new ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                );
+            state.getValidatedOfferSetRequest().getResources().addDataItem(
+                validated
+                );
+            state.addDataValidatorResult(
                 result
                 );
-            return acceptResult(
-                result
-                );
+            return result;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             state.valid(false);
-            return failResult();
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
             }
         }
     }

@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.validator.executable;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
@@ -36,12 +35,12 @@ import net.ivoa.calycopis.validator.ValidatorTools;
  */
 @Slf4j
 public class JupyterNotebookValidator
-extends ValidatorTools<IvoaAbstractExecutable, AbstractExecutableEntity>
-implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
+extends ValidatorTools
+implements ExecutableValidator
     {
     
     @Override
-    public Result<IvoaAbstractExecutable, AbstractExecutableEntity> validate(
+    public ExecutableValidator.Result validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserState state
         ){
@@ -55,7 +54,9 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
                     state
                     );
             default:
-                return continueResult();
+                return new ResultBean(
+                    Validator.ResultEnum.CONTINUE
+                    );
             }
         }
 
@@ -63,7 +64,7 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * Validate an IvoaJupyterNotebook.
      *
      */
-    public Result<IvoaAbstractExecutable, AbstractExecutableEntity> validate(
+    public ExecutableValidator.Result validate(
         final IvoaJupyterNotebook requested,
         final OfferSetRequestParserState state
         ){
@@ -71,7 +72,7 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaJupyterNotebook result = new IvoaJupyterNotebook();
+        IvoaJupyterNotebook validated = new IvoaJupyterNotebook();
 
         //
         // Validate the location.
@@ -94,7 +95,7 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
                 success = false ;
                 }
             else {
-                result.setLocation(
+                validated.setLocation(
                     trimmed
                     );
                 }
@@ -112,7 +113,7 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
                 // No name is fine.
                 }
             else {
-                result.setName(
+                validated.setName(
                     trimmed
                     );
                 }
@@ -123,16 +124,26 @@ implements Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            state.setExecutable(result);
-            return acceptResult(
+            log.debug("Success - creating the ExecutableValidator.Result.");
+            ExecutableValidator.Result result = new ExecutableValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                );
+            state.getValidatedOfferSetRequest().setExecutable(
+                validated
+                );
+            state.setExecutable(
                 result
                 );
+            return result;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             state.valid(false);
-            return failResult();
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
             }
         }
     }

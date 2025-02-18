@@ -28,8 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
@@ -38,6 +36,8 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.data.DataResourceValidator;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -45,8 +45,8 @@ import net.ivoa.calycopis.validator.ValidatorTools;
  */
 @Slf4j
 public class SimpleComputeResourceValidator
-extends ValidatorTools<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
-implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+extends ValidatorTools
+implements ComputeResourceValidator
     {
 
     @Override
@@ -64,7 +64,9 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
                     state
                     );
             default:
-                return continueResult();
+                return new ResultBean(
+                    Validator.ResultEnum.CONTINUE
+                    );
             }
         }
 
@@ -100,7 +102,7 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
+    public ComputeResourceValidator.Result validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserState state
         ){
@@ -108,7 +110,7 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleComputeResource result = new IvoaSimpleComputeResource();
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource();
 
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
@@ -257,7 +259,7 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         // Process the network ports.
         // ....
 
-        result.setName(requested.getName());
+        validated.setName(requested.getName());
 
         IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
         IvoaSimpleComputeCoresRequested coresRequested = new IvoaSimpleComputeCoresRequested(); 
@@ -265,7 +267,7 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         coresRequested.setMax(maxcores);
         coresRequested.setMinimal(minimalcores);
         cores.setRequested(coresRequested);
-        result.setCores(cores);
+        validated.setCores(cores);
 
         IvoaSimpleComputeMemory memory = new IvoaSimpleComputeMemory();
         IvoaSimpleComputeMemoryRequested memoryRequested = new IvoaSimpleComputeMemoryRequested(); 
@@ -273,7 +275,7 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         memoryRequested.setMax(maxmemory);
         memoryRequested.setMinimal(minimalmemory);
         memory.setRequested(memoryRequested);
-        result.setMemory(memory);
+        validated.setMemory(memory);
         
         //
         // Process the volume mounts.
@@ -282,12 +284,12 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
-                IvoaAbstractStorageResource storage = state.findStorageResource(volumeRequest.getResource());
+                StorageResourceValidator.Result storage = state.findStorageResourceValidatorResult(volumeRequest.getResource());
                 // If we din't find a storage resource.
                 if (storage == null)
                     {
                     // Try finding a data resource.
-                    IvoaAbstractDataResource data = state.findDataResource(volumeRequest.getResource());
+                    DataResourceValidator.Result data = state.findDataValidatorResult(volumeRequest.getResource());
                     // If we found a data resource.
                     if (data != null)
                         {
@@ -308,40 +310,48 @@ implements Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
             }
 
         //
-        // Add the results to our parser state.
-        state.addComputeResource(
-            result
-            );
-        state.addMinCores(
-            mincores
-            );
-        state.addMaxCores(
-            maxcores
-            );
-        state.addMinMemory(
-            minmemory
-            );
-        state.addMaxMemory(
-            maxmemory
-            );
-
-        //
-        // Everything is good, so accept the request.
+        // Everything is good.
+        // Create our result and add it to our state.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            state.addComputeResource(
+            log.debug("Success - creating the Validator.Result.");
+            ComputeResourceValidator.Result result = new ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                );
+            state.getValidatedOfferSetRequest().getResources().addComputeItem(
+                validated
+                );
+            state.addComputeResourceValidatorResult(
                 result
                 );
-            return acceptResult(
-                result
+            //
+            // Update the running totals in our parser state.
+            // TODO Do we move these to ComputeResourceValidator.Result ?
+            state.addMinCores(
+                mincores
                 );
+            state.addMaxCores(
+                maxcores
+                );
+            state.addMinMemory(
+                minmemory
+                );
+            state.addMaxMemory(
+                maxmemory
+                );
+            
+            
+            return result;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             state.valid(false);
-            return failResult();
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
             }
         }
     }
