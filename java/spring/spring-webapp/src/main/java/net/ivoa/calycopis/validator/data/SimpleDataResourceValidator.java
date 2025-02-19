@@ -22,12 +22,16 @@
  */
 package net.ivoa.calycopis.validator.data;
 
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A Validator implementation to handle simple data resources.
@@ -73,7 +77,6 @@ implements DataResourceValidator
 
         boolean success = true ;
         IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
-
         String name = trim(
             requested.getName()
             );
@@ -90,13 +93,53 @@ implements DataResourceValidator
             success = false ;
             }
         
-        //
-        // Check for a storage location.
-        //
-
         validated.setName(name);
-        validated.setName(location);
+        validated.setLocation(location);
+
+        //
+        // Calculate the size in GiB.
+        //
+        long size = 1000L;
         
+        //
+        // Connect the storage resource.
+        StorageResourceValidator.Result storage = null;
+        //
+        // If the data resource has a storage reference.
+        if (requested.getStorage() != null)
+            {
+            // Try to find the storage resource.
+            storage = state.findStorageValidatorResult(
+                requested.getStorage()
+                );
+            //
+            // If we couldn't find the storage resource.
+            if (storage == null)
+                {
+                // Check the size ..
+                }
+            //
+            // If we couldn't find the storage resource.
+            else {
+                state.getOfferSetEntity().addWarning(
+                    "urn:missing-storage resource",
+                    "Unable to find storage resource [${storage}]",
+                    Map.of(
+                        "storage",
+                        requested.getStorage()
+                        )
+                    );
+                success = false ;
+                }
+            }
+        //
+        // If the data resource doesn't have a storage reference.
+        else {
+            // Create a new storage resource.
+            IvoaSimpleStorageResource fred = new IvoaSimpleStorageResource();
+            fred.setName("Storage for [" + name + "]");
+            
+            }
         //
         // Everything is good.
         // Create our result and add it to our state.

@@ -77,7 +77,7 @@ public class ComputeResourceValidatorFactoryImpl
         state.getValidatedOfferSetRequest().getResources().addComputeItem(
             resource
             );
-        state.addComputeResourceValidatorResult(
+        state.addComputeValidatorResult(
             new ComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 resource

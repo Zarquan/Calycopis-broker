@@ -23,11 +23,8 @@
 
 package net.ivoa.calycopis.validator.data;
 
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-
-import java.util.UUID;
-
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.Validator;
 
 /**

@@ -284,7 +284,7 @@ implements ComputeResourceValidator
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
-                StorageResourceValidator.Result storage = state.findStorageResourceValidatorResult(volumeRequest.getResource());
+                StorageResourceValidator.Result storage = state.findStorageValidatorResult(volumeRequest.getResource());
                 // If we din't find a storage resource.
                 if (storage == null)
                     {
@@ -323,7 +323,7 @@ implements ComputeResourceValidator
             state.getValidatedOfferSetRequest().getResources().addComputeItem(
                 validated
                 );
-            state.addComputeResourceValidatorResult(
+            state.addComputeValidatorResult(
                 result
                 );
             //
@@ -341,7 +341,6 @@ implements ComputeResourceValidator
             state.addMaxMemory(
                 maxmemory
                 );
-            
             
             return result;
             }

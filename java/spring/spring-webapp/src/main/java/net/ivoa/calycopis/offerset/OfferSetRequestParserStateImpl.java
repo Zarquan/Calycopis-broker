@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,7 @@ import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
+import net.ivoa.calycopis.validator.data.DataResourceValidator.Result;
 import net.ivoa.calycopis.validator.executable.ExecutableValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
@@ -127,175 +129,345 @@ extends ValidatorTools
         this.executable = executable;
         }
     
-    private List<DataResourceValidator.Result> dataResourceList = new ArrayList<DataResourceValidator.Result> ();
-    private Map<String, DataResourceValidator.Result> dataResourceMap = new HashMap<String, DataResourceValidator.Result>();
+    /**
+     * Our List of DataValidator results.
+     * 
+     */
+    private List<DataResourceValidator.Result> dataValidatorResultList = new ArrayList<DataResourceValidator.Result> ();
 
     @Override
-    public DataResourceValidator.Result findDataValidatorResult(String key)
+    public List<DataResourceValidator.Result> getDataResourceValidatorResults()
         {
-        log.debug("findDataValidatorResult(String)");
+        return dataValidatorResultList;
+        }
+
+    /**
+     * Our Map of DataValidator results.
+     * 
+     */
+    private Map<String, DataResourceValidator.Result> dataValidatorResultMap = new HashMap<String, DataResourceValidator.Result>();
+
+    @Override
+    public String makeDataValidatorResultKey(final DataResourceValidator.Result result)
+        {
+        log.debug("makeDataValidatorResultKey(DataResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        return makeDataValidatorResultKey(
+            result.getObject()
+            );
+        }
+    
+    @Override
+    public String makeDataValidatorResultKey(final IvoaAbstractDataResource resource)
+        {
+        log.debug("makeDataValidatorResultKey(IvoaAbstractDataResource)");
+        log.debug("Resource [[{}][{}]]", resource.getUuid(), resource.getName());
+        String key = null ;
+        if (resource != null)
+            {
+            UUID uuid = resource.getUuid();
+            if (uuid != null)
+                {
+                key = uuid.toString();
+                }
+            else {
+                key = resource.getName();
+                }
+            }
         log.debug("Key [{}]", key);
-        return dataResourceMap.get(key);
+        return key ;
         }
 
     @Override
     public void addDataValidatorResult(final DataResourceValidator.Result result)
         {
-        log.debug("addDataResource(String)");
-        log.debug("Resource [{}][{}]", result.getObject().getUuid(), result.getObject().getName());
-        dataResourceList.add(
+        log.debug("addDataValidatorResult(DataResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        dataValidatorResultList.add(
             result
             );
-        // TODO use the single key method
-        if (result.getObject().getUuid() != null)
-            {
-            dataResourceMap.put(
-                result.getObject().getUuid().toString(),
+        dataValidatorResultMap.put(
+            makeDataValidatorResultKey(
                 result
-                );
-            }
-        if (result.getObject().getName() != null)
-            {
-            dataResourceMap.put(
-                result.getObject().getName(),
+                ),
+            result
+            );
+        }
+    
+    @Override
+    public DataResourceValidator.Result findDataValidatorResult(final DataResourceValidator.Result result)
+        {
+        log.debug("findDataValidatorResult(DataResourceValidator.Result)");
+        return findDataValidatorResult(
+            makeDataValidatorResultKey(
                 result
-                );
-            }
-        }
-
-    private List<ComputeResourceValidator.Result> compResourceList = new ArrayList<ComputeResourceValidator.Result>();
-    private Map<String, ComputeResourceValidator.Result> compResourceMap = new HashMap<String, ComputeResourceValidator.Result>();
-
-    @Override
-    public ComputeResourceValidator.Result findComputeResourceValidatorResult(String key)
-        {
-        log.debug("findComputeResource(String)");
-        log.debug("Key [{}]", key);
-        return compResourceMap.get(key);
-        }
-
-    @Override
-    public void addComputeResourceValidatorResult(final ComputeResourceValidator.Result resource)
-        {
-        log.debug("addComputeResource(String)");
-        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
-        compResourceList.add(
-            resource
+                )
             );
-        if (resource.getObject().getUuid() != null)
-            {
-            compResourceMap.put(
-                resource.getObject().getUuid().toString(),
-                resource
-                );
-            }
-        if (resource.getObject().getName() != null)
-            {
-            compResourceMap.put(
-                resource.getObject().getName(),
-                resource
-                );
-            }
-        }
-
-    private List<StorageResourceValidator.Result> storageResourceList = new ArrayList<StorageResourceValidator.Result>();
-    private Map<String, StorageResourceValidator.Result> storageResourceMap = new HashMap<String, StorageResourceValidator.Result>();
-
-    @Override
-    public StorageResourceValidator.Result findStorageResourceValidatorResult(String key)
-        {
-        log.debug("findStorageResource(String)");
-        log.debug("Key [{}]", key);
-        return storageResourceMap.get(key);
         }
 
     @Override
-    public void addStorageResourceValidatorResult(final StorageResourceValidator.Result resource)
+    public DataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource)
         {
-        log.debug("addStorageResource(String)");
-        log.debug("Resource [{}][{}]", resource.getObject().getUuid(), resource.getObject().getName());
-        storageResourceList.add(
-            resource
+        log.debug("findDataValidatorResult(DataResourceValidator.Result)");
+        return findDataValidatorResult(
+            makeDataValidatorResultKey(
+                resource
+                )
             );
-        if (resource.getObject().getUuid() != null)
+        }
+
+    @Override
+    public DataResourceValidator.Result findDataValidatorResult(final String key)
+        {
+        log.debug("findDataValidatorResult(String)");
+        log.debug("Key [{}]", key);
+        return dataValidatorResultMap.get(key);
+        }
+
+    /**
+     * Our List of ComputeValidator results.
+     * 
+     */
+    private List<ComputeResourceValidator.Result> compValidatorResultList = new ArrayList<ComputeResourceValidator.Result>();
+
+    @Override
+    public List<ComputeResourceValidator.Result> getComputeValidatorResults()
+        {
+        return compValidatorResultList;
+        }
+
+    /**
+     * Our Map of ComputeValidator results.
+     * 
+     */
+    private Map<String, ComputeResourceValidator.Result> compValidatorResultMap = new HashMap<String, ComputeResourceValidator.Result>();
+
+    @Override
+    public String makeComputeValidatorResultKey(final ComputeResourceValidator.Result result)
+        {
+        log.debug("makeComputeValidatorResultKey(ComputeResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        return makeComputeValidatorResultKey(
+            result.getObject()
+            );
+        }
+    
+    @Override
+    public String makeComputeValidatorResultKey(final IvoaAbstractComputeResource resource)
+        {
+        log.debug("makeComputeValidatorResultKey(IvoaAbstractComputeResource)");
+        log.debug("Resource [{}]", resource);
+        String key = null ;
+        if (resource != null)
             {
-            storageResourceMap.put(
-                resource.getObject().getUuid().toString(),
-                resource
-                );
+            UUID uuid = resource .getUuid();
+            if (uuid != null)
+                {
+                key = uuid.toString();
+                }
+            else {
+                key = resource .getName();
+                }
             }
-        if (resource.getObject().getName() != null)
-            {
-            storageResourceMap.put(
-                resource.getObject().getName(),
+        log.debug("Key [{}]", key);
+        return key ;
+        }
+
+    @Override
+    public void addComputeValidatorResult(final ComputeResourceValidator.Result result)
+        {
+        log.debug("addComputeValidatorResult(String)");
+        log.debug("Result [{}]", result);
+        compValidatorResultList.add(
+            result
+            );
+        compValidatorResultMap.put(
+            makeComputeValidatorResultKey(
+                result
+                ),
+            result
+            );
+        }
+    
+    @Override
+    public ComputeResourceValidator.Result findComputeValidatorResult(final ComputeResourceValidator.Result result)
+        {
+        log.debug("findComputeValidatorResult(ComputeResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        return findComputeValidatorResult(
+            makeComputeValidatorResultKey(
+                result
+                )
+            );
+        }
+
+    @Override
+    public ComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource)
+        {
+        log.debug("findComputeValidatorResult(IvoaAbstractComputeResource)");
+        log.debug("Resource [{}]", resource);
+        return findComputeValidatorResult(
+            makeComputeValidatorResultKey(
                 resource
-                );
-            }
+                )
+            );
+        }
+
+    @Override
+    public ComputeResourceValidator.Result findComputeValidatorResult(String key)
+        {
+        log.debug("findComputeValidatorResult(String)");
+        log.debug("Key [{}]", key);
+        return compValidatorResultMap.get(key);
+        }
+
+    /**
+     * Our List of StorageValidator results.
+     * 
+     */
+    private List<StorageResourceValidator.Result> storageValidatorResultList = new ArrayList<StorageResourceValidator.Result>();
+
+    @Override
+    public List<StorageResourceValidator.Result> getStorageValidatorResults()
+        {
+        return storageValidatorResultList;
         }
     
     /**
-     * A Map of DataResources to StorageResources.
+     * Our Map of StorageValidator results.
+     * 
+     */
+    private Map<String, StorageResourceValidator.Result> storageValidatorResultMap = new HashMap<String, StorageResourceValidator.Result>();
+
+    @Override
+    public String makeStorageValidatorResultKey(final StorageResourceValidator.Result result)
+        {
+        log.debug("makeStorageValidatorResultKey(StorageResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        return makeStorageValidatorResultKey(
+            result.getObject()
+            );
+        }
+    
+    @Override
+    public String makeStorageValidatorResultKey(final IvoaAbstractStorageResource resource)
+        {
+        log.debug("makeStorageValidatorResultKey(IvoaAbstractStorageResource)");
+        log.debug("Resource [{}]", resource);
+        String key = null ;
+        if (resource != null)
+            {
+            UUID uuid = resource.getUuid();
+            if (uuid != null)
+                {
+                key = uuid.toString();
+                }
+            else {
+                key = resource.getName();
+                }
+            }
+        log.debug("Key [{}]", key);
+        return key ;
+        }
+    
+    @Override
+    public void addStorageValidatorResult(final StorageResourceValidator.Result result)
+        {
+        log.debug("addStorageValidatorResult(String)");
+        log.debug("Result [{}]", result);
+        storageValidatorResultList.add(
+            result
+            );
+        storageValidatorResultMap.put(
+            makeStorageValidatorResultKey(
+                result
+                ),
+            result
+            );
+        }
+
+    @Override
+    public StorageResourceValidator.Result findStorageValidatorResult(final StorageResourceValidator.Result result)
+        {
+        log.debug("findStorageValidatorResult(StorageResourceValidator.Result)");
+        log.debug("Result [{}]", result);
+        return findStorageValidatorResult(
+            makeStorageValidatorResultKey(
+                result
+                )
+            );
+        }
+
+    @Override
+    public StorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource)
+        {
+        log.debug("findStorageValidatorResult(IvoaAbstractStorageResource)");
+        log.debug("Resource [{}]", resource);
+        return findStorageValidatorResult(
+            makeStorageValidatorResultKey(
+                resource
+                )
+            );
+        }
+    
+    @Override
+    public StorageResourceValidator.Result findStorageValidatorResult(final String key)
+        {
+        log.debug("findStorageValidatorResult(String)");
+        log.debug("Key [{}]", key);
+        return storageValidatorResultMap.get(key);
+        }
+    
+    /**
+     * A Map linking DataValidator results to StorageValidator results.
      * 
      */
     private Map<String, StorageResourceValidator.Result> dataStorageMap = new HashMap<String, StorageResourceValidator.Result>();
-
-    /**
-     * Generate a hashable identifier for a DataResourceValidator.Result.
-     *  
-     */
-    public String makeKey(final DataResourceValidator.Result dataResult)
-        {
-        log.debug("makeKey(DataResourceValidator.Result)");
-        IvoaAbstractDataResource dataObject = dataResult.getObject() ;
-        if (dataObject != null)
-            {
-            UUID dataUuid = dataObject.getUuid();
-            if (dataUuid != null)
-                {
-                return dataUuid.toString();
-                }
-            else {
-                trim(dataObject.getName());
-                }
-            }
-        return null ;
-        }
     
-    /**
-     * Link a StorageResource to a DataResource.
-     * 
-     */
+    @Override
     public void addDataStorageResult(
         final DataResourceValidator.Result dataResult,
         final StorageResourceValidator.Result storageResult
         ){
         log.debug("addDataStorageResult(DataResourceValidator.Result, StorageResourceValidator.Result)");
+        log.debug("DataResult [{}]", dataResult);
+        log.debug("StorageResult [{}]", storageResult);
         // TODO
         // Check for a duplicate already in the map ?
-        String datakey = makeKey(dataResult); 
-        log.debug("DataResourceValidator.Result [{}]", datakey);
         dataStorageMap.put(
-            datakey,
+            makeDataValidatorResultKey(
+                dataResult
+                ),
             storageResult
             );
         }
 
-    /**
-     * Get the StorageResource for a DataResource.
-     * 
-     */
+    @Override
     public StorageResourceValidator.Result findDataStorageResult(final DataResourceValidator.Result dataResult)
         {
-        log.debug("findDataStorageResource(DataResourceValidator.Result)");
+        log.debug("findDataStorageResult(DataResourceValidator.Result)");
+        log.debug("Result [{}]", dataResult);
         return dataStorageMap.get(
-            makeKey(
+            makeDataValidatorResultKey(
                 dataResult
                 )
             );
         }
 
+    @Override
+    public StorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
+        {
+        log.debug("findDataStorageResult(IvoaAbstractDataResource)");
+        log.debug("Resouce [{}]", dataResouce);
+        return dataStorageMap.get(
+            makeDataValidatorResultKey(
+                dataResouce
+                )
+            );
+        }
+    
     /**
-     * A list of requested start intervals.
+     * Our List of requested start Intervals.
      *
      */
     private List<Interval> startintervals = new ArrayList<Interval>();
@@ -392,12 +564,12 @@ log.debug("Max memory [{}]", totalMaxMemory);
 
 log.debug("Executable [{}][{}]", executable.getName(), executable.getClass().getName());
 
-for (SimpleDataResource resource : dataResourceList)
+for (SimpleDataResource resource : dataValidatorResultList)
     {
     log.debug("Data resource [{}][{}]", resource.getName(), resource.getClass().getName());
     }
 
-for (SimpleComputeResource resource : compResourceList)
+for (SimpleComputeResource resource : compValidatorResultList)
     {
     log.debug("Computing resource [{}][{}]", resource.getName(), resource.getClass().getName());
     }
@@ -458,7 +630,7 @@ log.debug("---- ---- ---- ----");
                     log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
                     log.debug("Cores  [{}][{}][{}]", this.getTotalMinCores(), offerblock.getCores(), corescale);
                     log.debug("Memory [{}][{}][{}]", this.getTotalMinMemory(), offerblock.getMemory(), memoryscale);
-                    for (SimpleComputeResourceEntity compresource : compResourceList)
+                    for (SimpleComputeResourceEntity compresource : compValidatorResultList)
                         {
                         long offercores  = compresource.getMinRequestedCores()  * corescale;
                         long offermemory = compresource.getMinRequestedMemory() * memoryscale;
@@ -489,6 +661,20 @@ log.debug("---- ---- ---- ----");
         offerset.setResult(
             result
             );
+        }
+
+
+    @Override
+    public void addStartInterval(Interval interval)
+        {
+        // TODO Auto-generated method stub
+        
+        }
+    @Override
+    public void setDuration(Duration duration)
+        {
+        // TODO Auto-generated method stub
+        
         }
 
 

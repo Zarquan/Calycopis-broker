@@ -8,9 +8,13 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
+import net.ivoa.calycopis.validator.data.DataResourceValidator.Result;
 import net.ivoa.calycopis.validator.executable.ExecutableValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
@@ -62,59 +66,149 @@ public interface OfferSetRequestParserState
     public void setExecutable(final ExecutableValidator.Result result);
 
     /**
-     * Add a validated ComputeResource.
+     * List the DataValidatorResults.
      * 
      */
-    public void addComputeResourceValidatorResult(final ComputeResourceValidator.Result result);
+    public List<DataResourceValidator.Result> getDataResourceValidatorResults();
 
     /**
-     * Find a validated ComputeResource.
-     * 
+     * Generate a DataValidatorResult key.
+     *  
      */
-    public ComputeResourceValidator.Result findComputeResourceValidatorResult(final String key);
+    public String makeDataValidatorResultKey(final DataResourceValidator.Result result);
 
     /**
-     * List the validated ComputeResources.
-     * 
+     * Generate a DataResource key.
+     *  
      */
-    public List<ComputeResourceValidator.Result> getComputeResourcesValidatorResults();
+    public String makeDataValidatorResultKey(final IvoaAbstractDataResource resource);
 
     /**
-     * Add a validated StorageResource.
+     * Add a DataValidatorResult.
      * 
      */
-    public void addStorageResourceValidatorResult(final StorageResourceValidator.Result resource);
+    public void addDataValidatorResult(final DataResourceValidator.Result result);
 
     /**
-     * Find a validated StorageResource.
+     * Find a DataValidatorResult.
      * 
      */
-    public StorageResourceValidator.Result findStorageResourceValidatorResult(final String key);
+    public DataResourceValidator.Result findDataValidatorResult(final DataResourceValidator.Result result);
 
     /**
-     * List the validated StorageResources.
+     * Find a DataValidatorResult.
      * 
      */
-    public List<StorageResourceValidator.Result> getStorageResourceValidatorResults();
+    public DataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource);
     
     /**
-     * Add a validated DataResource.
-     * 
-     */
-    public void addDataValidatorResult(final DataResourceValidator.Result resource);
-
-    /**
-     * Find a validated DataResource.
+     * Find a DataValidatorResult.
      * 
      */
     public DataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**
-     * List the validated DataResources.
+     * List the ComputeValidatorResults.
      * 
      */
-    public List<DataResourceValidator.Result> getDataResourceValidatorResults();
+    public List<ComputeResourceValidator.Result> getComputeValidatorResults();
 
+    /**
+     * Generate a ComputeValidatorResult key.
+     *  
+     */
+    public String makeComputeValidatorResultKey(final ComputeResourceValidator.Result result);
+
+    /**
+     * Generate a ComputeResource key.
+     *  
+     */
+    public String makeComputeValidatorResultKey(final IvoaAbstractComputeResource resource);
+    
+    /**
+     * Add a ComputeValidatorResult.
+     * 
+     */
+    public void addComputeValidatorResult(final ComputeResourceValidator.Result result);
+
+    /**
+     * Find a ComputeValidatorResult.
+     * 
+     */
+    public ComputeResourceValidator.Result findComputeValidatorResult(final ComputeResourceValidator.Result result);
+
+    /**
+     * Find a ComputeValidatorResult.
+     * 
+     */
+    public ComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource);
+    
+    /**
+     * Find a ComputeValidatorResult.
+     * 
+     */
+    public ComputeResourceValidator.Result findComputeValidatorResult(final String key);
+
+    /**
+     * List the StorageValidatorResults.
+     * 
+     */
+    public List<StorageResourceValidator.Result> getStorageValidatorResults();
+    
+    /**
+     * Generate a StorageValidatorResult key.
+     *  
+     */
+    public String makeStorageValidatorResultKey(final StorageResourceValidator.Result result);
+
+    /**
+     * Generate a StorageResource key.
+     *  
+     */
+    public String makeStorageValidatorResultKey(final IvoaAbstractStorageResource resource);
+    
+    /**
+     * Add a StorageValidatorResult.
+     * 
+     */
+    public void addStorageValidatorResult(final StorageResourceValidator.Result result);
+
+    /**
+     * Find a StorageValidatorResult.
+     * 
+     */
+    public StorageResourceValidator.Result findStorageValidatorResult(final StorageResourceValidator.Result result);
+
+    /**
+     * Find a StorageValidatorResult.
+     * 
+     */
+    public StorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
+    
+    /**
+     * Find a StorageValidatorResult.
+     * 
+     */
+    public StorageResourceValidator.Result findStorageValidatorResult(final String key);
+
+    /**
+     * Add a DataValidatorResult and StorageValidatorResult pair.
+     * 
+     */
+    public void addDataStorageResult(final DataResourceValidator.Result dataResult, final StorageResourceValidator.Result storageResult);
+
+    /**
+     * Find a StorageValidator result for a DataValidator result.
+     * 
+     */
+    public StorageResourceValidator.Result findDataStorageResult(final DataResourceValidator.Result dataResult);
+
+    /**
+     * Find a StorageValidator result for a IvoaAbstractDataResource.
+     * 
+     */
+    public StorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
+    
     /**
      * Get a List of start intervals.
      *
@@ -188,7 +282,6 @@ public interface OfferSetRequestParserState
      * 
      */
     void addMaxMemory(long delta);
-
 
 /*
  *

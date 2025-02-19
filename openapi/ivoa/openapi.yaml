@@ -341,6 +341,9 @@ components:
               type: string
               xml:
                 attribute: true
+            storage:
+              type: string
+
 
     SimpleDataResource:
       type: object

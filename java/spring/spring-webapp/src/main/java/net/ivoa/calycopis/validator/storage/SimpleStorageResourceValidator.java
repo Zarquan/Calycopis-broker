@@ -95,7 +95,7 @@ implements StorageResourceValidator
             state.getValidatedOfferSetRequest().getResources().addStorageItem(
                 validated
                 );
-            state.addStorageResourceValidatorResult(
+            state.addStorageValidatorResult(
                 result
                 );
             return result;
