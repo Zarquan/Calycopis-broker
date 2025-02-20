@@ -27,8 +27,11 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSizeRequested;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
@@ -49,7 +52,7 @@ implements DataResourceValidator
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", state.makeDataValidatorResultKey(requested), requested.getClass().getName());
         if (requested instanceof IvoaSimpleDataResource)
             {
             return validate(
@@ -73,17 +76,45 @@ implements DataResourceValidator
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleDataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}]", state.makeDataValidatorResultKey(requested));
 
         boolean success = true ;
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
-        String name = trim(
-            requested.getName()
+        
+        //
+        // Check for a duplicate resource.
+        DataResourceValidator.Result duplicate = state.findDataValidatorResult(
+            requested
             );
+        if (duplicate != null)
+            {
+            state.getOfferSetEntity().addWarning(
+                "urn:duplicate-resource",
+                "Duplicate data resource found [${requested}][${duplicate }]",
+                Map.of(
+                    "requested",
+                    state.makeDataValidatorResultKey(requested),
+                    "duplicate",
+                    state.makeDataValidatorResultKey(duplicate)
+                    )
+                );
+            success = false ;
+            }
+        
+        //
+        // Create our validated object.
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
+
+        validated.setUuid(
+            requested.getUuid()
+            );
+        validated.setName(
+            trim(requested.getName())
+            );
+
         String location = trim(
             requested.getLocation()
             );
-
+        validated.setLocation(location);
         if ((location == null) || (location.isEmpty()))
             {
             state.getOfferSetEntity().addWarning(
@@ -92,40 +123,87 @@ implements DataResourceValidator
                 );
             success = false ;
             }
+            
+        //
+        // Make a guess at the data size.
+        // TODO Add optional size to abstract data resource.
+        long size = 1024L;
         
-        validated.setName(name);
-        validated.setLocation(location);
-
-        //
-        // Calculate the size in GiB.
-        //
-        long size = 1000L;
-        
-        //
-        // Connect the storage resource.
-        StorageResourceValidator.Result storage = null;
+        StorageResourceValidator.Result storageResult = null;
         //
         // If the data resource has a storage reference.
         if (requested.getStorage() != null)
             {
             // Try to find the storage resource.
-            storage = state.findStorageValidatorResult(
+            storageResult = state.findStorageValidatorResult(
                 requested.getStorage()
                 );
             //
-            // If we couldn't find the storage resource.
-            if (storage == null)
+            // If we found a storage resource.
+            if (storageResult != null)
                 {
-                // Check the size ..
+                // 
+                // Check the result has an object.
+                IvoaAbstractStorageResource storageResource = storageResult.getObject(); 
+                if (storageResource != null)
+                    {
+                    //
+                    // Check the size is big enough.
+                    if (storageResource instanceof IvoaSimpleStorageResource)
+                        {
+                        //
+                        // Check the size is big enough.
+                        Long min = ((IvoaSimpleStorageResource) storageResource).getSize().getRequested().getMin(); 
+                        Long max = ((IvoaSimpleStorageResource) storageResource).getSize().getRequested().getMax();
+                        if ((min >= size) && (max >= size))
+                            {
+                            log.debug("PASS : Storage is big enough [{}][{}][{}]", size, min, max);
+                            }
+                        else {
+                            log.warn("FAIL : Storage is NOT big enough [{}][{}][{}]", size, min, max);
+                            state.getOfferSetEntity().addWarning(
+                                "urn:size-error",
+                                "Storage resource [${storagename}][${storagesize}] is not big enough for data [${dataname}][${datasize}]",
+                                Map.of(
+                                    "storagename",
+                                    state.makeStorageValidatorResultKey(storageResource),
+                                    "storagesize",
+                                    min,
+                                    "dataname",
+                                    state.makeDataValidatorResultKey(requested),
+                                    "datasize",
+                                    size
+                                    )
+                                );
+                            success = false ;
+                            }
+                        }
+                    else {
+                        log.warn("Unexpected storage type [{}]", storageResource.getClass().getName());
+                        }
+                    }
+                // If the storage result doesn't have an object.
+                else {
+                    log.error("StorageResult has null object [{}]", storageResult);
+                    state.getOfferSetEntity().addWarning(
+                        "urn:resource-not-found",
+                        "Unable to find storage resource [${storageref}]",
+                        Map.of(
+                            "storageref",
+                            requested.getStorage()
+                            )
+                        );
+                    success = false ;
+                    }
                 }
             //
             // If we couldn't find the storage resource.
             else {
                 state.getOfferSetEntity().addWarning(
-                    "urn:missing-storage resource",
-                    "Unable to find storage resource [${storage}]",
+                    "urn:resource-not-found",
+                    "Unable to find storage resource [${storageref}]",
                     Map.of(
-                        "storage",
+                        "storageref",
                         requested.getStorage()
                         )
                     );
@@ -136,9 +214,46 @@ implements DataResourceValidator
         // If the data resource doesn't have a storage reference.
         else {
             // Create a new storage resource.
-            IvoaSimpleStorageResource fred = new IvoaSimpleStorageResource();
-            fred.setName("Storage for [" + name + "]");
-            
+            // BUG we are filling in the requested fields, but this wasn't requested.
+            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource();
+            storageResource.setName("Storage for [" + state.makeDataValidatorResultKey(requested) + "]");
+            storageResource.setSize(
+                new IvoaSimpleStorageSize()
+                );
+            storageResource.getSize().setRequested(
+                new IvoaSimpleStorageSizeRequested()
+                );
+            storageResource.getSize().getRequested().setMin(size);
+            storageResource.getSize().getRequested().setMax(size);
+
+            // TODO This should be passed up the tree for validation.
+            storageResult = new StorageResourceValidator.ResultBean(
+                ResultEnum.ACCEPTED,
+                storageResource
+                );
+            //
+            // If the new storage was accepted.
+            if (ResultEnum.ACCEPTED.equals(storageResult.getEnum()))
+                {
+                validated.setStorage(
+                    state.makeStorageValidatorResultKey(
+                        storageResult
+                        )
+                    );
+                }
+            else {
+                state.getOfferSetEntity().addWarning(
+                    "urn:create-failed",
+                    "Unable to create new storage resource",
+                    Map.of(
+                        "storageref",
+                        state.makeStorageValidatorResultKey(
+                            storageResource
+                            )
+                        )
+                    );
+                success = false ;
+                }
             }
         //
         // Everything is good.
@@ -147,7 +262,8 @@ implements DataResourceValidator
         if (success)
             {
             log.debug("Success - creating the Validator.Result.");
-            DataResourceValidator.Result result = new ResultBean(
+            // Add the validated result.
+            DataResourceValidator.Result dataResult = new ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 );
@@ -155,9 +271,14 @@ implements DataResourceValidator
                 validated
                 );
             state.addDataValidatorResult(
-                result
+                dataResult
                 );
-            return result;
+            // Add the link between data and storage.
+            state.addDataStorageResult(
+                dataResult,
+                storageResult
+                );
+            return dataResult;
             }
         //
         // Something wasn't right, fail the validation.
