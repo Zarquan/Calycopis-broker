@@ -28,8 +28,8 @@ import net.ivoa.calycopis.factory.FactoryBase;
  * Public interface for a ValidatorFactory.
  * 
  */
-public interface ValidatorFactory<ObjectType, EntityType>
-    extends FactoryBase, Validator<ObjectType, EntityType>
+public interface ValidatorFactory<ObjectType, ParentType, EntityType>
+    extends FactoryBase, Validator<ObjectType, ParentType, EntityType>
     {
 
     }

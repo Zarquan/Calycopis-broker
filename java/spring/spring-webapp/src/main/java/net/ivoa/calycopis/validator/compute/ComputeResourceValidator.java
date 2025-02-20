@@ -23,26 +23,24 @@
 
 package net.ivoa.calycopis.validator.compute;
 
+import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
-import net.ivoa.calycopis.validator.data.DataResourceValidator.Result;
 
 /**
  * 
  */
 public interface ComputeResourceValidator
-extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+extends Validator<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
     {
     /**
      * Public interface for a ComputeResourceValidator result.
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
+    extends Validator.Result<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity> 
         {
         // A list of the volume mounts ...
         }
@@ -52,7 +50,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
     implements Result
         {
         /**
@@ -68,11 +66,15 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          * Public constructor.
          * 
          */
-        public ResultBean(final ResultEnum result, final IvoaAbstractComputeResource object)
-            {
+        public ResultBean(
+            final ResultEnum result,
+            final IvoaAbstractComputeResource object,
+            final Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> builder
+            ){
             super(
                 result,
-                object
+                object,
+                builder
                 );
             }
         }

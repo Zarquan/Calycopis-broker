@@ -20,17 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.compute.simple;
+package net.ivoa.calycopis.storage.simple;
 
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleComputeResource JpaRepository.
+ * A SimpleStorageResource JpaRepository.
  *
  */
-public interface SimpleComputeResourceRepository
-extends JpaRepository<SimpleComputeResourceEntity, UUID>
+public interface SimpleStorageResourceEntityRepository
+extends JpaRepository<SimpleStorageResourceEntity, UUID>
     {
     }

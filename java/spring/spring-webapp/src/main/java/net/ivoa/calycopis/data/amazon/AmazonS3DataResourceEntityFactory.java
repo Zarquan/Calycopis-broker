@@ -21,40 +21,34 @@
  *
  */
 
-package net.ivoa.calycopis.storage.simple;
+package net.ivoa.calycopis.data.amazon;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
- * A SimpleStorageResource Factory.
+ * A SimpleDataResource Factory.
  *
  */
-public interface SimpleStorageResourceFactory
+public interface AmazonS3DataResourceEntityFactory
     extends FactoryBase
     {
 
     /**
-     * Select a SimpleStorageResource based on its identifier.
+     * Select a SimpleDataResource based on its identifier.
      *
      */
-    public Optional<SimpleStorageResourceEntity> select(final UUID uuid);
+    public Optional<AmazonS3DataResourceEntity> select(final UUID uuid);
 
     /**
-     * Create a new SimpleStorageResource based on an OfferSetRequest.
+     * Create a new SimpleDataResource based on a template.
      *
      */
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent);
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaS3DataResource template);
 
-    /**
-     * Create a new SimpleStorageResource based on an OfferSetRequest.
-     *
-     */
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, boolean save);
-    
     }
 

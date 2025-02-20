@@ -21,39 +21,40 @@
  *
  */
 
-package net.ivoa.calycopis.data.amazon;
+package net.ivoa.calycopis.storage.simple;
 
 import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
- * A SimpleDataResource Factory.
+ * A SimpleStorageResource Factory.
  *
  */
-public interface AmazonS3DataResourceFactory
+public interface SimpleStorageResourceEntityFactory
     extends FactoryBase
     {
 
     /**
-     * Select a SimpleDataResource based on its identifier.
+     * Select a SimpleStorageResource based on its identifier.
      *
      */
-    public Optional<AmazonS3DataResourceEntity> select(final UUID uuid);
+    public Optional<SimpleStorageResourceEntity> select(final UUID uuid);
 
     /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
+     * Create a new SimpleStorageResource based on an OfferSetRequest.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object);
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent);
 
     /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
+     * Create a new SimpleStorageResource based on an OfferSetRequest.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save);
-
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, boolean save);
+    
     }
 

@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.data.amazon;
+package net.ivoa.calycopis.storage.simple;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -31,43 +31,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
- * A SimpleDataResource Factory implementation.
+ * A SimpleStorageResource Factory implementation.
  *
  */
 @Slf4j
 @Component
-public class AmazonS3DataResourceFactoryImpl
+public class SimpleStorageResourceEntityFactoryImpl
     extends FactoryBaseImpl
-    implements AmazonS3DataResourceFactory
+    implements SimpleStorageResourceEntityFactory
     {
 
-    private final AmazonS3DataResourceRepository repository;
+    private final SimpleStorageResourceEntityRepository repository;
 
     @Autowired
-    public AmazonS3DataResourceFactoryImpl(final AmazonS3DataResourceRepository repository)
+    public SimpleStorageResourceEntityFactoryImpl(final SimpleStorageResourceEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<AmazonS3DataResourceEntity> select(UUID uuid)
+    public Optional<SimpleStorageResourceEntity> select(UUID uuid)
         {
-        Optional<AmazonS3DataResourceEntity> optional = this.repository.findById(
+        Optional<SimpleStorageResourceEntity> optional = this.repository.findById(
             uuid
             );
         if (optional.isPresent())
             {
-            AmazonS3DataResourceEntity found = optional.get();
+            SimpleStorageResourceEntity found = optional.get();
             found.addMessage(
                 LevelEnum.DEBUG,
                 "urn:debug",
-                "SimpleDataResourceEntity select(UUID)",
+                "SimpleStorageResourceEntity select(UUID)",
                 Collections.emptyMap()
                 );
             return Optional.of(
@@ -84,30 +85,19 @@ public class AmazonS3DataResourceFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent)
         {
         return this.create(
+            request,
             parent,
-            name,
-            endpoint,
-            template,
-            bucket,
-            object,
-            false
+            true
             );
         }
-
+    
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save)
+    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, final boolean save)
         {
-        AmazonS3DataResourceEntity created = new AmazonS3DataResourceEntity(
-            parent,
-            name,
-            endpoint,
-            template,
-            bucket,
-            object
-            );
+        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(parent);
         log.debug("created [{}]", created.getUuid());
         if (save)
             {

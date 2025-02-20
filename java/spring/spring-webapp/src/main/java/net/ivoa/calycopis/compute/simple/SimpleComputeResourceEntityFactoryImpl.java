@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
  * A SimpleComputeResource Factory implementation.
@@ -41,15 +42,15 @@ import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
  */
 @Slf4j
 @Component
-public class SimpleComputeResourceFactoryImpl
+public class SimpleComputeResourceEntityFactoryImpl
     extends FactoryBaseImpl
-    implements SimpleComputeResourceFactory
+    implements SimpleComputeResourceEntityFactory
     {
 
-    private final SimpleComputeResourceRepository repository;
+    private final SimpleComputeResourceEntityRepository repository;
 
     @Autowired
-    public SimpleComputeResourceFactoryImpl(final SimpleComputeResourceRepository repository)
+    public SimpleComputeResourceEntityFactoryImpl(final SimpleComputeResourceEntityRepository repository)
         {
         super();
         this.repository = repository;
@@ -84,38 +85,26 @@ public class SimpleComputeResourceFactoryImpl
         }
 
     @Override
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final String name,
-        final Long minrequestedcores,
-        final Long maxrequestedcores,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minrequestedmemory,
-        final Long maxrequestedmemory,
-        final Long minofferedmemory,
-        final Long maxofferedmemory,
-        final Boolean minimalcores,
-        final Boolean minimalmemory
-        )
+    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleComputeResource template)
         {
+        log.debug("create(ExecutionSessionEntity , IvoaSimpleComputeResource) [{}][{}]", parent, template);
         return this.create(
             parent,
-            name,
-            minrequestedcores,
-            maxrequestedcores,
-            minofferedcores,
-            maxofferedcores,
-            minrequestedmemory,
-            maxrequestedmemory,
-            minofferedmemory,
-            maxofferedmemory,
-            minimalcores,
-            minimalmemory,
+            template.getName(),
+            template.getCores().getRequested().getMin(),
+            template.getCores().getRequested().getMax(),
+            template.getCores().getOffered().getMin(),
+            template.getCores().getOffered().getMax(),
+            template.getMemory().getRequested().getMin(),
+            template.getMemory().getRequested().getMax(),
+            template.getMemory().getOffered().getMin(),
+            template.getMemory().getOffered().getMax(),
+            template.getCores().getRequested().getMinimal(),
+            template.getMemory().getRequested().getMinimal(),
             true
             );
         }
-    
+
     @Override
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity parent,
@@ -153,53 +142,6 @@ public class SimpleComputeResourceFactoryImpl
             log.debug("created [{}]", created.getUuid());
             }
         return created;
-        }
-
-    @Override
-    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final SimpleComputeResourceEntity template)
-        {
-        log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
-        return this.create(
-            parent,
-            template.getName(),
-            template.getMinRequestedCores(),
-            template.getMaxRequestedCores(),
-            template.getMinOfferedCores(),
-            template.getMaxOfferedCores(),
-            template.getMinRequestedMemory(),
-            template.getMaxRequestedMemory(),
-            template.getMinOfferedMemory(),
-            template.getMaxOfferedMemory(),
-            template.getMinimalCores(),
-            template.getMinimalMemory(),
-            true
-            );
-        }
-    @Override
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final SimpleComputeResourceEntity template,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minofferedmemory,
-        final Long maxofferedmemory
-        ){
-        log.debug("create(ExecutionEntity, SimpleComputeResourceEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
-        return this.create(
-            parent,
-            template.getName(),
-            template.getMinRequestedCores(),
-            template.getMaxRequestedCores(),
-            minofferedcores,
-            maxofferedcores,
-            template.getMinRequestedMemory(),
-            template.getMaxRequestedMemory(),
-            minofferedmemory,
-            maxofferedmemory,
-            template.getMinimalCores(),
-            template.getMinimalMemory(),
-            true
-            );
         }
     }
 

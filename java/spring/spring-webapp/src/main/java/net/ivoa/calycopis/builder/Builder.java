@@ -28,12 +28,12 @@ package net.ivoa.calycopis.builder;
  * Public interface for an Entity builder, responsible for creating entities in the database. 
  * 
  */
-public interface Builder<EntityType>
+public interface Builder<ParentType, EntityType>
     {
     /**
-     * Build the entity. 
+     * Build an entity. 
      *
      */
-    public EntityType build();
+    public EntityType build(final ParentType parent);
 
     }

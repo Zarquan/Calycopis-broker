@@ -24,22 +24,24 @@
 package net.ivoa.calycopis.validator.executable;
 
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.Validator;
+import net.ivoa.calycopis.builder.Builder;
 
 /**
  * Public interface for Executable validators and results.
  * 
  */
 public interface ExecutableValidator
-extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
+extends Validator<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity>
     {
     /**
      * Public interface for an ExecutableValidator result.
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
+    extends Validator.Result<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity> 
         {
         // A list of the compute resources this executable is deployed on ?.
         }
@@ -49,7 +51,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntity>
+    extends Validator.ResultBean<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity>
     implements Result
         {
         /**
@@ -65,11 +67,15 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          * Public constructor.
          * 
          */
-        public ResultBean(ResultEnum result, IvoaAbstractExecutable object)
-            {
+        public ResultBean(
+            final ResultEnum result,
+            final IvoaAbstractExecutable object,
+            final Builder<ExecutionSessionEntity, AbstractExecutableEntity> builder
+            ){
             super(
                 result,
-                object
+                object,
+                builder
                 );
             }
         }

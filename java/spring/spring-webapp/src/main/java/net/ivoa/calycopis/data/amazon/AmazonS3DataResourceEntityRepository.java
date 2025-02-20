@@ -20,40 +20,17 @@
  *
  *
  */
+package net.ivoa.calycopis.data.amazon;
 
-package net.ivoa.calycopis.data.simple;
-
-import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.factory.FactoryBase;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleDataResource Factory.
+ * A SimpleDataResource JpaRepository.
  *
  */
-public interface SimpleDataResourceFactory
-    extends FactoryBase
+public interface AmazonS3DataResourceEntityRepository
+extends JpaRepository<AmazonS3DataResourceEntity, UUID>
     {
-
-    /**
-     * Select a SimpleDataResource based on its identifier.
-     *
-     */
-    public Optional<SimpleDataResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
-     *
-     */
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location);
-
-    /**
-     * Create a new SimpleDataResource based on an OfferSetRequest.
-     *
-     */
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save);
-
     }
-

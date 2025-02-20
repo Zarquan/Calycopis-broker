@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.validator.data;
 
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
@@ -32,7 +33,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  * 
  */
 public interface DataResourceValidatorFactory
-extends ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
+extends ValidatorFactory<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
     {
 
     }

@@ -24,7 +24,10 @@ package net.ivoa.calycopis.validator.executable;
 
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.Validator;
@@ -37,7 +40,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  */
 @Component
 public class ExecutableValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity>
     implements ExecutableValidatorFactory
     {
     /**
@@ -45,11 +48,13 @@ public class ExecutableValidatorFactoryImpl
      * TODO Make this configurable. 
      * 
      */
-    public ExecutableValidatorFactoryImpl()
+    public ExecutableValidatorFactoryImpl(final JupyterNotebookEntityFactory jupyterNotebookEntityFactory)
         {
         super();
         this.validators.add(
-            new JupyterNotebookValidator()
+            new JupyterNotebookValidator(
+                jupyterNotebookEntityFactory
+                )
             );
         }
     
@@ -62,27 +67,6 @@ public class ExecutableValidatorFactoryImpl
             state,
             executable.getType(),
             executable.getClass().getName()
-            );
-        }
-
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractExecutable executable
-        ){
-        state.getValidatedOfferSetRequest().setExecutable(
-            executable
-            );
-        }
-    
-    @Override
-    public Result<IvoaAbstractExecutable, AbstractExecutableEntity> result(
-        final ResultEnum value,
-        final IvoaAbstractExecutable object
-        ){
-        return new ExecutableValidator.ResultBean(
-            value,
-            object
             );
         }
     }

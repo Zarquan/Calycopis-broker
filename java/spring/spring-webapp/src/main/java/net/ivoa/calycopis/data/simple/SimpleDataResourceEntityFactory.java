@@ -21,14 +21,34 @@
  *
  */
 
-package net.ivoa.calycopis.message;
+package net.ivoa.calycopis.data.simple;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
+import java.util.UUID;
+
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
- * 
+ * A SimpleDataResource Factory.
+ *
  */
-public interface MessageRepository extends JpaRepository<MessageEntity, Long>
+public interface SimpleDataResourceEntityFactory
+    extends FactoryBase
     {
 
+    /**
+     * Select a SimpleDataResource based on its identifier.
+     *
+     */
+    public Optional<SimpleDataResourceEntity> select(final UUID uuid);
+
+    /**
+     * Create a new SimpleDataResource based on a template.
+     *
+     */
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template);
+
     }
+

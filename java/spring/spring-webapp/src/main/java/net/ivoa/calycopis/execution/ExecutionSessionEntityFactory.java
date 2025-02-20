@@ -32,13 +32,12 @@ import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
-import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 
 /**
  * An Execution Factory.
  *
  */
-public interface ExecutionSessionFactory
+public interface ExecutionSessionEntityFactory
     extends FactoryBase
     {
     /**

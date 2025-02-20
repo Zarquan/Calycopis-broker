@@ -20,17 +20,15 @@
  *
  *
  */
-package net.ivoa.calycopis.data.amazon;
 
-import java.util.UUID;
+package net.ivoa.calycopis.message;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleDataResource JpaRepository.
- *
+ * 
  */
-public interface AmazonS3DataResourceRepository
-extends JpaRepository<AmazonS3DataResourceEntity, UUID>
+public interface MessageEntityRepository extends JpaRepository<MessageEntity, Long>
     {
+
     }

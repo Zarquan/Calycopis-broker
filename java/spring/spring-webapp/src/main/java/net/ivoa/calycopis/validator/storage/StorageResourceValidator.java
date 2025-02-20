@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.validator.storage;
 
+import net.ivoa.calycopis.builder.Builder;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
@@ -32,7 +34,7 @@ import net.ivoa.calycopis.validator.Validator;
  * 
  */
 public interface StorageResourceValidator
-extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+extends Validator<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
     {
 
     /**
@@ -40,7 +42,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
+    extends Validator.Result<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity> 
         {
         // A list of the data resources stored in this resource.
         }
@@ -50,7 +52,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
     implements Result
         {
         /**
@@ -66,11 +68,15 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Public constructor.
          * 
          */
-        public ResultBean(final ResultEnum result, final IvoaAbstractStorageResource object)
-            {
+        public ResultBean(
+            final ResultEnum result,
+            final IvoaAbstractStorageResource object,
+            final Builder<ExecutionSessionEntity, AbstractStorageResourceEntity> builder
+            ){
             super(
                 result,
-                object
+                object,
+                builder
                 );
             }
         }

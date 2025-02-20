@@ -44,15 +44,15 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  */
 @Slf4j
 @Component
-public class ExecutionSessionFactoryImpl
+public class ExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
-    implements ExecutionSessionFactory
+    implements ExecutionSessionEntityFactory
     {
 
-    private final ExecutionSessionRepository repository;
+    private final ExecutionSessionEntityRepository repository;
 
     @Autowired
-    public ExecutionSessionFactoryImpl(final ExecutionSessionRepository repository)
+    public ExecutionSessionEntityFactoryImpl(final ExecutionSessionEntityRepository repository)
         {
         super();
         this.repository = repository;

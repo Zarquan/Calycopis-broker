@@ -23,7 +23,9 @@
 
 package net.ivoa.calycopis.validator.data;
 
+import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.Validator;
 
@@ -32,7 +34,7 @@ import net.ivoa.calycopis.validator.Validator;
  * 
  */
 public interface DataResourceValidator
-extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
+extends Validator<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
     {
 
     /**
@@ -40,7 +42,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
+    extends Validator.Result<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity> 
         {
         // A reference to the storage resource for this data.
         }
@@ -50,7 +52,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
     implements Result
         {
         /**
@@ -66,11 +68,15 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          * Public constructor.
          * 
          */
-        public ResultBean(final ResultEnum result, final IvoaAbstractDataResource object)
-            {
+        public ResultBean(
+            final ResultEnum result,
+            final IvoaAbstractDataResource object,
+            final Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder
+            ){
             super(
                 result,
-                object
+                object,
+                builder
                 );
             }
         }

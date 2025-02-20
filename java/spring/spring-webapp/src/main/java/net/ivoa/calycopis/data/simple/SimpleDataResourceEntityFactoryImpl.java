@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.storage.simple;
+package net.ivoa.calycopis.data.simple;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -31,44 +31,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
- * A SimpleStorageResource Factory implementation.
+ * A SimpleDataResource Factory implementation.
  *
  */
 @Slf4j
 @Component
-public class SimpleStorageResourceFactoryImpl
+public class SimpleDataResourceEntityFactoryImpl
     extends FactoryBaseImpl
-    implements SimpleStorageResourceFactory
+    implements SimpleDataResourceEntityFactory
     {
 
-    private final SimpleStorageResourceRepository repository;
+    private final SimpleDataResourceEntityRepository repository;
 
     @Autowired
-    public SimpleStorageResourceFactoryImpl(final SimpleStorageResourceRepository repository)
+    public SimpleDataResourceEntityFactoryImpl(final SimpleDataResourceEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<SimpleStorageResourceEntity> select(UUID uuid)
+    public Optional<SimpleDataResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleStorageResourceEntity> optional = this.repository.findById(
+        Optional<SimpleDataResourceEntity> optional = this.repository.findById(
             uuid
             );
         if (optional.isPresent())
             {
-            SimpleStorageResourceEntity found = optional.get();
+            SimpleDataResourceEntity found = optional.get();
             found.addMessage(
                 LevelEnum.DEBUG,
                 "urn:debug",
-                "SimpleStorageResourceEntity select(UUID)",
+                "SimpleDataResourceEntity select(UUID)",
                 Collections.emptyMap()
                 );
             return Optional.of(
@@ -85,19 +85,23 @@ public class SimpleStorageResourceFactoryImpl
         }
 
     @Override
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent)
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template)
         {
         return this.create(
-            request,
             parent,
+            template.getName(),
+            template.getLocation(),
             true
             );
         }
-    
-    @Override
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, final boolean save)
+
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
         {
-        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(parent);
+        SimpleDataResourceEntity created = new SimpleDataResourceEntity(
+            parent,
+            name,
+            location
+            );
         log.debug("created [{}]", created.getUuid());
         if (save)
             {

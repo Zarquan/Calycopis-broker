@@ -22,38 +22,41 @@
  */
 package net.ivoa.calycopis.validator.compute;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.validator.Validator;
-import net.ivoa.calycopis.validator.ValidatorFactory;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.validator.Validator.ResultEnum;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
 
 /**
  * A factory for compute resource validators.
  * 
  */
+@Slf4j
 @Component
 public class ComputeResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
     implements ComputeResourceValidatorFactory
     {
-    
+
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public ComputeResourceValidatorFactoryImpl()
+    @Autowired
+    public ComputeResourceValidatorFactoryImpl(final SimpleComputeResourceEntityFactory simpleComputeEntityFactory)
         {
         super();
         this.validators.add(
-            new SimpleComputeResourceValidator()
+            new SimpleComputeResourceValidator(
+                simpleComputeEntityFactory
+                )
             );
         }
 
@@ -65,15 +68,20 @@ public class ComputeResourceValidatorFactoryImpl
         unknown(
             state,
             resource.getType(),
-            resource.getClass().getName()
+            state.makeComputeValidatorResultKey(
+                resource
+                )
             );
         }
 
+    /*
+     * 
     @Override
     public void save(
         final OfferSetRequestParserState state,
         final IvoaAbstractComputeResource resource
         ){
+        log.debug("save(OfferSetRequestParserState, IvoaAbstractComputeResource)");
         state.getValidatedOfferSetRequest().getResources().addComputeItem(
             resource
             );
@@ -84,15 +92,25 @@ public class ComputeResourceValidatorFactoryImpl
                 )
             );
         }
+     * 
+     */
 
+    /*
+     * 
     @Override
     public ComputeResourceValidator.Result result(
         final ResultEnum value,
-        final IvoaAbstractComputeResource object
+        final IvoaAbstractComputeResource object,
+        final Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> builder
         ){
+        log.debug("result(ResultEnum, IvoaAbstractComputeResource)");
+        log.debug("Result [{}][{}]", value, object);
         return new ComputeResourceValidator.ResultBean(
             value,
-            object
+            object,
+            builder
             );
         }
+     * 
+     */
     }

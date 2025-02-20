@@ -18,15 +18,15 @@ import net.ivoa.calycopis.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class DockerContainerFactoryImpl
+public class DockerContainerEntityFactoryImpl
     extends FactoryBaseImpl
-    implements DockerContainerFactory
+    implements DockerContainerEntityFactory
     {
 
-    private final DockerContainerRepository repository;
+    private final DockerContainerEntityRepository repository;
 
     @Autowired
-    public DockerContainerFactoryImpl(final DockerContainerRepository repository)
+    public DockerContainerEntityFactoryImpl(final DockerContainerEntityRepository repository)
         {
         super();
         this.repository = repository;

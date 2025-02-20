@@ -25,6 +25,14 @@ package net.ivoa.calycopis.validator.data;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.builder.Builder;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -34,6 +42,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSizeRequested;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
@@ -46,6 +55,22 @@ extends ValidatorTools
 implements DataResourceValidator
     {
 
+    /**
+     * Factory for creating Entities.
+     * 
+     */
+    final SimpleDataResourceEntityFactory entityFactory;
+
+    /**
+     * Public constructor.
+     * 
+     */
+    public SimpleDataResourceValidator(final SimpleDataResourceEntityFactory entityFactory)
+        {
+        super();
+        this.entityFactory = entityFactory ;
+        }
+    
     @Override
     public DataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
@@ -227,10 +252,18 @@ implements DataResourceValidator
             storageResource.getSize().getRequested().setMax(size);
 
             // TODO This should be passed up the tree for validation.
-            storageResult = new StorageResourceValidator.ResultBean(
+            
+            storageResult = null ;   
+            /*
+             * 
+                    
+                    new StorageResourceValidator.ResultBean(
                 ResultEnum.ACCEPTED,
                 storageResource
                 );
+             * 
+             */
+
             //
             // If the new storage was accepted.
             if (ResultEnum.ACCEPTED.equals(storageResult.getEnum()))
@@ -243,7 +276,7 @@ implements DataResourceValidator
                 }
             else {
                 state.getOfferSetEntity().addWarning(
-                    "urn:create-failed",
+                    "urn:storage-required",
                     "Unable to create new storage resource",
                     Map.of(
                         "storageref",
@@ -261,24 +294,49 @@ implements DataResourceValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the Validator.Result.");
-            // Add the validated result.
-            DataResourceValidator.Result dataResult = new ResultBean(
+            log.debug("Success");
+
+            log.debug("Creating Builder.");
+            Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractDataResourceEntity>()
+                {
+                @Override
+                public SimpleDataResourceEntity build(ExecutionSessionEntity parent)
+                    {
+                    return entityFactory.create(
+                        parent,
+                        validated
+                        );
+                    }
+                }; 
+            
+            log.debug("Creating Result.");
+            DataResourceValidator.Result dataResult = new DataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated
+                validated,
+                builder
                 );
-            state.getValidatedOfferSetRequest().getResources().addDataItem(
-                validated
-                );
+
+            //
+            // Save the DataResource in the state.
             state.addDataValidatorResult(
                 dataResult
                 );
-            // Add the link between data and storage.
+            //
+            // Save the StorageResource in the state.
+            /*
+             * Probably already done.
+            state.addStorageValidatorResult(
+                storageResult
+                );
+             * 
+             */
+            // Add the link between the DataResource and StorageResource.
             state.addDataStorageResult(
                 dataResult,
                 storageResult
                 );
-            return dataResult;
+
+            return dataResult ;
             }
         //
         // Something wasn't right, fail the validation.

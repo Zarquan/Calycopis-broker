@@ -22,12 +22,18 @@
  */
 package net.ivoa.calycopis.validator.executable;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.builder.Builder;
+import net.ivoa.calycopis.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * A validator implementation to handle IvoaJupyterNotebooks.
@@ -38,6 +44,14 @@ public class JupyterNotebookValidator
 extends ValidatorTools
 implements ExecutableValidator
     {
+    
+    private final JupyterNotebookEntityFactory factory;
+
+    @Autowired
+    public JupyterNotebookValidator(final JupyterNotebookEntityFactory factory)
+        {
+        this.factory = factory;
+        }
     
     @Override
     public ExecutableValidator.Result validate(
@@ -125,9 +139,23 @@ implements ExecutableValidator
         if (success)
             {
             log.debug("Success - creating the ExecutableValidator.Result.");
+
+            Builder<ExecutionSessionEntity, AbstractExecutableEntity> builder = new Builder<ExecutionSessionEntity, AbstractExecutableEntity>()
+                {
+                @Override
+                public AbstractExecutableEntity build(ExecutionSessionEntity parent)
+                    {
+                    return factory.create(
+                        parent,
+                        validated
+                        );
+                    }
+                }; 
+
             ExecutableValidator.Result result = new ExecutableValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated
+                validated,
+                builder
                 );
             state.getValidatedOfferSetRequest().setExecutable(
                 validated

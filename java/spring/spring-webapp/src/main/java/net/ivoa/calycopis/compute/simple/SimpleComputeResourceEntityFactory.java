@@ -28,12 +28,13 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
  * A SimpleComputeResource Factory.
  *
  */
-public interface SimpleComputeResourceFactory
+public interface SimpleComputeResourceEntityFactory
     extends FactoryBase
     {
 
@@ -44,22 +45,12 @@ public interface SimpleComputeResourceFactory
     public Optional<SimpleComputeResourceEntity> select(final UUID uuid);
 
     /**
-     * Create and save a new SimpleComputeResource entity.
+     * Create and save a new SimpleComputeResource entity based on a template.
      *
      */
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity parent,
-        final String name,
-        final Long minrequestedcores,
-        final Long maxrequestedcores,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minrequestedmemory,
-        final Long maxrequestedmemory,
-        final Long minofferedmemory,
-        final Long maxofferedmemory,
-        final Boolean minimalcores,
-        final Boolean minimalmemory
+        final IvoaSimpleComputeResource template
         );
 
     /**
@@ -81,28 +72,5 @@ public interface SimpleComputeResourceFactory
         final Boolean minimalmemory,
         boolean save
         );
-
-    /**
-     * Create and save a new SimpleComputeResource entity based on a template.
-     *
-     */
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final SimpleComputeResourceEntity template
-        );
-
-    /**
-     * Create and save a new SimpleComputeResource entity based on a template.
-     *
-     */
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final SimpleComputeResourceEntity template,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minofferedmemory,
-        final Long maxofferedmemory
-        );
-
     }
 

@@ -12,7 +12,7 @@ import net.ivoa.calycopis.factory.FactoryBase;
 /**
  *
  */
-public interface DockerContainerFactory
+public interface DockerContainerEntityFactory
     extends FactoryBase
     {
     public Optional<DockerContainerEntity> select(final UUID uuid);

@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository;
  *
  */
 @Repository
-public interface ExecutionSessionRepository
+public interface ExecutionSessionEntityRepository
     extends JpaRepository<ExecutionSessionEntity, UUID>
     {
     }

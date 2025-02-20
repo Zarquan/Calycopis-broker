@@ -12,21 +12,22 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
  */
 @Slf4j
 @Component
-public class JupyterNotebookFactoryImpl
+public class JupyterNotebookEntityFactoryImpl
     extends FactoryBaseImpl
-    implements JupyterNotebookFactory
+    implements JupyterNotebookEntityFactory
     {
     
-    private final JupyterNotebookRepository repository;
+    private final JupyterNotebookEntityRepository repository;
 
     @Autowired
-    public JupyterNotebookFactoryImpl(final JupyterNotebookRepository repository)
+    public JupyterNotebookEntityFactoryImpl(final JupyterNotebookEntityRepository repository)
         {
         super();
         this.repository = repository;
@@ -41,32 +42,21 @@ public class JupyterNotebookFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final String name, final String notebookurl)
+    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template)
         {
-        return this.create(
-            null,
-            name,
-            notebookurl,
-            true
-            );
-        }
-
-    @Override
-    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String notebookurl)
-        {
+        log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}][{}]", parent, template);
         return this.create(
             parent,
-            name,
-            notebookurl,
+            template.getName(),
+            template.getLocation(),
             true
             );
         }
 
-    @Override
     public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
         {
         log.debug("create(ExecutionEntity, String, String, boolean) [{}][{}][{}][{}]",
-            ((parent!= null) ? parent.getUuid() : "null-template"),
+            parent,
             name,
             location,
             save
@@ -83,17 +73,5 @@ public class JupyterNotebookFactoryImpl
             log.debug("created [{}]", created.getUuid());
             }
         return created;
-        }
-    
-    @Override
-    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final JupyterNotebookEntity template)
-        {
-        log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
-        return this.create(
-            parent,
-            template.getName(),
-            template.getLocation(),
-            true
-            );
         }
     }

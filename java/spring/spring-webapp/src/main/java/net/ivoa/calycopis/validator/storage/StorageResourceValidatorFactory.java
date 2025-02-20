@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.validator.storage;
 
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.ValidatorFactory;
@@ -32,7 +33,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  * 
  */
 public interface StorageResourceValidatorFactory
-extends ValidatorFactory<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+extends ValidatorFactory<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
     {
 
     }

@@ -23,14 +23,23 @@
 package net.ivoa.calycopis.validator.data;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.builder.Builder;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
+ * TODO A lot of this should be inherited from SimpleDataResourceValidator.
+ * TODO Create a common base class with methods that can be inherited.
  * 
  */
 @Slf4j
@@ -38,6 +47,21 @@ public class S3DataResourceValidator
 extends ValidatorTools
 implements DataResourceValidator
     {
+    /**
+     * Factory for creating Entities.
+     * 
+     */
+    final AmazonS3DataResourceEntityFactory entityFactory;
+
+    /**
+     * Public constructor.
+     * 
+     */
+    public S3DataResourceValidator(final AmazonS3DataResourceEntityFactory entityFactory)
+        {
+        super();
+        this.entityFactory = entityFactory ;
+        }
 
     @Override
     public DataResourceValidator.Result validate(
@@ -120,10 +144,6 @@ implements DataResourceValidator
         //
         // Accumulate state and return the fail here.
         //
-        
-        //
-        // Check for a storage location.
-        //
 
         validated.setName(name);
         validated.setEndpoint(endpoint);
@@ -132,22 +152,62 @@ implements DataResourceValidator
         validated.setObject(object);
 
         //
+        // Make a guess at the data size.
+        // TODO Add optional size to data resource.
+        long size = 1024L;
+
+        //
+        // Find or create the storage resource.
+        StorageResourceValidator.Result storageResult = null;
+
+        //
         // Everything is good, so accept the request.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the Validator.Result.");
-            DataResourceValidator.Result result = new ResultBean(
+            log.debug("Success");
+
+            log.debug("Creating Builder.");
+            Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractDataResourceEntity>()
+                {
+                @Override
+                public SimpleDataResourceEntity build(ExecutionSessionEntity parent)
+                    {
+                    return entityFactory.create(
+                        parent,
+                        validated
+                        );
+                    }
+                }; 
+            
+            log.debug("Creating Result.");
+            DataResourceValidator.Result dataResult = new DataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated
+                validated,
+                builder
                 );
-            state.getValidatedOfferSetRequest().getResources().addDataItem(
-                validated
-                );
+
+            //
+            // Save the DataResource in the state.
             state.addDataValidatorResult(
-                result
+                dataResult
                 );
-            return result;
+            //
+            // Save the StorageResource in the state.
+            /*
+             * Probably already done.
+            state.addStorageValidatorResult(
+                storageResult
+                );
+             * 
+             */
+            // Add the link between the DataResource and StorageResource.
+            state.addDataStorageResult(
+                dataResult,
+                storageResult
+                );
+
+            return dataResult ;
             }
         //
         // Something wasn't right, fail the validation.

@@ -29,7 +29,7 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
  * Public interface for a Validator.
  *  
  */
-public interface Validator<ObjectType, EntityType>
+public interface Validator<ObjectType, ParentType, EntityType>
     {
     /**
      * Result enum for the validation process.
@@ -48,7 +48,7 @@ public interface Validator<ObjectType, EntityType>
      * Public interface for a validation result.
      * 
      */
-    public static interface Result<ObjectType, EntityType>
+    public static interface Result<ObjectType, ParentType, EntityType>
         {
         /**
          * Get the validation result enum.
@@ -66,7 +66,7 @@ public interface Validator<ObjectType, EntityType>
          * Get the corresponding Builder to build an entity.
          * 
          */
-        public Builder<EntityType> getBuilder();
+        public Builder<ParentType, EntityType> getBuilder();
         
         }
 
@@ -74,37 +74,39 @@ public interface Validator<ObjectType, EntityType>
      * Simple bean implementation of Result.
      *  
      */
-    public static class ResultBean<ObjectType, EntityType>
-    implements Result<ObjectType, EntityType>
+    public static class ResultBean<ObjectType, ParentType, EntityType>
+    implements Result<ObjectType, ParentType, EntityType>
         {
         public ResultBean(final ResultEnum result)
             {
-            this(result, null);
+            this(result, null, null);
             }
-        public ResultBean(final ResultEnum result, ObjectType object)
+
+        public ResultBean(final ResultEnum result, ObjectType object, final Builder<ParentType, EntityType> builder)
             {
             this.result = result;
             this.object = object;
+            this.builder = builder;
             }
 
-        private ResultEnum result;
+        private final ResultEnum result;
         @Override
         public ResultEnum getEnum()
             {
             return this.result;
             }
 
-        private ObjectType object;
+        private final ObjectType object;
         @Override
         public ObjectType getObject()
             {
             return this.object;
             }
+        private final Builder<ParentType, EntityType> builder;
         @Override
-        public Builder<EntityType> getBuilder()
+        public Builder<ParentType, EntityType> getBuilder()
             {
-            // TODO Auto-generated method stub
-            return null;
+            return this.builder;
             }
         }
 
@@ -112,7 +114,7 @@ public interface Validator<ObjectType, EntityType>
      * Validate a component.
      *
      */
-    public Validator.Result<ObjectType, EntityType> validate(
+    public Validator.Result<ObjectType, ParentType, EntityType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         );

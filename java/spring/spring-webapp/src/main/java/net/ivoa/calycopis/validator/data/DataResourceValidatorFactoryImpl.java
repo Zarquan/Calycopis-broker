@@ -25,9 +25,10 @@ package net.ivoa.calycopis.validator.data;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
@@ -36,7 +37,7 @@ import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
  */
 @Component
 public class DataResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
     implements DataResourceValidatorFactory
     {
 
@@ -45,11 +46,13 @@ public class DataResourceValidatorFactoryImpl
      * TODO Make this configurable. 
      * 
      */
-    public DataResourceValidatorFactoryImpl()
+    public DataResourceValidatorFactoryImpl(final SimpleDataResourceEntityFactory simpleDataEntityFactory)
         {
         super();
         this.validators.add(
-            new SimpleDataResourceValidator()
+            new SimpleDataResourceValidator(
+                simpleDataEntityFactory
+                )
             );
         }
     
@@ -62,33 +65,6 @@ public class DataResourceValidatorFactoryImpl
             state,
             resource.getType(),
             resource.getClass().getName()
-            );
-        }
-
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractDataResource resource
-        ){
-        state.getValidatedOfferSetRequest().getResources().addDataItem(
-            resource
-            );
-        state.addDataValidatorResult(
-            new DataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                resource
-                )
-            );
-        }
-
-    @Override
-    public DataResourceValidator.Result result(
-        final ResultEnum value,
-        final IvoaAbstractDataResource object
-        ){
-        return new DataResourceValidator.ResultBean(
-            value,
-            object
             );
         }
     }

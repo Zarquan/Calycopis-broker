@@ -18,18 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceFactory;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceFactory;
+import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
 import net.ivoa.calycopis.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceFactory;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebookFactory;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -68,14 +68,26 @@ extends ValidatorTools
      * 
      */
     public OfferSetRequestParserStateImpl(
+        final OfferSetRequestParser parser,
         final IvoaOfferSetRequest offersetRequest,
         final OfferSetEntity offersetEntity
         ){
+        this.parser = parser;
         this.originalRequest  = offersetRequest;
         this.validatedRequest = new IvoaOfferSetRequest();
         this.offersetEntity   = offersetEntity;
         }
-   
+
+    /**
+     * Get a reference to the parent parser.
+     *  
+     */
+    private final OfferSetRequestParser parser;
+    public OfferSetRequestParser getParser()
+        {
+        return this.parser;
+        }
+
     private final IvoaOfferSetRequest originalRequest;
     @Override
     public IvoaOfferSetRequest getOriginalOfferSetRequest()
@@ -271,7 +283,7 @@ extends ValidatorTools
     @Override
     public void addComputeValidatorResult(final ComputeResourceValidator.Result result)
         {
-        log.debug("addComputeValidatorResult(String)");
+        log.debug("addComputeValidatorResult(ComputeResourceValidator.Result)");
         log.debug("Result [{}]", result);
         compValidatorResultList.add(
             result

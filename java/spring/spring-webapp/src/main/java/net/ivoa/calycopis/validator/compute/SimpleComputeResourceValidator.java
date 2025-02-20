@@ -24,8 +24,11 @@ package net.ivoa.calycopis.validator.compute;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
@@ -39,6 +42,10 @@ import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.builder.Builder;
+
 /**
  * A validator implementation to handle simple data resources.
  * 
@@ -49,13 +56,29 @@ extends ValidatorTools
 implements ComputeResourceValidator
     {
 
+    /**
+     * Factory for creating Entities.
+     * 
+     */
+    final SimpleComputeResourceEntityFactory entityFactory;
+    
+    /**
+     * Public constructor.
+     * 
+     */
+    public SimpleComputeResourceValidator(final SimpleComputeResourceEntityFactory entityFactory)
+        {
+        super();
+        this.entityFactory = entityFactory ;
+        }
+    
     @Override
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
+    public Validator.Result<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity> validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaAbstractComputeResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}]", requested);
         switch(requested)
             {
             case IvoaSimpleComputeResource simple:
@@ -107,7 +130,7 @@ implements ComputeResourceValidator
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaSimpleComputeResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}]", requested);
 
         boolean success = true ;
         IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource();
@@ -259,6 +282,7 @@ implements ComputeResourceValidator
         // Process the network ports.
         // ....
 
+        // Save the results in our IvoaSimpleComputeResource 
         validated.setName(requested.getName());
 
         IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
@@ -279,6 +303,7 @@ implements ComputeResourceValidator
         
         //
         // Process the volume mounts.
+        log.debug("Processing the volume mounts");
         if (requested.getVolumes() != null)
             {
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
@@ -308,26 +333,47 @@ implements ComputeResourceValidator
                     }
                 }
             }
+        log.debug("Done processing the volume mounts");
 
         //
         // Everything is good.
         // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the Validator.Result.");
-            ComputeResourceValidator.Result result = new ResultBean(
+            log.debug("Success");
+
+            log.debug("Creating Builder.");
+            Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractComputeResourceEntity>()
+                {
+                @Override
+                public SimpleComputeResourceEntity build(ExecutionSessionEntity parent)
+                    {
+                    return entityFactory.create(
+                        parent,
+                        validated
+                        );
+                    }
+                }; 
+            
+            log.debug("Creating Result.");
+            ComputeResourceValidator.Result result = new ComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated
+                validated,
+                builder
                 );
+            /*
+             * 
             state.getValidatedOfferSetRequest().getResources().addComputeItem(
                 validated
                 );
+             * 
+             */
+            // Add this ComputeResource to our ParserState.
             state.addComputeValidatorResult(
                 result
                 );
             //
-            // Update the running totals in our parser state.
+            // Update the running totals in our ParserState.
             // TODO Do we move these to ComputeResourceValidator.Result ?
             state.addMinCores(
                 mincores

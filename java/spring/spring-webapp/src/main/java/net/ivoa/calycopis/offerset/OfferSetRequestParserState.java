@@ -14,7 +14,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.data.DataResourceValidator.Result;
 import net.ivoa.calycopis.validator.executable.ExecutableValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
@@ -23,6 +22,12 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
  */
 public interface OfferSetRequestParserState
     {
+    /**
+     * Get a reference to the parent parser.
+     *  
+     */
+    public OfferSetRequestParser getParser();
+    
     /**
      * Get the original OfferSet request.
      *  
