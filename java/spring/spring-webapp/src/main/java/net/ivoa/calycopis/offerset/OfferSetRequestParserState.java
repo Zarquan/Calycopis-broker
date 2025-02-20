@@ -225,13 +225,13 @@ public interface OfferSetRequestParserState
      * Get the requested start Duration.
      *
      */
-    public Duration getDuration();
+    public Duration getExecutionDuration();
 
     /**
      * Set the requested start Duration.
      *
      */
-    public void setDuration(final Duration duration);
+    public void setExecutionDuration(final Duration duration);
     
 
     /**

@@ -58,11 +58,11 @@ public class OfferSetFactoryImpl
     private final OfferSetRepository offersetRepository;
 
     @Autowired
-    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParser parserFactory)
+    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParser offersetParser)
         {
         super();
         this.offersetRepository = offersetRepository;
-        this.offersetRequestParser = parserFactory;
+        this.offersetRequestParser = offersetParser;
         }
 
     /**

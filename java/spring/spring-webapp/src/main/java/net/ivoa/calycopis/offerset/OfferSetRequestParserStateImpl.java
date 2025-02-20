@@ -63,11 +63,6 @@ extends ValidatorTools
     implements OfferSetRequestParserState
     {
 
-    private OfferBlockFactory            offerBlockFactory;
-    private ExecutionSessionFactory      executionFactory;
-    private SimpleComputeResourceFactory simpleComputeFactory;
-    private JupyterNotebookFactory       jupyterNotebookFactory;
-
     /**
      * Public constructor.
      * 
@@ -470,20 +465,31 @@ extends ValidatorTools
      * Our List of requested start Intervals.
      *
      */
-    private List<Interval> startintervals = new ArrayList<Interval>();
+    private List<Interval> startIntervals = new ArrayList<Interval>();
     public List<Interval> getStartIntervals()
         {
-        return this.startintervals;
+        return this.startIntervals;
         }
-
+    @Override
+    public void addStartInterval(Interval interval)
+        {
+        this.startIntervals.add(interval);
+        }
+    
     /**
      * The requested duration.
      *
      */
-    private Duration exeduration = null;
-    public Duration getDuration()
+    private Duration executionDuration = null;
+    @Override
+    public Duration getExecutionDuration()
         {
-        return this.exeduration;
+        return this.executionDuration;
+        }
+    @Override
+    public void setExecutionDuration(Duration duration)
+        {
+        this.executionDuration = duration;
         }
 
     private long totalMinCores;
@@ -533,149 +539,5 @@ extends ValidatorTools
         {
         this.totalMaxMemory += delta;
         }
-
-    
-    
-    
-    public void process(final IvoaOfferSetRequest request, final OfferSetEntity offerset)
-        {
-        log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        this.valid = true;
-
-        //
-        // Start with NO, and set to YES when we have at least one offer.
-        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO;
-
-        //
-        // If everything is OK.
-        if (this.valid)
-            {
-            //
-            // Generate some offers ..
-log.debug("---- ---- ---- ----");
-log.debug("Generating offers ....");
-log.debug("Start intervals [{}]", startintervals);
-log.debug("Execution duration [{}]", exeduration);
-
-log.debug("Min cores [{}]", totalMinCores);
-log.debug("Max cores [{}]", totalMaxCores);
-log.debug("Min memory [{}]", totalMinMemory);
-log.debug("Max memory [{}]", totalMaxMemory);
-
-log.debug("Executable [{}][{}]", executable.getName(), executable.getClass().getName());
-
-for (SimpleDataResource resource : dataValidatorResultList)
-    {
-    log.debug("Data resource [{}][{}]", resource.getName(), resource.getClass().getName());
-    }
-
-for (SimpleComputeResource resource : compValidatorResultList)
-    {
-    log.debug("Computing resource [{}][{}]", resource.getName(), resource.getClass().getName());
-    }
-log.debug("---- ---- ---- ----");
-
-            //
-            // Populate our OfferSet ..
-            for (Interval startinterval : startintervals)
-                {
-                //
-                // Generate a list of available blocks.
-                List<OfferBlock> offerblocks = offerBlockFactory.generate(
-                    startinterval,
-                    exeduration,
-                    totalMinCores,
-                    totalMinMemory
-                    );
-
-                for (OfferBlock offerblock : offerblocks)
-                    {
-                    log.debug("OfferBlock [{}]", offerblock.getStartTime());
-                    ExecutionSessionEntity execution = executionFactory.create(
-                        offerblock,
-                        offerset,
-                        this
-                        );
-                    log.debug("ExecutionEntity [{}]", execution.getUuid());
-                    offerset.addExecution(
-                        execution
-                        );
-
-                    // TODO Add an AbstractExecutableFactory.
-                    execution.setExecutable(
-                        jupyterNotebookFactory.create(
-                            execution,
-                            ((JupyterNotebookEntity) this.executable)
-                            )
-                        );
-
-                    //
-                    // TODO Add the data resources.
-                    //
-
-                    //
-                    // TODO simple scaling factor means we need to handle fractions ?
-                    // TODO Both CANFAR and Openstack only support fixed sizes.
-                    // We want
-                    //     foreach node
-                    //     the upper limit is the individual node multiplied by the scaling factor
-                    //     find an allowed config that is between the requested minimum and the scaled limit
-                    //     this depends on a call to the platform to check the available sizes for this user
-                    // this should be managed by the canfar classes
-                    // so we call out to platform with the block size and request size
-                    // platform responds with a list of compute entities that fit the limits
-                    long corescale   = offerblock.getCores()/this.getTotalMinCores();
-                    long memoryscale = offerblock.getMemory()/this.getTotalMinMemory();
-                    log.debug("----");
-                    log.debug("OfferBlock [{}][{}]", offerblock.getCores(), offerblock.getMemory());
-                    log.debug("Cores  [{}][{}][{}]", this.getTotalMinCores(), offerblock.getCores(), corescale);
-                    log.debug("Memory [{}][{}][{}]", this.getTotalMinMemory(), offerblock.getMemory(), memoryscale);
-                    for (SimpleComputeResourceEntity compresource : compValidatorResultList)
-                        {
-                        long offercores  = compresource.getMinRequestedCores()  * corescale;
-                        long offermemory = compresource.getMinRequestedMemory() * memoryscale;
-                        log.debug("----");
-                        log.debug("Computing resource [{}][{}]", compresource.getName(), compresource.getClass().getName());
-                        log.debug("Cores  [{}][{}][{}]", compresource.getMinRequestedCores(),  offercores,  corescale);
-                        log.debug("Memory [{}][{}][{}]", compresource.getMinRequestedMemory(), offermemory, memoryscale);
-                        execution.addComputeResource(
-                            simpleComputeFactory.create(
-                                execution,
-                                compresource,
-                                offercores,
-                                offercores,
-                                offermemory,
-                                offermemory
-                                )
-                            );
-                        }
-                    log.debug("----");
-                    //
-                    // Confirm we have at least one result.
-                    result = IvoaOfferSetResponse.ResultEnum.YES;
-                    }
-                }
-            }
-        //
-        // Set the OfferSet result.
-        offerset.setResult(
-            result
-            );
-        }
-
-
-    @Override
-    public void addStartInterval(Interval interval)
-        {
-        // TODO Auto-generated method stub
-        
-        }
-    @Override
-    public void setDuration(Duration duration)
-        {
-        // TODO Auto-generated method stub
-        
-        }
-
 
     }

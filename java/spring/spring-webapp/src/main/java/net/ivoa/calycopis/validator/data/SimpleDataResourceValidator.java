@@ -126,7 +126,7 @@ implements DataResourceValidator
             
         //
         // Make a guess at the data size.
-        // TODO Add optional size to abstract data resource.
+        // TODO Add optional size to data resource.
         long size = 1024L;
         
         StorageResourceValidator.Result storageResult = null;

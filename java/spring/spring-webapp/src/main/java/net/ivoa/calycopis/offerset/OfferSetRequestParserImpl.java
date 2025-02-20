@@ -15,9 +15,15 @@ import org.threeten.extra.Interval;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceFactory;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionFactory;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.offers.OfferBlock;
+import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -25,10 +31,13 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator.Result;
+import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
+import net.ivoa.calycopis.validator.data.DataResourceValidator;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
@@ -40,6 +49,16 @@ public class OfferSetRequestParserImpl
     extends FactoryBaseImpl
     implements OfferSetRequestParser
     {
+    /**
+     * Our schedule block factory.
+     * 
+     */
+    private OfferBlockFactory offerBlockFactory;
+
+    // TODO Replace these with builders ..
+    private ExecutionSessionFactory      executionSessionFactory;
+    private SimpleComputeResourceFactory simpleResourceComputeFactory;
+    private JupyterNotebookFactory       jupyterNotebookFactory;
 
     /**
      * Executable Validators.
@@ -67,12 +86,14 @@ public class OfferSetRequestParserImpl
 
     @Autowired
     public OfferSetRequestParserImpl(
+        final OfferBlockFactory offerBlockFactory, 
         final ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity> executableValidators,
         final ValidatorFactory<IvoaAbstractStorageResource, AbstractStorageResourceEntity> storageValidators, 
         final ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity> dataValidators, 
         final ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity> computeValidators 
         ){
         super();
+        this.offerBlockFactory    = offerBlockFactory ;
         this.executableValidators = executableValidators ;
         this.storageValidators    = storageValidators ;
         this.dataValidators       = dataValidators ;
@@ -231,11 +252,12 @@ public class OfferSetRequestParserImpl
         
         // Exit if errors ..
         
+        build(state);
         }
 
     
 //
-// Move this part to a separate schedule validator.
+// TOD Move this part to a separate schedule validator.
 //
     
     /**
@@ -271,7 +293,7 @@ public class OfferSetRequestParserImpl
                             durationstr
                             );
                         log.debug("Duration [{}][{}]", durationstr, durationval);
-                        state.setDuration(
+                        state.setExecutionDuration(
                             durationval
                             );
                         }
@@ -336,12 +358,126 @@ public class OfferSetRequestParserImpl
                 );
             }
 
-        if (state.getDuration() == null)
+        if (state.getExecutionDuration() == null)
             {
             log.debug("Duration is empty, using default [{}]", DEFAULT_SESSION_DURATION);
-            state.setDuration(
+            state.setExecutionDuration(
                 DEFAULT_SESSION_DURATION
                 );
             }
+        }
+    
+    /**
+     * Build the entities from the validated input.
+     *  
+     */
+    public void build(final OfferSetRequestParserState state)
+        {
+        log.debug("build(final OfferSetRequestParserState)");
+
+        //
+        // Start with NO, and set to YES when we have at least one offer.
+        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO;
+
+        //
+        // If everything is OK.
+        if (state.valid())
+            {
+            //
+            // Generate some offers ..
+            log.debug("---- ---- ---- ----");
+            log.debug("Generating offers ....");
+            log.debug("Start intervals [{}]", state.getStartIntervals());
+            log.debug("Execution duration [{}]", state.getExecutionDuration());
+            
+            log.debug("Min cores [{}]",  state.getTotalMinCores());
+            log.debug("Max cores [{}]",  state.getTotalMaxCores());
+            log.debug("Min memory [{}]", state.getTotalMinMemory());
+            log.debug("Max memory [{}]", state.getTotalMaxMemory());
+            
+            log.debug("Executable [{}][{}]", state.getExecutable().getObject().getName(), state.getExecutable().getObject().getClass().getName());
+            
+            for (DataResourceValidator.Result dataResult : state.getDataResourceValidatorResults())
+                {
+                log.debug("Data result [{}]", dataResult);
+                }
+            
+            for (ComputeResourceValidator.Result computeResult : state.getComputeValidatorResults())
+                {
+                log.debug("Compute result [{}]", computeResult);
+                }
+            log.debug("---- ---- ---- ----");
+
+            //
+            // Populate our OfferSet ..
+            for (Interval startInterval : state.getStartIntervals())
+                {
+                //
+                // Generate a list of available blocks.
+                List<OfferBlock> offerblocks = offerBlockFactory.generate(
+                    startInterval,
+                    state.getExecutionDuration(),
+                    state.getTotalMinCores(),
+                    state.getTotalMinMemory()
+                    );
+                // Add an offer for each block. 
+                for (OfferBlock offerblock : offerblocks)
+                    {
+                    log.debug("OfferBlock [{}]", offerblock.getStartTime());
+                    ExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
+                        offerblock,
+                        state.getOfferSetEntity(),
+                        state
+                        );
+                    log.debug("ExecutionEntity [{}]", executionSessionEntity.getUuid());
+                    state.getOfferSetEntity().addExecution(
+                        executionSessionEntity
+                        );
+
+                    /*
+                     * TODO Add the builder references ...
+                    execution.setExecutable(
+                        jupyterNotebookFactory.create(
+                            execution,
+                            ((JupyterNotebookEntity) this.executable)
+                            )
+                        );
+                      *
+                      */
+
+                    /*
+                     * We only support a single compute resource.
+                     * TODO Add the builder references ...
+                     *
+                    ComputeResourceValidator.Result firstResult = compValidatorResultList.getFirst();
+                    
+                    IvoaAbstractComputeResource firstResource = firstResult.getObject();
+                    if (firstResource instanceof IvoaSimpleComputeResource)
+                        {
+                        execution.addComputeResource(
+                            simpleComputeFactory.create(
+                                execution,
+                                ((IvoaSimpleComputeResource) firstResource),
+                                offerblock.getCores(),
+                                offerblock.getCores(),
+                                offerblock.getMemory(),
+                                offerblock.getMemory()
+                                )
+                            );
+                        }
+                     *
+                     */
+                    
+                    //
+                    // Confirm we have at least one result.
+                    result = IvoaOfferSetResponse.ResultEnum.YES;
+                    }
+                }
+            }
+        //
+        // Set the OfferSet result.
+        state.getOfferSetEntity().setResult(
+            result
+            );
         }
     }

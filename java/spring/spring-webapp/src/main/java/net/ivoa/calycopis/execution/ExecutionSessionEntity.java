@@ -102,7 +102,7 @@ public class ExecutionSessionEntity
         this.expires = parent.getExpires();
         this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
 //      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
-        this.exedurationsec   = context.getDuration().getSeconds();
+        this.exedurationsec   = context.getExecutionDuration().getSeconds();
         
         }
 
