@@ -25,9 +25,8 @@ package net.ivoa.calycopis.validator.data;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
 import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -171,7 +170,7 @@ implements DataResourceValidator
             Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractDataResourceEntity>()
                 {
                 @Override
-                public SimpleDataResourceEntity build(ExecutionSessionEntity parent)
+                public AmazonS3DataResourceEntity build(ExecutionSessionEntity parent)
                     {
                     return entityFactory.create(
                         parent,

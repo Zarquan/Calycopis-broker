@@ -23,11 +23,20 @@
 package net.ivoa.calycopis.validator.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.builder.Builder;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
+import net.ivoa.calycopis.validator.data.DataResourceValidator;
 
 /**
  * A Validator implementation to handle simple storage resources.
@@ -38,7 +47,23 @@ public class SimpleStorageResourceValidator
 extends ValidatorTools
 implements StorageResourceValidator
     {
+    /**
+     * Factory for creating Entities.
+     * 
+     */
+    final SimpleStorageResourceEntityFactory entityFactory;
 
+    /**
+     * Public constructor.
+     * 
+     */
+    public SimpleStorageResourceValidator(
+        final SimpleStorageResourceEntityFactory entityFactory
+        ){
+        super();
+        this.entityFactory = entityFactory ;
+        }
+    
     @Override
     public StorageResourceValidator.Result validate(
         final IvoaAbstractStorageResource requested,
@@ -87,18 +112,34 @@ implements StorageResourceValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the StorageResourceValidator.Result.");
-            StorageResourceValidator.Result result = new ResultBean(
+            log.debug("Success");
+
+            log.debug("Creating Builder.");
+            Builder<ExecutionSessionEntity, AbstractStorageResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractStorageResourceEntity>()
+                {
+                @Override
+                public SimpleStorageResourceEntity build(ExecutionSessionEntity parent)
+                    {
+                    return entityFactory.create(
+                        parent,
+                        validated
+                        );
+                    }
+                }; 
+            
+            log.debug("Creating Result.");
+            StorageResourceValidator.Result storageResult = new StorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated
+                validated,
+                builder
                 );
-            state.getValidatedOfferSetRequest().getResources().addStorageItem(
-                validated
-                );
+            //
+            // Save the DataResource in the state.
             state.addStorageValidatorResult(
-                result
+                storageResult 
                 );
-            return result;
+
+            return storageResult;
             }
         //
         // Something wasn't right, fail the validation.

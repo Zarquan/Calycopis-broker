@@ -231,15 +231,10 @@ public class OfferSetRequestParserImpl
             state
             );
         
-//
-// Move this part to a separate platforms specific validator.
-//
-        
         //
-        // Fail if we have found too many compute resources,
         // This is specific to the CANMFAR platforms.
+        // Fail if we have found too many compute resources,
         // Other platforms may be able to support more than one compute resources.
-        //if (offersetResult.getResources().getCompute().size() > 1)
         if (state.getComputeValidatorResults().size() > 1)
             {
             log.warn("Found more than one compute resources");

@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.validator.data;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
@@ -30,6 +31,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 
 /**
  * A factory implementation for DataResource validators.
@@ -46,12 +48,16 @@ public class DataResourceValidatorFactoryImpl
      * TODO Make this configurable. 
      * 
      */
-    public DataResourceValidatorFactoryImpl(final SimpleDataResourceEntityFactory simpleDataEntityFactory)
-        {
+    @Autowired
+    public DataResourceValidatorFactoryImpl(
+        final SimpleDataResourceEntityFactory simpleDataEntityFactory,
+        final StorageResourceValidatorFactory storageValidators
+        ){
         super();
         this.validators.add(
             new SimpleDataResourceValidator(
-                simpleDataEntityFactory
+                simpleDataEntityFactory,
+                storageValidators
                 )
             );
         }

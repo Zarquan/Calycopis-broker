@@ -26,9 +26,6 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
-import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
@@ -40,10 +37,10 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSizeRequested;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
+import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 
 /**
  * A Validator implementation to handle simple data resources.
@@ -62,13 +59,22 @@ implements DataResourceValidator
     final SimpleDataResourceEntityFactory entityFactory;
 
     /**
+     * The set of StorageResource Validators.
+     * 
+     */
+    private final StorageResourceValidatorFactory storageValidators;
+    
+    /**
      * Public constructor.
      * 
      */
-    public SimpleDataResourceValidator(final SimpleDataResourceEntityFactory entityFactory)
-        {
+    public SimpleDataResourceValidator(
+        final SimpleDataResourceEntityFactory entityFactory,
+        final StorageResourceValidatorFactory storageValidators
+        ){
         super();
         this.entityFactory = entityFactory ;
+        this.storageValidators = storageValidators ;
         }
     
     @Override
@@ -154,7 +160,8 @@ implements DataResourceValidator
         // TODO Add optional size to data resource.
         long size = 1024L;
         
-        StorageResourceValidator.Result storageResult = null;
+        Validator.Result<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity> storageResult = null;
+        
         //
         // If the data resource has a storage reference.
         if (requested.getStorage() != null)
@@ -238,8 +245,7 @@ implements DataResourceValidator
         //
         // If the data resource doesn't have a storage reference.
         else {
-            // Create a new storage resource.
-            // BUG we are filling in the requested fields, but this wasn't requested.
+            // Create a request for a new StorageResource.
             IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource();
             storageResource.setName("Storage for [" + state.makeDataValidatorResultKey(requested) + "]");
             storageResource.setSize(
@@ -251,26 +257,20 @@ implements DataResourceValidator
             storageResource.getSize().getRequested().setMin(size);
             storageResource.getSize().getRequested().setMax(size);
 
-            // TODO This should be passed up the tree for validation.
-            
-            storageResult = null ;   
-            /*
-             * 
-                    
-                    new StorageResourceValidator.ResultBean(
-                ResultEnum.ACCEPTED,
-                storageResource
-                );
-             * 
-             */
-
             //
-            // If the new storage was accepted.
+            // Validate the new StorageResource.
+            storageResult = storageValidators.validate(
+                storageResource,
+                state
+                );
+            
+            //
+            // If the new storage was accepted, add a reference to our data resource.
             if (ResultEnum.ACCEPTED.equals(storageResult.getEnum()))
                 {
                 validated.setStorage(
                     state.makeStorageValidatorResultKey(
-                        storageResult
+                        storageResult.getObject()
                         )
                     );
                 }
@@ -315,26 +315,21 @@ implements DataResourceValidator
                 validated,
                 builder
                 );
-
             //
             // Save the DataResource in the state.
             state.addDataValidatorResult(
                 dataResult
                 );
             //
-            // Save the StorageResource in the state.
-            /*
-             * Probably already done.
-            state.addStorageValidatorResult(
-                storageResult
-                );
-             * 
-             */
             // Add the link between the DataResource and StorageResource.
+/*
+ * 
             state.addDataStorageResult(
                 dataResult,
                 storageResult
                 );
+ * 
+ */
 
             return dataResult ;
             }

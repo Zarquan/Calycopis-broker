@@ -24,12 +24,11 @@ package net.ivoa.calycopis.validator.storage;
 
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
  * A factory for storage resource validators.
@@ -37,7 +36,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  */
 @Component
 public class StorageResourceValidatorFactoryImpl
-extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
 implements StorageResourceValidatorFactory
     {
     /**
@@ -62,27 +61,6 @@ implements StorageResourceValidatorFactory
             state,
             resource.getType(),
             resource.getClass().getName()
-            );
-        }
-
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractStorageResource resource
-        ){
-        state.getValidatedOfferSetRequest().getResources().addStorageItem(
-            resource
-            );
-        }
-
-    @Override
-    public StorageResourceValidator.Result result(
-        final ResultEnum value,
-        final IvoaAbstractStorageResource object
-        ){
-        return new StorageResourceValidator.ResultBean(
-            value,
-            object
             );
         }
     }

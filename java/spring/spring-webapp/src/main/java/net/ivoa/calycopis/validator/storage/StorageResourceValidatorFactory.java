@@ -23,17 +23,12 @@
 
 package net.ivoa.calycopis.validator.storage;
 
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.validator.ValidatorFactory;
-
 /**
  * Public interface for a StorageResource ValidatorFactory.
  * 
  */
 public interface StorageResourceValidatorFactory
-extends ValidatorFactory<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
+extends StorageResourceValidator
     {
 
     }

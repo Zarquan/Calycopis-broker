@@ -1,0 +1,125 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+SRCNet Architecture v0.2
+https://confluence.skatelescope.org/display/SRCSC/SRCNet+Architecture+v0.2
+
+Execution Broker Sequence Diagram
+https://confluence.skatelescope.org/display/SRCSC/Execution+Broker+Sequence+Diagram
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=311713724
+
+# -----------------------------------------------------
+
+Document describing the role of Execution Broker in SRCNet
+https://jira.skatelescope.org/browse/SP-4696
+
+    [ExecBroker] Write a confluence page describing what the Execution Broker does and how it can contribute to SRCNet
+    https://jira.skatelescope.org/browse/COR-755
+
+    [Exec broker] Face to face meeting with the architecture team to discuss how ExecutionBroker fits into SRCNet 0.2
+    https://jira.skatelescope.org/browse/COR-756
+
+    [Exec broker] Updates to the ExecutionBroker specification based on feedback from the architecture team
+    https://jira.skatelescope.org/browse/COR-788
+
+
+
+# -----------------------------------------------------
+
+Add SRCNet data resources to ExecutionBroker data model and workflow
+https://jira.skatelescope.org/browse/SP-5239
+
+# -----------------------------------------------------
+
+2025-02-25 Architecture Forum (Eastern)
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=314973636
+
+Recording
+https://skatelescope.zoom.us/rec/share/N8DWee30tM6ONUKX-6U47lg_DVIx8tUrGSI31JVaU_QotwcK8fVow15lOiPAtEQ.cRnwdWDhZWAo19dK?startTime=1740467314000
+Passcode: GAtCYX%0
+
+* Jesus needs to update the link in the table of the architecture forum page.
+Change the link from SP-5222 to SP-5237
+
+
+# -----------------------------------------------------
+
+PI25 Demos & Discussion
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=305441915
+
+
+
+# -----------------------------------------------------
+
+OLD
+https://jira.skatelescope.org/browse/SP-5222
+
+    BH: By implementing this sevice, best location for execution will be found, best use of the computing resources is obtained and information of the SRCNet computing resources in realtime will be provided
+    Acceptance criteria:
+
+    AC1: A global Service provided required functionality
+
+    AC2: At least 2 execution broker running at 2 SRCNet nodes
+
+    AC3: At least 1 one translation implementation of the execution broker interface to a relevant workflow handler
+
+    AC4: Demo to the ART
+
+NEW
+Evolve Execution Broker Prototype to be compatible with first Workflow Execution Service
+https://jira.skatelescope.org/browse/SP-5222
+
+    I think realistically it would be better to create a new one in Python.
+    The Java prototype is not ready for deploying in production, and the main development expertise in SRCnet is in Python.
+    There are SRCNet Python libraries for service authentication, token delegation etc that would be expensive to create in Java.
+    So it would be better to use the Java prototype as a guide, copy many of the classes, and create a new Python implementation.
+
+Implement a workflow execution service
+https://jira.skatelescope.org/browse/SP-5237
+Implement an aggregator service which processes part of the request before passing it on.
+Acting as a proxy, so it re-writes the URLs in the responses.
+
+2025-02-25 Architecture Forum (Eastern)
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=314973636
+
+# -----------------------------------------------------
+
+SKA SRC Mm-Image-Discovery API
+https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-image-discovery
+
+    Not really discovery.
+
+# -----------------------------------------------------
+

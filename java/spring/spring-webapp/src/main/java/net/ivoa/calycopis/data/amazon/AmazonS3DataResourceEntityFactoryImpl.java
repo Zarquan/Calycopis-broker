@@ -92,7 +92,7 @@ public class AmazonS3DataResourceEntityFactoryImpl
             parent,
             template.getName(),
             template.getEndpoint(),
-            "S3 template",
+            template.getTemplate(),
             template.getBucket(),
             template.getObject(),
             false
