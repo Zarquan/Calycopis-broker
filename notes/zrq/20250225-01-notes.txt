@@ -119,7 +119,22 @@ https://confluence.skatelescope.org/pages/viewpage.action?pageId=314973636
 SKA SRC Mm-Image-Discovery API
 https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-image-discovery
 
-    Not really discovery.
-
 # -----------------------------------------------------
+# -----------------------------------------------------
+
+Design plug-in architecture for ExecutionBroker
+https://jira.skatelescope.org/browse/AZ-16
+
+Add SRCNet data resources to ExecutionBroker data model and workflow
+https://jira.skatelescope.org/browse/SP-5239
+
+Evolve Execution Broker Prototype to be compatible with first Workflow Execution Service
+https://jira.skatelescope.org/browse/SP-5222
+
+Implement a workflow execution service
+https://jira.skatelescope.org/browse/SP-5237
+
+First version of Workflow Execution Service
+https://jira.skatelescope.org/browse/SP-5238
+
 

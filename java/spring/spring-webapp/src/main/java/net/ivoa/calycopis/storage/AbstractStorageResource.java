@@ -23,10 +23,17 @@
 
 package net.ivoa.calycopis.storage;
 
+import net.ivoa.calycopis.execution.ExecutionSession;
+
 /**
  * 
  */
 public interface AbstractStorageResource
     {
+    /**
+     * Get the parent ExecutionSession.  
+     *
+     */
+    public ExecutionSession getParent();
 
     }

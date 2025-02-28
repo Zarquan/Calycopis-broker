@@ -26,9 +26,6 @@ package net.ivoa.calycopis.compute.simple;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
@@ -48,21 +45,6 @@ public class SimpleComputeResourceEntity
     extends AbstractComputeResourceEntity
     implements SimpleComputeResource
     {
-
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
-
-    @Override
-    public ExecutionSessionEntity getParent()
-        {
-        return this.parent;
-        }
-
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
-        }
 
     /**
      * Protected constructor
@@ -91,8 +73,7 @@ public class SimpleComputeResourceEntity
         final Boolean minimalcores,
         final Boolean minimalmemory
         ){
-        super(name);
-        this.parent = parent;
+        super(parent, name);
         this.minrequestedcores = minrequestedcores;
         this.maxrequestedcores = maxrequestedcores;
         this.minofferedcores   = minofferedcores;

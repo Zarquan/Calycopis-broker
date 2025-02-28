@@ -23,10 +23,23 @@
 
 package net.ivoa.calycopis.compute;
 
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+
 /**
  * 
  */
 public interface AbstractComputeResource
     {
+    /**
+     * Get the parent ExecutionSession.  
+     *
+     */
+    public ExecutionSessionEntity getParent();
 
+    /**
+     * Set the parent ExecutionSession.  
+     *
+     */
+    public void setParent(final ExecutionSessionEntity parent);
+    
     }

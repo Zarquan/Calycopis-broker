@@ -24,9 +24,6 @@ package net.ivoa.calycopis.validator.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -36,7 +33,6 @@ import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntity;
 import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
 
 /**
  * A Validator implementation to handle simple storage resources.

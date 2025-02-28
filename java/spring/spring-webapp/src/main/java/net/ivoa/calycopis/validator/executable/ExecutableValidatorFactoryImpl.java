@@ -24,15 +24,12 @@ package net.ivoa.calycopis.validator.executable;
 
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
  * A factory for IvoaAbstractExecutable validators.

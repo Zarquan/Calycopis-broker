@@ -36,12 +36,6 @@ public interface SimpleComputeResource
     {
 
     /**
-     * Reference to the parent ExecutionSession. 
-     *
-     */
-    public ExecutionSession getParent();
-
-    /**
      * The minimum number of CPU cores requested.
      *
      */

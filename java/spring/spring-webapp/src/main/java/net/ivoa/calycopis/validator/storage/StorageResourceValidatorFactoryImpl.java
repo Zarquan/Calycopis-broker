@@ -22,12 +22,14 @@
  */
 package net.ivoa.calycopis.validator.storage;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
@@ -39,16 +41,21 @@ public class StorageResourceValidatorFactoryImpl
 extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
 implements StorageResourceValidatorFactory
     {
+    
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public StorageResourceValidatorFactoryImpl()
-        {
+    @Autowired
+    public StorageResourceValidatorFactoryImpl(
+        final SimpleStorageResourceEntityFactory storageResourceEntityFactory
+        ){
         super();
         this.validators.add(
-            new SimpleStorageResourceValidator()
+            new SimpleStorageResourceValidator(
+                storageResourceEntityFactory
+                )
             );
         }
     

@@ -23,11 +23,26 @@
 
 package net.ivoa.calycopis.storage;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
  */
+@Entity
+@Table(
+    name = "storage"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
 public class AbstractStorageResourceEntity
 extends ComponentEntity
 implements AbstractStorageResource
@@ -45,8 +60,19 @@ implements AbstractStorageResource
      * Protected constructor.
      * 
      */
-    protected AbstractStorageResourceEntity(String name)
+    protected AbstractStorageResourceEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(name);
+        this.parent = parent;
+        }
+
+    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private ExecutionSessionEntity parent;
+
+    @Override
+    public ExecutionSessionEntity getParent()
+        {
+        return this.parent;
         }
     }

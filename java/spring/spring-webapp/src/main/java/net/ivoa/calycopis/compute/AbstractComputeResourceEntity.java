@@ -23,11 +23,27 @@
 
 package net.ivoa.calycopis.compute;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
+import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
  */
+@Entity
+@Table(
+    name = "compute"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
 public class AbstractComputeResourceEntity
 extends ComponentEntity
 implements AbstractComputeResource
@@ -45,8 +61,25 @@ implements AbstractComputeResource
      * Protected constructor.
      * 
      */
-    protected AbstractComputeResourceEntity(String name)
+    protected AbstractComputeResourceEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(name);
+        this.parent = parent;
+        }
+
+    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private ExecutionSessionEntity parent;
+
+    @Override
+    public ExecutionSessionEntity getParent()
+        {
+        return this.parent;
+        }
+
+    @Override
+    public void setParent(final ExecutionSessionEntity parent)
+        {
+        this.parent = parent;
         }
     }

@@ -27,12 +27,19 @@ public class AbstractExecutableEntity
     extends ComponentEntity
     implements AbstractExecutable
     {
-
+    /**
+     * Protected constructor.
+     * 
+     */
     protected AbstractExecutableEntity()
         {
         super();
         }
     
+    /**
+     * Protected constructor.
+     * 
+     */
     protected AbstractExecutableEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(name);

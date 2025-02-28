@@ -35,6 +35,7 @@ import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
  * A SimpleStorageResource Factory implementation.
@@ -50,8 +51,9 @@ public class SimpleStorageResourceEntityFactoryImpl
     private final SimpleStorageResourceEntityRepository repository;
 
     @Autowired
-    public SimpleStorageResourceEntityFactoryImpl(final SimpleStorageResourceEntityRepository repository)
-        {
+    public SimpleStorageResourceEntityFactoryImpl(
+        final SimpleStorageResourceEntityRepository repository
+        ){
         super();
         this.repository = repository;
         }
@@ -85,19 +87,22 @@ public class SimpleStorageResourceEntityFactoryImpl
         }
 
     @Override
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent)
+    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
         {
         return this.create(
-            request,
             parent,
+            template,
             true
             );
         }
     
-    @Override
-    public SimpleStorageResourceEntity create(final IvoaOfferSetRequest request, final ExecutionSessionEntity parent, final boolean save)
+    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template, final boolean save)
         {
-        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(parent);
+        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(
+            parent,
+            template.getName()
+            );
+        
         log.debug("created [{}]", created.getUuid());
         if (save)
             {

@@ -24,10 +24,11 @@ package net.ivoa.calycopis.validator.compute;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -41,10 +42,6 @@ import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
-
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.builder.Builder;
 
 /**
  * A validator implementation to handle simple data resources.
