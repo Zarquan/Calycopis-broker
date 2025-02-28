@@ -25,7 +25,6 @@ package net.ivoa.calycopis.compute.simple;
 
 import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.compute.AbstractComputeResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleComputeResource.
