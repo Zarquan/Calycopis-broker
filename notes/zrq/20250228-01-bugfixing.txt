@@ -1,0 +1,61 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    SELECT * FROM COMPONENTS;
+    CREATED  	UUID  	NAME
+    2025-02-28 03:05:35.923852+00	93718413-b3d5-4d8a-bd09-6db954123b87	example-005
+    null	bbb552d3-d048-465b-91d9-f67adf238f49	null
+    null	4ea233f0-8512-4a2c-aecc-20f2016723cd	null
+    null	0f96d9df-213c-4fcc-ade7-aebc24f2a2dd	null
+    null	f4e21e08-c37b-42a6-bcfc-100a8b2685b5	null
+    (5 rows, 0 ms)
+
+    SELECT * FROM OFFERSETS;
+    RESULT  	EXPIRES  	UUID
+    0	2025-02-28 08:05:35.923903+00	93718413-b3d5-4d8a-bd09-6db954123b87
+
+    SELECT * FROM SESSIONS;
+    EXEDURATIONSEC  	EXPIRES  	STARTINSTANTSEC  	PARENT  	UUID  	PHASE
+    3600	2025-02-28 08:05:35.923903+00	1740712200	93718413-b3d5-4d8a-bd09-6db954123b87	bbb552d3-d048-465b-91d9-f67adf238f49	OFFERED
+    3600	2025-02-28 08:05:35.923903+00	1740719400	93718413-b3d5-4d8a-bd09-6db954123b87	4ea233f0-8512-4a2c-aecc-20f2016723cd	OFFERED
+    3600	2025-02-28 08:05:35.923903+00	1740726600	93718413-b3d5-4d8a-bd09-6db954123b87	0f96d9df-213c-4fcc-ade7-aebc24f2a2dd	OFFERED
+    3600	2025-02-28 08:05:35.923903+00	1740733800	93718413-b3d5-4d8a-bd09-6db954123b87	f4e21e08-c37b-42a6-bcfc-100a8b2685b5	OFFERED
+
+
+
+
+
+

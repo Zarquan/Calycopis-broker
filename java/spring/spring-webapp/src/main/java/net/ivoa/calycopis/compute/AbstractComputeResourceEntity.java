@@ -31,7 +31,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.execution.ExecutionSession;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
@@ -39,7 +38,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "compute"
+    name = "computeresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED

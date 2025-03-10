@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
-import jakarta.validation.executable.ExecutableValidator;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
@@ -113,7 +112,7 @@ public class OfferSetRequestParserImpl
         
         //
         // Construct the offers.
-        // ...
+        
         
         }
     
@@ -413,14 +412,25 @@ public class OfferSetRequestParserImpl
                         state.getOfferSetEntity(),
                         state
                         );
-                    log.debug("ExecutionEntity [{}]", executionSessionEntity.getUuid());
+                    log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
-                    Result executableResult = state.getExecutable();
+                    log.debug("Executable [{}]", state.getExecutable());
+
+                    //
+                    // Create a new Executable.
+                    executionSessionEntity.setExecutable(
+                            state.getExecutable().getBuilder().build(
+                            executionSessionEntity
+                            )
+                        );
+
+                    //
+                    // Add the ExecutionSession to the OfferSet.
+                    state.getOfferSetEntity().addExecution(
+                        executionSessionEntity
+                        );
                     
                     
-                    
-
-
                     /*
                      * 
                     log.debug("Executable [{}][{}]", state.getExecutable().getObject().getName(), state.getExecutable().getObject().getClass().getName());

@@ -29,7 +29,6 @@ import java.util.UUID;
 
 import javax.validation.Valid;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
@@ -159,4 +158,6 @@ public class OfferSetResponseBean
                 }
             };
         }
+
+
     }

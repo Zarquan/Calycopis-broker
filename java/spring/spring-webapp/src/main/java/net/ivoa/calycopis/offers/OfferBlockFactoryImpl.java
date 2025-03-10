@@ -193,9 +193,13 @@ public class OfferBlockFactoryImpl
                 FROM
                     Sessions
                 JOIN
+                    ComputeResources
+                ON
+                    ComputeResources.parent = Sessions.uuid
+                JOIN
                     SimpleComputeResources
                 ON
-                    SimpleComputeResources.parent = Sessions.uuid
+                    SimpleComputeResources.uuid = ComputeResources.uuid
                 WHERE
                     Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
                 ),

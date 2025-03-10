@@ -96,7 +96,7 @@ public class ExecutionSessionEntity
      */
     public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase)
         {
-        super();
+        super(null);
         this.phase   = phase;
         this.parent  = parent;
         this.expires = parent.getExpires();

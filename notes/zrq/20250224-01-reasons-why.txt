@@ -226,12 +226,19 @@ Short form :
 
 
 # -----------------------------------------------------
-# Why do we want separate complext objects for data resources
+# Why do we want separate complex objects for resources
 
     If we make data resources a separate thing, with a uuid and a status then we can monitor its progress.
     The current model is designed to map onto things like persistent volumes in Kubernetes.
     Based on compute resource with volume mounts that refer to data resources.
     If this turns out to be hard to implement, we can change it.
+
+# -----------------------------------------------------
+# Why don't we put cores and memory inside the executable.
+
+    Putting cores and memory in a separate compute resource allows us to have different types of compute resource.
+    In theory, the user can ask to run the same executable in different compute resources.
+
 
 
 

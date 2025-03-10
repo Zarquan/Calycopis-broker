@@ -38,7 +38,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "storage"
+    name = "storageresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
