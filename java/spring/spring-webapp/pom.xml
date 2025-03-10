@@ -32,8 +32,8 @@
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-webapp</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<version>0.0.1</version>
+	<packaging>jar</packaging>
 	<name>Calycopis webapp</name>
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
             <artifactId>calycopis-openapi</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.1</version>
         </dependency>
         <!--+
             | GitHub UUID generator.
