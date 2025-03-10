@@ -10,3 +10,43 @@ Early work on this project was developed under the name CIRASA-planner and was f
 Current work on this project is being developed as part of PI23 of the SKA SRCNet program.
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
+----
+To run a copy of the service in Podman or Docker.
+
+```
+podman run \
+    --rm \
+    --tty \
+    --interactive \
+    --publish 8082:8082 \
+    --name calycopis-broker \
+    ghcr.io/ivoa/calycopis/calycopis-broker:latest
+```
+
+---
+Use curl to send the example requests in YAML.
+
+```
+curl \
+    --silent \
+    --show-error \
+    --header 'Content-Type: application/yaml' \
+    --data-binary "@examples/001/offerset-request.yaml" \
+    --header 'Accept: application/yaml' \
+    'http://127.0.0.1:8082/offersets'
+```
+
+---
+Use curl to send the example requests in JSON.
+
+```
+curl \
+    --silent \
+    --show-error \
+    --header 'Content-Type: application/json' \
+    --data-binary "@examples/004/offerset-request.json" \
+    --header 'Accept: application/json' \
+    'http://127.0.0.1:8082/offersets'
+```
+
