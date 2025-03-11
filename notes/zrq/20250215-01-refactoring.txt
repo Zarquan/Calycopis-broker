@@ -116,28 +116,26 @@ EOF
     # Display the example request.
     cat "${examples}/offerset-request.yaml"
 
---START--
-name: example-001
-executable:
-  name: executable-001
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
-  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
-schedule:
-  requested:
-      duration: PT1H
-resources:
-  compute:
-  - name: computer-001
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-    cores:
-      requested:
-        min: 5
-        max: 15
-    memory:
-      requested:
-        min: 3
-        max: 9
---END--
+    >   name: example-001
+    >   executable:
+    >     name: executable-001
+    >     type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+    >     location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+    >   schedule:
+    >     requested:
+    >         duration: PT1H
+    >   resources:
+    >     compute:
+    >     - name: computer-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       cores:
+    >         requested:
+    >           min: 5
+    >           max: 15
+    >       memory:
+    >         requested:
+    >           min: 3
+    >           max: 9
 
 
     #
@@ -153,19 +151,17 @@ resources:
     | tee "/tmp/offerset-response.yaml"
 
 
---START--
-uuid: "194cd39c-05ff-4cb4-8908-bf5973b6b119"
-name: "example-001"
-type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-02-20T14:53:00.956396823Z"
-messages:
-  - type: "urn:not-supported-message"
-    time: "2025-02-20T14:53:01.086235607Z"
-    level: "WARN"
-    template: "Multiple compute resources not supported"
-href: "http://127.0.0.1:8082/offersets/194cd39c-05ff-4cb4-8908-bf5973b6b119"
-result: "NO"
---END--
+    >   uuid: "194cd39c-05ff-4cb4-8908-bf5973b6b119"
+    >   name: "example-001"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-02-20T14:53:00.956396823Z"
+    >   messages:
+    >     - type: "urn:not-supported-message"
+    >       time: "2025-02-20T14:53:01.086235607Z"
+    >       level: "WARN"
+    >       template: "Multiple compute resources not supported"
+    >   href: "http://127.0.0.1:8082/offersets/194cd39c-05ff-4cb4-8908-bf5973b6b119"
+    >   result: "NO"
 
 
 
