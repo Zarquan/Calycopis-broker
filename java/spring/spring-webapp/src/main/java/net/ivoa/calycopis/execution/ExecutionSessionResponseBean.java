@@ -25,8 +25,6 @@ package net.ivoa.calycopis.execution;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,15 +34,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableBeanFactory;
 import net.ivoa.calycopis.executable.AbstractExecutableBeanFactoryImpl;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
-import net.ivoa.calycopis.offerset.OfferSetResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -52,9 +49,9 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueOption;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
@@ -252,15 +249,23 @@ public class ExecutionSessionResponseBean
             @Override
             public List<@Valid IvoaAbstractComputeResource> getCompute()
                 {
-                return new ListWrapper<IvoaAbstractComputeResource, SimpleComputeResourceEntity>(
+                return new ListWrapper<IvoaAbstractComputeResource, AbstractComputeResourceEntity>(
                     entity.getComputeResources()
                     ){
-                    public IvoaAbstractComputeResource wrap(SimpleComputeResourceEntity entity)
+                    public IvoaAbstractComputeResource wrap(AbstractComputeResourceEntity entity)
                         {
-                        return new SimpleComputeResourceBean(
-                            baseurl,
-                            entity
-                            );
+                        // TODO Need to handle different types of beans.
+                        // TODO Add a bean() method to AbstractComputeResourceEntity 
+                        if (entity instanceof SimpleComputeResourceEntity)
+                            {
+                            return new SimpleComputeResourceBean(
+                                baseurl,
+                                (SimpleComputeResourceEntity) entity
+                                );
+                            }
+                        else {
+                            return null ;
+                            }
                         }
                     };
                 }
