@@ -898,7 +898,7 @@ EOF
         --header 'Accept: application/json' \
         "${offerurl}" \
     | jq '.' \
-    | tee "/session-01-response.json"
+    | tee "${examples}/session-01-response.json"
 
     >   {
     >     "uuid": "39a308e9-addd-45bc-89f4-8daa85418d39",
