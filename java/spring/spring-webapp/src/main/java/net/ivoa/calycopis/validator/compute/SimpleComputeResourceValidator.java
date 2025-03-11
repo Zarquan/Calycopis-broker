@@ -25,11 +25,11 @@ package net.ivoa.calycopis.validator.compute;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
@@ -340,15 +340,22 @@ implements ComputeResourceValidator
             log.debug("Success");
 
             log.debug("Creating Builder.");
-            Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractComputeResourceEntity>()
+            ComputeResourceEntityBuilder builder = new ComputeResourceEntityBuilder()
                 {
                 @Override
-                public SimpleComputeResourceEntity build(ExecutionSessionEntity parent)
+                public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final OfferBlock offerBlock)
                     {
                     return entityFactory.create(
                         parent,
-                        validated
+                        validated,
+                        offerBlock
                         );
+                    }
+
+                @Override
+                public AbstractComputeResourceEntity build(ExecutionSessionEntity parent)
+                    {
+                    return null;
                     }
                 }; 
             

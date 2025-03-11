@@ -160,7 +160,7 @@ implements ExecutableValidator
             state.getValidatedOfferSetRequest().setExecutable(
                 validated
                 );
-            state.setExecutable(
+            state.setExecutableResult(
                 result
                 );
             return result;
