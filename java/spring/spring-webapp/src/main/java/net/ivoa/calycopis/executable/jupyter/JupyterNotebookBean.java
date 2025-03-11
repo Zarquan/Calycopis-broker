@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.executable.AbstractExecutable;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
