@@ -29,7 +29,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
@@ -119,7 +119,7 @@ public interface ExecutionSession
      * Get a list of the ComputeResources.
      *
      */
-    public List<SimpleComputeResourceEntity> getComputeResources();
+    public List<AbstractComputeResourceEntity> getComputeResources();
 
     /**
      * Get a list of the DataResources.

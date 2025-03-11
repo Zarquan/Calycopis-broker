@@ -42,7 +42,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
@@ -208,15 +208,15 @@ public class ExecutionSessionEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SimpleComputeResourceEntity> computeresources = new ArrayList<SimpleComputeResourceEntity>();
+    List<AbstractComputeResourceEntity> computeresources = new ArrayList<AbstractComputeResourceEntity>();
 
     @Override
-    public List<SimpleComputeResourceEntity> getComputeResources()
+    public List<AbstractComputeResourceEntity> getComputeResources()
         {
         return computeresources;
         }
      
-    public void addComputeResource(final SimpleComputeResourceEntity resource)
+    public void addComputeResource(final AbstractComputeResourceEntity resource)
         {
         computeresources.add(resource);
         resource.setParent(this);
