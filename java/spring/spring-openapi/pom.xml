@@ -235,6 +235,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
+                            <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
                             <inputSpec>${schema.path}/openapi.yaml</inputSpec>
                             <!--inputSpec>${schema.path}/components/compute-resources.yaml</inputSpec-->
                             <!--inputSpec>${project.basedir}/target/merged/merged-schema.yaml</inputSpec-->
