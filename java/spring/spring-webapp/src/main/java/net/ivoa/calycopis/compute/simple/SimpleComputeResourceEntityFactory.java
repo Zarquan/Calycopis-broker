@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
+import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
@@ -51,6 +52,16 @@ public interface SimpleComputeResourceEntityFactory
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity parent,
         final IvoaSimpleComputeResource template
+        );
+
+    /**
+     * Create and save a new SimpleComputeResource entity based on a template.
+     *
+     */
+    public SimpleComputeResourceEntity create(
+        final ExecutionSessionEntity parent,
+        final IvoaSimpleComputeResource template,
+        final OfferBlock offerBlock
         );
 
     /**
