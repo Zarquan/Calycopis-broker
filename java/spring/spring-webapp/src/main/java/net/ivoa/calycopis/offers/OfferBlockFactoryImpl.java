@@ -137,6 +137,9 @@ public class OfferBlockFactoryImpl
     @Override
     public List<OfferBlock> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {
+        log.debug("generate(Interval, Duration, Long, Long");
+        log.debug("Interval [{}]", requeststart);
+        log.debug("Duration [{}]", requestduration);
         // If no starttime, use the default.
         if (requeststart == null)
             {
@@ -201,7 +204,7 @@ public class OfferBlockFactoryImpl
                 ON
                     SimpleComputeResources.uuid = ComputeResources.uuid
                 WHERE
-                    Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'FINISHING')
+                    Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
                 ),
             AvailableBlocks AS
                 (
