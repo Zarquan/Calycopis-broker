@@ -31,10 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**

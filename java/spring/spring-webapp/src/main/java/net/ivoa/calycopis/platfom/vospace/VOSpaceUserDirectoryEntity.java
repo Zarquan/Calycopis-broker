@@ -7,9 +7,6 @@ import java.time.Duration;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.platfom.ConfigStepEntity;
-import net.ivoa.calycopis.platfom.canfar.CanfarConfigStep;
-import net.ivoa.calycopis.platfom.canfar.CanfarConfigStepEntity;
-import net.ivoa.calycopis.platfom.canfar.CanfarPlatformConfig;
 
 /**
  * Public interface for a StorageVolume mount in CANFAR.

@@ -4,7 +4,6 @@
 package net.ivoa.calycopis.platfom.canfar;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
@@ -54,7 +53,9 @@ public class CanfarComputeResourcesEntity
         //    
         // So this takes over the request validation and offer steps.
         //
-        
+
+/*
+ * 
         for (SimpleComputeResource compute : this.execution.getComputeResources())
             {
             // TODO
@@ -66,5 +67,7 @@ public class CanfarComputeResourcesEntity
             this.totalmemory += compute.getMinRequestedMemory();
 
             }
+ *         
+ */
         }
     }

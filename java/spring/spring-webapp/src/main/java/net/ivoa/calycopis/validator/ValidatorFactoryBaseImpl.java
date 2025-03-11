@@ -9,7 +9,6 @@ import java.util.Map;
 
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidator.ResultBean;
 
 /**
  * Base class for validator factories.
