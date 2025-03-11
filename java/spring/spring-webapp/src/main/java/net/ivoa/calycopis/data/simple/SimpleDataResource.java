@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.data.simple;
 
-import net.ivoa.calycopis.component.Component;
+import net.ivoa.calycopis.data.AbstractDataResource;
 import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
@@ -31,7 +31,7 @@ import net.ivoa.calycopis.execution.ExecutionSession;
  *
  */
 public interface SimpleDataResource
-    extends Component
+    extends AbstractDataResource
     {
     /**
      * Get the parent ExecutionSession.  

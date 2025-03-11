@@ -24,21 +24,15 @@
 package net.ivoa.calycopis.compute.simple;
 
 import net.ivoa.calycopis.component.Component;
-import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.compute.AbstractComputeResource;
 
 /**
  * Public interface for a SimpleComputeResource.
  *
  */
 public interface SimpleComputeResource
-    extends Component
+    extends Component, AbstractComputeResource
     {
-
-    /**
-     * Reference to the parent ExecutionSession. 
-     *
-     */
-    public ExecutionSession getParent();
 
     /**
      * The minimum number of CPU cores requested.

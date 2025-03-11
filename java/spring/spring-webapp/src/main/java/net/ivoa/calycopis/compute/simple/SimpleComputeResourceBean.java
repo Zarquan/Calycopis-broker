@@ -75,7 +75,7 @@ public class SimpleComputeResourceBean
         {
         super(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
-        this.entity= entity;
+        this.entity = entity;
         }
 
     @Override

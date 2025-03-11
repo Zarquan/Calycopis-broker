@@ -53,16 +53,16 @@ public class OfferSetFactoryImpl
      */
     public static final int DEFAULT_EXPIRY_TIME_SECONDS = 5 * 60 ;
 
-    private final OfferSetRequestParserFactory parserFactory;
+    private final OfferSetRequestParser offersetRequestParser;
     
     private final OfferSetRepository offersetRepository;
 
     @Autowired
-    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParserFactory parserFactory)
+    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParser offersetParser)
         {
         super();
         this.offersetRepository = offersetRepository;
-        this.parserFactory = parserFactory;
+        this.offersetRequestParser = offersetParser;
         }
 
     /**
@@ -89,24 +89,24 @@ public class OfferSetFactoryImpl
         }
     
     @Override
-    public OfferSetEntity create(final IvoaOfferSetRequest request, boolean save)
+    public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest, boolean save)
     	{
-    	OfferSetEntity offerset = new OfferSetEntity(
-	        request.getName(),
+    	OfferSetEntity offersetEntity = new OfferSetEntity(
+	        offersetRequest.getName(),
 	        OffsetDateTime.now(),
 	        OffsetDateTime.now().plusMinutes(
                 DEFAULT_EXPIRY_TIME_SECONDS
                 )
 	        );
-    	log.debug("OfferSet [{}]", offerset.getUuid());
+    	log.debug("OfferSet [{}]", offersetEntity.getUuid());
 
         if (save)
             {
             log.debug("save(OfferSet)");
-            log.debug("OfferSet [{}]", offerset.getUuid());
-            offerset = this.offersetRepository.save(offerset);
-            log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionSessionEntity execution : offerset.getOffers())
+            log.debug("OfferSet [{}]", offersetEntity.getUuid());
+            offersetEntity = this.offersetRepository.save(offersetEntity);
+            log.debug("OfferSet [{}]", offersetEntity.getUuid());
+            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
@@ -114,29 +114,28 @@ public class OfferSetFactoryImpl
     	
     	//
     	// Process the request and generate some offers.
-    	final OfferSetRequestParser parser = parserFactory.create(); 
-    	parser.process(
-	        request,
-	        offerset
+        offersetRequestParser.process(
+	        offersetRequest,
+	        offersetEntity
 	        );
     	//
     	// Save the offerset in the database. 
         if (save)
             {
             log.debug("save(OfferSet)");
-            log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionSessionEntity execution : offerset.getOffers())
+            log.debug("OfferSet [{}]", offersetEntity.getUuid());
+            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
-            offerset = this.offersetRepository.save(offerset);
-            log.debug("OfferSet [{}]", offerset.getUuid());
-            for (ExecutionSessionEntity execution : offerset.getOffers())
+            offersetEntity = this.offersetRepository.save(offersetEntity);
+            log.debug("OfferSet [{}]", offersetEntity.getUuid());
+            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
                 {
                 log.debug("Execution [{}]", execution.getUuid());
                 }
             }
-        return offerset ;
+        return offersetEntity ;
     	}
     }
 

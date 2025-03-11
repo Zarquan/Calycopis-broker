@@ -6,7 +6,6 @@ package net.ivoa.calycopis.executable;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebook;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookBean;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;

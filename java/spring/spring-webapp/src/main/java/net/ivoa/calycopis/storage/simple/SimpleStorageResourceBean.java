@@ -32,6 +32,7 @@ import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -95,6 +96,21 @@ public class SimpleStorageResourceBean
                     );
                 }
             };
+        }
+
+    /**
+     * Get the size, creating a new one if required.
+     *
+     */
+    public IvoaSimpleStorageSize setSize()
+        {
+        if (this.getSize() == null)
+            {
+            this.setSize(
+                new IvoaSimpleStorageSize()
+                ); 
+            }
+        return this.getSize();
         }
     }
 

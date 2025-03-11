@@ -17,7 +17,7 @@ public interface AbstractExecutableBeanFactory
     {
 
     /**
-     * Wrap a ComponentEntity in an IvoaAbstractComponent.
+     * Wrap a AbstractExecutableEntity as an IvoaAbstractExecutable.
      *  
      */
     public IvoaAbstractExecutable wrap(final String baseurl, final AbstractExecutableEntity entity);

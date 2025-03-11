@@ -42,12 +42,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParser;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
@@ -94,15 +94,15 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParser context, final IvoaExecutionSessionPhase phase)
+    public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase)
         {
-        super();
+        super(null);
         this.phase   = phase;
         this.parent  = parent;
         this.expires = parent.getExpires();
         this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
 //      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
-        this.exedurationsec   = context.getDuration().getSeconds();
+        this.exedurationsec   = context.getExecutionDuration().getSeconds();
         
         }
 
@@ -208,15 +208,15 @@ public class ExecutionSessionEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SimpleComputeResourceEntity> computeresources = new ArrayList<SimpleComputeResourceEntity>();
+    List<AbstractComputeResourceEntity> computeresources = new ArrayList<AbstractComputeResourceEntity>();
 
     @Override
-    public List<SimpleComputeResourceEntity> getComputeResources()
+    public List<AbstractComputeResourceEntity> getComputeResources()
         {
         return computeresources;
         }
      
-    public void addComputeResource(final SimpleComputeResourceEntity resource)
+    public void addComputeResource(final AbstractComputeResourceEntity resource)
         {
         computeresources.add(resource);
         resource.setParent(this);

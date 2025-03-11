@@ -4,7 +4,6 @@
 package net.ivoa.calycopis.platfom.vospace;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.platfom.ConfigStep;
 import net.ivoa.calycopis.platfom.ConfigStepEntity;
 
 /**

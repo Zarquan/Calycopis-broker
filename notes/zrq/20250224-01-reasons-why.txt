@@ -1,0 +1,247 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes to explain why the data model is so complicated.
+        It would be useful to be able to point people at the reasons why we did this.
+
+        Maximum features:
+
+            We want to cover as many use cases as we can.
+            Talking to lots of people about this we have accumulated a lot of things
+            they want the system to be able to handle.
+
+        Minimum harm:
+
+            Everything is optional.
+            Minimal implementations do not need to implement the complicated bits.
+
+        Short form:
+
+            The datamodel is designed to allow you to ask for a complicated thing.
+            In every case, a simple implementation can just say NO.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Why do we need multiple compute resources ?
+
+    Lets say we want to analyse a 15TiB data cube.
+
+        15 TiB = 15*1024 GiB
+
+    If we say we want 15*1024 GiB of memory there are very few compute platforms that could provide this.
+
+    If the algorithm processes the cube in layers, then we can be more specific.
+
+    Lets say the data cube has 300 layers.
+
+        (15*1024 GiB) / 300 = 51.2 GiB per layer
+
+    To process one layer, we need a minimum of 51.2 GiB, which is more realistic to ask for.
+
+    Lets assume the algorithm can scale to process multiple layers at a time on separate compute resources.
+
+    Then we can ask for 4 compute resources each with 54 GiB of memory.
+    This maps quite well onto the concept of nodes on a Kubernetes system.
+
+        request:
+          resources:
+            compute:
+            - name: compute-node-001
+              memory:
+                min: 54
+              ....
+            - name: compute-node-002
+              memory:
+                min: 54
+              ....
+            - name: compute-node-003
+              memory:
+                min: 54
+              ....
+            - name: compute-node-004
+              memory:
+                min: 54
+              ....
+
+    Or we can bundle them up into one node template with a count.
+
+        request:
+          resources:
+            compute:
+            - name: "compute-node-${n}"
+              count: 4
+              index: n
+              memory:
+                min: 54
+
+    If we want the algorithm to run faster, we can ask for more resources
+
+        request:
+          resources:
+            compute:
+            - name: "compute-node-${n}"
+              count: 10
+              index: n
+              memory:
+                min: 54
+
+    If the platform can't handle multiple compute resources, the broker can just say NO.
+
+        response:
+          result: NO
+          messages:
+            - message: "Platform does not support more than one compute resource"
+
+    If the platform can only handle a small number of compute resources, the broker can just say NO.
+
+        response:
+          result: NO
+          messages:
+            - message: "A maximum of 5 compute resources are available"
+
+    If the "${n}" string substitution is too complex to handle, the broker
+    can simply reject it.
+
+        response:
+          result: NO
+          messages:
+          - message: "Invalid name format [${name}]"
+            objects:
+              name: "compute-node-\${n}"
+
+Short form :
+
+    Asking for 15TiB of memory is not realistic.
+
+    A minimal implementation can reject requests that ask for more than one compute resource.
+    The code to parse the request is 90% generated and the cost of parsing the complex form is minimal.
+
+
+# -----------------------------------------------------
+# Why does the start time need to be an interval rather than just an instant ?
+
+    This enables us to support batch mode susyems like Slurm.
+
+    If the user wants an interactive session starting this instant, they don't specify an interval
+    e.g. something starting in right now
+
+        2024-02-24T09:00
+
+    Hoowever that restricts the range of platforms that will respond with an offer.
+    In many cases it may take a couple of minutes to setup the environment.
+    Adding an interval allows us to model this.
+
+    If the user wants an interactive session, they can ask for a short interval
+    e.g. starting in the next 5 minuites
+
+        2024-02-24T09:00/PT5M
+
+    A broker on an interactive platform like CANFAR calculates how long it will
+    take to setup the environment and reply with a specific time that is within
+    the range asked for.
+
+        2024-02-24T09:04
+
+    For a non-interactive batch job, the user can specify a much longer window.
+    e.g. starting sometime within the next 24 hours
+
+        2024-02-24T09:00/PT1D
+
+    In which case the broker can reply with an interval
+    e.g. starting sometime within the next 2 hours
+
+        2024-02-24T09:00/PT2H
+
+    Future versions of Execution Broker may support alerts for users,
+    which blurs the distinction between interactive and batch.
+
+    If the user wants a particularly large quota of compute resources,
+    e.g. 2000 cores for 2 hours, they may have to accept a less precise
+    start time for their interactive session.
+    e.g. starting sometime within the next 24 hours
+
+        2024-02-24T09:00/PT1D
+
+    The broker can reply with an interval that it is confident of meeting
+    e.g. starting sometime within the next 2 hours
+
+        2024-02-24T09:00/PT2H
+
+    and send an alert email or Slack message to the user when
+    the compute environment is ready
+
+    Requesting a specific start time with no range is doesn't match
+    what the user actually wants, and is prone to errors.
+
+    If the user does specify a start time, it will normally
+    be an interval rather than a specific instant.
+
+    "I want to start at precisley 10:02am" is an odd thing for a user to specify.
+
+    "I want to start within 2 minutes" is a more realistic request.
+    If nothing else it gives the user time to read and accept the offer.
+
+    If the user doesn't specify a start time, then the brokers
+    are free to make their best offer.
+
+
+
+# -----------------------------------------------------
+# Why do we need an array of start times rather than a single value ?
+
+    It enables a researcher to ask
+    Can I run this task between 9am and 12am on Monday, Tuesday or Wednesday morning ?
+
+    This enables the researcher to pose the question in terms that make sense to them.
+    Note - the broker doesn't have to process all of them.
+    A simple broker can simply pick the first window and reply to that.
+    YES - you can have 10am on Monday.
+
+
+# -----------------------------------------------------
+# Why do we want separate complex objects for resources
+
+    If we make data resources a separate thing, with a uuid and a status then we can monitor its progress.
+    The current model is designed to map onto things like persistent volumes in Kubernetes.
+    Based on compute resource with volume mounts that refer to data resources.
+    If this turns out to be hard to implement, we can change it.
+
+# -----------------------------------------------------
+# Why don't we put cores and memory inside the executable.
+
+    Putting cores and memory in a separate compute resource allows us to have different types of compute resource.
+    In theory, the user can ask to run the same executable in different compute resources.
+
+
+
+
+
+
+

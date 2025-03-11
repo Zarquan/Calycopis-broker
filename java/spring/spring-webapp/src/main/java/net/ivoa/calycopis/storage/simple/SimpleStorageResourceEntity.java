@@ -25,12 +25,9 @@ package net.ivoa.calycopis.storage.simple;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 
 /**
  * A SimpleStorageResource Entity.
@@ -44,24 +41,9 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
     value="uri:simple-storage-resource"
     )
 public class SimpleStorageResourceEntity
-    extends ComponentEntity
+    extends AbstractStorageResourceEntity
     implements SimpleStorageResource
     {
-
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
-
-    @Override
-    public ExecutionSessionEntity getParent()
-        {
-        return this.parent;
-        }
-
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
-        }
 
     /**
      * Protected constructor
@@ -76,10 +58,9 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent)
+    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent, final String name)
         {
-        super();
-        this.parent = parent;
+        super(parent, name);
         }
     }
 

@@ -33,7 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionFactory;
+import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
@@ -45,12 +45,12 @@ public class SessionsApiDelegateImpl
     implements SessionsApiDelegate
     {
 
-    private final ExecutionSessionFactory factory ;
+    private final ExecutionSessionEntityFactory factory ;
 
     @Autowired
     public SessionsApiDelegateImpl(
         NativeWebRequest request,
-        ExecutionSessionFactory factory
+        ExecutionSessionEntityFactory factory
         )
         {
         super(request);
