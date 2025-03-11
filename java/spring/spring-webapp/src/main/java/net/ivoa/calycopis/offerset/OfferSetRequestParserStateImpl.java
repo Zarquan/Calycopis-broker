@@ -4,53 +4,22 @@
 package net.ivoa.calycopis.offerset;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
-import net.ivoa.calycopis.data.simple.SimpleDataResource;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntity;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.offers.OfferBlock;
-import net.ivoa.calycopis.offers.OfferBlockFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.data.DataResourceValidator.Result;
 import net.ivoa.calycopis.validator.executable.ExecutableValidator;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
@@ -127,11 +96,11 @@ extends ValidatorTools
 
     private ExecutableValidator.Result executable;
     @Override
-    public ExecutableValidator.Result getExecutable()
+    public ExecutableValidator.Result getExecutableResult()
         {
         return this.executable;
         }
-    public void setExecutable(final ExecutableValidator.Result executable)
+    public void setExecutableResult(final ExecutableValidator.Result executable)
         {
         this.executable = executable;
         }

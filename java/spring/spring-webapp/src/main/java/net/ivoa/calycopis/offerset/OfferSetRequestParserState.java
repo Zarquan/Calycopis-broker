@@ -62,13 +62,13 @@ public interface OfferSetRequestParserState
      * Get the validated executable.
      * 
      */
-    public ExecutableValidator.Result getExecutable();
+    public ExecutableValidator.Result getExecutableResult();
 
     /**
      * Set the validated executable.
      * 
      */
-    public void setExecutable(final ExecutableValidator.Result result);
+    public void setExecutableResult(final ExecutableValidator.Result result);
 
     /**
      * List the DataValidatorResults.

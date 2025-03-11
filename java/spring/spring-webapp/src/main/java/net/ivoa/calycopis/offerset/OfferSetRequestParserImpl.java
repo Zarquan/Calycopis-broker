@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
@@ -28,9 +29,9 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
 import net.ivoa.calycopis.validator.compute.ComputeResourceValidatorFactory;
 import net.ivoa.calycopis.validator.data.DataResourceValidatorFactory;
-import net.ivoa.calycopis.validator.executable.ExecutableValidator.Result;
 import net.ivoa.calycopis.validator.executable.ExecutableValidatorFactory;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 
@@ -371,7 +372,7 @@ public class OfferSetRequestParserImpl
 
         //
         // Start with NO, and set to YES when we have at least one offer.
-        IvoaOfferSetResponse.ResultEnum result = IvoaOfferSetResponse.ResultEnum.NO;
+        IvoaOfferSetResponse.ResultEnum resultEnum = IvoaOfferSetResponse.ResultEnum.NO;
 
         //
         // If everything is OK.
@@ -414,16 +415,61 @@ public class OfferSetRequestParserImpl
                         );
                     log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
-                    log.debug("Executable [{}]", state.getExecutable());
+                    log.debug("Executable [{}]", state.getExecutableResult());
 
                     //
-                    // Create a new Executable.
+                    // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
                     executionSessionEntity.setExecutable(
-                            state.getExecutable().getBuilder().build(
+                        state.getExecutableResult().getBuilder().build(
                             executionSessionEntity
                             )
                         );
+                    
+                    //
+                    // Build and add our first compute resource.
+                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
+                    ComputeResourceValidator.Result computeValidatorResult = computeValidatorResults.getFirst();
+                    if (computeValidatorResult != null)
+                        {
+                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
+                            executionSessionEntity,
+                            offerblock
+                            );
+                        executionSessionEntity.addComputeResource(
+                            computeResourceEntity
+                            );
+                        }
 
+/*
+ * 
+                    //
+                    // Build and add our storage resources.
+                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
+                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
+                        {
+                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        executionSessionEntity.addComputeResource(
+                            computeResourceEntity
+                            );
+                        }
+                    
+                    //
+                    // Build and add our data resources.
+                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
+                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
+                        {
+                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        executionSessionEntity.addComputeResource(
+                            computeResourceEntity
+                            );
+                        }
+ *                     
+ */
+                    
                     //
                     // Add the ExecutionSession to the OfferSet.
                     state.getOfferSetEntity().addExecution(
@@ -447,17 +493,6 @@ public class OfferSetRequestParserImpl
                      * 
                      */
 
-                    
-                    /*
-                     * TODO Add the builder references ...
-                    execution.setExecutable(
-                        jupyterNotebookFactory.create(
-                            execution,
-                            ((JupyterNotebookEntity) this.executable)
-                            )
-                        );
-                      *
-                      */
 
                     /*
                      * We only support a single compute resource.
@@ -484,14 +519,14 @@ public class OfferSetRequestParserImpl
                     
                     //
                     // Confirm we have at least one result.
-                    result = IvoaOfferSetResponse.ResultEnum.YES;
+                    resultEnum = IvoaOfferSetResponse.ResultEnum.YES;
                     }
                 }
             }
         //
         // Set the OfferSet result.
         state.getOfferSetEntity().setResult(
-            result
+            resultEnum
             );
         }
     }
