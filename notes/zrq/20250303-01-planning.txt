@@ -1,0 +1,96 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Rob Perry's presentations.
+    Tightening up on how time is reported by the teams and SRCNet participants.
+    Implication is better accounting of pledged vs actual FTE.
+    Problem is .. I'm 100% UKSRC, only pledgeing 25%, and all of that gores to Coral.
+
+# -----------------------------------------------------
+
+Following on from
+
+    Architecture meeting 2025-02-04/05
+    https://confluence.skatelescope.org/display/SRCSC/2025-02-04+to+05+Architecture+Core+Team
+
+    Sequence diagram
+    https://confluence.skatelescope.org/display/SRCSC/Execution+Broker+Sequence+Diagram
+
+# -----------------------------------------------------
+# WorkflowExecution service
+
+    Essentially ther same API as an ExecutionBroker, but implements a global aggregating service
+    that provides a single point of entry for SRCNet.
+
+    Implement a workflow execution service
+    https://jira.skatelescope.org/browse/SP-5237
+    [could] from Jesus
+    Python based aggregating service that fills in the details of selected DataProducts before passing the request on to the node level ExecutionBroker services.
+
+
+# -----------------------------------------------------
+# ExecutionBroker service
+
+    Evolve Execution Broker Prototype to be compatible with first Workflow Execution Service
+    https://jira.skatelescope.org/browse/SP-5222
+    [must] from Jesus
+    Extending the Java prototype.
+
+    Add SRCNet data resources to ExecutionBroker data model and workflow
+    https://jira.skatelescope.org/browse/SP-5239
+    [could] from Dave
+    Implement the extra metadata fields and implement code to calculate the transfer costs.
+
+    Create a Python implementation of the ExecutionBroker service
+    https://jira.skatelescope.org/browse/SP-5298
+    [could] from Dave
+
+
+
+
+# -----------------------------------------------------
+# Software discovery
+
+    Software Discovery and Software Access Service
+    https://jira.skatelescope.org/browse/SP-5241
+    [should]
+
+
+    Extend Software Discovery API to support Execution Broker and Workflow Execution Services
+    https://jira.skatelescope.org/browse/SP-5279
+    [should]
+
+
+
