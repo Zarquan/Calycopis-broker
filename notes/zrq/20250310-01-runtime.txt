@@ -81,7 +81,7 @@
 # Create our docker container.
 #[user@desktop]
 
-    jarfile=calycopis-webapp-0.0.1.jar
+    jarfile=calycopis-webapp-0.0.1-SNAPSHOT-$(date '+%Y%m%d').jar
 
     buildtag=$(date '+%Y.%m.%d')
     buildtime=$(date '+%Y-%m-%dT%H:%M:%S')
@@ -111,7 +111,7 @@
         --interactive \
         --publish 8082:8082 \
         --name calycopis-broker \
-        "calycopis/calycopis-broker:latest"
+        "localhost/calycopis/calycopis-broker:latest"
 
     >   ....
     >   ....
@@ -705,15 +705,6 @@ EOF
 
 
 # -----------------------------------------------------
-# Set the build date and repository name.
-#[user@desktop]
-
-    buildtag=$(date '+%Y.%m.%d')
-    reponame="ghcr.io"
-    repopath="${reponame}/ivoa"
-
-
-# -----------------------------------------------------
 # Check our secret function works.
 #[user@desktop]
 
@@ -726,6 +717,9 @@ EOF
 # -----------------------------------------------------
 # Login to the Docker registry.
 #[user@desktop]
+
+    reponame="ghcr.io"
+    repopath="${reponame}/ivoa"
 
     guser=$(getsecret 'devops.ghcrio.user')
     gpass=$(getsecret 'devops.ghcrio.pass')
@@ -740,6 +734,8 @@ EOF
 # -----------------------------------------------------
 # Push our images to our GitHub repository.
 #[user@desktop]
+
+    buildtag=$(date '+%Y.%m.%d')
 
     pushtag()
         {
@@ -805,13 +801,20 @@ EOF
     >   ....
 
 
+# -----------------------------------------------------
+# Make a test request.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
     curl \
         --silent \
         --show-error \
         --header 'Content-Type: application/json' \
-        --data-binary "@/tmp/offerset-request.json" \
+        --data-binary "@${CALYCOPIS_CODE}/examples/004/offerset-request.json" \
         --header 'Accept: application/json' \
         'http://127.0.0.1:8082/offersets'
 
     >   {"uuid":"4cc3e8d1-f8f9-4aa8-a58f-5fc2da74e5ac", ...., "options":[{"type":"uri:enum-value-option","path":"phase","values":["ACCEPTED","REJECTED"]}]}]}
+
 
