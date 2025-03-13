@@ -36,10 +36,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.executable.AbstractExecutableBeanFactory;
-import net.ivoa.calycopis.executable.AbstractExecutableBeanFactoryImpl;
 import net.ivoa.calycopis.message.MessageEntity;
 import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -55,6 +51,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseAllOfSchedul
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -153,18 +150,11 @@ public class ExecutionSessionResponseBean
         return entity.getExpires();
         }
 
-    // TODO Inject this in the constructor.
-    // https://github.com/ivoa/Calycopis-broker/issues/66
-    private AbstractExecutableBeanFactory beanfactory = new AbstractExecutableBeanFactoryImpl();
-
     @Override
     public IvoaAbstractExecutable getExecutable()
         {
-        log.debug("getExecutable()");
-        log.debug("Executable [{}]", (this.entity.getExecutable() != null) ? this.entity.getExecutable().getUuid() : "null-entity");
-        return beanfactory.wrap(
-            this.baseurl,
-            this.entity.getExecutable()
+        return this.entity.getExecutable().getIvoaBean(
+            baseurl
             );
         }
 
@@ -254,25 +244,25 @@ public class ExecutionSessionResponseBean
                     ){
                     public IvoaAbstractComputeResource wrap(AbstractComputeResourceEntity entity)
                         {
-                        // TODO Need to handle different types of beans.
-                        // TODO Add a bean() method to AbstractComputeResourceEntity 
-                        if (entity instanceof SimpleComputeResourceEntity)
-                            {
-                            return new SimpleComputeResourceBean(
-                                baseurl,
-                                (SimpleComputeResourceEntity) entity
-                                );
-                            }
-                        else {
-                            return null ;
-                            }
+                        return entity.getIvoaBean(
+                            baseurl
+                            );
                         }
                     };
                 }
             @Override
             public List<@Valid IvoaAbstractStorageResource> getStorage()
                 {
-                return null;
+                return new ListWrapper<IvoaAbstractStorageResource, AbstractStorageResourceEntity>(
+                    entity.getStorageResources()
+                    ){
+                    public IvoaAbstractStorageResource wrap(AbstractStorageResourceEntity entity)
+                        {
+                        return entity.getIvoaBean(
+                            baseurl
+                            );
+                        }
+                    };
                 }
             @Override
             public List<@Valid IvoaAbstractDataResource> getData()

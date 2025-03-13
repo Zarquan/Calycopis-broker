@@ -23,12 +23,25 @@
 
 package net.ivoa.calycopis.data;
 
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
  * 
  */
-public class AbstractDataResourceEntity
+@Table(
+    name = "dataresources"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
+public abstract class AbstractDataResourceEntity
 extends ComponentEntity
 implements AbstractDataResource
     {
@@ -45,8 +58,23 @@ implements AbstractDataResource
      * Protected constructor.
      * 
      */
-    protected AbstractDataResourceEntity(String name)
+    protected AbstractDataResourceEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(name);
+        this.parent = parent;
+        }
+
+    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private ExecutionSessionEntity parent;
+    
+    @Override
+    public ExecutionSessionEntity getParent()
+        {
+        return this.parent ;
+        }
+    public void setParent(final ExecutionSessionEntity parent)
+        {
+        this.parent = parent;
         }
     }

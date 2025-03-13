@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.data.simple;
 
 import net.ivoa.calycopis.data.AbstractDataResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleDataResource.
@@ -34,11 +33,11 @@ public interface SimpleDataResource
     extends AbstractDataResource
     {
     /**
-     * Get the parent ExecutionSession.  
-     *
+     * The OpenAPI type identifier.
+     * 
      */
-    public ExecutionSession getParent();
-
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0" ;
+    
     /**
      * Get the data location.
      *

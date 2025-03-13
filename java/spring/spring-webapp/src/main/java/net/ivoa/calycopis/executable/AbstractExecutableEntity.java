@@ -23,7 +23,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class AbstractExecutableEntity
+public abstract class AbstractExecutableEntity
     extends ComponentEntity
     implements AbstractExecutable
     {
@@ -55,5 +55,8 @@ public class AbstractExecutableEntity
         {
         return this.parent;
         }
-
+    public void setParent(final ExecutionSessionEntity parent)
+        {
+        this.parent = parent;
+        }
     }

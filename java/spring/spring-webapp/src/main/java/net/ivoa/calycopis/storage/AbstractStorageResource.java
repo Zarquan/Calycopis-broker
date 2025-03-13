@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.storage;
 
 import net.ivoa.calycopis.execution.ExecutionSession;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
@@ -35,5 +36,11 @@ public interface AbstractStorageResource
      *
      */
     public ExecutionSession getParent();
+
+    /**
+     * Get an Ivoa bean representation.
+     *  
+     */
+    public IvoaAbstractStorageResource getIvoaBean(final String baseurl);
 
     }

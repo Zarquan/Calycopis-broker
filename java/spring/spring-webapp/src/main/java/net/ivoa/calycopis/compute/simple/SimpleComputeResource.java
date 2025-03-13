@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.compute.simple;
 
-import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.compute.AbstractComputeResource;
 
 /**
@@ -31,8 +30,13 @@ import net.ivoa.calycopis.compute.AbstractComputeResource;
  *
  */
 public interface SimpleComputeResource
-    extends Component, AbstractComputeResource
+    extends AbstractComputeResource
     {
+    /**
+     * The OpenAPI type identifier.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0" ;
 
     /**
      * The minimum number of CPU cores requested.

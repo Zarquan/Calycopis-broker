@@ -32,6 +32,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
@@ -74,5 +75,16 @@ implements AbstractStorageResource
     public ExecutionSessionEntity getParent()
         {
         return this.parent;
+        }
+    public void setParent(final ExecutionSessionEntity parent)
+        {
+        this.parent = parent;
+        }
+    
+    @Override
+    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
+        {
+        // TODO Auto-generated method stub
+        return null;
         }
     }

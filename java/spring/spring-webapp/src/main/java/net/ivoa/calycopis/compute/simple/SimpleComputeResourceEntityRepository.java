@@ -27,7 +27,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleComputeResource JpaRepository.
+ * JpaRepository for SimpleComputeResourceEntity.
  *
  */
 public interface SimpleComputeResourceEntityRepository

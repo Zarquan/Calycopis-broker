@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.data.amazon;
 
 import net.ivoa.calycopis.data.AbstractDataResource;
-import net.ivoa.calycopis.execution.ExecutionSession;
 
 /**
  * Public interface for a SimpleDataResource.
@@ -33,13 +32,34 @@ import net.ivoa.calycopis.execution.ExecutionSession;
 public interface AmazonS3DataResource
     extends AbstractDataResource
     {
+    /**
+     * The OpenAPI type identifier.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0" ;
 
-    public ExecutionSession getParent();
-
-    public String getName();
+    /**
+     * Get the Amazon S3 service endpoint.
+     *
+     */
     public String getEndpoint();
+
+    /**
+     * Get the Amazon S3 URL template.
+     *
+     */
     public String getTemplate();
+
+    /**
+     * Get the Amazon S3 bucket name.
+     *
+     */
     public String getBucket();
+
+    /**
+     * Get the Amazon S3 object name.
+     *
+     */
     public String getObject();
     
     }

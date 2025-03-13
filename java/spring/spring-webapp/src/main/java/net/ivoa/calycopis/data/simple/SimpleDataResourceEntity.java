@@ -25,12 +25,11 @@ package net.ivoa.calycopis.data.simple;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
  * A Simple data resource.
@@ -48,21 +47,6 @@ public class SimpleDataResourceEntity
     implements SimpleDataResource
     {
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
-
-    @Override
-    public ExecutionSessionEntity getParent()
-        {
-        return this.parent;
-        }
-
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
-        }
-
     /**
      * Protected constructor
      *
@@ -78,8 +62,7 @@ public class SimpleDataResourceEntity
      */
     public SimpleDataResourceEntity(final ExecutionSessionEntity parent, final String name, final String location)
         {
-        super(name);
-        this.parent = parent;
+        super(parent, name);
         this.location = location;
         }
     
@@ -89,6 +72,23 @@ public class SimpleDataResourceEntity
         {
         return this.location;
         }
-    
+
+    @Override
+    public IvoaAbstractDataResource getIvoaBean()
+        {
+        IvoaSimpleDataResource bean = new IvoaSimpleDataResource(
+            SimpleDataResource.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+
+        // TODO fill in the fields 
+                
+        return bean;
+        }
     }
 

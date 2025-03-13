@@ -28,6 +28,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * A Docker container executable.
@@ -53,5 +55,23 @@ public class DockerContainerEntity
     protected DockerContainerEntity(final ExecutionSessionEntity parent, final String name)
         {
         super(parent, name);
+        }
+
+    @Override
+    public IvoaAbstractExecutable getIvoaBean(final String baseurl)
+        {
+        IvoaDockerContainer bean = new IvoaDockerContainer(
+            DockerContainer.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+
+        // TODO fill in the fields 
+                    
+        return bean;
         }
     }

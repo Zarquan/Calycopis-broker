@@ -32,6 +32,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
 /**
  * 
@@ -43,7 +44,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class AbstractComputeResourceEntity
+public abstract class AbstractComputeResourceEntity
 extends ComponentEntity
 implements AbstractComputeResource
     {
@@ -75,8 +76,6 @@ implements AbstractComputeResource
         {
         return this.parent;
         }
-
-    @Override
     public void setParent(final ExecutionSessionEntity parent)
         {
         this.parent = parent;

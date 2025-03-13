@@ -28,6 +28,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * A Jupyter notebook executable.
@@ -63,4 +65,19 @@ public class JupyterNotebookEntity
         return this.location;
         }
 
+    @Override
+    public IvoaAbstractExecutable getIvoaBean(final String baseurl)
+        {
+        IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
+            JupyterNotebook.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.location(this.getLocation());
+        return null;
+        }
     }
