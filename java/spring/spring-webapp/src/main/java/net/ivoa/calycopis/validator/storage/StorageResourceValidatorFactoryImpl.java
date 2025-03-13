@@ -25,7 +25,6 @@ package net.ivoa.calycopis.validator.storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
@@ -38,7 +37,7 @@ import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
  */
 @Component
 public class StorageResourceValidatorFactoryImpl
-extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity>
+extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
 implements StorageResourceValidatorFactory
     {
     

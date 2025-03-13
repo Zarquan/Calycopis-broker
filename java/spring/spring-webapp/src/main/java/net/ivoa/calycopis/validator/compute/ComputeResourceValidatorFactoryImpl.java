@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
@@ -40,7 +39,7 @@ import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 @Slf4j
 @Component
 public class ComputeResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     implements ComputeResourceValidatorFactory
     {
 
@@ -73,44 +72,4 @@ public class ComputeResourceValidatorFactoryImpl
                 )
             );
         }
-
-    /*
-     * 
-    @Override
-    public void save(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
-        ){
-        log.debug("save(OfferSetRequestParserState, IvoaAbstractComputeResource)");
-        state.getValidatedOfferSetRequest().getResources().addComputeItem(
-            resource
-            );
-        state.addComputeValidatorResult(
-            new ComputeResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                resource
-                )
-            );
-        }
-     * 
-     */
-
-    /*
-     * 
-    @Override
-    public ComputeResourceValidator.Result result(
-        final ResultEnum value,
-        final IvoaAbstractComputeResource object,
-        final Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> builder
-        ){
-        log.debug("result(ResultEnum, IvoaAbstractComputeResource)");
-        log.debug("Result [{}][{}]", value, object);
-        return new ComputeResourceValidator.ResultBean(
-            value,
-            object,
-            builder
-            );
-        }
-     * 
-     */
     }

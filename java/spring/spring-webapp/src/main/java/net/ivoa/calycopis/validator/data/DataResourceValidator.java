@@ -34,7 +34,7 @@ import net.ivoa.calycopis.validator.Validator;
  * 
  */
 public interface DataResourceValidator
-extends Validator<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
+extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
 
     /**
@@ -42,7 +42,7 @@ extends Validator<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractData
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity> 
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
         // A reference to the storage resource for this data.
         }
@@ -52,7 +52,7 @@ extends Validator<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractData
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
     implements Result
         {
         /**
@@ -71,7 +71,7 @@ extends Validator<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractData
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractDataResource object,
-            final Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder
+            final Builder<AbstractDataResourceEntity> builder
             ){
             super(
                 result,

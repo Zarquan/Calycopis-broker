@@ -27,7 +27,6 @@ import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
@@ -39,7 +38,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
  */
 @Component
 public class DataResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, ExecutionSessionEntity, AbstractDataResourceEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
     implements DataResourceValidatorFactory
     {
 

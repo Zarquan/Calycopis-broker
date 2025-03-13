@@ -14,16 +14,16 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
  * Base class for validator factories.
  * 
  */
-public abstract class ValidatorFactoryBaseImpl<ObjectType, ParentType, EntityType>
+public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
     extends FactoryBaseImpl
-    implements Validator<ObjectType, ParentType, EntityType>
+    implements Validator<ObjectType, EntityType>
     {
 
     /**
      * Our list of validators.
      * 
      */
-    protected List<Validator<ObjectType, ParentType, EntityType>> validators = new ArrayList<Validator<ObjectType, ParentType, EntityType>>();
+    protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
 
     /**
      * Save a validated object in the parser state.
@@ -88,15 +88,15 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, ParentType, EntityTyp
         }
 
     @Override
-    public Validator.Result<ObjectType, ParentType, EntityType> validate(
+    public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
         final OfferSetRequestParserState state
         ){
         //
         // Try each of the validators in our list.
-        for (Validator<ObjectType, ParentType, EntityType> validator : validators)
+        for (Validator<ObjectType, EntityType> validator : validators)
             {
-            Result<ObjectType, ParentType, EntityType> result = validator.validate(
+            Result<ObjectType, EntityType> result = validator.validate(
                 requested,
                 state
                 );
@@ -116,7 +116,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, ParentType, EntityTyp
             state,
             requested
             );
-        return new ResultBean<ObjectType, ParentType, EntityType>(
+        return new ResultBean<ObjectType, EntityType>(
             Validator.ResultEnum.FAILED
             );
         }

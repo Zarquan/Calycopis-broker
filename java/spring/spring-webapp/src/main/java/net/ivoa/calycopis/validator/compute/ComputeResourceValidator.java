@@ -34,7 +34,7 @@ import net.ivoa.calycopis.validator.Validator;
  * 
  */
 public interface ComputeResourceValidator
-extends Validator<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
+extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
    
     /**
@@ -42,7 +42,7 @@ extends Validator<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractC
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity> 
+    extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
         {
         // TODO A list of the volume mounts ...
 
@@ -56,13 +56,13 @@ extends Validator<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractC
      * 
      */
     public static interface ComputeResourceEntityBuilder
-    extends Builder<ExecutionSessionEntity, AbstractComputeResourceEntity> 
+    extends Builder<AbstractComputeResourceEntity> 
         {
         /**
          * Build an entity. 
          *
          */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity parent, final OfferBlock offerblock);
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final OfferBlock offerblock);
 
         }
 
@@ -71,7 +71,7 @@ extends Validator<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractC
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     implements Result
         {
         /**

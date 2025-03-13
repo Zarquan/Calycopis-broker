@@ -111,13 +111,13 @@ implements StorageResourceValidator
             log.debug("Success");
 
             log.debug("Creating Builder.");
-            Builder<ExecutionSessionEntity, AbstractStorageResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractStorageResourceEntity>()
+            Builder<AbstractStorageResourceEntity> builder = new Builder<AbstractStorageResourceEntity>()
                 {
                 @Override
-                public SimpleStorageResourceEntity build(ExecutionSessionEntity parent)
+                public SimpleStorageResourceEntity build(final ExecutionSessionEntity executionSession)
                     {
                     return entityFactory.create(
-                        parent,
+                        executionSession,
                         validated
                         );
                     }

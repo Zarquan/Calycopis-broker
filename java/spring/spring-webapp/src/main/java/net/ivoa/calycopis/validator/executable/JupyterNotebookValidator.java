@@ -140,13 +140,13 @@ implements ExecutableValidator
             {
             log.debug("Success - creating the ExecutableValidator.Result.");
 
-            Builder<ExecutionSessionEntity, AbstractExecutableEntity> builder = new Builder<ExecutionSessionEntity, AbstractExecutableEntity>()
+            Builder<AbstractExecutableEntity> builder = new Builder<AbstractExecutableEntity>()
                 {
                 @Override
-                public AbstractExecutableEntity build(ExecutionSessionEntity parent)
+                public AbstractExecutableEntity build(final ExecutionSessionEntity executionSession)
                     {
                     return factory.create(
-                        parent,
+                        executionSession,
                         validated
                         );
                     }

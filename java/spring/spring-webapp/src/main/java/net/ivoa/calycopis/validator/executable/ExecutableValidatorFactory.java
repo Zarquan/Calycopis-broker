@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.validator.executable;
 
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
@@ -33,7 +32,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  * 
  */
 public interface ExecutableValidatorFactory
-extends ValidatorFactory<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity>
+extends ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
 
     }

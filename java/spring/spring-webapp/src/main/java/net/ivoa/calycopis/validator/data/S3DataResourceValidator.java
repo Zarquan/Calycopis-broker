@@ -167,7 +167,7 @@ implements DataResourceValidator
             log.debug("Success");
 
             log.debug("Creating Builder.");
-            Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractDataResourceEntity>()
+            Builder<AbstractDataResourceEntity> builder = new Builder<AbstractDataResourceEntity>()
                 {
                 @Override
                 public AmazonS3DataResourceEntity build(ExecutionSessionEntity parent)

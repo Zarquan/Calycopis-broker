@@ -23,17 +23,19 @@
 
 package net.ivoa.calycopis.builder;
 
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+
 /**
 
  * Public interface for an Entity builder, responsible for creating entities in the database. 
  * 
  */
-public interface Builder<ParentType, EntityType>
+public interface Builder<EntityType>
     {
     /**
      * Build an entity. 
      *
      */
-    public EntityType build(final ParentType parent);
+    public EntityType build(final ExecutionSessionEntity sessionEntity);
 
     }
