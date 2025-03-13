@@ -33,6 +33,10 @@
             Add bean method
             https://github.com/ivoa/Calycopis-broker/issues/154
 
+            Extend AbstractExecutableBeanFactoryImpl to handle other trypes.
+            https://github.com/ivoa/Calycopis-broker/issues/104
+
+
 
     Result:
 
@@ -126,10 +130,8 @@ EOF
         'http://127.0.0.1:8082/offersets' \
     | yq '.'
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 
