@@ -46,13 +46,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OfferSetRequest'
+              $ref: 'OfferSetRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/OfferSetRequest'
+              $ref: 'OfferSetRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/OfferSetRequest'
+              $ref: 'OfferSetRequest'
         required: true
       # TODO Errors return error codes and ErrorResponse.
       responses:
@@ -71,13 +71,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
 
   /offersets/{uuid}:
     get:
@@ -99,13 +99,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/OfferSetResponse'
+                $ref: 'OfferSetResponse'
 
   /sessions/{uuid}:
     get:
@@ -127,13 +127,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
 
     post:
       operationId: ExecutionSessionPost
@@ -152,13 +152,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateRequest'
+              $ref: 'UpdateRequest'
           application/xml:
             schema:
-              $ref: '#/components/schemas/UpdateRequest'
+              $ref: 'UpdateRequest'
           application/yaml:
             schema:
-              $ref: '#/components/schemas/UpdateRequest'
+              $ref: 'UpdateRequest'
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
@@ -167,13 +167,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
             application/xml:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
             application/yaml:
               schema:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
 
 components:
   schemas:
@@ -223,7 +223,7 @@ components:
       type: object
       title: AccessibleComponent
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             href:
@@ -241,7 +241,7 @@ components:
       xml:
         name: compute
       items:
-        $ref: '#/components/schemas/AbstractComputeResource'
+        $ref: 'AbstractComputeResource'
 
     AbstractComputeResource:
       description: >
@@ -253,9 +253,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": '#/components/schemas/SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": 'SimpleComputeResource'
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
 
     SimpleComputeResource:
       description: >
@@ -276,7 +276,7 @@ components:
       xml:
         name: storage
       items:
-        $ref: '#/components/schemas/AbstractStorageResource'
+        $ref: 'AbstractStorageResource'
 
     AbstractStorageResource:
       description: >
@@ -288,9 +288,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": '#/components/schemas/SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": 'SimpleStorageResource'
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -305,7 +305,7 @@ components:
       name:  SimpleStorageResource
       title: SimpleStorageResource
       allOf:
-        - $ref: '#/components/schemas/AbstractStorageResource'
+        - $ref: 'AbstractStorageResource'
         - $ref: './types/resources/storage/simple-storage-resource-1.0.yaml#/components/schemas/SimpleStorageSpec'
 
 # data-resources.yaml
@@ -318,7 +318,7 @@ components:
       xml:
         name: storage
       items:
-        $ref: '#/components/schemas/AbstractDataResource'
+        $ref: 'AbstractDataResource'
 
     AbstractDataResource:
       description: >
@@ -330,11 +330,11 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": '#/components/schemas/SimpleDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0":  '#/components/schemas/RucioDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     '#/components/schemas/AmazonS3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": 'SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0":  'RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     'AmazonS3DataResource'
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -352,7 +352,7 @@ components:
       description: >
           A simple downloadable data resource.
       allOf:
-        - $ref: '#/components/schemas/AbstractDataResource'
+        - $ref: 'AbstractDataResource'
         - $ref: './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResourceSpec'
 
     AmazonS3DataResource:
@@ -362,7 +362,7 @@ components:
       description: >
           A data resource in a S3 storage system.
       allOf:
-        - $ref: '#/components/schemas/AbstractDataResource'
+        - $ref: 'AbstractDataResource'
         - $ref: './types/resources/data/Amazon-S3-data-resource-1.0.yaml#/components/schemas/AmazonS3DataResourceSpec'
 
     RucioDataResource:
@@ -372,7 +372,7 @@ components:
       description: >
           A data resource in a Rucio storage system.
       allOf:
-        - $ref: '#/components/schemas/AbstractDataResource'
+        - $ref: 'AbstractDataResource'
         - $ref: './types/resources/data/Rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResourceSpec'
 
     AbstractExecutable:
@@ -384,11 +384,11 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0":      '#/components/schemas/DockerContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0": '#/components/schemas/SingularityContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      '#/components/schemas/JupyterNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0":      'DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0": 'SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      'JupyterNotebook'
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           properties:
             type:
@@ -405,7 +405,7 @@ components:
       type: object
       title: DockerContainer
       allOf:
-        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: 'AbstractExecutable'
         - $ref: './types/executables/docker-container-1.0.yaml#/components/schemas/DockerContainerSpec'
 
     SingularityContainer:
@@ -415,7 +415,7 @@ components:
       type: object
       title: SingularContainer
       allOf:
-        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: 'AbstractExecutable'
         - $ref: './types/executables/singularity-container-1.0.yaml#/components/schemas/SingularityContainerSpec'
 
     JupyterNotebook:
@@ -425,7 +425,7 @@ components:
       type: object
       title: JupyterNotebook
       allOf:
-        - $ref: '#/components/schemas/AbstractExecutable'
+        - $ref: 'AbstractExecutable'
         - $ref: './types/executables/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebookSpec'
 
 # update-options.yaml
@@ -442,10 +442,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "uri:string-value-option":  '#/components/schemas/StringValueOption'
-          "uri:enum-value-option":    '#/components/schemas/EnumValueOption'
-          "uri:integer-value-option": '#/components/schemas/IntegerValueOption'
-          "uri:integer-delta-option": '#/components/schemas/IntegerDeltaOption'
+          "uri:string-value-option":  'StringValueOption'
+          "uri:enum-value-option":    'EnumValueOption'
+          "uri:integer-value-option": 'IntegerValueOption'
+          "uri:integer-delta-option": 'IntegerDeltaOption'
       properties:
         type:
           type: string
@@ -465,7 +465,7 @@ components:
       type: object
       title: StringValueOption
       allOf:
-        - $ref: '#/components/schemas/AbstractOption'
+        - $ref: 'AbstractOption'
         - type: object
           properties:
             pattern:
@@ -482,7 +482,7 @@ components:
       required:
         - values
       allOf:
-        - $ref: '#/components/schemas/AbstractOption'
+        - $ref: 'AbstractOption'
         - type: object
           properties:
             values:
@@ -499,7 +499,7 @@ components:
       type: object
       title: IntegerValueOption
       allOf:
-        - $ref: '#/components/schemas/AbstractOption'
+        - $ref: 'AbstractOption'
         - type: object
           properties:
             min:
@@ -527,7 +527,7 @@ components:
       type: object
       title: IntegerDeltaOption
       allOf:
-        - $ref: '#/components/schemas/AbstractOption'
+        - $ref: 'AbstractOption'
         - type: object
           properties:
             min:
@@ -562,10 +562,10 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "uri:string-value-update":  '#/components/schemas/StringValueUpdate'
-          "uri:enum-value-update":    '#/components/schemas/EnumValueUpdate'
-          "uri:integer-value-update": '#/components/schemas/IntegerValueUpdate'
-          "uri:integer-delta-update": '#/components/schemas/IntegerDeltaUpdate'
+          "uri:string-value-update":  'StringValueUpdate'
+          "uri:enum-value-update":    'EnumValueUpdate'
+          "uri:integer-value-update": 'IntegerValueUpdate'
+          "uri:integer-delta-update": 'IntegerDeltaUpdate'
       properties:
         type:
           type: string
@@ -586,7 +586,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/AbstractUpdate'
+        - $ref: 'AbstractUpdate'
         - type: object
           properties:
             value:
@@ -602,7 +602,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/AbstractUpdate'
+        - $ref: 'AbstractUpdate'
         - type: object
           properties:
             value:
@@ -618,7 +618,7 @@ components:
       required:
         - value
       allOf:
-        - $ref: '#/components/schemas/AbstractUpdate'
+        - $ref: 'AbstractUpdate'
         - type: object
           properties:
             value:
@@ -640,7 +640,7 @@ components:
       required:
         - delta
       allOf:
-        - $ref: '#/components/schemas/AbstractUpdate'
+        - $ref: 'AbstractUpdate'
         - type: object
           properties:
             delta:
@@ -681,7 +681,7 @@ components:
         update:
           xml:
             name: update
-          $ref: '#/components/schemas/AbstractUpdate'
+          $ref: 'AbstractUpdate'
 
     ScheduleRequestBlock:
       description: >
@@ -714,11 +714,11 @@ components:
       title: ScheduleOfferBlock
       properties:
         preparing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
         executing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
         releasing:
-          $ref: '#/components/schemas/ScheduleOfferItem'
+          $ref: 'ScheduleOfferItem'
 
 # sessions.yaml
 
@@ -731,11 +731,11 @@ components:
         name: resources
       properties:
         compute:
-          $ref: '#/components/schemas/ComputeResourceList'
+          $ref: 'ComputeResourceList'
         storage:
-          $ref: '#/components/schemas/StorageResourceList'
+          $ref: 'StorageResourceList'
         data:
-          $ref: '#/components/schemas/DataResourceList'
+          $ref: 'DataResourceList'
 
     ExecutionSessionPhase:
       description: >
@@ -767,7 +767,7 @@ components:
       xml:
         name: execution
       allOf:
-        - $ref: '#/components/schemas/AccessibleComponent'
+        - $ref: 'AccessibleComponent'
         - type: object
           required:
             - uuid
@@ -776,7 +776,7 @@ components:
             - type
           properties:
             phase:
-              $ref: '#/components/schemas/ExecutionSessionPhase'
+              $ref: 'ExecutionSessionPhase'
             expires:
               description: >
                 The date and time that this execution offer expires.
@@ -788,11 +788,11 @@ components:
             executable:
               xml:
                 name: executable
-              $ref: '#/components/schemas/AbstractExecutable'
+              $ref: 'AbstractExecutable'
             resources:
               xml:
                 name: resources
-              $ref: '#/components/schemas/ExecutionResourceList'
+              $ref: 'ExecutionResourceList'
             schedule:
               xml:
                 name: schedule
@@ -801,25 +801,25 @@ components:
                 requested:
                   xml:
                     name: requested
-                  $ref: '#/components/schemas/ScheduleRequestBlock'
+                  $ref: 'ScheduleRequestBlock'
                 preparing:
                   xml:
                     name: preparing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
                 executing:
                   xml:
                     name: executing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
                 releasing:
                   xml:
                     name: releasing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
             options:
               description: >
                 A List of options the client can apply to this Execution.
               type: array
               items:
-                $ref: '#/components/schemas/AbstractOption'
+                $ref: 'AbstractOption'
 
 # offersets.yaml
 
@@ -838,11 +838,11 @@ components:
         executable:
           xml:
             name: executable
-          $ref: '#/components/schemas/AbstractExecutable'
+          $ref: 'AbstractExecutable'
         resources:
           xml:
             name: resources
-          $ref: '#/components/schemas/ExecutionResourceList'
+          $ref: 'ExecutionResourceList'
         schedule:
           xml:
             name: schedule
@@ -851,7 +851,7 @@ components:
             requested:
               xml:
                 name: requested
-              $ref: '#/components/schemas/ScheduleRequestBlock'
+              $ref: 'ScheduleRequestBlock'
 
     OfferSetResponse:
       description: >
@@ -865,7 +865,7 @@ components:
       xml:
         name: offers-response
       allOf:
-        - $ref: '#/components/schemas/AccessibleComponent'
+        - $ref: 'AccessibleComponent'
         - type: object
           properties:
             result:
@@ -885,7 +885,7 @@ components:
                 name: offers
                 wrapped: true
               items:
-                $ref: '#/components/schemas/ExecutionSessionResponse'
+                $ref: 'ExecutionSessionResponse'
                 xml:
                   name: execution
 

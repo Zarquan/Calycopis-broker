@@ -49,7 +49,7 @@ components:
         image:
           description: |
             Details of the container image.
-          $ref: '#/components/schemas/DockerImageSpec'
+          $ref: 'DockerImageSpec'
         privileged:
           type: boolean
           default: false
@@ -68,7 +68,7 @@ components:
         network:
           description: |
             Details of the network access available to the container.
-          $ref: '#/components/schemas/DockerNetworkSpec'
+          $ref: 'DockerNetworkSpec'
 
 
     DockerImageSpec:
@@ -98,7 +98,7 @@ components:
           description: |
             The respository hostname.
         platform:
-          $ref: '#/components/schemas/DockerPlatformSpec'
+          $ref: 'DockerPlatformSpec'
         digest:
           type: string
           description: |
@@ -135,7 +135,7 @@ components:
             An array of network ports to publish.
           type: array
           items:
-            $ref: '#/components/schemas/DockerNetworkPort'
+            $ref: 'DockerNetworkPort'
 
     DockerNetworkPort:
       description: |

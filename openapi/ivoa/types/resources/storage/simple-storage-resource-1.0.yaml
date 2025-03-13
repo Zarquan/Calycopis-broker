@@ -47,7 +47,7 @@ components:
         A simple storage resource.
       properties:
         size:
-          $ref: '#/components/schemas/SimpleStorageSize'
+          $ref: 'SimpleStorageSize'
 
     # TODO Move this to the abstract class, all storeage has a size.
     SimpleStorageSize:
@@ -58,9 +58,9 @@ components:
       title: SimpleStorageSize
       properties:
         requested:
-          $ref: '#/components/schemas/SimpleStorageSizeRequested'
+          $ref: 'SimpleStorageSizeRequested'
         offered:
-          $ref: '#/components/schemas/SimpleStorageSizeOffered'
+          $ref: 'SimpleStorageSizeOffered'
 
     SimpleStorageSizeRequested:
       description: |

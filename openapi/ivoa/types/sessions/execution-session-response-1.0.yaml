@@ -47,7 +47,7 @@ components:
       xml:
         name: execution
       allOf:
-        - $ref: '#/components/schemas/AbstractComponent'
+        - $ref: 'AbstractComponent'
         - type: object
           required:
             - uuid
@@ -56,7 +56,7 @@ components:
             - type
           properties:
             state:
-              $ref: '#/components/schemas/ExecutionSessionStatus'
+              $ref: 'ExecutionSessionStatus'
             expires:
               description: >
                 The date and time that this execution offer expires.
@@ -68,11 +68,11 @@ components:
             executable:
               xml:
                 name: executable
-              $ref: '#/components/schemas/AbstractExecutable'
+              $ref: 'AbstractExecutable'
             resources:
               xml:
                 name: resources
-              $ref: '#/components/schemas/ExecutionResourceList'
+              $ref: 'ExecutionResourceList'
             schedule:
               xml:
                 name: schedule
@@ -81,23 +81,23 @@ components:
                 requested:
                   xml:
                     name: requested
-                  $ref: '#/components/schemas/ScheduleRequestBlock'
+                  $ref: 'ScheduleRequestBlock'
                 preparing:
                   xml:
                     name: preparing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
                 executing:
                   xml:
                     name: executing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
                 releasing:
                   xml:
                     name: releasing
-                  $ref: '#/components/schemas/ScheduleOfferItem'
+                  $ref: 'ScheduleOfferItem'
             options:
               description: >
                 A List of options the client can apply to this Execution.
               type: array
               items:
-                $ref: '#/components/schemas/AbstractOption'
+                $ref: 'AbstractOption'
 

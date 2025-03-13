@@ -47,15 +47,15 @@ components:
         A simple compute resource.
       properties:
         cores:
-          $ref: '#/components/schemas/SimpleComputeCores'
+          $ref: 'SimpleComputeCores'
         memory:
-          $ref: '#/components/schemas/SimpleComputeMemory'
+          $ref: 'SimpleComputeMemory'
         volumes:
           description: |
             A list of filesystem volumes.
           type: array
           items:
-            $ref: '#/components/schemas/SimpleComputeVolume'
+            $ref: 'SimpleComputeVolume'
 
     SimpleComputeCores:
       description: |
