@@ -148,10 +148,6 @@ implements AbstractComputeResourceValidator
                     {
                     maxcores = requested.getCores().getRequested().getMax();
                     }
-                if (requested.getCores().getRequested().getMinimal() != null)
-                    {
-                    minimalcores = requested.getCores().getRequested().getMinimal();
-                    }
                 }
 
             if (requested.getCores().getOffered() != null)
@@ -218,10 +214,6 @@ implements AbstractComputeResourceValidator
                     {
                     maxmemory = requested.getMemory().getRequested().getMax();
                     }
-                if (requested.getMemory().getRequested().getMinimal() != null)
-                    {
-                    minimalmemory = requested.getMemory().getRequested().getMinimal();
-                    }
                 }
 
             if (requested.getMemory().getOffered() != null)
@@ -285,7 +277,6 @@ implements AbstractComputeResourceValidator
         IvoaSimpleComputeCoresRequested coresRequested = new IvoaSimpleComputeCoresRequested(); 
         coresRequested.setMin(mincores);
         coresRequested.setMax(maxcores);
-        coresRequested.setMinimal(minimalcores);
         cores.setRequested(coresRequested);
         validated.setCores(cores);
 
@@ -293,7 +284,6 @@ implements AbstractComputeResourceValidator
         IvoaSimpleComputeMemoryRequested memoryRequested = new IvoaSimpleComputeMemoryRequested(); 
         memoryRequested.setMin(minmemory);
         memoryRequested.setMax(maxmemory);
-        memoryRequested.setMinimal(minimalmemory);
         memory.setRequested(memoryRequested);
         validated.setMemory(memory);
         

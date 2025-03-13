@@ -165,22 +165,6 @@ public class SimpleComputeResourceEntity
         return this.maxofferedmemory;
         }
 
-    @Column(name="minimalcores")
-    private Boolean minimalcores;
-    @Override
-    public Boolean getMinimalCores()
-        {
-        return this.minimalcores;
-        }
-
-    @Column(name="minimalmemory")
-    private Boolean minimalmemory;
-    @Override
-    public Boolean getMinimalMemory()
-        {
-        return this.minimalmemory;
-        }
-
     @Override
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
         {

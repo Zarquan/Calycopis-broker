@@ -73,7 +73,6 @@ components:
         The number of CPU cores requested by the user.
         The minimum represents the lower limit that the excution requires.
         The maximum represents the highest number of cores that the excution can use.
-        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
       type: object
       title: SimpleComputeCoresRequested
 #     allOf:
@@ -81,9 +80,6 @@ components:
 #       - $ref: 'SimpleMinMaxLong'
 #       - type: object
       properties:
-        minimal:
-          type: boolean
-          default: false
         min:
           type: integer
           format: int64
@@ -137,14 +133,10 @@ components:
         The amount of memory requested by the user.
         The minimum represents the lower limit that the excution requires.
         The maximum represents the highest amount of memory that the excution can use.
-        The minimal flag indicates that the service should offer the minimum resources it can to match the criteria.
         All values are given in multiples of 'GiB'.
       type: object
       title: SimpleComputeMemoryRequested
       properties:
-        minimal:
-          type: boolean
-          default: false
         min:
           type: integer
           format: int64
