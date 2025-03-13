@@ -108,11 +108,8 @@ extends ComponentEntity
         return executions ;
         }
  
-    public void addExecution(final ExecutionSessionEntity execution)
+    public void addExecutionSession(final ExecutionSessionEntity execution)
         {
-        log.debug("addExecution(ExecutionEntity)");
-        log.debug("ExecutionEntity [{}]", execution.getUuid());
         executions.add(execution);
-        execution.setParent(this);
         }
     }

@@ -80,16 +80,7 @@ public class OfferSetFactoryImpl
 		}
 
     @Override
-    public OfferSetEntity create(final IvoaOfferSetRequest request)
-        {
-        return this.create(
-            request,
-            true
-            );
-        }
-    
-    @Override
-    public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest, boolean save)
+    public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest)
     	{
     	OfferSetEntity offersetEntity = new OfferSetEntity(
 	        offersetRequest.getName(),
@@ -98,44 +89,22 @@ public class OfferSetFactoryImpl
                 DEFAULT_EXPIRY_TIME_SECONDS
                 )
 	        );
-    	log.debug("OfferSet [{}]", offersetEntity.getUuid());
-
-        if (save)
-            {
-            log.debug("save(OfferSet)");
-            log.debug("OfferSet [{}]", offersetEntity.getUuid());
-            offersetEntity = this.offersetRepository.save(offersetEntity);
-            log.debug("OfferSet [{}]", offersetEntity.getUuid());
-            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
-                {
-                log.debug("Execution [{}]", execution.getUuid());
-                }
-            }
-    	
     	//
-    	// Process the request and generate some offers.
+    	// Save the OfferSet before we add session offers.
+        this.offersetRepository.save(
+                offersetEntity
+                );
+    	//
+    	// Process the request and generate some session offers.
         offersetRequestParser.process(
 	        offersetRequest,
 	        offersetEntity
 	        );
-    	//
-    	// Save the offerset in the database. 
-        if (save)
-            {
-            log.debug("save(OfferSet)");
-            log.debug("OfferSet [{}]", offersetEntity.getUuid());
-            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
-                {
-                log.debug("Execution [{}]", execution.getUuid());
-                }
-            offersetEntity = this.offersetRepository.save(offersetEntity);
-            log.debug("OfferSet [{}]", offersetEntity.getUuid());
-            for (ExecutionSessionEntity execution : offersetEntity.getOffers())
-                {
-                log.debug("Execution [{}]", execution.getUuid());
-                }
-            }
-        return offersetEntity ;
+        //
+        // Save the OfferSet in the database.
+        return this.offersetRepository.save(
+            offersetEntity
+            );
     	}
     }
 

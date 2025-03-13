@@ -60,10 +60,13 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionSessionEntity parent, final String name, final String location)
+    public SimpleDataResourceEntity(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template)
         {
-        super(parent, name);
-        this.location = location;
+        super(
+            parent,
+            template.getName()
+            );
+        this.location = template.getLocation();
         }
     
     private String location;

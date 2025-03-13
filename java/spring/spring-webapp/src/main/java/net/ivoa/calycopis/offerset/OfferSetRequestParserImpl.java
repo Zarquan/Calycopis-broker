@@ -409,9 +409,9 @@ public class OfferSetRequestParserImpl
                     {
                     log.debug("OfferBlock [{}]", offerblock.getStartTime());
                     ExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
-                        offerblock,
                         state.getOfferSetEntity(),
-                        state
+                        state,
+                        offerblock
                         );
                     log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
@@ -472,7 +472,7 @@ public class OfferSetRequestParserImpl
                     
                     //
                     // Add the ExecutionSession to the OfferSet.
-                    state.getOfferSetEntity().addExecution(
+                    state.getOfferSetEntity().addExecutionSession(
                         executionSessionEntity
                         );
                     

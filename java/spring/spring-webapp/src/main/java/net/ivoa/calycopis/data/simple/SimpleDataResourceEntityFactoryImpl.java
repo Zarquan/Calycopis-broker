@@ -59,56 +59,20 @@ public class SimpleDataResourceEntityFactoryImpl
     @Override
     public Optional<SimpleDataResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleDataResourceEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
             );
-        if (optional.isPresent())
-            {
-            SimpleDataResourceEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "SimpleDataResourceEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
         }
 
     @Override
     public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template)
         {
-        return this.create(
-            parent,
-            template.getName(),
-            template.getLocation(),
-            true
+        return this.repository.save(
+            new SimpleDataResourceEntity(
+                parent,
+                template
+                )
             );
-        }
-
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
-        {
-        SimpleDataResourceEntity created = new SimpleDataResourceEntity(
-            parent,
-            name,
-            location
-            );
-        log.debug("created [{}]", created.getUuid());
-        if (save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }
 

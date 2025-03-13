@@ -39,22 +39,16 @@ public interface SimpleStorageResourceEntityFactory
     {
 
     /**
-     * Select a SimpleStorageResource based on its identifier.
+     * Select a SimpleStorageResource based UUID.
      *
      */
     public Optional<SimpleStorageResourceEntity> select(final UUID uuid);
 
     /**
-     * Create a new SimpleStorageResource based on a template.
+     * Create a new SimpleStorageResourceEntity based on a template.
      *
      */
     public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template);
 
-    /**
-     * Create a new SimpleStorageResource based on a template.
-     *
-     */
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template, boolean save);
-    
     }
 

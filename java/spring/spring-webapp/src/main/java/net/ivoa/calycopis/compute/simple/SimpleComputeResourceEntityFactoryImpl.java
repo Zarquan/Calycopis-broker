@@ -60,29 +60,9 @@ public class SimpleComputeResourceEntityFactoryImpl
     @Override
     public Optional<SimpleComputeResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleComputeResourceEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
             );
-        if (optional.isPresent())
-            {
-            SimpleComputeResourceEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "SimpleComputeResourceEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
         }
 
     @Override
@@ -91,19 +71,13 @@ public class SimpleComputeResourceEntityFactoryImpl
         final IvoaSimpleComputeResource template,
         final OfferBlock offerBlock
         ){
-        log.debug("create(ExecutionSessionEntity , IvoaSimpleComputeResource, OfferBlock) [{}][{}][{}]", parent, template, offerBlock);
-        SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(
-            parent,
-            template,
-            offerBlock
+        return this.repository.save(
+            new SimpleComputeResourceEntity(
+                parent,
+                template,
+                offerBlock
+                )
             );
-        log.debug("created [{}]", created.getUuid());
-        if (parent != null)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }
 

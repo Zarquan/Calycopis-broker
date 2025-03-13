@@ -52,9 +52,13 @@ public class DockerContainerEntity
         super();
         }
 
-    protected DockerContainerEntity(final ExecutionSessionEntity parent, final String name)
+    protected DockerContainerEntity(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
         {
-        super(parent, name);
+        super(
+            parent,
+            template.getName()
+            );
+        // TODO Add the rest of the fields ..
         }
 
     @Override

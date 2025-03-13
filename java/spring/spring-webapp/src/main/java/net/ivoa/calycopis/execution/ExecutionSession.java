@@ -30,6 +30,7 @@ import java.util.List;
 
 import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
@@ -127,7 +128,7 @@ public interface ExecutionSession
      * Get a list of the DataResources.
      *
      */
-    public List<SimpleDataResourceEntity> getDataResources();
+    public List<AbstractDataResourceEntity> getDataResources();
 
     /**
      * Get a list of the StorageResources.

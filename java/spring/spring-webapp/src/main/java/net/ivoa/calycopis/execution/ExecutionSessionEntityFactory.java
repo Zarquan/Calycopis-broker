@@ -41,28 +41,16 @@ public interface ExecutionSessionEntityFactory
     extends FactoryBase
     {
     /**
-     * Select an Execution based on its identifier.
+     * Select an ExecutionSessionEntity based on UUID.
      *
      */
     public Optional<ExecutionSessionEntity> select(final UUID uuid);
 
     /**
-     * Create a new Execution based on the contents of an OfferSetRequestParser.
+     * Create a new ExecutionSessionEntity based on an OfferSetRequestParserState and OfferBlock. 
      *
      */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context);
-
-    /**
-     * Create a new Execution based on the contents of an OfferSetRequestParser.
-     *
-     */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase);
-
-    /**
-     * Create a new Execution based on the contents of an OfferSetRequestParser.
-     *
-     */
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase, boolean save);
+    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserState state, final OfferBlock offerblock);
 
     /**
      * Apply an Update request to an Execution.

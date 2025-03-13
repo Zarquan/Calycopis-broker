@@ -59,62 +59,20 @@ public class AmazonS3DataResourceEntityFactoryImpl
     @Override
     public Optional<AmazonS3DataResourceEntity> select(UUID uuid)
         {
-        Optional<AmazonS3DataResourceEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
             );
-        if (optional.isPresent())
-            {
-            AmazonS3DataResourceEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "SimpleDataResourceEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
         }
 
     @Override
     public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template)
         {
-        return this.create(
-            parent,
-            template.getName(),
-            template.getEndpoint(),
-            template.getTemplate(),
-            template.getBucket(),
-            template.getObject(),
-            false
+        return this.repository.save(
+            new AmazonS3DataResourceEntity(
+                parent,
+                template
+                )
             );
-        }
-
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object, boolean save)
-        {
-        AmazonS3DataResourceEntity created = new AmazonS3DataResourceEntity(
-            parent,
-            name,
-            endpoint,
-            template,
-            bucket,
-            object
-            );
-        log.debug("created [{}]", created.getUuid());
-        if (save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }
 

@@ -61,53 +61,21 @@ public class ExecutionSessionEntityFactoryImpl
     @Override
     public Optional<ExecutionSessionEntity> select(UUID uuid)
         {
-        log.debug("select(UUID)");
-        log.debug("UUID [{}]", uuid);
         return this.repository.findById(
             uuid
             );
         }
 
     @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context)
+    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserState state, final OfferBlock offerblock)
         {
-        return this.create(
-            offerblock,
-            parent,
-            context,
-            IvoaExecutionSessionPhase.OFFERED,
-            true
+        return this.repository.save(
+            new ExecutionSessionEntity(
+                parent,
+                state,
+                offerblock
+                )
             );
-        }
-    
-    @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase)
-        {
-        return this.create(
-            offerblock,
-            parent,
-            context,
-            phase,
-            true
-            );
-        }
-    
-    @Override
-    public ExecutionSessionEntity create(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase, boolean save)
-        {
-        ExecutionSessionEntity created = new ExecutionSessionEntity(
-            offerblock,
-            parent,
-            context,
-            phase
-            );
-        log.debug("created [{}]", created.getUuid());
-        if (save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
 
     @Override

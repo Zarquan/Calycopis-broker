@@ -27,6 +27,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 
 /**
@@ -58,9 +59,13 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent, final String name)
+    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
         {
-        super(parent, name);
+        super(
+            parent,
+            template.getName()
+            );
+        // TODO Add the fields ...
         }
     }
 

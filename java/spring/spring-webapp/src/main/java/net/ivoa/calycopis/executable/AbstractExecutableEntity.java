@@ -44,6 +44,9 @@ public abstract class AbstractExecutableEntity
         {
         super(name);
         this.parent = parent;
+        parent.setExecutable(
+            this
+            );
         }
     
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)

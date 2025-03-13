@@ -44,34 +44,11 @@ public class JupyterNotebookEntityFactoryImpl
     @Override
     public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template)
         {
-        log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}][{}]", parent, template);
-        return this.create(
-            parent,
-            template.getName(),
-            template.getLocation(),
-            true
+        return this.repository.save(
+            new JupyterNotebookEntity(
+                parent,
+                template
+                )
             );
-        }
-
-    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final String name, final String location, boolean save)
-        {
-        log.debug("create(ExecutionEntity, String, String, boolean) [{}][{}][{}][{}]",
-            parent,
-            name,
-            location,
-            save
-            );
-        JupyterNotebookEntity created = new JupyterNotebookEntity(
-            parent,
-            name,
-            location
-            );
-        log.debug("created [{}]", created.getUuid());
-        if ((parent != null) && save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }

@@ -39,7 +39,7 @@ public interface SimpleDataResourceEntityFactory
     {
 
     /**
-     * Select a SimpleDataResource based on its identifier.
+     * Select a SimpleDataResource based on UUID.
      *
      */
     public Optional<SimpleDataResourceEntity> select(final UUID uuid);

@@ -40,13 +40,13 @@ public interface SimpleComputeResourceEntityFactory
     {
 
     /**
-     * Select a SimpleComputeResource based on its identifier.
+     * Select a SimpleComputeResourceEntity based on UUID.
      *
      */
     public Optional<SimpleComputeResourceEntity> select(final UUID uuid);
 
     /**
-     * Create and save a new SimpleComputeResource entity based on a template.
+     * Create and save a new SimpleComputeResourceEntity based on a template and an offer.
      *
      */
     public SimpleComputeResourceEntity create(

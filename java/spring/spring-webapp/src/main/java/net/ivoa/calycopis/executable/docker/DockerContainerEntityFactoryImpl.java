@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  *
@@ -41,54 +42,13 @@ public class DockerContainerEntityFactoryImpl
         }
 
     @Override
-    public DockerContainerEntity create(final String name)
+    public DockerContainerEntity create(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
         {
-        return this.create(
-            null,
-            name,
-            true
-            );
-        }
-
-    @Override
-    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name)
-        {
-        return this.create(
-            parent,
-            name,
-            true
-            );
-        }
-
-    @Override
-    public DockerContainerEntity create(final ExecutionSessionEntity parent, final String name, boolean save)
-        {
-        log.debug("create(ExecutionEntity, String, boolean) [{}][{}][{}][{}]",
-            ((parent!= null) ? parent.getUuid() : "null-template"),
-            name,
-            save
-            );
-        DockerContainerEntity created = new DockerContainerEntity(
-            parent,
-            name
-            );
-        log.debug("created [{}]", created.getUuid());
-        if ((parent != null) && save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
-        }
-
-    @Override
-    public DockerContainerEntity create(final ExecutionSessionEntity parent, final DockerContainerEntity template)
-        {
-        log.debug("create(ExecutionEntity, JupyterNotebookEntity) [{}]", (template != null) ? template.getUuid() : "null-template");
-        return this.create(
-            parent,
-            template.getName(),
-            true
+        return this.repository.save(
+            new DockerContainerEntity(
+                parent,
+                template
+                )
             );
         }
     }

@@ -39,13 +39,13 @@ public interface AmazonS3DataResourceEntityFactory
     {
 
     /**
-     * Select a SimpleDataResource based on its identifier.
+     * Select a SimpleDataResource based on UUID.
      *
      */
     public Optional<AmazonS3DataResourceEntity> select(final UUID uuid);
 
     /**
-     * Create a new SimpleDataResource based on a template.
+     * Create and save a new SimpleDataResource based on a template.
      *
      */
     public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template);

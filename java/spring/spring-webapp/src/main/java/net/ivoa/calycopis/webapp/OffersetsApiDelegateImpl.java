@@ -92,8 +92,7 @@ public class OffersetsApiDelegateImpl
 	    IvoaOfferSetResponse response = new OfferSetResponseBean(
 	        this.getBaseUrl(),
 	        factory.create(
-                request,
-                true
+                request
                 )
 	        );
         HttpHeaders headers = new HttpHeaders();

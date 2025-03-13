@@ -43,6 +43,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.component.ComponentEntity;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
@@ -78,11 +79,6 @@ public class ExecutionSessionEntity
         return this.parent;
         }
 
-    public void setParent(final OfferSetEntity parent)
-        {
-        this.parent = parent;
-        }
-
     /**
      * Protected constructor
      *
@@ -96,16 +92,18 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferBlock offerblock, final OfferSetEntity parent, final OfferSetRequestParserState context, final IvoaExecutionSessionPhase phase)
+    public ExecutionSessionEntity(final OfferSetEntity parent, final OfferSetRequestParserState state, final OfferBlock offerblock)
         {
-        super(null);
-        this.phase   = phase;
-        this.parent  = parent;
+        super("no name");
+        this.phase = IvoaExecutionSessionPhase.OFFERED;
+        this.parent = parent;
+        parent.addExecutionSession(
+            this
+            );
         this.expires = parent.getExpires();
         this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
 //      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
-        this.exedurationsec   = context.getExecutionDuration().getSeconds();
-        
+        this.exedurationsec   = state.getExecutionDuration().getSeconds();
         }
 
     @Column(name = "phase")
@@ -220,8 +218,9 @@ public class ExecutionSessionEntity
      
     public void addComputeResource(final AbstractComputeResourceEntity resource)
         {
-        computeresources.add(resource);
-        resource.setParent(this);
+        computeresources.add(
+            resource
+            );
         }
 
     @OneToMany(
@@ -230,18 +229,19 @@ public class ExecutionSessionEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SimpleDataResourceEntity> dataresources = new ArrayList<SimpleDataResourceEntity>();
+    List<AbstractDataResourceEntity> dataresources = new ArrayList<AbstractDataResourceEntity>();
 
     @Override
-    public List<SimpleDataResourceEntity> getDataResources()
+    public List<AbstractDataResourceEntity> getDataResources()
         {
         return dataresources;
         }
      
-    public void addDataResource(final SimpleDataResourceEntity resource)
+    public void addDataResource(final AbstractDataResourceEntity resource)
         {
-        dataresources.add(resource);
-        resource.setParent(this);
+        dataresources.add(
+            resource
+            );
         }
 
     @OneToMany(
@@ -250,24 +250,24 @@ public class ExecutionSessionEntity
             cascade = CascadeType.ALL,
             orphanRemoval = true
             )
-        List<AbstractStorageResourceEntity> storageresources = new ArrayList<AbstractStorageResourceEntity>();
+    List<AbstractStorageResourceEntity> storageresources = new ArrayList<AbstractStorageResourceEntity>();
 
-        @Override
-        public List<AbstractStorageResourceEntity> getStorageResources()
-            {
-            return storageresources;
-            }
-         
-        public void addStorageResource(final AbstractStorageResourceEntity resource)
-            {
-            storageresources.add(resource);
-            resource.setParent(this);
-            }
+    @Override
+    public List<AbstractStorageResourceEntity> getStorageResources()
+        {
+        return storageresources;
+        }
+     
+    public void addStorageResource(final AbstractStorageResourceEntity resource)
+        {
+        storageresources.add(
+            resource
+            );
+        }
 
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {
-        
         return new ExecutionSessionResponseBean(
             baseurl,
             this
