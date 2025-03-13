@@ -51,37 +51,8 @@ public interface SimpleComputeResourceEntityFactory
      */
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity parent,
-        final IvoaSimpleComputeResource template
-        );
-
-    /**
-     * Create and save a new SimpleComputeResource entity based on a template.
-     *
-     */
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
         final IvoaSimpleComputeResource template,
         final OfferBlock offerBlock
-        );
-
-    /**
-     * Create a new SimpleComputeResource entity.
-     *
-     */
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final String name,
-        final Long minrequestedcores,
-        final Long maxrequestedcores,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minrequestedmemory,
-        final Long maxrequestedmemory,
-        final Long minofferedmemory,
-        final Long maxofferedmemory,
-        final Boolean minimalcores,
-        final Boolean minimalmemory,
-        boolean save
         );
     }
 

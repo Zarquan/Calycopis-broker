@@ -29,6 +29,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
@@ -58,34 +59,43 @@ public class SimpleComputeResourceEntity
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor with parent, template and offerblock.
      *
      */
     public SimpleComputeResourceEntity(
         final ExecutionSessionEntity parent,
-        final String name,
-        final Long minrequestedcores,
-        final Long maxrequestedcores,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minrequestedmemory,
-        final Long maxrequestedmemory,
-        final Long minofferedmemory,
-        final Long maxofferedmemory,
-        final Boolean minimalcores,
-        final Boolean minimalmemory
+        final IvoaSimpleComputeResource template,
+        final OfferBlock offerBlock
         ){
-        super(parent, name);
-        this.minrequestedcores = minrequestedcores;
-        this.maxrequestedcores = maxrequestedcores;
-        this.minofferedcores   = minofferedcores;
-        this.maxofferedcores   = maxofferedcores;
-        this.minrequestedmemory = minrequestedmemory;
-        this.maxrequestedmemory = maxrequestedmemory;
-        this.minofferedmemory   = minofferedmemory;
-        this.maxofferedmemory   = maxofferedmemory;
-        this.minimalcores  = minimalcores;
-        this.minimalmemory = minimalmemory;
+        super(
+            parent,
+            template.getName()
+            );
+
+        if (template.getCores() != null)
+            {
+            if (template.getCores().getRequested() != null)
+                {
+                this.minrequestedcores = template.getCores().getRequested().getMin();
+                this.maxrequestedcores = template.getCores().getRequested().getMax();
+                }
+            }
+
+        this.minofferedcores   = offerBlock.getCores();
+        this.maxofferedcores   = offerBlock.getCores();
+
+        if (template.getMemory() != null)
+            {
+            if (template.getMemory().getRequested() != null)
+                {
+                this.minrequestedmemory = template.getMemory().getRequested().getMin();
+                this.maxrequestedmemory = template.getMemory().getRequested().getMax();
+                }
+            }
+
+        this.minofferedmemory = offerBlock.getMemory();
+        this.maxofferedmemory = offerBlock.getMemory();
+        
         }
 
     // Does this also have a start and end time ?
