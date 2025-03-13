@@ -27,16 +27,17 @@
 
         More refactoring - tidying up technical debt.
 
-            Remove unnecessary generics
+            Remove unnecessary generics (fixed)
             https://github.com/ivoa/Calycopis-broker/issues/153
 
-            Add bean method
+            Add bean method (fixed)
             https://github.com/ivoa/Calycopis-broker/issues/154
 
-            Extend AbstractExecutableBeanFactoryImpl to handle other trypes.
+            Extend AbstractExecutableBeanFactoryImpl to handle other trypes (deleted)
             https://github.com/ivoa/Calycopis-broker/issues/104
 
-
+            Wrong discriminator value in output (deprecated)
+            https://github.com/ivoa/Calycopis-broker/issues/69
 
     Result:
 
