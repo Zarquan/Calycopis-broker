@@ -119,6 +119,21 @@ EOF
 
 
 # -----------------------------------------------------
+# -----------------------------------------------------
+# Update our code ....
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        ....
+        ....
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
 # Check everything works ....
 #[root@spring-builder]
 
@@ -133,28 +148,6 @@ EOF
 
     >   ....
     >   ....
-
-
-
-# -----------------------------------------------------
-# Update our code ....
-#[user@desktop]
-
-    source "${HOME:?}/calycopis.env"
-    pushd "${CALYCOPIS_CODE}"
-
-        ....
-        ....
-
-        git add .
-        git commit -m "Remove unnecessary generics - fixes #153"
-
-
-
-
-
-    popd
-
 
 
 
