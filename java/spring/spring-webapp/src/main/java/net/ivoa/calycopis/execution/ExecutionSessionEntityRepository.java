@@ -28,7 +28,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * A JpaRepository for ExecutionEntitys.
+ * JpaRepository for ExecutionSessionEntity.
  *
  */
 @Repository

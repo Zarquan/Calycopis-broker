@@ -14,7 +14,7 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceBean;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
@@ -193,7 +193,7 @@ public class OfferSetRequestParserImpl
             {
             log.debug("Adding a default compute resource");
             IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
-                SimpleComputeResourceBean.TYPE_DISCRIMINATOR 
+                SimpleComputeResource.TYPE_DISCRIMINATOR 
                 );
             computeValidators.validate(
                 compute,

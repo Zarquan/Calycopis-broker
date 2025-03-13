@@ -41,8 +41,11 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.message.MessageEntity;
+import net.ivoa.calycopis.message.MessageItemBean;
 import net.ivoa.calycopis.message.MessageSubject;
+import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.util.ListWrapper;
 
 /**
  * JPA Entity for a Component
@@ -261,5 +264,24 @@ public class ComponentEntity
                 }
             }
         return false ;
+        }
+
+    
+    /**
+     * Wrap a List of JPA MessageEntity(s) as a List of IvoaMessageItems.
+     * 
+     */
+    public List<IvoaMessageItem> getMessageBeans()
+        {
+        return new ListWrapper<IvoaMessageItem, MessageEntity>(
+            this.getMessages()
+            ){
+            public IvoaMessageItem wrap(final MessageEntity inner)
+                {
+                return new MessageItemBean(
+                    inner
+                    );
+                }
+            };
         }
     }

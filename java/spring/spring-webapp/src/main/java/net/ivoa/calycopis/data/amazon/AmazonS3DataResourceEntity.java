@@ -25,12 +25,11 @@ package net.ivoa.calycopis.data.amazon;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
 /**
  * An Amazon S3 data resource.
@@ -48,21 +47,6 @@ public class AmazonS3DataResourceEntity
     implements AmazonS3DataResource
     {
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
-
-    @Override
-    public ExecutionSessionEntity getParent()
-        {
-        return this.parent;
-        }
-
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
-        }
-
     /**
      * Protected constructor
      *
@@ -78,8 +62,7 @@ public class AmazonS3DataResourceEntity
      */
     public AmazonS3DataResourceEntity(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
         {
-        super(name);
-        this.parent   = parent;
+        super(parent, name);
         this.endpoint = endpoint;
         this.template = template;
         this.bucket   = bucket;
@@ -112,6 +95,24 @@ public class AmazonS3DataResourceEntity
     public String getObject()
         {
         return this.object;
+        }
+
+    @Override
+    public IvoaAbstractDataResource getIvoaBean()
+        {
+        IvoaAmazonS3DataResource bean = new IvoaAmazonS3DataResource(
+            AmazonS3DataResource.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+
+        // TODO fill in the fields 
+            
+        return bean;
         }
     }
 

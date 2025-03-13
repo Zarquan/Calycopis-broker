@@ -332,7 +332,7 @@ components:
         mapping:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": '#/components/schemas/SimpleDataResource'
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/Rucio-data-resource-1.0":  '#/components/schemas/RucioDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     '#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     '#/components/schemas/AmazonS3DataResource'
       allOf:
         - $ref: '#/components/schemas/AbstractComponent'
         - type: object
@@ -355,15 +355,15 @@ components:
         - $ref: '#/components/schemas/AbstractDataResource'
         - $ref: './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResourceSpec'
 
-    S3DataResource:
+    AmazonS3DataResource:
       type: object
-      name:  S3DataResource
-      title: S3DataResource
+      name:  AmazonS3DataResource
+      title: AmazonS3DataResource
       description: >
           A data resource in a S3 storage system.
       allOf:
         - $ref: '#/components/schemas/AbstractDataResource'
-        - $ref: './types/resources/data/S3-data-resource-1.0.yaml#/components/schemas/S3DataResourceSpec'
+        - $ref: './types/resources/data/Amazon-S3-data-resource-1.0.yaml#/components/schemas/AmazonS3DataResourceSpec'
 
     RucioDataResource:
       type: object

@@ -70,7 +70,7 @@ implements ComputeResourceValidator
         }
     
     @Override
-    public Validator.Result<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity> validate(
+    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserState state
         ){

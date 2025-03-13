@@ -49,6 +49,8 @@ import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 
 /**
  * An Execution Entity.
@@ -240,6 +242,36 @@ public class ExecutionSessionEntity
         {
         dataresources.add(resource);
         resource.setParent(this);
+        }
+
+    @OneToMany(
+            mappedBy = "parent",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+            )
+        List<AbstractStorageResourceEntity> storageresources = new ArrayList<AbstractStorageResourceEntity>();
+
+        @Override
+        public List<AbstractStorageResourceEntity> getStorageResources()
+            {
+            return storageresources;
+            }
+         
+        public void addStorageResource(final AbstractStorageResourceEntity resource)
+            {
+            storageresources.add(resource);
+            resource.setParent(this);
+            }
+
+    @Override
+    public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
+        {
+        
+        return new ExecutionSessionResponseBean(
+            baseurl,
+            this
+            );
         }
     }
 

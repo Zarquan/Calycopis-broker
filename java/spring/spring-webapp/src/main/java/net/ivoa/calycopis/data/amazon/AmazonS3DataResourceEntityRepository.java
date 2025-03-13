@@ -27,7 +27,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SimpleDataResource JpaRepository.
+ * JpaRepository for AmazonS3DataResourceEntity.
  *
  */
 public interface AmazonS3DataResourceEntityRepository

@@ -34,6 +34,8 @@ import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 
 /**
  * Public interface for an execution session.
@@ -126,6 +128,18 @@ public interface ExecutionSession
      *
      */
     public List<SimpleDataResourceEntity> getDataResources();
-    
+
+    /**
+     * Get a list of the StorageResources.
+     *
+     */
+    public List<AbstractStorageResourceEntity> getStorageResources();
+
+    /**
+     * Get an Ivoa bean representation.
+     *  
+     */
+    public IvoaExecutionSessionResponse getIvoaBean(final String baseurl);
+
     }
 

@@ -43,7 +43,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class AbstractComputeResourceEntity
+public abstract class AbstractComputeResourceEntity
 extends ComponentEntity
 implements AbstractComputeResource
     {
@@ -75,8 +75,6 @@ implements AbstractComputeResource
         {
         return this.parent;
         }
-
-    @Override
     public void setParent(final ExecutionSessionEntity parent)
         {
         this.parent = parent;

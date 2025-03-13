@@ -160,7 +160,7 @@ implements DataResourceValidator
         // TODO Add optional size to data resource.
         long size = 1024L;
         
-        Validator.Result<IvoaAbstractStorageResource, ExecutionSessionEntity, AbstractStorageResourceEntity> storageResult = null;
+        Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> storageResult = null;
         
         //
         // If the data resource has a storage reference.
@@ -297,7 +297,7 @@ implements DataResourceValidator
             log.debug("Success");
 
             log.debug("Creating Builder.");
-            Builder<ExecutionSessionEntity, AbstractDataResourceEntity> builder = new Builder<ExecutionSessionEntity, AbstractDataResourceEntity>()
+            Builder<AbstractDataResourceEntity> builder = new Builder<AbstractDataResourceEntity>()
                 {
                 @Override
                 public SimpleDataResourceEntity build(ExecutionSessionEntity parent)

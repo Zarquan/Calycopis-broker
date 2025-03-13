@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.validator.compute;
 
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
@@ -32,7 +31,7 @@ import net.ivoa.calycopis.validator.ValidatorFactory;
  * 
  */
 public interface ComputeResourceValidatorFactory
-extends ValidatorFactory<IvoaAbstractComputeResource, ExecutionSessionEntity, AbstractComputeResourceEntity>
+extends ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
 
     }

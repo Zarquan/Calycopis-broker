@@ -37,7 +37,7 @@ import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
  */
 @Component
 public class ExecutableValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, ExecutionSessionEntity, AbstractExecutableEntity>
+    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
     implements ExecutableValidatorFactory
     {
     /**

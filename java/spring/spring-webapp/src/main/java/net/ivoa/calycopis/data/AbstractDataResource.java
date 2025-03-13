@@ -23,10 +23,26 @@
 
 package net.ivoa.calycopis.data;
 
+import net.ivoa.calycopis.component.Component;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+
 /**
  * 
  */
 public interface AbstractDataResource
+    extends Component
     {
+    /**
+     * Get the parent ExecutionSession.  
+     *
+     */
+    public ExecutionSessionEntity getParent();
+
+    /**
+     * Get an Ivoa bean representation.
+     *  
+     */
+    public IvoaAbstractDataResource getIvoaBean();
 
     }

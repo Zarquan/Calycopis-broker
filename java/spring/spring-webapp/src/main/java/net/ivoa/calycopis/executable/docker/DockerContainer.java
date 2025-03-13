@@ -12,9 +12,11 @@ public interface DockerContainer
     extends AbstractExecutable
     {
     /**
-     * Get the location of the notebook.
+     * The OpenAPI type identifier.
      *
-    public String getNotebook();
      */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0" ;
 
+    // TODO Add the container fields ..
+    
     }

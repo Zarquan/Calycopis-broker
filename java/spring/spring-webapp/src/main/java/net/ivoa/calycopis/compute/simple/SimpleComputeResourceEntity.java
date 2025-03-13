@@ -29,6 +29,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
  * A Simple compute resource.
@@ -167,6 +169,24 @@ public class SimpleComputeResourceEntity
     public Boolean getMinimalMemory()
         {
         return this.minimalmemory;
+        }
+
+    @Override
+    public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
+        {
+        IvoaSimpleComputeResource bean = new IvoaSimpleComputeResource (
+            SimpleComputeResource.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+
+        // TODO fill in the fields 
+        
+        return bean;
         }
     }
 

@@ -23,12 +23,24 @@
 
 package net.ivoa.calycopis.compute;
 
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import net.ivoa.calycopis.component.Component;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
 /**
  * 
  */
+@Table(
+    name = "computeresources"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
 public interface AbstractComputeResource
+    extends Component
     {
     /**
      * Get the parent ExecutionSession.  
@@ -37,9 +49,9 @@ public interface AbstractComputeResource
     public ExecutionSessionEntity getParent();
 
     /**
-     * Set the parent ExecutionSession.  
-     *
+     * Get an Ivoa bean representation.
+     *  
      */
-    public void setParent(final ExecutionSessionEntity parent);
-    
+    public IvoaAbstractComputeResource getIvoaBean(final String baseurl);
+
     }
