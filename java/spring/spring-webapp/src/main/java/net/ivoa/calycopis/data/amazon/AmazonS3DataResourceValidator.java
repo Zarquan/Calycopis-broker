@@ -20,20 +20,21 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.data;
+package net.ivoa.calycopis.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator.Result;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator.ResultBean;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -44,7 +45,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 @Slf4j
 public class AmazonS3DataResourceValidator
 extends ValidatorTools
-implements DataResourceValidator
+implements AbstractDataResourceValidator
     {
     /**
      * Factory for creating Entities.
@@ -63,7 +64,7 @@ implements DataResourceValidator
         }
 
     @Override
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -87,7 +88,7 @@ implements DataResourceValidator
      * Validate an S3 data resource.
      *
      */
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaAmazonS3DataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -157,7 +158,7 @@ implements DataResourceValidator
 
         //
         // Find or create the storage resource.
-        StorageResourceValidator.Result storageResult = null;
+        AbstractStorageResourceValidator.Result storageResult = null;
 
         //
         // Everything is good, so accept the request.
@@ -180,7 +181,7 @@ implements DataResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            DataResourceValidator.Result dataResult = new DataResourceValidator.ResultBean(
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder

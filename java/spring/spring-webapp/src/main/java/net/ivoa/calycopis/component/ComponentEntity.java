@@ -265,7 +265,6 @@ public class ComponentEntity
             }
         return false ;
         }
-
     
     /**
      * Wrap a List of JPA MessageEntity(s) as a List of IvoaMessageItems.

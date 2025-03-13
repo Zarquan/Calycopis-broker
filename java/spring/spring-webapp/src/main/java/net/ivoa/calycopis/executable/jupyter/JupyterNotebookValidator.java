@@ -20,7 +20,7 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.executable;
+package net.ivoa.calycopis.executable.jupyter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +32,7 @@ import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 
 /**
@@ -42,7 +42,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 @Slf4j
 public class JupyterNotebookValidator
 extends ValidatorTools
-implements ExecutableValidator
+implements AbstractExecutableValidator
     {
     
     private final JupyterNotebookEntityFactory factory;
@@ -54,7 +54,7 @@ implements ExecutableValidator
         }
     
     @Override
-    public ExecutableValidator.Result validate(
+    public AbstractExecutableValidator.Result validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         ){
@@ -78,7 +78,7 @@ implements ExecutableValidator
      * Validate an IvoaJupyterNotebook.
      *
      */
-    public ExecutableValidator.Result validate(
+    public AbstractExecutableValidator.Result validate(
         final IvoaJupyterNotebook requested,
         final OfferSetRequestParserContext context
         ){
@@ -152,7 +152,7 @@ implements ExecutableValidator
                     }
                 }; 
 
-            ExecutableValidator.Result result = new ExecutableValidator.ResultBean(
+            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder

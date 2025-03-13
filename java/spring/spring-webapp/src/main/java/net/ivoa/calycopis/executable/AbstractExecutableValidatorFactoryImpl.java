@@ -20,40 +20,37 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.storage;
+package net.ivoa.calycopis.executable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookValidator;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
- * A factory for storage resource validators.
- * 
+ * A factory for IvoaAbstractExecutable validators.
+ *   
  */
 @Component
-public class StorageResourceValidatorFactoryImpl
-extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
-implements StorageResourceValidatorFactory
+public class AbstractExecutableValidatorFactoryImpl
+    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+    implements AbstractExecutableValidatorFactory
     {
-    
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    @Autowired
-    public StorageResourceValidatorFactoryImpl(
-        final SimpleStorageResourceEntityFactory storageResourceEntityFactory
-        ){
+    public AbstractExecutableValidatorFactoryImpl(final JupyterNotebookEntityFactory jupyterNotebookEntityFactory)
+        {
         super();
         this.validators.add(
-            new SimpleStorageResourceValidator(
-                storageResourceEntityFactory
+            new JupyterNotebookValidator(
+                jupyterNotebookEntityFactory
                 )
             );
         }
@@ -61,13 +58,12 @@ implements StorageResourceValidatorFactory
     @Override
     public void unknown(
         final OfferSetRequestParserContext context,
-        final IvoaAbstractStorageResource resource
+        final IvoaAbstractExecutable executable
         ){
         unknown(
             context,
-            resource.getType(),
-            resource.getClass().getName()
+            executable.getType(),
+            executable.getClass().getName()
             );
         }
     }
-

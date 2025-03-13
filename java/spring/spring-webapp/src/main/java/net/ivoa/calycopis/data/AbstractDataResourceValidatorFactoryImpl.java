@@ -20,37 +20,43 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.executable;
+package net.ivoa.calycopis.data;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceValidator;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
- * A factory for IvoaAbstractExecutable validators.
- *   
+ * A factory implementation for DataResource validators.
+ * 
  */
 @Component
-public class ExecutableValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
-    implements ExecutableValidatorFactory
+public class AbstractDataResourceValidatorFactoryImpl
+    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    implements AbstractDataResourceValidatorFactory
     {
+
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    public ExecutableValidatorFactoryImpl(final JupyterNotebookEntityFactory jupyterNotebookEntityFactory)
-        {
+    @Autowired
+    public AbstractDataResourceValidatorFactoryImpl(
+        final SimpleDataResourceEntityFactory simpleDataEntityFactory,
+        final AbstractStorageResourceValidatorFactory storageValidators
+        ){
         super();
         this.validators.add(
-            new JupyterNotebookValidator(
-                jupyterNotebookEntityFactory
+            new SimpleDataResourceValidator(
+                simpleDataEntityFactory,
+                storageValidators
                 )
             );
         }
@@ -58,12 +64,12 @@ public class ExecutableValidatorFactoryImpl
     @Override
     public void unknown(
         final OfferSetRequestParserContext context,
-        final IvoaAbstractExecutable executable
+        final IvoaAbstractDataResource resource
         ){
         unknown(
             context,
-            executable.getType(),
-            executable.getClass().getName()
+            resource.getType(),
+            resource.getClass().getName()
             );
         }
     }

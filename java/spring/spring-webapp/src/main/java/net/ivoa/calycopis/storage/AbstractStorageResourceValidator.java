@@ -21,43 +21,43 @@
  *
  */
 
-package net.ivoa.calycopis.validator.executable;
+package net.ivoa.calycopis.storage;
 
 import net.ivoa.calycopis.builder.Builder;
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.validator.Validator;
 
 /**
- * Public interface for Executable validators and results.
+ * Public interface for StorageResource validators and results.
  * 
  */
-public interface ExecutableValidator
-extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
+public interface AbstractStorageResourceValidator
+extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
+
     /**
-     * Public interface for an ExecutableValidator result.
+     * Public interface for a StorageResourceValidator result.
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
+    extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
         {
-        // A list of the compute resources this executable is deployed on ?.
+        // A list of the data resources stored in this resource.
         }
 
     /**
-     * Simple Bean implementation of an ExecutableValidator result.
+     * Simple Bean implementation of a StorageResourceValidator result.
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntity>
+    extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     implements Result
         {
         /**
          * Public constructor.
          * 
          */
-        public ResultBean(ResultEnum result)
+        public ResultBean(final ResultEnum result)
             {
             super(result);
             }
@@ -68,8 +68,8 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractExecutable object,
-            final Builder<AbstractExecutableEntity> builder
+            final IvoaAbstractStorageResource object,
+            final Builder<AbstractStorageResourceEntity> builder
             ){
             super(
                 result,

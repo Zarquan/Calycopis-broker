@@ -26,42 +26,11 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
     protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
 
     /**
-     * Save a validated object in the parser state.
-     * 
-    public abstract void save(
-        final OfferSetRequestParserState state,
-        final ObjectType object
-        );
-     */
-    
-    /**
-     * Create a result with just the enum.
-     * 
-    public Validator.Result<ObjectType, ParentType, EntityType> result(
-        final ResultEnum value
-        ){
-        return result(
-            value,
-            null
-            );
-        }
-     */
-
-    /**
-     * Create a result with enum and object.
-     * 
-    public abstract Validator.Result<ObjectType, ParentType, EntityType> result(
-        final ResultEnum value,
-        final ObjectType object
-        );
-     */
-
-    /**
      * Report an unknown type.
      *
      */
     public abstract void unknown(
-        final OfferSetRequestParserContext state,
+        final OfferSetRequestParserContext context,
         final ObjectType object
         );
     
@@ -70,11 +39,11 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
      *
      */
     public void unknown(
-        final OfferSetRequestParserContext state,
+        final OfferSetRequestParserContext context,
         final String typeName,
         final String className
         ){
-        state.getOfferSetEntity().addWarning(
+        context.getOfferSetEntity().addWarning(
             "uri:unknown-type",
             "Unknown type [${type}][${class}]",
             Map.of(
@@ -84,13 +53,13 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
                 className
                 )
             );
-        state.valid(false);
+        context.valid(false);
         }
 
     @Override
     public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
-        final OfferSetRequestParserContext state
+        final OfferSetRequestParserContext context
         ){
         //
         // Try each of the validators in our list.
@@ -98,7 +67,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
             {
             Result<ObjectType, EntityType> result = validator.validate(
                 requested,
-                state
+                context
                 );
             switch(result.getEnum())
                 {
@@ -113,7 +82,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
         //
         // Fail the validation if we didn't find a matching validator.
         unknown(
-            state,
+            context,
             requested
             );
         return new ResultBean<ObjectType, EntityType>(

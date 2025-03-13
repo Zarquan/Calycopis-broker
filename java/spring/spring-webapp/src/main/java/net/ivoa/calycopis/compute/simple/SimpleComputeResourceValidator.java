@@ -20,14 +20,14 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.compute;
+package net.ivoa.calycopis.compute.simple;
 
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
@@ -38,10 +38,9 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -50,7 +49,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 @Slf4j
 public class SimpleComputeResourceValidator
 extends ValidatorTools
-implements ComputeResourceValidator
+implements AbstractComputeResourceValidator
     {
 
     /**
@@ -122,7 +121,7 @@ implements ComputeResourceValidator
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public ComputeResourceValidator.Result validate(
+    public AbstractComputeResourceValidator.Result validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -306,12 +305,12 @@ implements ComputeResourceValidator
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
-                StorageResourceValidator.Result storage = context.findStorageValidatorResult(volumeRequest.getResource());
+                AbstractStorageResourceValidator.Result storage = context.findStorageValidatorResult(volumeRequest.getResource());
                 // If we din't find a storage resource.
                 if (storage == null)
                     {
                     // Try finding a data resource.
-                    DataResourceValidator.Result data = context.findDataValidatorResult(volumeRequest.getResource());
+                    AbstractDataResourceValidator.Result data = context.findDataValidatorResult(volumeRequest.getResource());
                     // If we found a data resource.
                     if (data != null)
                         {
@@ -360,7 +359,7 @@ implements ComputeResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            ComputeResourceValidator.Result result = new ComputeResourceValidator.ResultBean(
+            AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder

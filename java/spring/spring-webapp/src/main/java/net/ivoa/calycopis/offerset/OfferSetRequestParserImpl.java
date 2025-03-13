@@ -14,7 +14,11 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResource;
+import net.ivoa.calycopis.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
@@ -29,11 +33,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidatorFactory;
-import net.ivoa.calycopis.validator.data.DataResourceValidatorFactory;
-import net.ivoa.calycopis.validator.executable.ExecutableValidatorFactory;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidatorFactory;
 
 /**
  * 
@@ -57,33 +57,33 @@ public class OfferSetRequestParserImpl
      * Executable Validators.
      * 
      */
-    private final ExecutableValidatorFactory executableValidators;
+    private final AbstractExecutableValidatorFactory executableValidators;
 
     /**
      * Storage resource Validators.
      * 
      */
-    private final StorageResourceValidatorFactory storageValidators;
+    private final AbstractStorageResourceValidatorFactory storageValidators;
 
     /**
      * Data resource Validators.
      * 
      */
-    private final DataResourceValidatorFactory dataValidators;
+    private final AbstractDataResourceValidatorFactory dataValidators;
 
     /**
      * Compute resource Validators.
      * 
      */
-    private final ComputeResourceValidatorFactory computeValidators;
+    private final AbstractComputeResourceValidatorFactory computeValidators;
 
     @Autowired
     public OfferSetRequestParserImpl(
         final OfferBlockFactory offerBlockFactory, 
-        final ExecutableValidatorFactory executableValidators,
-        final StorageResourceValidatorFactory storageValidators, 
-        final DataResourceValidatorFactory dataValidators, 
-        final ComputeResourceValidatorFactory computeValidators,
+        final AbstractExecutableValidatorFactory executableValidators,
+        final AbstractStorageResourceValidatorFactory storageValidators, 
+        final AbstractDataResourceValidatorFactory dataValidators, 
+        final AbstractComputeResourceValidatorFactory computeValidators,
         final ExecutionSessionEntityFactory executionSessionFactory
         ){
         super();
@@ -427,8 +427,8 @@ public class OfferSetRequestParserImpl
                     
                     //
                     // Build and add our first compute resource.
-                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
-                    ComputeResourceValidator.Result computeValidatorResult = computeValidatorResults.getFirst();
+                    List<AbstractComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
+                    AbstractComputeResourceValidator.Result computeValidatorResult = computeValidatorResults.getFirst();
                     if (computeValidatorResult != null)
                         {
                         AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(

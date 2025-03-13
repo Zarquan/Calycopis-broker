@@ -21,14 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.validator.storage;
+package net.ivoa.calycopis.data;
+
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
- * Public interface for a StorageResource ValidatorFactory.
+ * Public interface for a DataResource ValidatorFactory.
  * 
  */
-public interface StorageResourceValidatorFactory
-extends StorageResourceValidator
+public interface AbstractDataResourceValidatorFactory
+extends ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
 
     }

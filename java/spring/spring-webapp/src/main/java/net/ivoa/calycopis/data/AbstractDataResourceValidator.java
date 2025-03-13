@@ -21,37 +21,37 @@
  *
  */
 
-package net.ivoa.calycopis.validator.storage;
+package net.ivoa.calycopis.data;
 
 import net.ivoa.calycopis.builder.Builder;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.Validator;
 
 /**
- * Public interface for StorageResource validators and results.
+ * Public interface for DataResource validators and results.
  * 
  */
-public interface StorageResourceValidator
-extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+public interface AbstractDataResourceValidator
+extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
 
     /**
-     * Public interface for a StorageResourceValidator result.
+     * Public interface for a DataResourceValidator result.
      * 
      */
     public static interface Result
-    extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
-        // A list of the data resources stored in this resource.
+        // A reference to the storage resource for this data.
         }
 
     /**
-     * Simple Bean implementation of a StorageResourceValidator result.
+     * Simple Bean implementation of a DataResourceValidator result.
      * 
      */
     public static class ResultBean
-    extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+    extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
     implements Result
         {
         /**
@@ -69,8 +69,8 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractStorageResource object,
-            final Builder<AbstractStorageResourceEntity> builder
+            final IvoaAbstractDataResource object,
+            final Builder<AbstractDataResourceEntity> builder
             ){
             super(
                 result,

@@ -20,15 +20,14 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.data;
+package net.ivoa.calycopis.data.simple;
 
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
-import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -38,9 +37,9 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSizeRequested;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 
 /**
  * A Validator implementation to handle simple data resources.
@@ -49,7 +48,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 @Slf4j
 public class SimpleDataResourceValidator
 extends ValidatorTools
-implements DataResourceValidator
+implements AbstractDataResourceValidator
     {
 
     /**
@@ -62,7 +61,7 @@ implements DataResourceValidator
      * The set of StorageResource Validators.
      * 
      */
-    private final StorageResourceValidatorFactory storageValidators;
+    private final AbstractStorageResourceValidatorFactory storageValidators;
     
     /**
      * Public constructor.
@@ -70,7 +69,7 @@ implements DataResourceValidator
      */
     public SimpleDataResourceValidator(
         final SimpleDataResourceEntityFactory entityFactory,
-        final StorageResourceValidatorFactory storageValidators
+        final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super();
         this.entityFactory = entityFactory ;
@@ -78,7 +77,7 @@ implements DataResourceValidator
         }
     
     @Override
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -102,7 +101,7 @@ implements DataResourceValidator
      * Validate a simple data resource.
      *
      */
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -113,7 +112,7 @@ implements DataResourceValidator
         
         //
         // Check for a duplicate resource.
-        DataResourceValidator.Result duplicate = context.findDataValidatorResult(
+        AbstractDataResourceValidator.Result duplicate = context.findDataValidatorResult(
             requested
             );
         if (duplicate != null)
@@ -310,7 +309,7 @@ implements DataResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            DataResourceValidator.Result dataResult = new DataResourceValidator.ResultBean(
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder

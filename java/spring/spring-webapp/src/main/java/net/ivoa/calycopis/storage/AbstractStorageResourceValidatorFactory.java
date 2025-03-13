@@ -21,18 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.validator.executable;
-
-import net.ivoa.calycopis.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.validator.ValidatorFactory;
+package net.ivoa.calycopis.storage;
 
 /**
- * Public interface for an Executable ValidatorFactory.
+ * Public interface for a StorageResource ValidatorFactory.
  * 
  */
-public interface ExecutableValidatorFactory
-extends ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
+public interface AbstractStorageResourceValidatorFactory
+extends AbstractStorageResourceValidator
     {
 
     }

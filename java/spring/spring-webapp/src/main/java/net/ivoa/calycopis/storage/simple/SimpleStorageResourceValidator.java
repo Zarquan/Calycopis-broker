@@ -20,7 +20,7 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.storage;
+package net.ivoa.calycopis.storage.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
@@ -29,8 +29,7 @@ import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntity;
-import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 
@@ -41,7 +40,7 @@ import net.ivoa.calycopis.validator.ValidatorTools;
 @Slf4j
 public class SimpleStorageResourceValidator
 extends ValidatorTools
-implements StorageResourceValidator
+implements AbstractStorageResourceValidator
     {
     /**
      * Factory for creating Entities.
@@ -61,7 +60,7 @@ implements StorageResourceValidator
         }
     
     @Override
-    public StorageResourceValidator.Result validate(
+    public AbstractStorageResourceValidator.Result validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -85,7 +84,7 @@ implements StorageResourceValidator
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public StorageResourceValidator.Result validate(
+    public AbstractStorageResourceValidator.Result validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -124,7 +123,7 @@ implements StorageResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            StorageResourceValidator.Result storageResult = new StorageResourceValidator.ResultBean(
+            AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
