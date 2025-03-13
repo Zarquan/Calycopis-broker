@@ -65,6 +65,9 @@ implements AbstractStorageResource
         {
         super(name);
         this.parent = parent;
+        parent.addStorageResource(
+            this
+            );
         }
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)

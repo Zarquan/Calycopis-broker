@@ -23,7 +23,7 @@
 package net.ivoa.calycopis.validator;
 
 import net.ivoa.calycopis.builder.Builder;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 
 /**
  * Public interface for a Validator.
@@ -116,6 +116,6 @@ public interface Validator<ObjectType, EntityType>
      */
     public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         );
     }

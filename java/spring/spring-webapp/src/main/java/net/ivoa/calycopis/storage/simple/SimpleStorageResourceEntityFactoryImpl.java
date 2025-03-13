@@ -60,55 +60,19 @@ public class SimpleStorageResourceEntityFactoryImpl
     @Override
     public Optional<SimpleStorageResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleStorageResourceEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
             );
-        if (optional.isPresent())
-            {
-            SimpleStorageResourceEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "SimpleStorageResourceEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
         }
 
-    @Override
     public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
         {
-        return this.create(
-            parent,
-            template,
-            true
+        return this.repository.save(
+            new SimpleStorageResourceEntity(
+                parent,
+                template
+                )
             );
-        }
-    
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template, final boolean save)
-        {
-        SimpleStorageResourceEntity created = new SimpleStorageResourceEntity(
-            parent,
-            template.getName()
-            );
-        
-        log.debug("created [{}]", created.getUuid());
-        if (save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }
 

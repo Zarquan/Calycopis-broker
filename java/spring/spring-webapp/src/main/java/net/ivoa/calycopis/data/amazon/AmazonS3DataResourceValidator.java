@@ -20,20 +20,21 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.data;
+package net.ivoa.calycopis.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
-import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator.Result;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator.ResultBean;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -44,7 +45,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 @Slf4j
 public class AmazonS3DataResourceValidator
 extends ValidatorTools
-implements DataResourceValidator
+implements AbstractDataResourceValidator
     {
     /**
      * Factory for creating Entities.
@@ -63,9 +64,9 @@ implements DataResourceValidator
         }
 
     @Override
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -73,7 +74,7 @@ implements DataResourceValidator
             {
             return validate(
                 (IvoaAmazonS3DataResource) requested,
-                state
+                context
                 );
             }
         else {
@@ -87,9 +88,9 @@ implements DataResourceValidator
      * Validate an S3 data resource.
      *
      */
-    public DataResourceValidator.Result validate(
+    public AbstractDataResourceValidator.Result validate(
         final IvoaAmazonS3DataResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaS3DataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -115,7 +116,7 @@ implements DataResourceValidator
 
         if ((endpoint == null) || (endpoint.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 service endpoint required"
                 );
@@ -124,7 +125,7 @@ implements DataResourceValidator
 
         if ((template == null) || (template.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 service template required"
                 );
@@ -133,7 +134,7 @@ implements DataResourceValidator
 
         if ((bucket == null) || (bucket.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 bucket name required"
                 );
@@ -157,7 +158,7 @@ implements DataResourceValidator
 
         //
         // Find or create the storage resource.
-        StorageResourceValidator.Result storageResult = null;
+        AbstractStorageResourceValidator.Result storageResult = null;
 
         //
         // Everything is good, so accept the request.
@@ -180,7 +181,7 @@ implements DataResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            DataResourceValidator.Result dataResult = new DataResourceValidator.ResultBean(
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
@@ -188,7 +189,7 @@ implements DataResourceValidator
 
             //
             // Save the DataResource in the state.
-            state.addDataValidatorResult(
+            context.addDataValidatorResult(
                 dataResult
                 );
             //
@@ -201,7 +202,7 @@ implements DataResourceValidator
              * 
              */
             // Add the link between the DataResource and StorageResource.
-            state.addDataStorageResult(
+            context.addDataStorageResult(
                 dataResult,
                 storageResult
                 );
@@ -211,7 +212,7 @@ implements DataResourceValidator
         //
         // Something wasn't right, fail the validation.
         else {
-            state.valid(false);
+            context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
                 );

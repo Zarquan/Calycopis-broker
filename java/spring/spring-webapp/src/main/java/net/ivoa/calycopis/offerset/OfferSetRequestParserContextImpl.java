@@ -13,30 +13,30 @@ import java.util.UUID;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.executable.ExecutableValidator;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  *
  */
 @Slf4j
-public class OfferSetRequestParserStateImpl
+public class OfferSetRequestParserContextImpl
 extends ValidatorTools
-    implements OfferSetRequestParserState
+    implements OfferSetRequestParserContext
     {
 
     /**
      * Public constructor.
      * 
      */
-    public OfferSetRequestParserStateImpl(
+    public OfferSetRequestParserContextImpl(
         final OfferSetRequestParser parser,
         final IvoaOfferSetRequest offersetRequest,
         final OfferSetEntity offersetEntity
@@ -94,13 +94,13 @@ extends ValidatorTools
         this.valid = false;
         }
 
-    private ExecutableValidator.Result executable;
+    private AbstractExecutableValidator.Result executable;
     @Override
-    public ExecutableValidator.Result getExecutableResult()
+    public AbstractExecutableValidator.Result getExecutableResult()
         {
         return this.executable;
         }
-    public void setExecutableResult(final ExecutableValidator.Result executable)
+    public void setExecutableResult(final AbstractExecutableValidator.Result executable)
         {
         this.executable = executable;
         }
@@ -109,10 +109,10 @@ extends ValidatorTools
      * Our List of DataValidator results.
      * 
      */
-    private List<DataResourceValidator.Result> dataValidatorResultList = new ArrayList<DataResourceValidator.Result> ();
+    private List<AbstractDataResourceValidator.Result> dataValidatorResultList = new ArrayList<AbstractDataResourceValidator.Result> ();
 
     @Override
-    public List<DataResourceValidator.Result> getDataResourceValidatorResults()
+    public List<AbstractDataResourceValidator.Result> getDataResourceValidatorResults()
         {
         return dataValidatorResultList;
         }
@@ -121,10 +121,10 @@ extends ValidatorTools
      * Our Map of DataValidator results.
      * 
      */
-    private Map<String, DataResourceValidator.Result> dataValidatorResultMap = new HashMap<String, DataResourceValidator.Result>();
+    private Map<String, AbstractDataResourceValidator.Result> dataValidatorResultMap = new HashMap<String, AbstractDataResourceValidator.Result>();
 
     @Override
-    public String makeDataValidatorResultKey(final DataResourceValidator.Result result)
+    public String makeDataValidatorResultKey(final AbstractDataResourceValidator.Result result)
         {
         log.debug("makeDataValidatorResultKey(DataResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -155,7 +155,7 @@ extends ValidatorTools
         }
 
     @Override
-    public void addDataValidatorResult(final DataResourceValidator.Result result)
+    public void addDataValidatorResult(final AbstractDataResourceValidator.Result result)
         {
         log.debug("addDataValidatorResult(DataResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -171,7 +171,7 @@ extends ValidatorTools
         }
     
     @Override
-    public DataResourceValidator.Result findDataValidatorResult(final DataResourceValidator.Result result)
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final AbstractDataResourceValidator.Result result)
         {
         log.debug("findDataValidatorResult(DataResourceValidator.Result)");
         return findDataValidatorResult(
@@ -182,7 +182,7 @@ extends ValidatorTools
         }
 
     @Override
-    public DataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource)
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource)
         {
         log.debug("findDataValidatorResult(DataResourceValidator.Result)");
         return findDataValidatorResult(
@@ -193,7 +193,7 @@ extends ValidatorTools
         }
 
     @Override
-    public DataResourceValidator.Result findDataValidatorResult(final String key)
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final String key)
         {
         log.debug("findDataValidatorResult(String)");
         log.debug("Key [{}]", key);
@@ -204,10 +204,10 @@ extends ValidatorTools
      * Our List of ComputeValidator results.
      * 
      */
-    private List<ComputeResourceValidator.Result> compValidatorResultList = new ArrayList<ComputeResourceValidator.Result>();
+    private List<AbstractComputeResourceValidator.Result> compValidatorResultList = new ArrayList<AbstractComputeResourceValidator.Result>();
 
     @Override
-    public List<ComputeResourceValidator.Result> getComputeValidatorResults()
+    public List<AbstractComputeResourceValidator.Result> getComputeValidatorResults()
         {
         return compValidatorResultList;
         }
@@ -216,10 +216,10 @@ extends ValidatorTools
      * Our Map of ComputeValidator results.
      * 
      */
-    private Map<String, ComputeResourceValidator.Result> compValidatorResultMap = new HashMap<String, ComputeResourceValidator.Result>();
+    private Map<String, AbstractComputeResourceValidator.Result> compValidatorResultMap = new HashMap<String, AbstractComputeResourceValidator.Result>();
 
     @Override
-    public String makeComputeValidatorResultKey(final ComputeResourceValidator.Result result)
+    public String makeComputeValidatorResultKey(final AbstractComputeResourceValidator.Result result)
         {
         log.debug("makeComputeValidatorResultKey(ComputeResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -250,7 +250,7 @@ extends ValidatorTools
         }
 
     @Override
-    public void addComputeValidatorResult(final ComputeResourceValidator.Result result)
+    public void addComputeValidatorResult(final AbstractComputeResourceValidator.Result result)
         {
         log.debug("addComputeValidatorResult(ComputeResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -266,7 +266,7 @@ extends ValidatorTools
         }
     
     @Override
-    public ComputeResourceValidator.Result findComputeValidatorResult(final ComputeResourceValidator.Result result)
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(final AbstractComputeResourceValidator.Result result)
         {
         log.debug("findComputeValidatorResult(ComputeResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -278,7 +278,7 @@ extends ValidatorTools
         }
 
     @Override
-    public ComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource)
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource)
         {
         log.debug("findComputeValidatorResult(IvoaAbstractComputeResource)");
         log.debug("Resource [{}]", resource);
@@ -290,7 +290,7 @@ extends ValidatorTools
         }
 
     @Override
-    public ComputeResourceValidator.Result findComputeValidatorResult(String key)
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(String key)
         {
         log.debug("findComputeValidatorResult(String)");
         log.debug("Key [{}]", key);
@@ -301,10 +301,10 @@ extends ValidatorTools
      * Our List of StorageValidator results.
      * 
      */
-    private List<StorageResourceValidator.Result> storageValidatorResultList = new ArrayList<StorageResourceValidator.Result>();
+    private List<AbstractStorageResourceValidator.Result> storageValidatorResultList = new ArrayList<AbstractStorageResourceValidator.Result>();
 
     @Override
-    public List<StorageResourceValidator.Result> getStorageValidatorResults()
+    public List<AbstractStorageResourceValidator.Result> getStorageValidatorResults()
         {
         return storageValidatorResultList;
         }
@@ -313,10 +313,10 @@ extends ValidatorTools
      * Our Map of StorageValidator results.
      * 
      */
-    private Map<String, StorageResourceValidator.Result> storageValidatorResultMap = new HashMap<String, StorageResourceValidator.Result>();
+    private Map<String, AbstractStorageResourceValidator.Result> storageValidatorResultMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
 
     @Override
-    public String makeStorageValidatorResultKey(final StorageResourceValidator.Result result)
+    public String makeStorageValidatorResultKey(final AbstractStorageResourceValidator.Result result)
         {
         log.debug("makeStorageValidatorResultKey(StorageResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -347,7 +347,7 @@ extends ValidatorTools
         }
     
     @Override
-    public void addStorageValidatorResult(final StorageResourceValidator.Result result)
+    public void addStorageValidatorResult(final AbstractStorageResourceValidator.Result result)
         {
         log.debug("addStorageValidatorResult(String)");
         log.debug("Result [{}]", result);
@@ -363,7 +363,7 @@ extends ValidatorTools
         }
 
     @Override
-    public StorageResourceValidator.Result findStorageValidatorResult(final StorageResourceValidator.Result result)
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final AbstractStorageResourceValidator.Result result)
         {
         log.debug("findStorageValidatorResult(StorageResourceValidator.Result)");
         log.debug("Result [{}]", result);
@@ -375,7 +375,7 @@ extends ValidatorTools
         }
 
     @Override
-    public StorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource)
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource)
         {
         log.debug("findStorageValidatorResult(IvoaAbstractStorageResource)");
         log.debug("Resource [{}]", resource);
@@ -387,7 +387,7 @@ extends ValidatorTools
         }
     
     @Override
-    public StorageResourceValidator.Result findStorageValidatorResult(final String key)
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key)
         {
         log.debug("findStorageValidatorResult(String)");
         log.debug("Key [{}]", key);
@@ -398,12 +398,12 @@ extends ValidatorTools
      * A Map linking DataValidator results to StorageValidator results.
      * 
      */
-    private Map<String, StorageResourceValidator.Result> dataStorageMap = new HashMap<String, StorageResourceValidator.Result>();
+    private Map<String, AbstractStorageResourceValidator.Result> dataStorageMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
     
     @Override
     public void addDataStorageResult(
-        final DataResourceValidator.Result dataResult,
-        final StorageResourceValidator.Result storageResult
+        final AbstractDataResourceValidator.Result dataResult,
+        final AbstractStorageResourceValidator.Result storageResult
         ){
         log.debug("addDataStorageResult(DataResourceValidator.Result, StorageResourceValidator.Result)");
         log.debug("DataResult [{}]", dataResult);
@@ -419,7 +419,7 @@ extends ValidatorTools
         }
 
     @Override
-    public StorageResourceValidator.Result findDataStorageResult(final DataResourceValidator.Result dataResult)
+    public AbstractStorageResourceValidator.Result findDataStorageResult(final AbstractDataResourceValidator.Result dataResult)
         {
         log.debug("findDataStorageResult(DataResourceValidator.Result)");
         log.debug("Result [{}]", dataResult);
@@ -431,7 +431,7 @@ extends ValidatorTools
         }
 
     @Override
-    public StorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
+    public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
         {
         log.debug("findDataStorageResult(IvoaAbstractDataResource)");
         log.debug("Resouce [{}]", dataResouce);

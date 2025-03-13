@@ -64,6 +64,9 @@ implements AbstractComputeResource
         {
         super(name);
         this.parent = parent;
+        parent.addComputeResource(
+            this
+            );
         }
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
@@ -74,9 +77,5 @@ implements AbstractComputeResource
     public ExecutionSessionEntity getParent()
         {
         return this.parent;
-        }
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
         }
     }

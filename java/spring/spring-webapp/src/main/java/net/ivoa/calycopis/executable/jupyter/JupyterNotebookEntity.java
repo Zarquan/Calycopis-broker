@@ -52,10 +52,13 @@ public class JupyterNotebookEntity
         super();
         }
 
-    protected JupyterNotebookEntity(final ExecutionSessionEntity parent, final String name, final String location)
+    protected JupyterNotebookEntity(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template)
         {
-        super(parent, name);
-        this.location = location;
+        super(
+            parent,
+            template.getName()
+            );
+        this.location = template.getLocation();
         }
 
     private String location;

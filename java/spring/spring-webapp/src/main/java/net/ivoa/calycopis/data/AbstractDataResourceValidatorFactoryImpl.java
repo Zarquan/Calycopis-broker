@@ -20,26 +20,26 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.data;
+package net.ivoa.calycopis.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.data.simple.SimpleDataResourceValidator;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
 
 /**
  * A factory implementation for DataResource validators.
  * 
  */
 @Component
-public class DataResourceValidatorFactoryImpl
+public class AbstractDataResourceValidatorFactoryImpl
     extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements DataResourceValidatorFactory
+    implements AbstractDataResourceValidatorFactory
     {
 
     /**
@@ -48,9 +48,9 @@ public class DataResourceValidatorFactoryImpl
      * 
      */
     @Autowired
-    public DataResourceValidatorFactoryImpl(
+    public AbstractDataResourceValidatorFactoryImpl(
         final SimpleDataResourceEntityFactory simpleDataEntityFactory,
-        final StorageResourceValidatorFactory storageValidators
+        final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super();
         this.validators.add(
@@ -63,11 +63,11 @@ public class DataResourceValidatorFactoryImpl
     
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext context,
         final IvoaAbstractDataResource resource
         ){
         unknown(
-            state,
+            context,
             resource.getType(),
             resource.getClass().getName()
             );

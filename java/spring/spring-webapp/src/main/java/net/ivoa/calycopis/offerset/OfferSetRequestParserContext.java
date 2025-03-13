@@ -8,19 +8,19 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.validator.compute.ComputeResourceValidator;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.executable.ExecutableValidator;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 
 /**
  *
  */
-public interface OfferSetRequestParserState
+public interface OfferSetRequestParserContext
     {
     /**
      * Get a reference to the parent parser.
@@ -62,25 +62,25 @@ public interface OfferSetRequestParserState
      * Get the validated executable.
      * 
      */
-    public ExecutableValidator.Result getExecutableResult();
+    public AbstractExecutableValidator.Result getExecutableResult();
 
     /**
      * Set the validated executable.
      * 
      */
-    public void setExecutableResult(final ExecutableValidator.Result result);
+    public void setExecutableResult(final AbstractExecutableValidator.Result result);
 
     /**
      * List the DataValidatorResults.
      * 
      */
-    public List<DataResourceValidator.Result> getDataResourceValidatorResults();
+    public List<AbstractDataResourceValidator.Result> getDataResourceValidatorResults();
 
     /**
      * Generate a DataValidatorResult key.
      *  
      */
-    public String makeDataValidatorResultKey(final DataResourceValidator.Result result);
+    public String makeDataValidatorResultKey(final AbstractDataResourceValidator.Result result);
 
     /**
      * Generate a DataResource key.
@@ -92,37 +92,37 @@ public interface OfferSetRequestParserState
      * Add a DataValidatorResult.
      * 
      */
-    public void addDataValidatorResult(final DataResourceValidator.Result result);
+    public void addDataValidatorResult(final AbstractDataResourceValidator.Result result);
 
     /**
      * Find a DataValidatorResult.
      * 
      */
-    public DataResourceValidator.Result findDataValidatorResult(final DataResourceValidator.Result result);
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final AbstractDataResourceValidator.Result result);
 
     /**
      * Find a DataValidatorResult.
      * 
      */
-    public DataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource);
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource);
     
     /**
      * Find a DataValidatorResult.
      * 
      */
-    public DataResourceValidator.Result findDataValidatorResult(final String key);
+    public AbstractDataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**
      * List the ComputeValidatorResults.
      * 
      */
-    public List<ComputeResourceValidator.Result> getComputeValidatorResults();
+    public List<AbstractComputeResourceValidator.Result> getComputeValidatorResults();
 
     /**
      * Generate a ComputeValidatorResult key.
      *  
      */
-    public String makeComputeValidatorResultKey(final ComputeResourceValidator.Result result);
+    public String makeComputeValidatorResultKey(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Generate a ComputeResource key.
@@ -134,37 +134,37 @@ public interface OfferSetRequestParserState
      * Add a ComputeValidatorResult.
      * 
      */
-    public void addComputeValidatorResult(final ComputeResourceValidator.Result result);
+    public void addComputeValidatorResult(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Find a ComputeValidatorResult.
      * 
      */
-    public ComputeResourceValidator.Result findComputeValidatorResult(final ComputeResourceValidator.Result result);
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Find a ComputeValidatorResult.
      * 
      */
-    public ComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource);
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource);
     
     /**
      * Find a ComputeValidatorResult.
      * 
      */
-    public ComputeResourceValidator.Result findComputeValidatorResult(final String key);
+    public AbstractComputeResourceValidator.Result findComputeValidatorResult(final String key);
 
     /**
      * List the StorageValidatorResults.
      * 
      */
-    public List<StorageResourceValidator.Result> getStorageValidatorResults();
+    public List<AbstractStorageResourceValidator.Result> getStorageValidatorResults();
     
     /**
      * Generate a StorageValidatorResult key.
      *  
      */
-    public String makeStorageValidatorResultKey(final StorageResourceValidator.Result result);
+    public String makeStorageValidatorResultKey(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Generate a StorageResource key.
@@ -176,43 +176,43 @@ public interface OfferSetRequestParserState
      * Add a StorageValidatorResult.
      * 
      */
-    public void addStorageValidatorResult(final StorageResourceValidator.Result result);
+    public void addStorageValidatorResult(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Find a StorageValidatorResult.
      * 
      */
-    public StorageResourceValidator.Result findStorageValidatorResult(final StorageResourceValidator.Result result);
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Find a StorageValidatorResult.
      * 
      */
-    public StorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
     
     /**
      * Find a StorageValidatorResult.
      * 
      */
-    public StorageResourceValidator.Result findStorageValidatorResult(final String key);
+    public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
 
     /**
      * Add a DataValidatorResult and StorageValidatorResult pair.
      * 
      */
-    public void addDataStorageResult(final DataResourceValidator.Result dataResult, final StorageResourceValidator.Result storageResult);
+    public void addDataStorageResult(final AbstractDataResourceValidator.Result dataResult, final AbstractStorageResourceValidator.Result storageResult);
 
     /**
      * Find a StorageValidator result for a DataValidator result.
      * 
      */
-    public StorageResourceValidator.Result findDataStorageResult(final DataResourceValidator.Result dataResult);
+    public AbstractStorageResourceValidator.Result findDataStorageResult(final AbstractDataResourceValidator.Result dataResult);
 
     /**
      * Find a StorageValidator result for a IvoaAbstractDataResource.
      * 
      */
-    public StorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
+    public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
     
     /**
      * Get a List of start intervals.

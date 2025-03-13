@@ -60,50 +60,8 @@ public class SimpleComputeResourceEntityFactoryImpl
     @Override
     public Optional<SimpleComputeResourceEntity> select(UUID uuid)
         {
-        Optional<SimpleComputeResourceEntity> optional = this.repository.findById(
+        return this.repository.findById(
             uuid
-            );
-        if (optional.isPresent())
-            {
-            SimpleComputeResourceEntity found = optional.get();
-            found.addMessage(
-                LevelEnum.DEBUG,
-                "urn:debug",
-                "SimpleComputeResourceEntity select(UUID)",
-                Collections.emptyMap()
-                );
-            return Optional.of(
-                 this.repository.save(
-                     found
-                     )
-                );
-            }
-        else {
-            return Optional.ofNullable(
-                null
-                );
-            }
-        }
-
-    @Override
-    public SimpleComputeResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleComputeResource template)
-        {
-        // TODO This is terrible code.
-        log.debug("create(ExecutionSessionEntity , IvoaSimpleComputeResource) [{}][{}]", parent, template);
-        return this.create(
-            parent,
-            template.getName(),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMin()  : null) : null),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMax()  : null) : null),
-            ((template.getCores()  != null) ? ((template.getCores().getOffered()    != null) ? template.getCores().getOffered().getMin()    : null) : null),
-            ((template.getCores()  != null) ? ((template.getCores().getOffered()    != null) ? template.getCores().getOffered().getMax()    : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMin() : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMax() : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getOffered()   != null) ? template.getMemory().getOffered().getMin()   : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getOffered()   != null) ? template.getMemory().getOffered().getMax()   : null) : null),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMinimal()  : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMinimal() : null) : null),
-            true
             );
         }
 
@@ -113,63 +71,13 @@ public class SimpleComputeResourceEntityFactoryImpl
         final IvoaSimpleComputeResource template,
         final OfferBlock offerBlock
         ){
-        // TODO This is terrible code.
-        log.debug("create(ExecutionSessionEntity , IvoaSimpleComputeResource, OfferBlock) [{}][{}]", parent, template);
-        return this.create(
-            parent,
-            template.getName(),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMin()  : null) : null),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMax()  : null) : null),
-            offerBlock.getCores(),
-            offerBlock.getCores(),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMin() : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMax() : null) : null),
-            offerBlock.getMemory(),
-            offerBlock.getMemory(),
-            ((template.getCores()  != null) ? ((template.getCores().getRequested()  != null) ? template.getCores().getRequested().getMinimal()  : null) : null),
-            ((template.getMemory() != null) ? ((template.getMemory().getRequested() != null) ? template.getMemory().getRequested().getMinimal() : null) : null),
-            true
+        return this.repository.save(
+            new SimpleComputeResourceEntity(
+                parent,
+                template,
+                offerBlock
+                )
             );
-        }
-    
-    
-    @Override
-    public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
-        final String name,
-        final Long minrequestedcores,
-        final Long maxrequestedcores,
-        final Long minofferedcores,
-        final Long maxofferedcores,
-        final Long minrequestedmemory,
-        final Long maxrequestedmemory,
-        final Long minofferedmemory,
-        final Long maxofferedmemory,
-        final Boolean minimalcores,
-        final Boolean minimalmemory,
-        boolean save
-        ){
-        SimpleComputeResourceEntity created = new SimpleComputeResourceEntity(
-            parent,
-            name,
-            minrequestedcores,
-            maxrequestedcores,
-            minofferedcores,
-            maxofferedcores,
-            minrequestedmemory,
-            maxrequestedmemory,
-            minofferedmemory,
-            maxofferedmemory,
-            minimalcores,
-            minimalmemory
-            );
-        log.debug("created [{}]", created.getUuid());
-        if ((parent != null) && save)
-            {
-            created = this.repository.save(created);
-            log.debug("created [{}]", created.getUuid());
-            }
-        return created;
         }
     }
 

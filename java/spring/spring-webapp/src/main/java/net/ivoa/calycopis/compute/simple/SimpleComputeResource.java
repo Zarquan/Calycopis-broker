@@ -85,18 +85,6 @@ public interface SimpleComputeResource
      *
      */
     public Long getMaxOfferedMemory();
-
-    /**
-     * The minimal flag for the CPU cores request. 
-     *
-     */
-    public Boolean getMinimalCores();
-    
-    /**
-     * The minimal flag for the memory request. 
-     *
-     */
-    public Boolean getMinimalMemory();
     
     // volumes ...
 

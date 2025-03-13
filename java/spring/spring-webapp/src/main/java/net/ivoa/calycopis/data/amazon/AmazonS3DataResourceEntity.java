@@ -57,16 +57,19 @@ public class AmazonS3DataResourceEntity
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor with parent and template.
      *
      */
-    public AmazonS3DataResourceEntity(final ExecutionSessionEntity parent, final String name, final String endpoint, final String template, final String bucket, final String object)
+    public AmazonS3DataResourceEntity(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template)
         {
-        super(parent, name);
-        this.endpoint = endpoint;
-        this.template = template;
-        this.bucket   = bucket;
-        this.object   = object;
+        super(
+            parent,
+            template.getName()
+            );
+        this.endpoint = template.getEndpoint();
+        this.template = template.getTemplate();
+        this.bucket   = template.getBucket();
+        this.object   = template.getObject();
         }
     
     private String endpoint;

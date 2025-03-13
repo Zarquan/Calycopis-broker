@@ -20,54 +20,56 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.storage;
+package net.ivoa.calycopis.compute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.compute.simple.SimpleComputeResourceValidator;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
- * A factory for storage resource validators.
+ * A factory for compute resource validators.
  * 
  */
+@Slf4j
 @Component
-public class StorageResourceValidatorFactoryImpl
-extends ValidatorFactoryBaseImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
-implements StorageResourceValidatorFactory
+public class AbstractComputeResourceValidatorFactoryImpl
+    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+    implements AbstractComputeResourceValidatorFactory
     {
-    
+
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
     @Autowired
-    public StorageResourceValidatorFactoryImpl(
-        final SimpleStorageResourceEntityFactory storageResourceEntityFactory
-        ){
+    public AbstractComputeResourceValidatorFactoryImpl(final SimpleComputeResourceEntityFactory simpleComputeEntityFactory)
+        {
         super();
         this.validators.add(
-            new SimpleStorageResourceValidator(
-                storageResourceEntityFactory
+            new SimpleComputeResourceValidator(
+                simpleComputeEntityFactory
                 )
             );
         }
-    
+
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractStorageResource resource
+        final OfferSetRequestParserContext context,
+        final IvoaAbstractComputeResource resource
         ){
         unknown(
-            state,
+            context,
             resource.getType(),
-            resource.getClass().getName()
+            context.makeComputeValidatorResultKey(
+                resource
+                )
             );
         }
     }
-

@@ -20,56 +20,50 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.compute;
+package net.ivoa.calycopis.executable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.executable.jupyter.JupyterNotebookValidator;
+import net.ivoa.calycopis.execution.ExecutionSessionEntity;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
 /**
- * A factory for compute resource validators.
- * 
+ * A factory for IvoaAbstractExecutable validators.
+ *   
  */
-@Slf4j
 @Component
-public class ComputeResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
-    implements ComputeResourceValidatorFactory
+public class AbstractExecutableValidatorFactoryImpl
+    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+    implements AbstractExecutableValidatorFactory
     {
-
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
      * 
      */
-    @Autowired
-    public ComputeResourceValidatorFactoryImpl(final SimpleComputeResourceEntityFactory simpleComputeEntityFactory)
+    public AbstractExecutableValidatorFactoryImpl(final JupyterNotebookEntityFactory jupyterNotebookEntityFactory)
         {
         super();
         this.validators.add(
-            new SimpleComputeResourceValidator(
-                simpleComputeEntityFactory
+            new JupyterNotebookValidator(
+                jupyterNotebookEntityFactory
                 )
             );
         }
-
+    
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
-        final IvoaAbstractComputeResource resource
+        final OfferSetRequestParserContext context,
+        final IvoaAbstractExecutable executable
         ){
         unknown(
-            state,
-            resource.getType(),
-            state.makeComputeValidatorResultKey(
-                resource
-                )
+            context,
+            executable.getType(),
+            executable.getClass().getName()
             );
         }
     }

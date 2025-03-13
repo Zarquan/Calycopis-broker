@@ -21,17 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.validator.compute;
+package net.ivoa.calycopis.executable;
 
-import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.ValidatorFactory;
 
 /**
+ * Public interface for an Executable ValidatorFactory.
  * 
  */
-public interface ComputeResourceValidatorFactory
-extends ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+public interface AbstractExecutableValidatorFactory
+extends ValidatorFactory<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
 
     }

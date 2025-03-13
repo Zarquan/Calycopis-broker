@@ -20,17 +20,17 @@
  *
  *
  */
-package net.ivoa.calycopis.validator.compute;
+package net.ivoa.calycopis.compute.simple;
 
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntity;
-import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
@@ -38,10 +38,9 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
+import net.ivoa.calycopis.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
-import net.ivoa.calycopis.validator.data.DataResourceValidator;
-import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -50,7 +49,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 @Slf4j
 public class SimpleComputeResourceValidator
 extends ValidatorTools
-implements ComputeResourceValidator
+implements AbstractComputeResourceValidator
     {
 
     /**
@@ -72,7 +71,7 @@ implements ComputeResourceValidator
     @Override
     public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
         final IvoaAbstractComputeResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext state
         ){
         log.debug("validate(IvoaAbstractComputeResource)");
         log.debug("Resource [{}]", requested);
@@ -122,9 +121,9 @@ implements ComputeResourceValidator
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public ComputeResourceValidator.Result validate(
+    public AbstractComputeResourceValidator.Result validate(
         final IvoaSimpleComputeResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleComputeResource)");
         log.debug("Resource [{}]", requested);
@@ -149,15 +148,11 @@ implements ComputeResourceValidator
                     {
                     maxcores = requested.getCores().getRequested().getMax();
                     }
-                if (requested.getCores().getRequested().getMinimal() != null)
-                    {
-                    minimalcores = requested.getCores().getRequested().getMinimal();
-                    }
                 }
 
             if (requested.getCores().getOffered() != null)
                 {
-                state.getOfferSetEntity().addWarning(
+                context.getOfferSetEntity().addWarning(
                     "urn:service-defined",
                     "Offered cores should not be set [${resource}][${offered}]",
                     Map.of(
@@ -172,7 +167,7 @@ implements ComputeResourceValidator
             }
         if (mincores > MAX_CORES_LIMIT)
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:resource-limit",
                 "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
@@ -188,7 +183,7 @@ implements ComputeResourceValidator
             }
         if (maxcores > MAX_CORES_LIMIT)
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:resource-limit",
                 "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
@@ -219,15 +214,11 @@ implements ComputeResourceValidator
                     {
                     maxmemory = requested.getMemory().getRequested().getMax();
                     }
-                if (requested.getMemory().getRequested().getMinimal() != null)
-                    {
-                    minimalmemory = requested.getMemory().getRequested().getMinimal();
-                    }
                 }
 
             if (requested.getMemory().getOffered() != null)
                 {
-                state.getOfferSetEntity().addWarning(
+                context.getOfferSetEntity().addWarning(
                     "urn:service-defined",
                     "Offered memory should not be set by client [${resource}][${offered}]",
                     Map.of(
@@ -243,7 +234,7 @@ implements ComputeResourceValidator
 
         if (minmemory > MAX_MEMORY_LIMIT)
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:resource-limit",
                 "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
@@ -260,7 +251,7 @@ implements ComputeResourceValidator
 
         if (maxmemory > MAX_MEMORY_LIMIT)
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:resource-limit",
                 "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
@@ -286,7 +277,6 @@ implements ComputeResourceValidator
         IvoaSimpleComputeCoresRequested coresRequested = new IvoaSimpleComputeCoresRequested(); 
         coresRequested.setMin(mincores);
         coresRequested.setMax(maxcores);
-        coresRequested.setMinimal(minimalcores);
         cores.setRequested(coresRequested);
         validated.setCores(cores);
 
@@ -294,7 +284,6 @@ implements ComputeResourceValidator
         IvoaSimpleComputeMemoryRequested memoryRequested = new IvoaSimpleComputeMemoryRequested(); 
         memoryRequested.setMin(minmemory);
         memoryRequested.setMax(maxmemory);
-        memoryRequested.setMinimal(minimalmemory);
         memory.setRequested(memoryRequested);
         validated.setMemory(memory);
         
@@ -306,12 +295,12 @@ implements ComputeResourceValidator
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
-                StorageResourceValidator.Result storage = state.findStorageValidatorResult(volumeRequest.getResource());
+                AbstractStorageResourceValidator.Result storage = context.findStorageValidatorResult(volumeRequest.getResource());
                 // If we din't find a storage resource.
                 if (storage == null)
                     {
                     // Try finding a data resource.
-                    DataResourceValidator.Result data = state.findDataValidatorResult(volumeRequest.getResource());
+                    AbstractDataResourceValidator.Result data = context.findDataValidatorResult(volumeRequest.getResource());
                     // If we found a data resource.
                     if (data != null)
                         {
@@ -360,7 +349,7 @@ implements ComputeResourceValidator
                 }; 
             
             log.debug("Creating Result.");
-            ComputeResourceValidator.Result result = new ComputeResourceValidator.ResultBean(
+            AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
@@ -372,23 +361,22 @@ implements ComputeResourceValidator
                 );
              * 
              */
-            // Add this ComputeResource to our ParserState.
-            state.addComputeValidatorResult(
+            context.addComputeValidatorResult(
                 result
                 );
             //
-            // Update the running totals in our ParserState.
+            // Update the running totals in our context.
             // TODO Do we move these to ComputeResourceValidator.Result ?
-            state.addMinCores(
+            context.addMinCores(
                 mincores
                 );
-            state.addMaxCores(
+            context.addMaxCores(
                 maxcores
                 );
-            state.addMinMemory(
+            context.addMinMemory(
                 minmemory
                 );
-            state.addMaxMemory(
+            context.addMaxMemory(
                 maxmemory
                 );
             
@@ -397,7 +385,7 @@ implements ComputeResourceValidator
         //
         // Something wasn't right, fail the validation.
         else {
-            state.valid(false);
+            context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
                 );

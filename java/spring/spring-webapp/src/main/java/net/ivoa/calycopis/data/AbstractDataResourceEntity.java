@@ -64,6 +64,9 @@ implements AbstractDataResource
         {
         super(name);
         this.parent = parent;
+        parent.addDataResource(
+            this
+            );
         }
 
     @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
@@ -74,9 +77,5 @@ implements AbstractDataResource
     public ExecutionSessionEntity getParent()
         {
         return this.parent ;
-        }
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
         }
     }
