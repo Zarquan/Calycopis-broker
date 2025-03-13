@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 
 /**
  * Base class for validator factories.
@@ -61,7 +61,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
      *
      */
     public abstract void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext state,
         final ObjectType object
         );
     
@@ -70,7 +70,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
      *
      */
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext state,
         final String typeName,
         final String className
         ){
@@ -90,7 +90,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
     @Override
     public Validator.Result<ObjectType, EntityType> validate(
         final ObjectType requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext state
         ){
         //
         // Try each of the validators in our list.

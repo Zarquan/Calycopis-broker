@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
@@ -61,13 +61,13 @@ public class ComputeResourceValidatorFactoryImpl
 
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext context,
         final IvoaAbstractComputeResource resource
         ){
         unknown(
-            state,
+            context,
             resource.getType(),
-            state.makeComputeValidatorResultKey(
+            context.makeComputeValidatorResultKey(
                 resource
                 )
             );

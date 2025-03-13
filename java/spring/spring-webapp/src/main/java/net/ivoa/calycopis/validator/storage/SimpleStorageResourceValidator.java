@@ -25,7 +25,7 @@ package net.ivoa.calycopis.validator.storage;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.builder.Builder;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
@@ -63,7 +63,7 @@ implements StorageResourceValidator
     @Override
     public StorageResourceValidator.Result validate(
         final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -72,7 +72,7 @@ implements StorageResourceValidator
             case IvoaSimpleStorageResource simple:
                 return validate(
                         simple,
-                        state
+                        context
                         );
             default:
                 return new ResultBean(
@@ -87,7 +87,7 @@ implements StorageResourceValidator
      */
     public StorageResourceValidator.Result validate(
         final IvoaSimpleStorageResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -131,7 +131,7 @@ implements StorageResourceValidator
                 );
             //
             // Save the DataResource in the state.
-            state.addStorageValidatorResult(
+            context.addStorageValidatorResult(
                 storageResult 
                 );
 
@@ -140,7 +140,7 @@ implements StorageResourceValidator
         //
         // Something wasn't right, fail the validation.
         else {
-            state.valid(false);
+            context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
                 );

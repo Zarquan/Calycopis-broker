@@ -27,16 +27,16 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
  *
  */
 @Slf4j
-public class OfferSetRequestParserStateImpl
+public class OfferSetRequestParserContextImpl
 extends ValidatorTools
-    implements OfferSetRequestParserState
+    implements OfferSetRequestParserContext
     {
 
     /**
      * Public constructor.
      * 
      */
-    public OfferSetRequestParserStateImpl(
+    public OfferSetRequestParserContextImpl(
         final OfferSetRequestParser parser,
         final IvoaOfferSetRequest offersetRequest,
         final OfferSetEntity offersetEntity

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 
@@ -57,11 +57,11 @@ public class ExecutableValidatorFactoryImpl
     
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext context,
         final IvoaAbstractExecutable executable
         ){
         unknown(
-            state,
+            context,
             executable.getType(),
             executable.getClass().getName()
             );

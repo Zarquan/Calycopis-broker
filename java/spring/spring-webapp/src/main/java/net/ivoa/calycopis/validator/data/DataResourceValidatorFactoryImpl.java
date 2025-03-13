@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidatorFactory;
@@ -63,11 +63,11 @@ public class DataResourceValidatorFactoryImpl
     
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext context,
         final IvoaAbstractDataResource resource
         ){
         unknown(
-            state,
+            context,
             resource.getType(),
             resource.getClass().getName()
             );

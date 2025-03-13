@@ -25,7 +25,7 @@ package net.ivoa.calycopis.validator.storage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.storage.simple.SimpleStorageResourceEntityFactory;
@@ -60,11 +60,11 @@ implements StorageResourceValidatorFactory
     
     @Override
     public void unknown(
-        final OfferSetRequestParserState state,
+        final OfferSetRequestParserContext context,
         final IvoaAbstractStorageResource resource
         ){
         unknown(
-            state,
+            context,
             resource.getType(),
             resource.getClass().getName()
             );

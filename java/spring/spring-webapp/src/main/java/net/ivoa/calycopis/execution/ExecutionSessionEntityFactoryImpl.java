@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
@@ -67,13 +67,13 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserState state, final OfferBlock offerblock)
+    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final OfferBlock offer)
         {
         return this.repository.save(
             new ExecutionSessionEntity(
                 parent,
-                state,
-                offerblock
+                context,
+                offer
                 )
             );
         }

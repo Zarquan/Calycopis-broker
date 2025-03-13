@@ -51,7 +51,7 @@ public class OfferSetRequestParserImpl
     private final OfferBlockFactory offerBlockFactory;
 
     // TODO Replace this with a builder ..
-    private final ExecutionSessionEntityFactory      executionSessionFactory;
+    private final ExecutionSessionEntityFactory executionSessionFactory;
 
     /**
      * Executable Validators.
@@ -99,7 +99,7 @@ public class OfferSetRequestParserImpl
     public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        OfferSetRequestParserState state = new OfferSetRequestParserStateImpl(
+        OfferSetRequestParserContext state = new OfferSetRequestParserContextImpl(
             this,
             offersetRequest,
             offersetEntity
@@ -121,11 +121,11 @@ public class OfferSetRequestParserImpl
      * Validate the request components.
      * 
      */
-    public void validate(final OfferSetRequestParserState state)
+    public void validate(final OfferSetRequestParserContext context)
         {
         log.debug("validate(OfferSetRequestParserState)");
-        final IvoaOfferSetRequest offersetRequest = state.getOriginalOfferSetRequest();
-        final IvoaOfferSetRequest offersetResult  = state.getValidatedOfferSetRequest();
+        final IvoaOfferSetRequest offersetRequest = context.getOriginalOfferSetRequest();
+        final IvoaOfferSetRequest offersetResult  = context.getValidatedOfferSetRequest();
         //
         // Initialise our result. 
         if (offersetResult.getResources() == null)
@@ -148,7 +148,7 @@ public class OfferSetRequestParserImpl
                     {
                     storageValidators.validate(
                         resource,
-                        state
+                        context
                         );
                     // TODO Check the result ?
                     }
@@ -162,7 +162,7 @@ public class OfferSetRequestParserImpl
                     {
                     dataValidators.validate(
                         resource,
-                        state
+                        context
                         );            
                     // TODO Check the result ?
                     }
@@ -176,7 +176,7 @@ public class OfferSetRequestParserImpl
                     {
                     computeValidators.validate(
                         resource,
-                        state
+                        context
                         );            
                     // TODO Check the result ?
                     }
@@ -189,7 +189,7 @@ public class OfferSetRequestParserImpl
         //
         // If we haven't found a compute resource, add a default.
         log.debug("Checking for empty compute resource list");
-        if (state.getComputeValidatorResults().isEmpty())
+        if (context.getComputeValidatorResults().isEmpty())
             {
             log.debug("Adding a default compute resource");
             IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
@@ -197,7 +197,7 @@ public class OfferSetRequestParserImpl
                 );
             computeValidators.validate(
                 compute,
-                state
+                context
                 );
             // TODO Check the result ?
             }
@@ -211,43 +211,43 @@ public class OfferSetRequestParserImpl
             {
             executableValidators.validate(
                 offersetRequest.getExecutable(),
-                state
+                context
                 );
             // TODO Check the result ?
             }
         else {
             log.error("Offerset request has no executable");
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:executable-required",
                 "Description of the executable is required"
                 );
-            state.valid(false);
+            context.valid(false);
             }
         
         //
         // Validate the schedule.
         validate(
             offersetRequest.getSchedule(),
-            state
+            context
             );
         
         //
         // This is specific to the CANMFAR platforms.
         // Fail if we have found too many compute resources,
         // Other platforms may be able to support more than one compute resources.
-        if (state.getComputeValidatorResults().size() > 1)
+        if (context.getComputeValidatorResults().size() > 1)
             {
             log.warn("Found more than one compute resources");
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:not-supported-message",
                 "Multiple compute resources not supported"
                 );
-            state.valid(false);
+            context.valid(false);
             }
         
         // Exit if errors ..
         
-        build(state);
+        build(context);
         }
 
     
@@ -272,7 +272,7 @@ public class OfferSetRequestParserImpl
      * Validate the requested Schedule.
      *
      */
-    public void validate(final IvoaOfferSetRequestSchedule schedule, final OfferSetRequestParserState state)
+    public void validate(final IvoaOfferSetRequestSchedule schedule, final OfferSetRequestParserContext state)
         {
         log.debug("validate(IvoaExecutionSessionRequestSchedule)");
         if (schedule != null)
@@ -366,7 +366,7 @@ public class OfferSetRequestParserImpl
      * Build the entities from the validated input.
      *  
      */
-    public void build(final OfferSetRequestParserState state)
+    public void build(final OfferSetRequestParserContext state)
         {
         log.debug("build(final OfferSetRequestParserState)");
 
@@ -491,30 +491,6 @@ public class OfferSetRequestParserImpl
                         log.debug("Compute result [{}]", computeResult);
                         }
                      * 
-                     */
-
-
-                    /*
-                     * We only support a single compute resource.
-                     * TODO Add the builder references ...
-                     *
-                    ComputeResourceValidator.Result firstResult = compValidatorResultList.getFirst();
-                    
-                    IvoaAbstractComputeResource firstResource = firstResult.getObject();
-                    if (firstResource instanceof IvoaSimpleComputeResource)
-                        {
-                        execution.addComputeResource(
-                            simpleComputeFactory.create(
-                                execution,
-                                ((IvoaSimpleComputeResource) firstResource),
-                                offerblock.getCores(),
-                                offerblock.getCores(),
-                                offerblock.getMemory(),
-                                offerblock.getMemory()
-                                )
-                            );
-                        }
-                     *
                      */
                     
                     //

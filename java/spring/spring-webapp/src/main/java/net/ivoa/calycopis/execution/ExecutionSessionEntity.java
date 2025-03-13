@@ -48,7 +48,7 @@ import net.ivoa.calycopis.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.offers.OfferBlock;
 import net.ivoa.calycopis.offerset.OfferSetEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.storage.AbstractStorageResourceEntity;
@@ -92,7 +92,7 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferSetEntity parent, final OfferSetRequestParserState state, final OfferBlock offerblock)
+    public ExecutionSessionEntity(final OfferSetEntity parent, final OfferSetRequestParserContext state, final OfferBlock offerblock)
         {
         super("no name");
         this.phase = IvoaExecutionSessionPhase.OFFERED;

@@ -28,7 +28,7 @@ import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntity;
 import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 import net.ivoa.calycopis.validator.Validator;
@@ -65,7 +65,7 @@ implements DataResourceValidator
     @Override
     public DataResourceValidator.Result validate(
         final IvoaAbstractDataResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -73,7 +73,7 @@ implements DataResourceValidator
             {
             return validate(
                 (IvoaAmazonS3DataResource) requested,
-                state
+                context
                 );
             }
         else {
@@ -89,7 +89,7 @@ implements DataResourceValidator
      */
     public DataResourceValidator.Result validate(
         final IvoaAmazonS3DataResource requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaS3DataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -115,7 +115,7 @@ implements DataResourceValidator
 
         if ((endpoint == null) || (endpoint.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 service endpoint required"
                 );
@@ -124,7 +124,7 @@ implements DataResourceValidator
 
         if ((template == null) || (template.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 service template required"
                 );
@@ -133,7 +133,7 @@ implements DataResourceValidator
 
         if ((bucket == null) || (bucket.isEmpty()))
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "S3 bucket name required"
                 );
@@ -188,7 +188,7 @@ implements DataResourceValidator
 
             //
             // Save the DataResource in the state.
-            state.addDataValidatorResult(
+            context.addDataValidatorResult(
                 dataResult
                 );
             //
@@ -201,7 +201,7 @@ implements DataResourceValidator
              * 
              */
             // Add the link between the DataResource and StorageResource.
-            state.addDataStorageResult(
+            context.addDataStorageResult(
                 dataResult,
                 storageResult
                 );
@@ -211,7 +211,7 @@ implements DataResourceValidator
         //
         // Something wasn't right, fail the validation.
         else {
-            state.valid(false);
+            context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
                 );

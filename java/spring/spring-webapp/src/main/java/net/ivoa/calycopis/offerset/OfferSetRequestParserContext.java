@@ -20,7 +20,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
 /**
  *
  */
-public interface OfferSetRequestParserState
+public interface OfferSetRequestParserContext
     {
     /**
      * Get a reference to the parent parser.

@@ -25,7 +25,7 @@ package net.ivoa.calycopis.validator.executable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
+import net.ivoa.calycopis.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.validator.Validator;
@@ -56,7 +56,7 @@ implements ExecutableValidator
     @Override
     public ExecutableValidator.Result validate(
         final IvoaAbstractExecutable requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractExecutable)");
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -65,7 +65,7 @@ implements ExecutableValidator
             case IvoaJupyterNotebook jupyterNotebook:
                 return validate(
                     jupyterNotebook,
-                    state
+                    context
                     );
             default:
                 return new ResultBean(
@@ -80,7 +80,7 @@ implements ExecutableValidator
      */
     public ExecutableValidator.Result validate(
         final IvoaJupyterNotebook requested,
-        final OfferSetRequestParserState state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaJupyterNotebook)");
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
@@ -92,7 +92,7 @@ implements ExecutableValidator
         // Validate the location.
         if (requested.getLocation() == null)
             {
-            state.getOfferSetEntity().addWarning(
+            context.getOfferSetEntity().addWarning(
                 "urn:missing-required-value",
                 "Notebook location required"
                 );
@@ -102,7 +102,7 @@ implements ExecutableValidator
             String trimmed = requested.getLocation().trim(); 
             if (trimmed.isEmpty())
                 {
-                state.getOfferSetEntity().addWarning(
+                context.getOfferSetEntity().addWarning(
                     "urn:missing-required-value",
                     "Notebook location required"
                     );
@@ -157,10 +157,10 @@ implements ExecutableValidator
                 validated,
                 builder
                 );
-            state.getValidatedOfferSetRequest().setExecutable(
+            context.getValidatedOfferSetRequest().setExecutable(
                 validated
                 );
-            state.setExecutableResult(
+            context.setExecutableResult(
                 result
                 );
             return result;
@@ -168,7 +168,7 @@ implements ExecutableValidator
         //
         // Something wasn't right, fail the validation.
         else {
-            state.valid(false);
+            context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
                 );
