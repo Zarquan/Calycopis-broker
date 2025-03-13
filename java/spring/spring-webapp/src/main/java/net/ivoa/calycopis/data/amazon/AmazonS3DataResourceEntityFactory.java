@@ -28,7 +28,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
 /**
  * A SimpleDataResource Factory.
@@ -48,7 +48,7 @@ public interface AmazonS3DataResourceEntityFactory
      * Create a new SimpleDataResource based on a template.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaS3DataResource template);
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template);
 
     }
 

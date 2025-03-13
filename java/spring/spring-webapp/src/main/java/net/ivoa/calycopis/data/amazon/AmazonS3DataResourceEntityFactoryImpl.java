@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
 /**
  * A SimpleDataResource Factory implementation.
@@ -85,7 +85,7 @@ public class AmazonS3DataResourceEntityFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaS3DataResource template)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template)
         {
         return this.create(
             parent,

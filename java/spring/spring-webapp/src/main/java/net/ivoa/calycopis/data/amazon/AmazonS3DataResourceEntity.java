@@ -29,7 +29,7 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
 /**
  * An Amazon S3 data resource.
@@ -100,7 +100,7 @@ public class AmazonS3DataResourceEntity
     @Override
     public IvoaAbstractDataResource getIvoaBean()
         {
-        IvoaS3DataResource bean = new IvoaS3DataResource(
+        IvoaAmazonS3DataResource bean = new IvoaAmazonS3DataResource(
             AmazonS3DataResource.TYPE_DISCRIMINATOR
             );
         bean.setUuid(

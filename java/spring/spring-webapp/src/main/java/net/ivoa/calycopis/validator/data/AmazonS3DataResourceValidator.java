@@ -30,7 +30,7 @@ import net.ivoa.calycopis.data.amazon.AmazonS3DataResourceEntityFactory;
 import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 import net.ivoa.calycopis.offerset.OfferSetRequestParserState;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 import net.ivoa.calycopis.validator.Validator;
 import net.ivoa.calycopis.validator.ValidatorTools;
 import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
@@ -42,7 +42,7 @@ import net.ivoa.calycopis.validator.storage.StorageResourceValidator;
  * 
  */
 @Slf4j
-public class S3DataResourceValidator
+public class AmazonS3DataResourceValidator
 extends ValidatorTools
 implements DataResourceValidator
     {
@@ -56,7 +56,7 @@ implements DataResourceValidator
      * Public constructor.
      * 
      */
-    public S3DataResourceValidator(final AmazonS3DataResourceEntityFactory entityFactory)
+    public AmazonS3DataResourceValidator(final AmazonS3DataResourceEntityFactory entityFactory)
         {
         super();
         this.entityFactory = entityFactory ;
@@ -69,10 +69,10 @@ implements DataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        if (requested instanceof IvoaS3DataResource)
+        if (requested instanceof IvoaAmazonS3DataResource)
             {
             return validate(
-                (IvoaS3DataResource) requested,
+                (IvoaAmazonS3DataResource) requested,
                 state
                 );
             }
@@ -88,14 +88,14 @@ implements DataResourceValidator
      *
      */
     public DataResourceValidator.Result validate(
-        final IvoaS3DataResource requested,
+        final IvoaAmazonS3DataResource requested,
         final OfferSetRequestParserState state
         ){
         log.debug("validate(IvoaS3DataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaS3DataResource validated = new IvoaS3DataResource();
+        IvoaAmazonS3DataResource validated = new IvoaAmazonS3DataResource();
 
         String name = trim(
             requested.getName()
