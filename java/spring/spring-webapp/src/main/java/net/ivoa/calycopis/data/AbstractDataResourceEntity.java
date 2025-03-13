@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.data;
 
+import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -35,6 +36,7 @@ import net.ivoa.calycopis.execution.ExecutionSessionEntity;
 /**
  * 
  */
+@Entity
 @Table(
     name = "dataresources"
     )
