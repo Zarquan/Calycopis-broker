@@ -81,7 +81,7 @@ public class ComputeResourceOfferFactoryImpl
      * TODO make this configurable.
      *
      */
-    public static final Duration MAXIMUM_START_RANGE  = Duration.ofHours(24);
+    public static final Duration MAXIMUM_START_RANGE = Duration.ofHours(24);
 
     /**
      * The default execution duration if none is specified in the request.
@@ -115,12 +115,19 @@ public class ComputeResourceOfferFactoryImpl
     public static final Long DEFAULT_CPU_CORES_REQUEST = 1L ;
 
     /**
+     * The maximum number of CPU cores we can request.
+     * TODO make this configurable.
+     *
+     */
+    public static final Long MAXIMUM_CPU_CORES_REQUEST = 32L ;
+
+    /**
      * The total number of CPU cores available on the platform.
      * TODO make this configurable.
      *
      */
     public static final Long TOTAL_AVAILABLE_CPU_CORES = 32L ;
-
+    
     /**
      * How many more CPU cores we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
@@ -138,7 +145,14 @@ public class ComputeResourceOfferFactoryImpl
     public static final StorageUnit<?> DEFAULT_CPU_MEMORY_REQUEST = StorageUnits.gibibyte(1) ;
 
     /**
-     * The total amount of CPU memory available on the platform.
+     * The maximum number amount of memory we can request.
+     * TODO make this configurable.
+     *
+     */
+    public static final StorageUnit<?> MAXIMUM_CPU_MEMORY_REQUEST = StorageUnits.gibibyte(32);
+    
+    /**
+     * The total amount of memory available on the platform.
      * TODO make this configurable.
      *
      */
@@ -159,6 +173,30 @@ public class ComputeResourceOfferFactoryImpl
      */
     public static final int QUERY_ROW_LIMIT = 4;
 
+    @Override
+    public Duration getMaxStartRange()
+        {
+        return MAXIMUM_START_RANGE ;
+        }
+
+    @Override
+    public Duration getMaxDuration()
+        {
+        return MAXIMUM_DURATION;
+        }
+
+    @Override
+    public Long getMaxCores()
+        {
+        return MAXIMUM_CPU_CORES_REQUEST;
+        }
+
+    @Override
+    public Long getMaxMemory()
+        {
+        return MAXIMUM_CPU_MEMORY_REQUEST.longValue();
+        }
+    
     @Override
     public List<ComputeResourceOffer> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {

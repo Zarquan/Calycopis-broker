@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.functional.booking.ResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -15,8 +16,20 @@ import net.ivoa.calycopis.functional.factory.FactoryBase;
  *  
  */
 public interface ComputeResourceOfferFactory
-    extends FactoryBase
+    extends ResourceOfferFactory
     {
+    /**
+     * Get the maximum number of CPU cores that can be requested.
+     * 
+     */
+    public Long getMaxCores();
+
+    /**
+     * Get the maximum amount of memory that can be requested, in GiB.
+     * 
+     */
+    public Long getMaxMemory();
+    
     /**
      * Generate a list of offers.
      *  
