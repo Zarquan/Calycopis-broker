@@ -29,7 +29,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
@@ -65,7 +65,7 @@ public class SimpleComputeResourceEntity
     public SimpleComputeResourceEntity(
         final ExecutionSessionEntity parent,
         final IvoaSimpleComputeResource template,
-        final ResourceOffer offerBlock
+        final ComputeResourceOffer offer
         ){
         super(
             parent,
@@ -81,8 +81,8 @@ public class SimpleComputeResourceEntity
                 }
             }
 
-        this.minofferedcores   = offerBlock.getCores();
-        this.maxofferedcores   = offerBlock.getCores();
+        this.minofferedcores   = offer.getCores();
+        this.maxofferedcores   = offer.getCores();
 
         if (template.getMemory() != null)
             {
@@ -93,8 +93,8 @@ public class SimpleComputeResourceEntity
                 }
             }
 
-        this.minofferedmemory = offerBlock.getMemory();
-        this.maxofferedmemory = offerBlock.getMemory();
+        this.minofferedmemory = offer.getMemory();
+        this.maxofferedmemory = offer.getMemory();
         
         }
 

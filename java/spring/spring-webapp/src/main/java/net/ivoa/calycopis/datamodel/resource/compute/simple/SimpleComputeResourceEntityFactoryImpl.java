@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.compute.simple;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,9 +31,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
@@ -69,13 +67,13 @@ public class SimpleComputeResourceEntityFactoryImpl
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity parent,
         final IvoaSimpleComputeResource template,
-        final ResourceOffer offerBlock
+        final ComputeResourceOffer offer
         ){
         return this.repository.save(
             new SimpleComputeResourceEntity(
                 parent,
                 template,
-                offerBlock
+                offer
                 )
             );
         }

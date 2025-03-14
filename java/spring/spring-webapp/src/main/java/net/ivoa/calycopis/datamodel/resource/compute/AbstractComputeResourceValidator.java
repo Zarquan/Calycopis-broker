@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.resource.compute;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -61,7 +61,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          * Build an entity. 
          *
          */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final ResourceOffer offerblock);
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final ComputeResourceOffer offer);
 
         }
 

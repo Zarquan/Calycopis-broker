@@ -32,6 +32,7 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -332,12 +333,12 @@ implements AbstractComputeResourceValidator
             ComputeResourceEntityBuilder builder = new ComputeResourceEntityBuilder()
                 {
                 @Override
-                public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final ResourceOffer offerBlock)
+                public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final ComputeResourceOffer offer)
                     {
                     return entityFactory.create(
                         parent,
                         validated,
-                        offerBlock
+                        offer
                         );
                     }
 
