@@ -32,9 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.ivoa.calycopis.execution.ExecutionSessionEntity;
-import net.ivoa.calycopis.execution.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.execution.ExecutionSessionResponseBean;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;

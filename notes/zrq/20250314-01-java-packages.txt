@@ -1,0 +1,111 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Refactor rhe Java packages.
+        https://github.com/ivoa/Calycopis-broker/issues/179
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Refactor the Java packages to match the structure of the data model.
+    At the moment we have a lot of top level packages.
+
+        ls -1 java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/
+
+            builder
+            component
+            compute
+            data
+            executable
+            execution
+            factory
+            message
+            offers
+            offerset
+            platfom
+            storage
+            util
+            validator
+            webapp
+
+    Of which, executable, data, compute and storage are elements of the data model.
+    Mixed in with builder, validator, factory and webapp, which are functional parts of the code.
+
+# -----------------------------------------------------
+
+  +-- functional
+  |     |
+  |     +-- factory
+  |     +-- builder
+  |     +-- validator
+  |     +-- booking (offers)
+  |     |
+  |     +-- platfom
+  |           |
+  |           +-- canfar
+  |           +-- openstack
+  |           +-- kubernetes
+  |
+  +-- datamodel
+  |     |
+  |     +-- component
+  |     |
+  |     +-- resources
+  |     |     |
+  |     |     +-- compute
+  |     |     +-- data
+  |     |     \-- storage
+  |     |
+  |     +-- executable
+  |     +-- session (execution)
+  |     +-- offerset
+  |     \-- message
+  |
+  +-- util
+  |
+  \-- webapp
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=java-packages
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
