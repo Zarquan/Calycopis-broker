@@ -22,7 +22,11 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import java.util.Map;
 import java.util.UUID;
+
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * Base class for Validatior implementations.
@@ -46,6 +50,25 @@ public class ValidatorTools
         }
 
     /**
+     * Non empty String.
+     * https://english.stackexchange.com/questions/102771/not-empty-set-in-one-word
+     * @return Either the trimmed String or null if the trimmed String is empty. 
+     * 
+     */
+    public static String notEmpty(String string)
+        {
+        if (string != null)
+            {
+            string = string.trim();
+            if (string.isEmpty())
+                {
+                return null;
+                }
+            }
+        return string;
+        }
+    
+    /**
      * Null-safe UUID toString.
      * 
      */
@@ -59,5 +82,57 @@ public class ValidatorTools
             return null ;
             }
         }
-    
+
+    /**
+     * Test value to trigger a failure.
+     * 
+     */
+    public static final String BAD_VALUE_TRIGGER = "uri:bad-value-trigger";
+
+    /**
+     * Check for a bad value.
+     * 
+     */
+    public boolean badValueCheck(
+        final String requested,
+        final OfferSetRequestParserContext context
+        ){
+        return badValueCheck(
+            requested,
+            BAD_VALUE_TRIGGER,
+            context
+            );
+        }
+
+    /**
+     * Check for a bad value.
+     * TODO Add the location of the bad value.
+     * 
+     */
+    public boolean badValueCheck(
+        final String requested,
+        final String trigger,
+        final OfferSetRequestParserContext context
+        ){
+        boolean success = true ;
+
+        String value = notEmpty(
+            requested
+            );
+
+        if (trigger.equals(value))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:test-trigger-failed",
+                "Bad value detected [${value}]",
+                Map.of(
+                    "value",
+                    value
+                    )
+                );
+            success = false ;
+            }
+        
+        return success ;
+        }
     }

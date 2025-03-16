@@ -22,10 +22,13 @@
  */
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
@@ -36,7 +39,7 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 
 /**
- * A validator implementation to handle IvoaJupyterNotebooks.
+ * A validator implementation to handle JupyterNotebooks.
  * 
  */
 @Slf4j
@@ -60,17 +63,17 @@ implements AbstractExecutableValidator
         ){
         log.debug("validate(IvoaAbstractExecutable)");
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
-        switch(requested)
+        if (requested instanceof IvoaJupyterNotebook)
             {
-            case IvoaJupyterNotebook jupyterNotebook:
-                return validate(
-                    jupyterNotebook,
-                    context
-                    );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
-                    );
+            return validate(
+                (IvoaJupyterNotebook) requested,
+                context
+                );
+            }
+        else {
+            return new ResultBean(
+                Validator.ResultEnum.CONTINUE
+                );
             }
         }
 
@@ -89,64 +92,30 @@ implements AbstractExecutableValidator
         IvoaJupyterNotebook validated = new IvoaJupyterNotebook();
 
         //
-        // Validate the location.
-        if (requested.getLocation() == null)
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "Notebook location required"
-                );
-            success = false ;
-            }
-        else {
-            String trimmed = requested.getLocation().trim(); 
-            if (trimmed.isEmpty())
-                {
-                context.getOfferSetEntity().addWarning(
-                    "urn:missing-required-value",
-                    "Notebook location required"
-                    );
-                success = false ;
-                }
-            else {
-                validated.setLocation(
-                    trimmed
-                    );
-                }
-            }
+        // Validate the executable name.
+        success &= validateName(
+            requested.getName(),
+            validated,
+            context
+            );
+
         //
-        // Validate the notebook name.
-        if (requested.getName() == null)
-            {
-            // No name is fine.
-            }
-        else {
-            String trimmed = requested.getName().trim();
-            if (trimmed.isEmpty())
-                {
-                // No name is fine.
-                }
-            else {
-                validated.setName(
-                    trimmed
-                    );
-                }
-            }
+        // Validate the notebook location.
         
         //
         // Everything is good, add our result to the state.
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the ExecutableValidator.Result.");
+            log.debug("Success - creating the Result.");
 
             Builder<AbstractExecutableEntity> builder = new Builder<AbstractExecutableEntity>()
                 {
                 @Override
-                public AbstractExecutableEntity build(final ExecutionSessionEntity executionSession)
+                public AbstractExecutableEntity build(final ExecutionSessionEntity parent)
                     {
                     return factory.create(
-                        executionSession,
+                        parent,
                         validated
                         );
                     }
@@ -173,5 +142,91 @@ implements AbstractExecutableValidator
                 Validator.ResultEnum.FAILED
                 );
             }
+        }
+
+    /**
+     * Validate the executable name.
+     * 
+     */
+    public boolean validateName(
+        final String requested,
+        final IvoaJupyterNotebook validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateName(String ...)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+    
+        String name = notEmpty(
+            requested
+            );
+        if (name != null)
+            {
+            // TODO Make this configurable.
+            success &= badValueCheck(
+                name,
+                context
+                );
+            }
+        if (success)
+            {
+            validated.setName(
+                name
+                );
+            }
+        else {
+            validated.setName(
+                null
+                );
+            }
+        
+        return success;
+        }
+
+    
+    /**
+     * Validate the notebook location.
+     * 
+     */
+    public boolean validateLocation(
+        final String requested,
+        final IvoaJupyterNotebook validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateLocation(String ...)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+
+        String location = notEmpty(
+            requested
+            );
+        if ((location == null) || (location.isEmpty()))
+            {
+            context.getOfferSetEntity().addWarning(
+                "uri:missing-required-value",
+                "Notebook location required"
+                );
+            success = false ;
+            }
+        else {
+            success &= badValueCheck(
+                location,
+                context
+                );
+            }
+        if (success)
+            {
+            validated.setLocation(
+                location
+                );
+            }
+        else {
+            validated.setLocation(
+                null
+                );
+            }
+        return success;
         }
     }
