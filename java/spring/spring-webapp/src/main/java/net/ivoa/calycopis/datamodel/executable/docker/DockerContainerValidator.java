@@ -22,7 +22,9 @@
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +104,7 @@ implements AbstractExecutableValidator
             );
 
         //
-        // Validate the image location.
+        // Validate the image locations.
         success &= validateImageSpec(
             requested.getImage(),
             validated,
@@ -236,9 +238,30 @@ implements AbstractExecutableValidator
         log.debug("Requested [{}]", requested);
 
         boolean success = true ;
+        IvoaDockerImageSpec result = new IvoaDockerImageSpec();
 
-        // TODO Do some checking here ...
-        validated.setImage(requested);
+        List<String> locations = new ArrayList<String>();
+
+        if (requested != null)
+            {
+            for (String location : requested.getLocations())
+                {
+                // TODO Add better checks ..
+                boolean notbad = badValueCheck(
+                    location,
+                    context
+                    );
+                if (notbad)
+                    {
+                    locations.add(
+                        location
+                        );
+                    }
+                success &= notbad;
+                }
+            }
+        
+        validated.setImage(result);
         
         return success;
         }

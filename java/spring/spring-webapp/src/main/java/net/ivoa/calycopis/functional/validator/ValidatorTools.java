@@ -87,7 +87,7 @@ public class ValidatorTools
      * Test value to trigger a failure.
      * 
      */
-    public static final String BAD_VALUE_TRIGGER = "uri:bad-value-trigger";
+    public static final String BAD_VALUE_TRIGGER = "bad-value-trigger";
 
     /**
      * Check for a bad value.

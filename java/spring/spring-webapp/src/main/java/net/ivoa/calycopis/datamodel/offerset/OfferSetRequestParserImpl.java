@@ -275,6 +275,9 @@ public class OfferSetRequestParserImpl
      */
     public void validate(final IvoaOfferSetRequestSchedule schedule, final OfferSetRequestParserContext context)
         {
+        // TODO return boolean success
+        boolean success = true ;
+
         log.debug("validate(IvoaExecutionSessionRequestSchedule)");
         if (schedule != null)
             {
@@ -285,10 +288,11 @@ public class OfferSetRequestParserImpl
                 if (durationstr != null)
                     {
                     try {
+                        log.debug("Duration string [{}]", durationstr);
                         Duration durationval = Duration.parse(
                             durationstr
                             );
-                        log.debug("Duration [{}][{}]", durationstr, durationval);
+                        log.debug("Duration value [{}]", durationval);
                         context.setExecutionDuration(
                             durationval
                             );
@@ -305,6 +309,7 @@ public class OfferSetRequestParserImpl
                                 ouch.getMessage()
                                 )
                             );
+                        success = false ;
                         context.valid(false);
                         }
                     }
@@ -315,26 +320,30 @@ public class OfferSetRequestParserImpl
                     for (String startstr : startstrlist)
                         {
                         try {
+                            log.debug("Interval String [{}]", startstr);
                             Interval startint = Interval.parse(
                                 startstr
                                 );
-                            log.debug("Interval [{}][{}]", startstr, startint);
+                            // TODO If interval has already passed - skip and warn.
+                            log.debug("Interval value [{}]", startint);
                             context.addStartInterval(
                                 startint
                                 );
                             }
                         catch (Exception ouch)
                             {
+                            log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
                             context.getOfferSetEntity().addWarning(
                                 "urn:input-syntax-fail",
                                 "Unable to parse interval [${string}][${message}]",
                                 Map.of(
-                                    "value",
+                                    "string",
                                     startstr,
                                     "message",
                                     ouch.getMessage()
                                     )
                                 );
+                            success = false ;
                             context.valid(false);
                             }
                         }

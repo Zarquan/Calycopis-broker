@@ -77,37 +77,31 @@ components:
       type: object
       title: DockerImageSpec
       properties:
-        ident:
-          type: string
+        locations:
           description: |
-            The full image identifier, including repository, namespace and tag.
-        name:
-          type: string
-          description: |
-            The full image name.
-        namespace:
-          type: string
-          description: |
-            The namespace within the repository.
-        tag:
-          type: string
-          description: |
-            The image tag.
-        repository:
-          type: string
-          description: |
-            The respository hostname.
-        platform:
-          $ref: 'DockerPlatformSpec'
+            An array of repository locations.
+            <repository>/<namespace>/<container>:<tag>
+            e.g.
+            ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13
+          type: array
+          items:
+            type: string
         digest:
           type: string
           description: |
-            The image digest, generated as a as sha256 checksum when the image is built.
-            The unique digest can be used to verify the contents of a downloaded image.
+            Images that use the v2 or later format have a content-addressable identifier called a digest.
+            As long as the input used to generate the image is unchanged, the digest value is predictable.
+            The digest is generated as a sha256 checksum when the image is built.
+            The digest can be used to verify the contents of an image.
+        platform:
+          $ref: 'DockerPlatformSpec'
 
     DockerPlatformSpec:
       description: |
         Details of the platform the container image is built for.
+        Debatable whether we need to have this here.
+        The information will be in the container, and the platform will probably need to check it anyway to make sure.
+        So why have the duplicate information ?
       type: object
       title: DockerPlatformSpec
       properties:
@@ -143,32 +137,40 @@ components:
       type: object
       title: DockerNetworkPort
       properties:
-        address:
-          type: string
+        access:
+          type: boolean
           description: |
-            The IP address of the external network interface.
-            The client should not set this value.
-            The service will update this with a publicly accessible interface address when it sets up the execution.
-        external:
-          type: string
-          description: |
-            The host machine's external port number to connect.
-            The client should not set this value.
-            The service will update this with the corrent port number when it sets up the execution.
+            A flag to indicate whether this port should be listed in the access methods for the execution.
         internal:
-          type: string
-          description: |
-            The port number on the container to publish.
+          port:
+            type: string
+            description: |
+              The port number on the container to publish.
+              This should be defined as part of the description of the executable supplied by the client.
+        external:
+          port:
+            type: string
+            description: |
+              The port number of the external interface.
+              The service will populate this value when it sets up the execution.
+          addresses:
+            type: array
+            items: string
+            description: |
+              A list of public hostnames or IP addresses for the external interface.
+              The service will populate this list when it sets up the execution.
+              This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
         protocol:
           type: string
-          enum:
-            - UDP
-            - TCP
-            - HTTP
-            - HTTPS
           description: |
-            The network protocol to use, default is `TCP`.
-            The `HTTP` and `HTTPS` values further specify the Protocol to use on top of `TCP`.
+            The network protocol to use, typically one of [UDP, TCP, HTTP, HTTPS], with a default of `TCP`.
+            This should be defined as part of the description of the executable supplied by the client.
+            The `HTTP` and `HTTPS` values further specify the protocol to use on top of `TCP`.
             Specifying `HTTPS` may help to meet firewall restrictions at some sites.
-
+        path:
+          type: string
+          description: |
+            The path component of the access URL.
+            This should be defined as part of the description of the executable supplied by the client.
+            This can be used to provide the path of a notebook within a JupyterNotebook container.
 
