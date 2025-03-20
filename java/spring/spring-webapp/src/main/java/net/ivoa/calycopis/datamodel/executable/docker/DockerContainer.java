@@ -5,6 +5,7 @@ package net.ivoa.calycopis.datamodel.executable.docker;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutable;
 

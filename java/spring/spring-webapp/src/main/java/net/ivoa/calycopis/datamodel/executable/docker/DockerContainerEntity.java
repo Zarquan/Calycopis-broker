@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -35,8 +36,10 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
@@ -44,7 +47,10 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
+import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
 import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
+import net.ivoa.calycopis.util.ListWrapper;
 
 /**
  * A Docker container executable.
@@ -86,8 +92,19 @@ public class DockerContainerEntity
             template.getEnvironment()
             );
         
-        // network
-        
+        IvoaDockerNetworkSpec network = template.getNetwork() ; 
+        if (network != null)
+            {
+            for (IvoaDockerNetworkPort port : network.getPorts())
+                {
+                this.networkPorts.add(
+                    new DockerNetworkPortEntity(
+                        this,
+                        port
+                        )
+                    );                
+                }
+            }
         }
     
     @Override
@@ -209,7 +226,8 @@ public class DockerContainerEntity
         @CollectionTable(
             name="dockerimagelocations",
             joinColumns=@JoinColumn(
-                name="uuid"
+                name="parent",
+                referencedColumnName = "uuid"
                 )
             )
         private List<String> locations;
@@ -273,10 +291,30 @@ public class DockerContainerEntity
         return this.environment;
         }
 
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    protected List<DockerNetworkPortEntity> networkPorts = new ArrayList<DockerNetworkPortEntity>();
+
     @Override
     public Network getNetwork()
         {
-        // TODO Auto-generated method stub
-        return null;
+        return new Network()
+            {
+            public List<NetworkPort> getPorts()
+                {
+                return new ListWrapper<NetworkPort, DockerNetworkPortEntity>(
+                    networkPorts
+                    ){
+                    public NetworkPort wrap(final DockerNetworkPortEntity inner)
+                        {
+                        return (NetworkPort) inner ;
+                        }
+                    };
+                }
+            };
         }
     }
