@@ -30,9 +30,11 @@ import java.util.UUID;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.ExternalPort;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.InternalPort;
@@ -40,7 +42,8 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.NetworkPor
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 
 /**
- * 
+ * JPA Entity for DockerContainer ports.
+ *  
  */
 @Entity
 @Table(
@@ -57,12 +60,12 @@ implements NetworkPort
         return this.uuid ;
         }
     
-    public DockerNetworkPortEntity()
+    protected DockerNetworkPortEntity()
         {
         super();
         }
     
-    public DockerNetworkPortEntity(
+    protected DockerNetworkPortEntity(
         final DockerContainerEntity parent,
         final IvoaDockerNetworkPort template
         ){
@@ -86,7 +89,9 @@ implements NetworkPort
                 );
             }
         }
-    
+
+    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private DockerContainerEntity parent ;
     public DockerContainerEntity getParent()
         {
@@ -129,20 +134,26 @@ implements NetworkPort
     @Override
     public ExternalPort getExternal()
         {
-        return new ExternalPort()
+        if ((externalPortNumber != null) || (externalAddresses.isEmpty() == false))
             {
-            @Override
-            public Integer getPort()
+            return new ExternalPort()
                 {
-                return externalPortNumber;
-                }
-
-            @Override
-            public List<String> getAddresses()
-                {
-                return externalAddresses ;
-                }
-            };
+                @Override
+                public Integer getPort()
+                    {
+                    return externalPortNumber;
+                    }
+    
+                @Override
+                public List<String> getAddresses()
+                    {
+                    return externalAddresses ;
+                    }
+                };
+            }
+        else {
+            return null ;
+            }
         }
 
     private String protocol;

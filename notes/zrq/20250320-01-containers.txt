@@ -27,16 +27,12 @@
 
         Add support for Docker containers.
 
+
     Result:
 
         Work in progress ...
 
 # -----------------------------------------------------
-
-    #
-    # Update the schema for AbstractExecutable and DockerContainer ..
-    #
-
 # -----------------------------------------------------
 # Build the project.
 #[user@desktop]
@@ -108,25 +104,23 @@ EOF
     | yq '.' \
     | tee "/tmp/offerset-response.yaml"
 
-
-
-    >   uuid: "24cd884a-5988-4c9c-aff8-d8a2d45d0538"
+    >   uuid: "f32a93b2-88cb-4287-b32f-982ecdf9b383"
     >   name: "example-006"
     >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-    >   created: "2025-03-20T05:31:09.499010908Z"
-    >   href: "http://127.0.0.1:8082/offersets/24cd884a-5988-4c9c-aff8-d8a2d45d0538"
+    >   created: "2025-03-20T16:04:53.769168045Z"
+    >   href: "http://127.0.0.1:8082/offersets/f32a93b2-88cb-4287-b32f-982ecdf9b383"
     >   result: "YES"
     >   offers:
-    >     - uuid: "680205e1-7581-4b9f-a621-a82571f861cd"
+    >     - uuid: "468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.586426982Z"
-    >       href: "http://127.0.0.1:8082/sessions/680205e1-7581-4b9f-a621-a82571f861cd"
+    >       created: "2025-03-20T16:04:54.06462978Z"
+    >       href: "http://127.0.0.1:8082/sessions/468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "7863b5de-3a68-4f9d-b912-ea808ffae84f"
+    >         uuid: "e7e601c6-8884-4aab-9fc3-577b0d22cdd6"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -141,37 +135,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "17145fd2-027d-4952-a6b0-bf20ffa62bf6"
+    >             uuid: "086c9535-8ebf-4cb2-af6c-37721f3d8dd7"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T05:25:00Z"
+    >           start: "2025-03-20T15:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T05:35:00Z"
+    >           start: "2025-03-20T16:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T07:35:00Z"
+    >           start: "2025-03-20T18:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "680205e1-7581-4b9f-a621-a82571f861cd"
+    >     - uuid: "468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.586426982Z"
-    >       href: "http://127.0.0.1:8082/sessions/680205e1-7581-4b9f-a621-a82571f861cd"
+    >       created: "2025-03-20T16:04:54.06462978Z"
+    >       href: "http://127.0.0.1:8082/sessions/468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "7863b5de-3a68-4f9d-b912-ea808ffae84f"
+    >         uuid: "e7e601c6-8884-4aab-9fc3-577b0d22cdd6"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -186,37 +192,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "17145fd2-027d-4952-a6b0-bf20ffa62bf6"
+    >             uuid: "086c9535-8ebf-4cb2-af6c-37721f3d8dd7"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T05:25:00Z"
+    >           start: "2025-03-20T15:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T05:35:00Z"
+    >           start: "2025-03-20T16:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T07:35:00Z"
+    >           start: "2025-03-20T18:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >     - uuid: "b8fa975b-b082-433c-b9ae-024c405314ae"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.598101688Z"
-    >       href: "http://127.0.0.1:8082/sessions/8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >       created: "2025-03-20T16:04:54.1248806Z"
+    >       href: "http://127.0.0.1:8082/sessions/b8fa975b-b082-433c-b9ae-024c405314ae"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "77dc05f5-74f0-4920-be65-9324859c9f8c"
+    >         uuid: "5194b9b3-432e-43c8-8d0a-518eba941db3"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -231,37 +249,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "13e56dc9-1a62-45e6-a10f-e06d4cc34ae2"
+    >             uuid: "73223d4a-fbf4-427c-8e3e-5b9b8984dcb4"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T09:25:00Z"
+    >           start: "2025-03-20T19:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T09:35:00Z"
+    >           start: "2025-03-20T20:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T11:35:00Z"
+    >           start: "2025-03-20T22:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >     - uuid: "b8fa975b-b082-433c-b9ae-024c405314ae"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.598101688Z"
-    >       href: "http://127.0.0.1:8082/sessions/8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >       created: "2025-03-20T16:04:54.1248806Z"
+    >       href: "http://127.0.0.1:8082/sessions/b8fa975b-b082-433c-b9ae-024c405314ae"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "77dc05f5-74f0-4920-be65-9324859c9f8c"
+    >         uuid: "5194b9b3-432e-43c8-8d0a-518eba941db3"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -276,37 +306,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "13e56dc9-1a62-45e6-a10f-e06d4cc34ae2"
+    >             uuid: "73223d4a-fbf4-427c-8e3e-5b9b8984dcb4"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T09:25:00Z"
+    >           start: "2025-03-20T19:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T09:35:00Z"
+    >           start: "2025-03-20T20:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T11:35:00Z"
+    >           start: "2025-03-20T22:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >     - uuid: "04f792b1-f391-427b-9188-ed5ded27d826"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.61084437Z"
-    >       href: "http://127.0.0.1:8082/sessions/94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >       created: "2025-03-20T16:04:54.17967781Z"
+    >       href: "http://127.0.0.1:8082/sessions/04f792b1-f391-427b-9188-ed5ded27d826"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "cbb6dddc-9804-4737-baa4-3b4ba7259b56"
+    >         uuid: "3305b8bc-4b97-408a-a4bc-b4738bdb62a0"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -321,37 +363,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "8d46a39b-7c64-4120-a43f-56cf5d7667ec"
+    >             uuid: "a7fd0aa5-4489-4c97-9c09-04c784096729"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T13:25:00Z"
+    >           start: "2025-03-20T23:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T13:35:00Z"
+    >           start: "2025-03-21T00:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T15:35:00Z"
+    >           start: "2025-03-21T02:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >     - uuid: "04f792b1-f391-427b-9188-ed5ded27d826"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.61084437Z"
-    >       href: "http://127.0.0.1:8082/sessions/94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >       created: "2025-03-20T16:04:54.17967781Z"
+    >       href: "http://127.0.0.1:8082/sessions/04f792b1-f391-427b-9188-ed5ded27d826"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "cbb6dddc-9804-4737-baa4-3b4ba7259b56"
+    >         uuid: "3305b8bc-4b97-408a-a4bc-b4738bdb62a0"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -366,37 +420,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "8d46a39b-7c64-4120-a43f-56cf5d7667ec"
+    >             uuid: "a7fd0aa5-4489-4c97-9c09-04c784096729"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T13:25:00Z"
+    >           start: "2025-03-20T23:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T13:35:00Z"
+    >           start: "2025-03-21T00:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T15:35:00Z"
+    >           start: "2025-03-21T02:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >     - uuid: "58332d8d-22f2-4268-8331-aeb458da02e7"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.62223416Z"
-    >       href: "http://127.0.0.1:8082/sessions/137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >       created: "2025-03-20T16:04:54.225677392Z"
+    >       href: "http://127.0.0.1:8082/sessions/58332d8d-22f2-4268-8331-aeb458da02e7"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "4dfc4a97-0e3f-4412-a82f-c96a0c0a538b"
+    >         uuid: "05e8ef77-4014-4b80-83d2-1484666fb717"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -411,37 +477,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "9488b777-35d7-49e9-a867-7b56f6b726bc"
+    >             uuid: "89966d77-8004-4199-98ac-bf5c4aa4ec25"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T17:25:00Z"
+    >           start: "2025-03-21T03:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T17:35:00Z"
+    >           start: "2025-03-21T04:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T19:35:00Z"
+    >           start: "2025-03-21T06:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >     - uuid: "58332d8d-22f2-4268-8331-aeb458da02e7"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.62223416Z"
-    >       href: "http://127.0.0.1:8082/sessions/137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >       created: "2025-03-20T16:04:54.225677392Z"
+    >       href: "http://127.0.0.1:8082/sessions/58332d8d-22f2-4268-8331-aeb458da02e7"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.499029712Z"
+    >       expires: "2025-03-20T21:04:53.769214018Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "4dfc4a97-0e3f-4412-a82f-c96a0c0a538b"
+    >         uuid: "05e8ef77-4014-4b80-83d2-1484666fb717"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -456,21 +534,33 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "9488b777-35d7-49e9-a867-7b56f6b726bc"
+    >             uuid: "89966d77-8004-4199-98ac-bf5c4aa4ec25"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T17:25:00Z"
+    >           start: "2025-03-21T03:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T17:35:00Z"
+    >           start: "2025-03-21T04:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T19:35:00Z"
+    >           start: "2025-03-21T06:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
@@ -490,23 +580,23 @@ EOF
         "${offerseturl}" \
     | yq '.'
 
-    >   uuid: "24cd884a-5988-4c9c-aff8-d8a2d45d0538"
+    >   uuid: "f32a93b2-88cb-4287-b32f-982ecdf9b383"
     >   name: "example-006"
     >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-    >   created: "2025-03-20T05:31:09.499011Z"
-    >   href: "http://127.0.0.1:8082/offersets/24cd884a-5988-4c9c-aff8-d8a2d45d0538"
+    >   created: "2025-03-20T16:04:53.769168Z"
+    >   href: "http://127.0.0.1:8082/offersets/f32a93b2-88cb-4287-b32f-982ecdf9b383"
     >   result: "YES"
     >   offers:
-    >     - uuid: "680205e1-7581-4b9f-a621-a82571f861cd"
+    >     - uuid: "468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.586427Z"
-    >       href: "http://127.0.0.1:8082/sessions/680205e1-7581-4b9f-a621-a82571f861cd"
+    >       created: "2025-03-20T16:04:54.06463Z"
+    >       href: "http://127.0.0.1:8082/sessions/468b4eb7-6be3-4e99-bf92-07add9cd45f9"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.49903Z"
+    >       expires: "2025-03-20T21:04:53.769214Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "7863b5de-3a68-4f9d-b912-ea808ffae84f"
+    >         uuid: "e7e601c6-8884-4aab-9fc3-577b0d22cdd6"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -521,37 +611,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "17145fd2-027d-4952-a6b0-bf20ffa62bf6"
+    >             uuid: "086c9535-8ebf-4cb2-af6c-37721f3d8dd7"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T05:25:00Z"
+    >           start: "2025-03-20T15:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T05:35:00Z"
+    >           start: "2025-03-20T16:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T07:35:00Z"
+    >           start: "2025-03-20T18:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >     - uuid: "b8fa975b-b082-433c-b9ae-024c405314ae"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.598102Z"
-    >       href: "http://127.0.0.1:8082/sessions/8769ca32-0124-470f-bd74-6cbedf39fe76"
+    >       created: "2025-03-20T16:04:54.124881Z"
+    >       href: "http://127.0.0.1:8082/sessions/b8fa975b-b082-433c-b9ae-024c405314ae"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.49903Z"
+    >       expires: "2025-03-20T21:04:53.769214Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "77dc05f5-74f0-4920-be65-9324859c9f8c"
+    >         uuid: "5194b9b3-432e-43c8-8d0a-518eba941db3"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -566,37 +668,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "13e56dc9-1a62-45e6-a10f-e06d4cc34ae2"
+    >             uuid: "73223d4a-fbf4-427c-8e3e-5b9b8984dcb4"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T09:25:00Z"
+    >           start: "2025-03-20T19:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T09:35:00Z"
+    >           start: "2025-03-20T20:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T11:35:00Z"
+    >           start: "2025-03-20T22:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >     - uuid: "04f792b1-f391-427b-9188-ed5ded27d826"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.610844Z"
-    >       href: "http://127.0.0.1:8082/sessions/94ef91af-d844-4d84-bbe7-ca60d2074651"
+    >       created: "2025-03-20T16:04:54.179678Z"
+    >       href: "http://127.0.0.1:8082/sessions/04f792b1-f391-427b-9188-ed5ded27d826"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.49903Z"
+    >       expires: "2025-03-20T21:04:53.769214Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "cbb6dddc-9804-4737-baa4-3b4ba7259b56"
+    >         uuid: "3305b8bc-4b97-408a-a4bc-b4738bdb62a0"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -611,37 +725,49 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "8d46a39b-7c64-4120-a43f-56cf5d7667ec"
+    >             uuid: "a7fd0aa5-4489-4c97-9c09-04c784096729"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T13:25:00Z"
+    >           start: "2025-03-20T23:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T13:35:00Z"
+    >           start: "2025-03-21T00:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T15:35:00Z"
+    >           start: "2025-03-21T02:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
     >           values:
     >             - "ACCEPTED"
     >             - "REJECTED"
-    >     - uuid: "137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >     - uuid: "58332d8d-22f2-4268-8331-aeb458da02e7"
     >       name: "no name"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       created: "2025-03-20T05:31:09.622234Z"
-    >       href: "http://127.0.0.1:8082/sessions/137bdd92-5e40-4bfe-b3d4-36aca447fabb"
+    >       created: "2025-03-20T16:04:54.225677Z"
+    >       href: "http://127.0.0.1:8082/sessions/58332d8d-22f2-4268-8331-aeb458da02e7"
     >       phase: "OFFERED"
-    >       expires: "2025-03-20T10:31:09.49903Z"
+    >       expires: "2025-03-20T21:04:53.769214Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-    >         uuid: "4dfc4a97-0e3f-4412-a82f-c96a0c0a538b"
+    >         uuid: "05e8ef77-4014-4b80-83d2-1484666fb717"
     >         name: "executable-006"
     >         image:
     >           locations:
@@ -656,21 +782,33 @@ EOF
     >         environment:
     >           PASSWORD: "jahd6jaY"
     >           CUSTOM_USER: "ska"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
     >       resources:
     >         compute:
     >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >             uuid: "9488b777-35d7-49e9-a867-7b56f6b726bc"
+    >             uuid: "89966d77-8004-4199-98ac-bf5c4aa4ec25"
     >             name: "compute-006"
     >       schedule:
     >         preparing:
     >           duration: "PT10M"
-    >           start: "2025-03-20T17:25:00Z"
+    >           start: "2025-03-21T03:55:00Z"
     >         executing:
     >           duration: "PT2H"
-    >           start: "2025-03-20T17:35:00Z"
+    >           start: "2025-03-21T04:05:00Z"
     >         releasing:
     >           duration: "PT5M"
-    >           start: "2025-03-20T19:35:00Z"
+    >           start: "2025-03-21T06:05:00Z"
     >       options:
     >         - type: "uri:enum-value-option"
     >           path: "phase"
@@ -679,4 +817,72 @@ EOF
     >             - "REJECTED"
 
 
+    offerurl=$(
+        yq '.offers[0].href' "/tmp/offerset-response.yaml"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerurl}" \
+    | yq '.'
+
+    >   uuid: "468b4eb7-6be3-4e99-bf92-07add9cd45f9"
+    >   name: "no name"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >   created: "2025-03-20T16:04:54.06463Z"
+    >   href: "http://127.0.0.1:8082/sessions/468b4eb7-6be3-4e99-bf92-07add9cd45f9"
+    >   phase: "OFFERED"
+    >   expires: "2025-03-20T21:04:53.769214Z"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >     uuid: "e7e601c6-8884-4aab-9fc3-577b0d22cdd6"
+    >     name: "executable-006"
+    >     image:
+    >       locations:
+    >         - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >         - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >       digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >       platform:
+    >         architecture: "amd64"
+    >         os: "linux"
+    >     privileged: false
+    >     entrypoint: "test-entrypoint"
+    >     environment:
+    >       PASSWORD: "jahd6jaY"
+    >       CUSTOM_USER: "ska"
+    >     network:
+    >       ports:
+    >         - access: true
+    >           internal:
+    >             port: 3000
+    >           protocol: "HTTP"
+    >           path: "/"
+    >         - access: true
+    >           internal:
+    >             port: 3001
+    >           protocol: "HTTPS"
+    >           path: "/"
+    >   resources:
+    >     compute:
+    >       - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "086c9535-8ebf-4cb2-af6c-37721f3d8dd7"
+    >         name: "compute-006"
+    >   schedule:
+    >     preparing:
+    >       duration: "PT10M"
+    >       start: "2025-03-20T15:55:00Z"
+    >     executing:
+    >       duration: "PT2H"
+    >       start: "2025-03-20T16:05:00Z"
+    >     releasing:
+    >       duration: "PT5M"
+    >       start: "2025-03-20T18:05:00Z"
+    >   options:
+    >     - type: "uri:enum-value-option"
+    >       path: "phase"
+    >       values:
+    >         - "ACCEPTED"
+    >         - "REJECTED"
 

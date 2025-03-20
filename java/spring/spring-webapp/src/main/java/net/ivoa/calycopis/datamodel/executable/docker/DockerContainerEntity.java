@@ -46,14 +46,16 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerInternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
 import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
- * A Docker container executable.
+ * JPA Entity for DockerContainer executables.
  *
  */
 @Slf4j
@@ -74,8 +76,10 @@ public class DockerContainerEntity
         super();
         }
 
-    protected DockerContainerEntity(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
-        {
+    protected DockerContainerEntity(
+        final ExecutionSessionEntity parent,
+        final IvoaDockerContainer template
+        ){
         super(
             parent,
             template.getName()
@@ -92,10 +96,10 @@ public class DockerContainerEntity
             template.getEnvironment()
             );
         
-        IvoaDockerNetworkSpec network = template.getNetwork() ; 
-        if (network != null)
+        IvoaDockerNetworkSpec ivoaNetwork = template.getNetwork() ; 
+        if (ivoaNetwork != null)
             {
-            for (IvoaDockerNetworkPort port : network.getPorts())
+            for (IvoaDockerNetworkPort port : ivoaNetwork.getPorts())
                 {
                 this.networkPorts.add(
                     new DockerNetworkPortEntity(
@@ -153,11 +157,9 @@ public class DockerContainerEntity
             if (this.image.getPlatform() != null)
                 {
                 IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
-                log.debug("setArchitecture() [{}]", this.image.getPlatform().getArchitecture());
                 ivoaPlatform.setArchitecture(
                     this.image.getPlatform().getArchitecture()
                     );
-                log.debug("setOs() [{}]", this.image.getPlatform().getOs());
                 ivoaPlatform.setOs(
                     this.image.getPlatform().getOs()
                     );
@@ -170,14 +172,60 @@ public class DockerContainerEntity
                 );
             }
 
-        /*
-         * 
-        IvoaDockerNetworkSpec network = new IvoaDockerNetworkSpec();
-        bean.setNetwork(
-            network
-            );
-         * 
-         */
+        if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
+            {
+            log.debug("Network ports [{}]", this.networkPorts);
+            
+            IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
+
+            for (DockerNetworkPortEntity networkPort : this.networkPorts)
+                {
+                IvoaDockerNetworkPort ivoaNetworkPort = new IvoaDockerNetworkPort();
+                ivoaNetworkPort.setAccess(
+                    networkPort.getAccess()
+                    );
+                ivoaNetworkPort.setPath(
+                    networkPort.getPath()
+                    );
+                ivoaNetworkPort.setProtocol(
+                    networkPort.getProtocol()
+                    );
+
+                if (networkPort.getInternal() != null)
+                    {
+                    IvoaDockerInternalPort ivoaInternalPort = new IvoaDockerInternalPort();
+                    ivoaInternalPort.setPort(
+                        networkPort.getInternal().getPort()
+                        );
+                    ivoaNetworkPort.setInternal(
+                        ivoaInternalPort
+                        );
+                    }
+
+                if (networkPort.getExternal() != null)
+                    {
+                    IvoaDockerExternalPort ivoaExternalPort = new IvoaDockerExternalPort();
+                    ivoaExternalPort.setPort(
+                        networkPort.getExternal().getPort()
+                        );
+                    for (String address : networkPort.getExternal().getAddresses())
+                        {
+                        ivoaExternalPort.addAddressesItem(
+                            address
+                            );
+                        }
+                    ivoaNetworkPort.setExternal(
+                        ivoaExternalPort
+                        );
+                    }
+                ivoaNetworkSpec.addPortsItem(
+                    ivoaNetworkPort
+                    );
+                }
+            bean.setNetwork(
+                ivoaNetworkSpec
+                );
+            }
         
         // TODO generate the access URLs
         
@@ -282,8 +330,15 @@ public class DockerContainerEntity
         }
 
     @ElementCollection
-    @MapKeyColumn(name="envkey")
     @Column(name="envvalue")
+    @MapKeyColumn(name="envkey")
+    @CollectionTable(
+        name="dockerenvironmentvariables",
+        joinColumns=@JoinColumn(
+            name="parent",
+            referencedColumnName = "uuid"
+            )
+        )
     private Map<String, String> environment;
     @Override
     public Map<String, String> getEnvironment()

@@ -25,7 +25,7 @@
 
     Target:
 
-        Add support for Docker and Singularity containers.
+        Add support for Docker containers.
 
     Result:
 
@@ -167,279 +167,277 @@ EOF
     | tee "${example}/offerset-response.yaml"
 
 
---START--
-uuid: "9e617ad1-554b-4e94-ab79-cf6d12b92e43"
-name: "example-006"
-type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-03-17T11:00:07.746356391Z"
-href: "http://127.0.0.1:8082/offersets/9e617ad1-554b-4e94-ab79-cf6d12b92e43"
-result: "YES"
-offers:
-  - uuid: "6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.010407329Z"
-    href: "http://127.0.0.1:8082/sessions/6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "3068764f-6813-486f-8567-e045fc992007"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T10:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T11:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T12:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.010407329Z"
-    href: "http://127.0.0.1:8082/sessions/6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "3068764f-6813-486f-8567-e045fc992007"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T10:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T11:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T12:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "005f82ea-b602-45fd-add1-ec6bc35be6c3"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.045366476Z"
-    href: "http://127.0.0.1:8082/sessions/005f82ea-b602-45fd-add1-ec6bc35be6c3"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "835fd59c-1d1a-4835-b227-a19d569d2dd2"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T12:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T13:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T14:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "005f82ea-b602-45fd-add1-ec6bc35be6c3"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.045366476Z"
-    href: "http://127.0.0.1:8082/sessions/005f82ea-b602-45fd-add1-ec6bc35be6c3"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "835fd59c-1d1a-4835-b227-a19d569d2dd2"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T12:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T13:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T14:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "19a9c833-89ef-4c7a-92eb-2129377d99b4"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.059004817Z"
-    href: "http://127.0.0.1:8082/sessions/19a9c833-89ef-4c7a-92eb-2129377d99b4"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "cff55840-bd5c-4ca2-b25f-b1317b4a0b53"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T14:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T15:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T16:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "19a9c833-89ef-4c7a-92eb-2129377d99b4"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.059004817Z"
-    href: "http://127.0.0.1:8082/sessions/19a9c833-89ef-4c7a-92eb-2129377d99b4"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "cff55840-bd5c-4ca2-b25f-b1317b4a0b53"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T14:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T15:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T16:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "b364856f-47e8-4386-b5a0-ecb1ec459355"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.077142532Z"
-    href: "http://127.0.0.1:8082/sessions/b364856f-47e8-4386-b5a0-ecb1ec459355"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "9f0151a0-e80f-42b6-8883-5f981f57474f"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T16:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T17:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T18:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
-  - uuid: "b364856f-47e8-4386-b5a0-ecb1ec459355"
-    name: "no name"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-03-17T11:00:08.077142532Z"
-    href: "http://127.0.0.1:8082/sessions/b364856f-47e8-4386-b5a0-ecb1ec459355"
-    phase: "OFFERED"
-    expires: "2025-03-17T16:00:07.746387038Z"
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "9f0151a0-e80f-42b6-8883-5f981f57474f"
-      privileged: false
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
-    schedule:
-      preparing:
-        duration: "PT10M"
-        start: "2025-03-17T16:55:00Z"
-      executing:
-        duration: "PT1H"
-        start: "2025-03-17T17:05:00Z"
-      releasing:
-        duration: "PT5M"
-        start: "2025-03-17T18:05:00Z"
-    options:
-      - type: "uri:enum-value-option"
-        path: "phase"
-        values:
-          - "ACCEPTED"
-          - "REJECTED"
---END--
+    >   uuid: "9e617ad1-554b-4e94-ab79-cf6d12b92e43"
+    >   name: "example-006"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-03-17T11:00:07.746356391Z"
+    >   href: "http://127.0.0.1:8082/offersets/9e617ad1-554b-4e94-ab79-cf6d12b92e43"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.010407329Z"
+    >       href: "http://127.0.0.1:8082/sessions/6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "3068764f-6813-486f-8567-e045fc992007"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T10:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T11:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T12:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.010407329Z"
+    >       href: "http://127.0.0.1:8082/sessions/6b33c67a-f6cb-43de-b506-d06b7ddb79e7"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "3068764f-6813-486f-8567-e045fc992007"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "cf1ed12a-127c-48e1-b96e-37fa05e935dd"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T10:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T11:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T12:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "005f82ea-b602-45fd-add1-ec6bc35be6c3"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.045366476Z"
+    >       href: "http://127.0.0.1:8082/sessions/005f82ea-b602-45fd-add1-ec6bc35be6c3"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "835fd59c-1d1a-4835-b227-a19d569d2dd2"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T12:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T13:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T14:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "005f82ea-b602-45fd-add1-ec6bc35be6c3"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.045366476Z"
+    >       href: "http://127.0.0.1:8082/sessions/005f82ea-b602-45fd-add1-ec6bc35be6c3"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "835fd59c-1d1a-4835-b227-a19d569d2dd2"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "ec4e90e1-2a5f-489d-a9f4-bc41ef9b5383"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T12:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T13:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T14:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "19a9c833-89ef-4c7a-92eb-2129377d99b4"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.059004817Z"
+    >       href: "http://127.0.0.1:8082/sessions/19a9c833-89ef-4c7a-92eb-2129377d99b4"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "cff55840-bd5c-4ca2-b25f-b1317b4a0b53"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T14:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T15:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T16:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "19a9c833-89ef-4c7a-92eb-2129377d99b4"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.059004817Z"
+    >       href: "http://127.0.0.1:8082/sessions/19a9c833-89ef-4c7a-92eb-2129377d99b4"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "cff55840-bd5c-4ca2-b25f-b1317b4a0b53"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "dab7c32b-c36b-4481-a76e-9b3384b78904"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T14:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T15:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T16:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "b364856f-47e8-4386-b5a0-ecb1ec459355"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.077142532Z"
+    >       href: "http://127.0.0.1:8082/sessions/b364856f-47e8-4386-b5a0-ecb1ec459355"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "9f0151a0-e80f-42b6-8883-5f981f57474f"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T16:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T17:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T18:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
+    >     - uuid: "b364856f-47e8-4386-b5a0-ecb1ec459355"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-03-17T11:00:08.077142532Z"
+    >       href: "http://127.0.0.1:8082/sessions/b364856f-47e8-4386-b5a0-ecb1ec459355"
+    >       phase: "OFFERED"
+    >       expires: "2025-03-17T16:00:07.746387038Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "9f0151a0-e80f-42b6-8883-5f981f57474f"
+    >         privileged: false
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "22bca6f2-e9bd-4df8-b6e3-fc68d939224a"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT10M"
+    >           start: "2025-03-17T16:55:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-03-17T17:05:00Z"
+    >         releasing:
+    >           duration: "PT5M"
+    >           start: "2025-03-17T18:05:00Z"
+    >       options:
+    >         - type: "uri:enum-value-option"
+    >           path: "phase"
+    >           values:
+    >             - "ACCEPTED"
+    >             - "REJECTED"
 
 
 
