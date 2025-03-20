@@ -58,6 +58,7 @@ implements AbstractComputeResource
 
     /**
      * Protected constructor.
+     * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
     protected AbstractComputeResourceEntity(final ExecutionSessionEntity parent, final String name)

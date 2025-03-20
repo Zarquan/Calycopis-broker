@@ -22,10 +22,12 @@
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,8 +41,13 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerInternalPort;
+import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
+import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
 
 /**
  * A validator implementation to handle DockerContainers.
@@ -97,32 +104,29 @@ implements AbstractExecutableValidator
 
         //
         // Validate the executable name.
+        // TODO Move this to a base class
         success &= validateName(
             requested.getName(),
             validated,
             context
             );
 
+        // Created
+        // Messages
+        
+        //
+        // Validate the executable access methods.
+        // TODO Move this to a base class
+        success &= validateAccess(
+            requested.getAccess(),
+            validated,
+            context
+            );
+        
         //
         // Validate the image locations.
-        success &= validateImageSpec(
+        success &= validateImage(
             requested.getImage(),
-            validated,
-            context
-            );
-
-        //
-        // Validate the container network.
-        success &= validateNetwork(
-            requested.getNetwork(),
-            validated,
-            context
-            );
-
-        //
-        // Validate the requested endpoint.
-        success &= validateEntrypoint(
-            requested.getEntrypoint(),
             validated,
             context
             );
@@ -136,13 +140,29 @@ implements AbstractExecutableValidator
             );
 
         //
+        // Validate the requested entrypoint.
+        success &= validateEntrypoint(
+            requested.getEntrypoint(),
+            validated,
+            context
+            );
+
+        //
         // Validate the environment variables.
         success &= validateEnvironment(
             requested.getEnvironment(),
             validated,
             context
             );
-        
+
+        //
+        // Validate the container network.
+        success &= validateNetwork(
+            requested.getNetwork(),
+            validated,
+            context
+            );
+
         //
         // Everything is good, add our result to the state.
         // TODO Need to add a reference to the builder.
@@ -204,7 +224,7 @@ implements AbstractExecutableValidator
             );
         if (name != null)
             {
-            // TODO Make this configurable.
+            // TODO Better checks
             success &= badValueCheck(
                 name,
                 context
@@ -224,45 +244,177 @@ implements AbstractExecutableValidator
         
         return success;
         }
-    
+
+    /**
+     * Validate the executable access methods.
+     *
+     */
+    public boolean validateAccess(
+        final List<IvoaExecutableAccessMethod> requested,
+        final IvoaDockerContainer validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateAccess(....)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+
+        if ((requested != null) && (requested.isEmpty() == false))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:server-assigned-value",
+                "Access methods should not be set"
+                );
+            success = false ;
+            }
+        return success;
+        }
+
     /**
      * Validate the container image location.
      *
      */
-    public boolean validateImageSpec(
+    public boolean validateImage(
         final IvoaDockerImageSpec requested,
         final IvoaDockerContainer validated,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validateImageSpec(....)");
+        log.debug("validateImage(....)");
         log.debug("Requested [{}]", requested);
 
         boolean success = true ;
-        IvoaDockerImageSpec result = new IvoaDockerImageSpec();
-
-        List<String> locations = new ArrayList<String>();
 
         if (requested != null)
             {
-            for (String location : requested.getLocations())
+            IvoaDockerImageSpec result = new IvoaDockerImageSpec();
+            if ((requested.getLocations() != null) && (requested.getLocations().isEmpty() == false))
                 {
-                // TODO Add better checks ..
-                boolean notbad = badValueCheck(
-                    location,
-                    context
-                    );
-                if (notbad)
+                for (String location : requested.getLocations())
                     {
-                    locations.add(
+                    // TODO Better checks
+                    success &= badValueCheck(
+                        location,
+                        context
+                        );
+                    result.addLocationsItem(
                         location
                         );
                     }
-                success &= notbad;
+                }
+            else {
+                context.getOfferSetEntity().addWarning(
+                    "urn:missig-required-value",
+                    "At least one location required"
+                    );
+                success = false ;
+                }
+
+            String digest = requested.getDigest();
+            success &= badValueCheck(
+                digest,
+                context
+                );
+            if (digest != null)
+                {
+                result.setDigest(
+                    digest
+                    );
+                }
+            else {
+                // TODO Make this configurable
+                context.getOfferSetEntity().addWarning(
+                    "urn:missing-value",
+                    "Image digest is required"
+                    );
+                success = false ;
+                }
+
+            success &= validatePlatform(
+                requested.getPlatform(),
+                result,
+                context
+                );
+            
+            validated.setImage(
+                result
+                );
+            }
+        else {
+            context.getOfferSetEntity().addWarning(
+                "urn:missing-value",
+                "Container image is required"
+                );
+            success = false ;
+            }
+        return success;
+        }
+
+    public static final String DEFAULT_PLATFORM_ARCH = "amd64"; 
+    public static final String DEFAULT_PLATFORM_OS   = "linux"; 
+
+    public boolean validatePlatform(
+        final IvoaDockerPlatformSpec requested,
+        final IvoaDockerImageSpec validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validatePlatform(...)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+        IvoaDockerPlatformSpec result = new IvoaDockerPlatformSpec(); 
+
+        result.setArchitecture(
+            DEFAULT_PLATFORM_ARCH
+            );
+        result.setOs(
+            DEFAULT_PLATFORM_OS
+            );
+
+        if (requested != null)
+            {
+            String platformArch = requested.getArchitecture();  
+            result.setArchitecture(platformArch);
+            if (platformArch != null)
+                {
+                // TODO make this configurable
+                switch(platformArch)
+                    {
+                    case DEFAULT_PLATFORM_ARCH:
+                        break ;
+
+                    default:
+                        context.getOfferSetEntity().addWarning(
+                            "urn:invalied-value",
+                            "Unsupported platform architecture"
+                            );
+                        success = false ;
+                        break ;
+                    }
+                }
+
+            String platformOs = requested.getOs();  
+            result.setOs(platformOs);
+            if (platformOs != null)
+                {
+                // TODO make this configurable
+                switch(platformOs)
+                    {
+                    case DEFAULT_PLATFORM_OS:
+                        break ;
+
+                    default:
+                        context.getOfferSetEntity().addWarning(
+                            "urn:invalied-value",
+                            "Unsupported platform operating system"
+                            );
+                        success = false;
+                        break ;
+                    }
                 }
             }
-        
-        validated.setImage(result);
-        
+        validated.setPlatform(
+            result
+            );
         return success;
         }
 
@@ -275,17 +427,121 @@ implements AbstractExecutableValidator
         final IvoaDockerContainer validated,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validateNetwork(IvoaDockerNetworkSpec...)");
+        log.debug("validateNetwork(...)");
         log.debug("Requested [{}]", requested);
 
         boolean success = true ;
-
-        // TODO Do some checking here ...
-        validated.setNetwork(requested);
+        
+        if (requested != null)
+            {
+            IvoaDockerNetworkSpec result = new IvoaDockerNetworkSpec();
+            for (IvoaDockerNetworkPort port : requested.getPorts())
+                {
+                success &= validateNetworkPort(
+                    port,
+                    result,
+                    context
+                    );
+                }
+            if (success)
+                {
+                validated.setNetwork(
+                    result
+                    );
+                }
+            }
         
         return success;
         }
 
+
+    /**
+     * Validate a container network port.
+     *
+     */
+    public boolean validateNetworkPort(
+        final IvoaDockerNetworkPort requested,
+        final IvoaDockerNetworkSpec validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validatePort(...)");
+        log.debug("Requested [{}]", requested);
+    
+        boolean success = true ;
+        IvoaDockerNetworkPort  result = new IvoaDockerNetworkPort();
+
+        boolean access = requested.getAccess();
+        result.setAccess(access);
+
+        String protocol = requested.getProtocol();
+        result.setProtocol(protocol);
+        switch(protocol)
+            {
+            case "UDP":
+            case "TCP":
+            case "HTTP":
+            case "HTTPS":
+                break ;
+
+            default:
+                context.getOfferSetEntity().addWarning(
+                    "urn:invalid-value",
+                    "Unrecognised network port protocol[{}]",
+                    Map.of(
+                        "value",
+                        protocol
+                        )
+                    );
+                success = false ;
+                break ;
+            }
+
+        String path = requested.getPath();
+        result.setPath(
+            path
+            );
+        success &= badValueCheck(
+            path,
+            context
+            );
+
+        IvoaDockerInternalPort internal = requested.getInternal();
+        Integer portnum = internal.getPort(); 
+        result.setInternal(
+            new IvoaDockerInternalPort().port(
+                portnum 
+                )
+            );
+        if (portnum <= 0)
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:invalid-value",
+                "Negative network port number not supported [{}]",
+                Map.of(
+                    "value",
+                    portnum
+                    )
+                );
+            success = false ;
+            }
+
+        IvoaDockerExternalPort external = requested.getExternal();
+        if (external != null)
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:invalid-value",
+                "External port details should not be set by client"
+                );
+            success = false ;
+            }
+            
+        validated.addPortsItem(
+            result
+            );
+        
+        return success;
+        }
+    
     /**
      * Validate the container entrypoint.
      * 
@@ -295,7 +551,7 @@ implements AbstractExecutableValidator
         final IvoaDockerContainer validated,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validateEntrypoint(String ...)");
+        log.debug("validateEntrypoint(...)");
         log.debug("Requested [{}]", requested);
 
         boolean success = true ;
@@ -393,16 +649,12 @@ implements AbstractExecutableValidator
                 }
             //
             // Don't add an empty Map.
-            if (hashmap.isEmpty())
+            if (hashmap.isEmpty() == false)
                 {
-                validated.setEnvironment(null);
+                validated.setEnvironment(
+                    hashmap
+                    );
                 }
-            else {
-                validated.setEnvironment(hashmap);
-                }
-            }
-        else {
-            validated.setEnvironment(null);
             }
         return success;
         }

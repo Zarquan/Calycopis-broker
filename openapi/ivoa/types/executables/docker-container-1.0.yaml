@@ -70,7 +70,6 @@ components:
             Details of the network access available to the container.
           $ref: 'DockerNetworkSpec'
 
-
     DockerImageSpec:
       description: |
         Details of the container image.
@@ -142,24 +141,9 @@ components:
           description: |
             A flag to indicate whether this port should be listed in the access methods for the execution.
         internal:
-          port:
-            type: string
-            description: |
-              The port number on the container to publish.
-              This should be defined as part of the description of the executable supplied by the client.
+          $ref: 'DockerInternalPort'
         external:
-          port:
-            type: string
-            description: |
-              The port number of the external interface.
-              The service will populate this value when it sets up the execution.
-          addresses:
-            type: array
-            items: string
-            description: |
-              A list of public hostnames or IP addresses for the external interface.
-              The service will populate this list when it sets up the execution.
-              This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
+          $ref: 'DockerExternalPort'
         protocol:
           type: string
           description: |
@@ -170,7 +154,40 @@ components:
         path:
           type: string
           description: |
-            The path component of the access URL.
+            The path component of an access URL.
             This should be defined as part of the description of the executable supplied by the client.
             This can be used to provide the path of a notebook within a JupyterNotebook container.
+
+    DockerInternalPort:
+      description: |
+        Details of an internal network port on a container.
+      type: object
+      title: DockerInternalPort
+      properties:
+        port:
+          type: integer
+          format: int32
+          description: |
+            The port number on the container to publish.
+            This should be defined as part of the description of the executable.
+
+    DockerExternalPort:
+      description: |
+        Details of an external network port accessible from outside.
+      type: object
+      title: DockerExternalPort
+      properties:
+        port:
+          type: integer
+          format: int32
+          description: |
+            The port number of the external interface.
+            The service will populate this value when it sets up the execution.
+        addresses:
+          type: array
+          items:
+            type: string
+          description: |
+            A list of public hostnames or IPv4 or IPv6 addresses for the external interface.
+            The service will populate this list when it sets up the execution.
 

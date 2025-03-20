@@ -23,18 +23,34 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
 
 /**
  * A Docker container executable.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "dockerexecutables"
@@ -58,9 +74,22 @@ public class DockerContainerEntity
             parent,
             template.getName()
             );
-        // TODO Add the rest of the fields ..
-        }
 
+        this.privileged = template.getPrivileged();
+        this.entrypoint = template.getEntrypoint();        
+
+        this.image = new ImageImpl(
+            template.getImage()
+            );
+        this.environment = new HashMap<String, String>();
+        this.environment.putAll(
+            template.getEnvironment()
+            );
+        
+        // network
+        
+        }
+    
     @Override
     public IvoaAbstractExecutable getIvoaBean(final String baseurl)
         {
@@ -68,14 +97,186 @@ public class DockerContainerEntity
             DockerContainer.TYPE_DISCRIMINATOR
             );
         bean.setUuid(
-            this.getUuid()
+                this.getUuid()
+                );
+        bean.setName(
+            this.getName()
             );
         bean.setMessages(
             this.getMessageBeans()
             );
+        bean.setPrivileged(
+            this.privileged
+            );
+        bean.setEntrypoint(
+            this.entrypoint
+            );
 
-        // TODO fill in the fields 
-                    
+        if ((this.environment != null) && (this.environment.isEmpty() == false))
+            {
+            bean.setEnvironment(
+                this.environment
+                );
+            }
+
+        if (this.image != null)
+            {
+            IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();
+            
+            if ((this.image.getLocations() != null) && (this.image.getLocations().isEmpty() == false))
+                {
+                ivoaImage.setLocations(
+                    this.image.getLocations()
+                    );
+                }
+            ivoaImage.setDigest(
+                this.image.getDigest()
+                );
+
+            if (this.image.getPlatform() != null)
+                {
+                IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
+                log.debug("setArchitecture() [{}]", this.image.getPlatform().getArchitecture());
+                ivoaPlatform.setArchitecture(
+                    this.image.getPlatform().getArchitecture()
+                    );
+                log.debug("setOs() [{}]", this.image.getPlatform().getOs());
+                ivoaPlatform.setOs(
+                    this.image.getPlatform().getOs()
+                    );
+                ivoaImage.setPlatform(
+                    ivoaPlatform
+                    );
+                }
+            bean.setImage(
+                ivoaImage
+                );
+            }
+
+        /*
+         * 
+        IvoaDockerNetworkSpec network = new IvoaDockerNetworkSpec();
+        bean.setNetwork(
+            network
+            );
+         * 
+         */
+        
+        // TODO generate the access URLs
+        
         return bean;
+        }
+
+    @Embeddable
+    public static class ImageImpl
+    implements Image
+        {
+
+        public ImageImpl()
+            {
+            super();
+            }
+
+        public ImageImpl(final IvoaDockerImageSpec template)
+            {
+            super();
+            if (template != null)
+                {
+                this.digest = template.getDigest();
+                if (template.getLocations() != null)
+                    {
+                    this.locations = new ArrayList<String>();
+                    this.locations.addAll(
+                        template.getLocations()
+                        );
+                    }
+                if (template.getPlatform() != null)
+                    {
+                    this.platformArch = template.getPlatform().getArchitecture();
+                    this.platformOs   = template.getPlatform().getOs();
+                    }
+                }
+            }
+
+        private String digest;
+        @Override
+        public String getDigest()
+            {
+            return digest;
+            }
+
+        @ElementCollection
+        @CollectionTable(
+            name="dockerimagelocations",
+            joinColumns=@JoinColumn(
+                name="uuid"
+                )
+            )
+        private List<String> locations;
+        @Override
+        public List<String> getLocations()
+            {
+            return locations;
+            }
+
+        private String platformArch;
+        private String platformOs;
+        @Override
+        public Platform getPlatform()
+            {
+            return new Platform()
+                {
+                @Override
+                public String getArchitecture()
+                    {
+                    return platformArch;
+                    }
+
+                @Override
+                public String getOs()
+                    {
+                    return platformOs;
+                    }
+                };
+            }
+        }
+    
+    @Embedded
+    private ImageImpl image ;
+    @Override
+    public ImageImpl getImage()
+        {
+        return image;
+        }
+
+    private boolean privileged;
+    @Override
+    public boolean getPrivileged()
+        {
+        return privileged;
+        }
+
+    private String entrypoint;
+    @Override
+    public String getEntrypoint()
+        {
+        return entrypoint;
+        }
+
+    @ElementCollection
+    @MapKeyColumn(name="envkey")
+    @Column(name="envvalue")
+    private Map<String, String> environment;
+    @Override
+    public Map<String, String> getEnvironment()
+        {
+        return this.environment;
+        }
+
+    @Override
+    public Network getNetwork()
+        {
+        // TODO Auto-generated method stub
+        return null;
         }
     }

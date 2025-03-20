@@ -100,7 +100,7 @@ public class OfferSetRequestParserImpl
     public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        OfferSetRequestParserContext state = new OfferSetRequestParserContextImpl(
+        OfferSetRequestParserContext context = new OfferSetRequestParserContextImpl(
             this,
             offersetRequest,
             offersetEntity
@@ -108,7 +108,7 @@ public class OfferSetRequestParserImpl
         //
         // Validate the request.
         validate(
-            state
+            context
             );
         // Exit if something was rejected.
         
@@ -429,6 +429,7 @@ public class OfferSetRequestParserImpl
 
                     //
                     // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
+                    // TODO Should this be part of the constructor ?
                     executionSessionEntity.setExecutable(
                         context.getExecutableResult().getBuilder().build(
                             executionSessionEntity
@@ -445,63 +446,20 @@ public class OfferSetRequestParserImpl
                             executionSessionEntity,
                             computeOffer
                             );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
                         }
-
-/*
- * 
-                    //
-                    // Build and add our storage resources.
-                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
-                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
-                        {
-                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
-                        }
-                    
-                    //
-                    // Build and add our data resources.
-                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
-                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
-                        {
-                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
-                        }
- *                     
- */
                     
                     //
                     // Add the ExecutionSession to the OfferSet.
+                    // TODO Should this be part of the constructor ?
                     context.getOfferSetEntity().addExecutionSession(
                         executionSessionEntity
                         );
-                    
-                    
-                    /*
-                     * 
-                    log.debug("Executable [{}][{}]", state.getExecutable().getObject().getName(), state.getExecutable().getObject().getClass().getName());
-                    
-                    for (DataResourceValidator.Result dataResult : state.getDataResourceValidatorResults())
-                        {
-                        log.debug("Data result [{}]", dataResult);
-                        }
-                    
-                    for (ComputeResourceValidator.Result computeResult : state.getComputeValidatorResults())
-                        {
-                        log.debug("Compute result [{}]", computeResult);
-                        }
-                     * 
-                     */
+
+                    //
+                    // TODO Add the data resources.
+                    //
+                    // TODO Add the compute resources.
+                    //
                     
                     //
                     // Confirm we have at least one result.

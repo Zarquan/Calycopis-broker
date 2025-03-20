@@ -72,21 +72,21 @@ implements AbstractComputeResourceValidator
     @Override
     public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
         final IvoaAbstractComputeResource requested,
-        final OfferSetRequestParserContext state
+        final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractComputeResource)");
         log.debug("Resource [{}]", requested);
-        switch(requested)
+        if (requested instanceof IvoaSimpleComputeResource )
             {
-            case IvoaSimpleComputeResource simple:
-                return validate(
-                    simple,
-                    state
-                    );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
-                    );
+            return validate(
+                (IvoaSimpleComputeResource) requested,
+                context
+                );
+            }
+        else {
+            return new ResultBean(
+                Validator.ResultEnum.CONTINUE
+                );
             }
         }
 
@@ -355,13 +355,6 @@ implements AbstractComputeResourceValidator
                 validated,
                 builder
                 );
-            /*
-             * 
-            state.getValidatedOfferSetRequest().getResources().addComputeItem(
-                validated
-                );
-             * 
-             */
             context.addComputeValidatorResult(
                 result
                 );

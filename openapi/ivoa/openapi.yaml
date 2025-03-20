@@ -198,12 +198,14 @@ components:
             A human readable name, assigned by the client.
           type: string
         type:
+          description: >
+            The component type identifiers.
           type: string
           xml:
             attribute: true
         created:
           description: >
-            The date and time that this component was created.
+            The date and time the component was created.
           type: string
           format: date-time
         messages:
@@ -293,6 +295,7 @@ components:
         - $ref: 'AbstractComponent'
         - type: object
           properties:
+            # TOTO Do we need this here ?
             type:
               type: string
               xml:
@@ -337,13 +340,13 @@ components:
         - $ref: 'AbstractComponent'
         - type: object
           properties:
+            # TOTO Do we need this here ?
             type:
               type: string
               xml:
                 attribute: true
             storage:
               type: string
-
 
     SimpleDataResource:
       type: object
@@ -391,6 +394,7 @@ components:
         - $ref: 'AbstractComponent'
         - type: object
           properties:
+            # TOTO Do we need this here ?
             type:
               description: >
                 The component type discriminator
@@ -400,33 +404,45 @@ components:
             access:
               description: >
                 A list of access methods that the client can use to monitor and interact with the execution.
-              type: array
-              items:
-                $ref: 'ExecutableAccessMethod'
+              $ref: 'ExecutableAccessList'
+
+    ExecutableAccessList:
+      description: >
+        A list of data access methods.
+      type: array
+      title: ExecutableAccessList
+      xml:
+        name: access
+      items:
+        $ref: 'ExecutableAccessMethod'
 
     ExecutableAccessMethod:
       description: |
         Details of an access method the client can use to monitor and interact with the execution.
         These details are provided by the service based on the description of the executable and how it is implemented.
-      status:
-        type: string
-        enum:
-          - PREPARING
-          - ACTIVE
-          - FINISHED
-        description: >
-          A flag to indicate the staus of the connection.
-      protocol:
-        type: string
-        description: >
-          The access protocol, provided by the server when an offer is made.
-          Typically one of [TCP, HTTP, HTTPS].
-      locations:
-        type: array
-        items: string
-        description: >
-          A list of access URLs, provided by the server once the execution is ready to start.
-          This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
+      type: object
+      title: DockerContainer
+      properties:
+        status:
+          type: string
+          enum:
+            - PREPARING
+            - ACTIVE
+            - FINISHED
+          description: >
+            A flag to indicate the staus of the connection.
+        protocol:
+          type: string
+          description: >
+            The access protocol, provided by the server when an offer is made.
+            Typically one of [TCP, HTTP, HTTPS].
+        locations:
+          type: array
+          items:
+            type: string
+          description: >
+            A list of access URLs, provided by the server once the execution is ready to start.
+            This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
 
     DockerContainer:
       description: |
