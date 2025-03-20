@@ -110,12 +110,6 @@ public class OfferSetRequestParserImpl
         validate(
             context
             );
-        // Exit if something was rejected.
-        
-        //
-        // Construct the offers.
-        
-        
         }
     
     /**
@@ -447,18 +441,11 @@ public class OfferSetRequestParserImpl
                             computeOffer
                             );
                         }
-                    
-                    //
-                    // Add the ExecutionSession to the OfferSet.
-                    // TODO Should this be part of the constructor ?
-                    context.getOfferSetEntity().addExecutionSession(
-                        executionSessionEntity
-                        );
 
                     //
-                    // TODO Add the data resources.
+                    // TODO Add data resources.
                     //
-                    // TODO Add the compute resources.
+                    // TODO Add storage resources.
                     //
                     
                     //
