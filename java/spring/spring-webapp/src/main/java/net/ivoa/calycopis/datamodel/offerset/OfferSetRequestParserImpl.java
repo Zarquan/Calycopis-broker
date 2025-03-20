@@ -100,7 +100,7 @@ public class OfferSetRequestParserImpl
     public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        OfferSetRequestParserContext state = new OfferSetRequestParserContextImpl(
+        OfferSetRequestParserContext context = new OfferSetRequestParserContextImpl(
             this,
             offersetRequest,
             offersetEntity
@@ -108,7 +108,7 @@ public class OfferSetRequestParserImpl
         //
         // Validate the request.
         validate(
-            state
+            context
             );
         // Exit if something was rejected.
         
@@ -275,6 +275,9 @@ public class OfferSetRequestParserImpl
      */
     public void validate(final IvoaOfferSetRequestSchedule schedule, final OfferSetRequestParserContext context)
         {
+        // TODO return boolean success
+        boolean success = true ;
+
         log.debug("validate(IvoaExecutionSessionRequestSchedule)");
         if (schedule != null)
             {
@@ -285,10 +288,11 @@ public class OfferSetRequestParserImpl
                 if (durationstr != null)
                     {
                     try {
+                        log.debug("Duration string [{}]", durationstr);
                         Duration durationval = Duration.parse(
                             durationstr
                             );
-                        log.debug("Duration [{}][{}]", durationstr, durationval);
+                        log.debug("Duration value [{}]", durationval);
                         context.setExecutionDuration(
                             durationval
                             );
@@ -305,6 +309,7 @@ public class OfferSetRequestParserImpl
                                 ouch.getMessage()
                                 )
                             );
+                        success = false ;
                         context.valid(false);
                         }
                     }
@@ -315,26 +320,30 @@ public class OfferSetRequestParserImpl
                     for (String startstr : startstrlist)
                         {
                         try {
+                            log.debug("Interval String [{}]", startstr);
                             Interval startint = Interval.parse(
                                 startstr
                                 );
-                            log.debug("Interval [{}][{}]", startstr, startint);
+                            // TODO If interval has already passed - skip and warn.
+                            log.debug("Interval value [{}]", startint);
                             context.addStartInterval(
                                 startint
                                 );
                             }
                         catch (Exception ouch)
                             {
+                            log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
                             context.getOfferSetEntity().addWarning(
                                 "urn:input-syntax-fail",
                                 "Unable to parse interval [${string}][${message}]",
                                 Map.of(
-                                    "value",
+                                    "string",
                                     startstr,
                                     "message",
                                     ouch.getMessage()
                                     )
                                 );
+                            success = false ;
                             context.valid(false);
                             }
                         }
@@ -420,6 +429,7 @@ public class OfferSetRequestParserImpl
 
                     //
                     // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
+                    // TODO Should this be part of the constructor ?
                     executionSessionEntity.setExecutable(
                         context.getExecutableResult().getBuilder().build(
                             executionSessionEntity
@@ -436,63 +446,20 @@ public class OfferSetRequestParserImpl
                             executionSessionEntity,
                             computeOffer
                             );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
                         }
-
-/*
- * 
-                    //
-                    // Build and add our storage resources.
-                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
-                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
-                        {
-                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
-                        }
-                    
-                    //
-                    // Build and add our data resources.
-                    List<ComputeResourceValidator.Result> computeValidatorResults = state.getComputeValidatorResults();                    
-                    for (ComputeResourceValidator.Result computeValidatorResult : computeValidatorResults)
-                        {
-                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        executionSessionEntity.addComputeResource(
-                            computeResourceEntity
-                            );
-                        }
- *                     
- */
                     
                     //
                     // Add the ExecutionSession to the OfferSet.
+                    // TODO Should this be part of the constructor ?
                     context.getOfferSetEntity().addExecutionSession(
                         executionSessionEntity
                         );
-                    
-                    
-                    /*
-                     * 
-                    log.debug("Executable [{}][{}]", state.getExecutable().getObject().getName(), state.getExecutable().getObject().getClass().getName());
-                    
-                    for (DataResourceValidator.Result dataResult : state.getDataResourceValidatorResults())
-                        {
-                        log.debug("Data result [{}]", dataResult);
-                        }
-                    
-                    for (ComputeResourceValidator.Result computeResult : state.getComputeValidatorResults())
-                        {
-                        log.debug("Compute result [{}]", computeResult);
-                        }
-                     * 
-                     */
+
+                    //
+                    // TODO Add the data resources.
+                    //
+                    // TODO Add the compute resources.
+                    //
                     
                     //
                     // Confirm we have at least one result.

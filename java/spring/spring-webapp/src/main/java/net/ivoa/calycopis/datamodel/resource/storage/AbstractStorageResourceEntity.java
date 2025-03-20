@@ -59,6 +59,7 @@ implements AbstractStorageResource
 
     /**
      * Protected constructor.
+     * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
     protected AbstractStorageResourceEntity(final ExecutionSessionEntity parent, final String name)

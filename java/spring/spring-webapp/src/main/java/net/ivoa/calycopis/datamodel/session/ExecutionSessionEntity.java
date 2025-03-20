@@ -41,13 +41,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
@@ -57,6 +57,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
  * An Execution Entity.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "sessions"

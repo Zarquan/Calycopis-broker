@@ -23,18 +23,42 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
+import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerInternalPort;
+import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
+import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
+import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
+import net.ivoa.calycopis.util.ListWrapper;
 
 /**
- * A Docker container executable.
+ * JPA Entity for DockerContainer executables.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "dockerexecutables"
@@ -52,15 +76,41 @@ public class DockerContainerEntity
         super();
         }
 
-    protected DockerContainerEntity(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
-        {
+    protected DockerContainerEntity(
+        final ExecutionSessionEntity parent,
+        final IvoaDockerContainer template
+        ){
         super(
             parent,
             template.getName()
             );
-        // TODO Add the rest of the fields ..
-        }
 
+        this.privileged = template.getPrivileged();
+        this.entrypoint = template.getEntrypoint();        
+
+        this.image = new ImageImpl(
+            template.getImage()
+            );
+        this.environment = new HashMap<String, String>();
+        this.environment.putAll(
+            template.getEnvironment()
+            );
+        
+        IvoaDockerNetworkSpec ivoaNetwork = template.getNetwork() ; 
+        if (ivoaNetwork != null)
+            {
+            for (IvoaDockerNetworkPort port : ivoaNetwork.getPorts())
+                {
+                this.networkPorts.add(
+                    new DockerNetworkPortEntity(
+                        this,
+                        port
+                        )
+                    );                
+                }
+            }
+        }
+    
     @Override
     public IvoaAbstractExecutable getIvoaBean(final String baseurl)
         {
@@ -68,14 +118,258 @@ public class DockerContainerEntity
             DockerContainer.TYPE_DISCRIMINATOR
             );
         bean.setUuid(
-            this.getUuid()
+                this.getUuid()
+                );
+        bean.setName(
+            this.getName()
             );
         bean.setMessages(
             this.getMessageBeans()
             );
+        bean.setPrivileged(
+            this.privileged
+            );
+        bean.setEntrypoint(
+            this.entrypoint
+            );
 
-        // TODO fill in the fields 
-                    
+        if ((this.environment != null) && (this.environment.isEmpty() == false))
+            {
+            bean.setEnvironment(
+                this.environment
+                );
+            }
+
+        if (this.image != null)
+            {
+            IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();
+            
+            if ((this.image.getLocations() != null) && (this.image.getLocations().isEmpty() == false))
+                {
+                ivoaImage.setLocations(
+                    this.image.getLocations()
+                    );
+                }
+            ivoaImage.setDigest(
+                this.image.getDigest()
+                );
+
+            if (this.image.getPlatform() != null)
+                {
+                IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
+                ivoaPlatform.setArchitecture(
+                    this.image.getPlatform().getArchitecture()
+                    );
+                ivoaPlatform.setOs(
+                    this.image.getPlatform().getOs()
+                    );
+                ivoaImage.setPlatform(
+                    ivoaPlatform
+                    );
+                }
+            bean.setImage(
+                ivoaImage
+                );
+            }
+
+        if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
+            {
+            log.debug("Network ports [{}]", this.networkPorts);
+            
+            IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
+
+            for (DockerNetworkPortEntity networkPort : this.networkPorts)
+                {
+                IvoaDockerNetworkPort ivoaNetworkPort = new IvoaDockerNetworkPort();
+                ivoaNetworkPort.setAccess(
+                    networkPort.getAccess()
+                    );
+                ivoaNetworkPort.setPath(
+                    networkPort.getPath()
+                    );
+                ivoaNetworkPort.setProtocol(
+                    networkPort.getProtocol()
+                    );
+
+                if (networkPort.getInternal() != null)
+                    {
+                    IvoaDockerInternalPort ivoaInternalPort = new IvoaDockerInternalPort();
+                    ivoaInternalPort.setPort(
+                        networkPort.getInternal().getPort()
+                        );
+                    ivoaNetworkPort.setInternal(
+                        ivoaInternalPort
+                        );
+                    }
+
+                if (networkPort.getExternal() != null)
+                    {
+                    IvoaDockerExternalPort ivoaExternalPort = new IvoaDockerExternalPort();
+                    ivoaExternalPort.setPort(
+                        networkPort.getExternal().getPort()
+                        );
+                    for (String address : networkPort.getExternal().getAddresses())
+                        {
+                        ivoaExternalPort.addAddressesItem(
+                            address
+                            );
+                        }
+                    ivoaNetworkPort.setExternal(
+                        ivoaExternalPort
+                        );
+                    }
+                ivoaNetworkSpec.addPortsItem(
+                    ivoaNetworkPort
+                    );
+                }
+            bean.setNetwork(
+                ivoaNetworkSpec
+                );
+            }
+        
+        // TODO generate the access URLs
+        
         return bean;
+        }
+
+    @Embeddable
+    public static class ImageImpl
+    implements Image
+        {
+
+        public ImageImpl()
+            {
+            super();
+            }
+
+        public ImageImpl(final IvoaDockerImageSpec template)
+            {
+            super();
+            if (template != null)
+                {
+                this.digest = template.getDigest();
+                if (template.getLocations() != null)
+                    {
+                    this.locations = new ArrayList<String>();
+                    this.locations.addAll(
+                        template.getLocations()
+                        );
+                    }
+                if (template.getPlatform() != null)
+                    {
+                    this.platformArch = template.getPlatform().getArchitecture();
+                    this.platformOs   = template.getPlatform().getOs();
+                    }
+                }
+            }
+
+        private String digest;
+        @Override
+        public String getDigest()
+            {
+            return digest;
+            }
+
+        @ElementCollection
+        @CollectionTable(
+            name="dockerimagelocations",
+            joinColumns=@JoinColumn(
+                name="parent",
+                referencedColumnName = "uuid"
+                )
+            )
+        private List<String> locations;
+        @Override
+        public List<String> getLocations()
+            {
+            return locations;
+            }
+
+        private String platformArch;
+        private String platformOs;
+        @Override
+        public Platform getPlatform()
+            {
+            return new Platform()
+                {
+                @Override
+                public String getArchitecture()
+                    {
+                    return platformArch;
+                    }
+
+                @Override
+                public String getOs()
+                    {
+                    return platformOs;
+                    }
+                };
+            }
+        }
+    
+    @Embedded
+    private ImageImpl image ;
+    @Override
+    public ImageImpl getImage()
+        {
+        return image;
+        }
+
+    private boolean privileged;
+    @Override
+    public boolean getPrivileged()
+        {
+        return privileged;
+        }
+
+    private String entrypoint;
+    @Override
+    public String getEntrypoint()
+        {
+        return entrypoint;
+        }
+
+    @ElementCollection
+    @Column(name="envvalue")
+    @MapKeyColumn(name="envkey")
+    @CollectionTable(
+        name="dockerenvironmentvariables",
+        joinColumns=@JoinColumn(
+            name="parent",
+            referencedColumnName = "uuid"
+            )
+        )
+    private Map<String, String> environment;
+    @Override
+    public Map<String, String> getEnvironment()
+        {
+        return this.environment;
+        }
+
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    protected List<DockerNetworkPortEntity> networkPorts = new ArrayList<DockerNetworkPortEntity>();
+
+    @Override
+    public Network getNetwork()
+        {
+        return new Network()
+            {
+            public List<NetworkPort> getPorts()
+                {
+                return new ListWrapper<NetworkPort, DockerNetworkPortEntity>(
+                    networkPorts
+                    ){
+                    public NetworkPort wrap(final DockerNetworkPortEntity inner)
+                        {
+                        return (NetworkPort) inner ;
+                        }
+                    };
+                }
+            };
         }
     }

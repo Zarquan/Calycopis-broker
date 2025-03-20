@@ -1,0 +1,167 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        TODO list for March/April ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Documents I need to write
+
+        Proposal for access to the Darwin and Isembard Ai platforms.
+
+            Hello world access
+            ExecutionBroker plugin
+                Data staging
+                Job submission
+                Job monitoring
+                Data staging
+
+        Access to Slurm on the Dirac platform.
+
+            Hello world access
+            ExecutionBroker plugin
+                Data staging
+                Job submission
+                Job monitoring
+                Data staging
+
+        Summary of ExecutionBroker for STFC.
+
+            I've been asked to keep things succinct and gather all your contributions,
+            so would ask that you all give me 50 - 100 words or so on providing an overview,
+            vision and context on the work you and your teams carrying out.
+
+                overview
+                vision
+                context
+                progress
+
+        IVOA identifiers for SRCNet
+
+            ivo:<authority>/
+
+            ivo:<authority>/<resource>
+
+            SRCNet DataProduct
+              OLDP Observation-level Data Product
+              PLDP Project-level Data Product
+              ADP  Advanced Data Product
+
+
+
+        Software discovery data model
+
+# -----------------------------------------------------
+
+    DataStaging broker
+    https://jira.skatelescope.org/browse/SP-4514
+
+        Data bulter API with cost analysis
+
+# -----------------------------------------------------
+
+    What's the relation between nvidia driver, cuda driver and cuda toolkit?
+    https://stackoverflow.com/questions/45293580/whats-the-relation-between-nvidia-driver-cuda-driver-and-cuda-toolkit
+
+    CUDA enabled gpus
+    https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-enabled-gpus
+
+    GPU Compute Capability
+    https://developer.nvidia.com/cuda-gpus
+    https://developer.nvidia.com/cuda-gpus#compute
+
+
+    Deploy CUDA enabled k8s cluster in STFC cloud SKA-TechSDH&P project
+    https://jira.skatelescope.org/browse/SP-2069
+
+    Deploy SLURM cluster on STFC cloud SKA-TechSDH&P project
+    https://jira.skatelescope.org/browse/SP-2070
+
+# -----------------------------------------------------
+
+    Resource Allocation OpenStack: help users pick when the cloud has space
+    https://jira.skatelescope.org/browse/SP-4282
+
+    Resource Allocation OpenStack: Cloud credits limit size of resource reservations
+    DAAC done
+    https://jira.skatelescope.org/browse/SP-4280
+
+        Coral Credits Mission
+        https://stackhpc.github.io/coral-credits/mission/
+
+            Coral Credits aims to support the building of a "coral reef style" fixed capacity cloud.
+            A Coral reef style cloud involves cooperatively sharing resources to maximise your
+            investiment in both people and cloud resources.
+
+    Resource Allocation for OpenStack Sites (discarded)
+    https://jira.skatelescope.org/browse/SP-4035
+
+    Completing Resource Allocation OpenStack: Cloud credits limit size of resource reservations
+    https://jira.skatelescope.org/browse/SP-5047
+
+        Code done, needs documenting.
+
+# -----------------------------------------------------
+
+    Block chain ideas
+    https://github.com/Zarquan/jordanita/blob/main/notes/skao/20240322-01-blockchain-ideas.txt
+
+    ExecutionBroker IVOA standard todo list
+    https://github.com/ivoa/Calycopis-broker/blob/main/notes/zrq/20241105-01-todo-list.txt
+
+    ExecutionBroker ideas
+    https://github.com/ivoa/Calycopis-broker/blob/main/notes/zrq/20240821-01-planning.txt
+
+# -----------------------------------------------------
+
+    How to configure Faceted Search in Drupal - An easy step-by-step guide
+    https://www.specbee.com/blogs/configure-faceted-search-in-drupal
+
+# -----------------------------------------------------
+
+    Data Access (pyvo.dal)
+    https://pyvo.readthedocs.io/en/latest/dal/index.html#table-access-protocol
+
+    DatalinkResults (pyvo.dal)
+    https://pyvo.readthedocs.io/en/latest/api/pyvo.dal.adhoc.DatalinkResults.html#pyvo.dal.adhoc.DatalinkResults.getdataset
+
+    IVOA Vocabulary: Datalink core
+    https://www.ivoa.net/rdf/datalink/core/2022-01-27/datalink.html
+
+    ObsCore
+    https://www.ivoa.net/documents/ObsCore/20170509/REC-ObsCore-v1.1-20170509.pdf
+
+    A Short Course on pyVO
+    https://docs.g-vo.org/pyvo/notes.pdf
+
+    https://github.com/hendhd/ivoa_newcomers/blob/main/IVOA_interop/newcomers.tex
+    https://github.com/hendhd/taenaris/blob/main/pysrc/example2/obscore.py
+

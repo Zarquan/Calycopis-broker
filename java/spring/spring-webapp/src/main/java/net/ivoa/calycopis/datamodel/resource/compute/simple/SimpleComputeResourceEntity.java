@@ -174,6 +174,9 @@ public class SimpleComputeResourceEntity
         bean.setUuid(
             this.getUuid()
             );
+        bean.setName(
+            this.getName()
+            );
         bean.setMessages(
             this.getMessageBeans()
             );

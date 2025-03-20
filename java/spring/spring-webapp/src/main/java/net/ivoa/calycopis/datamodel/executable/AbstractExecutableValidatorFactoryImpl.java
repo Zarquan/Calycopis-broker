@@ -22,12 +22,14 @@
  */
 package net.ivoa.calycopis.datamodel.executable;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
@@ -45,12 +47,20 @@ public class AbstractExecutableValidatorFactoryImpl
      * TODO Make this configurable. 
      * 
      */
-    public AbstractExecutableValidatorFactoryImpl(final JupyterNotebookEntityFactory jupyterNotebookEntityFactory)
-        {
+    @Autowired
+    public AbstractExecutableValidatorFactoryImpl(
+        final JupyterNotebookEntityFactory jupyterNotebookEntityFactory,
+        final DockerContainerEntityFactory dockerContainerEntityFactory
+        ){
         super();
         this.validators.add(
             new JupyterNotebookValidator(
                 jupyterNotebookEntityFactory
+                )
+            );
+        this.validators.add(
+            new DockerContainerValidator(
+                dockerContainerEntityFactory
                 )
             );
         }
