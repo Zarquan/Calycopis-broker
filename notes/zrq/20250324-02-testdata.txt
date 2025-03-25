@@ -1,0 +1,51 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes on some test data ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Email passed on by Erin.
+
+        For SDC1, we have fits images, available here
+        https://www.skao.int/en/464/ska-science-data-challenge-1 [skao.int]
+
+        For SDC2, fits cubes of various size, available here
+        https://sdc2.skao.int/sdc2-challenge/data [sdc2.skao.int]
+
+        For SDC3, visibilities stored as both measurement sets and UVFITS, plus FITS data cubes. The cubes are here
+        https://sdc3.skao.int/challenges/foregrounds/data [sdc3.skao.int]
+
+        But the for the visibilities we have a more ad-hoc procedure, because of their size (7.5 TB for each MS or UVFITS).
+        If you are interested, we can give you access to download from our servers.
+
+
+
