@@ -1,0 +1,266 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Plan for the SKAO IVORNs.
+        https://ivoa.net/documents/IVOAIdentifiers/20160523/REC-Identifiers-2.0.html#tth_sEc4.1
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    IVO identifiers in the ObsTAP response.
+
+    We want to develop a pattern that client software can use to understand what they are looking at.
+
+    So far, the only IVOA registered service is the ObsTAP service and the associated DataLink service.
+
+    An entry in the ObsTAP service is a row in the metadata database.
+    The actual data can be located anywhere.
+
+    The Rucio DataLake hides the physical location.
+    A data object in the DataLake can be stored at one of many phyhsical locations.
+    Access is via the DataManagment API and the Rucio manager API.
+
+
+    Types of data we want to represent ..
+
+        SKAO data in the SRCNet DataLake
+
+            obs_publisher_did: ivo://skao.int/datalake?identifier
+            obs_creator_did:   ivo://skao.int/datalake?identifier
+
+            SKAO data types
+
+                odo
+                pdo
+                ado
+
+        SKAO data not in the SRCNet DataLake
+        e.g. test data at other locations
+
+            obs_publisher_did: ivo://skao.int/other?identifier
+            obs_creator_did:   ivo://skao.int/other?identifier
+
+
+        Other project's data in the SRCNet DataLake
+        e.g. CADC, eMerlin, etc
+
+            Storing the data in the SRCNet DataLake and making it discoverable
+            via the ObsTAP service means SRCNet is the data publisher.
+
+            obs_publisher_did: ivo://skao.int/datalake?identifier
+
+            but if the data wasn't created by the SKAO data pipeline,
+            we use the original creator/publisher's identifier to
+            identify where it came from
+
+            obs_creator_did: ivo://cadc.ca/################
+
+
+        Other project's data not in the SRCNet DataLake
+        e.g. CADC, eMerlin, etc
+
+            If the data is published elsewhere in the VO, then we can have a record
+            in our ObsTAP service that referes to external data by using the
+            publisher's IVORNs.
+
+            obs_publisher_did: ivo://cadc.ca/################
+            obs_creator_did:   ivo://cadc.ca/################
+
+# -----------------------------------------------------
+
+    From an IVOA client's perspective.
+
+        All data access is via the IVOA services.
+        Use the accessURL in ObsCore and DataLink to access the data.
+
+        ivo://xxxxxxxx/yyyyyyyy?zzzzzzzz
+        |<----------->|<------>|<----->|
+
+        1) The VO authority
+        This is an opaque identifier for the data publisher,
+        which proviees a unique namespace for service records.
+        The client doesn't assume anything about different behaviour
+        bsed on different authority names.
+
+        2) The service, resolvable in the registry.
+        --> SODA service capability
+        --> DataLink service capability
+
+        3) The object, resolvable in the service.
+        --> SODA data access
+        --> DataLink data access methods
+
+# -----------------------------------------------------
+
+    From an SRCnet client's perspective.
+
+        IF we recognise the pattern in the IVORN, then we can deduce additional
+        information about what and where the data is.
+
+        If the publisher DID starts with our authority.
+
+        if "ivo://skao.int/...."
+
+            // The data is published by our organisation,
+            // and we can look for additional patterns.
+
+        If we adopt the simplest form, and all of our data
+        will always be stored in our DataLake, then we can
+        just extract the DataLake identifier from the IVORN.
+
+        if "ivo://skao.int/?...."
+
+        then "...." is the DataLake identifier
+
+        publisher_did: "ivo://skao.int/?rucio-identifier"
+
+          authority: "ivo://skao.int/"
+          datalake:  "rucio-identifier"
+
+        If we want to support alternative storage systems in the future
+        then we can indicate that in the IVORN.
+
+        if "ivo://skao.int/other?...."
+
+            // Use the 'other' storage system.
+
+        We can reference objects in the Datalake either implicitly, or explicitly.
+
+        if "ivo://skao.int/?...."
+        if "ivo://skao.int/datalake?...."
+
+            // Use the DataLake system.
+
+
+
+
+        If the publisher DID does not start with our authority,
+        then we treat it as an external data resource.
+
+        if "ivo:/emerlin.uk/...."
+        if "ivo:/cadc.ca/...."
+
+        // Use the standard IVOA protocols to resolve and access the data.
+
+
+
+
+
+
+# -----------------------------------------------------
+
+Private email from Markus.
+
+Dear Dave,
+
+On Fri, Mar 28, 2025 at 07:13:44AM +0000, Dave Morris wrote:
+
+    I'm working on a document for SKAO that describes how a data publisher in
+    the VO can publish data for another data provider, and how to represent that
+    in the ObsCore metadata.
+
+
+Frankly, I think obscore is one level too far down for what you are
+probably after.  I would simply create records for each data
+collection and give the full metadata *of that data collection*
+there.  The publishers' extra metadata would then go into the service
+record.
+
+Discovering Data Collections says how to do that:
+<https://ivoa.net/documents/discovercollections/20190520/index.html>
+
+In your case, you would do IsServedBy relationships to the Obscore
+table as per TableReg
+<http://ivoa.net/documents/Notes/TableReg/20240821/index.html>;
+that's just a note yet, but the Obscore record *will* come in the
+next REC, and I am in the process of lobbying current Obscore
+providers to provide these.
+
+Having said that:
+
+    Which found several records where the publisher is yourself,
+    'ivo://org.gavo.dc/', and the creator is 'ivo://tmap.iaat/', which seemed to
+    be what I was looking for.
+
+
+creator_did has a somewhat different function; it's basically
+intended to be some sort of persistent identifier issued by the
+creator.  If all went by the plan, the authority and path part of
+these would really point to metadata for the data collection in
+question (and then the query part would tell you which dataset
+something is).  It would be dandy if SKAO would produce such creator
+DIDs, and I'd be delighted to help out devising a scheme for how to
+do that.  The general plan is discussed in
+<https://ivoa.net/documents/IVOAIdentifiers/20160523/REC-Identifiers-2.0.html#tth_sEc4.1>.
+
+But as you see, that does not relieve you of the "necessity" (in the
+sense of: Metadata is a love note to the future) of providing a
+metadata record for the data collection itself.
+
+Having said that:
+
+    If I start with one of the obs_id values,
+    'theossa/spec/spec_H-Ca/0100000_7.00_H-Ca_solar_2001-05-22_11_58_30.txt' and
+    put the first part into Google I can get from 'theossa' to the GAVO page on
+    'TheoSSA - Theoretical Stellar Spectra Access',
+    https://dc.g-vo.org/browse/theossa/q.
+
+    .. but I can't find a way of finding the 'ivo://tmap.iaat/' creator
+    ID in the registry.  Is 'tmap.iaat' registered as an authority in
+    the VO registry ?
+
+    Is there a better example of your service publishing data for
+    another entity ?
+
+
+These creator DIDs were made long before Identifiers 2, and indeed
+before I even joined the VO, and they were made with not too much
+understanding of the Registry.  So, they are all wrong; the way they
+are written, we'd have to create a registry record for each spectrum,
+so that would be exceedingly silly.  But you are right, I really
+should at least make sure that there is an authority record for
+tmap.iaat.  I'll look into it on Monday, and in there I could explain
+that the creator DIDs minted with that authority all suck.
+
+But really, all I'm doing (and all VizieR is doing, for that
+matter) is publishing data for other parties.  That's not a major
+problem: I'm the publisher, and the creator is someone else.
+
+Perhaps if you tell me more about the scenarios you are considering
+and where people have concerns about missing authorship/other roles
+information I can be a bit more precise.
+
+Meanwhile, can I bug you again about the ivoatex container?  You see
+https://github.com/ivoa-std/ivoatex/issues/146 is still on my mind...
+
+Thanks,
+
+           Markus
+
