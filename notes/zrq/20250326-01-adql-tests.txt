@@ -49,17 +49,15 @@
         --data "RESPONSEFORMAT=text/xml" \
         https://dachs.ivoa.srcdev.skao.int:443/__system__/tap/run/sync
 
---START--
-<html>
-  <head>
-    <title>503 Service Temporarily Unavailable</title>
-  </head>
-  <body>
-    <center><h1>503 Service Temporarily Unavailable</h1></center>
-    <hr><center>nginx</center>
-  </body>
-</html>
---END--
+    >   <html>
+    >     <head>
+    >       <title>503 Service Temporarily Unavailable</title>
+    >     </head>
+    >     <body>
+    >       <center><h1>503 Service Temporarily Unavailable</h1></center>
+    >       <hr><center>nginx</center>
+    >     </body>
+    >   </html>
 
     #
     # OK, that puts an end to that plan.
@@ -114,36 +112,34 @@
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
-    <INFO name="sql_query" value="SELECT count ( obs_id ) AS ndhgmmegwapa FROM ivoa.obscore LIMIT 20000"/>
-    <INFO name="query" value="SELECT count(obs_id) FROM ivoa.obscore"/>
-    <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
-    <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
-    <TABLE name="ObsCore">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</DESCRIPTION>
-      <FIELD ID="ndhgmmegwapa" datatype="int" name="ndhgmmegwapa" ucd="meta.number;meta.id" utype="obscore:DataID.observationID">
-        <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
-        <VALUES null="-2147483648"/>
-      </FIELD>
-      <DATA>
-        <TABLEDATA>
-          <TR>
-            <TD>915</TD>
-          </TR>
-        </TABLEDATA>
-      </DATA>
-    </TABLE>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT count ( obs_id ) AS ndhgmmegwapa FROM ivoa.obscore LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT count(obs_id) FROM ivoa.obscore"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <FIELD ID="ndhgmmegwapa" datatype="int" name="ndhgmmegwapa" ucd="meta.number;meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >           <VALUES null="-2147483648"/>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>915</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
     #
     # 915 rows, total
@@ -168,15 +164,13 @@ datasets within this datacenter.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0"?>
-<?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <RESOURCE type="results">
-    <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'publisher_did' could not be located in table metadata</INFO>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0"?>
+    >   <?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <RESOURCE type="results">
+    >       <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'publisher_did' could not be located in table metadata</INFO>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
     #
@@ -193,86 +187,84 @@ datasets within this datacenter.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
-    <INFO name="sql_query" value="SELECT ivoa.obscore.dataproduct_type, ivoa.obscore.dataproduct_subtype, ivoa.obscore.calib_level, ivoa.obscore.obs_collection, ivoa.obscore.obs_id, ivoa.obscore.obs_title, ivoa.obscore.obs_publisher_did, ivoa.obscore.obs_creator_did, ivoa.obscore.access_url, ivoa.obscore.access_format, ivoa.obscore.access_estsize, ivoa.obscore.target_name, ivoa.obscore.target_class, ivoa.obscore.s_ra, ivoa.obscore.s_dec, ivoa.obscore.s_fov, ivoa.obscore.s_region, ivoa.obscore.s_resolution, ivoa.obscore.t_min, ivoa.obscore.t_max, ivoa.obscore.t_exptime, ivoa.obscore.t_resolution, ivoa.obscore.em_min, ivoa.obscore.em_max, ivoa.obscore.em_res_power, ivoa.obscore.o_ucd, ivoa.obscore.pol_states, ivoa.obscore.facility_name, ivoa.obscore.instrument_name, ivoa.obscore.s_xel1, ivoa.obscore.s_xel2, ivoa.obscore.t_xel, ivoa.obscore.em_xel, ivoa.obscore.pol_xel, ivoa.obscore.s_pixel_scale, ivoa.obscore.em_ucd, ivoa.obscore.preview, ivoa.obscore.source_table FROM ivoa.obscore LIMIT 5"/>
-    <INFO name="query" value="SELECT TOP 5 * FROM ivoa.obscore"/>
-    <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
-    <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
-    <COOSYS ID="system" system="ICRS"/>
-    <TABLE name="ObsCore">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</DESCRIPTION>
-      <GROUP utype="stc:CatalogEntryLocation">
-        <PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
-        <PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
-        <PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/>
-        <FIELDref ref="s_region" utype="stc:AstroCoordArea.Polygon"/>
-      </GROUP>
-      <GROUP ID="ndhgmtiugwla" name="note-calib">
-        <DESCRIPTION>
-The calib_level flag takes the following values:
-
-=== ===========================================================
- 0  Raw Instrumental data requiring instrument-specific tools
- 1  Instrumental data processable with standard tools
- 2  Calibrated, science-ready data without instrument signature
- 3  Enhanced data products (e.g., mosaics)
-=== ===========================================================</DESCRIPTION>
-        <FIELDref ref="calib_level"/>
-      </GROUP>
-      <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
-        <DESCRIPTION>High level scientific classification of the data product, taken from an enumeration</DESCRIPTION>
-        <VALUES>
-          <OPTION name="image" value="image"/>
-          <OPTION name="cube" value="cube"/>
-          <OPTION name="spectrum" value="spectrum"/>
-          <OPTION name="sed" value="sed"/>
-          <OPTION name="timeseries" value="timeseries"/>
-          <OPTION name="visibility" value="visibility"/>
-          <OPTION name="event" value="event"/>
-        </VALUES>
-      </FIELD>
-      <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
-        <DESCRIPTION>Data product specific type</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
-        <DESCRIPTION>Amount of data processing that has been applied to the data</DESCRIPTION>
-        <VALUES null="-32768"/>
-      </FIELD>
-      <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
-        <DESCRIPTION>Name of a data collection (e.g., project name) this data belongs to</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
-        <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
-        <DESCRIPTION>Free-from title of the data set</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
-        <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
-        <DESCRIPTION>The URL at which to obtain the data set.</DESCRIPTION>
-      </FIELD>
-      ....
-      ....
-    </TABLE>
-  </RESOURCE>
-  ....
-  ....
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT ivoa.obscore.dataproduct_type, ivoa.obscore.dataproduct_subtype, ivoa.obscore.calib_level, ivoa.obscore.obs_collection, ivoa.obscore.obs_id, ivoa.obscore.obs_title, ivoa.obscore.obs_publisher_did, ivoa.obscore.obs_creator_did, ivoa.obscore.access_url, ivoa.obscore.access_format, ivoa.obscore.access_estsize, ivoa.obscore.target_name, ivoa.obscore.target_class, ivoa.obscore.s_ra, ivoa.obscore.s_dec, ivoa.obscore.s_fov, ivoa.obscore.s_region, ivoa.obscore.s_resolution, ivoa.obscore.t_min, ivoa.obscore.t_max, ivoa.obscore.t_exptime, ivoa.obscore.t_resolution, ivoa.obscore.em_min, ivoa.obscore.em_max, ivoa.obscore.em_res_power, ivoa.obscore.o_ucd, ivoa.obscore.pol_states, ivoa.obscore.facility_name, ivoa.obscore.instrument_name, ivoa.obscore.s_xel1, ivoa.obscore.s_xel2, ivoa.obscore.t_xel, ivoa.obscore.em_xel, ivoa.obscore.pol_xel, ivoa.obscore.s_pixel_scale, ivoa.obscore.em_ucd, ivoa.obscore.preview, ivoa.obscore.source_table FROM ivoa.obscore LIMIT 5"/>
+    >       <INFO name="query" value="SELECT TOP 5 * FROM ivoa.obscore"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <COOSYS ID="system" system="ICRS"/>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <GROUP utype="stc:CatalogEntryLocation">
+    >           <PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+    >           <PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+    >           <PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/>
+    >           <FIELDref ref="s_region" utype="stc:AstroCoordArea.Polygon"/>
+    >         </GROUP>
+    >         <GROUP ID="ndhgmtiugwla" name="note-calib">
+    >           <DESCRIPTION>
+    >   The calib_level flag takes the following values:
+    >   
+    >   === ===========================================================
+    >    0  Raw Instrumental data requiring instrument-specific tools
+    >    1  Instrumental data processable with standard tools
+    >    2  Calibrated, science-ready data without instrument signature
+    >    3  Enhanced data products (e.g., mosaics)
+    >   === ===========================================================</DESCRIPTION>
+    >           <FIELDref ref="calib_level"/>
+    >         </GROUP>
+    >         <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
+    >           <DESCRIPTION>High level scientific classification of the data product, taken from an enumeration</DESCRIPTION>
+    >           <VALUES>
+    >             <OPTION name="image" value="image"/>
+    >             <OPTION name="cube" value="cube"/>
+    >             <OPTION name="spectrum" value="spectrum"/>
+    >             <OPTION name="sed" value="sed"/>
+    >             <OPTION name="timeseries" value="timeseries"/>
+    >             <OPTION name="visibility" value="visibility"/>
+    >             <OPTION name="event" value="event"/>
+    >           </VALUES>
+    >         </FIELD>
+    >         <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
+    >           <DESCRIPTION>Data product specific type</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
+    >           <DESCRIPTION>Amount of data processing that has been applied to the data</DESCRIPTION>
+    >           <VALUES null="-32768"/>
+    >         </FIELD>
+    >         <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
+    >           <DESCRIPTION>Name of a data collection (e.g., project name) this data belongs to</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
+    >           <DESCRIPTION>Free-from title of the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
+    >           <DESCRIPTION>The URL at which to obtain the data set.</DESCRIPTION>
+    >         </FIELD>
+    >         ....
+    >         ....
+    >       </TABLE>
+    >     </RESOURCE>
+    >     ....
+    >     ....
+    >   </VOTABLE>
 
 
     #
@@ -289,37 +281,35 @@ The calib_level flag takes the following values:
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
-    <INFO name="sql_query" value="SELECT count ( obs_publisher_did ) AS ndhgmmaddgia FROM ivoa.obscore LIMIT 20000"/>
-    <INFO name="query" value="SELECT count(obs_publisher_did) FROM ivoa.obscore"/>
-    <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
-    <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
-    <TABLE name="ObsCore">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</DESCRIPTION>
-      <FIELD ID="ndhgmmaddgia" datatype="int" name="ndhgmmaddgia" ucd="meta.number;meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-        <VALUES null="-2147483648"/>
-      </FIELD>
-      <DATA>
-        <TABLEDATA>
-          <TR>
-            <TD>915</TD>
-          </TR>
-        </TABLEDATA>
-      </DATA>
-    </TABLE>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT count ( obs_publisher_did ) AS ndhgmmaddgia FROM ivoa.obscore LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT count(obs_publisher_did) FROM ivoa.obscore"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <FIELD ID="ndhgmmaddgia" datatype="int" name="ndhgmmaddgia" ucd="meta.number;meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >           <VALUES null="-2147483648"/>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>915</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
     #
@@ -336,110 +326,108 @@ datasets within this datacenter.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
-    <INFO name="sql_query" value="SELECT obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did LIMIT 20000"/>
-    <INFO name="query" value="SELECT obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"/>
-    <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
-    <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
-    <TABLE name="ObsCore">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</DESCRIPTION>
-      <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-      </FIELD>
-      <DATA>
-        <TABLEDATA>
-          <TR>
-            <TD>https://lol.com</TD>
-          </TR>
-          <TR>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
-          </TR>
-          <TR>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012-06A/RACS-DR1_0012-06A</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>ivo://test.skao/~?chocolate:pi24_run_1_cleaned.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?chocolate:pi24_run_1_cleaned_reupload.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?chocolate:pi24_run_1_dirty.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?daac:pi25_daac_run_2_cleaned.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?tangerine:dss-m81-r-004264-4-0259.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?tangerine:dss-ngc1068-r-004874-3-0692.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?tangerine:dss-ngc4486a-r-003804-3-0199.fits</TD>
-          </TR>
-          <TR>
-            <TD>ivo://test.skao/~?tangerine:dss-ngc5169-r-003699-5-0099.fits</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>src-workloads</TD>
-          </TR>
-          <TR>
-            <TD>src-workloads</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>test</TD>
-          </TR>
-          <TR>
-            <TD>test</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>test4</TD>
-          </TR>
-          <TR>
-            <TD>test4</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>testing</TD>
-          </TR>
-          <TR>
-            <TD>testing</TD>
-          </TR>
-        </TABLEDATA>
-      </DATA>
-    </TABLE>
-  </RESOURCE>
-  <RESOURCE name="links" type="meta" utype="adhoc:service">
-    <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
-collection-specific datalink services if they exist or return
-extremely basic datalinks otherwise.</DESCRIPTION>
-    <GROUP name="inputParams">
-      <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
-    </GROUP>
-    <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
-    <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>https://lol.com</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012-06A/RACS-DR1_0012-06A</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>ivo://test.skao/~?chocolate:pi24_run_1_cleaned.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?chocolate:pi24_run_1_cleaned_reupload.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?chocolate:pi24_run_1_dirty.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?daac:pi25_daac_run_2_cleaned.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?tangerine:dss-m81-r-004264-4-0259.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?tangerine:dss-ngc1068-r-004874-3-0692.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?tangerine:dss-ngc4486a-r-003804-3-0199.fits</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>ivo://test.skao/~?tangerine:dss-ngc5169-r-003699-5-0099.fits</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>src-workloads</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>src-workloads</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>test</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>test</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>test4</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>test4</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>testing</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>testing</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="links" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
     #
     # OK, so the only valid IVORNs are for CADC data.
@@ -535,15 +523,13 @@ extremely basic datalinks otherwise.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0"?>
-<?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <RESOURCE type="results">
-    <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'obs_creator_name' could not be located in table metadata</INFO>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0"?>
+    >   <?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <RESOURCE type="results">
+    >       <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'obs_creator_name' could not be located in table metadata</INFO>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
     query="SELECT obs_id, obs_creator_did, publisher_id, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"
@@ -556,15 +542,13 @@ extremely basic datalinks otherwise.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0"?>
-<?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <RESOURCE type="results">
-    <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'publisher_id' could not be located in table metadata</INFO>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0"?>
+    >   <?xml-stylesheet href='/static/xsl/dalierror-to-html.xsl' type='text/xsl'?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <RESOURCE type="results">
+    >       <INFO name="QUERY_STATUS" value="ERROR">Field query: No such field known: column 'publisher_id' could not be located in table metadata</INFO>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
     query="SELECT obs_id, obs_creator_did, obs_creation_date, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"
@@ -577,76 +561,74 @@ extremely basic datalinks otherwise.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
-    <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did LIMIT 20000"/>
-    <INFO name="query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"/>
-    <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
-    <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
-    <TABLE name="ObsCore">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this datacenter.</DESCRIPTION>
-      <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
-        <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
-        <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-      </FIELD>
-      <DATA>
-        <TABLEDATA>
-          <TR>
-            <TD>TEST_XXXX</TD>
-            <TD/>
-            <TD>https://lol.com</TD>
-          </TR>
-          <TR>
-            <TD>RACS-DR1_0012+06A</TD>
-            <TD/>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
-          </TR>
-          <TR>
-            <TD>RACS-DR1_0012-06A</TD>
-            <TD/>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012-06A/RACS-DR1_0012-06A</TD>
-          </TR>
-          <TR>
-            <TD>RACS-DR1_0021-56A</TD>
-            <TD/>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0021-56A/RACS-DR1_0021-56A</TD>
-          </TR>
-          <TR>
-            <TD>RACS-DR1_0025+12A</TD>
-            <TD/>
-            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0025+12A/RACS-DR1_0025+12A</TD>
-          </TR>
-          ....
-          ....
-        </TABLEDATA>
-      </DATA>
-    </TABLE>
-  </RESOURCE>
-  <RESOURCE name="links" type="meta" utype="adhoc:service">
-    <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
-collection-specific datalink services if they exist or return
-extremely basic datalinks otherwise.</DESCRIPTION>
-    <GROUP name="inputParams">
-      <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
-    </GROUP>
-    <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
-    <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore ORDER BY obs_publisher_did"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>TEST_XXXX</TD>
+    >               <TD/>
+    >               <TD>https://lol.com</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>RACS-DR1_0012+06A</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>RACS-DR1_0012-06A</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012-06A/RACS-DR1_0012-06A</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>RACS-DR1_0021-56A</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0021-56A/RACS-DR1_0021-56A</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>RACS-DR1_0025+12A</TD>
+    >               <TD/>
+    >               <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0025+12A/RACS-DR1_0025+12A</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="links" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
 # -----------------------------------------------------
@@ -764,79 +746,77 @@ extremely basic datalinks otherwise.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE obs_creator_did != obs_publisher_did ORDER BY obs_publisher_did LIMIT 20000">ADQL query translated to local SQL (for debugging)</INFO>
-    <INFO name="query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE obs_creator_did != obs_publisher_did ORDER BY obs_publisher_did">Original ADQL query</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="server_software" value="DaCHS/2.10 twistedWeb/22.4.0">Software that produced this VOTable</INFO>
-    <INFO name="server" value="http://dc.g-vo.org">Base URI of the server</INFO>
-    <INFO name="citation" ucd="" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore#ti-citing">Advice on citing this resource</INFO>
-    <INFO name="citation" ucd="" value="http://dc.g-vo.org/__system__/tap/run/howtocite">Advice on citing this resource</INFO>
-    <INFO name="ivoid" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/__system__/obscore/ObsCore">Originating VO resource</INFO>
-    <INFO name="ivoid_service" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/tap">Originating VO service</INFO>
-    <INFO name="publisher" value="The GAVO DC team">Data centre that has delivered the data</INFO>
-    <INFO name="request_date" ucd="time.creation" value="2025-03-28T07:47:29Z"/>
-    <INFO name="contact" ucd="meta.email" value="gavo@ari.uni-heidelberg.de">Contact option</INFO>
-    <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore">More information on the data Source</INFO>
-    <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/__system__/tap/run/info">More information on the data Source</INFO>
-    <INFO name="creator" ucd="meta.bib.author" value="GAVO Data Centre">Name of a person or entity that produced a contributing resource</INFO>
-    <TABLE name="ObsCore" utype="ivo://ivoa.net/std/obscore#table-1.1">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this data centre.</DESCRIPTION>
-      <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
-        <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
-        <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-      </FIELD>
-      <DATA>
-        <TABLEDATA>
-          <TR>
-            <TD>theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.txt</TD>
-            <TD>ivo://tmap.iaat/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23</TD>
-            <TD>ivo://org.gavo.dc/~?theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.txt</TD>
-          </TR>
-          <TR>
-            <TD>theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.vot</TD>
-            <TD>ivo://tmap.iaat/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23</TD>
-            <TD>ivo://org.gavo.dc/~?theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.vot</TD>
-          </TR>
-          ....
-          ....
-          <TR>
-            <TD>theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.txt</TD>
-            <TD>ivo://tmap.iaat/0023000_6.96_000001-400000_2016-04-21_13_02_26</TD>
-            <TD>ivo://org.gavo.dc/~?theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.txt</TD>
-          </TR>
-          <TR>
-            <TD>theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.vot</TD>
-            <TD>ivo://tmap.iaat/0023000_6.96_000001-400000_2016-04-21_13_02_26</TD>
-            <TD>ivo://org.gavo.dc/~?theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.vot</TD>
-          </TR>
-        </TABLEDATA>
-      </DATA>
-    </TABLE>
-    <INFO name="QUERY_STATUS" value="OVERFLOW"/>
-  </RESOURCE>
-  <RESOURCE name="dl" type="meta" utype="adhoc:service">
-    <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
-collection-specific datalink services if they exist or return
-extremely basic datalinks otherwise.</DESCRIPTION>
-    <GROUP name="inputParams">
-      <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
-    </GROUP>
-    <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/datalink#links-1.1"/>
-    <PARAM arraysize="*" datatype="char" name="accessURL" value="http://dc.g-vo.org/__system__/obscore/dl/dlmeta"/>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE obs_creator_did != obs_publisher_did ORDER BY obs_publisher_did LIMIT 20000">ADQL query translated to local SQL (for debugging)</INFO>
+    >       <INFO name="query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE obs_creator_did != obs_publisher_did ORDER BY obs_publisher_did">Original ADQL query</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="server_software" value="DaCHS/2.10 twistedWeb/22.4.0">Software that produced this VOTable</INFO>
+    >       <INFO name="server" value="http://dc.g-vo.org">Base URI of the server</INFO>
+    >       <INFO name="citation" ucd="" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore#ti-citing">Advice on citing this resource</INFO>
+    >       <INFO name="citation" ucd="" value="http://dc.g-vo.org/__system__/tap/run/howtocite">Advice on citing this resource</INFO>
+    >       <INFO name="ivoid" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/__system__/obscore/ObsCore">Originating VO resource</INFO>
+    >       <INFO name="ivoid_service" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/tap">Originating VO service</INFO>
+    >       <INFO name="publisher" value="The GAVO DC team">Data centre that has delivered the data</INFO>
+    >       <INFO name="request_date" ucd="time.creation" value="2025-03-28T07:47:29Z"/>
+    >       <INFO name="contact" ucd="meta.email" value="gavo@ari.uni-heidelberg.de">Contact option</INFO>
+    >       <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore">More information on the data Source</INFO>
+    >       <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/__system__/tap/run/info">More information on the data Source</INFO>
+    >       <INFO name="creator" ucd="meta.bib.author" value="GAVO Data Centre">Name of a person or entity that produced a contributing resource</INFO>
+    >       <TABLE name="ObsCore" utype="ivo://ivoa.net/std/obscore#table-1.1">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this data centre.</DESCRIPTION>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.txt</TD>
+    >               <TD>ivo://tmap.iaat/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23</TD>
+    >               <TD>ivo://org.gavo.dc/~?theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.txt</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.vot</TD>
+    >               <TD>ivo://tmap.iaat/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23</TD>
+    >               <TD>ivo://org.gavo.dc/~?theossa/spec/spec_H-Ca/0050000_5.00_H-Ca_halo__2001-05-31_16_55_23.vot</TD>
+    >             </TR>
+    >             ....
+    >             ....
+    >             <TR>
+    >               <TD>theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.txt</TD>
+    >               <TD>ivo://tmap.iaat/0023000_6.96_000001-400000_2016-04-21_13_02_26</TD>
+    >               <TD>ivo://org.gavo.dc/~?theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.txt</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.vot</TD>
+    >               <TD>ivo://tmap.iaat/0023000_6.96_000001-400000_2016-04-21_13_02_26</TD>
+    >               <TD>ivo://org.gavo.dc/~?theossa/spec/upload/0023000_6.96_000001-400000_2016-04-21_13_02_26.vot</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >       <INFO name="QUERY_STATUS" value="OVERFLOW"/>
+    >     </RESOURCE>
+    >     <RESOURCE name="dl" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/datalink#links-1.1"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="http://dc.g-vo.org/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
     This looks like a good example .. but I can't find a registration for 'ivo://tmap.iaat' as an authority ID.
 
@@ -879,55 +859,53 @@ extremely basic datalinks otherwise.</DESCRIPTION>
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-results.vot"
 
---START--
-<?xml version="1.0" encoding="utf-8"?>
-<VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable.xsd">
-  <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
-  <RESOURCE type="results">
-    <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE ( obs_creator_did != obs_publisher_did ) AND ( obs_creator_did NOT LIKE 'ivo://tmap.iaat/%%' ) ORDER BY obs_publisher_did LIMIT 20000">ADQL query translated to local SQL (for debugging)</INFO>
-    <INFO name="query" value="         SELECT             obs_id,             obs_creator_did,             obs_publisher_did         FROM             ivoa.obscore         WHERE             (obs_creator_did != obs_publisher_did)         AND             (obs_creator_did NOT LIKE 'ivo://tmap.iaat/%')         ORDER BY             obs_publisher_did         ">Original ADQL query</INFO>
-    <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
-    <INFO name="server_software" value="DaCHS/2.10 twistedWeb/22.4.0">Software that produced this VOTable</INFO>
-    <INFO name="server" value="http://dc.g-vo.org">Base URI of the server</INFO>
-    <INFO name="citation" ucd="" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore#ti-citing">Advice on citing this resource</INFO>
-    <INFO name="citation" ucd="" value="http://dc.g-vo.org/__system__/tap/run/howtocite">Advice on citing this resource</INFO>
-    <INFO name="ivoid" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/__system__/obscore/ObsCore">Originating VO resource</INFO>
-    <INFO name="ivoid_service" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/tap">Originating VO service</INFO>
-    <INFO name="publisher" value="The GAVO DC team">Data centre that has delivered the data</INFO>
-    <INFO name="request_date" ucd="time.creation" value="2025-03-28T08:09:58Z"/>
-    <INFO name="contact" ucd="meta.email" value="gavo@ari.uni-heidelberg.de">Contact option</INFO>
-    <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore">More information on the data Source</INFO>
-    <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/__system__/tap/run/info">More information on the data Source</INFO>
-    <INFO name="creator" ucd="meta.bib.author" value="GAVO Data Centre">Name of a person or entity that produced a contributing resource</INFO>
-    <TABLE name="ObsCore" utype="ivo://ivoa.net/std/obscore#table-1.1">
-      <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
-datasets within this data centre.</DESCRIPTION>
-      <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
-        <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
-        <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
-      </FIELD>
-      <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
-        <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
-      </FIELD>
-      <DATA>
-        <TABLEDATA/>
-      </DATA>
-    </TABLE>
-  </RESOURCE>
-  <RESOURCE name="dl" type="meta" utype="adhoc:service">
-    <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
-collection-specific datalink services if they exist or return
-extremely basic datalinks otherwise.</DESCRIPTION>
-    <GROUP name="inputParams">
-      <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
-    </GROUP>
-    <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/datalink#links-1.1"/>
-    <PARAM arraysize="*" datatype="char" name="accessURL" value="http://dc.g-vo.org/__system__/obscore/dl/dlmeta"/>
-  </RESOURCE>
-</VOTABLE>
---END--
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="sql_query" value="SELECT obs_id, obs_creator_did, obs_publisher_did FROM ivoa.obscore WHERE ( obs_creator_did != obs_publisher_did ) AND ( obs_creator_did NOT LIKE 'ivo://tmap.iaat/%%' ) ORDER BY obs_publisher_did LIMIT 20000">ADQL query translated to local SQL (for debugging)</INFO>
+    >       <INFO name="query" value="         SELECT             obs_id,             obs_creator_did,             obs_publisher_did         FROM             ivoa.obscore         WHERE             (obs_creator_did != obs_publisher_did)         AND             (obs_creator_did NOT LIKE 'ivo://tmap.iaat/%')         ORDER BY             obs_publisher_did         ">Original ADQL query</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="server_software" value="DaCHS/2.10 twistedWeb/22.4.0">Software that produced this VOTable</INFO>
+    >       <INFO name="server" value="http://dc.g-vo.org">Base URI of the server</INFO>
+    >       <INFO name="citation" ucd="" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore#ti-citing">Advice on citing this resource</INFO>
+    >       <INFO name="citation" ucd="" value="http://dc.g-vo.org/__system__/tap/run/howtocite">Advice on citing this resource</INFO>
+    >       <INFO name="ivoid" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/__system__/obscore/ObsCore">Originating VO resource</INFO>
+    >       <INFO name="ivoid_service" ucd="meta.ref.ivoid" value="ivo://org.gavo.dc/tap">Originating VO service</INFO>
+    >       <INFO name="publisher" value="The GAVO DC team">Data centre that has delivered the data</INFO>
+    >       <INFO name="request_date" ucd="time.creation" value="2025-03-28T08:09:58Z"/>
+    >       <INFO name="contact" ucd="meta.email" value="gavo@ari.uni-heidelberg.de">Contact option</INFO>
+    >       <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/tableinfo/ivoa.ObsCore">More information on the data Source</INFO>
+    >       <INFO name="reference_url" ucd="meta.ref.url" value="http://dc.g-vo.org/__system__/tap/run/info">More information on the data Source</INFO>
+    >       <INFO name="creator" ucd="meta.bib.author" value="GAVO Data Centre">Name of a person or entity that produced a contributing resource</INFO>
+    >       <TABLE name="ObsCore" utype="ivo://ivoa.net/std/obscore#table-1.1">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this data centre.</DESCRIPTION>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA/>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="dl" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/datalink#links-1.1"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="http://dc.g-vo.org/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
 
 
 # -----------------------------------------------------

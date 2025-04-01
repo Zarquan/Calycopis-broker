@@ -1,0 +1,96 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring data in the SKA DataLake ....
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    SKA Rucio Client
+    Rucio client connected by default to the SKAO datalake with OIDC.
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client
+
+    Based on Rucio client
+    https://github.com/rucio/containers/tree/master/clients
+
+
+# -----------------------------------------------------
+
+    ska-src-clients
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-clients
+
+
+        Token request:
+
+        srcnet-oper token request
+
+
+# -----------------------------------------------------
+
+    Data Ingestor Service
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor
+
+    This is interesting
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor/-/blob/main/FAQ.md?ref_type=heads#how-do-i-populate-the-obs_publisher_did-field-for-obscore-propagation-what-are-the-values-for-path-query-and-fragment
+
+    How do I populate the obs_publisher_did field for ObsCore propagation?. What are the values for path, query and fragment?
+
+    The obs_publisher_did path does have a currently preferred form that has the query part of the URI constructed as namespace:name
+    (basically the Rucio data identifier; the same fields you will be setting in the metadata for namespace/scope and name).
+
+
+# -----------------------------------------------------
+
+    Rucio-IVOA Metadata Integrations
+    https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-rucio-ivoa-integrations
+
+    Database triggers
+    https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-rucio-ivoa-integrations/-/blob/main/postgres-metadata/etc/init/dachs/02-rucio.sql?ref_type=heads
+
+    Test data planned for 0.1
+    https://confluence.skatelescope.org/display/SRCSC/SP-4132+Identify+test+data+collections+for+SRCNet+0.1
+
+
+
+# -----------------------------------------------------
+
+
+    Coral open issues ..
+    https://jira.skatelescope.org/projects/COR/issues/COR-845?filter=allopenissues
+
+    [ExecBroker] Agree on the format for ivo://xxx identifiers for SRCNet DataProducts and update the data in the SRCNet services
+    https://jira.skatelescope.org/browse/COR-821
+
+    [COR-821] ivo://.... identifiers for SRCNet DataProducts
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=319989873
+
+
+

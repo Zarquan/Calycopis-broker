@@ -1,0 +1,622 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Create confluence page.
+
+    [COR-821] ivo://xxx identifiers for SRCNet DataProducts
+
+
+# -----------------------------------------------------
+
+    How to register a new authority (technical details)
+    https://www.ivoa.net/documents/RegistryInterface/20180723/REC-RegistryInterface-1.1.html#tth_sEc3.1
+
+    How to register a new authority - simple form, we deploy a registry and claim it.
+
+
+# -----------------------------------------------------
+#
+
+    Exploring examples from other services using TopCat
+
+
+    Data in Vizier ObsCore service
+
+    service: ivo://cds.vizier/tap
+    documentation: https://vizier.cds.unistra.fr/
+    endpoint: http://tapvizier.cds.unistra.fr/TAPVizieR/tap
+
+    table:
+      name: "B/hst/obscore"
+      description: HST observation logs (sample) ( STScI Team)
+      size: 17,633,454 rows
+
+      query: SELECT obs_id, obs_publisher_did FROM "B/hst/obscore"
+      query: SELECT top 100 obs_id, obs_publisher_did FROM "B/hst/obscore"
+
+    obs_id, obs_publisher_did
+    hst_12492_05_acs_sbc_f140lp_jbpg05	ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-CALIBRATED
+    hst_12492_05_acs_sbc_f140lp_jbpg05	ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+    hst_12492_05_acs_sbc_f140lp_jbpg05	ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+    hst_12492_05_acs_sbc_f140lp_jbpg05	ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+    hst_12492_05_acs_sbc_f140lp_jbpg05	ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+
+    obs_id, obs_publisher_did
+    i9zf01dzq	ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz
+    i9zf01dzq	ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_flt
+    i9zf01dzq	ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_raw
+
+
+    These are records in a service hosted by Vizier, in a table of data about HST observation logs.
+    The rows appear to be referencing data in a couple of CADC serviceS, 'ivo://cadc.nrc.ca/mirror/HST' and 'ivo://cadc.nrc.ca/HST'.
+
+    Found entries for 'ivo://cadc.nrc.ca/hst' and 'ivo://cadc.nrc.ca/archive/hst' in the EuroVO registry, but there are no capabilities associated with them.
+    https://registry.euro-vo.org/
+
+
+# -----------------------------------------------------
+
+    Exploring the data in the SKA ObsTAP service.
+
+    Several entries refer to data in CADC
+
+        ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A
+
+    but as far as I can tell there is no entry for ivo://cadc.nrc.ca/RACS in the (EuroVO) registry
+
+
+# -----------------------------------------------------
+
+    Can we test that using a VO registry client ?
+
+
+    podman run --rm -it python
+
+# Install PyVO
+# https://stackoverflow.com/a/12333108
+# https://stackoverflow.com/a/50255019
+
+import subprocess
+import sys
+
+subprocess.call(
+    [
+    sys.executable,
+    '-m', 'pip', 'install', 'pyvo'
+    ]
+    )
+
+
+# Query the registry
+# https://pyvo.readthedocs.io/en/latest/registry/index.html
+
+from pyvo import registry
+
+registry.search(
+    registry.Ivoid(
+        "ivo://cadc.nrc.ca/hst"
+        )
+    )
+
+    >   <DALResultsTable length=1>
+    >           ivoid              res_type     ... intf_roles cap_descriptions
+    >                                           ...
+    >           object              object      ...   object        object
+    >   --------------------- ----------------- ... ---------- ----------------
+    >   ivo://cadc.nrc.ca/hst vs:datacollection ...
+
+
+registry.search(
+    registry.Ivoid(
+        "ivo://cadc.nrc.ca/archive/hst"
+        )
+    )
+
+    >   <DALResultsTable length=1>
+    >               ivoid                  res_type     ... intf_roles cap_descriptions
+    >                                                   ...
+    >               object                  object      ...   object        object
+    >   ----------------------------- ----------------- ... ---------- ----------------
+    >   ivo://cadc.nrc.ca/archive/hst vs:datacollection ...
+
+
+
+registry.search(
+    registry.Ivoid(
+        "ivo://cadc.nrc.ca/RACS"
+        )
+    )
+
+    >   <DALResultsTable length=0>
+    >   ivoid  res_type short_name res_title ... intf_types intf_roles cap_descriptions
+    >                                        ...
+    >   object  object    object     object  ...   object     object        object
+    >   ------ -------- ---------- --------- ... ---------- ---------- ----------------
+
+
+registry.search(
+    registry.Ivoid(
+        "ivo://cadc.nrc.ca/mirror/HST"
+        )
+    )
+
+    >   <DALResultsTable length=0>
+    >   ivoid  res_type short_name res_title ... intf_types intf_roles cap_descriptions
+    >                                        ...
+    >   object  object    object     object  ...   object     object        object
+    >   ------ -------- ---------- --------- ... ---------- ---------- ----------------
+
+
+    #
+    # Print a list of registries..
+
+results = registry.search(
+    datamodel="regtap"
+    )
+
+print(
+    "\n".join(
+        sorted(
+            result.get_interface(
+                service_type="tap",
+                lax=True
+                ).access_url
+            for result in results
+              )
+          )
+      )
+
+    >   http://dc.g-vo.org/tap
+    >   http://gavo.aip.de/tap
+    >   http://voparis-rr.obspm.fr/tap
+    >   https://mast.stsci.edu/vo-tap/api/v0.1/registry
+    >   https://registry.euro-vo.org/regtap/tap
+
+    #
+    # Missing is CADC's registry.
+    # Which is listed in the EuroVO results as ivo://cadc.nrc.ca/registry
+    # capability = ivo://ivoa.net/std/Registry rather than datamodel = regtap
+    # accessURL(s): [https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/oai]
+
+    #
+    # Type is [vg:Harvest] not [??:regtap]
+    # Not what we were looking for ..
+    #
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Summary
+
+    SKA ObsTAP service lists some CADC data
+
+        obs_publisher_did: ivo://cadc.nrc.ca/RACS?RACS-DR1_0012-06A/RACS-DR1_0012-06A
+
+        but I can't find ivo://cadc.nrc.ca/RACS in the IVOA registry
+        suspect thes are mis-identified
+
+
+    While looking for similar cases, I found some data about HST observation logs in a Vizier database
+
+      table: "B/hst/obscore"
+      description: HST observation logs (sample) ( STScI Team)
+
+        obs_id:            hst_12492_05_acs_sbc_f140lp_jbpg05
+        obs_publisher_did: ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+
+        obs_id:             i9zf01dzq
+        obs_publisher_did:  ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz
+
+    but I can't find ivo://cadc.nrc.ca/mirror/HST in the registry
+    I can find 'hst' and 'archive/hst', but neither of them have any capabilities registered
+
+        ivo://cadc.nrc.ca/hst
+        ivo://cadc.nrc.ca/archive/hst
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Slack conversation with Adrian from CADC
+
+
+Dave Morris
+Hi Adrian, can you help me find some information about some CACD data that has been imported into the SKA DataLake ?
+
+
+Adrian Damian
+Hi Dave. I can try for sure. Mind you I don't know what SKA DataLake is but I can use other details to dig in.
+
+Dave Morris
+I'm exploring the test data that is in the SKA services to see what I can figure out from the metadata.
+SKA has a ObsTAP service that should have an IVOA metadata record for each entry in the Rucio system
+
+I found several entries that have the publisher data id set to something like 'ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A'
+Which implies that ivo://cadc.nrc.ca/RACS is an IVOA service of some kind but I can't find anything in the VO registry
+
+quite possibly this is test data with made-up identifiers, so not an issue but I though best to check before I dismiss them
+
+Adrian Damian
+Give me a sec to look into it and I'll get back to you.
+
+Dave Morris
+thanks
+
+Adrian Damian
+Our DL service is  https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops With URL encoding the following call returns the SODA details
+curl https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink\?ID\=ivo%3A%2F%2Fcadc.nrc.ca%2FRACS%3FRACS-DR1_0012%2B06A%2FRACS-DR1_0012%2B06A
+Is this useful?
+
+Dave Morris
+yes, indeed
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+      <RESOURCE type="results">
+        <INFO name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.1" />
+        <TABLE>
+          <FIELD name="ID" datatype="char" arraysize="*" ucd="meta.id;meta.main" />
+          <FIELD name="access_url" datatype="char" arraysize="*" ucd="meta.ref.url" />
+          <FIELD name="service_def" datatype="char" arraysize="*" ucd="meta.ref" />
+          <FIELD name="error_message" datatype="char" arraysize="*" ucd="meta.code.error" />
+          <FIELD name="semantics" datatype="char" arraysize="*" ucd="meta.code" />
+          <FIELD name="local_semantics" datatype="char" arraysize="*" ucd="meta.code">
+            <DESCRIPTION>local tag indicating equivalent meaning or role of this link (DataLink-1.1)</DESCRIPTION>
+          </FIELD>
+          <FIELD name="description" datatype="char" arraysize="*" ucd="meta.note" />
+          <FIELD name="content_type" datatype="char" arraysize="*" ucd="meta.code.mime" />
+          <FIELD name="content_length" datatype="long" ucd="phys.size;meta.file" unit="byte" />
+          <FIELD name="content_qualifier" datatype="char" arraysize="*">
+            <DESCRIPTION>the nature of the thing the link will deliver (DataLink-1.1)</DESCRIPTION>
+          </FIELD>
+          <FIELD name="link_auth" datatype="char" arraysize="*" ucd="meta.code">
+            <DESCRIPTION>link supports authentication (DataLink-1.1)</DESCRIPTION>
+          </FIELD>
+          <FIELD name="link_authorized" datatype="boolean" ucd="meta.code">
+            <DESCRIPTION>the current authenticated identity is authorized (DataLink-1.1)</DESCRIPTION>
+          </FIELD>
+          <DATA>
+            <TABLEDATA>
+              <TR>
+                <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
+                <TD>https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/raven/files/casda:RACS/RACS-DR1_0012+06A.fits</TD>
+                <TD />
+                <TD />
+                <TD>#this</TD>
+                <TD />
+                <TD>download casda:RACS/RACS-DR1_0012+06A.fits</TD>
+                <TD>application/fits</TD>
+                <TD>754058880</TD>
+                <TD />
+                <TD>optional</TD>
+                <TD>true</TD>
+              </TR>
+              <TR>
+                <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
+                <TD />
+                <TD>soda-7c2aa8dd-2fea-4223-b099-e47ed6b2a077</TD>
+                <TD />
+                <TD>#cutout</TD>
+                <TD />
+                <TD>SODA-sync cutout of casda:RACS/RACS-DR1_0012+06A.fits</TD>
+                <TD>application/fits</TD>
+                <TD />
+                <TD />
+                <TD>optional</TD>
+                <TD>true</TD>
+              </TR>
+              <TR>
+                <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A</TD>
+                <TD />
+                <TD>soda-2dd54f64-1a81-4b36-b40b-fb6f242cefbc</TD>
+                <TD />
+                <TD>#cutout</TD>
+                <TD />
+                <TD>SODA-async cutout of casda:RACS/RACS-DR1_0012+06A.fits</TD>
+                <TD>application/fits</TD>
+                <TD />
+                <TD />
+                <TD>optional</TD>
+                <TD>true</TD>
+              </TR>
+            </TABLEDATA>
+          </DATA>
+        </TABLE>
+        <INFO name="placeholder" value="ignore" />
+      </RESOURCE>
+      <RESOURCE type="meta" ID="soda-7c2aa8dd-2fea-4223-b099-e47ed6b2a077" utype="adhoc:service">
+        <PARAM name="resourceIdentifier" datatype="char" arraysize="22" value="ivo://cadc.nrc.ca/RACS" />
+        <PARAM name="standardID" datatype="char" arraysize="32" value="ivo://ivoa.net/std/SODA#sync-1.0" />
+        <PARAM name="contentType" datatype="char" arraysize="16" value="application/fits" />
+        <PARAM name="accessURL" datatype="char" arraysize="57" value="https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/sync" />
+        <GROUP name="inputParams">
+          <PARAM name="ID" datatype="char" arraysize="33" ucd="meta.id;meta.dataset" value="casda:RACS/RACS-DR1_0012+06A.fits" />
+          <PARAM name="POS" datatype="char" arraysize="*" ucd="obs.field" value="" />
+          <PARAM name="CIRCLE" datatype="double" arraysize="3" ucd="obs.field" unit="deg" xtype="circle" value="">
+            <VALUES>
+              <MAX value="3.1008304166670406 6.300013333332998 6.761651818163202" />
+            </VALUES>
+          </PARAM>
+          <PARAM name="POLYGON" datatype="double" arraysize="*" ucd="obs.field" unit="deg" xtype="polygon" value="">
+            <VALUES>
+              <MAX value="7.875710398145045 1.5055933072693222 358.325950435189 1.5055933072693222 358.2372175543217 11.050248445741204 7.964443279012322 11.050248445741204" />
+            </VALUES>
+          </PARAM>
+        </GROUP>
+      </RESOURCE>
+      <RESOURCE type="meta" ID="soda-2dd54f64-1a81-4b36-b40b-fb6f242cefbc" utype="adhoc:service">
+        <PARAM name="resourceIdentifier" datatype="char" arraysize="22" value="ivo://cadc.nrc.ca/RACS" />
+        <PARAM name="standardID" datatype="char" arraysize="33" value="ivo://ivoa.net/std/SODA#async-1.0" />
+        <PARAM name="contentType" datatype="char" arraysize="16" value="application/fits" />
+        <PARAM name="accessURL" datatype="char" arraysize="58" value="https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/async" />
+        <GROUP name="inputParams">
+          <PARAM name="ID" datatype="char" arraysize="33" ucd="meta.id;meta.dataset" value="casda:RACS/RACS-DR1_0012+06A.fits" />
+          <PARAM name="POS" datatype="char" arraysize="*" ucd="obs.field" value="" />
+          <PARAM name="CIRCLE" datatype="double" arraysize="3" ucd="obs.field" unit="deg" xtype="circle" value="">
+            <VALUES>
+              <MAX value="3.1008304166670406 6.300013333332998 6.761651818163202" />
+            </VALUES>
+          </PARAM>
+          <PARAM name="POLYGON" datatype="double" arraysize="*" ucd="obs.field" unit="deg" xtype="polygon" value="">
+            <VALUES>
+              <MAX value="7.875710398145045 1.5055933072693222 358.325950435189 1.5055933072693222 358.2372175543217 11.050248445741204 7.964443279012322 11.050248445741204" />
+            </VALUES>
+          </PARAM>
+        </GROUP>
+      </RESOURCE>
+    </VOTABLE>
+
+
+Dave Morris
+the datalink results also have the same ivo:// identifier `ivo://cadc.nrc.ca/RACS?....`
+so that suggests the ID came from the CADC data
+
+Do you know how a client can resolve that identifier ?
+Is there a missing step to get from the resource part of the ivoid to the datalink service (apart from pestering you on Slack)
+
+I'm working on a pattern for using ivo:// identifiers in SKA, so I'm looking at how other project use them.
+My guess was that a obs_publisher_did  that starts with ivo://cadc.nrc.ca/... is referring to data stored in the CADC system rather than the SKA storage
+so I wanted to follow the chain to see if I could find it in your system
+
+Adrian Damian
+I think Pat has mentioned that our registry records are outdated. I suspect that this is going to be fixed. I think you would need to take the base of the IVOID (no query string) and look it up in the registry. That will return all the services that can be accessed at the CADC with that IVOID
+
+Dave Morris
+Yep, I tried that, but as far as I can tell  ivo://cadc.nrc.ca/RACS isn't in the registry.
+
+Adrian Damian
+Not yet. I'll bring it up with Pat tomorrow. He's away today.
+
+Dave Morris
+That's OK
+so my assumption was correct .. just the records aren't there at the moment ?
+
+as a side note, while doing some background exploring for this, I found some records in a Vizier database at CDS
+table "B/hst/obscore" in Vizier says it contains HST observation logs
+with obs_publisher_did values like
+ivo://cadc.nrc.ca/mirror/HST?hst_12492_05_acs_sbc_f140lp_jbpg05/hst_12492_05_acs_sbc_f140lp_jbpg05-PRODUCT
+and
+ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz
+
+ivo://cadc.nrc.ca/hst is in the registry, but it doesn't have any capabilites associated with it
+and ivo://cadc.nrc.ca/mirror/HST isn't registered
+
+Not fair bugging you about data in other people's TAP services, just passing it on.
+
+So far I haven't been able find an example of an ObsCore service that refers to objects in another service using the obs_publisher_did the way we would expect.
+
+Adrian Damian
+Fair enough. I'll raise the issue (and probably the priority)
+
+Dave Morris
+I'm trying to find examples of the right way of doing it so I can get SKA to adopt best practice.
+
+Adrian Damian
+100% in agreement with you.
+
+Dave Morris
+thanks for your help
+reassuring to know I'm following the right path thoug
+I was beginning to think I had it all wrog
+
+Adrian Damian
+We'll have an internal discussion here and I'll get back to you with an update once I know more. Thanks for bringing it up. We probably were not aware of the urgency of the matter.
+
+Dave Morris
+It isn't urgent
+This won't be an issue until srcnet-0.2 if not later
+
+Adrian Damian
+You don't need it in your testing?
+
+Dave Morris
+No, now that I know I can use other data.
+I can create my own records for testing ExecutionBroker
+I'm writing up a document describing what values SKA should put in the obs_publisher_did and obs_creator_did
+
+Adrian Damian
+Excellent. You got the idea and I think the updates in the registry will come. I just don't know when. Capabilities will point to datalink, caom2 repo service and any other service that can consume it.
+
+Dave Morris
+as part of that I was following the identifiers that are already there, trying to figure out where they were pointin
+about 90% of the data has obs_publisher_did set to 'testing', which isn't very useful
+
+Adrian Damian
+The trend is to move from a service centric model to a data centric one.
+in registry that is.
+
+Dave Morris
+so you would register a data collection, and then that points to the services that serve that data ?
+
+Adrian Damian
+I think that's the idea.
+
+Dave Morris
+So ivo://cadc.nrc.ca/RACS is the data collection, and then there would be services around that
+If we apply the same pattern to SKA, data in the SKA system would have a obs_publisher_did that starts with ivo://skao.int/.....
+and a registry entry that resolves ivo://skao.int/... into the service capabilities and endpoints that serve that data
+
+
+
+    #
+    # Experimenting with curl commands ...
+
+    curl \
+        --request GET \
+        --data 'ID=ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A' \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        <DATA>
+          <TABLEDATA />
+        </DATA>
+
+
+    curl \
+        --request GET \
+        --data-urlencode 'ID=ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A' \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        <DATA>
+          <TABLEDATA />
+        </DATA>
+
+
+    curl \
+        --request GET \
+        --data 'ID=ivo%3A%2F%2Fcadc.nrc.ca%2FRACS%3FRACS-DR1_0012%2B06A%2FRACS-DR1_0012%2B06A' \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        <DATA>
+          <TABLEDATA />
+        </DATA>
+
+
+    curl \
+        --data ID=ivo%3A%2F%2Fcadc.nrc.ca%2FRACS%3FRACS-DR1_0012%2B06A%2FRACS-DR1_0012%2B06A \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        empty response
+
+
+    curl \
+        --data-urlencode 'ID=ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A' \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        empty response
+
+
+    curl \
+        --data 'ID=ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A' \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink
+
+        empty response
+
+
+    OMG how **%$** complicated is this !?
+    I just want to query a datalink service with an identifier.
+    Why is everything soooo **** fragile ?
+
+
+    curl \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink?ID=ivo://cadc.nrc.ca/RACS?RACS-DR1_0012+06A/RACS-DR1_0012+06A
+
+        <TABLEDATA>
+          <TR>
+            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012 06A/RACS-DR1_0012 06A</TD>
+            <TD />
+            <TD />
+            <TD>UsageFault: invalid ID: ivo://cadc.nrc.ca/RACS?RACS-DR1_0012 06A/RACS-DR1_0012 06A</TD>
+            <TD>#this</TD>
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+          </TR>
+        </TABLEDATA>
+
+
+
+    curl \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink?ID=example
+
+        <TABLEDATA>
+          <TR>
+            <TD>example</TD>
+            <TD />
+            <TD />
+            <TD>UsageFault: invalid ID: example</TD>
+            <TD>#this</TD>
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+          </TR>
+        </TABLEDATA>
+
+
+
+    curl \
+        https://ws.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/caom2ops/datalink?ID=ivo://cadc.nrc.ca/RACS\?RACS-DR1_0012\+06A/RACS-DR1_0012\+06A
+
+      <DATA>
+        <TABLEDATA>
+          <TR>
+            <TD>ivo://cadc.nrc.ca/RACS?RACS-DR1_0012 06A/RACS-DR1_0012 06A</TD>
+            <TD />
+            <TD />
+            <TD>UsageFault: invalid ID: ivo://cadc.nrc.ca/RACS?RACS-DR1_0012 06A/RACS-DR1_0012 06A</TD>
+            <TD>#this</TD>
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+            <TD />
+          </TR>
+        </TABLEDATA>
+      </DATA>
+
+
+
+
