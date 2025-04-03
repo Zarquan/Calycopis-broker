@@ -1,0 +1,86 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    [ExecBroker] Agree on the format for ivo://xxx identifiers for SRCNet DataProducts and update the data in the SRCNet services
+    https://jira.skatelescope.org/browse/COR-821
+        In progress ..
+
+    1) Write confluence page
+    2) Present to Rosie and Jesus
+    3) Secide which pattern to adopt
+    4) Update the database
+
+    The problem
+
+        We currently have a selection of different test values.
+        ** we need to prove this **
+        ** need code to iterate through the database **
+        ** ADQL doesn't have string operations **
+
+    Comparison with CADC
+
+        ....
+
+    Our options
+
+        ivo://skao.net/....
+
+        ivo://skao.net/test?....
+        ivo://skao.net/data?....
+
+        ivo://skao.net/data-odp?....
+        ivo://skao.net/data-pdp?....
+        ivo://skao.net/data-adp?....
+
+    Summary
+
+        Right now, all we need now is to standardise the authority id.
+
+            ivo://skao.net/.....
+
+        Leave the <platform> part empty and go with the simplest form
+
+            ivo://skao.net/?########
+
+        Treat the object id as opaque and leave it to DataManagment API
+        to know what to do with it '########'
+
+        In practice code in the UI portal will 'just know'
+        that if authority == 'skao.net' then '########'
+        contains a Rucio namespace/objectid.
+
+
+# -----------------------------------------------------
+

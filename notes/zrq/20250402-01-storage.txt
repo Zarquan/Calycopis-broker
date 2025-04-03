@@ -1,0 +1,89 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+
+    Generic storage
+
+        size:
+        type: -- access type, S3 Rucio, Ceph, ...
+
+
+    Managed storage booking data model.
+
+        # Lifetime before/after the execution.
+        lifetime
+          before:
+            duration: # Duration
+            start:    # Instant - work backwards from session start
+
+          after:
+            duration: # Duration
+            until:    # Instant - derrived from when execution finishes
+
+        # State transition phase.
+        phase:
+            PREPARING
+            AVAILABLE
+            RELEASING
+            COMPLETED
+            FAILED
+
+
+    Unmanaged/external storage is always available.
+    How do we connect/mount external storage ?
+
+    Unmanaged/external storage is available between the start and end times given.
+    The system doesn't know about it after that.
+    The system shouldn't attempt to mount/connect until it is available.
+    The system shouldn't attempt to unmount/disconnect until after it is available.
+    The system shouldn't attempt to access the storage when it isn't available.
+
+
+
+
+# -----------------------------------------------------
+
+    If before.start is set,  before.duration should be null.
+    If before.start is null, before.start = execution.start - before.duration
+
+    If after.until is set,  after.duration should be null.
+    If after.until is null, after.until = execution.end + after.duration
+
+# -----------------------------------------------------
+
+
+
+
+

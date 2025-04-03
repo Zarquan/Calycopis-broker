@@ -1,0 +1,176 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Next steps ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Offer booking for storage resources.
+
+    DataResource validation.
+
+        Predict doanload time.
+        Create associated storage resources.
+
+    StorageResource validations.
+
+        Assign relative start time.
+
+        prepare:
+            duration: PT1H <-- relative to the execution start time
+
+        release:
+            duration: PT1H <-- relative to the execution finish time
+
+# -----------------------------------------------------
+
+    resources:
+        storage:
+            external:
+
+            internal:
+
+                ephemeral:
+
+                persistent:
+                    managed: true|false
+
+
+
+    ....
+    storage:
+      - name: scratch-space
+        type: uri:ephemeral-storage
+        size:
+            requested:
+                min: 1024
+                max: 1024
+
+
+
+    ....
+    storage:
+      - name: results-storage
+        type: uri:persistent-storage
+        lifecycle: unmanaged
+        size:
+            requested:
+                min: 1024
+                max: 1024
+
+
+    ....
+    storage:
+      - name: results-storage
+        type: uri:persistent-storage
+        lifecycle: managed
+        lifetime:
+            requested:
+                min: P1D
+                max: P1D
+        size:
+            requested:
+                min: 1024
+                max: 1024
+
+
+# -----------------------------------------------------
+
+    Min/max makes sense for size, but does it make sense for lifetime ?
+
+    Rather than the managed flag, do we have different types ?
+    Because managed resources have extra fields.
+
+    Or not, because different types are for different access types ?
+
+    ....
+    storage:
+      - name: results-storage
+        type: uri:persistent-storage # This is a request placeholder, replaced by a specific type in the offer.
+        lifecycle: managed
+        lifetime:
+            before: P1D
+            after:  P1D
+        size:
+            requested:
+                min: 1024
+                max: 1024
+
+# -----------------------------------------------------
+
+    Unmanaged storage doesn't need a placeholder.
+    If we are managing it externally, we can just tell the broker where it is.
+    So uri:persistent-storage is a request for manage storage.
+
+
+# -----------------------------------------------------
+
+    Schedule for sesisons :
+
+    sesisons:
+      schedule:
+        preparing:
+          duration: "PT10M"
+          start: "2025-03-20T21:20:00Z"
+        executing:
+          duration: "PT2H"
+          start: "2025-03-20T21:30:00Z"
+        releasing:
+          duration: "PT5M"
+          start: "2025-03-20T23:30:00Z"
+
+    ....
+    storage:
+      - name: results-storage
+        type: uri:persistent-storage
+        size:
+          min: 1024
+          max: 1024
+        schedule:
+          before:
+            duration: "PT10M"
+          after:
+            duration: "PT5M"
+
+      - name: temp-storage
+        type: uri:ephemeral-storage
+        size:
+          min: 1024
+          max: 1024
+
+    Difference between persistent and ephemeral ?
+    Ephemeral has before and after lifetime set to zero.
+
+
+
+
+
+

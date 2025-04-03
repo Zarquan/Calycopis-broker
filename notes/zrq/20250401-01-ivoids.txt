@@ -1,0 +1,91 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    podman run --rm -it python
+
+# Install PyVO
+# https://stackoverflow.com/a/12333108
+# https://stackoverflow.com/a/50255019
+
+import subprocess
+import sys
+
+subprocess.call(
+    [
+    sys.executable,
+    '-m', 'pip', 'install', 'pyvo'
+    ]
+    )
+
+
+#
+# Query the registry to find the GAVO ObsCore service
+# https://pyvo.readthedocs.io/en/latest/registry/index.html
+
+import pyvo
+
+pyvo.registry.search(
+    pyvo.registry.Datamodel(
+        "obscore"
+        )
+    )
+
+#
+# Lists all the "obscore" services (suprisingly short list).
+# Filter by 'startswith' 'GAVO'.
+# Filter by 'startswith' 'CADC'.
+#
+
+query the obscore service for interesting data.
+get the obs_publisher_did
+
+resolve the first part in the registry
+check for a datalink capability
+
+use the datalink service to get the access url(s)
+
+I know that would fail for the CADC case because their DataLink servivce isn't registered.
+
+
+
+
+
+
+
+
+
+
+

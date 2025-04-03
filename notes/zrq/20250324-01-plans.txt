@@ -1,0 +1,388 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Next steps ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Document the ivorn resolving process.
+
+
+# -----------------------------------------------------
+
+    Minimal storage booking solution.
+    Data model
+    Lifetime before/after the execution.
+
+    before:
+      duration: # Duration
+      start:    # Instant - work backwards from session start
+    after:
+      duration: # Duration
+      start     # Instant - derrived from when execution finishes
+
+    phase:
+        # slightly different words than the session phase ?
+
+
+    non-managed is just a simple reference with details of the access method
+    external-storage
+      size:
+      type:
+      location:
+
+    managed has a lifetime
+    managed-storage
+      size:
+      type:
+      lifetime:
+        before:
+          duration: # Duration
+          start:    # Instant - derrived from execution start
+        after:
+          duration: # Duration
+          start     # Instant - derrived from execution end
+      location:
+
+    Orthogonal to managed/unmanaged are the types of storage.
+    Which are actually types of access protocols.
+
+        S3
+        DAS
+        Ceph
+        ...
+
+        Does the user/client need to see these ?
+        Or are they just interested in the speed.
+
+        Cache Rucio data in a local S3 service ?
+        Cache Rucio data in a local CephFS service ?
+
+        Client doesn't _ask_ for the storage type, but it is part of the service offer.
+        but that can be confusing ..
+
+        More iomportant - can it be mounted as a Posix directory.
+        Well, you can mount _anything_ as posix if you try hard enough.
+        but is it a good idea ?
+
+        local S3 can be very fast
+
+# -----------------------------------------------------
+
+    We need _something_ for storage in order to handle data.
+    Reference to external data means we allocate local storage to put it in.
+    The the before value is determined by the data transfer time.
+
+    So we have a storage system that always says 'yes', and makes an offer that matches the request.
+    Start time of the booking is set by when we start to transfer the data, (execution.start - transfer.duration).
+    End time of the booking is set by ((execution.start + execution.duration) + lifetime.after)
+
+    So each time we make an execution offer, we also request a storage offer.
+
+    Eventually we would base the offer selection criteria on a speed metric.
+    Provide access to <this> data at <speed>.
+
+    THAT's the thing.
+    We aren't asking for storage per se. we are asking for access to a dataset at a known location.
+    Mount <dataset> at <location> with <mode> and <speed>.
+
+    Mode is important because read-only data is easier to share between nodes.
+
+# -----------------------------------------------------
+
+    Resolving ivorns ..
+
+    Start with the ivo://identifier.
+
+    Start with
+
+        ivo://skao.net/
+
+    We can the same global top level identifiers for everything
+
+        ivo://skao.net/?....
+
+    We can distinguish between science data and test data
+
+        ivo://skao.net/data?....
+
+        ivo://skao.net/test?....
+
+    We can distinguish between different types of data
+
+        ivo://skao.net/pdo?....
+
+        ivo://skao.net/ado?....
+
+    Combine the two
+
+        ivo://skao.net/data-pdo?....
+
+        ivo://skao.net/test-ado?....
+
+
+# -----------------------------------------------------
+
+    IVOA identifiers have three parts
+
+        ivo://<authority>/<platform>?<objectid>
+
+    We currently have a variety of <authority> identifiers.
+
+        ivo://test/....
+        ivo://testdata/....
+        ivo://srcnet/....
+        ivo://skao/....
+
+    We need to choose the one we want to use and then update the metadata in the database to make them consistent.
+
+        ivo://skao.net/....
+
+    This means client software like the portal UI, WorkflowExecution, and ExecutionBroker
+    can distinguish SKA data from other types of IVOA resources simply by looking at the
+    authority part of the URI.
+
+        ivo://skao.net/.... # Data published by SKA.
+
+        ivo://cadc.../.... # Data published by CADC in Canada.
+        ivo://gavo.../.... # Data published by GAVO in Germany.
+
+    This achieves part #1 - identify SKA data.
+
+# -----------------------------------------------------
+
+    At the moment we leave the <platform> part empty, which is fine.
+
+        ivo://skao.net/?....
+
+    We have the option of adding something to the platform part if we want to.
+
+    We can add something to distinguish between test and real data.
+
+        ivo://skao.net/test?....
+
+        ivo://skao.net/data?....
+
+    We can add something to distinguish between the types of data.
+
+        OLDP Observation-level Data Product
+        PLDP Project-level Data Product
+        ADP  Advanced Data Product
+
+        ivo://skao.net/data-odp?....
+        ivo://skao.net/data-pdp?....
+        ivo://skao.net/data-adp?....
+
+    That enables data clients like the user interface to handle or display
+    references to the data products differently, without having to make an
+    extra web service call to find out the data ptoduct type.
+
+# -----------------------------------------------------
+
+    If we want to make the identifiers future proof, we can add a version number to the schema.
+    This makes it easier to migrate our data to a new storage system if we need to.
+
+        ivo://skao.net/data-1.0?....
+        ivo://skao.net/data-2.0?....
+
+    Or, we add the version to the objectid
+
+        ivo://skao.net/data?<1.0-....>
+        ivo://skao.net/data?<2.0-....>
+
+    We don't need to use a number, we can use a name.
+
+        ivo://skao.net/data-aspen?....
+        ivo://skao.net/data-beech?....
+
+    or
+
+        ivo://skao.net/data?<aspen:....>
+        ivo://skao.net/data?<beech:....>
+
+    If we put the name in the registered part of the ivorn, then clients like ExecutionBroker and WorkflowExecution
+    use the names to make choices about which system to contact.
+
+        ivo://skao.net/data-aspen?....  => contact the Aspen system for details
+        ivo://skao.net/data-beech?....  => contact the Beech system for details
+
+    If we put the platform name inside the object identifier, then the platform details
+    are internal to the DataManagment API.
+
+        ivo://skao.net/data?<aspen:....>  => contact DataManagment API for details.
+        ivo://skao.net/data?<beech:....>  => contact DataManagment API for details.
+
+    That sounds like the best solution, because everything is hidden behind the DataManagment API.
+    However, if the Aspen and Beech systems behave differently, then it may complicate the DataManagment API.
+
+    Part of the sequence diagram for SRCNet-0.2 involves WorkflowExecution asking DataManagment
+    for a list of the Rucio replicas for a data object.
+
+    Which assumes the storage platform has replicas.
+
+    If the current 'Aspen' system does have replicas, but the future 'Beech' system does not,
+    the content of the request/response from DataManagment API will depend on which platform
+    the data is in.
+
+    We don't need to do this now, but it is useful to talk through the options
+    before we decide to go for the short form.
+
+# -----------------------------------------------------
+
+    Based on the 'good enough for now' design pattern, let DataManagment API handle the details
+    The <object> id part of the IVORN is opaque.
+
+        ivo://skao.net/data?<########> => contact DataManagment API for details.
+        ivo://skao.net/data?<########> => contact DataManagment API for details.
+
+    BUT we should avoid code in the clients like the UI portal, WorkflowExecution and ExecutionBroker
+    assuming that the '<########>' part of 'ivo://skao.net/data?<########>' is a Rucio
+    identifier with namespace and object identifier, because that invalidates the reason for hiding
+    the DataLake details behind DataManagment API.
+
+    In practice .. probably not going to happen.
+
+# -----------------------------------------------------
+
+    Right now, all we need now is to standardise the authority id.
+
+        ivo://skao.net/.....
+
+    Leave the <platform> part empty and go with the simplest form
+
+        ivo://skao.net/?<########>
+
+    Treat the object id as opaque and leave it to DataManagment API
+    to know what to do with it '<########>'
+
+    In practice code in the UI portal will 'just know'
+    that '<########>' contains a Rucio namespace/objectid
+    but that's up to them.
+
+    We can future-proof ExecutionBroker and WorkflowExecution by making
+    them able to handle ivo://skao.net/?#### identifiers.
+
+
+# -----------------------------------------------------
+
+    Move on to talk about the sequence diagram ...
+
+    SoftwareDiscovery has no details, and probably needs refactoring.
+    Where does the UI get the ID from ?
+    Current design is basically a website.
+
+
+    API for registry agnostic container image discovery - Part I
+    https://jira.skatelescope.org/browse/SP-4949
+
+    I am product owner for this one ..
+    Extend Software Discovery API to support Execution Broker and Workflow Execution Services
+    https://jira.skatelescope.org/browse/SP-5279
+
+
+    Evolve Execution Broker Prototype to be compatible with first Workflow Execution Service
+    https://jira.skatelescope.org/browse/SP-5222
+
+        [ExecBroker] Agree on the format for ivo://xxx identifiers for SRCNet DataProducts and update the data in the SRCNet services
+        https://jira.skatelescope.org/browse/COR-821
+            In progress ..
+
+        [ExecBroker] Identify what additional meta data, if any, needs to be added to the ObsCore/TAP and DataLink responses
+        https://jira.skatelescope.org/browse/COR-822
+            Probably none, if replicas come from DataManagment.
+            We just need to update the sequence diagram.
+
+        [ExecBroker] Update data in the SRCNet TAP services
+        https://jira.skatelescope.org/browse/COR-842
+            Todo ..
+            Query the TAP service to find out what we have ..
+            Can we get hold of a database dump to work on ?
+            Create a Postgresql script that updates the metadata.
+
+        [ExecBroker] Add new component to the ExecutionBroker data model to represent a SRCNetDataProduct with the required metadata.
+        https://jira.skatelescope.org/browse/COR-843
+
+            In progress ..
+            New data types, IvoaDataProduct, SkaoDataProduct, and SCRNetDataProduct.
+
+                IvoaDataProduct
+                  ivoa:
+                    # IVOA specific metadata.
+                    uri: ivo://...
+                    content-type: [image, spectra, cube etc]
+                    data-link: http://..
+
+                SkaoDataProduct
+                extends IvoaDataProduct
+                  ivoa:
+                    # IVOA specific metadata.
+                    uri: ivo://...
+                    content-type: [image, spectra, cube ... other]
+                  skao:
+                    # SKAO specific metadata.
+                    product-type: [odp, pdp, adp ... other]
+
+                SCRNetDataProduct
+                extends SkaoDataProduct
+
+                  srcnet:
+                    # Technical SRCNet DataLake details.
+                    rucio:
+                      namespace: ####
+                      objectid:  ####
+                      replicas:
+                        - xxxxx
+                        - yyyyy
+                        - zzzzz
+
+        We need to write some code that queries DataManagment API to get a list of replicas.
+        See what format they are in ..
+
+# -----------------------------------------------------
+
+    I think I am product owner for the top level SP-4511 ticket, but not the individual AZ-16 tickets ?
+
+    ExecutionBroker modular plug-in design
+    https://jira.skatelescope.org/browse/SP-4511
+
+        Design plug-in architecture for ExecutionBroker
+        https://jira.skatelescope.org/browse/AZ-16
+
+        Implement plug-in architecture
+        https://jira.skatelescope.org/browse/AZ-17
+
+        What to do with this one ?
+        Sara hasn't caught up yet.
+
+
+
+

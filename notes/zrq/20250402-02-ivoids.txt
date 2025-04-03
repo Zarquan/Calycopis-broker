@@ -1,0 +1,61 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    MWA Visibilities on SRCNet
+    https://confluence.skatelescope.org/pages/viewpage.action?spaceKey=SRCSC&title=MWA+Visibilities+on+SRCNet
+
+        Discoverability
+
+        Visibility data should be discoverable in the TAP service, implementing ObsCore
+
+        Here's an example query
+
+        python -c "print(__import__('pyvo').dal.TAPService('https://dachs.ivoa.srcnet.skao.int:443/tap').search(__import__('sys').argv[-1]).to_table().to_pandas().dropna(axis=1, how='all').transpose())"
+        "SELECT TOP 1 * FROM ivoa.obscore where instrument_name = 'MWA'"
+
+        dataproduct_type                                   visibility
+        dataproduct_subtype
+        calib_level                                                 1
+        obs_collection                                        MRO/MWA
+        obs_id                                             1061312152
+        obs_title
+        obs_publisher_did    ivo://org.mwatelescope/obs_id/1061312152
+        ...
+
+
+
+
+
+
