@@ -33,56 +33,26 @@
 
 # -----------------------------------------------------
 
+    MWA Visibilities on SRCNet
+    https://confluence.skatelescope.org/pages/viewpage.action?spaceKey=SRCSC&title=MWA+Visibilities+on+SRCNet
 
-    podman run --rm -it python
+        Discoverability
 
-# Install PyVO
-# https://stackoverflow.com/a/12333108
-# https://stackoverflow.com/a/50255019
+        Visibility data should be discoverable in the TAP service, implementing ObsCore
 
-import subprocess
-import sys
+        Here's an example query
 
-subprocess.call(
-    [
-    sys.executable,
-    '-m', 'pip', 'install', 'pyvo'
-    ]
-    )
+        python -c "print(__import__('pyvo').dal.TAPService('https://dachs.ivoa.srcnet.skao.int:443/tap').search(__import__('sys').argv[-1]).to_table().to_pandas().dropna(axis=1, how='all').transpose())"
+        "SELECT TOP 1 * FROM ivoa.obscore where instrument_name = 'MWA'"
 
-
-#
-# Query the registry to find the GAVO ObsCore service
-# https://pyvo.readthedocs.io/en/latest/registry/index.html
-
-import pyvo
-
-pyvo.registry.search(
-    pyvo.registry.Datamodel(
-        "obscore"
-        )
-    )
-
-#
-# Lists all the "obscore" services (suprisingly short list).
-# Filter by 'startswith' 'GAVO'.
-# Filter by 'startswith' 'CADC'.
-#
-
-query the obscore service for interesting data.
-get the obs_publisher_did
-
-resolve the first part in the registry
-check for a datalink capability
-
-use the datalink service to get the access url(s)
-
-I know that would fail for the CADC case because their DataLink servivce isn't registered.
-
-
-
-
-
+        dataproduct_type                                   visibility
+        dataproduct_subtype
+        calib_level                                                 1
+        obs_collection                                        MRO/MWA
+        obs_id                                             1061312152
+        obs_title
+        obs_publisher_did    ivo://org.mwatelescope/obs_id/1061312152
+        ...
 
 
 
