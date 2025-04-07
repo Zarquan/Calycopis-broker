@@ -1,0 +1,49 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+        Update the ExecutionBroker sequence diagram
+        https://github.com/ivoa/Calycopis-broker/issues/196
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=311713724
+
+        Changes to the published sequence diagram to reflect how the ExecutionBroker data model is intended to be used.
+
+        1. ScienceGateway calls SoftwareDiscovery to get metadata about the executable.
+        1. SoftwareDiscovery returns initial template for execution request.
+        1. ScienceGateway uses the metadata to prompt user to select data inputs.
+        1. ScienceGateway uses the metadata to fill in the defaults for compute resources.
+        1. ScienceGateway advanced tab allows the user to edi the compute resources.
+        1. ScienceGateway sends to completed execution request to WorkflowExecution.
+
+
