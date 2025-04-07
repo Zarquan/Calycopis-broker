@@ -1,0 +1,115 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Changes to the data model and sequence diagram for SoftwareDiscovery.
+
+        Extend Software Discovery API to support Execution Broker and Workflow Execution Services
+        https://jira.skatelescope.org/browse/SP-5279
+
+            The current software discovery API returns a list of location of container images in response
+            to a search query.
+            In order to support the workflow execution service and execution broker, the software discovery
+            should return the metadata required for the respective services to complete an end-to-end
+            execution workflow
+
+        ska-src-mm-image-discovery
+        https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-image-discovery/-/tree/main?ref_type=heads
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Changes requested from Indigo
+
+        Update Docker container to support multiple locations.
+        -- done
+
+        Revisit requested/offered properties #194
+        https://github.com/ivoa/Calycopis-broker/issues/194
+
+# -----------------------------------------------------
+
+    Changes requested by Calycopis
+
+        Split the discovery metadata into blocks in a combined ExecutionDiscovery model:
+
+            execution:
+              # ExecutonBroker data model.
+              executable:
+                ....
+              resources:
+                compute:
+                  ....
+                storage:
+                  ....
+                data:
+                  ....
+
+            discovery:
+              # SoftwareDiscovery data model
+              ....
+
+        Be aware that ExecutionBroker, WorkflowExecution and SceinePortal
+        will all use the same data model.
+        It does not make sense for SoftwareDiscovery to unilaterally define their
+        own almost_but_not_quite_the_same data model.
+        In means the other componments have to do extra work to compensate
+        for the differences in the models.
+        Interoperability between the layers is a key priority.
+
+
+        Create importable schema element for SoftwareDiscovery
+        https://github.com/ivoa/Calycopis-broker/issues/195
+
+            Create an element in the ExecutionBroker schema that can be
+            imported into the SoftwareDiscovery data model.
+
+            Work in progress ...
+
+        Import execution part from the ExecutionBroker schema
+
+
+        Publish the SoftwareDiscovery code repository.
+
+
+        Publish the SoftwareDiscovery data model.
+
+
+        How much of the SoftwareDiscovery metadata structure is generated from the schema ?
+
+
+
+
+
+# -----------------------------------------------------
+
+
+
+
+
