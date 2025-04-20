@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
@@ -26,11 +27,16 @@ public class DockerContainerEntityFactoryImpl
 
     private final DockerContainerEntityRepository repository;
 
+    private final TestExecutionStepEntityFactory factory;
+    
     @Autowired
-    public DockerContainerEntityFactoryImpl(final DockerContainerEntityRepository repository)
-        {
+    public DockerContainerEntityFactoryImpl(
+        final DockerContainerEntityRepository repository,
+        final TestExecutionStepEntityFactory factory        
+        ){
         super();
         this.repository = repository;
+        this.factory = factory;
         }
 
     @Override
@@ -44,11 +50,13 @@ public class DockerContainerEntityFactoryImpl
     @Override
     public DockerContainerEntity create(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
         {
-        return this.repository.save(
+        DockerContainerEntity result = this.repository.save(
             new DockerContainerEntity(
                 parent,
                 template
                 )
             );
+        result.configure(factory);
+        return result ;
         }
     }

@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,8 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.execution.TestExecutionStepEntity;
+import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
@@ -109,6 +112,93 @@ public class DockerContainerEntity
                     );                
                 }
             }
+        }
+
+    /**
+     * Build the prepare and release steps.
+     *
+     */
+    protected void configure(final TestExecutionStepEntityFactory factory)
+        {
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 001"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 002"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 003"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 004"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 005"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 006"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 007"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 008"
+                )
+            );
         }
     
     @Override

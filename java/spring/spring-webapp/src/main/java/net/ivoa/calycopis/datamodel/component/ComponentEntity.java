@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.component;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,11 +39,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
 import net.ivoa.calycopis.datamodel.message.MessageSubject;
+import net.ivoa.calycopis.functional.execution.AbstractExecutionStepEntity;
+import net.ivoa.calycopis.functional.execution.ExecutionStep;
+import net.ivoa.calycopis.functional.execution.ExecutionStepList;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -52,6 +59,7 @@ import net.ivoa.calycopis.util.ListWrapper;
  * https://www.javatpoint.com/hibernate-table-per-hierarchy-using-annotation-tutorial-example
  *
  */
+@Slf4j
 @Entity
 @Table(name = "components")
 @Inheritance(
@@ -280,6 +288,185 @@ public class ComponentEntity
                 return new MessageItemBean(
                     inner
                     );
+                }
+            };
+        }
+    
+    /**
+     * Local implementation of an ExecutionStepList. 
+     * 
+     */
+    public abstract class ExecutionStepListImpl
+    implements ExecutionStepList
+        {
+        
+        public ExecutionStepListImpl()
+            {
+            super();
+            }
+        
+        public void addStep(final AbstractExecutionStepEntity step)
+            {
+            log.debug("Add step [{}]", step);
+            if (this.getFirst() == null)
+                {
+                this.setFirst(step);
+                }
+            if (this.getLast() != null)
+                {
+                this.getLast().setNext(
+                    step
+                    );
+                }
+            step.setPrev(
+                this.getLast()
+                );
+            this.setLast(step);
+            }
+        
+        public abstract AbstractExecutionStepEntity getFirst();
+        public abstract void setFirst(final AbstractExecutionStepEntity step);
+
+        public abstract AbstractExecutionStepEntity getLast();
+        public abstract void setLast(final AbstractExecutionStepEntity step);
+
+        public Iterable<ExecutionStep> forwards()
+            {
+            return new Iterable<ExecutionStep>()
+                {
+                @Override
+                public Iterator<ExecutionStep> iterator()
+                    {
+                    return new Iterator<ExecutionStep>()
+                        {
+                        private ExecutionStep step = getFirst();
+                        
+                        @Override
+                        public boolean hasNext()
+                            {
+                            return (step != null);
+                            }
+
+                        @Override
+                        public ExecutionStep next()
+                            {
+                            ExecutionStep temp = step;
+                            if (step != null)
+                                {
+                                step = step.getNext();
+                                }
+                            return temp;
+                            }
+                        } ;
+                    }
+                };
+            }
+
+        public Iterable<ExecutionStep> backwards()
+            {
+            return new Iterable<ExecutionStep>()
+                {
+                @Override
+                public Iterator<ExecutionStep> iterator()
+                    {
+                    return new Iterator<ExecutionStep>()
+                        {
+                        private ExecutionStep step = getLast();
+                        
+                        @Override
+                        public boolean hasNext()
+                            {
+                            return (step != null);
+                            }
+
+                        @Override
+                        public ExecutionStep next()
+                            {
+                            ExecutionStep temp = step;
+                            if (step != null)
+                                {
+                                step = step.getPrev();
+                                }
+                            return temp;
+                            }
+                        } ;
+                    }
+                };
+            }
+        }
+
+    @JoinColumn(name = "preparefirst", referencedColumnName = "uuid", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    private AbstractExecutionStepEntity prepareFirst;
+
+    @JoinColumn(name = "preparelast", referencedColumnName = "uuid", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    private AbstractExecutionStepEntity prepareLast;
+        
+    public ExecutionStepListImpl getPrepareList()
+        {
+        return new ExecutionStepListImpl()
+            {
+            @Override
+            public AbstractExecutionStepEntity getFirst()
+                {
+                return prepareFirst;
+                }
+
+            @Override
+            public void setFirst(final AbstractExecutionStepEntity step)
+                {
+                prepareFirst = step;
+                }
+
+            @Override
+            public AbstractExecutionStepEntity getLast()
+                {
+                return prepareLast;
+                }
+
+            @Override
+            public void setLast(final AbstractExecutionStepEntity step)
+                {
+                prepareLast = step;
+                }
+            };
+        }
+    
+    @JoinColumn(name = "releasefirst", referencedColumnName = "uuid", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    private AbstractExecutionStepEntity releaseFirst;
+
+    @JoinColumn(name = "releaselast", referencedColumnName = "uuid", nullable = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    private AbstractExecutionStepEntity releaseLast;
+    
+    public ExecutionStepListImpl getReleaseList()
+        {
+        return new ExecutionStepListImpl()
+            {
+            @Override
+            public AbstractExecutionStepEntity getFirst()
+                {
+                return releaseFirst;
+                }
+
+            @Override
+            public void setFirst(final AbstractExecutionStepEntity step)
+                {
+                releaseFirst = step;
+                }
+
+            @Override
+            public AbstractExecutionStepEntity getLast()
+                {
+                return releaseLast;
+                }
+
+            @Override
+            public void setLast(final AbstractExecutionStepEntity step)
+                {
+                releaseLast = step;
                 }
             };
         }
