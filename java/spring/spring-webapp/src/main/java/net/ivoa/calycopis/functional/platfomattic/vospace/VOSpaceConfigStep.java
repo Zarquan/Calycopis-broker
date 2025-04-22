@@ -1,9 +1,9 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.vospace;
+package net.ivoa.calycopis.functional.platfomattic.vospace;
 
-import net.ivoa.calycopis.functional.platfom.ConfigStep;
+import net.ivoa.calycopis.functional.platfomattic.ConfigStep;
 
 /**
  * 

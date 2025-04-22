@@ -1,10 +1,10 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.vospace;
+package net.ivoa.calycopis.functional.platfomattic.vospace;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.functional.platfom.ConfigStepEntity;
+import net.ivoa.calycopis.functional.platfomattic.ConfigStepEntity;
 
 /**
  * 

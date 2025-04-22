@@ -1,9 +1,9 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.canfar;
+package net.ivoa.calycopis.functional.platfomattic.canfar;
 
-import net.ivoa.calycopis.functional.platfom.vospace.VOSpacePlatformConfig;
+import net.ivoa.calycopis.functional.platfomattic.vospace.VOSpacePlatformConfig;
 
 /**
  * 

@@ -1,10 +1,10 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.vospace;
+package net.ivoa.calycopis.functional.platfomattic.vospace;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.functional.platfom.canfar.CanfarPlatformConfig;
+import net.ivoa.calycopis.functional.platfomattic.canfar.CanfarPlatformConfig;
 
 /**
  * TODO Move this to a database managed entity later ..

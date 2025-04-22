@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom;
+package net.ivoa.calycopis.functional.platfomattic;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResourceEntity;

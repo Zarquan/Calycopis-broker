@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom;
+package net.ivoa.calycopis.functional.platfomattic;
 
 /**
  * Enumeration of states for ConfigSteps.

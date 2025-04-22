@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.canfar;
+package net.ivoa.calycopis.functional.platfomattic.canfar;
 
 /**
  * 

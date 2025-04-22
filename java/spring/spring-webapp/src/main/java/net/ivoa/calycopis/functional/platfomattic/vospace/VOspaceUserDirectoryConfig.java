@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.ivoa.calycopis.functional.platfom.vospace;
+package net.ivoa.calycopis.functional.platfomattic.vospace;
 
 /**
  * Public interface for a user directory in CANFAR.
