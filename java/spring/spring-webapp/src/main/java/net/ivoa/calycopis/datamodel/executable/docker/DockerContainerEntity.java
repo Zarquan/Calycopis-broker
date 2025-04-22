@@ -45,7 +45,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.execution.TestExecutionStepEntity;
+import net.ivoa.calycopis.functional.execution.ExecutionStep;
 import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -114,93 +114,6 @@ public class DockerContainerEntity
             }
         }
 
-    /**
-     * Build the prepare and release steps.
-     *
-     */
-    protected void configure(final TestExecutionStepEntityFactory factory)
-        {
-        getPrepareList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 001"
-                )
-            );
-
-        getPrepareList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 002"
-                )
-            );
-
-        getPrepareList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 003"
-                )
-            );
-
-        getPrepareList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 004"
-                )
-            );
-
-        getReleaseList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 005"
-                )
-            );
-
-        getReleaseList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 006"
-                )
-            );
-
-        getReleaseList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 007"
-                )
-            );
-
-        getReleaseList().addStep(
-            factory.create(
-                this.getParent(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Step 008"
-                )
-            );
-        }
-    
     @Override
     public IvoaAbstractExecutable getIvoaBean(final String baseurl)
         {
@@ -264,7 +177,6 @@ public class DockerContainerEntity
 
         if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
             {
-            log.debug("Network ports [{}]", this.networkPorts);
             
             IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
 
@@ -462,4 +374,115 @@ public class DockerContainerEntity
                 }
             };
         }
+    
+    /**
+     * Build the prepare and release steps.
+     *
+     */
+    protected void configure(final TestExecutionStepEntityFactory factory)
+        {
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 001"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 002"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 003"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 004"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 005"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 006"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 007"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getParent(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 008"
+                )
+            );
+        }
+    
+    protected void schedule()
+        {
+        //
+        // Calculate the start time of each step.
+        
+        }
+
+    protected void prepare()
+        {
+        for (ExecutionStep step : getPrepareList().forwards())
+            {
+            step.execute();
+            }
+        }
+
+    protected void release()
+        {
+        for (ExecutionStep step : getReleaseList().forwards())
+            {
+            step.execute();
+            }
+        }
+    
     }
