@@ -40,12 +40,18 @@
         </RandomAccessFile>
     </Appenders>
     <Loggers>
-        <!-- https://stackoverflow.com/a/68471053 -->
+        <!--+
+            | https://stackoverflow.com/a/68471053
+            +-->
         <Logger name ="com.zaxxer.hikari" level="OFF"/>
         <!--Logger name="org.hibernate"   level="DEBUG" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Logger-->
-        <Logger name ="uk.co.metagrid" level="DEBUG" additivity="false">
+        <!--+
+            | https://stackoverflow.com/a/45224321
+            | https://stackoverflow.com/a/78781501
+            +-->
+        <Logger name="org.springframework.orm.jpa" level="DEBUG" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Logger>
         <Root level="INFO" includeLocation="false">
