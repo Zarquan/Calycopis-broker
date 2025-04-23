@@ -38,7 +38,7 @@ public interface AbstractStorageResource
     public ExecutionSession getParent();
 
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractStorageResource getIvoaBean(final String baseurl);

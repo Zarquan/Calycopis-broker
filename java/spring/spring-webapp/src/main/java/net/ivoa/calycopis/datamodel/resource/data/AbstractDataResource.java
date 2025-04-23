@@ -40,7 +40,7 @@ public interface AbstractDataResource
     public ExecutionSessionEntity getParent();
 
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractDataResource getIvoaBean();

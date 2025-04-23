@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         {
         // A list of the compute resources this executable is deployed on ?.
         /**
-         * Get a builder with an internal template.
+         * Create a builder with an internal template.
          * 
          */
         public EntityBuilder getBuilder();

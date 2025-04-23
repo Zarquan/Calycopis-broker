@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         {
         // TODO A list of the volume mounts ...
         /**
-         * Get a builder with an internal template.
+         * Create a builder with an internal template.
          * 
          */
         public EntityBuilder getBuilder();

@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         {
         // TODO A reference to the storage resource for this data.
         /**
-         * Get a builder with an internal template.
+         * Create a builder with an internal template.
          * 
          */
         public EntityBuilder getBuilder();

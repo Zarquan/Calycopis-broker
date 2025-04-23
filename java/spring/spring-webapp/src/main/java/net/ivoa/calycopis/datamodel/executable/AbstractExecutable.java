@@ -20,7 +20,7 @@ public interface AbstractExecutable
     public ExecutionSession getParent();
     
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractExecutable getIvoaBean(final String baseurl);

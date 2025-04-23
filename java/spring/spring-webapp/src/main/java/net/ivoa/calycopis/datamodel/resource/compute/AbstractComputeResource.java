@@ -49,7 +49,7 @@ public interface AbstractComputeResource
     public ExecutionSessionEntity getParent();
 
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl);

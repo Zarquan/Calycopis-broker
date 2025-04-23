@@ -28,7 +28,8 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.Platform;
 /**
  * 
  */
-public interface PodmanPlatform extends Platform
+public interface PodmanPlatform
+extends Platform
     {
 
     }

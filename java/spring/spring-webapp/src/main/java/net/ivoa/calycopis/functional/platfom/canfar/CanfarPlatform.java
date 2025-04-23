@@ -21,25 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom;
+package net.ivoa.calycopis.functional.platfom.canfar;
 
-import java.util.UUID;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.Platform;
 
 /**
  * 
  */
-public interface Platform
+public interface CanfarPlatform
+extends Platform
     {
-    /**
-     * Get this platform's identifier.
-     *
-     */
-    public UUID getUuid();
-    
-    /**
-     * Get the StorageResource factory for this platform.
-     *
-     */
-    public void getStorageResourceEntityFactory();
-    
+
     }
