@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.functional.validator;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.builder.Builder;
 
 /**
  * Public interface for a Validator.
@@ -62,12 +61,6 @@ public interface Validator<ObjectType, EntityType>
          */
         public ObjectType getObject();
 
-        /**
-         * Get the corresponding Builder to build an entity.
-         * 
-         */
-        public Builder<EntityType> getBuilder();
-        
         }
 
     /**
@@ -79,14 +72,13 @@ public interface Validator<ObjectType, EntityType>
         {
         public ResultBean(final ResultEnum result)
             {
-            this(result, null, null);
+            this(result, null);
             }
 
-        public ResultBean(final ResultEnum result, ObjectType object, final Builder<EntityType> builder)
+        public ResultBean(final ResultEnum result, ObjectType object)
             {
             this.result = result;
             this.object = object;
-            this.builder = builder;
             }
 
         private final ResultEnum result;
@@ -101,12 +93,6 @@ public interface Validator<ObjectType, EntityType>
         public ObjectType getObject()
             {
             return this.object;
-            }
-        private final Builder<EntityType> builder;
-        @Override
-        public Builder<EntityType> getBuilder()
-            {
-            return this.builder;
             }
         }
 

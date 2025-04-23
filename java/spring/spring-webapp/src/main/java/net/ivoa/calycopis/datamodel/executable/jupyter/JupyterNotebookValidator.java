@@ -22,21 +22,17 @@
  */
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * A validator implementation to handle JupyterNotebooks.
@@ -107,9 +103,7 @@ implements AbstractExecutableValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating the Result.");
-
-            Builder<AbstractExecutableEntity> builder = new Builder<AbstractExecutableEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
                 public AbstractExecutableEntity build(final ExecutionSessionEntity parent)

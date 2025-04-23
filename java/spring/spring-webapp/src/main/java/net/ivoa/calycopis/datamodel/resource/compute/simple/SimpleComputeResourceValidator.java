@@ -31,7 +31,6 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
@@ -327,10 +326,7 @@ implements AbstractComputeResourceValidator
         // Create our result and add it to our state.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            ComputeResourceEntityBuilder builder = new ComputeResourceEntityBuilder()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
                 public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final ComputeResourceOffer offer)
@@ -341,15 +337,8 @@ implements AbstractComputeResourceValidator
                         offer
                         );
                     }
-
-                @Override
-                public AbstractComputeResourceEntity build(ExecutionSessionEntity parent)
-                    {
-                    return null;
-                    }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,

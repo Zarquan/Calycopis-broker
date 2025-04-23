@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,17 +21,26 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.storage.simple;
+package net.ivoa.calycopis.functional.platfom;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
+import java.util.UUID;
 
 /**
- * Public interface for a SimpleStorageResource.
- *
+ * 
  */
-public interface SimpleStorageResource
-    extends AbstractStorageResource
+public interface Platform
     {
+    /**
+     * Get this platform's identifier.
+     *
+     */
+    public UUID getUuid();
 
+    
+    /**
+     * Get the StorageResource factory for this platform.
+     *
+     */
+    public void getStorageResourceEntityFactory();
+    
     }
-

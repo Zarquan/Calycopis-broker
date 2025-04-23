@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.resource.data;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 
@@ -35,15 +34,32 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 public interface AbstractDataResourceValidator
 extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
+    /**
+     * Public interface for an entity builder.
+     * 
+     */
+    public static interface EntityBuilder
+        {
+        /**
+         * Build an entity based on an internal template. 
+         *
+         */
+        public AbstractDataResourceEntity build(final ExecutionSessionEntity executionSession);
+        }
 
     /**
-     * Public interface for a DataResourceValidator result.
+     * Public interface for a validator result.
      * 
      */
     public static interface Result
     extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
-        // A reference to the storage resource for this data.
+        // TODO A reference to the storage resource for this data.
+        /**
+         * Get a builder with an internal template.
+         * 
+         */
+        public EntityBuilder getBuilder();
         }
 
     /**
@@ -70,13 +86,19 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractDataResource object,
-            final Builder<AbstractDataResourceEntity> builder
+            final EntityBuilder builder
             ){
             super(
                 result,
-                object,
-                builder
+                object
                 );
+            this.builder = builder;
+            }
+
+        private EntityBuilder builder ;
+        public EntityBuilder getBuilder()
+            {
+            return this.builder;
             }
         }
     }

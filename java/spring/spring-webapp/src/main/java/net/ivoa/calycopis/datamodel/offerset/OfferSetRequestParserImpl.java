@@ -22,7 +22,6 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorF
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
@@ -114,6 +113,7 @@ public class OfferSetRequestParserImpl
     
     /**
      * Validate the request components.
+     * TODO Move this into an OfferSetValidator.
      * 
      */
     public void validate(final OfferSetRequestParserContext context)
@@ -247,7 +247,7 @@ public class OfferSetRequestParserImpl
 
     
 //
-// TOD Move this part to a separate schedule validator.
+// TODO Move this part to a separate schedule validator.
 //
     
     /**
@@ -408,7 +408,7 @@ public class OfferSetRequestParserImpl
                     context.getTotalMinMemory()
                     );
                 //
-                // Create an ExecutionSession for each block. 
+                // Create an ExecutionSession for each offer. 
                 for (ComputeResourceOffer computeOffer : computeOffers)
                     {
                     log.debug("OfferBlock [{}]", computeOffer.getStartTime());

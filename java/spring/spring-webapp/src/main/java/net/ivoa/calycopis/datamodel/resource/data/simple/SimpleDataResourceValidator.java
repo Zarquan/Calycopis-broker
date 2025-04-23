@@ -26,12 +26,10 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -293,13 +291,10 @@ implements AbstractDataResourceValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            Builder<AbstractDataResourceEntity> builder = new Builder<AbstractDataResourceEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleDataResourceEntity build(ExecutionSessionEntity parent)
+                public SimpleDataResourceEntity build(final ExecutionSessionEntity parent)
                     {
                     return entityFactory.create(
                         parent,
@@ -308,7 +303,6 @@ implements AbstractDataResourceValidator
                     }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,

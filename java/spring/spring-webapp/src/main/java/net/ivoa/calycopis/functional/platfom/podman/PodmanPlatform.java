@@ -21,21 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.functional.builder;
+package net.ivoa.calycopis.functional.platfom.podman;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.Platform;
 
 /**
-
- * Public interface for an Entity builder, responsible for creating entities in the database. 
  * 
  */
-public interface Builder<EntityType>
+public interface PodmanPlatform extends Platform
     {
-    /**
-     * Build an entity. 
-     *
-     */
-    public EntityType build(final ExecutionSessionEntity sessionEntity);
 
     }
