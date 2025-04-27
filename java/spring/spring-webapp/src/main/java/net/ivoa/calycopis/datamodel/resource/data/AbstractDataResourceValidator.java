@@ -41,7 +41,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     public static interface EntityBuilder
         {
         /**
-         * Build an entity based on an internal template. 
+         * Build an entity based on a validation result. 
          *
          */
         public AbstractDataResourceEntity build(final ExecutionSessionEntity executionSession);
@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         {
         // TODO A reference to the storage resource for this data.
         /**
-         * Create a builder with an internal template.
+         * Create a builder with the validation result.
          * 
          */
         public EntityBuilder getBuilder();

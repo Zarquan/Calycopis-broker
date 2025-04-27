@@ -41,7 +41,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     public static interface EntityBuilder
         {
         /**
-         * Build an entity based on an internal template. 
+         * Build an entity based on a validation result. 
          *
          */
         public AbstractExecutableEntity build(final ExecutionSessionEntity executionSession);
@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         {
         // A list of the compute resources this executable is deployed on ?.
         /**
-         * Create a builder with an internal template.
+         * Create a builder with the validation result.
          * 
          */
         public EntityBuilder getBuilder();

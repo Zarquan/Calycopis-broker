@@ -41,7 +41,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     public static interface EntityBuilder
         {
         /**
-         * Build an entity based on an internal template. 
+         * Build an entity based on a validation result. 
          *
          */
         public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final ComputeResourceOffer offer);
@@ -56,7 +56,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         {
         // TODO A list of the volume mounts ...
         /**
-         * Create a builder with an internal template.
+         * Create a builder with the validation result.
          * 
          */
         public EntityBuilder getBuilder();
