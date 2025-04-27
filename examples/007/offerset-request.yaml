@@ -1,0 +1,42 @@
+name: example-007
+executable:
+  name: executable-007-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+
+schedule:
+  requested:
+      duration: PT1H
+
+resources:
+
+  compute:
+    - name: computer-007-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+      volumes:
+        - volume-007-01
+
+  volumes:
+    - name: volume-007-01
+      path: /calibration
+      mode: READONLY
+      cardinality: INSTANCE
+      resources:
+        - storage-007-01
+
+  storage:
+    - name: storage-007-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-resource-1.0
+      resources:
+        - data-007-01
+        - data-007-02
+
+  data:
+    - name: data-007-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-01.vot
+
+    - name: data-007-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-02.vot
+

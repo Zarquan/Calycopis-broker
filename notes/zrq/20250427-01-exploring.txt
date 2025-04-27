@@ -41,6 +41,86 @@
               path: /volumes/instance/001
               resource: data-resource-001
 
+# -----------------------------------------------------
+
+    Different types of volume mounts
+
+      type: ..../collection # Directory of things mounted at 'path'
+      type: ..../instance # Single thing mounted at 'path'
+
+    Which means volume mounts are Entities.
+    Are volume mounts outside SimpleComputeResource ?
+
+        resources:
+          compute:
+            - name: compute-resource-001
+              ....
+              volumes:
+                - volume-mount-001
+
+          volumes:
+            - name: volume-mount-001
+
+    This is very K8s
+    It also makes it easier to edit them in the builder API when we get to that.
+    It also allows for different types.
+
+
+
+# -----------------------------------------------------
+
+
+
+/**
+ * A Simple compute resource volume.
+ *
+ */
+@Entity
+@Table(
+    name = "simplecomputevolumes"
+    )
+@DiscriminatorValue(
+    value = "uri:simple-compute-volumes"
+    )
+public class SimpleComputeVolumeEntity
+    extends ComponentEntity
+    implements SimpleComputeVolume
+    {
+    ....
+    }
+
+/**
+ * JpaRepository for SimpleComputeVolumeEntity.
+ *
+ */
+public interface SimpleComputeVolumeEntityRepository
+extends JpaRepository<SimpleComputeVolumeEntity, UUID>
+    {
+    }
+
+/**
+ * A SimpleComputeVolume Factory.
+ *
+ */
+public interface SimpleComputeVolumeEntityFactory
+    extends FactoryBase
+    {
+    ....
+    }
+
+@Slf4j
+@Component
+public class SimpleComputeVolumeEntityFactoryImpl
+    extends FactoryBaseImpl
+    implements SimpleComputeVolumeEntityFactory
+    {
+    ....
+    }
+
+
+# -----------------------------------------------------
+
+
       data:
           access:
             - name: data-resource-001

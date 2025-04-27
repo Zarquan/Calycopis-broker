@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.resource.compute.simple;
 
+import java.util.List;
+
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResource;
 
 /**
@@ -86,7 +88,11 @@ public interface SimpleComputeResource
      */
     public Long getMaxOfferedMemory();
     
-    // volumes ...
+    /**
+     * A list of the compute resource vilumes.. 
+     *
+     */
+    public List<SimpleComputeVolume> getVolumes();
 
     }
 

@@ -23,15 +23,27 @@
 
 package net.ivoa.calycopis.datamodel.resource.compute.simple;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerNetworkPortEntity;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.NetworkPort;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
+import net.ivoa.calycopis.util.ListWrapper;
 
 /**
  * A Simple compute resource.
@@ -95,11 +107,23 @@ public class SimpleComputeResourceEntity
 
         this.minofferedmemory = offer.getMemory();
         this.maxofferedmemory = offer.getMemory();
-        
+
+        //
+        // Add our volumes.
+        for (IvoaSimpleComputeVolume volume : template.getVolumes())
+            {
+            this.volumes.add(
+                new SimpleComputeVolumeEntity(
+                    this,
+                    volume
+                    )
+                );                
+            }
         }
 
     // Does this also have a start and end time ?
     // Does this also go through a similar set of state changes as the parent execution ?
+    // YES
     
     @Column(name="minrequestedcores")
     private Long minrequestedcores;
@@ -165,6 +189,26 @@ public class SimpleComputeResourceEntity
         return this.maxofferedmemory;
         }
 
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    protected List<SimpleComputeVolumeEntity> volumes = new ArrayList<SimpleComputeVolumeEntity>();
+    @Override
+    public List<SimpleComputeVolume> getVolumes()
+        {
+        return new ListWrapper<SimpleComputeVolume, SimpleComputeVolumeEntity>(
+            volumes
+            ){
+            public SimpleComputeVolume wrap(final SimpleComputeVolumeEntity inner)
+                {
+                return (SimpleComputeVolume) inner ;
+                }
+            };
+        }
+    
     @Override
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
         {

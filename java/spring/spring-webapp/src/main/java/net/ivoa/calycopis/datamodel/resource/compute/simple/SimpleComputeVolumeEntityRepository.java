@@ -20,44 +20,18 @@
  *
  *
  */
+
 package net.ivoa.calycopis.datamodel.resource.compute.simple;
 
-import java.util.List;
+import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume.ModeEnum;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * Public interface for a SimpleComputeResource volume mount.
+ * JpaRepository for SimpleComputeVolumeEntity.
  * 
  */
-public interface SimpleComputeVolume
-    extends Component
+public interface SimpleComputeVolumeEntityRepository
+extends JpaRepository<SimpleComputeVolumeEntity, UUID>
     {
-    /**
-     * Reference to the parent SimpleComputeResource. 
-     *
-     */
-    public SimpleComputeResource getParent();
-
-    /**
-     * Reference to the DataResources mounted in this volume.
-     *
-     */
-    public List<AbstractDataResource> getDataResources();
-
-    /**
-     * Get the access mode
-     * 
-     */
-    public ModeEnum getMode();
-
-    /**
-     * Get the mount path.
-     * 
-     */
-    public String getPath();
-    
-    
     }

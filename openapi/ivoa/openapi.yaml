@@ -268,6 +268,49 @@ components:
         - $ref: 'AbstractComputeResource'
         - $ref: './types/resources/compute/simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeSpec'
 
+# volume-mounts.yaml
+
+    VolumeMountList:
+      description: >
+        A list of volume mounts.
+      type: array
+      title: VolumeMountList
+      xml:
+        name: storage
+      items:
+        $ref: 'AbstractVolumeMount'
+
+    AbstractVolumeMount:
+      description: >
+        Abstract base class for volume mounts.
+      type: object
+      title: AbstractVolumeMount
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0": 'SimpleVolumeMount'
+      allOf:
+        - $ref: 'AbstractComponent'
+        - type: object
+          properties:
+            # TOTO Do we need this here ?
+            type:
+              type: string
+              xml:
+                attribute: true
+
+    SimpleVolumeMount:
+      description: >
+        A simple volume mount.
+      type: object
+      name:  SimpleVolumeMount
+      title: SimpleVolumeMount
+      allOf:
+        - $ref: 'AbstractVolumeMount'
+        - $ref: './types/resources/volumes/simple-volume-mount-1.0.yaml#/components/schemas/SimpleVolumeMountSpec'
+
 # storage-resources.yaml
 
     StorageResourceList:
@@ -770,7 +813,7 @@ components:
 
     ExecutionResourceList:
       description: >
-        Combined compute and storage resource lists.
+        Combined compute, storage, volumes, and data lists.
       type: object
       title: ExecutionResourceList
       xml:
@@ -780,6 +823,8 @@ components:
           $ref: 'ComputeResourceList'
         storage:
           $ref: 'StorageResourceList'
+        volumes:
+          $ref: 'VolumeMountList'
         data:
           $ref: 'DataResourceList'
 

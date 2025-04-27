@@ -52,10 +52,10 @@ components:
           $ref: 'SimpleComputeMemory'
         volumes:
           description: |
-            A list of filesystem volumes.
+            A list of the filesystem volumes to mount.
           type: array
           items:
-            $ref: 'SimpleComputeVolume'
+            type: string
 
     SimpleComputeCores:
       description: |
@@ -163,31 +163,6 @@ components:
           format: int64
 #       units:
 #         $ref: '../../../components/utils.yaml#/components/schemas/ComputeUnitsEnum'
-
-    SimpleComputeVolume:
-      description: |
-        A class to represent a ComputeResource volume mount.
-      type: object
-      title: SimpleComputeVolume
-      allOf:
-        - $ref: '../../../openapi.yaml#/components/schemas/AbstractComponent'
-        - type: object
-          properties:
-            path:
-              description: >
-                The mount point in the target filesystem.
-              type: string
-            mode:
-              description: >
-                The read-write mode.
-              type: string
-              enum:
-                - READONLY
-                - READWRITE
-            resource:
-              description: >
-                The name or UUID of the resource to mount.
-              type: string
 
 
 
