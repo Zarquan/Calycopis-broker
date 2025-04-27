@@ -42,11 +42,11 @@ public class JupyterNotebookEntityFactoryImpl
         }
 
     @Override
-    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template)
+    public JupyterNotebookEntity create(final ExecutionSessionEntity session, final IvoaJupyterNotebook template)
         {
         return this.repository.save(
             new JupyterNotebookEntity(
-                parent,
+                session,
                 template
                 )
             );

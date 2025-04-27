@@ -62,27 +62,23 @@ implements AbstractStorageResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractStorageResourceEntity(final ExecutionSessionEntity parent, final String name)
+    protected AbstractStorageResourceEntity(final ExecutionSessionEntity session, final String name)
         {
         super(name);
-        this.parent = parent;
-        parent.addStorageResource(
+        this.session = session;
+        session.addStorageResource(
             this
             );
         }
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
+    private ExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getParent()
+    public ExecutionSessionEntity getSession()
         {
-        return this.parent;
-        }
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
+        return this.session;
         }
     
     @Override

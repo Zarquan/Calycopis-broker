@@ -28,7 +28,8 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 /**
  * 
  */
-public interface PodmanDockerContainer extends DockerContainer
+public interface PodmanDockerContainer
+extends DockerContainer
     {
 
     }

@@ -85,11 +85,11 @@ public class DockerContainerEntity
         }
 
     protected DockerContainerEntity(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaDockerContainer template
         ){
         super(
-            parent,
+            session,
             template.getName()
             );
 
@@ -388,7 +388,7 @@ public class DockerContainerEntity
         {
         getPrepareList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -398,7 +398,7 @@ public class DockerContainerEntity
 
         getPrepareList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -408,7 +408,7 @@ public class DockerContainerEntity
 
         getPrepareList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -418,7 +418,7 @@ public class DockerContainerEntity
 
         getPrepareList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -428,7 +428,7 @@ public class DockerContainerEntity
 
         getReleaseList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -438,7 +438,7 @@ public class DockerContainerEntity
 
         getReleaseList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -448,7 +448,7 @@ public class DockerContainerEntity
 
         getReleaseList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),
@@ -458,7 +458,7 @@ public class DockerContainerEntity
 
         getReleaseList().addStep(
             factory.create(
-                this.getParent(),
+                this.getSession(),
                 this,
                 Duration.ofSeconds(10),
                 Duration.ofSeconds(10),

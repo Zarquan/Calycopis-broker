@@ -261,7 +261,7 @@ public class ComputeResourceOfferFactoryImpl
                 JOIN
                     ComputeResources
                 ON
-                    ComputeResources.parent = Sessions.uuid
+                    ComputeResources.session = Sessions.uuid
                 JOIN
                     SimpleComputeResources
                 ON

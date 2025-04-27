@@ -63,11 +63,11 @@ public class SimpleStorageResourceEntityFactoryImpl
             );
         }
 
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
+    public SimpleStorageResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template)
         {
         return this.repository.save(
             new SimpleStorageResourceEntity(
-                parent,
+                session,
                 template
                 )
             );

@@ -61,22 +61,22 @@ implements AbstractComputeResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractComputeResourceEntity(final ExecutionSessionEntity parent, final String name)
+    protected AbstractComputeResourceEntity(final ExecutionSessionEntity session, final String name)
         {
         super(name);
-        this.parent = parent;
-        parent.addComputeResource(
+        this.session = session;
+        session.addComputeResource(
             this
             );
         }
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
+    private ExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getParent()
+    public ExecutionSessionEntity getSession()
         {
-        return this.parent;
+        return this.session;
         }
     }

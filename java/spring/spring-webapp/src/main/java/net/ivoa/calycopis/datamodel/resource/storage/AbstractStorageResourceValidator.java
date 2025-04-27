@@ -44,7 +44,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractStorageResourceEntity build(final ExecutionSessionEntity executionSession);
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
         }
 
     /**

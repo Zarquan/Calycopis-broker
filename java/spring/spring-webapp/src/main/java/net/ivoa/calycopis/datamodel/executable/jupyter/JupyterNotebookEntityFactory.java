@@ -26,6 +26,6 @@ public interface JupyterNotebookEntityFactory
      * Create and save a new JupyterNotebookEntity.
      *
      */
-    public JupyterNotebookEntity create(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template);
+    public JupyterNotebookEntity create(final ExecutionSessionEntity session, final IvoaJupyterNotebook template);
 
     }

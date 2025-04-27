@@ -107,10 +107,10 @@ implements AbstractStorageResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleStorageResourceEntity build(final ExecutionSessionEntity executionSession)
+                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        executionSession,
+                        session,
                         validated
                         );
                     }

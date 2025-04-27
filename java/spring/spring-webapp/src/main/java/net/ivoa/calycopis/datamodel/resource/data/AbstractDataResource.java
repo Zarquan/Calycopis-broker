@@ -37,7 +37,7 @@ public interface AbstractDataResource
      * Get the parent ExecutionSession.  
      *
      */
-    public ExecutionSessionEntity getParent();
+    public ExecutionSessionEntity getSession();
 
     /**
      * Get an IVOA bean representation.

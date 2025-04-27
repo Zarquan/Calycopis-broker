@@ -44,7 +44,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final ComputeResourceOffer offer);
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
         }
    
     /**

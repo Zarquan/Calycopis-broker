@@ -63,10 +63,10 @@ public class PodmanDockerContainerEntity
     /**
      *
      */
-    public PodmanDockerContainerEntity(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
+    public PodmanDockerContainerEntity(final ExecutionSessionEntity session, final IvoaDockerContainer template)
         {
         super(
-            parent,
+            session,
             template
             );
         }

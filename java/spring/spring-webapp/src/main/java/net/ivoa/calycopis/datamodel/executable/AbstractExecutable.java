@@ -17,7 +17,7 @@ public interface AbstractExecutable
      * Get the parent ExecutionSession.  
      *
      */
-    public ExecutionSession getParent();
+    public ExecutionSession getSession();
     
     /**
      * Get an IVOA bean representation.

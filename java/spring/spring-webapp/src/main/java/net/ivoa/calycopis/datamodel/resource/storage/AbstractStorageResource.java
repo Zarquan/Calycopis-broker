@@ -35,7 +35,7 @@ public interface AbstractStorageResource
      * Get the parent ExecutionSession.  
      *
      */
-    public ExecutionSession getParent();
+    public ExecutionSession getSession();
 
     /**
      * Get an IVOA bean representation.

@@ -65,13 +65,13 @@ public class SimpleComputeResourceEntityFactoryImpl
 
     @Override
     public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaSimpleComputeResource template,
         final ComputeResourceOffer offer
         ){
         return this.repository.save(
             new SimpleComputeResourceEntity(
-                parent,
+                session,
                 template,
                 offer
                 )

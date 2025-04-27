@@ -59,16 +59,16 @@ public class SimpleComputeResourceEntity
         }
 
     /**
-     * Protected constructor with parent, template and offerblock.
+     * Protected constructor with session, template and offer.
      *
      */
     public SimpleComputeResourceEntity(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaSimpleComputeResource template,
         final ComputeResourceOffer offer
         ){
         super(
-            parent,
+            session,
             template.getName()
             );
 

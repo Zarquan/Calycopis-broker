@@ -44,7 +44,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractExecutableEntity build(final ExecutionSessionEntity executionSession);
+        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
         }
     
     /**

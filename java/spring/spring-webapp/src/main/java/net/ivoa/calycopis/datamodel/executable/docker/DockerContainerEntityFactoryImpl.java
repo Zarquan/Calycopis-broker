@@ -49,11 +49,11 @@ public class DockerContainerEntityFactoryImpl
         }
 
     @Override
-    public DockerContainerEntity create(final ExecutionSessionEntity parent, final IvoaDockerContainer template)
+    public DockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template)
         {
         DockerContainerEntity result = this.repository.save(
             new DockerContainerEntity(
-                parent,
+                session,
                 template
                 )
             );

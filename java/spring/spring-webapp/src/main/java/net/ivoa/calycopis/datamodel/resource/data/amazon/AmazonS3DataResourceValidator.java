@@ -164,10 +164,10 @@ implements AbstractDataResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public AmazonS3DataResourceEntity build(ExecutionSessionEntity parent)
+                public AmazonS3DataResourceEntity build(ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }

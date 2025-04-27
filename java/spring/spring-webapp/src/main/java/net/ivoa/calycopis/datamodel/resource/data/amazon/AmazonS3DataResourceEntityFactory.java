@@ -48,7 +48,7 @@ public interface AmazonS3DataResourceEntityFactory
      * Create and save a new SimpleDataResource based on a template.
      *
      */
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template);
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final IvoaAmazonS3DataResource template);
 
     }
 

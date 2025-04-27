@@ -294,10 +294,10 @@ implements AbstractDataResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleDataResourceEntity build(final ExecutionSessionEntity parent)
+                public SimpleDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }

@@ -44,7 +44,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractDataResourceEntity build(final ExecutionSessionEntity executionSession);
+        public AbstractDataResourceEntity build(final ExecutionSessionEntity session);
         }
 
     /**

@@ -48,7 +48,7 @@ public interface SimpleDataResourceEntityFactory
      * Create a new SimpleDataResource based on a template.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template);
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleDataResource template);
 
     }
 

@@ -95,7 +95,7 @@ extends ComponentEntity
      * 
      */
     @OneToMany(
-        mappedBy = "parent",
+        mappedBy = "offerset",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true

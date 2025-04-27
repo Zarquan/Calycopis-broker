@@ -59,10 +59,10 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
+    public SimpleStorageResourceEntity(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template)
         {
         super(
-            parent,
+            session,
             template.getName()
             );
         // TODO Add the fields ...

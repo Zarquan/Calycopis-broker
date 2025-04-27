@@ -106,10 +106,10 @@ implements AbstractExecutableValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public AbstractExecutableEntity build(final ExecutionSessionEntity parent)
+                public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
                     return factory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }

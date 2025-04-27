@@ -329,10 +329,10 @@ implements AbstractComputeResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final ComputeResourceOffer offer)
+                public SimpleComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated,
                         offer
                         );

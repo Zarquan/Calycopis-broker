@@ -68,7 +68,7 @@ public interface ExecutionSession
      * Get the parent OfferSet.
      *
      */
-    public OfferSetEntity getParent();
+    public OfferSetEntity getOfferSet();
 
     /**
      * Get the start time in seconds.
