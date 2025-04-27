@@ -38,6 +38,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
@@ -68,6 +70,9 @@ import net.ivoa.calycopis.util.ListWrapper;
     )
 @DiscriminatorValue(
     value = "uri:docker-executable"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
     )
 public class DockerContainerEntity
     extends AbstractExecutableEntity
