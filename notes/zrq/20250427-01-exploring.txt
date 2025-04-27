@@ -1,0 +1,141 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring the data/storage/mount classes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    resources:
+      compute:
+        - name: ...
+          volumes:
+            - type: ..../instance-volume
+              path: /volumes/instance/001
+              resource: data-resource-001
+
+      data:
+          access:
+            - name: data-resource-001
+              type: ..../simple-http
+
+# -----------------------------------------------------
+
+    Validation process assigns data resource to the default storage pool.
+
+      data:
+          access:
+            - name: data-resource-001
+              type: ..../simple-http-download
+              storage: storage-pool-001
+
+      storage:
+        - name: storage-pool-001
+          type: ..../simple-storage-resource
+          data:
+            - data-resource-001
+
+        storage = Platform.getDefaultStorageResourceConfig()
+        -> IvoaStorageResource
+
+    Scheduling process sums the download time for all the data resources in the pool
+    and uses that to set the storage resource start time.
+    (*) If we make the downloads parallel, the this would be the max not the sum.
+
+# -----------------------------------------------------
+
+    Validation process uses Platform to get Factories and create Builders
+
+        @autowired in constructor
+        Platform platform
+
+        SimpleStorageResourceValidator
+            builder = new SimpleStorageResourceValidator.EntityBuilder()
+                {
+                build(session)
+                    {
+                    return platform.getStorageResourceEntityFactory().create(
+                        session,
+                        validated
+                        );
+                    }
+                }
+
+        platform.getSimpleStorageResourceEntityFactory()
+        -> PodmanStorageResourceEntityFactory extends SimpleStorageResourceEntityFactory
+        create(....)
+        -> PodmanStorageResourceEntity extends SimpleStorageResourceEntity
+
+        SimpleStorageResourceEntity
+            long startinstantsec // Used to create a booking
+            long lifedurationsec // Used to create a booking
+            Long size            // Used to create a booking
+            schedule()
+                // Collect the sum of the data resource prepare times.
+                dataPreparation = sum(..)
+                startInstant = session.getStartInstant() - (dataPreparation + getPrepareTime())
+
+        PodmanStorageResourceEntity extends SimpleStorageResourceEntity
+            String pool // The location of the pool directory.
+            Duration PREPARE_TIME // Fixed prepare Duration
+            getPrepareTime()
+                return PREPARE_TIME
+            configure()
+                // Adds Podman specific steps
+                1) sync - Create the pool directory on the host
+
+
+
+
+
+
+
+
+
+        Platform.getSimpleComputeResourceEntityFactory().makeBuilder(
+            IvoaSimpleComputeResource
+            )
+            -> PodmanSimpleComputeResourceBuilder extends AbstractVolumeMountBuilder
+            build()
+            -> PodmanVolumeMountEntity extends AbstractVolumeMountEntity
+
+
+        Platform.getSimpleDataResourceEntityFactory().makeBuilder(
+            IvoaSimpleDataResource
+            )
+            -> PodmanSimpleDataAccessBuilder extends AbstractSimpleDataAccessBuilder
+            build()
+            -> PodmanHttpDataAccessEntity extends AbstractHttpDataAccessEntity
+
+# -----------------------------------------------------
+
+
+
+

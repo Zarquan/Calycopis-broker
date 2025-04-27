@@ -1,0 +1,717 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Resolve storage issues
+
+    Result:
+
+        Nearly there, but ...
+
+        We have abstract data references set in the discovery metadata.
+        That are resolved into SRCnet, Http, S3 data references.
+        Each data resource is allocated space in a storage pool.
+        Download is initiated by the storage resource iterating the data resources it contains.
+        BUT
+        We are missing the compute volume mounts
+
+        SrcnetStoragePool is a flat blobby space.
+        SrcnetDownload transfers the data into the pool.
+        prepareData mounts the pool data into the right location in the compute resource
+
+        UserStoragePool is a directory in VOSpace
+        HttpDownload transfers the data into the right location in VOSpace.
+        There is no need to mount the volume.
+
+        At the moment, the same data can appear multiple times in the compute resource
+        Is this OK, or do we want to prevent it ?
+        It is hard to prevent it.
+        So prepareData just needs to be aware it already has a copy.
+
+# -----------------------------------------------------
+
+    Create a Podman volume from a specific directory path.
+    https://stackoverflow.com/a/75619535
+    https://github.com/containers/podman/issues/12013#issuecomment-1017998512
+
+        podman volume create \
+            -o device=/data/volpath \
+            -o o=bind \
+            volname
+
+        docker volume create \
+            --driver local \
+            --opt 'type=none' \
+            --opt 'device=/tmp/SourceMountDocker' \
+            --opt 'o=bind' \
+            volname
+
+# -----------------------------------------------------
+
+    At the moment, a volume can point to either a storage resource, or a data resource.
+    If it points to a data resource, then the system will allocate a storage resource for it.
+
+    That introduces some what-if complexities.
+
+    What-if a data resource is references directly in a volume, and in a separate storage resource.
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /direct/
+    >         resource: data-007-001
+    >       - path: /indirect/
+    >         resource: storage-007-001
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-resource-1.0
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    >       storage: storage-007-001
+
+    OK, then the system can work out how it wants to make this happen.
+    If it is dumb, it means it downloads two copies of the data.
+    If it is smart, it will use symlinks to make the same data appear in two locations.
+    Both of which are valid.
+
+# -----------------------------------------------------
+
+    What if we want two data resources mounted in the same directory ?
+
+    Answer, create a storage resource to act as a container,
+    introducing a new type, storage-container.
+
+    Two ways of linking them,
+    1) Data in container
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /my-data/
+    >         resource: storage-007-001
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-container-1.0
+    >       data:
+    >         - data-007-001
+    >         - data-007-002
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+
+
+    2) Container in data
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /my-data/
+    >         resource: storage-007-001
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-container-1.0
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    >       storage: storage-007-001
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    >       storage: storage-007-001
+
+# -----------------------------------------------------
+
+    What if we have two data resources from different sources, http download and Rucio ?
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /my-data/
+    >         resource: storage-007-001
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-container-1.0
+    >       data:
+    >         - data-007-001
+    >         - data-007-002
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0
+
+    The system is free to allocate separate storage resources for the data objects,
+    and then create a container to make them appear to be in the same directory,
+    using symlinks or copies.
+
+    OK, now we are getting complicated, because the links/copies can be named.
+    Do we want to name the data resources within the container ?
+    It is almost as if the container contains volumes ...
+
+    Three things
+
+        data-resource - reference to remote data
+        It can start as a placeholder and be resolved into a location/type during data discovery.
+
+        storage-resource - a block of storage on the server, with allocated size.
+        This can store one or more data resources.
+        Q - what are they named ?
+
+        volume-mount - a link from a compute resource to data/storage resources.
+        Mounted at a path within the compute-resource filesystem.
+
+    The problem
+
+        Multiple data resources in a storage resource.
+        The individual data objects need names / paths.
+
+    The solution
+
+        Data resources within storage resources are like volumes in compute-resources,
+        they have path and mode.
+
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /my-data/
+    >         resource: storage-007-001
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-container-1.0
+    >       data:
+    >   
+    >         - resource: data-007-001
+    >           path: data-001
+    >           mode: READ-ONLY
+    >   
+    >         - resource: data-007-002
+    >           path: data-002
+    >           mode: READ-ONLY
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >   
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0
+
+    This defines how we want it to look.
+    The system is free to resolve that into a structure of different storage-resources from
+    storage different pools.
+    As long as it appears to be the same to the end user.
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - path: /my-data
+    >         resource: container-007-001
+    >   
+    >     storage:
+    >     - name: container-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-container-1.0
+    >       data:
+    >         - resource: data-007-001
+    >           name: data-001
+    >           mode: READ-ONLY
+    >         - resource: data-007-002
+    >           name: data-002
+    >           mode: READ-ONLY
+    >   
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/user-storage-resource-1.0
+    >       data:
+    >         - resource: data-007-001
+    >           name: data-001
+    >           mode: READ-ONLY
+    >   
+    >     - name: storage-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-storage-resource-1.0
+    >       data:
+    >         - resource: data-007-002
+    >   
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >       storage: storage-007-002
+    >   
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0
+    >       storage: storage-007-003
+
+    Can we merge container and volume ?
+    Two types of volume, simple-instance-volume, mounted as a file,
+    and simple-container-volume, mounted as a directory.
+
+    Volumes always referece data resources.
+
+    Storage resources are separate pools of storage.
+
+    Broker makes the data resources appear in the file system according to the volumes.
+
+    Broker can store the data wherever it wanrs.
+
+    >   resources:
+    >     compute:
+    >     - name: computer-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    >       volumes:
+    >       - name: volume-007-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-container-volume-1.0
+    >         path: /data-directory
+    >         data:
+    >           - resource: data-007-001
+    >             name: data-001
+    >             mode: READ-ONLY
+    >           - resource: data-007-002
+    >             name: data-002
+    >             mode: READ-ONLY
+    >   
+    >       - name: volume-007-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-instance-volume-1.0
+    >         path: /data-file
+    >         data: data-007-001
+    >         mode: READ-ONLY
+    >   
+    >     storage:
+    >     - name: storage-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/user-storage-resource-1.0
+    >       data:
+    >         - resource: data-007-001
+    >           name: data-001
+    >           mode: READ-ONLY
+    >   
+    >     - name: storage-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-storage-resource-1.0
+    >       data:
+    >         - resource: data-007-002
+    >   
+    >     data:
+    >     - name: data-007-001
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >       storage: storage-007-002
+    >   
+    >     - name: data-007-002
+    >       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0
+    >       storage: storage-007-003
+
+    If we add an 'abstract-data-resource', that has content type, but no source or type.
+    That gets resolved into specific type during data discovery.
+    Abstract data resource can represent a single data object, or multiple objects.
+    quantity: single, multiple, 1,2 ...
+    cardinality: one, single, multiple, many, 1,2 ...
+
+    How does this fit with our plans for adapters, agents and handlers in our code.
+
+    Two data references, one for a single data cube, and one for multiple spectra.
+
+    >     data:
+    >       - name: data-007-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-resource-1.0
+    >         description: A single data cube.
+    >         cardinality: single
+    >         meta:
+    >           ivoa:
+    >             content-type: cube
+    >   
+    >       - name: data-007-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-collection-1.0
+    >         description: A collection of spectra.
+    >         cardinality: multiple
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+
+    We are getting there ... but
+    The discovery defines the abstract data resources.
+    With volumes pointing to the abstract data resources.
+
+    The user selects concrete data resources to fulfill the abstract placeholders.
+    Linking a single data resource to an abstract instance.
+
+    >     data:
+    >       - name: data-007-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-resource-1.0
+    >         description: A single data cube.
+    >         meta:
+    >           ivoa:
+    >             content-type: cube
+    >         data: data-007-001-item
+    >   
+    >       - name: data-007-001-item
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single data cube.
+    >         meta:
+    >           ivoa:
+    >             content-type: cube
+    >         srcnet:
+    >           replicas:
+    >             - #########
+    >             - #########
+    >             - #########
+
+    Linking multiple data resources to an abstract collection.
+
+    >     data:
+    >       - name: data-007-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-collection-1.0
+    >         description: A collection of spectra.
+    >         cardinality: multiple
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         data:
+    >           - data-007-002-item-001
+    >           - data-007-002-item-002
+    >           - data-007-002-item-003
+    >   
+    >       - name: data-007-002-item-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         srcnet:
+    >           replicas:
+    >             - #########
+    >             - #########
+    >             - #########
+    >   
+    >       - name: data-007-002-item-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         replicas:
+    >           - #########
+    >           - #########
+    >           - #########
+    >   
+    >       - name: data-007-002-item-003
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         locations:
+    >           - http://download-001.example.org/spectra/item-002
+    >           - http://download-002.example.org/spectra/item-002
+    >   
+
+    When that gets executed, the concrete data resources get allocated into storage resources.
+    The size of a storage resource is allocated as the sum of the sizes of the data items it contains.
+    For the user and Rucio storage resources we are reserving a block of space within
+    the local storage pools.
+
+    >     storage:
+    >       - name: user-storage-007-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/user-storage-resource-1.0
+    >         data:
+    >           - data-007-002-item-003
+    >   
+    >       - name: srcnet-storage-007-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-storage-resource-1.0
+    >         data:
+    >           - data-007-001-item
+    >           - data-007-002-item-001
+    >           - data-007-002-item-002
+    >   
+    >     data:
+    >       - name: data-007-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-resource-1.0
+    >         description: A single data cube.
+    >         meta:
+    >           ivoa:
+    >             content-type: cube
+    >         data: data-007-001-item
+    >   
+    >       - name: data-007-001-item
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single data cube.
+    >         meta:
+    >           ivoa:
+    >             content-type: cube
+    >         srcnet:
+    >           replicas:
+    >             - #########
+    >             - #########
+    >             - #########
+    >         storage: rucio-storage-007-002
+    >   
+    >       - name: data-007-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/abstract-data-collection-1.0
+    >         description: A collection of spectra.
+    >         cardinality: multiple
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         data:
+    >           - data-007-002-item-001
+    >           - data-007-002-item-002
+    >           - data-007-002-item-003
+    >   
+    >       - name: data-007-002-item-001
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         srcnet:
+    >           replicas:
+    >             - #########
+    >             - #########
+    >             - #########
+    >         storage: rucio-storage-007-002
+    >   
+    >       - name: data-007-002-item-002
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/srcnet-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         replicas:
+    >           - #########
+    >           - #########
+    >           - #########
+    >         storage: rucio-storage-007-002
+    >   
+    >       - name: data-007-002-item-003
+    >         type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/http-data-resource-1.0
+    >         description: A single spectra.
+    >         meta:
+    >           ivoa:
+    >             content-type: spectra
+    >         locations:
+    >           - http://download-001.example.org/spectra/item-002
+    >           - http://download-002.example.org/spectra/item-002
+    >         storage: user-storage-007-001
+    >   
+
+    How does this map to our plugins and handlers ?
+    The actual Java classes for the resources will depend on the local Platform.
+
+        user-storage-resource-1.0
+        PodmanUserStorageVolume
+            reservation step reserves space from a quota for the user
+            allocation step creates Podman volume
+            download step uses a http-data-transfer Pod
+            execution adds the volume to the pod
+
+        user-storage-resource-1.0
+        CanfarUserStorageVolume
+            reservation step reserves space from a quota for the user
+            allocation creates/checks the target directory in Cavern
+            download step calls VOSpace API to transfer data
+            execution is a NOP, Cavern is already connected
+
+        srcnet-storage-resource-1.0
+        PodmanSrcnetStorageVolume
+            reservation step reserves space from a quota for the user
+            allocation step creates Podman volume
+            download step uses a http-data-transfer Pod
+            execution adds the volume to the pod
+
+        srcnet-storage-resource-1.0
+        CanfarSrcnetStorageVolume
+            reservation step reserves space from a quota for the user
+            allocation creates/checks the target directory in Cavern
+            download step calls DataManagment API PrepareData
+            execution adds the volume to the pod
+            execution is a NOP, PrepareData should have done it
+
+        ** complication
+        what if prepareData needs the execution container running ?
+        handle that when we come to it
+
+
+    The Java classes for the storage volumes and the data transport handlers are linked to each other.
+    The link between them is the Platform ?
+
+    ----
+    PodmanPlatform
+
+        getUserStorageVolumeFactory()
+            PodmanUserStorageVolumeFactory
+        getSrcnetStorageVolumeFactory()
+            PodmanSrcnetStorageVolumeFactory
+
+        getHttpDownloadHandlerFactory()
+            PodmanHttpDownloadHandlerFactory
+        getSrcnetDownloadHandlerFactory()
+            PodmanSrcnetDownloadHandlerFactory
+
+    ----
+    CanfarPlatform
+
+        getUserStorageVolumeFactory()
+            CanfarUserStorageVolumeFactory
+        getSrcnetStorageVolumeFactory()
+            CanfarSrcnetStorageVolumeFactory
+
+        getHttpDownloadHandlerFactory()
+            CanfarHttpDownloadHandlerFactory
+
+        getSrcnetDownloadHandlerFactory()
+            CanfarSrcnetDownloadHandlerFactory
+
+
+    Clumsy.
+
+    ----
+
+    PodmanPlatform
+
+        simple-instance-volume-1.0
+
+        simple-container-volume-1.0
+
+        abstract-data-collection-1.0
+
+        user-storage-resource-1.0
+        podman-storage-volume-1.0
+        PodmanStorageVolume
+            volumePool = userPool
+            reservation step reserves space in pool
+            allocation step creates directory and Podman volume
+            download step iterates the data resources and downloads them
+            for (CanfarDataResource dataResource : dataList)
+                {
+                dataResource.download(this);
+                }
+            execution adds the volume to the pod
+
+        srcnet-storage-resource-1.0
+        podman-storage-volume-1.0
+        PodmanStorageVolume
+            volumePool = srcnetPool
+            reservation step reserves space in pool
+            allocation step creates directory and Podman volume
+            download step iterates the data resources and downloads them
+            for (CanfarDataResource dataResource : dataList)
+                {
+                dataResource.download(this);
+                }
+            execution adds the volume to the pod
+
+        http-data-resource-1.0
+        PodmanHttpDataResource
+            storage -> PodmanStorageVolume
+            download = PodmanHttpDataTransferAgent(
+                storage.getVolume().getVolumeName(),
+                this.getHttpLocation()
+                )
+
+        srcnet-data-resource-1.0
+        PodmanSrcnetDataResource
+            storage -> PodmanStorageVolume
+            download = PodmanSrcnetPrepareDataAgent(
+                storage.getVolume().getHostPath(),
+                this.getReplicaList()
+                )
+            OR
+            download = PodmanHttpDataTransferAgent(
+                storage.getVolume().getVolumeName(),
+                this.getHttpLocation()
+                )
+
+    ----
+
+    CanfarPlatform
+
+        simple-instance-volume-1.0
+
+        simple-container-volume-1.0
+
+        abstract-data-collection-1.0
+
+
+
+        user-storage-resource-1.0
+        srcnet-storage-resource-1.0
+        canfar-storage-volume-1.0
+        CanfarStorageVolume
+            volumePool = userPool, rucioPool
+            reservation step reserves space in pool
+            allocation step creates directory in VOSpace
+            download step iterates the data resources and downloads them
+            for (CanfarDataResource dataResource : dataList)
+                {
+                dataResource.download(this);
+                }
+            execution is a NOP, Cavern is already connected
+
+        http-data-resource-1.0
+        CanfarHttpDataResource
+            download step calls VOSpace API to transfer data
+            storage -> CanfarStorageVolume
+            download = CanfarHttpDataTransferAgent(
+                storage.getMountPath(), <-- this should be from the volume not the storage
+                this.getHttpLocation()
+                )
+
+        srcnet-data-resource-1.0
+        PodmanSrcnetDataResource
+            download step uses prepareData to mount data into host directory
+            storage -> CanfarStorageVolume
+            download = CanfarSrcnetPrepareDataAgent(
+                storage.getVolume().getHostPath(),
+                this.getReplicaList()
+                )
+            OR
+            download step calls VOSpace API to transfer data
+            download = CanfarHttpDataTransferAgent(
+                storage.getMountPath(), <-- this should be from the volume not the storage
+                this.getHttpLocation()
+                )
+
+
+
+
