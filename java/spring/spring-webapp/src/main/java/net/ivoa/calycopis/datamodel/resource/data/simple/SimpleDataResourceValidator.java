@@ -127,8 +127,10 @@ implements AbstractDataResourceValidator
             }
         
         //
-        // Create our validated object.
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
+        // Create our validated bean.
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource(
+            SimpleDataResource.TYPE_DISCRIMINATOR
+            );
 
         validated.setUuid(
             requested.getUuid()

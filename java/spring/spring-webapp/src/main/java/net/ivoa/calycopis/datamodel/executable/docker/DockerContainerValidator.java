@@ -96,7 +96,9 @@ implements AbstractExecutableValidator
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaDockerContainer validated = new IvoaDockerContainer();
+        IvoaDockerContainer validated = new IvoaDockerContainer(
+            DockerContainer.TYPE_DISCRIMINATOR
+            );
 
         //
         // Validate the executable name.

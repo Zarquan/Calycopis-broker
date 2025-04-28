@@ -129,7 +129,9 @@ implements AbstractComputeResourceValidator
         log.debug("Resource [{}]", requested);
 
         boolean success = true ;
-        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource();
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource(
+            SimpleComputeResource.TYPE_DISCRIMINATOR
+            );
 
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;

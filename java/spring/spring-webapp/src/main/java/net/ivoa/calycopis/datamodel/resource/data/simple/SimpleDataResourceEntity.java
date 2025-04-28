@@ -85,12 +85,18 @@ public class SimpleDataResourceEntity
         bean.setUuid(
             this.getUuid()
             );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
         bean.setMessages(
             this.getMessageBeans()
             );
-
-        // TODO fill in the fields 
-                
+        bean.setLocation(
+            this.getLocation()
+            );
         return bean;
         }
     }

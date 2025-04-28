@@ -85,7 +85,9 @@ implements AbstractExecutableValidator
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaJupyterNotebook validated = new IvoaJupyterNotebook();
+        IvoaJupyterNotebook validated = new IvoaJupyterNotebook(
+            JupyterNotebook.TYPE_DISCRIMINATOR
+            );
 
         //
         // Validate the executable name.

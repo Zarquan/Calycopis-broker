@@ -90,14 +90,26 @@ implements AbstractVolumeMountValidator
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount();
-
+        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount(
+            SimpleVolumeMount.TYPE_DISCRIMINATOR
+            );
+        validated.setName(
+            requested.getName()
+            );
+        validated.setPath(
+            requested.getPath()
+            );
+        validated.setMode(
+            requested.getMode()
+            );
+        validated.setCardinality(
+            requested.getCardinality()
+            );
         //
-        // Check the list of resources.
+        // TODO Check the list of data resources.
         //
-
-        validated.setName(requested.getName());
-
+        
+        
         //
         // Everything is good.
         // Create our result and add it to our context.

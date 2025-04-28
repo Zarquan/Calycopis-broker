@@ -90,7 +90,9 @@ implements AbstractStorageResourceValidator
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource();
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
+            SimpleStorageResource.TYPE_DISCRIMINATOR
+            );
 
         //
         // Check maximum size limit,
