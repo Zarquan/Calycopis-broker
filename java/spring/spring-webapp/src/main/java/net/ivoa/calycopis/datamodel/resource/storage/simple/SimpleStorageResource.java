@@ -32,6 +32,11 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
 public interface SimpleStorageResource
     extends AbstractStorageResource
     {
+    /**
+     * The OpenAPI type identifier.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0" ;
 
     }
 

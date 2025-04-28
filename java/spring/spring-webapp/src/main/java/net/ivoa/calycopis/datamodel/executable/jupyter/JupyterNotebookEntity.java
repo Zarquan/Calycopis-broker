@@ -82,6 +82,12 @@ public class JupyterNotebookEntity
         bean.setUuid(
             this.getUuid()
             );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
         bean.setMessages(
             this.getMessageBeans()
             );

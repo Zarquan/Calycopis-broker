@@ -44,7 +44,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class AbstractStorageResourceEntity
+public abstract class AbstractStorageResourceEntity
 extends ComponentEntity
 implements AbstractStorageResource
     {
@@ -79,12 +79,5 @@ implements AbstractStorageResource
     public ExecutionSessionEntity getSession()
         {
         return this.session;
-        }
-    
-    @Override
-    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
-        {
-        // TODO Auto-generated method stub
-        return null;
         }
     }

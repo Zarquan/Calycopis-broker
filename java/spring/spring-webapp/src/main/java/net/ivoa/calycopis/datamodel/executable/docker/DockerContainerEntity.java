@@ -126,10 +126,13 @@ public class DockerContainerEntity
             DockerContainer.TYPE_DISCRIMINATOR
             );
         bean.setUuid(
-                this.getUuid()
-                );
+            this.getUuid()
+            );
         bean.setName(
             this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
             );
         bean.setMessages(
             this.getMessageBeans()

@@ -19,6 +19,8 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
@@ -443,7 +445,14 @@ public class OfferSetRequestParserImpl
                         }
 
                     //
-                    // TODO Add data resources.
+                    // Build and add our storage resources.
+                    for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
+                        {
+                        result.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        }
+                    
                     //
                     // TODO Add storage resources.
                     //
