@@ -1,0 +1,139 @@
+/*
+ * <meta:header>
+ *   <meta:licence>
+ *     Copyright (C) 2025 University of Manchester.
+ *
+ *     This information is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This information is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   </meta:licence>
+ * </meta:header>
+ *
+ *
+ */
+package net.ivoa.calycopis.datamodel.resource.volume.simple;
+
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
+
+/**
+ * A Validator implementation to handle simple storage resources.
+ *
+ */
+@Slf4j
+public class SimpleVolumeMountValidator
+extends ValidatorTools
+implements AbstractVolumeMountValidator
+    {
+    /**
+     * Factory for creating Entities.
+     *
+     */
+    final SimpleVolumeMountEntityFactory entityFactory;
+
+    /**
+     * Public constructor.
+     *
+     */
+    public SimpleVolumeMountValidator(
+        final SimpleVolumeMountEntityFactory entityFactory
+        ){
+        super();
+        this.entityFactory = entityFactory ;
+        }
+
+    @Override
+    public AbstractVolumeMountValidator.Result validate(
+        final IvoaAbstractVolumeMount requested,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validate(IvoaAbstractVolumeMount)");
+        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        switch(requested)
+            {
+            case IvoaSimpleVolumeMount simple:
+                return validate(
+                        simple,
+                        context
+                        );
+            default:
+                return new ResultBean(
+                    Validator.ResultEnum.CONTINUE
+                    );
+            }
+        }
+
+    /**
+     * Validate an IvoaSimpleVolumeMount.
+     *
+     */
+    public AbstractVolumeMountValidator.Result validate(
+        final IvoaSimpleVolumeMount requested,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validate(IvoaSimpleVolumeMount)");
+        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+
+        boolean success = true ;
+        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount();
+
+        //
+        // Check the list of resources.
+        //
+
+        validated.setName(requested.getName());
+
+        //
+        // Everything is good.
+        // Create our result and add it to our context.
+        if (success)
+            {
+            EntityBuilder builder = new EntityBuilder()
+                {
+                @Override
+                public SimpleVolumeMountEntity build(final ExecutionSessionEntity session)
+                    {
+                    return entityFactory.create(
+                        session,
+                        validated
+                        );
+                    }
+                };
+
+            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated,
+                builder
+                );
+
+            context.addVolumeValidatorResult(
+                volumeResult
+                );
+
+            return volumeResult;
+            }
+        //
+        // Something wasn't right, fail the validation.
+        else {
+            context.valid(false);
+            return new ResultBean(
+                Validator.ResultEnum.FAILED
+                );
+            }
+        }
+    }
