@@ -1,0 +1,261 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring ideas ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+     As part of the processing we need to estimate the session preparation costs.
+     As part of the processing we need to estimate the transfer costs.
+     We need to build this into the schedule ..
+
+     At some point, we need to create a chain of execution steps for a session.
+     We need the start time and duration for each of the steps when we create the offers.
+     Might as well do this during the build sequence ?
+
+     When a session is accepted, something needs to pick it up and execute the steps,
+     scheduling the execution to meet the start/done times for each step.
+
+
+    When we create the resources
+
+        AbstractExecutableEntity
+        AbstractComputeResourceEntity
+        AbstractStorageResourceEntity
+        AbstractDataResourceEntity
+
+    Do these all have a prepare and release time associated with them ?
+    Seems the best place for them ..
+    Create a base class for the properties.
+
+        implements
+            AbstractSchedulable
+        extends
+            AbstractSchedulableEntity
+
+                prepare:
+                    Instance start
+                    Duration duration
+
+                release:
+                    Instance start
+                    Duration duration
+
+    Constructor for the entities calls estimate() and schedule()
+    to create the overall schedule.
+
+        estimate()
+            calculate the duration costs
+
+        schedule()
+            calculate the start times
+            in relation to its siblings
+
+    Do we create a linked list, or can we just use orderby from the database ?
+
+    We need to pick up the next step to execute.
+
+        SELECT uuid, phase, start FROM schedulable WHERE phase IN (..) ORDER BY start ASC
+        ** AND the previous step has been done **
+
+    If the start is in the past, fail the step.
+
+    Is it a 1:1 relationship between the resources and the steps.
+    Does a data resource have a single prepare() step,
+    or does it have more than one prepare() step ?
+
+    I expect top have to handle nested steps in the future.
+    Download and then checksum a file.
+    Download, checksum, and then unpack a zip file.
+    ...
+    Downloading two files can be done in parallel.
+
+    Double linked list
+
+    interface AbstractExecutionStep
+        {
+
+        public AbstractEntity getEntity();
+
+        public ExecutionStep getPrev();
+        public ExecutionStep getNext();
+
+        void execute();
+
+        enum Phase {
+            WAITING(),
+            EXECUTING(),
+            COMPLETED(),
+            CANCELLED()
+            FAILED();
+            };
+
+        public Phase getPhase();
+
+        public Instant  getPrepareInstant();  // calculated from the execution (start - before)
+        public Duration getPrepareOffset();   // user input, e.g. lifetime before
+        public Duration getPrepareDuration(); // calculated by the step
+
+        public Instant  getReleaseInstant();  // calculated from the execution (end + offset)
+        public Duration getReleaseOffset();   // user input, e.g. lifetime after
+        public Duration getReleaseDuration(); // calculated by the step
+
+        }
+
+    In general, classes that extend AbstractExecutionStep don't have any extra fields,
+    they just have different execution methods.
+    So in most cases, they can use the same database table.
+
+
+    interface StepList
+        {
+
+        public AbstractExecutionStep getFirst();
+        public AbstractExecutionStep getLast();
+
+        public Iterable forwards();
+        public Iterable backwards();
+
+        }
+
+    Polymorphic types of steps.
+    Two lists of steps attached to each ResourceEntity.
+    interface Resource {
+
+        StepList getPrepareSteps() ;
+        StepList getReleaseSteps() ;
+
+        private schedule()
+            {
+
+            // Execution start time is set by the offer.
+            // Work **backwards** along the prepare steps, seting the start time for each.
+            // start = start - step.duration
+            // step.start = start
+            //
+
+            Instant prepareStart = session.getStart();
+            for (AbstractExecutionStep step : getPrepareSteps().backwards())
+                {
+                prepareStart = prepareStart - STEP_BUFFER ;
+                prepareStart = prepareStart - step.getPrepareDuration();
+                step.setPrepareInstant(prepareStart);
+                }
+
+
+            Instant releaseStart = session.getStart() + session.getDuration();
+            for (AbstractExecutionStep step : getReleaseSteps().forwards())
+                {
+                releaseStart = releaseStart + STEP_BUFFER ;
+                releaseStart = releaseStart + step.getReleaseDuration();
+                step.setReleaseInstant(releaseStart);
+                }
+            }
+        }
+
+    Adding a type of resource adds the prepare and release steps to the session.
+
+    Steps are attached to a resource.
+    Preparing a resource takes steps.
+    Releasing a resource takes steps.
+
+    Preparing a session executes the prepare steps for all of the session resources.
+    Releasing a session executes the release steps for all of the session resources.
+
+    A resource has lifetime offsets, before and after the session execution.
+    Steps are timed to meet those offsets.
+
+    Each session has resources.
+    Each resource has steps.
+    The lists of steps also need to be accessible from the session.
+
+    Find the next steps to be executed for a session,
+    it doesn't matter which resource ..
+
+        SELECT
+            step
+        FROM
+            steps
+        WHERE
+            session = :session:
+        OR
+            step.phase IN (WAITING)
+        AND
+            step.prev = null
+        OR
+            step.prev.phase IN (COMPLETED)
+        ORDER BY
+            step.preparestart
+
+    The first and last steps for a resource will update the resource phase.
+
+    class PrepareBeginStep
+        extends AbstractStep
+        {
+        void execute()
+            {
+            resource.setPhase(PREPARING);
+            }
+        }
+
+    class PrepareDoneStep
+        extends AbstractStep
+        {
+        void execute()
+            {
+            resource.setPhase(READY);
+            }
+        }
+
+    class ReleaseBeginStep
+        extends AbstractStep
+        {
+        void execute()
+            {
+            resource.setPhase(RELEASING);
+            }
+        }
+
+    class ReleaseDoneStep
+        extends AbstractStep
+        {
+        void execute()
+            {
+            resource.setPhase(RELEASED);
+            }
+        }
+
+    If there are no more steps for a session,
+    then update the session status.
+
+# -----------------------------------------------------
+
+

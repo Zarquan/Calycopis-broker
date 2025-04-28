@@ -24,13 +24,9 @@ package net.ivoa.calycopis.datamodel.resource.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator.Result;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator.ResultBean;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -165,22 +161,18 @@ implements AbstractDataResourceValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            Builder<AbstractDataResourceEntity> builder = new Builder<AbstractDataResourceEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public AmazonS3DataResourceEntity build(ExecutionSessionEntity parent)
+                public AmazonS3DataResourceEntity build(ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
@@ -193,14 +185,6 @@ implements AbstractDataResourceValidator
                 dataResult
                 );
             //
-            // Save the StorageResource in the state.
-            /*
-             * Probably already done.
-            state.addStorageValidatorResult(
-                storageResult
-                );
-             * 
-             */
             // Add the link between the DataResource and StorageResource.
             context.addDataStorageResult(
                 dataResult,

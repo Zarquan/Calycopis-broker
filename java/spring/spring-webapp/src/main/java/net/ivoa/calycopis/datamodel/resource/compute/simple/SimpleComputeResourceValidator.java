@@ -31,7 +31,6 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
@@ -41,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -130,7 +129,9 @@ implements AbstractComputeResourceValidator
         log.debug("Resource [{}]", requested);
 
         boolean success = true ;
-        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource();
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource(
+            SimpleComputeResource.TYPE_DISCRIMINATOR
+            );
 
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
@@ -293,6 +294,8 @@ implements AbstractComputeResourceValidator
         log.debug("Processing the volume mounts");
         if (requested.getVolumes() != null)
             {
+            /*
+             * TODO
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
@@ -319,6 +322,8 @@ implements AbstractComputeResourceValidator
                     // error unmatched data resource ...
                     }
                 }
+             * 
+             */
             }
         log.debug("Done processing the volume mounts");
 
@@ -327,29 +332,19 @@ implements AbstractComputeResourceValidator
         // Create our result and add it to our state.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            ComputeResourceEntityBuilder builder = new ComputeResourceEntityBuilder()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleComputeResourceEntity build(final ExecutionSessionEntity parent, final ComputeResourceOffer offer)
+                public SimpleComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated,
                         offer
                         );
                     }
-
-                @Override
-                public AbstractComputeResourceEntity build(ExecutionSessionEntity parent)
-                    {
-                    return null;
-                    }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,

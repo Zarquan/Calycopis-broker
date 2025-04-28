@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.storage.simple;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,7 +32,6 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -65,11 +63,11 @@ public class SimpleStorageResourceEntityFactoryImpl
             );
         }
 
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
+    public SimpleStorageResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template)
         {
         return this.repository.save(
             new SimpleStorageResourceEntity(
-                parent,
+                session,
                 template
                 )
             );

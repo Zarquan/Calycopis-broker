@@ -18,17 +18,23 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEnti
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMount;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
@@ -73,6 +79,12 @@ public class OfferSetRequestParserImpl
     private final AbstractDataResourceValidatorFactory dataValidators;
 
     /**
+     * Volume mount Validators.
+     * 
+     */
+    private final AbstractVolumeMountValidatorFactory volumeValidators;
+
+    /**
      * Compute resource Validators.
      * 
      */
@@ -84,14 +96,16 @@ public class OfferSetRequestParserImpl
         final AbstractExecutableValidatorFactory executableValidators,
         final AbstractStorageResourceValidatorFactory storageValidators, 
         final AbstractDataResourceValidatorFactory dataValidators, 
+        final AbstractVolumeMountValidatorFactory volumeValidators, 
         final AbstractComputeResourceValidatorFactory computeValidators,
         final ExecutionSessionEntityFactory executionSessionFactory
         ){
         super();
-        this.computeOfferFactory    = offerBlockFactory ;
+        this.computeOfferFactory  = offerBlockFactory ;
         this.executableValidators = executableValidators ;
         this.storageValidators    = storageValidators ;
         this.dataValidators       = dataValidators ;
+        this.volumeValidators     = volumeValidators ;
         this.computeValidators    = computeValidators ;
         this.executionSessionFactory = executionSessionFactory;
         }
@@ -114,6 +128,7 @@ public class OfferSetRequestParserImpl
     
     /**
      * Validate the request components.
+     * TODO Move this into an OfferSetValidator.
      * 
      */
     public void validate(final OfferSetRequestParserContext context)
@@ -162,6 +177,21 @@ public class OfferSetRequestParserImpl
                     // TODO Check the result ?
                     }
                 }
+            //
+            // Validate the requested volume mounts.
+            log.debug("Validating the requested volume mounts");
+            if (offersetRequest.getResources().getVolumes() != null)
+                {
+                for (IvoaAbstractVolumeMount resource : offersetRequest.getResources().getVolumes())
+                    {
+                    volumeValidators.validate(
+                        resource,
+                        context
+                        );
+                    // TODO Check the result ?
+                    }
+                }
+
             //
             // Validate the requested compute resources.
             log.debug("Validating the requested compute resources");
@@ -247,7 +277,7 @@ public class OfferSetRequestParserImpl
 
     
 //
-// TOD Move this part to a separate schedule validator.
+// TODO Move this part to a separate schedule validator.
 //
     
     /**
@@ -408,7 +438,7 @@ public class OfferSetRequestParserImpl
                     context.getTotalMinMemory()
                     );
                 //
-                // Create an ExecutionSession for each block. 
+                // Create an ExecutionSession for each offer. 
                 for (ComputeResourceOffer computeOffer : computeOffers)
                     {
                     log.debug("OfferBlock [{}]", computeOffer.getStartTime());
@@ -419,7 +449,7 @@ public class OfferSetRequestParserImpl
                         );
                     log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
-                    log.debug("Executable [{}]", context.getExecutableResult());
+                    log.debug("Executable [{}]", context.getExecutableResult().getObject());
 
                     //
                     // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
@@ -431,22 +461,38 @@ public class OfferSetRequestParserImpl
                         );
                     
                     //
-                    // Build and add our first compute resource - ignore the rest.
-                    List<AbstractComputeResourceValidator.Result> computeValidatorResults = context.getComputeValidatorResults();                    
-                    AbstractComputeResourceValidator.Result computeValidatorResult = computeValidatorResults.getFirst();
-                    if (computeValidatorResult != null)
+                    // Add our compute resources
+                    for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
                         {
-                        AbstractComputeResourceEntity computeResourceEntity = computeValidatorResult.getBuilder().build(
+                        result.getBuilder().build(
                             executionSessionEntity,
                             computeOffer
                             );
                         }
-
                     //
-                    // TODO Add data resources.
+                    // Add our storage resources.
+                    for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
+                        {
+                        result.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        }
                     //
-                    // TODO Add storage resources.
+                    // Add our data resources.
+                    for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
+                        {
+                        result.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        }
                     //
+                    // Add our volume mounts.
+                    for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
+                        {
+                        result.getBuilder().build(
+                            executionSessionEntity
+                            );
+                        }
                     
                     //
                     // Confirm we have at least one result.

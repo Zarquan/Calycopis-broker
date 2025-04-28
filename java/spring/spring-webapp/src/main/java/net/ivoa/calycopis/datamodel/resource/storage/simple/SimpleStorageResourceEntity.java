@@ -28,6 +28,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -59,13 +60,34 @@ public class SimpleStorageResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template)
+    public SimpleStorageResourceEntity(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template)
         {
         super(
-            parent,
+            session,
             template.getName()
             );
         // TODO Add the fields ...
+        }
+    
+    @Override
+    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
+        {
+        IvoaSimpleStorageResource bean = new IvoaSimpleStorageResource(
+            SimpleStorageResource.TYPE_DISCRIMINATOR
+            );
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        return bean ;
         }
     }
 

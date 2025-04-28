@@ -35,10 +35,10 @@ public interface AbstractStorageResource
      * Get the parent ExecutionSession.  
      *
      */
-    public ExecutionSession getParent();
+    public ExecutionSession getSession();
 
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractStorageResource getIvoaBean(final String baseurl);

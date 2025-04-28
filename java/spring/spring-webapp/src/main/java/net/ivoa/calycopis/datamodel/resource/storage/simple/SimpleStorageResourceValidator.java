@@ -24,10 +24,8 @@ package net.ivoa.calycopis.datamodel.resource.storage.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -92,44 +90,40 @@ implements AbstractStorageResourceValidator
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource();
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
+            SimpleStorageResource.TYPE_DISCRIMINATOR
+            );
 
         //
-        // Check for maximum limits,
-        // Validate the lifetime values,
+        // Check maximum size limit,
+        // Validate the lifetime syntax,
         //
 
         validated.setName(requested.getName());
         
         //
         // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Create our result and add it to our context.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            Builder<AbstractStorageResourceEntity> builder = new Builder<AbstractStorageResourceEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleStorageResourceEntity build(final ExecutionSessionEntity executionSession)
+                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        executionSession,
+                        session,
                         validated
                         );
                     }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
                 );
-            //
-            // Save the DataResource in the state.
+
             context.addStorageValidatorResult(
                 storageResult 
                 );

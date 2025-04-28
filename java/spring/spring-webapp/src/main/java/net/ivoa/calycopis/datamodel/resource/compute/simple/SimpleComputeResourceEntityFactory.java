@@ -50,7 +50,7 @@ public interface SimpleComputeResourceEntityFactory
      *
      */
     public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaSimpleComputeResource template,
         final ComputeResourceOffer offer
         );

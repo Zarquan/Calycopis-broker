@@ -38,7 +38,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "dataresources"
+    name = "abstractdataresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
@@ -61,22 +61,22 @@ implements AbstractDataResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractDataResourceEntity(final ExecutionSessionEntity parent, final String name)
+    protected AbstractDataResourceEntity(final ExecutionSessionEntity session, final String name)
         {
         super(name);
-        this.parent = parent;
-        parent.addDataResource(
+        this.session = session;
+        session.addDataResource(
             this
             );
         }
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
+    private ExecutionSessionEntity session;
     
     @Override
-    public ExecutionSessionEntity getParent()
+    public ExecutionSessionEntity getSession()
         {
-        return this.parent ;
+        return this.session ;
         }
     }

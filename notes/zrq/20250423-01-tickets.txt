@@ -1,0 +1,107 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    PI26 - Coral Team Sprint 26.3 Review & Retrospective
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=325584349
+
+    PI26 - Coral Team Iteration 26.4 Planning
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=325584346
+
+
+    [COR-843] [ExecBroker] Add new component to the ExecutionBroker data model to represent a SRCNetDataProduct with the required metadata
+    https://jira.skatelescope.org/browse/COR-843
+
+        in progress
+        updating prototype to handle data resources
+        updating prototype to handle storage resources
+        updating prototype to handle platform plugins
+
+
+    [COR-857] [ExecBroker] Python module to query the DataLink and DataManagment services to collect the required metadata
+    https://jira.skatelescope.org/browse/COR-857
+
+        delayed until May
+        need code to upload test data to experiment with
+        need code to place replicas at specific locations
+
+    [COR-864] [ExecBroker] Implement code in the ExecutionBroker prototype that uses the replica information to calculate a time estimate
+    https://jira.skatelescope.org/browse/COR-864
+
+        delayed until May
+        need code to upload test data to experiment with
+        need code to place replicas at specific locations
+        depends on COR-843
+        depends on COR-857
+
+
+
+    [COR-821] ivo://.... identifiers for SRCNet DataProducts
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=319989873
+    [ExecBroker] Agree on the format for ivo://xxx identifiers for SRCNet DataProducts and update the data in the SRCNet services
+    https://jira.skatelescope.org/browse/COR-821
+
+        Not done yet
+
+        General principle accepted
+        Needs updating to add ideas for field, project etc..
+        see Data Model View
+        Needs to be reviewed at the next architecture meeting
+        Need to upload test data to show best oractice
+
+        New task for next iter Add code to ingestion tools to help get the right identifiers.
+
+
+    Data Model View - SKA Regional Centre Network project - SKAO Community Confluence
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=296944623
+
+
+
+
+
+    [COR-822] [ExecBroker] Identify what additional meta data, if any, needs to be added to the ObsCore/TAP and DataLink responses
+    https://jira.skatelescope.org/browse/COR-822
+
+        Done
+
+    [COR-842] [ExecBroker] Update data in the SRCNet TAP services
+    https://jira.skatelescope.org/browse/COR-842
+
+        Discarded
+
+
+    Miro board
+    https://miro.com/app/board/uXjVIYlE6_4=/
+
+

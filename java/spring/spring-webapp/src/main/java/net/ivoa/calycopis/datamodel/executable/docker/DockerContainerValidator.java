@@ -22,12 +22,9 @@
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,7 +33,6 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -100,7 +96,9 @@ implements AbstractExecutableValidator
         log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaDockerContainer validated = new IvoaDockerContainer();
+        IvoaDockerContainer validated = new IvoaDockerContainer(
+            DockerContainer.TYPE_DISCRIMINATOR
+            );
 
         //
         // Validate the executable name.
@@ -168,20 +166,17 @@ implements AbstractExecutableValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success - creating Result.");
-
-            Builder<AbstractExecutableEntity> builder = new Builder<AbstractExecutableEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public AbstractExecutableEntity build(final ExecutionSessionEntity parent)
+                public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
                     return factory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }
                 };
-
             AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,

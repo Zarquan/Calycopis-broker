@@ -60,10 +60,10 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionSessionEntity parent, final IvoaSimpleDataResource template)
+    public SimpleDataResourceEntity(final ExecutionSessionEntity session, final IvoaSimpleDataResource template)
         {
         super(
-            parent,
+            session,
             template.getName()
             );
         this.location = template.getLocation();
@@ -85,12 +85,18 @@ public class SimpleDataResourceEntity
         bean.setUuid(
             this.getUuid()
             );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
         bean.setMessages(
             this.getMessageBeans()
             );
-
-        // TODO fill in the fields 
-                
+        bean.setLocation(
+            this.getLocation()
+            );
         return bean;
         }
     }

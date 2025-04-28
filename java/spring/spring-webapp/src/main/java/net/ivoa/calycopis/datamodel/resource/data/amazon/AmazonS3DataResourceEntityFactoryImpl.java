@@ -65,11 +65,11 @@ public class AmazonS3DataResourceEntityFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final IvoaAmazonS3DataResource template)
         {
         return this.repository.save(
             new AmazonS3DataResourceEntity(
-                parent,
+                session,
                 template
                 )
             );

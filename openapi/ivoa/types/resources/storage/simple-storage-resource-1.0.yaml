@@ -48,29 +48,22 @@ components:
       properties:
         size:
           $ref: 'SimpleStorageSize'
+        resources:
+          description: >
+            A list of the data resources stored in this storage resource.
+          type: array
+          items:
+            type: string
 
-    # TODO Move this to the abstract class, all storeage has a size.
     SimpleStorageSize:
       description: |
-        The size of storage requested and offered.
-      type: object
-      name:  SimpleStorageSize
-      title: SimpleStorageSize
-      properties:
-        requested:
-          $ref: 'SimpleStorageSizeRequested'
-        offered:
-          $ref: 'SimpleStorageSizeOffered'
-
-    SimpleStorageSizeRequested:
-      description: |
-        The size of storage requested by the user.
+        The size of storage requested.
         The minimum represents the minimum size the excution requires.
         The maximum represents the maximum size that the excution can use.
         All values are given in multiples of 'GiB'.
       type: object
-      name:  SimpleStorageSizeRequested
-      title: SimpleStorageSizeRequested
+      name:  SimpleStorageSize
+      title: SimpleStorageSize
       properties:
         min:
           type: integer
@@ -79,20 +72,4 @@ components:
           type: integer
           format: int64
 
-    SimpleStorageSizeOffered:
-      description: |
-        The size of storage offerd by the service.
-        The minimum represents the minimum size that the storage is allocated.
-        The maximum represents the maximum size that the storage is able to expand to.
-        All values are given in multiples of 'GiB'.
-      type: object
-      name:  SimpleStorageSizeOffered
-      title: SimpleStorageSizeOffered
-      properties:
-        min:
-          type: integer
-          format: int64
-        max:
-          type: integer
-          format: int64
 

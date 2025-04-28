@@ -1,0 +1,389 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    CANFARContainerEntityFactory
+    extends
+    DockerContainerEntityFactory
+    create(...)
+
+        executable = save(
+            new DockerContainerEntity
+            )
+        executable.configure()
+
+    CANFARContainerEntityFactory
+    configure()
+        Adds the steps, using appropriate StepFactory
+
+        docker.addStep(
+            factory.create CANFARContainerLaunchStep(
+                prev = null
+                )
+            )
+
+        DockerContainerLaunchStep
+        configure()
+
+            Launch duration depends on size & location of the image.
+            Iterate the list of URLS and estimate the download time.
+            Pick the URL that has the lowest estimated download time.
+            Update the Step to use the best URL.
+            duration = downloadrate * size
+
+        CANFARContainerLaunchStep
+        extends
+        DockerContainerLaunchStep
+        configure()
+
+            No CANFAR specific steps.
+
+
+    SimpleDataResourceEntityFactory
+    create(....)
+
+        resource = save(
+            new SimpleDataResourceEntity(
+                storage
+                )
+            )
+        resource.configure()
+
+    SimpleDataResourceEntity
+    configure()
+
+        Adds the steps, using appropriate StepFactory
+        Three steps, wait, download, checksum.
+
+        wait = resource.addStep(
+            WaitforStorageStep(
+                prev = null
+                storage = resource.storage
+                )
+            )
+
+        WaitforStorageStep
+            configure()
+            getDuration() IS storage.getPrepareDuration()
+
+        download = resource.addStep(
+            SimpleDownloadStep(
+                prev = wait
+                )
+            )
+
+        SimpleDownloadStep
+        configure()
+            duration = estimate based on location and size
+
+        checksum = resource.addStep(
+            SimpleChecksumStep(
+                prev = download
+                )
+            )
+
+        SimpleChecksumStep
+        configure()
+            duration = estimate based on size
+
+
+    SimpleStorageResourceEntity
+
+        resource = save(
+            new SimpleStorageResourceEntity
+            )
+        resource.configure()
+
+        SimpleStorageResourceEntity
+        configure()
+            Adds the steps, using appropriate StepFactory
+            v1.x we only have one simple step
+
+        allocate = resource.addStep(
+            AllocateStorageStep(
+                prev = null
+                )
+            )
+        allocate.configure()
+
+        AllocateStorageStep
+        configure()
+            duration = fixed delay
+
+
+    CANFARContainerEntity
+    extends
+    DockerContainerEntity
+    schedule()
+        Working backwards from session.getStartInstant()
+        Sets the start time for each step based on their durations
+
+        DockerContainerLaunchStep
+        schedule()
+
+            prev === null
+            start = session.getStartInstant() - (this.duration)
+
+        CANFARContainerLaunchStep
+        extends
+        DockerContainerLaunchStep
+        schedule()
+
+            No CANFAR specific steps.
+
+
+    SimpleDataResourceEntity
+    schedule()
+
+        Working backwards from session.getStartInstant()
+        Sets the start time for each step based on their durations
+
+        SimpleDataChecksumStep
+        schedule()
+            this.start = session.getStartInstant() - this.duration
+
+        SimpleDataDownloadStep
+        schedule()
+            this.start = prev.start - this.duration
+
+        WaitforStorageStep
+        schedule()
+            this.start = prev.start - storage.getPrepareDuration()
+
+
+
+    SimpleStorageResourceEntity
+    schedule()
+
+        Working backwards from session.getStartInstant()
+        Sets the start time for each step based on their durations
+
+        The earliest start of the data resources
+            start = min(data[].start) - duration
+        OR
+        The lifetime before the start of the session.
+            start = session.getStartInstant() - lifetime.before
+        whichever is earlier
+
+        Now we know when the storage is needed we can try to book it.
+        If storage is not available, withdraw the offer.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Problem - this design splits storage and data download.
+but in a CANFAR system, they are part of user VOSpace
+VOSpace provides the storage, and VOSpace does the download for us
+
+In the SKAO system, local storage is managed by the system
+prepareData downloads the data from Rucio into the local storage
+
+In a Docker based system, the download needs to have access to the target volume
+In a Openstack based system, the download needs to have access to the target volume
+In a K8S based system, the download needs to have access to the target volume
+In all of these, the storage volume needs to be created/mounted before the transfer is done.
+
+So we need a plugin to link the SimpleDataDownloadStep with the storage
+VOSpaceDataAgent
+download(URL)
+
+GenericDataAgent
+download(URL)
+
+SRCNetDataAgent
+download(URL)
+
+Things are tangled up here.
+The user says where the data is, http, S3 or SRCNet
+The system says where the storage is
+The download step needs access to the storage
+
+    HTTP data
+    http download onto a volume, needs to mount the volume in something
+    an extra VM or a container
+    download step runs in the container
+    and the volume needs to persist after the download
+
+        CanfarDownloadStep
+        VOSpaceDownloadStep
+        extends
+        HTTPDownloadStep
+            storage -> VOSpaceStorageResource
+            execute()
+                storage.service.pullToVOSpace()
+
+        PodmanDownloadStep
+        extends
+        HTTPDownloadStep
+            storage -> PodmanVolume
+            execute()
+                podman volume create ...
+                podman run httpdownloadagent
+                    --volume = storage.getVolumeName()
+
+
+    SRCNet data
+    the space already exists
+    we are accounting for (some) of the space
+    download step calls preparedata
+
+
+    Is the grouping based on the Platform ?
+
+    CanfarPlatform
+    extends
+    Platform
+
+        getStorageResourceEntityFactory()
+
+            CanfarStorageResourceEntityFactory
+            extends
+            StorageResourceEntityFactory
+
+            create(...)
+             => CanfarStorageResourceEntity
+
+        CanfarStorageResourceEntity
+        extends
+        SimpleStorageResourceEntity
+
+        getBookingAgent()
+         => VOSpaceBookingAgent
+            extends
+            BookingAgent
+            execute()
+                // Book resource.size from resource.prepare.start until resource.release.done
+                ....
+
+        getAllocateStepAgent()
+            VOSpaceAllocateAgent
+            extends
+            ExecutionStep
+                storage -> CanfarStorageResourceEntity
+            execute()
+                // Create a directory in VOSpace
+                storage.getService().createDir(path)
+
+        getTransferStepAgent()
+            VOSpaceTransferAgent
+            extends
+            ExecutionStep
+
+                storage -> CanfarStorageResourceEntity
+            execute()
+                // Transfer the data into VOSpace
+                storage.getService().pullToVOSpace(endpoint)
+
+    PodmanPlatform
+    extends
+    Platform
+
+        getStorageResourceEntityFactory()
+
+            PodmanStorageResourceEntityFactory
+            extends
+            SimpleStorageResourceEntityFactory
+
+            create(...)
+             => PodmanStorageResourceEntity
+
+        PodmanStorageResourceEntity
+        extends
+        SimpleStorageResourceEntity
+
+        getAllocateAgent()
+            PodmanAllocateAgent
+            extends
+            AbstractExecutionStepEntity
+            execute()
+                podman volume create
+
+        getDownloadAgent()
+            PodmanDownloadAgent
+            extends
+            AbstractExecutionStepEntity
+                storage -> PodmanStorageResourceEntity
+            execute()
+                podman run 'httpdownloadagent:1.1'
+                --volume storage.getVolume()
+
+
+
+
+    Validate executable
+    Validate storage
+    Validate data
+        create data storage
+        size = data.size
+
+    verify storage size >= sum(data[].size)
+
+    Create executable
+    Create storage
+    Create data
+
+    schedule data
+    schedule storage // storage start is based on data preptime
+        book storage offer // Offer is rejected if storage is not available.
+
+# -----------------------------------------------------
+
+    Podman implementation
+    https://github.com/jponge/podman-java-client
+
+    HttpDownloadTool
+
+        curl \
+            --silent \
+            --write-out '%{json}' \
+            --output 20230819_104243.jpg \
+            http://www.beespace.me/sites/www.beespace.me/files/styles/large/public/field/image/20230819_104243.jpg \
+            | jq '.'
+
+
+
+

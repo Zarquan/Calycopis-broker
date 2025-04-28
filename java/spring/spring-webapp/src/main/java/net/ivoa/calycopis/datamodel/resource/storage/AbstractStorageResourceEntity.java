@@ -32,19 +32,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
  */
 @Entity
 @Table(
-    name = "storageresources"
+    name = "abstractstorageresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class AbstractStorageResourceEntity
+public abstract class AbstractStorageResourceEntity
 extends ComponentEntity
 implements AbstractStorageResource
     {
@@ -62,33 +61,22 @@ implements AbstractStorageResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractStorageResourceEntity(final ExecutionSessionEntity parent, final String name)
+    protected AbstractStorageResourceEntity(final ExecutionSessionEntity session, final String name)
         {
         super(name);
-        this.parent = parent;
-        parent.addStorageResource(
+        this.session = session;
+        session.addStorageResource(
             this
             );
         }
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
+    private ExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getParent()
+    public ExecutionSessionEntity getSession()
         {
-        return this.parent;
-        }
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
-        }
-    
-    @Override
-    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
-        {
-        // TODO Auto-generated method stub
-        return null;
+        return this.session;
         }
     }

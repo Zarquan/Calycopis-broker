@@ -18,7 +18,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "executables"
+    name = "abstractexecutables"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
@@ -40,26 +40,22 @@ public abstract class AbstractExecutableEntity
      * Protected constructor.
      * 
      */
-    protected AbstractExecutableEntity(final ExecutionSessionEntity parent, final String name)
+    protected AbstractExecutableEntity(final ExecutionSessionEntity session, final String name)
         {
         super(name);
-        this.parent = parent;
-        parent.setExecutable(
+        this.session = session;
+        session.setExecutable(
             this
             );
         }
     
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity parent;
+    private ExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getParent()
+    public ExecutionSessionEntity getSession()
         {
-        return this.parent;
-        }
-    public void setParent(final ExecutionSessionEntity parent)
-        {
-        this.parent = parent;
+        return this.session;
         }
     }

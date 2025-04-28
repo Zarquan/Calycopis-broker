@@ -1,0 +1,148 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Resolve storage issues
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        Podman hangs when attempting to mount the same volume on multiple mountpoints
+        https://github.com/containers/podman/issues/8221
+        Looks like this is fixed, implying it is allowed.
+
+# -----------------------------------------------------
+
+    Why do we have abstract data objects ?
+    Used in SoftwareDiscovery to describe single input or output file.
+    An individual cube.
+
+    Why do we have abstract data collections ?
+    Used in SoftwareDiscovery to describe a set of input or output files.
+    A set of spectra.
+
+    The difference is cardinality, but also what we do with the name.
+    For a single file, the name is for the file, for a set, the name is for the directory.
+    Otherwise we need complicated if-then-else rules - see rsync.
+
+# -----------------------------------------------------
+
+    Why do we have instance volumes ?
+    To mount a specific DataResource as a single file.
+    The path/name is for the file.
+        A file
+        A bind-mount of a file in a pool
+
+    Why do we have collection volumes ?
+    To mount a group of DataResources as a directory.
+    The path/name is for the directory.
+        A directory of files
+        A bind-mount of a directory in a pool
+        A directory of bind-mounts to objects in multiple pools
+
+# -----------------------------------------------------
+
+    The compute volumes describe how they are mounted.
+
+    The metadata objects describe their science metadata.
+
+    The data access objects describe how to download them.
+
+# -----------------------------------------------------
+
+    Data can't appear twice.
+
+    A data access resource can only be linked to one metadata resource.
+
+    A data resource can only be linked to one volume mount.
+
+# -----------------------------------------------------
+
+    Do we want to split the data resources into abstract and real ?
+
+    resources.science
+    resources.data
+
+    OR
+
+    resources.data.metadata
+    resources.data.access
+
+    resources:
+      compute:
+        - name: ...
+          volumes:
+            - path: ...
+              type: ..../instance # Single thing mounted at 'path'
+              card: single
+              resource: <ref> # data resource mounted at 'path'
+
+            - path: ...
+              type: ..../collection # Directory of things mounted at 'path'
+              card: multiple
+              resources:
+                - <ref> # data meta resource, instance - one data resource
+                - <ref> # data meta resource, collection - collection of resources, as a directory
+                - <ref> # data access resource - one data resource
+                - <ref> # storage resource - all of the data in that storage resource
+
+      data:
+          metadata:
+            - name: ....
+              type: ..../instance
+              card: single
+              resource: <ref> # data access resource
+
+            - name: ....
+              type: ..../collection
+              card: multiple
+              resources:
+                - <ref> # data access resource
+                - <ref> # data access resource
+
+          access:
+            - name: ....
+              type: ..../http
+              storage: <ref> # storage resource
+
+            - name: ....
+              type: ..../srcnet
+              storage: <ref> # storage resource
+
+            - name: ....
+              type: ..../srcnet
+              storage: <ref> # storage resource
+
+      storage:
+            - name: ....
+              type: ..../http
+              data:
+                - <ref> # data access resource
+                - <ref> # data access resource
+

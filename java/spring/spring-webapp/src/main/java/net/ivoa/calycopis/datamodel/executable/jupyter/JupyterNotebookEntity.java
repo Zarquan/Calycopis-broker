@@ -25,6 +25,8 @@ package net.ivoa.calycopis.datamodel.executable.jupyter;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
@@ -42,6 +44,9 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 @DiscriminatorValue(
     value = "uri:jupyter-notebook"
     )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
 public class JupyterNotebookEntity
     extends AbstractExecutableEntity
     implements JupyterNotebook
@@ -52,10 +57,10 @@ public class JupyterNotebookEntity
         super();
         }
 
-    protected JupyterNotebookEntity(final ExecutionSessionEntity parent, final IvoaJupyterNotebook template)
+    protected JupyterNotebookEntity(final ExecutionSessionEntity session, final IvoaJupyterNotebook template)
         {
         super(
-            parent,
+            session,
             template.getName()
             );
         this.location = template.getLocation();
@@ -77,10 +82,18 @@ public class JupyterNotebookEntity
         bean.setUuid(
             this.getUuid()
             );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
         bean.setMessages(
             this.getMessageBeans()
             );
-        bean.location(this.getLocation());
-        return null;
+        bean.location(
+            this.getLocation()
+            );
+        return bean;
         }
     }

@@ -169,7 +169,7 @@ public class ExecutionSessionEntityFactoryImpl
                                         );
                                      * 
                                      */
-                                    for (ExecutionSessionEntity sibling : entity.getParent().getOffers())
+                                    for (ExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
                                         {
                                         if (sibling != entity)
                                             {

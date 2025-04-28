@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.resource.storage;
 
-import net.ivoa.calycopis.functional.builder.Builder;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
@@ -34,17 +34,34 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 public interface AbstractStorageResourceValidator
 extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
+    /**
+     * Public interface for an entity builder.
+     * 
+     */
+    public static interface EntityBuilder
+        {
+        /**
+         * Build an entity based on a validation result. 
+         *
+         */
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
+        }
 
     /**
-     * Public interface for a StorageResourceValidator result.
+     * Public interface for a validator result.
      * 
      */
     public static interface Result
     extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
         {
         // A list of the data resources stored in this resource.
+        /**
+         * Create a builder with the validation result.
+         * 
+         */
+        public EntityBuilder getBuilder();
         }
-
+    
     /**
      * Simple Bean implementation of a StorageResourceValidator result.
      * 
@@ -69,13 +86,19 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractStorageResource object,
-            final Builder<AbstractStorageResourceEntity> builder
+            final EntityBuilder builder
             ){
             super(
                 result,
-                object,
-                builder
+                object
                 );
+            this.builder = builder;
+            }
+
+        private EntityBuilder builder ;
+        public EntityBuilder getBuilder()
+            {
+            return this.builder;
             }
         }
     }

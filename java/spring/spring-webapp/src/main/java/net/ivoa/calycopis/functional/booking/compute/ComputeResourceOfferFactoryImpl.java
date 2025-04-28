@@ -259,13 +259,13 @@ public class ComputeResourceOfferFactoryImpl
                 FROM
                     Sessions
                 JOIN
-                    ComputeResources
+                    AbstractComputeResources
                 ON
-                    ComputeResources.parent = Sessions.uuid
+                    AbstractComputeResources.session = Sessions.uuid
                 JOIN
                     SimpleComputeResources
                 ON
-                    SimpleComputeResources.uuid = ComputeResources.uuid
+                    SimpleComputeResources.uuid = AbstractComputeResources.uuid
                 WHERE
                     Sessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
                 ),

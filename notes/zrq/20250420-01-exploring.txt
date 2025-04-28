@@ -1,0 +1,292 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring ideas ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    What do we want the steps to do ?
+
+
+    Docker Container
+
+        prepare
+
+            depends
+                all data is ready
+                all storage is ready
+
+            Download the image into local Harbour.
+                Guess 2min/GB to download for docker.io
+                Guess 1min/GB to download for github.io
+
+            Launch the container
+                Guess 10sec to launch
+
+        release
+
+            Stop the container
+                Guess 10s to stop
+
+
+    Simple Storage
+
+        prepare
+
+            Allocate the space
+                Guess 1/100 sec/GB to allocate
+
+        release
+
+            depends
+                executable is done
+                data is released
+
+            Release the space
+                Guess 1/100 sec/GB to release
+
+    SimpleData
+
+        prepare
+
+            depends
+                storage is ready
+
+            Download the data
+                Guess 1 sec/MB to download
+
+        release
+
+            depends
+                executable is done
+
+            Release the data
+                no delay
+
+
+    Which is more important
+    The start times or the chain sequence ?
+    Do we just trigger on times, or do we trigger using the chain.
+
+    Do we need to complexity of the linked list in the database.
+
+    Only one or two steps per resource.
+    (make executable a resource)
+
+    We know how many steps per resource type.
+
+    How custom is each step ?
+
+
+
+
+    DockerContainerEntity
+        download
+        execute
+
+    SimpleDataResource
+        download
+        checksum
+        depends on storage
+        storage: SimpleStorageResource
+        schedule:
+            offset: downloadtime + checktime
+            start:  session.execute - offset
+
+    SimpleStorageResource
+        allocate - simple yes
+        release  - simple yes
+        data:
+          - SimpleDataResource
+        schedule:
+            offset: config
+            start:  min(data[].start) - offset
+
+    SRCNetDataResource
+        transfer
+        depends on storage
+        storage: SRCNetDataStorage
+        schedule:
+            offset: transfertime
+            start:  session.execute - offset
+
+    SRCNetDataStorage
+        allocate - simple yes
+        release  - simple yes
+        data:
+          - SRCNetDataResource
+        schedule:
+            offset: config
+            start:  min(data[].start) - offset
+
+    DataResource
+        OneToMany
+        StorageResource storage
+
+    StorageResource
+        ManyToOne
+        List<DataResource> data
+
+
+    1) calculate the offsets
+    2) calculate the start times
+        data first
+        storage second - storage has to be ready before data can be transferred
+
+# -----------------------------------------------------
+
+    Most of the steps are asynchronous.
+
+    The small 'OK' steps are may be synchronous.
+    Like 'check a directory is present'.
+
+
+
+# -----------------------------------------------------
+
+    DockerContainerEntityFactory
+
+        result = save(
+            new DockerContainerEntity
+            )
+
+        result.configure()
+            Adds the steps, using appropriate StepFactory
+
+            v1.x we only have one simple step
+            DockerContainerLaunchStep
+            Calls CANFAR REST API to launch the container.
+            Container launch duration will depend on size & location of the image
+            Iterate the list of URLS and estimate the download time.
+            Pick the URL that has the lowest estimated download time
+            Update the Step to use the best URL.
+            * We can't roll-over to the next URL on failure, because that would mess up the time estimate.
+            * Unless the time estimate took the longer time into account.
+
+            v2.x cache the image
+            v2.x monitor the execution
+            v2.x release at the end
+            v2.x switch to alternative download URL on failure
+
+
+        result.schedule()
+            Working backwards from session.getStartInstant()
+            Sets the start time for each step based on their durations
+
+                DockerContainerLaunchStep
+                start = session.getStartInstant() - (launch.duration + download.duration)
+
+    SimpleDataResourceEntity
+
+        result = save(
+            new SimpleDataResourceEntity
+            )
+
+        result.configure()
+            Adds the steps, using appropriate StepFactory
+
+            Three steps
+            waitstep = WaitforStorageStep
+                reference to the storage resource
+                duration is storage.getPreparation().getDuration()
+            download = SimpleDataDownloadStep
+                downloads the data, duration estimate based on size & location
+            checksum = SimpleDataChecksumStep
+                checksums the data, duration estimate based on size
+                verifies the result against the resource metadata
+                fails the session if the checksum is different
+
+        result.schedule()
+            Working backwards from session.getStartInstant()
+            Sets the start time for each step based on their durations
+
+            SimpleDataChecksumStep
+                start = session.getStartInstant() - checksum.duration
+            SimpleDataDownloadStep
+                start = checksum.start - download.duration
+            WaitforStorageStep
+                start = download.start - storage.getPreparation().getDuration()
+                storage.getPreparation().setMaximumStart(
+                    start
+                    )
+            but we don't know the storage schedule yet ..
+            here we can set the time we need to start preparing the data
+            which is when the storage resource needs to be ready
+                this.getPreparation().setStartInstant(
+                    download.start
+                    )
+
+    SimpleStorageResourceEntity
+
+        result = save(
+            new SimpleStorageResourceEntity
+            )
+
+        result.configure()
+            Adds the steps, using appropriate StepFactory
+            v1.x we only have one simple step
+
+            allocate = AllocateStorageStep
+                duration = fixed delay
+
+        result.schedule()
+            Working backwards from session.getStartInstant()
+            Sets the start time for each step based on their durations
+            The earliest start of the data resources
+                start = min(data[].start) - duration
+            OR
+            The lifetime before the start of the session.
+                start = session.getStartInstant() - lifetime.before
+            whichever is earlier
+
+            Now we know when the storage is needed we can try to book it.
+            If storage is not available, withdraw the offer.
+
+
+    Validate executable
+    Validate storage
+    Validate data
+        create data storage
+        size = data.size
+
+    verify storage size >= sum(data[].size)
+
+    Create executable
+    Create storage
+    Create data
+
+    schedule data
+    schedule storage // storage start is based on data preptime
+        book storage offer // Offer is rejected if storage is not available.
+
+
+
+

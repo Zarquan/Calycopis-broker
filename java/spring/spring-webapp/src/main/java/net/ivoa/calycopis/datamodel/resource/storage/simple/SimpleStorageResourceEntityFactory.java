@@ -48,7 +48,7 @@ public interface SimpleStorageResourceEntityFactory
      * Create a new SimpleStorageResourceEntity based on a template.
      *
      */
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity parent, final IvoaSimpleStorageResource template);
+    public SimpleStorageResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template);
 
     }
 

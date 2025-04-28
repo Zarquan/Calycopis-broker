@@ -59,16 +59,16 @@ public class SimpleComputeResourceEntity
         }
 
     /**
-     * Protected constructor with parent, template and offerblock.
+     * Protected constructor with session, template and offer.
      *
      */
     public SimpleComputeResourceEntity(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaSimpleComputeResource template,
         final ComputeResourceOffer offer
         ){
         super(
-            parent,
+            session,
             template.getName()
             );
 
@@ -95,11 +95,26 @@ public class SimpleComputeResourceEntity
 
         this.minofferedmemory = offer.getMemory();
         this.maxofferedmemory = offer.getMemory();
-        
+
+        //
+        // Add our volumes.
+        /*
+        for (IvoaSimpleComputeVolume volume : template.getVolumes())
+            {
+            this.volumes.add(
+                new SimpleComputeVolumeEntity(
+                    this,
+                    volume
+                    )
+                );                
+            }
+         * 
+         */
         }
 
     // Does this also have a start and end time ?
     // Does this also go through a similar set of state changes as the parent execution ?
+    // YES
     
     @Column(name="minrequestedcores")
     private Long minrequestedcores;
@@ -165,6 +180,30 @@ public class SimpleComputeResourceEntity
         return this.maxofferedmemory;
         }
 
+    /*
+     * TODO
+    @OneToMany(
+        mappedBy = "parent",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    protected List<SimpleComputeVolumeEntity> volumes = new ArrayList<SimpleComputeVolumeEntity>();
+    @Override
+    public List<SimpleComputeVolume> getVolumes()
+        {
+        return new ListWrapper<SimpleComputeVolume, SimpleComputeVolumeEntity>(
+            volumes
+            ){
+            public SimpleComputeVolume wrap(final SimpleComputeVolumeEntity inner)
+                {
+                return (SimpleComputeVolume) inner ;
+                }
+            };
+        }
+     * 
+     */
+    
     @Override
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
         {

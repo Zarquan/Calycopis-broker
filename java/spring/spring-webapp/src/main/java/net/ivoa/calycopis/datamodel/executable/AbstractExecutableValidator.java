@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
-import net.ivoa.calycopis.functional.builder.Builder;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
@@ -35,13 +35,31 @@ public interface AbstractExecutableValidator
 extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
     /**
-     * Public interface for an ExecutableValidator result.
+     * Public interface for an entity builder.
+     * 
+     */
+    public static interface EntityBuilder
+        {
+        /**
+         * Build an entity based on a validation result. 
+         *
+         */
+        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
+        }
+    
+    /**
+     * Public interface for a validator result.
      * 
      */
     public static interface Result
     extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
         {
         // A list of the compute resources this executable is deployed on ?.
+        /**
+         * Create a builder with the validation result.
+         * 
+         */
+        public EntityBuilder getBuilder();
         }
 
     /**
@@ -68,13 +86,19 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractExecutable object,
-            final Builder<AbstractExecutableEntity> builder
+            final EntityBuilder builder
             ){
             super(
                 result,
-                object,
-                builder
+                object
                 );
+            this.builder = builder;
+            }
+
+        private EntityBuilder builder ;
+        public EntityBuilder getBuilder()
+            {
+            return this.builder;
             }
         }
     }

@@ -49,6 +49,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
@@ -70,14 +71,14 @@ public class ExecutionSessionEntity
     implements ExecutionSession
     {
 
-    @JoinColumn(name = "parent", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "offerset", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private OfferSetEntity parent;
+    private OfferSetEntity offerset;
 
     @Override
-    public OfferSetEntity getParent()
+    public OfferSetEntity getOfferSet()
         {
-        return this.parent;
+        return this.offerset;
         }
 
     /**
@@ -93,15 +94,15 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferSetEntity parent, final OfferSetRequestParserContext state, final ResourceOffer offerblock)
+    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext state, final ResourceOffer offerblock)
         {
         super("no name");
         this.phase = IvoaExecutionSessionPhase.OFFERED;
-        this.parent = parent;
-        parent.addExecutionSession(
+        this.offerset = offerset;
+        offerset.addExecutionSession(
             this
             );
-        this.expires = parent.getExpires();
+        this.expires = offerset.getExpires();
         this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
 //      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
         this.exedurationsec   = state.getExecutionDuration().getSeconds();
@@ -187,7 +188,7 @@ public class ExecutionSessionEntity
         }
 
     @OneToOne(
-        mappedBy = "parent",
+        mappedBy = "session",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
@@ -204,7 +205,7 @@ public class ExecutionSessionEntity
         }
     
     @OneToMany(
-        mappedBy = "parent",
+        mappedBy = "session",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
@@ -225,7 +226,7 @@ public class ExecutionSessionEntity
         }
 
     @OneToMany(
-        mappedBy = "parent",
+        mappedBy = "session",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
@@ -246,11 +247,11 @@ public class ExecutionSessionEntity
         }
 
     @OneToMany(
-            mappedBy = "parent",
-            fetch = FetchType.LAZY,
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-            )
+        mappedBy = "session",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
     List<AbstractStorageResourceEntity> storageresources = new ArrayList<AbstractStorageResourceEntity>();
 
     @Override
@@ -266,13 +267,56 @@ public class ExecutionSessionEntity
             );
         }
 
+    @OneToMany(
+        mappedBy = "session",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
+
+    @Override
+    public List<AbstractVolumeMountEntity> getVolumeMounts()
+        {
+        return volumeMounts;
+        }
+         
+    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+        {
+        volumeMounts.add(
+            volume
+            );
+        }
+    
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {
-        return new ExecutionSessionResponseBean(
-            baseurl,
-            this
+        IvoaExecutionSessionResponse bean = new IvoaExecutionSessionResponse();
+        bean.setUuid(this.getUuid());
+        bean.setName(this.getName());
+        bean.setType(ExecutionSession.TYPE_DISCRIMINATOR);
+        bean.setCreated(this.getCreated());
+        bean.setExpires(this.getExpires());
+        bean.setPhase(this.getPhase());
+        bean.setHref(
+            baseurl + ExecutionSession.REQUEST_PATH + this.getUuid()
             );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.setExecutable(
+            this.getExecutable().getIvoaBean(
+                baseurl
+                )
+            );        
+
+        // TODO fill these in 
+        bean.setSchedule(null);
+        bean.setResources(null);
+        bean.setOptions(null);
+
+        
+        return bean;
         }
     }
 

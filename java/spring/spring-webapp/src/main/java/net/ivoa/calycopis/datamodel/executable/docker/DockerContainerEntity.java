@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,8 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
@@ -44,6 +47,8 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.execution.ExecutionStep;
+import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
@@ -66,6 +71,9 @@ import net.ivoa.calycopis.util.ListWrapper;
 @DiscriminatorValue(
     value = "uri:docker-executable"
     )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
 public class DockerContainerEntity
     extends AbstractExecutableEntity
     implements DockerContainer
@@ -77,11 +85,11 @@ public class DockerContainerEntity
         }
 
     protected DockerContainerEntity(
-        final ExecutionSessionEntity parent,
+        final ExecutionSessionEntity session,
         final IvoaDockerContainer template
         ){
         super(
-            parent,
+            session,
             template.getName()
             );
 
@@ -110,7 +118,7 @@ public class DockerContainerEntity
                 }
             }
         }
-    
+
     @Override
     public IvoaAbstractExecutable getIvoaBean(final String baseurl)
         {
@@ -118,10 +126,13 @@ public class DockerContainerEntity
             DockerContainer.TYPE_DISCRIMINATOR
             );
         bean.setUuid(
-                this.getUuid()
-                );
+            this.getUuid()
+            );
         bean.setName(
             this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
             );
         bean.setMessages(
             this.getMessageBeans()
@@ -174,7 +185,6 @@ public class DockerContainerEntity
 
         if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
             {
-            log.debug("Network ports [{}]", this.networkPorts);
             
             IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
 
@@ -372,4 +382,115 @@ public class DockerContainerEntity
                 }
             };
         }
+    
+    /**
+     * Build the prepare and release steps.
+     *
+     */
+    protected void configure(final TestExecutionStepEntityFactory factory)
+        {
+        getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 001"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 002"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 003"
+                )
+            );
+
+        getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 004"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 005"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 006"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 007"
+                )
+            );
+
+        getReleaseList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Step 008"
+                )
+            );
+        }
+    
+    protected void schedule()
+        {
+        //
+        // Calculate the start time of each step.
+        
+        }
+
+    protected void prepare()
+        {
+        for (ExecutionStep step : getPrepareList().forwards())
+            {
+            step.execute();
+            }
+        }
+
+    protected void release()
+        {
+        for (ExecutionStep step : getReleaseList().forwards())
+            {
+            step.execute();
+            }
+        }
+    
     }

@@ -26,20 +26,16 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSize;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageSizeRequested;
 
 /**
  * A Validator implementation to handle simple data resources.
@@ -131,8 +127,10 @@ implements AbstractDataResourceValidator
             }
         
         //
-        // Create our validated object.
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource();
+        // Create our validated bean.
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource(
+            SimpleDataResource.TYPE_DISCRIMINATOR
+            );
 
         validated.setUuid(
             requested.getUuid()
@@ -178,14 +176,17 @@ implements AbstractDataResourceValidator
                 IvoaAbstractStorageResource storageResource = storageResult.getObject(); 
                 if (storageResource != null)
                     {
+                    /*
+                     * This changes because storage can contain more than one data resource.
+                     * 
                     //
                     // Check the size is big enough.
                     if (storageResource instanceof IvoaSimpleStorageResource)
                         {
                         //
                         // Check the size is big enough.
-                        Long min = ((IvoaSimpleStorageResource) storageResource).getSize().getRequested().getMin(); 
-                        Long max = ((IvoaSimpleStorageResource) storageResource).getSize().getRequested().getMax();
+                        Long min = ((IvoaSimpleStorageResource) storageResource).getSize().getMin(); 
+                        Long max = ((IvoaSimpleStorageResource) storageResource).getSize().getMax();
                         if ((min >= size) && (max >= size))
                             {
                             log.debug("PASS : Storage is big enough [{}][{}][{}]", size, min, max);
@@ -212,6 +213,8 @@ implements AbstractDataResourceValidator
                     else {
                         log.warn("Unexpected storage type [{}]", storageResource.getClass().getName());
                         }
+ * 
+ */
                     }
                 // If the storage result doesn't have an object.
                 else {
@@ -244,17 +247,24 @@ implements AbstractDataResourceValidator
         //
         // If the data resource doesn't have a storage reference.
         else {
+            // TODO Replace this with the default storage resource for this platform.
+            // Storage create is delegated to the Platform
+        
             // Create a request for a new StorageResource.
             IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource();
             storageResource.setName("Storage for [" + context.makeDataValidatorResultKey(requested) + "]");
+            
+            
+/*
+ * The size is based on the sum of data stored in the storage.
+ * 
             storageResource.setSize(
                 new IvoaSimpleStorageSize()
                 );
-            storageResource.getSize().setRequested(
-                new IvoaSimpleStorageSizeRequested()
-                );
-            storageResource.getSize().getRequested().setMin(size);
-            storageResource.getSize().getRequested().setMax(size);
+            storageResource.getSize().setMin(size);
+            storageResource.getSize().setMax(size);
+ *             
+ */
 
             //
             // Validate the new StorageResource.
@@ -293,22 +303,18 @@ implements AbstractDataResourceValidator
         // TODO Need to add a reference to the builder.
         if (success)
             {
-            log.debug("Success");
-
-            log.debug("Creating Builder.");
-            Builder<AbstractDataResourceEntity> builder = new Builder<AbstractDataResourceEntity>()
+            EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleDataResourceEntity build(ExecutionSessionEntity parent)
+                public SimpleDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
-                        parent,
+                        session,
                         validated
                         );
                     }
                 }; 
             
-            log.debug("Creating Result.");
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,

@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.resource.storage.simple;
 
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.session.ExecutionSession;
 
 /**
  * Public interface for a SimpleStorageResource.
@@ -33,8 +32,11 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSession;
 public interface SimpleStorageResource
     extends AbstractStorageResource
     {
-
-    public ExecutionSession getParent();
+    /**
+     * The OpenAPI type identifier.
+     * 
+     */
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0" ;
 
     }
 

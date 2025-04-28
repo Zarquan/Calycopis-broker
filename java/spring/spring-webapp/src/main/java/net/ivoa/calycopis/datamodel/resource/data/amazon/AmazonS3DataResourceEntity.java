@@ -60,10 +60,10 @@ public class AmazonS3DataResourceEntity
      * Protected constructor with parent and template.
      *
      */
-    public AmazonS3DataResourceEntity(final ExecutionSessionEntity parent, final IvoaAmazonS3DataResource template)
+    public AmazonS3DataResourceEntity(final ExecutionSessionEntity session, final IvoaAmazonS3DataResource template)
         {
         super(
-            parent,
+            session,
             template.getName()
             );
         this.endpoint = template.getEndpoint();

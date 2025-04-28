@@ -25,7 +25,6 @@ package net.ivoa.calycopis.datamodel.resource.compute;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.functional.builder.Builder;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
@@ -35,34 +34,32 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 public interface AbstractComputeResourceValidator
 extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
+    /**
+     * Public interface for an entity builder.
+     * 
+     */
+    public static interface EntityBuilder
+        {
+        /**
+         * Build an entity based on a validation result. 
+         *
+         */
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
+        }
    
     /**
-     * Public interface for a ComputeResourceValidator Result.
+     * Public interface for a validator result.
      * 
      */
     public static interface Result
     extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
         {
         // TODO A list of the volume mounts ...
-
-        @Override
-        public ComputeResourceEntityBuilder getBuilder();
-        
-        }
-
-    /**
-     * Public interface for a ComputeResourceEntity Builder.
-     * 
-     */
-    public static interface ComputeResourceEntityBuilder
-    extends Builder<AbstractComputeResourceEntity> 
-        {
         /**
-         * Build an entity. 
-         *
+         * Create a builder with the validation result.
+         * 
          */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity executionSession, final ComputeResourceOffer offer);
-
+        public EntityBuilder getBuilder();
         }
 
     /**
@@ -80,14 +77,6 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         public ResultBean(final ResultEnum result)
             {
             super(result);
-            this.builder = null;
-            }
-
-        
-        final ComputeResourceEntityBuilder builder ;
-        public ComputeResourceEntityBuilder getBuilder()
-            {
-            return this.builder;
             }
 
         /**
@@ -97,14 +86,19 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         public ResultBean(
             final ResultEnum result,
             final IvoaAbstractComputeResource object,
-            final ComputeResourceEntityBuilder builder
+            final EntityBuilder builder
             ){
             super(
                 result,
-                object,
-                builder
+                object
                 );
             this.builder = builder;
+            }
+        
+        private EntityBuilder builder ;
+        public EntityBuilder getBuilder()
+            {
+            return this.builder;
             }
         }
     }

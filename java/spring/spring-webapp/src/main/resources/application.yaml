@@ -31,7 +31,6 @@ logging:
     level:
         com.baeldung: INFO
         net.ivoa: DEBUG
-        uk.co.metagrid: DEBUG
         org.hibernate: INFO
         org.apache.tomcat: INFO
         org.apache.catalina: INFO

@@ -46,10 +46,10 @@ public interface AbstractComputeResource
      * Get the parent ExecutionSession.  
      *
      */
-    public ExecutionSessionEntity getParent();
+    public ExecutionSessionEntity getSession();
 
     /**
-     * Get an Ivoa bean representation.
+     * Get an IVOA bean representation.
      *  
      */
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl);

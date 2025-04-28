@@ -1,0 +1,120 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring the data/storage/mount classes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Previous page is wrong because the Podman volume should map to the compute resource volume.
+    The volume mount determines the location in the compute resource.
+    The download path/name is arbitary.
+
+    PodmanPlatform
+
+        simple-instance-volume-1.0
+
+        simple-container-volume-1.0
+
+        abstract-data-collection-1.0
+
+        srcnet-storage-resource-1.0
+        user-storage-resource-1.0
+        podman-storage-volume-1.0
+        PodmanStorageVolume extends StorageVolume
+            volumePool = userPool
+            reservation step reserves <amber> space in pool for <duration>
+            allocation step creates the <amber> directory in the pool
+            download step iterates the data access resources
+            for (PodmanDataAccessResource dataResource : dataList)
+                {
+                dataResource.transfer(
+                    this
+                    );
+                }
+            release step deletes the <amber> directory
+
+        http-data-resource-1.0
+        PodmanHttpDataAccessResource extends HttpDataAccessResource extends DataAccessResource
+            storage -> PodmanStorageVolume
+            transfer = PodmanHttpDataTransferAgent(
+                storage -> PodmanStorageVolume,
+                source = this.getHttpLocation()
+                )
+
+            creates a http-data-transfer Pod, with PodmanStorageVolume <amber> directory mounted as /amber volume
+            transfers data from the http source into <filename> in /amber volume
+            releases the transfer Pod and the volume mount
+
+        podman-instance-volume
+        PodmanInstanceVolume extends PodmanVolume
+        compute:
+          - ...
+            volumes:
+              - path: ...
+                type: ..../instance # Single thing mounted at 'path'
+                card: single
+                resource: <ref> # data resource mounted at 'path'
+
+            executing the executable adds the resource to the execution Pod
+            single PodmanVolume mounted at volume.path
+
+        podman-collection-volume
+        PodmanCollectionVolume extends PodmanVolume
+        compute:
+          - ...
+            volumes:
+              - path: /container
+                type: ..../collection # Directory of things mounted inside 'path'
+                card: multiple
+                resources:
+                  - <ref> # data meta resource, instance - one data resource
+                  - <ref> # data meta resource, collection - collection of resources, as a directory
+                  - <ref> # data access resource - one data resource
+                  - <ref> # storage resource - all of the data in that storage resource
+
+            executing the executable adds each of the resources to the execution Pod
+            multiple PodmanVolumes mounted at volume.path/resource.filename
+
+                podman run \
+                    --rm \
+                    -it \
+                    --volume "file-one:/container/file-one-mount" \
+                    --volume "file-two:/container/file-two-mount" \
+                    fedora \
+                    bash
+
+
+
+
+
+
+
