@@ -97,6 +97,11 @@ implements AbstractExecutableValidator
 
         //
         // Validate the notebook location.
+        success &= validateLocation(
+            requested.getLocation(),
+            validated,
+            context
+            );
         
         //
         // Everything is good, add our result to the state.

@@ -419,7 +419,7 @@ public class OfferSetRequestParserImpl
                         );
                     log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
-                    log.debug("Executable [{}]", context.getExecutableResult());
+                    log.debug("Executable [{}]", context.getExecutableResult().getObject());
 
                     //
                     // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
