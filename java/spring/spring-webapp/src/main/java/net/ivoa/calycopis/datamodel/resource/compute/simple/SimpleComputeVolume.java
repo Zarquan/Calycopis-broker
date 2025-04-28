@@ -26,7 +26,7 @@ import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume.ModeEnum;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
  * Public interface for a SimpleComputeResource volume mount.
@@ -35,11 +35,6 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume.ModeEnum;
 public interface SimpleComputeVolume
     extends Component
     {
-    /**
-     * Reference to the parent SimpleComputeResource. 
-     *
-     */
-    public SimpleComputeResource getParent();
 
     /**
      * Reference to the DataResources mounted in this volume.
@@ -58,6 +53,5 @@ public interface SimpleComputeVolume
      * 
      */
     public String getPath();
-    
     
     }

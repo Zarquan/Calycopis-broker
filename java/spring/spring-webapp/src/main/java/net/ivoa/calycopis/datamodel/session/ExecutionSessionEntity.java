@@ -49,6 +49,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
@@ -266,6 +267,27 @@ public class ExecutionSessionEntity
             );
         }
 
+    @OneToMany(
+        mappedBy = "session",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
+
+    @Override
+    public List<AbstractVolumeMountEntity> getVolumeMounts()
+        {
+        return volumeMounts;
+        }
+         
+    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+        {
+        volumeMounts.add(
+            volume
+            );
+        }
+    
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {

@@ -40,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -292,6 +292,8 @@ implements AbstractComputeResourceValidator
         log.debug("Processing the volume mounts");
         if (requested.getVolumes() != null)
             {
+            /*
+             * TODO
             for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
                 {
                 // Try finding a storage resource.
@@ -318,6 +320,8 @@ implements AbstractComputeResourceValidator
                     // error unmatched data resource ...
                     }
                 }
+             * 
+             */
             }
         log.debug("Done processing the volume mounts");
 

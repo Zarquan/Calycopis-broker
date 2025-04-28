@@ -46,6 +46,10 @@ components:
       description: |
         A simple volume mount.
       properties:
+        path:
+          description: >
+            The filesystem mount point.
+          type: string
         mode:
           description: >
             The read-write access mode.
@@ -64,7 +68,7 @@ components:
             - CONTAINER
         resources:
           description: >
-            A list of the resources to mount.
+            A list of the data resources in this volume mount.
             If cardinality is set to INSTANCE then this list should only contain one resource.
             If cardinality is set to INSTANCE and this list has more than one resource, it should fail validation.
             If cardinality is set to CONTAINER then this list may contain more than one resource.

@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEnti
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
@@ -136,6 +137,12 @@ public interface ExecutionSession
      */
     public List<AbstractStorageResourceEntity> getStorageResources();
 
+    /**
+     * Get a list of the VolumeMounts.
+     *
+     */
+    public List<AbstractVolumeMountEntity> getVolumeMounts();
+    
     /**
      * Get an Ivoa bean representation.
      *  

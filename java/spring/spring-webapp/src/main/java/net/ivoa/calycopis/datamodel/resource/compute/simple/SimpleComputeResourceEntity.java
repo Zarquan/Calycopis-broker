@@ -42,7 +42,6 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeVolume;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -110,6 +109,7 @@ public class SimpleComputeResourceEntity
 
         //
         // Add our volumes.
+        /*
         for (IvoaSimpleComputeVolume volume : template.getVolumes())
             {
             this.volumes.add(
@@ -119,6 +119,8 @@ public class SimpleComputeResourceEntity
                     )
                 );                
             }
+         * 
+         */
         }
 
     // Does this also have a start and end time ?
@@ -189,6 +191,8 @@ public class SimpleComputeResourceEntity
         return this.maxofferedmemory;
         }
 
+    /*
+     * TODO
     @OneToMany(
         mappedBy = "parent",
         fetch = FetchType.LAZY,
@@ -208,6 +212,8 @@ public class SimpleComputeResourceEntity
                 }
             };
         }
+     * 
+     */
     
     @Override
     public IvoaAbstractComputeResource getIvoaBean(final String baseurl)

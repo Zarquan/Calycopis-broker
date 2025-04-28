@@ -17,10 +17,13 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator.Result;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
@@ -393,6 +396,103 @@ extends ValidatorTools
         log.debug("Key [{}]", key);
         return storageValidatorResultMap.get(key);
         }
+
+    /**
+     * Our List of VolumeMountValidator results.
+     * 
+     */
+    private List<AbstractVolumeMountValidator.Result> volumeValidatorResultList = new ArrayList<AbstractVolumeMountValidator.Result>();
+
+    @Override
+    public List<AbstractVolumeMountValidator.Result> getVolumeValidatorResults()
+        {
+        return volumeValidatorResultList;
+        }
+
+    /**
+     * Our Map of VolumeMountValidator results.
+     * 
+     */
+    private Map<String, AbstractVolumeMountValidator.Result> volumeValidatorResultMap = new HashMap<String, AbstractVolumeMountValidator.Result>();
+
+    @Override
+    public String makeVolumeValidatorResultKey(final AbstractVolumeMountValidator.Result result)
+        {
+        log.debug("makeVolumeValidatorResultKey(VolumeMountValidator.Result)");
+        log.debug("Result [{}]", result);
+        return makeVolumeValidatorResultKey(
+            result.getObject()
+            );
+        }
+    
+    @Override
+    public String makeVolumeValidatorResultKey(final IvoaAbstractVolumeMount resource)
+        {
+        log.debug("makeVolumeValidatorResultKey(IvoaAbstractVolumeMount)");
+        log.debug("Resource [{}]", resource);
+        String key = null ;
+        if (resource != null)
+            {
+            UUID uuid = resource.getUuid();
+            if (uuid != null)
+                {
+                key = uuid.toString();
+                }
+            else {
+                key = resource.getName();
+                }
+            }
+        log.debug("Key [{}]", key);
+        return key ;
+        }
+    
+    @Override
+    public void addVolumeValidatorResult(final AbstractVolumeMountValidator.Result result)
+        {
+        log.debug("addVolumeValidatorResult(String)");
+        log.debug("Result [{}]", result);
+        volumeValidatorResultList.add(
+            result
+            );
+        volumeValidatorResultMap.put(
+            makeVolumeValidatorResultKey(
+                result
+                ),
+            result
+            );
+        }
+
+    @Override
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final AbstractVolumeMountValidator.Result result)
+        {
+        log.debug("findVolumeValidatorResult(VolumeMountValidator.Result)");
+        log.debug("Result [{}]", result);
+        return findVolumeValidatorResult(
+            makeVolumeValidatorResultKey(
+                result
+                )
+            );
+        }
+
+    @Override
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final IvoaAbstractVolumeMount resource)
+        {
+        log.debug("findVolumeValidatorResult(IvoaAbstractVolumeMount)");
+        log.debug("Resource [{}]", resource);
+        return findVolumeValidatorResult(
+            makeVolumeValidatorResultKey(
+                resource
+                )
+            );
+        }
+    
+    @Override
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key)
+        {
+        log.debug("findVolumeValidatorResult(String)");
+        log.debug("Key [{}]", key);
+        return volumeValidatorResultMap.get(key);
+        }
     
     /**
      * A Map linking DataValidator results to StorageValidator results.
@@ -520,5 +620,4 @@ extends ValidatorTools
         {
         this.totalMaxMemory += delta;
         }
-
     }

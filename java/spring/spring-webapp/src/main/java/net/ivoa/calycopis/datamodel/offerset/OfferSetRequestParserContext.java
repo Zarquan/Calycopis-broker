@@ -12,9 +12,11 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
@@ -195,7 +197,7 @@ public interface OfferSetRequestParserContext
      * 
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
-
+    
     /**
      * Add a DataValidatorResult and StorageValidatorResult pair.
      * 
@@ -213,6 +215,48 @@ public interface OfferSetRequestParserContext
      * 
      */
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
+
+    /**
+     * List the VolumeValidatorResults.
+     * 
+     */
+    public List<AbstractVolumeMountValidator.Result> getVolumeValidatorResults();
+    
+    /**
+     * Generate a VolumeValidatorResult key.
+     *  
+     */
+    public String makeVolumeValidatorResultKey(final AbstractVolumeMountValidator.Result result);
+
+    /**
+     * Generate a VolumeMount key.
+     *  
+     */
+    public String makeVolumeValidatorResultKey(final IvoaAbstractVolumeMount resource);
+    
+    /**
+     * Add a VolumeValidatorResult.
+     * 
+     */
+    public void addVolumeValidatorResult(final AbstractVolumeMountValidator.Result result);
+
+    /**
+     * Find a VolumeValidatorResult.
+     * 
+     */
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final AbstractVolumeMountValidator.Result result);
+
+    /**
+     * Find a VolumeValidatorResult.
+     * 
+     */
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final IvoaAbstractVolumeMount resource);
+    
+    /**
+     * Find a VolumeValidatorResult.
+     * 
+     */
+    public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key);
     
     /**
      * Get a List of start intervals.

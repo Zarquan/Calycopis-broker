@@ -18,15 +18,17 @@ resources:
 
   volumes:
     - name: volume-007-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
       path: /calibration
       mode: READONLY
-      cardinality: INSTANCE
+      cardinality: CONTAINER
       resources:
-        - storage-007-01
+        - data-007-01
+        - data-007-02
 
   storage:
     - name: storage-007-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-storage-resource-1.0
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
       resources:
         - data-007-01
         - data-007-02

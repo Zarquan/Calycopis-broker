@@ -89,10 +89,10 @@ public interface SimpleComputeResource
     public Long getMaxOfferedMemory();
     
     /**
-     * A list of the compute resource vilumes.. 
-     *
-     */
+     * A list of the volume mounts. 
+     * TODO
     public List<SimpleComputeVolume> getVolumes();
+     */
 
     }
 
