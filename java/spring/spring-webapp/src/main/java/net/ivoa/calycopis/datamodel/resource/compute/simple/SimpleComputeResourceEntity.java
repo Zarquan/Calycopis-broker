@@ -23,26 +23,15 @@
 
 package net.ivoa.calycopis.datamodel.resource.compute.simple;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.validation.Valid;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerNetworkPortEntity;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.NetworkPort;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.util.ListWrapper;
 
 /**
  * A Simple compute resource.
