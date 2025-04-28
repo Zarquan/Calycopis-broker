@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
@@ -151,13 +150,10 @@ public class OfferSetResponseBean
             ){
             public IvoaExecutionSessionResponse wrap(final ExecutionSessionEntity inner)
                 {
-                return new ExecutionSessionResponseBean(
-                     baseurl,
-                     inner
-                     );
+                return inner.getIvoaBean(
+                    baseurl
+                    );
                 }
             };
         }
-
-
     }

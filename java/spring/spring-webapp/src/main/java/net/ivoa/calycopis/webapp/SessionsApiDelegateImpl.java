@@ -34,7 +34,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
@@ -67,9 +66,8 @@ public class SessionsApiDelegateImpl
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                new ExecutionSessionResponseBean(
-                    this.getBaseUrl(),
-                    found.get()
+                found.get().getIvoaBean(
+                    this.getBaseUrl()
                     ),
                 HttpStatus.OK
                 );
@@ -93,9 +91,8 @@ public class SessionsApiDelegateImpl
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                new ExecutionSessionResponseBean(
-                    this.getBaseUrl(),
-                    found.get()
+                found.get().getIvoaBean(
+                    this.getBaseUrl()
                     ),
                 HttpStatus.OK
                 );

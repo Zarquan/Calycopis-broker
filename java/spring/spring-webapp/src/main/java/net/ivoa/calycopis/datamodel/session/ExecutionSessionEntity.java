@@ -291,10 +291,32 @@ public class ExecutionSessionEntity
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {
-        return new ExecutionSessionResponseBean(
-            baseurl,
-            this
+        IvoaExecutionSessionResponse bean = new IvoaExecutionSessionResponse();
+        bean.setUuid(this.getUuid());
+        bean.setName(this.getName());
+        bean.setType(ExecutionSession.TYPE_DISCRIMINATOR);
+        bean.setCreated(this.getCreated());
+        bean.setExpires(this.getExpires());
+        bean.setPhase(this.getPhase());
+        bean.setHref(
+            baseurl + ExecutionSession.REQUEST_PATH + this.getUuid()
             );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.setExecutable(
+            this.getExecutable().getIvoaBean(
+                baseurl
+                )
+            );        
+
+        // TODO fill these in 
+        bean.setSchedule(null);
+        bean.setResources(null);
+        bean.setOptions(null);
+
+        
+        return bean;
         }
     }
 
