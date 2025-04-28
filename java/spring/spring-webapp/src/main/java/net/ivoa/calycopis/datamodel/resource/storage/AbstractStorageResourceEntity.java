@@ -32,14 +32,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
  */
 @Entity
 @Table(
-    name = "storageresources"
+    name = "abstractstorageresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED

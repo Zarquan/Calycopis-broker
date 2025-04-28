@@ -41,7 +41,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
  */
 @Entity
 @Table(
-    name = "simplevolumes"
+    name = "simplevolumemounts"
     )
 @DiscriminatorValue(
     value="uri:simple-volume-mount"

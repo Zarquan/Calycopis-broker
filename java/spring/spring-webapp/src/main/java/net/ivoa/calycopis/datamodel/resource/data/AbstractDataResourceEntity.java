@@ -38,7 +38,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "dataresources"
+    name = "abstractdataresources"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED

@@ -18,7 +18,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  */
 @Entity
 @Table(
-    name = "executables"
+    name = "abstractexecutables"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
