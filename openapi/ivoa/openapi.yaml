@@ -772,11 +772,11 @@ components:
             name: update
           $ref: 'AbstractUpdate'
 
-    ScheduleRequestBlock:
+    ScheduleRequestItem:
       description: >
         Details of when to execute the session.
       type: object
-      title: ScheduleRequestBlock
+      title: ScheduleRequestItem
       properties:
         duration:
           $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
@@ -784,6 +784,15 @@ components:
           type: array
           items:
             $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+    ScheduleRequestBlock:
+      description: >
+        Details of when to execute the session.
+      type: object
+      title: ScheduleRequestBlock
+      properties:
+        requested:
+          $ref: 'ScheduleRequestItem'
 
     ScheduleOfferItem:
       description: >
@@ -887,24 +896,7 @@ components:
             schedule:
               xml:
                 name: schedule
-              type: object
-              properties:
-                requested:
-                  xml:
-                    name: requested
-                  $ref: 'ScheduleRequestBlock'
-                preparing:
-                  xml:
-                    name: preparing
-                  $ref: 'ScheduleOfferItem'
-                executing:
-                  xml:
-                    name: executing
-                  $ref: 'ScheduleOfferItem'
-                releasing:
-                  xml:
-                    name: releasing
-                  $ref: 'ScheduleOfferItem'
+              $ref: 'ScheduleOfferBlock'
             options:
               description: >
                 A List of options the client can apply to this Execution.
@@ -937,12 +929,7 @@ components:
         schedule:
           xml:
             name: schedule
-          type: object
-          properties:
-            requested:
-              xml:
-                name: requested
-              $ref: 'ScheduleRequestBlock'
+          $ref: 'ScheduleRequestBlock'
 
     OfferSetResponse:
       description: >

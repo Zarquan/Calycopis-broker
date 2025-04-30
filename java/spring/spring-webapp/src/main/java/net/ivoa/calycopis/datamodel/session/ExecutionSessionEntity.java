@@ -51,8 +51,11 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferBlock;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 
 /**
  * An Execution Entity.
@@ -310,9 +313,57 @@ public class ExecutionSessionEntity
                 )
             );        
 
-        // TODO fill these in 
-        bean.setSchedule(null);
-        bean.setResources(null);
+        IvoaScheduleOfferBlock scheduleOffer = new IvoaScheduleOfferBlock();
+        scheduleOffer.setPreparing(new IvoaScheduleOfferItem());
+        scheduleOffer.getPreparing().setStart(
+            getStartInstant().toString()
+            );
+        scheduleOffer.getPreparing().setDuration(
+            getExeDuration().toString()
+            );
+        scheduleOffer.setExecuting(new IvoaScheduleOfferItem());
+        scheduleOffer.getExecuting().setStart(
+            getStartInstant().toString()
+            );
+        scheduleOffer.getExecuting().setDuration(
+            getExeDuration().toString()
+            );
+        scheduleOffer.setReleasing(new IvoaScheduleOfferItem());
+        scheduleOffer.getReleasing().setStart(
+            getStartInstant().toString()
+            );
+        scheduleOffer.getReleasing().setDuration(
+            getExeDuration().toString()
+            );
+        bean.setSchedule(scheduleOffer);
+
+        bean.setResources(new IvoaExecutionResourceList());
+        for (AbstractComputeResourceEntity resource : this.getComputeResources())
+            {
+            bean.getResources().addComputeItem(
+                resource.getIvoaBean(
+                    baseurl
+                    )
+                );
+            }
+        
+        for (AbstractDataResourceEntity resource : this.getDataResources())
+            {
+            bean.getResources().addDataItem(
+                resource.getIvoaBean()
+                );
+            }
+        
+        for (AbstractStorageResourceEntity resource : this.getStorageResources())
+            {
+            bean.getResources().addStorageItem(
+                resource.getIvoaBean(
+                    baseurl
+                    )
+                );
+            }
+        
+        
         bean.setOptions(null);
 
         
