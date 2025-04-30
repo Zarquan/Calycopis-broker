@@ -33,6 +33,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -50,17 +51,17 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
  *
  */
 @Slf4j
-public class DockerContainerValidator
+public class DockerContainerValidatorImpl
 extends ValidatorTools
-implements AbstractExecutableValidator
+implements DockerContainerValidator
     {
 
-    private final DockerContainerEntityFactory factory;
+    private final PodmanPlatform platform;
 
     @Autowired
-    public DockerContainerValidator(final DockerContainerEntityFactory factory)
+    public DockerContainerValidatorImpl(final PodmanPlatform platform)
         {
-        this.factory = factory;
+        this.platform = platform;
         }
 
     @Override
@@ -162,8 +163,7 @@ implements AbstractExecutableValidator
             );
 
         //
-        // Everything is good, add our result to the state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, add our result to the context.
         if (success)
             {
             EntityBuilder builder = new EntityBuilder()
@@ -171,7 +171,7 @@ implements AbstractExecutableValidator
                 @Override
                 public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
-                    return factory.create(
+                    return platform.getDockerContainerEntityFactory().create(
                         session,
                         validated
                         );
@@ -182,9 +182,11 @@ implements AbstractExecutableValidator
                 validated,
                 builder
                 );
+            /*
             context.getValidatedOfferSetRequest().setExecutable(
                 validated
                 );
+             */
             context.setExecutableResult(
                 result
                 );
