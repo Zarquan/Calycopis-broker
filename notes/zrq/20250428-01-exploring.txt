@@ -60,56 +60,78 @@
 
     Creating a full set of all the entities for each platform is a lot of duplication.
 
-git add \
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidator.java \
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/factory/FactoryBaseImpl.java
-git commit \
-    -m "Gardening"
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidator.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/factory/FactoryBaseImpl.java
+    git commit \
+        -m "Gardening"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidatorFactoryImpl.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/Platform.java
-    Introducing Platform
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidatorFactoryImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/Platform.java
+    git commit \
+        -m "Introducing Platform"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java
-    Updated table names
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java
+    git commit \
+        -m "Updated table names"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactory.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityFactory.java
-    Removed Optional
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactory.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityFactory.java
+    git commit \
+        -m "Removed Optional"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatform.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatformImpl.java
-    Created platform specific versions
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatform.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatformImpl.java
+    git commit \
+        -m "Created platform specific versions"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactoryImpl.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityRepository.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactory.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityRepository.java
-    Created platform specific versions
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactoryImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityRepository.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactory.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityRepository.java
+    git commit \
+        -m "Created platform specific versions"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/podman/
-    Created platform specific versions
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/podman/
+    git commit \
+        -m "Created platform specific versions"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidator.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidator.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidatorImpl.java
-    Moved Validator code to Impl class
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidator.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidator.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidatorImpl.java
+    git commit \
+        -m "Moved Validator code to Impl class"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntity.java
-    Removed discriminator
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntity.java
+    git commit \
+        -m "Removed discriminator"
 
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityFactoryImpl.java
-    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityRepository.java
-    Created platform specific version
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityFactoryImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookEntityRepository.java
+    git commit \
+        -m "Created platform specific version"
 
-    examples/007/offerset-request.yaml
-    Exploring different volume types
+    git add \
+        examples/007/offerset-request.yaml
+    git commit \
+        -m "Exploring different volume types"
 
-    notes/zrq/20250428-01-exploring.txt
-    Gardening
+    git add \
+        notes/zrq/20250428-01-exploring.txt
+    git commit \
+        -m "Gardening"
 
 
 # -----------------------------------------------------
@@ -127,7 +149,7 @@ git commit \
     Crazy idea ...
     Like faceted search, works interactively.
     The editing API *is* the offers API.
-    Each step in creating the workflow sublits it to the children.
+    Each step in creating the workflow submits it to the children.
     Getting interactive feedback from the sites as we go.
 
 
