@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -38,11 +37,8 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
  */
 @Slf4j
 @Entity
-@DiscriminatorValue(
-    value = "uri:podman-docker-executable"
-    )
 @Table(
-    name = "podmandockerexecutables"
+    name = "podmandockercontainers"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
