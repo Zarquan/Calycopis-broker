@@ -28,7 +28,7 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
- * Public interface for Executable validators and results.
+ * Public interface for Executable validators.
  * 
  */
 public interface AbstractExecutableValidator

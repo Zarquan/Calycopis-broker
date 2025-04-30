@@ -27,7 +27,8 @@ import com.github.f4b6a3.uuid.UuidCreator;
 
 import java.util.UUID;
 
-public class FactoryBaseImpl implements FactoryBase
+public class FactoryBaseImpl
+implements FactoryBase
     {
     /**
      * This factory's identifier.
