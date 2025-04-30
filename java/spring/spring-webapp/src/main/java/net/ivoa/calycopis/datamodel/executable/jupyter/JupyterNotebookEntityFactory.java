@@ -20,7 +20,7 @@ public interface JupyterNotebookEntityFactory
      * Select a JupyterNotebookEntity based on UUID.
      * 
      */
-    public Optional<JupyterNotebookEntity> select(final UUID uuid);
+    public JupyterNotebookEntity select(final UUID uuid);
 
     /**
      * Create and save a new JupyterNotebookEntity.
