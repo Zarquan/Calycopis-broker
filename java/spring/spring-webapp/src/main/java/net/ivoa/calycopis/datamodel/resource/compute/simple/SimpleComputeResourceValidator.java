@@ -36,9 +36,7 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCoresRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemoryRequested;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
@@ -140,32 +138,8 @@ implements AbstractComputeResourceValidator
 
         if (requested.getCores() != null)
             {
-            if (requested.getCores().getRequested() != null)
-                {
-                if (requested.getCores().getRequested().getMin() != null)
-                    {
-                    mincores = requested.getCores().getRequested().getMin();
-                    }
-                if (requested.getCores().getRequested().getMax() != null)
-                    {
-                    maxcores = requested.getCores().getRequested().getMax();
-                    }
-                }
-
-            if (requested.getCores().getOffered() != null)
-                {
-                context.getOfferSetEntity().addWarning(
-                    "urn:service-defined",
-                    "Offered cores should not be set [${resource}][${offered}]",
-                    Map.of(
-                        "resource",
-                        requested.getName(),
-                        "offered",
-                        requested.getCores().getOffered()
-                        )
-                    );
-                success = false;
-                }
+            mincores = requested.getCores().getMin();
+            maxcores = requested.getCores().getMax();
             }
         if (mincores > MAX_CORES_LIMIT)
             {
@@ -206,31 +180,13 @@ implements AbstractComputeResourceValidator
         
         if (requested.getMemory() != null)
             {
-            if (requested.getMemory().getRequested() != null)
+            if (requested.getMemory().getMin() != null)
                 {
-                if (requested.getMemory().getRequested().getMin() != null)
-                    {
-                    minmemory = requested.getMemory().getRequested().getMin();
-                    }
-                if (requested.getMemory().getRequested().getMax() != null)
-                    {
-                    maxmemory = requested.getMemory().getRequested().getMax();
-                    }
+                minmemory = requested.getMemory().getMin();
                 }
-
-            if (requested.getMemory().getOffered() != null)
+            if (requested.getMemory().getMax() != null)
                 {
-                context.getOfferSetEntity().addWarning(
-                    "urn:service-defined",
-                    "Offered memory should not be set by client [${resource}][${offered}]",
-                    Map.of(
-                        "resource",
-                        requested.getName(),
-                        "offered",
-                        requested.getMemory().getOffered()
-                        )
-                    );
-                success = false;
+                maxmemory = requested.getMemory().getMax();
                 }
             }
 
@@ -276,17 +232,13 @@ implements AbstractComputeResourceValidator
         validated.setName(requested.getName());
 
         IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
-        IvoaSimpleComputeCoresRequested coresRequested = new IvoaSimpleComputeCoresRequested(); 
-        coresRequested.setMin(mincores);
-        coresRequested.setMax(maxcores);
-        cores.setRequested(coresRequested);
+        cores.setMin(mincores);
+        cores.setMax(maxcores);
         validated.setCores(cores);
 
         IvoaSimpleComputeMemory memory = new IvoaSimpleComputeMemory();
-        IvoaSimpleComputeMemoryRequested memoryRequested = new IvoaSimpleComputeMemoryRequested(); 
-        memoryRequested.setMin(minmemory);
-        memoryRequested.setMax(maxmemory);
-        memory.setRequested(memoryRequested);
+        memory.setMin(minmemory);
+        memory.setMax(maxmemory);
         validated.setMemory(memory);
         
         //

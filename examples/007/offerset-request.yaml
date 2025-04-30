@@ -13,6 +13,12 @@ resources:
   compute:
     - name: computer-007-01
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+      cores:
+        min:  8
+        max: 16
+      memory:
+        min:  8
+        max: 16
       volumes:
         - volume-007-01
 
