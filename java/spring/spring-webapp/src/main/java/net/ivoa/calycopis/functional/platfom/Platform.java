@@ -23,23 +23,26 @@
 
 package net.ivoa.calycopis.functional.platfom;
 
-import java.util.UUID;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
 public interface Platform
+extends FactoryBase
     {
     /**
-     * Get this platform's identifier.
+     * Get the DockerContainerEntityFactory for this platform.
      *
      */
-    public UUID getUuid();
-    
+    public DockerContainerEntityFactory getDockerContainerEntityFactory();
+
     /**
-     * Get the StorageResource factory for this platform.
+     * Get the JupyterNotebookEntityFactory for this platform.
      *
      */
-    public void getStorageResourceEntityFactory();
-    
+    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
+        
     }
