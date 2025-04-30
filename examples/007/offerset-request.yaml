@@ -26,12 +26,37 @@ resources:
         - data-007-01
         - data-007-02
 
-  storage:
-    - name: storage-007-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    - name: volume-007-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /input
+      mode: READONLY
+      cardinality: CONTAINER
       resources:
+        - data-007-03
+
+    - name: volume-007-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /working
+      mode: READ-WRITE
+      cardinality: INSTANCE
+      resources:
+        - working-storage-007-04
+
+  storage:
+    - name: default-storage-007-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      data:
         - data-007-01
         - data-007-02
+
+    - name: storage-for-data-007-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      data:
+        - data-007-03
+
+    - name: working-storage-007-04
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      size: 2048
 
   data:
     - name: data-007-01
@@ -41,4 +66,8 @@ resources:
     - name: data-007-02
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
       location: https://example.org/data/data-007-02.vot
+
+    - name: data-007-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-03.vot
 
