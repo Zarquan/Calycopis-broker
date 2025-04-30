@@ -37,7 +37,7 @@ resources:
     - name: volume-007-03
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
       path: /working
-      mode: READ-WRITE
+      mode: READWRITE
       cardinality: INSTANCE
       resources:
         - working-storage-007-04
@@ -45,18 +45,19 @@ resources:
   storage:
     - name: default-storage-007-01
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      data:
+      resources:
         - data-007-01
         - data-007-02
 
     - name: storage-for-data-007-03
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      data:
+      resources:
         - data-007-03
 
     - name: working-storage-007-04
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      size: 2048
+      size:
+        min: 2048
 
   data:
     - name: data-007-01
