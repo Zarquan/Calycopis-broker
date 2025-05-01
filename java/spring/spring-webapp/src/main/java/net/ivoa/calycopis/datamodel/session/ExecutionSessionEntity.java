@@ -29,6 +29,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.threeten.extra.Interval;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -106,9 +108,9 @@ public class ExecutionSessionEntity
             this
             );
         this.expires = offerset.getExpires();
-        this.startinstantsec  = offerblock.getStartTime().getEpochSecond();
+        this.executionStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
 //      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
-        this.exedurationsec   = state.getExecutionDuration().getSeconds();
+        this.executionDurationSeconds   = state.getExecutionDuration().getSeconds();
         }
 
     @Column(name = "phase")
@@ -124,61 +126,157 @@ public class ExecutionSessionEntity
         {
         this.phase = phase;
         }
-    
-    @Column(name = "startinstantsec")
-    private long startinstantsec;
+
+    @Column(name = "prepare_start_instant_seconds")
+    private long prepareStartInstantSeconds;
     @Override
-    public long getStartInstantSeconds()
+    public long getPrepareStartInstantSeconds()
         {
-        return this.startinstantsec;
+        return this.prepareStartInstantSeconds;
         }
     @Override
-    public Instant getStartInstant()
+    public Instant getPrepareStartInstant()
         {
         return Instant.ofEpochSecond(
-            startinstantsec
+            prepareStartInstantSeconds
             );
         }
-  
-/*
- * 
-    @Column(name = "startdurationsec")
-    private long startdurationsec;
+
+    @Column(name = "prepare_duration_seconds")
+    private long prepareDurationSeconds;
     @Override
-    public long getStartDurationSeconds()
+    public long getPrepareDurationSeconds()
         {
-        return this.startdurationsec;
+        return this.prepareDurationSeconds;
         }
     @Override
-    public Duration getStartDuration()
+    public Duration getPrepareDuration()
         {
         return Duration.ofSeconds(
-            startdurationsec
+            prepareDurationSeconds
             );
         }
+
+    @Column(name = "prepare_done_instant_seconds")
+    private long prepareDoneInstantSeconds;
     @Override
-    public Interval getStartInterval()
+    public long getPrepareDoneInstantSeconds()
+        {
+        return this.prepareDoneInstantSeconds;
+        }
+    @Override
+    public Instant getPrepareDoneInstant()
+        {
+        return Instant.ofEpochSecond(
+            prepareDoneInstantSeconds
+            );
+        }
+
+    @Column(name = "execution_start_instant_seconds")
+    private long executionStartInstantSeconds;
+    @Override
+    public long getExecutionStartInstantSeconds()
+        {
+        return this.executionStartInstantSeconds;
+        }
+    @Override
+    public Instant getExecutionStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            executionStartInstantSeconds
+            );
+        }
+
+    @Column(name = "execution_start_duration_seconds")
+    private long executionStartDurationSeconds;
+    @Override
+    public long getExecutionStartDurationSeconds()
+        {
+        return this.executionStartDurationSeconds;
+        }
+    @Override
+    public Duration getExecutionStartDuration()
+        {
+        return Duration.ofSeconds(
+            executionStartDurationSeconds
+            );
+        }
+
+    @Override
+    public Interval getExecutionStartInterval()
         {
         return Interval.of(
-            getStartInstant(),
-            getStartDuration()
+            getExecutionStartInstant(),
+            getExecutionStartDuration()
             );
         }
- *     
- */
 
-    @Column(name = "exedurationsec")
-    private long exedurationsec;
+    @Column(name = "execution_duration_seconds")
+    private long executionDurationSeconds;
     @Override
-    public long getExeDurationSeconds()
+    public long getExecutionDurationSeconds()
         {
-        return this.exedurationsec;
+        return this.executionDurationSeconds;
         }
     @Override
-    public Duration getExeDuration()
+    public Duration getExecutionDuration()
         {
         return Duration.ofSeconds(
-            exedurationsec
+            executionDurationSeconds
+            );
+        }
+
+    @Override
+    public Interval getExecutionInterval()
+        {
+        return Interval.of(
+            getExecutionStartInstant(),
+            getExecutionDuration()
+            );
+        }
+
+    @Column(name = "release_start_instant_seconds")
+    private long releaseStartInstantSeconds;
+    @Override
+    public long getReleaseStartInstantSeconds()
+        {
+        return this.releaseStartInstantSeconds;
+        }
+    @Override
+    public Instant getReleaseStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            releaseStartInstantSeconds
+            );
+        }
+
+    @Column(name = "release_duration_seconds")
+    private long releaseDurationSeconds;
+    @Override
+    public long getReleaseDurationSeconds()
+        {
+        return this.releaseDurationSeconds;
+        }
+    @Override
+    public Duration getReleaseDuration()
+        {
+        return Duration.ofSeconds(
+            releaseDurationSeconds
+            );
+        }
+
+    @Column(name = "release_done_instant_seconds")
+    private long releaseDoneInstantSeconds;
+    @Override
+    public long getReleaseDoneInstantSeconds()
+        {
+        return this.releaseDoneInstantSeconds;
+        }
+    @Override
+    public Instant getReleaseDoneInstant()
+        {
+        return Instant.ofEpochSecond(
+            releaseDoneInstantSeconds
             );
         }
 
@@ -206,7 +304,7 @@ public class ExecutionSessionEntity
         {
         this.executable = executable;
         }
-    
+
     @OneToMany(
         mappedBy = "session",
         fetch = FetchType.LAZY,
@@ -220,7 +318,7 @@ public class ExecutionSessionEntity
         {
         return computeresources;
         }
-     
+
     public void addComputeResource(final AbstractComputeResourceEntity resource)
         {
         computeresources.add(
@@ -241,7 +339,7 @@ public class ExecutionSessionEntity
         {
         return dataresources;
         }
-     
+
     public void addDataResource(final AbstractDataResourceEntity resource)
         {
         dataresources.add(
@@ -262,7 +360,7 @@ public class ExecutionSessionEntity
         {
         return storageresources;
         }
-     
+
     public void addStorageResource(final AbstractStorageResourceEntity resource)
         {
         storageresources.add(
@@ -283,14 +381,14 @@ public class ExecutionSessionEntity
         {
         return volumeMounts;
         }
-         
+
     public void addVolumeMount(final AbstractVolumeMountEntity volume)
         {
         volumeMounts.add(
             volume
             );
         }
-    
+
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {
@@ -311,31 +409,31 @@ public class ExecutionSessionEntity
             this.getExecutable().getIvoaBean(
                 baseurl
                 )
-            );        
+            );
 
-        IvoaScheduleOfferBlock scheduleOffer = new IvoaScheduleOfferBlock();
-        scheduleOffer.setPreparing(new IvoaScheduleOfferItem());
-        scheduleOffer.getPreparing().setStart(
-            getStartInstant().toString()
+        IvoaScheduleOfferBlock schedule = new IvoaScheduleOfferBlock();
+        schedule.setPreparing(new IvoaScheduleOfferItem());
+        schedule.getPreparing().setStart(
+            getPrepareStartInstant().toString()
             );
-        scheduleOffer.getPreparing().setDuration(
-            getExeDuration().toString()
+        schedule.getPreparing().setDuration(
+            getPrepareDuration().toString()
             );
-        scheduleOffer.setExecuting(new IvoaScheduleOfferItem());
-        scheduleOffer.getExecuting().setStart(
-            getStartInstant().toString()
+        schedule.setExecuting(new IvoaScheduleOfferItem());
+        schedule.getExecuting().setStart(
+            getExecutionStartInstant().toString()
             );
-        scheduleOffer.getExecuting().setDuration(
-            getExeDuration().toString()
+        schedule.getExecuting().setDuration(
+            getExecutionDuration().toString()
             );
-        scheduleOffer.setReleasing(new IvoaScheduleOfferItem());
-        scheduleOffer.getReleasing().setStart(
-            getStartInstant().toString()
+        schedule.setReleasing(new IvoaScheduleOfferItem());
+        schedule.getReleasing().setStart(
+            getReleaseStartInstant().toString()
             );
-        scheduleOffer.getReleasing().setDuration(
-            getExeDuration().toString()
+        schedule.getReleasing().setDuration(
+            getReleaseDuration().toString()
             );
-        bean.setSchedule(scheduleOffer);
+        bean.setSchedule(schedule);
 
         bean.setResources(new IvoaExecutionResourceList());
         for (AbstractComputeResourceEntity resource : this.getComputeResources())
@@ -346,14 +444,14 @@ public class ExecutionSessionEntity
                     )
                 );
             }
-        
+
         for (AbstractDataResourceEntity resource : this.getDataResources())
             {
             bean.getResources().addDataItem(
                 resource.getIvoaBean()
                 );
             }
-        
+
         for (AbstractStorageResourceEntity resource : this.getStorageResources())
             {
             bean.getResources().addStorageItem(
@@ -362,11 +460,11 @@ public class ExecutionSessionEntity
                     )
                 );
             }
-        
-        
+
+
         bean.setOptions(null);
 
-        
+
         return bean;
         }
     }

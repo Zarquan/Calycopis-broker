@@ -252,8 +252,8 @@ public class ComputeResourceOfferFactoryImpl
                 (
                 SELECT
                     Sessions.phase AS BlockPhase,
-                    Sessions.StartInstantSec / :blockstep AS BlockStart,
-                    Sessions.ExeDurationSec  / :blockstep AS BlockLength,
+                    Sessions.execution_start_instant_seconds  / :blockstep AS BlockStart,
+                    Sessions.execution_start_duration_seconds / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM
