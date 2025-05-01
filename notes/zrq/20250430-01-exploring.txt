@@ -1,0 +1,113 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Issue #207
+    Add preparing, executing and releasing to ExecutionSessionEntity
+    https://github.com/ivoa/Calycopis-broker/issues/207
+
+
+        prepareStartInstantSeconds     // Calculated (executionStart - duration) OR (min(prepareStart))
+        prepareStartInstant
+        prepareDurationSeconds         // Calculated sum(duration)
+        prepareDuration
+        prepareDoneInstantSeconds      // Calculated (start + duration)
+        prepareDoneInstant
+
+        executionStartInstantSeconds   // From the offer
+        executionStartInstant
+        executionStartDurationSeconds  // From the offer
+        executionStartDuration
+        executionStartInterval
+
+        executionDurationSeconds       // From the offer
+        executionDuration
+        executionInterval
+
+        executionDoneInstantSeconds    // Calculated (start + duration)
+        executionDoneInstant
+
+        releaseStartInstantSeconds     // Calculated
+        releaseStartInstant
+        releaseDurationSeconds         // Calculated sum(duration)
+        releaseDuration
+        releaseDoneInstantSeconds      // Calculated (start + duration)
+        releaseDoneInstant
+
+
+    @Column(name = "releaseStartInstantSeconds")
+    private long releaseStartInstantSeconds;
+    @Override
+    public long getReleaseStartInstantSeconds()
+        {
+        return this.releaseStartInstantSeconds;
+        }
+    @Override
+    public Instant getReleaseStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            releaseStartInstantSeconds
+            );
+        }
+
+    @Column(name = "prepareDurationSeconds")
+    private long releaseDurationSeconds;
+    @Override
+    public long getReleaseDurationSeconds()
+        {
+        return this.releaseDurationSeconds;
+        }
+    @Override
+    public Duration getReleaseDuration()
+        {
+        return Duration.ofSeconds(
+            releaseDurationSeconds
+            );
+        }
+
+    @Column(name = "prepareDoneInstantSeconds")
+    private long releaseDoneInstantSeconds;
+    @Override
+    public long getReleaseDoneInstantSeconds()
+        {
+        return this.releaseDoneInstantSeconds;
+        }
+    @Override
+    public Instant getReleaseDoneInstant()
+        {
+        return Instant.ofEpochSecond(
+            releaseDoneInstantSeconds
+            );
+        }
+
