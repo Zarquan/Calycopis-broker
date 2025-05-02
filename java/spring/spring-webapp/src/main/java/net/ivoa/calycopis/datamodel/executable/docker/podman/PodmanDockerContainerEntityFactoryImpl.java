@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.ivoa.calycopis.datamodel.executable.docker;
+package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.docker.podman.PodmanDockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
@@ -21,18 +20,18 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
  */
 @Slf4j
 @Component
-public class DockerContainerEntityFactoryImpl
+public class PodmanDockerContainerEntityFactoryImpl
     extends FactoryBaseImpl
-    implements DockerContainerEntityFactory
+    implements PodmanDockerContainerEntityFactory
     {
 
-    private final DockerContainerEntityRepository repository;
+    private final PodmanDockerContainerEntityRepository repository;
 
     private final TestExecutionStepEntityFactory factory;
     
     @Autowired
-    public DockerContainerEntityFactoryImpl(
-        final DockerContainerEntityRepository repository,
+    public PodmanDockerContainerEntityFactoryImpl(
+        final PodmanDockerContainerEntityRepository repository,
         final TestExecutionStepEntityFactory factory        
         ){
         super();
@@ -41,18 +40,25 @@ public class DockerContainerEntityFactoryImpl
         }
 
     @Override
-    public Optional<DockerContainerEntity> select(final UUID uuid)
+    public PodmanDockerContainerEntity select(final UUID uuid)
         {
-        return this.repository.findById(
+        Optional<PodmanDockerContainerEntity> optional = this.repository.findById(
             uuid
             );
+        if (optional.isPresent())
+            {
+            return optional.get();
+            }
+        else {
+            return null;
+            }
         }
 
     @Override
-    public DockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template)
+    public PodmanDockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template)
         {
-        DockerContainerEntity result = this.repository.save(
-            new DockerContainerEntity(
+        PodmanDockerContainerEntity result = this.repository.save(
+            new PodmanDockerContainerEntity(
                 session,
                 template
                 )

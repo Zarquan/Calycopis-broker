@@ -32,7 +32,6 @@ import java.util.Map;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
@@ -66,10 +65,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Slf4j
 @Entity
 @Table(
-    name = "dockerexecutables"
-    )
-@DiscriminatorValue(
-    value = "uri:docker-executable"
+    name = "dockercontainers"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
@@ -387,7 +383,7 @@ public class DockerContainerEntity
      * Build the prepare and release steps.
      *
      */
-    protected void configure(final TestExecutionStepEntityFactory factory)
+    public void configure(final TestExecutionStepEntityFactory factory)
         {
         getPrepareList().addStep(
             factory.create(

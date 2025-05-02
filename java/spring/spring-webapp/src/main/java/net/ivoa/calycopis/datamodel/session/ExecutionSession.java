@@ -28,6 +28,8 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import org.threeten.extra.Interval;
+
 import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
@@ -82,47 +84,125 @@ public interface ExecutionSession
     public OfferSetEntity getOfferSet();
 
     /**
-     * Get the start time in seconds.
+     * Get the start of the preparation step in seconds.
      *
      */
-    public long getStartInstantSeconds();
+    public long getPrepareStartInstantSeconds();
 
     /**
-     * Get the start time as an Instant.
+     * Get the start of the preparation step as an Instant.
      *
      */
-    public Instant getStartInstant();
+    public Instant getPrepareStartInstant();
 
     /**
-     * Get the range for the start interval in seconds.
+     * Get the length of the preparation step in seconds.
      *
-    public long getStartDurationSeconds();
      */
+    public long getPrepareDurationSeconds();
 
     /**
-     * Get the range for the start interval as a Duration.
+     * Get the length of the preparation step as a Duration.
      *
-    public Duration getStartDuration();
      */
+    public Duration getPrepareDuration();
 
     /**
-     * Get the start interval (instant + range) as an Interval.
+     * Get the end of the preparation step in seconds.
      *
-    public Interval getStartInterval();
      */
+    public long getPrepareDoneInstantSeconds();
 
     /**
-     * Get the Execution duration in seconds.
+     * Get the end of the preparation step as an Instant.
      *
      */
-    public long getExeDurationSeconds();
+    public Instant getPrepareDoneInstant();
 
     /**
-     * Get the Execution duration as a Duration.
+     * Get the start of the execution start interval, in seconds.
      *
      */
-    public Duration getExeDuration();
+    public long getExecutionStartInstantSeconds();
 
+    /**
+     * Get the start of the execution start interval, as an Instant.
+     *
+     */
+    public Instant getExecutionStartInstant();
+
+    /**
+     * Get the length of the execution start interval in seconds.
+     *
+     */
+    public long getExecutionStartDurationSeconds();
+
+    /**
+     * Get the length of the execution start interval as a Duration.
+     *
+     */
+    public Duration getExecutionStartDuration();
+
+    /**
+     * Get the execution start interval (instant + duration) as an Interval.
+     *
+     */
+    public Interval getExecutionStartInterval();
+
+    /**
+     * Get the execution duration in seconds.
+     *
+     */
+    public long getExecutionDurationSeconds();
+
+    /**
+     * Get the execution duration as a Duration.
+     *
+     */
+    public Duration getExecutionDuration();
+
+    /**
+     * Get the execution interval as an Interval.
+     *
+     */
+    public Interval getExecutionInterval();
+
+    /**
+     * Get the start of the release step in seconds. 
+     *
+     */
+    public long getReleaseStartInstantSeconds();
+
+    /**
+     * Get the start of the release step as an Instant. 
+     *
+     */
+    public Instant getReleaseStartInstant();
+
+    /**
+     * Get the length of the release step in seconds. 
+     *
+     */
+    public long getReleaseDurationSeconds();
+
+    /**
+     * Get the length of the release step as a Duration. 
+     *
+     */
+    public Duration getReleaseDuration();
+
+    /**
+     * Get the end of the release step in seconds. 
+     *
+     */
+    public long getReleaseDoneInstantSeconds();
+
+    /**
+     * Get the end of the release step as an Instant. 
+     *
+     */
+    public Instant getReleaseDoneInstant();
+    
     /**
      * Get the Executable entity.
      *

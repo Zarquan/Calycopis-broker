@@ -21,16 +21,16 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
@@ -38,20 +38,20 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 @Slf4j
 @Entity
 @Table(
-    name = "podmandockercontainers"
+    name = "podmanjupyternotebooks"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class PodmanDockerContainerEntity
-    extends DockerContainerEntity
-    implements PodmanDockerContainer
+public class PodmanJupyterNotebookEntity
+extends JupyterNotebookEntity
+implements PodmanJupyterNotebook
     {
 
     /**
      * 
      */
-    public PodmanDockerContainerEntity()
+    public PodmanJupyterNotebookEntity()
         {
         super();
         }
@@ -59,7 +59,7 @@ public class PodmanDockerContainerEntity
     /**
      *
      */
-    public PodmanDockerContainerEntity(final ExecutionSessionEntity session, final IvoaDockerContainer template)
+    public PodmanJupyterNotebookEntity(final ExecutionSessionEntity session, final IvoaJupyterNotebook template)
         {
         super(
             session,

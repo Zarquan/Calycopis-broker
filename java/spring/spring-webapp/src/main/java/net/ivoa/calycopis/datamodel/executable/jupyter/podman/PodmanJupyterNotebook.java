@@ -21,28 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebook;
 
 /**
  * 
  */
-public interface Platform
-extends FactoryBase
+public interface PodmanJupyterNotebook
+extends JupyterNotebook
     {
-    /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
-     */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();
 
-    /**
-     * Get the JupyterNotebookEntityFactory for this platform.
-     *
-     */
-    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
-        
     }

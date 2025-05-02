@@ -21,28 +21,30 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
+import java.util.UUID;
+
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
  */
-public interface Platform
-extends FactoryBase
+public interface PodmanJupyterNotebookEntityFactory
+extends JupyterNotebookEntityFactory
     {
     /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
+     * Find a Entity based on UUID.
+     * 
      */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();
+    public PodmanJupyterNotebookEntity select(final UUID uuid);
 
     /**
-     * Get the JupyterNotebookEntityFactory for this platform.
+     * Create a new Entity based on a template.
      *
      */
-    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
-        
+    public PodmanJupyterNotebookEntity create(final ExecutionSessionEntity session, final IvoaJupyterNotebook template);
+
     }

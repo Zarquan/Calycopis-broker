@@ -14,16 +14,16 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
  *
  */
 public interface DockerContainerEntityFactory
-    extends FactoryBase
+extends FactoryBase
     {
     /**
      * Find a DockerContainerEntity based on UUID.
      * 
      */
-    public Optional<DockerContainerEntity> select(final UUID uuid);
+    public DockerContainerEntity select(final UUID uuid);
 
     /**
-     * Create and save a new DockerContainerEntity based on a template.
+     * Create a new DockerContainerEntity based on a template.
      *
      */
     public DockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template);

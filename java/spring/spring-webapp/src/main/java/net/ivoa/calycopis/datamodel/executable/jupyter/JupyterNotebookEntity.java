@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -40,9 +39,6 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 @Entity
 @Table(
     name = "jupyternotebooks"
-    )
-@DiscriminatorValue(
-    value = "uri:jupyter-notebook"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED

@@ -1,0 +1,250 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Resolve how we represent the two types of volume mount.
+        Flags and paths, or two classes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Thoughts on volume mounts.
+
+    Two ways of implementing a mount.
+
+    1)  Simple form - mounts a single file at the location specified by the path parameter.
+        The source is renamed using the name from the path.
+
+        If the source is a file, it is placed at the specified location, using the name from the path parameter.
+
+        volumes:
+          - name: volume-001
+            path: /path/path/new-name/
+            resource: my-file-001
+
+        +-- my-file-001
+
+        mount 'my-file-001' at '/path/path/new-name'
+        => '/path/path/new-name'
+
+        /path/path
+               |
+               \-- new-name
+
+        If the source is a directory, it is placed at the specified location, using the name from the path parameter.
+
+        volumes:
+          - name: volume-001
+            path: /path/path/new-name/
+            resource: my-dir-001
+
+        +-- my-dir-001
+              |
+              +-- my-file-001
+              |
+              \-- my-file-002
+
+        mount 'my-dir-001' at '/path/path/new-name'
+        => '/path/path/new-name'
+
+        /path/path
+               |
+               \-- new-name
+                      |
+                      +-- my-file-001
+                      |
+                      \-- my-file-002
+
+
+    2)  Container form - mounts the source object in a container specified by the path parameter.
+        The source is placed in a container named with the name from the path.
+
+        If the source is a file, it is placed in a directory at the specified location.
+
+        volumes:
+          - name: volume-001
+            path: /path/path/new-name/
+            resource: my-file-001
+
+        +-- my-file-001
+
+        mount 'my-file-001' in a container at '/path/path/new-name/'
+        => '/path/path/new-name/my-file-001'
+
+        /path/path
+               |
+               \-- new-name
+                      |
+                      \-- my-file-001
+
+        If the source is a directory, the directory is placed in a directory at the specified location.
+
+        volumes:
+          - name: volume-001
+            path: /path/path/new-name/
+            resource: my-dir
+
+        +-- my-dir
+              |
+              +-- file-001
+              |
+              \-- file-002
+
+        mount 'my-dir' in a container at '/path/path/new-name/'
+        => '/path/path/new-name/my-dir'
+
+        /path/path
+               |
+               \-- new-name
+                      |
+                      \-- my-dir
+                            |
+                            +-- file-001
+                            |
+                            \-- file-002
+
+
+        The container form is useful if we want to bring together several things
+        from different locations and mount them in the same directory.
+
+        volumes:
+          - name: volume-001
+            path: /path/path/new-name/
+            resources:
+              - my-file-001
+              - my-file-002
+              - my-file-003
+
+        +-- my-file-001
+
+        +-- my-file-002
+
+        +-- my-file-003
+
+        mount 'my-file-001, my-file-002, my-file-003' in a container at '/path/path/new-name/'
+        => '/path/path/new-name/my-file-001, my-file-002, my-file-003'
+
+        /path/path
+               |
+               \-- new-name
+                      |
+                      +-- my-file-001
+                      |
+                      +-- my-file-002
+                      |
+                      \-- my-file-003
+
+# -----------------------------------------------------
+
+    Three ways of distnguishing between the two forms.
+    subtle, flagged, and explicit
+
+    The subtle way is to use the path parameter to indicate if the destination is a container.
+
+        1) If the path does not end with a '/', it represents a location.
+
+            volumes:
+              - name: volume-001
+                path: /path/path/new-name
+                resource: my-file-001
+
+        2) If the path ends with a '/', it represents a container.
+
+            volumes:
+              - name: volume-001
+                path: /path/path/new-name/
+                resource: my-file-001
+
+    This is minimal but can be very error prone, as it depends on a single character
+    that may come from a variable (when we get variables).
+
+            volumes:
+              - name: volume-001
+                path: ${volume-path}
+                resource: my-file-001
+
+    The flagged way is to have a flag that indicates the mount type.
+
+        1) If the flag is 'INSTANCE' this is a location mount.
+
+            volumes:
+              - name: volume-001
+                path: /path/path/new-name
+                flag: INSTANCE
+                resource: my-file-001
+
+        1) If the flag is 'CONTAINER' this is a container mount.
+
+            volumes:
+              - name: volume-001
+                path: /path/path/new-name/
+                flag: CONTAINER
+                resource: my-file-001
+
+    With both these cases, if we want to be able to support multiple
+    sources for a container mount, then we need to define some business
+    logic to indicate whether multiple sources are allowed.
+
+        subtle
+            If the path does not end in '/', then only one resource is allowed.
+            Multiple resources will be rejected as invalid.
+
+        flagged
+            If the flag isINSTANCE, then only one resource is allowed.
+            Multiple resources will be rejected as invalid.
+
+    Which makes it hard for parsers to validate.
+    Particularly if the path comes from a variable.
+
+    The explicit way is to define 2 types of volume, instance and container, in the schema.
+
+        1) Instance volumes only accept one resource.
+
+            volumes:
+              - type: http://...../instance-volume
+                name: volume-001
+                path: /path/path/new-name
+                resource: my-file-001
+
+        1) Container volumes accept multiple resources.
+
+            volumes:
+              - type: http://...../container-volume
+                name: volume-001
+                path: /path/path/new-name/
+                resources:
+                  - my-file-001
+
+        The explicit method is best.
+        Adding one more class in the schema vs
+        fudging a single class into two behaviours using
+        complicated business logic based on path ending or flags
+
+        Two schema classes.
+

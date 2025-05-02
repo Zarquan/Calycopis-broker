@@ -1,0 +1,62 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Thinking about how the editor interface would work.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Editing API ..
+
+    Iterative editing, works like faceted search.
+
+    The editing API *is* the offers API.
+    Each step in creating the workflow submits it be evaliated.
+
+    First step is to post the initial workflow to the service.
+
+    If the workflow is incomplete, workflow execution returns NO, with the workflow, and some ERROR messages.
+    If the workflow is complete, workflow execution submits it to the execution brokers to get their responses.
+    Returns YES/NO, with the annotated workflow (NO), or the offers (YES).
+    The user/client uses the available update methods to edit the workflow in the workflow execution service ?
+
+    This represents a change from the current API.
+    Is this next iteration - update API to include interactive editing ?
+
+    This breaks the simple POST request/reaponse API because the same endpoint
+    returns different things depending on whether the execution brokers responded YES/NO.
+
+    Also, it might not be clear whether the request was regected because it was invalid,
+    or because the target platform doesn't have capacity.
+
+    Nope - we keep editing and submitting separate.
+
+
+

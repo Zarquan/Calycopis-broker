@@ -74,11 +74,8 @@ public class SimpleComputeResourceEntity
 
         if (template.getCores() != null)
             {
-            if (template.getCores().getRequested() != null)
-                {
-                this.minrequestedcores = template.getCores().getRequested().getMin();
-                this.maxrequestedcores = template.getCores().getRequested().getMax();
-                }
+            this.minrequestedcores = template.getCores().getMin();
+            this.maxrequestedcores = template.getCores().getMax();
             }
 
         this.minofferedcores   = offer.getCores();
@@ -86,11 +83,8 @@ public class SimpleComputeResourceEntity
 
         if (template.getMemory() != null)
             {
-            if (template.getMemory().getRequested() != null)
-                {
-                this.minrequestedmemory = template.getMemory().getRequested().getMin();
-                this.maxrequestedmemory = template.getMemory().getRequested().getMax();
-                }
+            this.minrequestedmemory = template.getMemory().getMin();
+            this.maxrequestedmemory = template.getMemory().getMax();
             }
 
         this.minofferedmemory = offer.getMemory();

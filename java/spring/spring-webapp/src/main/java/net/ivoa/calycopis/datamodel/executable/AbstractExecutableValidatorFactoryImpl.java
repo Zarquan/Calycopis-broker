@@ -26,10 +26,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidator;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidator;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
@@ -49,18 +50,18 @@ public class AbstractExecutableValidatorFactoryImpl
      */
     @Autowired
     public AbstractExecutableValidatorFactoryImpl(
-        final JupyterNotebookEntityFactory jupyterNotebookEntityFactory,
-        final DockerContainerEntityFactory dockerContainerEntityFactory
+        final PodmanPlatform platform
+
         ){
         super();
         this.validators.add(
-            new JupyterNotebookValidator(
-                jupyterNotebookEntityFactory
+            new JupyterNotebookValidatorImpl(
+                platform
                 )
             );
         this.validators.add(
-            new DockerContainerValidator(
-                dockerContainerEntityFactory
+            new DockerContainerValidatorImpl(
+                platform
                 )
             );
         }

@@ -37,9 +37,9 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequestSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
@@ -297,15 +297,15 @@ public class OfferSetRequestParserImpl
      * Validate the requested Schedule.
      *
      */
-    public void validate(final IvoaOfferSetRequestSchedule schedule, final OfferSetRequestParserContext context)
+    public void validate(final IvoaScheduleRequestBlock schedule, final OfferSetRequestParserContext context)
         {
         // TODO return boolean success
         boolean success = true ;
 
-        log.debug("validate(IvoaExecutionSessionRequestSchedule)");
+        log.debug("validate(IvoaScheduleRequestBlock)");
         if (schedule != null)
             {
-            IvoaScheduleRequestBlock requested = schedule.getRequested();
+            IvoaScheduleRequestItem requested = schedule.getRequested();
             if (requested != null)
                 {
                 String durationstr = requested.getDuration();
