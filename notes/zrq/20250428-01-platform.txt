@@ -1,0 +1,66 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Exploring the data/storage/mount classes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Validation process uses Platform to get Factories and create Builders
+
+        @autowired in constructor
+        Platform platform
+
+        SimpleStorageResourceValidator
+            builder = new SimpleStorageResourceValidator.EntityBuilder()
+                {
+                build(session)
+                    {
+                    return platform.getStorageResourceEntityFactory().create(
+                        session,
+                        validated
+                        );
+                    }
+                }
+
+        platform.getSimpleStorageResourceEntityFactory()
+        -> PodmanStorageResourceEntityFactory extends SimpleStorageResourceEntityFactory
+        create(....)
+        -> PodmanStorageResourceEntity extends SimpleStorageResourceEntity
+
+
+# -----------------------------------------------------
+
+    Creating a full set of entities for each platform is a lot of duplication.
+    .. but it gives us somewhere to store platform specific data.
+
+
+
+
