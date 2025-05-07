@@ -1,0 +1,93 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    [SP-3505] Development and collation of Runnable Example Workflows
+    https://jira.skatelescope.org/browse/SP-3505
+
+    Development and collation of Runnable Example Workflows
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=221068323
+
+    SP-4132 Identify test data collections for SRCNet 0.1
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=272497496
+
+    SDC Dataset Retrieval Instructions
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=274527765
+
+    CADC CAOM2 Dataset Retrieval Instructions
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=277404308
+
+
+
+    [SP-3599] Populate workflow repository with a data-intensive HPC workflow
+    https://jira.skatelescope.org/browse/SP-3599
+
+    [SP-3513] SRC workflow example: Spectral line finding and classification
+    https://jira.skatelescope.org/browse/SP-3513?src=confmacro
+
+    [SP-4086] Update example workflows to use SRCNet astroquery module for data download
+    https://jira.skatelescope.org/browse/SP-4086?src=confmacro
+
+    CHOC-92: Ingest image data with rucio-upload and add-metadata
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=300810226
+
+    [CHOC-93] Ingest visibility data with rucio-upload and add-metadata via extended client
+    https://jira.skatelescope.org/browse/CHOC-93
+
+    CHOC-94: Demonstrate data discovery - SKA Regional Centre Network project - SKAO Community Confluence
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=305433590
+
+    [CHOC-37] Karabo Science Metadata
+    https://confluence.skatelescope.org/display/SRCSC/%5BCHOC-37%5D+Karabo+Science+Metadata
+
+    [CHOC-17][CHOC-35] Deploy & test ingestion daemon at CSCS
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=284182873
+
+    MWA Visibilities on SRCNet - SKA Regional Centre Network project
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=305440840
+
+    [LAV-402] Generate obscore metadata for an MWA uvfits file
+    https://jira.skatelescope.org/browse/LAV-402
+
+    Data Ingestor Service
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor
+
+    [SP-4565] v0.1 Test Campaign preparation: Ingest image data into Rucio
+    https://jira.skatelescope.org/browse/SP-4565
+
+    2024-11-21 Demos (Western)
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=294228014
+
+
+

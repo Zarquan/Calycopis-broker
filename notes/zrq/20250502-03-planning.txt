@@ -1,0 +1,167 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    These all need to be done now because they change the model.
+
+    Add Ivoa prefix to the data model classes
+    https://github.com/ivoa/Calycopis-broker/issues/203
+
+        Check with SoftwareDiscovery about when to do this.
+
+    Make compute resources a single instance
+    https://github.com/ivoa/Calycopis-broker/issues/206
+
+    Split volume class into two.
+    https://github.com/ivoa/Calycopis-broker/issues/209
+
+    Define the relationship between data resource and storage resource
+    https://github.com/ivoa/Calycopis-broker/issues/211
+
+    Importable schema element for SoftwareDiscovery
+    https://github.com/ivoa/Calycopis-broker/issues/195
+
+
+# -----------------------------------------------------
+
+    Plan how we describe data resources.
+
+    Original Jira tickets:
+
+    [SP-5222] Evolve Execution Broker Prototype to be compatible with first Workflow Execution Service
+    https://jira.skatelescope.org/browse/SP-5222
+
+        [COR-843] [ExecBroker] Add new component to the ExecutionBroker data model to represent a SRCNetDataProduct with the required metadata.
+        https://jira.skatelescope.org/browse/COR-843
+
+        [COR-857] [ExecBroker] Python module to query the DataLink and DataManagment services to collect the required metadata
+        https://jira.skatelescope.org/browse/COR-857
+
+        [COR-864] [ExecBroker] Implement code in the ExecutionBroker prototype that uses the replica information to calculate a time estimate.
+        https://jira.skatelescope.org/browse/COR-864
+
+        [COR-869] [ExecBroker] Documentation of the data model and presentation in a arch core meeting.
+        https://jira.skatelescope.org/browse/COR-869
+
+    Things we actually need to do:
+
+        Get access to some compute, upload some files and get a list of replicas.
+        See what they actually look like.
+
+        Experiment with importing data and accessing it via DataManagment API.
+        How much support is there for handling replicas ?
+        [COR-857]
+
+        Define the IvoaDataResource (metadata) and SkaoDataResource (replicas).
+        [COR-843]
+
+            IvoaDataResource has science metadata.
+            SkaoDataResource has Rucio DataLake details
+
+        Validation code that reads the DataLake resources and creates the right steps.
+        [COR-864]
+
+        Documents the data model and presentat it in architecture forum.
+        [COR-869]
+
+            Find out when the next architecture forum is ?
+
+
+    Questions to answer:
+
+        Can we ask DataManagment prepareData to use a specific replica ?
+
+            If not, then the time estimates may change if a replica is moved.
+            So once an offer is accepted, we need to 'pin' the target replica in place for the duration of our session.
+            teeny tiny race condition there ..
+            When an offer is offered, we pin the replica for the lifetime of the offer.
+            When an offer is accepted, we pin the replica for the lifetime of the session.
+
+
+        Do we split the data resources into science and physical ?
+        If so, is science child of data, or are they siblings ?
+
+            resources:
+              data:
+
+                science:
+                  - type: http://..../IvoaDataResource
+                    # Discovery metadata
+
+                location:
+                  - type: http://..../SkaoDataResource
+                    # Rucio DataLake details
+
+            resources:
+
+              science:
+                - type: http://..../IvoaDataResource
+                  # Discovery metadata
+
+              data:
+                - type: http://..../SkaoDataResource
+                  # Rucio DataLake details
+
+        If we have container volumes, do we need data collections ?
+
+            The use case is where we have _"a collection of spectra"_.
+
+        How do we handle 'a collection of spectra' ?
+        Same pattern we used for volumes; two types, instance and collection.
+
+            resources:
+              science:
+
+                - type: http://..../science-instance
+                  # Discovery metadata
+                  # Resolves into a single data resource that meets the critera.
+                  resource: data-resource-001
+
+                - type: http://..../science-collection
+                  # Discovery metadata
+                  # Resolves into multiple data resources that meet the same critera.
+                  resources:
+                    - data-resource-001
+                    - data-resource-002
+                    - data-resource-003
+
+        Defining a science resource as _"a collection of spectra"_ is a string use case.
+        So science-collection is useful.
+
+        If we have science-collection, do we need container volumes ?
+
+            What benefit ?
+            What cost ?
+
+

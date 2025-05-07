@@ -1,0 +1,451 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Uploading files into Rucio.
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        rucio/rucio-clients - Docker Image | Docker Hub
+        https://hub.docker.com/r/rucio/rucio-clients
+
+        rucio | Rucio Documentation
+        https://rucio.github.io/documentation/bin/rucio/
+
+        SKAO / SKA Regional Centres / SRC-DM (Data Management) / SKA Rucio Client · GitLab
+        https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client
+
+        Using the Client | Rucio Documentation
+        https://rucio.github.io/documentation/user/using_the_client
+
+        Replication rule examples
+        https://rucio.github.io/documentation/started/concepts/replication_rules_examples
+
+        RSE Expressions
+        https://rucio.cern.ch/documentation/started/concepts/rse_expressions/
+
+        Replica management with replication rules
+        https://rucio.github.io/documentation/started/concepts/replica_management/
+
+        ----------------
+
+        The ESCAPE? Rucio Data Lake | VRE-hub
+        https://vre-hub.github.io/docs/rucio/
+
+        SRC-DM (Data Management) / Data Ingestor Service
+        https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#demonstration
+
+        [CHOC-17][CHOC-35] Deploy & test ingestion daemon at CSCS
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=284182873
+
+
+
+# -----------------------------------------------------
+# Experiment with Rucio client.
+# Demo: SP-4896 TAP discovery of MWA visibilities in Rucio
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+#[user@desktop]
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0
+
+    #
+    # We need to set RUCIO_CFG_CLIENT_ACCOUNT before the merge script
+    # is called when the Docker image starts.
+    #
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_CLIENT_ACCOUNT=zarquan \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 4 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+
+
+    cat /opt/rucio/etc/rucio.cfg
+
+    >   [client]
+    >   rucio_host = https://rucio.srcnet.skao.int
+    >   auth_host = https://rucio-auth.srcnet.skao.int
+    >   trace_host = https://rucio-trace.srcnet.skao.int
+    >   ca_cert = /opt/rucio/etc/certs/ISRG_Root_X1.pem
+    >   auth_type = oidc
+    >   oidc_scope = openid profile offline_access wlcg.groups
+    >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
+    >   account = zarquan
+    >   
+    >   [auth]
+    >   host = https://rucio.srcdev.skao.int
+    >   type = oidc
+    >   
+    >   [rucio]
+    >   host = https://rucio.srcdev.skao.int
+
+
+# -----------------------------------------------------
+# Login to our account.
+#[user@rucio-client]
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >   
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?................
+    >   
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   ................................
+    >   
+    >   status     : ACTIVE
+    >   suspended_at : None
+    >   account    : ........
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : ........
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+
+
+# -----------------------------------------------------
+# Create our test file.
+#[user@rucio-client]
+
+    domain=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    #
+    # Create test data
+    date > "${filename}"
+
+    #
+    # Create meta data
+cat > "${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${domain}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata"
+    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+    cat "${filename}.meta"
+
+    >   {
+    >   "name": "zrq-test-20250507-024944",
+    >   "namespace": "testing",
+    >   "lifetime": 86400,
+    >   "meta": {
+    >       "obs_id": "zrq-test-20250507-024944",
+    >       "obs_collection": "testdata"
+    >       "obs_publisher_did": "ivo://skao.int/testdata/testing:zrq-test-20250507-024944",
+    >       "obs_creator_did":   "ivo://skao.int/testdata/testing:zrq-test-20250507-024944",
+    >       "dataproduct_type": "testdata",
+    >       "calib_level": 0
+    >       }
+    >   }
+
+
+# -----------------------------------------------------
+# Upload our test file.
+#[user@rucio-client]
+
+    #
+    # Check if file exists
+    rucio list-dids \
+        "${domain}:${filename}"
+
+    >   +--------------+--------------+
+    >   | SCOPE:NAME   | [DID TYPE]   |
+    >   |--------------+--------------|
+    >   +--------------+--------------+
+
+
+    #
+    # Upload the file.
+    rucio \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+    >   2025-05-07 02:50:25,901	INFO	Preparing upload for file zrq-test-20250507-024944
+    >   2025-05-07 02:50:26,046	INFO	Successfully added replica in Rucio catalogue at STFC_STORM
+    >   2025-05-07 02:50:26,113	INFO	Successfully added replication rule at STFC_STORM
+    >   2025-05-07 02:50:26,113	ERROR	RSE does not support requested protocol.
+    >   Details: No protocol for provided settings found :
+    >       {
+    >       'availability_delete': True,
+    >       'availability_read': True,
+    >       'availability_write': True,
+    >       'credentials': None,
+    >       'deterministic': True,
+    >       'domain': [
+    >           'lan',
+    >           'wan'
+    >           ],
+    >       'id': '6db4faaab85c47e6a3641dd280a7d94e',
+    >       'lfn2pfn_algorithm': 'hash',
+    >       'protocols': [],
+    >       'qos_class': None,
+    >       'rse': 'STFC_STORM',
+    >       'rse_type': 'DISK',
+    >       'sign_url': None,
+    >       'staging_area': False,
+    >       'verify_checksum': True,
+    >       'volatile': False,
+    >       'read_protocol': 1,
+    >       'write_protocol': 1,
+    >       'delete_protocol': 1,
+    >       'third_party_copy_read_protocol': 1,
+    >       'third_party_copy_write_protocol': 1,
+    >       'availability': 7
+    >       }
+
+
+    #
+    # Check the file exists
+    rucio list-dids \
+        "${domain}:${filename}"
+
+    >   +--------------+--------------+
+    >   | SCOPE:NAME   | [DID TYPE]   |
+    >   |--------------+--------------|
+    >   +--------------+--------------+
+
+
+    #
+    # Try again.
+    rucio \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+    >   2025-05-07 02:57:12,354	INFO	Preparing upload for file zrq-test-20250507-024944
+    >   2025-05-07 02:57:12,448	INFO	File DID already exists
+    >   2025-05-07 02:57:12,558	INFO	Successfully added replica in Rucio catalogue at STFC_STORM
+    >   2025-05-07 02:57:12,559	ERROR	RSE does not support requested protocol.
+    >   Details: No protocol for provided settings found :
+    >       {
+    >       'availability_delete': True,
+    >       'availability_read': True,
+    >       'availability_write': True,
+    >       'credentials': None,
+    >       'deterministic': True,
+    >       'domain': [
+    >           'lan',
+    >           'wan'
+    >           ],
+    >       'id': '6db4faaab85c47e6a3641dd280a7d94e',
+    >       'lfn2pfn_algorithm': 'hash',
+    >       'protocols': [],
+    >       'qos_class': None,
+    >       'rse': 'STFC_STORM',
+    >       'rse_type': 'DISK',
+    >       'sign_url': None,
+    >       'staging_area': False,
+    >       'verify_checksum': True,
+    >       'volatile': False,
+    >       'read_protocol': 1,
+    >       'write_protocol': 1,
+    >       'delete_protocol': 1,
+    >       'third_party_copy_read_protocol': 1,
+    >       'third_party_copy_write_protocol': 1,
+    >       'availability': 7
+    >       }
+
+
+    #
+    # Try a different RSE.
+    rucio \
+        upload \
+            --rse SPSRC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+    >   2025-05-07 03:00:59,059	INFO	Preparing upload for file zrq-test-20250507-024944
+    >   2025-05-07 03:00:59,147	INFO	File DID already exists
+    >   2025-05-07 03:00:59,252	INFO	Successfully added replica in Rucio catalogue at SPSRC_STORM
+    >   2025-05-07 03:00:59,969	INFO	Trying upload with davs to SPSRC_STORM
+    >   2025-05-07 03:01:00,555	INFO	Successful upload of temporary file. davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944.rucio.upload
+    >   2025-05-07 03:01:00,970	INFO	Successfully uploaded file zrq-test-20250507-024944
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099:
+    >       InsecureRequestWarning:
+    >           Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'.
+    >           Adding certificate verification is strongly advised.
+    >           See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+
+    #
+    # Warning about HTTPS certificate ?
+    #
+
+
+    #
+    # Check the replicas for the file.
+    rucio list-file-replicas \
+        "${domain}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250507-024944 | 29.000 B   | 6e9e06a8  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   c26ffb39e1b04b49a46d184b6422aac3  zarquan    testing:zrq-test-20250507-024944  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 02:50:26  2025-05-07 02:50:26
+
+
+    #
+    # Check the rules for our account.
+    rucio list-rules \
+        --account "${RUCIO_CFG_CLIENT_ACCOUNT}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001              OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+    >   8cb035f184224a2ca74f9807308d81dd  zarquan    testing:zrq-test-001              STUCK[0/0/1]            SWESRC-OSO-T0     1         29.000 B                       2025-05-06 15:50:56
+    >   ed99b38d6f6a40f3a1fe3e9876d4025a  zarquan    testing:zrq-test-001              STUCK[0/0/1]            SPSRC_STORM       1         29.000 B                       2025-05-06 16:15:21
+    >   c26ffb39e1b04b49a46d184b6422aac3  zarquan    testing:zrq-test-20250507-024944  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 02:50:26  2025-05-07 02:50:26
+    >   978c47cf060d464c881b1e71321d2b69  zarquan    testing:zrq-test-001              STUCK[0/0/1]            SWESRC-OSO-T1     1         29.000 B                       2025-05-06 15:54:36
+
+    #
+    # So ....
+    # The file has one replica at SPSRC_STORM.
+    # The file has one rule replicating it to STFC_STORM.
+    #
+
+
+# -----------------------------------------------------
+# Try adding a replica.
+#[user@rucio-client]
+
+    #
+    # Try adding a replica.
+    rucio add-rule \
+        "${domain}:${filename}" \
+        2 \
+        '*'
+
+    >   5b45881af9b448ea82fad3153b9cdb67
+
+
+    #
+    # Check the replicas for the file.
+    rucio list-file-replicas \
+        "${domain}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250507-024944 | 29.000 B   | 6e9e06a8  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   5b45881af9b448ea82fad3153b9cdb67  zarquan    testing:zrq-test-20250507-024944  REPLICATING[1/1/0]      *                 2         29.000 B                       2025-05-07 03:19:32
+    >   c26ffb39e1b04b49a46d184b6422aac3  zarquan    testing:zrq-test-20250507-024944  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 02:50:26  2025-05-07 02:50:26
+
+
+    #
+    # Right ... so.
+    # Not working as I would have expected ..
+    #
+
+
+# -----------------------------------------------------
+# Try downloading the file.
+#[user@rucio-client]
+
+    mkdir downloads
+
+    rucio download \
+        --dir downloads \
+        "${domain}:${filename}"
+
+
+    >   2025-05-07 03:58:44,182	INFO	Processing 1 item(s) for input
+    >   2025-05-07 03:58:44,397	INFO	No preferred protocol impl in rucio.cfg: No section: 'download'
+    >   2025-05-07 03:58:44,398	INFO	Using main thread to download 1 file(s)
+    >   2025-05-07 03:58:44,398	INFO	Preparing download of testing:zrq-test-20250507-024944
+    >   2025-05-07 03:58:44,459	INFO	Trying to download with davs and timeout of 60s from SPSRC_STORM: testing:zrq-test-20250507-024944
+    >   2025-05-07 03:58:44,512	INFO	Using PFN: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099: InsecureRequestWarning: Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+    >   2025-05-07 03:58:45,074	INFO	File testing:zrq-test-20250507-024944 successfully downloaded. 29.000 B in 0.47 seconds = 0.0 MBps
+    >   ----------------------------------
+    >   Download summary
+    >   ----------------------------------------
+    >   DID testing:zrq-test-20250507-024944
+    >   Total files (DID):                            1
+    >   Total files (filtered):                       1
+    >   Downloaded files:                             1
+    >   Files already found locally:                  0
+    >   Files that cannot be downloaded:              0
+
+    #
+    # An improvment over our last attempt.
+    #
+    # What about the metadata ..
+    #
+

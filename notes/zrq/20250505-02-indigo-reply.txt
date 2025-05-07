@@ -1,0 +1,51 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+    Dave:
+    Have your team any experience of using or developing a faceted search platform ?
+
+    Abhishek:
+    We’ve implemented some search functionality using around 3–4 attributes, but I’m not sure we’ve handled more complex or dynamic attributes.
+    However, if you’re planning to introduce a "faceted search" in the Software Discovery Service, we’d be happy to start a discussion regarding the same.
+    We could also create a feature for that in the PI backlog.
+
+    Dave:
+    Hi Abhishek,
+    I'm thnking about how to describe what we need for the discovery part of software discovery.
+    If you had already worked on a faceted search platform it would make it easier to describe what is needed.
+    Have your team any experience of using the Drupal content management system ?
+
+
+
+

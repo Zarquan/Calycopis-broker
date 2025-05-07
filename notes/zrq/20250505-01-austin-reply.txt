@@ -1,0 +1,101 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Reply to Austin Shen on Slack.
+        Lots of really good ideas here.
+        I can just see the ideas popping up in his head.
+        I think he gets it :-)
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Hi Austin,
+Lots of really good questions.
+
+> So the data model defines a workload that you want to execute (job, parameters, resources etc), and then you have interfaces which are for the different computing resources where you would potentially like to execute these workloads.
+> Is that understanding correct?
+Yes - describe what you want to happen, leave it to the individual platforms work out how to do it.
+There are multiple different ways of running a Docker container or Jupyter notebook.
+
+> You have to define the data model so that it is flexible enough to cover what may be required to describe a variety of scientific workloads
+Yes - that's the challenge.
+Balance between keeping it simple to implement now and flexible enough to be extensible in the future.
+A code review of the data model would be very useful - tell me what I've got wrong before it becomes a problem.
+
+> Have you tested how existing workloads can be described by the data model?
+I've been talking to lots of people collecting use cases and requirements, but I've not had time to formally define them as use cases.
+Balance between spending time on getting on with the prototype and writing up detailed use cases.
+Help with collecting and curating the use cases would be very welcome - helping to plan where we need to go next.
+
+> Do you have to write custom code for the execution broker to be able to submit workloads to each interface?
+Yes - but hopefully a lot of it will be re-usable between platforms.
+One set of customisations for each type of platform, CANFAR, Kubernetes, Slurm, Docker, Openstack etc.
+
+> Have we got an interface for CANFAR already?
+> I assume that would be the first the we would develop considering SRCNet 0.1 nodes all have that deployed
+Yes - CANFAR is the first target, along with basic Docker and basic Openstack for comparison.
+
+> I'm trying to get my head around where execution broker sits within SRCNet.
+> Is it that there is one execution broker deployed at HQ that points to each of the SRCNet nodes for resources?
+> In which case you have like a "head" node and a bunch of worker nodes.
+Yes - the plan is for a hierarchical system.
+In the SRCNet architecture the top level "head" service is called WorkflowExecution, it has the same request/offers API as an ExecutionBroker, plus some additional API to support discovery and editing.
+The user/client send requests to the WorkflowExecution "head" service which does some pre-processing to lookup things like the location of DataLake replicas, and then sends the request on to the individual ExecutionBroker services at each of the SRCNet nodes.
+The individual SRCNet node services figure out the details of how they can fulfill the request and reply with a set of offers.
+The WorkflowExecution service collects the offers from the node services, selects the best <n> offers and passes them back to the client.
+
+> I have a pipeline that I want to run using execution broker to deploy to a SRCNet 0.1 node CANFAR resource.
+> Can I try and do this in the next PI as a test of the execution broker system, or is there other development that needs to happen to get to this stage?
+Not yet, I've been concentrating on the unknown parts of the prototype, working on developing the front API and data model, so the the back-end platform connections are still todo.
+Help with contributing to the Java prototype would be welcome.
+
+> Is there an event system in the execution broker?
+> Instead of waiting some amount of time before submitting a job, could you trigger the execution of work on other events?
+Yes - 100%, but not now.
+In a previous version of the standard I described a whole event driven architecture that would support this kind of thing.
+In theory, small changes to the standard would make it into very capable event driven workflow system.
+On the other hand how much of the wheel do we want to re-invent ouselves ?
+
+I dropped a lot of the complexity from this version in order to make this first implementation achievable.
+Once we have the first version working in SRCNet-0.2, then we can look at where we want to take it next.
+With reference your earlier question about use cases, adding something like event handling would need to be use-case driven.
+If you have ideas along these lines I'd encourage you to write them up on a GitHub or Confluence wiki page.
+
+Eventually I would also like to get this accepted as an IVOA standard, which means getting other projects involved too.
+So we need to start simple and not scare them off with an overly complicated first version.
+
+
+
+
+
+
+
+
+

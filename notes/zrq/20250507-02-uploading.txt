@@ -1,0 +1,671 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Uploading files into Rucio.
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        SKAO / SKA Regional Centres / SRC-DM (Data Management) / Data Ingestor Service
+        https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#overview
+
+# -----------------------------------------------------
+# Experiment with the Data Ingestor Service
+# https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#overview
+#[user@desktop]
+
+    SKAO / SKA Regional Centres / SRC-DM (Data Management) / Data Ingestor Service
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#using-docker-compose
+
+    Remarkable .. there isn't a simple 'run this' example for Docker, or DockerCompose.
+    I mean, there is, but they take parameters, and there isn't an easy example of what the params should be.
+
+    There is a container registry associatedwith the GitLab project.
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor/container_registry/6686757
+
+    Tag: 0.1.44
+    Size: 730.60 MiB
+    Published 11 hours ago
+
+        Published to the ska-telescope/src/src-dm/ska-src-dm-di-ingestor image repository on 6 May 2025 at 17:52:13 BST
+
+    How do we install it ?
+
+    Combining clues from
+
+        [CHOC-17][CHOC-35] Deploy & test ingestion daemon at CSCS - SKA Regional Centre Network project - SKAO Community Confluence
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=284182873
+
+        Demo: SP-4896 TAP discovery of MWA visibilities in Rucio - SKA Regional Centre Network project - SKAO Community Confluence
+        https://confluence.skatelescope.org/pages/viewpage.action?spaceKey=SRCSC&title=Demo%3A+SP-4896+TAP+discovery+of+MWA+visibilities+in+Rucio
+
+        Makefile · main · SKAO / SKA Regional Centres / SRC-DM (Data Management) / Data Ingestor Service · GitLab
+        https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor/-/blob/main/Makefile?ref_type=heads
+
+        docker-compose.rucio.yml · main · SKAO / SKA Regional Centres / SRC-DM (Data Management) / Data Ingestor Service · GitLab
+        https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor/-/blob/main/docker-compose.rucio.yml?ref_type=heads
+
+
+# -----------------------------------------------------
+# Install Podman-compose
+# GitHub - containers/podman-compose: a script to run docker-compose.yml using podman
+# https://github.com/containers/podman-compose
+#[user@desktop]
+
+    pip3 install podman-compose
+
+
+# -----------------------------------------------------
+# Or we could just simply run the single container.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env "RUCIO_CFG_CLIENT_HOST=https://rucio.srcnet.skao.int" \
+        --env "RUCIO_CFG_CLIENT_AUTH_TYPE=oidc" \
+        --env "RUCIO_CFG_CLIENT_ACCOUNT=zarquan" \
+        --env "RUCIO_CFG_CLIENT_OIDC_SCOPE=openid profile rucio wlcg.groups" \
+        --env "RUCIO_CFG_CLIENT_OIDC_AUDIENCE=rucio https://wlcg.cern.ch/jwt/v1/any" \
+        --env "RUCIO_INGEST_RSE_NAME=STFC_STORM" \
+        --env "INGESTION_BACKEND_NAME=rucio" \
+        --env "ELASTICSEARCH_URL=https://monit.srcdev.skao.int:443/elastic" \
+        --env "ELASTICSEARCH_INDEX=ingestion" \
+        --name "ska-rucio-ingestor" \
+        --volume "$(pwd)/ingest:/tmp/ingest:rw"
+        ${imageurl}
+
+    #
+    # We need to get a token first.
+    #
+
+
+# -----------------------------------------------------
+# Run the Rucio client.
+# Demo: SP-4896 TAP discovery of MWA visibilities in Rucio
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+#[user@desktop]
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0
+
+    #
+    # We need to set RUCIO_CFG_CLIENT_ACCOUNT before the merge script
+    # is called when the Docker image starts.
+    #
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_CLIENT_ACCOUNT=zarquan \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 4 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+
+
+    cat /opt/rucio/etc/rucio.cfg
+
+    >   [client]
+    >   rucio_host = https://rucio.srcnet.skao.int
+    >   auth_host = https://rucio-auth.srcnet.skao.int
+    >   trace_host = https://rucio-trace.srcnet.skao.int
+    >   ca_cert = /opt/rucio/etc/certs/ISRG_Root_X1.pem
+    >   auth_type = oidc
+    >   oidc_scope = openid profile offline_access wlcg.groups
+    >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
+    >   account = zarquan
+    >   
+    >   [auth]
+    >   host = https://rucio.srcdev.skao.int
+    >   type = oidc
+    >   
+    >   [rucio]
+    >   host = https://rucio.srcdev.skao.int
+
+
+# -----------------------------------------------------
+# Login to our account.
+#[user@rucio-client]
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >   
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?................
+    >   
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   ................................
+    >   
+    >   status     : ACTIVE
+    >   suspended_at : None
+    >   account    : ........
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : ........
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+
+    cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+
+    >   eyJraWQi....it3FcMeg
+
+
+# -----------------------------------------------------
+# Copy out token out of our Rucio client.
+#[user@desktop]
+
+    pushd $(mktemp -d)
+
+    podman ps
+
+    >   CONTAINER ID  IMAGE                                                                                   COMMAND     CREATED      STATUS      PORTS       NAMES
+    >   b82ab0eda3cc  registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0              2 hours ago  Up 2 hours              ska-rucio-client
+
+    podman cp \
+        ska-rucio-client:/tmp/user/.rucio_user/auth_token_for_account_zarquan \
+        .
+
+    ls
+
+    >   auth_token_for_account_zarquan
+
+
+    cat auth_token_for_account_zarquan
+
+    >   eyJraWQi....it3FcMeg
+
+
+# -----------------------------------------------------
+# Or just cat the file in the conatiner.
+#[user@desktop]
+
+    podman exec \
+        ska-rucio-client \
+        cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+
+    >   eyJraWQi....it3FcMeg
+
+
+# -----------------------------------------------------
+# Run the ingestor service in a container.
+#[user@desktop]
+
+    tempdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
+    mkdir "${tempdir}"
+    pushd "${tempdir}"
+
+    token=$(
+        podman exec \
+            ska-rucio-client \
+            cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+        )
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
+
+    mkdir "$(pwd)/ingest"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env "RUCIO_CFG_CLIENT_HOST=https://rucio.srcnet.skao.int" \
+        --env "RUCIO_CFG_CLIENT_AUTH_TYPE=oidc" \
+        --env "RUCIO_CFG_CLIENT_ACCOUNT=zarquan" \
+        --env "RUCIO_CFG_CLIENT_OIDC_SCOPE=openid profile rucio wlcg.groups" \
+        --env "RUCIO_CFG_CLIENT_OIDC_AUDIENCE=rucio https://wlcg.cern.ch/jwt/v1/any" \
+        --env "OIDC_ACCESS_TOKEN=${token}" \
+        --env "RUCIO_INGEST_RSE_NAME=STFC_STORM" \
+        --env "INGESTION_BACKEND_NAME=rucio" \
+        --env "ELASTICSEARCH_URL=https://monit.srcdev.skao.int:443/elastic" \
+        --env "ELASTICSEARCH_INDEX=ingestion" \
+        --name ska-rucio-ingestor \
+        --volume "$(pwd)/ingest:/tmp/ingest:rw,z" \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 5 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+    >   proceeding with oidc authentication using an access token...
+    >   status     : ACTIVE
+    >   account    : zarquan
+    >   suspended_at : None
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : dave.morris@manchester.ac.uk
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+    >   Token expires in 541 minutes
+    >   2025-05-07 05:46:50,760 [root]     ingest  INFO 15	Starting loop for directory /tmp/ingest/staging...
+    >   2025-05-07 05:46:50,760 [root]     ingest WARNING 15	Couldn't decompose path /tmp/ingest/staging, skipping...
+    >   2025-05-07 05:46:50,760 [root]     ingest  INFO 15	No new files found for this iteration
+    >   2025-05-07 05:46:50,760 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create our test data.
+#[user@desktop]
+
+    tempdir=${HOME}/temp/20250507-064446
+    staging=${tempdir}/ingest/${filename}/staging
+
+    domain=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    mkdir "${staging}/${domain}"
+
+    #
+    # Create test data
+    date > "${staging}/${domain}/${filename}"
+
+    #
+    # Create meta data
+cat > "${staging}/${domain}/${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${domain}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata",
+    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+    jq '.' "${staging}/${domain}/${filename}.meta"
+
+    >   {
+    >     "name": "zrq-test-20250507-065256",
+    >     "namespace": "testing",
+    >     "lifetime": 86400,
+    >     "meta": {
+    >       "obs_id": "zrq-test-20250507-065256",
+    >       "obs_collection": "testdata",
+    >       "obs_publisher_did": "ivo://skao.int/testdata/testing:zrq-test-20250507-065256",
+    >       "obs_creator_did": "ivo://skao.int/testdata/testing:zrq-test-20250507-065256",
+    >       "dataproduct_type": "testdata",
+    >       "calib_level": 0
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# .....
+#[user@desktop]
+
+    #
+    # Logging output from the ingestor ..
+    #
+
+    2025-05-07 05:55:21,424 [root]     ingest  INFO 15
+    Found the following new files in this iteration:
+        {
+        '/tmp/ingest/staging/testing/zrq-test-20250507-065256': '/tmp/ingest/staging/testing/zrq-test-20250507-065256.meta'
+        }
+    2025-05-07 05:55:21,982 [root]     ingest  INFO 28
+    Ingesting new file /tmp/ingest/staging/testing/zrq-test-20250507-065256
+        (
+        metadata: /tmp/ingest/staging/testing/zrq-test-20250507-065256.meta
+        )
+    with identifier 23328724-87d3-4517-8b8b-e6dc42362c7a.
+
+    2025-05-07 05:55:22,187 [root]    handler WARNING 28
+    AuthenticationException('<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n',
+        meta=ApiResponseMeta(
+            status=401,
+            http_version='1.1',
+            headers={
+                'content-length': '112',
+                'cache-control': 'no-cache',
+                'content-type': 'text/html',
+                'www-authenticate': 'Basic realm="http-in"',
+                'connection': 'close'
+                },
+            duration=0.12514638900756836,
+            node=NodeConfig(
+                scheme='https',
+                host='monit.srcdev.skao.int',
+                port=443,
+                path_prefix='/elastic',
+                headers={
+                    'user-agent': 'elasticsearch-py/8.7.0(Python/3.9.19; elastic-transport/8.17.1)'
+                    },
+                connections_per_node=10,
+                request_timeout=10.0,
+                http_compress=False,
+                verify_certs=True,
+                ca_certs=None,
+                client_cert=None,
+                client_key=None,
+                ssl_assert_hostname=None,
+                ssl_assert_fingerprint=None,
+                ssl_version=None,
+                ssl_context=None,
+                ssl_show_warn=True,
+                _extras={}
+                )
+            ),
+        body='<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n'
+        )
+    2025-05-07 05:55:22,300 [root] uploadclient  INFO 28
+        Preparing upload for file zrq-test-20250507-065256
+    2025-05-07 05:55:22,340 [root]     ingest CRITICAL 28
+        Exception(
+            'General error occurred: RSEProtocolNotSupported(
+                "No protocol for provided settings found : {
+                'availability_delete': True,
+                'availability_read': True,
+                'availability_write': True,
+                'credentials': None,
+                'deterministic': True,
+                'domain': [
+                    'lan',
+                    'wan'
+                    ],
+                'id': '6db4faaab85c47e6a3641dd280a7d94e',
+                'lfn2pfn_algorithm': 'hash',
+                'protocols': [],
+                'qos_class': None,
+                'rse': 'STFC_STORM',
+                'rse_type': 'DISK',
+                'sign_url': None,
+                'staging_area': False,
+                'verify_checksum': True,
+                'volatile': False,
+                'read_protocol': 1,
+                'write_protocol': 1,
+                'delete_protocol': 1,
+                'third_party_copy_read_protocol': 1,
+                'third_party_copy_write_protocol': 1,
+                'availability': 7
+                }
+            ),
+        traceback:
+            File "/opt/ska-src-dm-di-ingestor/src/ingestor/common/exceptions.py", line 10,
+            in wrapper
+                return func(*args, **kwargs)
+            File "/opt/ska-src-dm-di-ingestor/src/ingestor/ingestion/backends/rucio.py", line 43,
+            in upload
+                upload_client.upload(items=items)
+            File "/usr/local/lib/python3.9/site-packages/rucio/client/uploadclient.py", line 235,
+            in upload
+                if rsemgr.exists(
+                    rse_settings,
+                    pfn if pfn else file_did,
+                    domain=domain,
+                    scheme=force_scheme,
+                    impl=impl,
+                    auth_token=self.auth_token,
+                    vo=self.client.vo,
+                    logger=logger
+                    ):
+            File "/usr/local/lib/python3.9/site-packages/rucio/rse/rsemanager.py", line 269,
+            in exists\n    protocol = create_protocol(rse_settings, 'read', scheme=scheme, impl=impl, domain=domain, auth_token=auth_token, logger=logger)\n
+            File "/usr/local/lib/python3.9/site-packages/rucio/rse/rsemanager.py", line 185, in create_protocol\n    protocol_attr = select_protocol(rse_settings, operation, scheme, domain)
+            File "/usr/local/lib/python3.9/site-packages/rucio/rse/rsemanager.py", line 151, in select_protocol\n    candidates = _get_possible_protocols(rse_settings, operation, scheme, domain)
+            File "/usr/local/lib/python3.9/site-packages/rucio/rse/rsemanager.py", line 126, in _get_possible_protocols\n    raise exception.RSEProtocolNotSupported('No protocol for provided settings'\n')
+
+    2025-05-07 05:55:22,340 [root]    message WARNING 28
+        Key not found for message: KeyError("'availability_delete'")
+    2025-05-07 05:55:22,407 [root]    handler WARNING 28
+        AuthenticationException('<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n',
+        meta=ApiResponseMeta(status=401, http_version='1.1', headers={'content-length': '112', 'cache-control': 'no-cache', 'content-type': 'text/html', 'www-authenticate': 'Basic realm="http-in"'}, duration=0.05872821807861328, node=NodeConfig(scheme='https', host='monit.srcdev.skao.int', port=443, path_prefix='/elastic', headers={'user-agent': 'elasticsearch-py/8.7.0 (Python/3.9.19; elastic-transport/8.17.1)'}, connections_per_node=10, request_timeout=10.0, http_compress=False, verify_certs=True, ca_certs=None, client_cert=None, client_key=None, ssl_assert_hostname=None, ssl_assert_fingerprint=None, ssl_version=None, ssl_context=None, ssl_show_warn=True, _extras={})), body='<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n')
+    2025-05-07 05:55:22,424 [root]    handler WARNING 28
+        AuthenticationException('<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n',
+        meta=ApiResponseMeta(status=401, http_version='1.1', headers={'content-length': '112', 'cache-control': 'no-cache', 'content-type': 'text/html', 'www-authenticate': 'Basic realm="http-in"'}, duration=0.012772083282470703, node=NodeConfig(scheme='https', host='monit.srcdev.skao.int', port=443, path_prefix='/elastic', headers={'user-agent': 'elasticsearch-py/8.7.0 (Python/3.9.19; elastic-transport/8.17.1)'}, connections_per_node=10, request_timeout=10.0, http_compress=False, verify_certs=True, ca_certs=None, client_cert=None, client_key=None, ssl_assert_hostname=None, ssl_assert_fingerprint=None, ssl_version=None, ssl_context=None, ssl_show_warn=True, _extras={})), body='<html><body><h1>401 Unauthorized</h1>\nYou need a valid user and password to access this content.\n</body></html>\n')
+
+    '
+
+  #
+  # That sounds familiar.
+  # Try again using SPSRC_STORM.
+  #
+
+
+
+
+
+# -----------------------------------------------------
+# Create our temp directory.
+#[user@desktop]
+
+    ingestdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
+    mkdir "${ingestdir}"
+
+    echo "${ingestdir}" > "${HOME}/ingestdir.txt"
+
+# -----------------------------------------------------
+# Run the ingestor service in a container.
+#[user@desktop]
+
+    rsename=SPSRC_STORM
+
+    token=$(
+        podman exec \
+            ska-rucio-client \
+            cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+        )
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
+
+    ingestdir=$(cat "${HOME}/ingestdir.txt")
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env "RUCIO_CFG_CLIENT_HOST=https://rucio.srcnet.skao.int" \
+        --env "RUCIO_CFG_CLIENT_AUTH_TYPE=oidc" \
+        --env "RUCIO_CFG_CLIENT_ACCOUNT=zarquan" \
+        --env "RUCIO_CFG_CLIENT_OIDC_SCOPE=openid profile rucio wlcg.groups" \
+        --env "RUCIO_CFG_CLIENT_OIDC_AUDIENCE=rucio https://wlcg.cern.ch/jwt/v1/any" \
+        --env "OIDC_ACCESS_TOKEN=${token}" \
+        --env "RUCIO_INGEST_RSE_NAME=${rsename}" \
+        --env "INGESTION_BACKEND_NAME=rucio" \
+        --name "ska-rucio-ingestor" \
+        --volume "${ingestdir}:/tmp/ingest:rw,z" \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 5 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+    >   proceeding with oidc authentication using an access token...
+    >   status     : ACTIVE
+    >   suspended_at : None
+    >   account    : zarquan
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : dave.morris@manchester.ac.uk
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+    >   Token expires in 496 minutes
+    >   2025-05-07 06:31:20,933 [root]     ingest  INFO 15	Starting loop for directory /tmp/ingest/staging...
+    >   2025-05-07 06:31:20,933 [root]     ingest WARNING 15	Couldn't decompose path /tmp/ingest/staging, skipping...
+    >   2025-05-07 06:31:20,933 [root]     ingest  INFO 15	No new files found for this iteration
+    >   2025-05-07 06:31:20,933 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create our test data.
+#[user@desktop]
+
+    domain=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    ingestdir=$(cat "${HOME}/ingestdir.txt")
+    mkdir -p "${ingestdir}/staging/${domain}"
+
+    #
+    # Create test data
+    date > "${ingestdir}/staging/${domain}/${filename}"
+
+    #
+    # Create meta data
+cat > "${ingestdir}/staging/${domain}/${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${domain}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata",
+    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+    >   ....
+    >   ....
+    >   2025-05-07 06:34:24,385 [root]     ingest  INFO 15	Found the following new files in this iteration: {'/tmp/ingest/staging/testing/zrq-test-20250507-073423': '/tmp/ingest/staging/testing/zrq-test-20250507-073423.meta'}
+    >   2025-05-07 06:34:24,952 [root]     ingest  INFO 21	Ingesting new file /tmp/ingest/staging/testing/zrq-test-20250507-073423 (metadata: /tmp/ingest/staging/testing/zrq-test-20250507-073423.meta) with identifier 1c66dbfe-98cc-46f9-bd95-099efecb6aa0.
+    >   2025-05-07 06:34:25,079 [root] uploadclient  INFO 21	Preparing upload for file zrq-test-20250507-073423
+    >   2025-05-07 06:34:25,465 [root] uploadclient  INFO 21	Trying upload with davs to SPSRC_STORM
+    >   2025-05-07 06:34:26,054 [root] uploadclient  INFO 21	Successful upload of temporary file. davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/d8/5f/zrq-test-20250507-073423.rucio.upload
+    >   2025-05-07 06:34:26,546 [root] uploadclient  INFO 21	Successfully uploaded file zrq-test-20250507-073423
+    >   2025-05-07 06:34:26,735 [root] uploadclient  INFO 21	Successfully added replica in Rucio catalogue at SPSRC_STORM
+    >   2025-05-07 06:34:26,797 [root] uploadclient  INFO 21	Successfully added replication rule at SPSRC_STORM
+    >   2025-05-07 06:34:26,870 [root]     ingest  INFO 21	Ingested /tmp/ingest/staging/testing/zrq-test-20250507-073423 (metadata: /tmp/ingest/staging/testing/zrq-test-20250507-073423.meta) with identifier 1c66dbfe-98cc-46f9-bd95-099efecb6aa0
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Find the file in Rucio.
+#[user@rucio-client]
+
+    domain=testing
+    filename=zrq-test-20250507-073423
+
+    #
+    # Check the file exists.
+    rucio stat \
+        "${domain}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6c5006a2
+    >   bytes:    29
+    >   length:   1
+    >   md5:      88814812ba3cd38229cd70e89e84d357
+    >   name:     zrq-test-20250507-073423
+    >   scope:    testing
+    >   type:     FILE
+
+
+    #
+    # Check the file exists.
+    rucio list-dids \
+        "${domain}:${filename}"
+
+    >   +--------------+--------------+
+    >   | SCOPE:NAME   | [DID TYPE]   |
+    >   |--------------+--------------|
+    >   +--------------+--------------+
+
+
+
+    #
+    # Check the replicas for the file.
+    rucio list-file-replicas \
+        "${domain}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250507-073423 | 29.000 B   | 6c5006a2  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/d8/5f/zrq-test-20250507-073423 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   1018deb0db2e49c3bc46536a28bdb23a  zarquan    testing:zrq-test-20250507-073423  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-08 06:34:26  2025-05-07 06:34:26
+
+
+    #
+    # Try downloading the file
+    rucio download \
+        --dir downloads \
+        "${domain}:${filename}"
+
+    >   2025-05-07 06:54:47,486	INFO	Processing 1 item(s) for input
+    >   2025-05-07 06:54:47,696	INFO	No preferred protocol impl in rucio.cfg: No section: 'download'
+    >   2025-05-07 06:54:47,697	INFO	Using main thread to download 1 file(s)
+    >   2025-05-07 06:54:47,697	INFO	Preparing download of testing:zrq-test-20250507-073423
+    >   2025-05-07 06:54:47,764	INFO	Trying to download with davs and timeout of 60s from SPSRC_STORM: testing:zrq-test-20250507-073423
+    >   2025-05-07 06:54:47,817	INFO	Using PFN: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/d8/5f/zrq-test-20250507-073423
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099: InsecureRequestWarning: Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+    >   2025-05-07 06:54:48,333	INFO	File testing:zrq-test-20250507-073423 successfully downloaded. 29.000 B in 0.43 seconds = 0.0 MBps
+    >   ----------------------------------
+    >   Download summary
+    >   ----------------------------------------
+    >   DID testing:zrq-test-20250507-073423
+    >   Total files (DID):                            1
+    >   Total files (filtered):                       1
+    >   Downloaded files:                             1
+    >   Files already found locally:                  0
+    >   Files that cannot be downloaded:              0
+
+    #
+    # What about the metadata in our TAP service ?
+    #
+
+
+
