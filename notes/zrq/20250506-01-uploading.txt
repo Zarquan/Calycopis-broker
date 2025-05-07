@@ -1,0 +1,826 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Uploading files into Rucio.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Experiment with Rucio client
+# [CHOC-17][CHOC-35] Deploy & test ingestion daemon at CSCS
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=284182873
+#[user@desktop]
+
+    accountname=yrvafhom
+    imageurl=registry.gitlab.com/ska-telescope/src/ska-rucio-client:release-1.29.0
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --env RUCIO_CFG_ACCOUNT=${accountname} \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   Trying to pull registry.gitlab.com/ska-telescope/src/ska-rucio-client:release-1.29.0...
+    >   Error: initializing source docker://registry.gitlab.com/ska-telescope/src/ska-rucio-client:release-1.29.0: Requesting bearer token: invalid status code from registry 403 (Forbidden)
+
+
+# -----------------------------------------------------
+# Experiment with Rucio client
+# Demo: SP-4896 TAP discovery of MWA visibilities in Rucio
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+#[user@desktop]
+
+    #
+    # Run the rucio client in Docker
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >   
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?........
+    >   
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   ........
+    >   status     : ACTIVE
+    >   account    : ........
+    >   suspended_at : None
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : ........
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+
+
+    rucio list-rses
+
+    >   AARNET_PER
+    >   AARNET_PER_ND
+    >   AUSRC_STORM
+    >   AUSSRC_STORM
+    >   CASRC_XRD
+    >   CHSRC_DCACHE
+    >   CHSRC_S3
+    >   CHSRC_XRD
+    >   CHSRC_XRD_DEV
+    >   CHSRC_XRD_PROD
+    >   CNAF
+    >   CNSRC-SHAO-T1
+    >   CNSRC_STORM
+    >   CNSRC_STORM_YUN
+    >   CNSRC_XRD
+    >   DESY_DCACHE
+    >   DESY_DCACHE_ND
+    >   IDIA
+    >   IDIA_ND
+    >   IMPERIAL
+    >   ITSRC_IRA_XRD
+    >   ITSRC_OACT_XRD
+    >   JPSRC_STORM
+    >   JPSRC_STORM_PROD
+    >   KRSRC_STORM
+    >   LANCASTER
+    >   LANCASTER_ND
+    >   MANCHESTER
+    >   MANCHESTER_ND
+    >   NLSRC_DCACHE
+    >   NLSRC_PROD_DCACHE
+    >   SESRC_XRD
+    >   SESRC_XRD_RBD
+    >   SKAO_S3
+    >   SPSRC_STORM
+    >   STFC_STORM
+    >   STFC_STORM_ND
+    >   SWESRC-OSO-T0
+    >   SWESRC-OSO-T1
+    >   UKSRC_RAL_XRD_DEVCEPHFS
+
+
+    rucio list-scopes
+
+    >   testing
+    >   root_test
+    >   testing2
+    >   rjoshi_test
+    >   testing_long_haul
+    >   testing_subscription
+    >   testing_functional
+    >   hierarchy_tests
+    >   dlaas_workflows
+    >   sdc3a
+    >   testing_swarp
+    >   orange
+    >   magenta
+    >   coral
+    >   olive
+    >   bluelavender
+    >   sp3531_soda
+    >   testing_ingest_170723
+    >   testing_ingest_180723
+    >   src-workloads
+    >   sp3751_hips
+    >   wallaby
+    >   vgps
+    >   cgps
+    >   vlass
+    >   purple
+    >   data_movement_requests
+    >   jwalder.workflow_data
+    >   aussrc.testing
+    >   sp4274_subscriptions
+    >   chocolate
+    >   sp4896_mwa
+    >   tangerine
+    >   daac388_meertrap
+    >   daac
+    >   azure
+    >   teal
+
+
+    domain=testing
+    filename=zrq-test-001
+    lifetime=86400
+
+    #
+    # Check if file exists
+    rucio list-dids "${domain}:${filename}" --filter 'type=file'
+
+    >   +--------------+--------------+
+    >   | SCOPE:NAME   | [DID TYPE]   |
+    >   |--------------+--------------|
+    >   +--------------+--------------+
+
+
+    #
+    # Create test data
+    date > "${filename}"
+
+    #
+    # Create meta data
+cat > "${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${domain}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata"
+    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+
+    #
+    # Upload to a working rucio endpoint
+
+    rucio \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+
+    rucio \
+        --verbose \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	No trace_host passed. Using rucio_host instead
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	HTTPS is required, but no ca_cert was passed. Trying to get it from X509_CERT_DIR.
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	HTTPS is required, but no ca_cert was passed and X509_CERT_DIR is not defined. Trying to get it from the config file.
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	No account passed. Trying to get it from the RUCIO_ACCOUNT environment variable or the config file.
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	No VO passed. Trying to get it from environment variable RUCIO_VO.
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	No VO found. Trying to get it from the config file.
+    >   2025-05-06 05:17:19,317	DEBUG	baseclient.py	No VO found. Using default VO.
+    >   2025-05-06 05:17:19,318	DEBUG	baseclient.py	got token from file
+    >   2025-05-06 05:17:19,318	DEBUG	baseclient.py	request_retries not specified in config file. Taking default.
+    >   2025-05-06 05:17:19,321	ERROR	can only concatenate str (not "NoneType") to str
+    >   2025-05-06 05:17:19,321	DEBUG	rucio	This means the parameter you passed has a wrong type.
+
+
+    cat /opt/rucio/etc/rucio.cfg
+
+    >   [client]
+    >   rucio_host = https://rucio.srcnet.skao.int
+    >   auth_host = https://rucio-auth.srcnet.skao.int
+    >   trace_host = https://rucio-trace.srcnet.skao.int
+    >   ca_cert = /opt/rucio/etc/certs/ISRG_Root_X1.pem
+    >   auth_type = oidc
+    >   oidc_scope = openid profile offline_access wlcg.groups
+    >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
+    >   
+    >   [auth]
+    >   host = https://rucio.srcdev.skao.int
+    >   type = oidc
+    >   
+    >   [rucio]
+    >   host = https://rucio.srcdev.skao.int
+
+
+    rucio --verbose whoami
+
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	No trace_host passed. Using rucio_host instead
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	HTTPS is required, but no ca_cert was passed. Trying to get it from X509_CERT_DIR.
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	HTTPS is required, but no ca_cert was passed and X509_CERT_DIR is not defined. Trying to get it from the config file.
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	No account passed. Trying to get it from the RUCIO_ACCOUNT environment variable or the config file.
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	No VO passed. Trying to get it from environment variable RUCIO_VO.
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	No VO found. Trying to get it from the config file.
+    >   2025-05-06 05:38:15,184	DEBUG	baseclient.py	No VO found. Using default VO.
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	got token from file
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	request_retries not specified in config file. Taking default.
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP request: GET https://rucio.srcnet.skao.int/accounts/whoami
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP header:  X-Rucio-Auth-Token: [hidden]
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP header:  X-Rucio-VO: def
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP header:  Connection: Keep-Alive
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP header:  User-Agent: rucio-clients/35.6.0
+    >   2025-05-06 05:38:15,185	DEBUG	baseclient.py	HTTP header:  X-Rucio-Script: rucio::--verbose
+    >   2025-05-06 05:38:15,265	DEBUG	baseclient.py	HTTP Response: 200 OK
+    >   status     : ACTIVE
+    >   account    : ........
+    >   suspended_at : None
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : ........
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+    >   Completed in 0.0827 sec.
+
+
+    export RUCIO_CFG_ACCOUNT=albert
+    export RUCIO_CFG_ACCOUNT=zarquan
+    export RUCIO_CFG_CLIENT_ACCOUNT=albert
+    export RUCIO_CFG_CLIENT_ACCOUNT=root
+    export RUCIO_CFG_CLIENT_ACCOUNT=user
+    export RUCIO_CFG_CLIENT_ACCOUNT=zarquan
+
+    rucio \
+        --verbose \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+
+    #
+    # Found a clue in the source code.
+
+    cat /usr/local/rucio_client/merge_rucio_configs.py
+
+        ....
+        # env variables use the following format: "RUCIO_CFG_{section.substitute('-','_').upper}_{option.substitute('-', '_').upper}"
+        ....
+
+    So we need to set RUCIO_CFG_CLIENT_ACCOUNT before the merge script is called.
+    e.g. pas it as to the container an env variable
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_CLIENT_ACCOUNT=zarquan \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 4 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+
+
+    cat /opt/rucio/etc/rucio.cfg
+
+    >   [client]
+    >   rucio_host = https://rucio.srcnet.skao.int
+    >   auth_host = https://rucio-auth.srcnet.skao.int
+    >   trace_host = https://rucio-trace.srcnet.skao.int
+    >   ca_cert = /opt/rucio/etc/certs/ISRG_Root_X1.pem
+    >   auth_type = oidc
+    >   oidc_scope = openid profile offline_access wlcg.groups
+    >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
+    >   account = zarquan
+    >   
+    >   [auth]
+    >   host = https://rucio.srcdev.skao.int
+    >   type = oidc
+    >   
+    >   [rucio]
+    >   host = https://rucio.srcdev.skao.int
+
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >   
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?...........
+    >   
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   ...........
+    >   
+    >   status     : ACTIVE
+    >   suspended_at : None
+    >   account    : ........
+    >   account_type : USER
+    >   created_at : 2025-03-31T16:15:05
+    >   email      : ........
+    >   deleted_at : None
+    >   updated_at : 2025-03-31T16:15:05
+
+
+    domain=testing
+    filename=zrq-test-001
+    lifetime=86400
+
+    #
+    # Check if file exists
+    rucio list-dids "${domain}:${filename}" --filter 'type=file'
+
+    >   +--------------+--------------+
+    >   | SCOPE:NAME   | [DID TYPE]   |
+    >   |--------------+--------------|
+    >   +--------------+--------------+
+
+
+    #
+    # Create test data
+    date > "${filename}"
+
+    #
+    # Create meta data
+cat > "${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${domain}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata"
+    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+
+    #
+    # Upload the file.
+    rucio \
+        upload \
+            --rse STFC_STORM \
+            --scope "${domain}" \
+            --lifetime ${lifetime} \
+            "${filename}"
+
+    >   2025-05-06 07:03:48,989	INFO	Preparing upload for file zrq-test-001
+    >   2025-05-06 07:03:49,130	INFO	Successfully added replica in Rucio catalogue at STFC_STORM
+    >   2025-05-06 07:03:49,195	INFO	Successfully added replication rule at STFC_STORM
+    >   2025-05-06 07:03:49,525	INFO	Trying upload with davs to STFC_STORM
+    >   2025-05-06 07:03:49,902	INFO	Successful upload of temporary file. davs://storm.srcdev.skao.int:443/sa/deterministic/testing/d4/74/zrq-test-001.rucio.upload
+    >   2025-05-06 07:03:50,396	INFO	Successfully uploaded file zrq-test-001
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099: InsecureRequestWarning: Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+
+    #
+    # Check if file exists
+    rucio list-dids "${domain}:${filename}" --filter 'type=file'
+
+    >   +----------------------+--------------+
+    >   | SCOPE:NAME           | [DID TYPE]   |
+    >   |----------------------+--------------|
+    >   | testing:zrq-test-001 | FILE         |
+    >   +----------------------+--------------+
+
+    #
+    # Check if it has replicas yet.
+    rucio list-file-replicas "${domain}:${filename}"
+
+    >   +---------+--------------+------------+-----------+------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME         | FILESIZE   | ADLER32   | RSE: REPLICA                                                                             |
+    >   |---------+--------------+------------+-----------+------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-001 | 29.000 B   | 6fbb06ae  | STFC_STORM: davs://storm.srcdev.skao.int:443/sa/deterministic/testing/d4/74/zrq-test-001 |
+    >   +---------+--------------+------------+-----------+------------------------------------------------------------------------------------------+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+
+
+    #
+    # Check the rules for our account.
+    rucio list-rules --account "${RUCIO_CFG_CLIENT_ACCOUNT}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+
+
+    #
+    # Check the rules for our a different account.
+    rucio list-rules --account jdoe
+
+    >   ID                                ACCOUNT    SCOPE:NAME                                 STATE[OK/REPL/STUCK]    RSE_EXPRESSION        COPIES  EXPIRES (UTC)
+    >   --------------------------------  ---------  -----------------------------------------  ----------------------  ------------------  --------  -------------------
+    >   a12e5664555a4f12b3cc6991db5accf9  jdoe       user.jdoe:user.jdoe.test.container.1234.1  OK[3/0/0]               tier=1&disk=1       1         2018-02-09 03:57:46
+    >   08537b2176843d92e05317938a89d148  jdoe       user.jdoe:user.jdoe.test.data.1234.1       OK[2/0/0]               SITE2_DISK          1
+
+
+    #
+    # Create another replica ..
+    rucio add-rule \
+        "${domain}:${filename}" \
+        1 \
+        'SWESRC-OSO-T0'
+
+    >   8cb035f184224a2ca74f9807308d81dd
+
+
+    #
+    # Check the file replicas.
+    rucio list-file-replicas "${domain}:${filename}"
+
+    >   +---------+--------+------------+-----------+----------------+
+    >   | SCOPE   | NAME   | FILESIZE   | ADLER32   | RSE: REPLICA   |
+    >   |---------+--------+------------+-----------+----------------|
+    >   +---------+--------+------------+-----------+----------------+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+    >   8cb035f184224a2ca74f9807308d81dd  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T0     1         29.000 B                       2025-05-06 15:50:56
+
+
+    #
+    # Create another replica ..
+    rucio add-rule \
+        "${domain}:${filename}" \
+        1 \
+        'SWESRC-OSO-T1'
+
+    >   978c47cf060d464c881b1e71321d2b69
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+    >   8cb035f184224a2ca74f9807308d81dd  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T0     1         29.000 B                       2025-05-06 15:50:56
+    >   978c47cf060d464c881b1e71321d2b69  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T1     1         29.000 B                       2025-05-06 15:54:36
+
+
+    #
+    # Check the file replicas.
+    rucio list-file-replicas "${domain}:${filename}"
+
+    >   +---------+--------+------------+-----------+----------------+
+    >   | SCOPE   | NAME   | FILESIZE   | ADLER32   | RSE: REPLICA   |
+    >   |---------+--------+------------+-----------+----------------|
+    >   +---------+--------+------------+-----------+----------------+
+
+
+    #
+    # Check if file still exists
+    rucio list-dids "${domain}:${filename}" --filter 'type=file'
+
+    >   +----------------------+--------------+
+    >   | SCOPE:NAME           | [DID TYPE]   |
+    >   |----------------------+--------------|
+    >   | testing:zrq-test-001 | FILE         |
+    >   +----------------------+--------------+
+
+    #
+    # Try some different services/
+    rucio add-rule \
+        "${domain}:${filename}" \
+        1 \
+        'AUSSRC_STORM'
+
+    >   2025-05-06 16:02:34,782	ERROR	RSE excluded; not available for writing.
+    >   Details: RSE excluded; not available for writing.
+
+
+    rucio list-rses --rses 'tier=1'
+
+    >   2025-05-06 16:04:03,005	ERROR	Provided RSE expression is considered invalid.
+    >   Details: RSE Expression resulted in an empty set.
+
+
+    rucio list-rses --rses 'tier=0'
+    >   2025-05-06 16:04:07,968	ERROR	Provided RSE expression is considered invalid.
+    >   Details: RSE Expression resulted in an empty set.
+
+
+    rucio list-rses --rses 'tier=2'
+    >   2025-05-06 16:04:10,993	ERROR	Provided RSE expression is considered invalid.
+    >   Details: RSE Expression resulted in an empty set.
+
+    #
+    # All I want to do is add another replica.
+    # *wherever* there is space.
+    #
+
+    rucio list-rses --help
+
+    >   usage: rucio list-rses [-h] [--rses RSES]
+    >   
+    >   optional arguments:
+    >     -h, --help   show this help message and exit
+    >     --rses RSES  The RSE filter expression. A comprehensive help about RSE expressions can be found in
+    >                  https://rucio.cern.ch/documentation/started/concepts/rse_expressions
+
+    #
+    # Check the documentation.
+    # https://rucio.cern.ch/documentation/started/concepts/rse_expressions
+    #
+
+    rucio list-rse-attributes STFC_STORM
+
+    >   STFC_STORM:      True
+    >   country:         UK
+    >   fts:             https://fts3-ska.scd.rl.ac.uk:8446
+    >   greedyDeletion:  True
+    >   istape:          False
+    >   oidc_support:    True
+
+
+    rucio list-rse-attributes AUSSRC_STORM
+
+    >   AUSSRC_STORM:  True
+    >   fts:           https://fts3-ska.scd.rl.ac.uk:8446
+    >   istape:        False
+    >   oidc_support:  True
+
+
+    rucio list-rse-attributes AUSRC_STORM
+
+    >   AUSRC_STORM:   True
+    >   fts:           https://fts3-ska.scd.rl.ac.uk:8446
+    >   istape:        False
+    >   oidc_support:  True
+
+
+    rucio list-rse-attributes SWESRC-OSO-T0
+
+    >   SWESRC-OSO-T0:  True
+    >   fts:            https://fts3-ska.scd.rl.ac.uk:8446
+    >   istape:         False
+    >   oidc_support:   True
+
+
+    rucio list-rse-attributes SWESRC-OSO-T1
+
+    >   SWESRC-OSO-T1:  True
+    >   fts:            https://fts3-ska.scd.rl.ac.uk:8446
+    >   istape:         False
+    >   oidc_support:   True
+
+
+    rucio list-rse-attributes SPSRC_STORM
+
+    >   SPSRC_STORM:       True
+    >   fts:               https://fts3-ska.scd.rl.ac.uk:8446
+    >   istape:            False
+    >   oidc_support:      True
+    >   skip_upload_stat:  False
+
+
+
+    #
+    # Try some different services/
+    rucio add-rule \
+        "${domain}:${filename}" \
+        1 \
+        'SPSRC_STORM'
+
+    >   ed99b38d6f6a40f3a1fe3e9876d4025a
+
+
+    rucio list-file-replicas "${domain}:${filename}"
+
+    >   +---------+--------+------------+-----------+----------------+
+    >   | SCOPE   | NAME   | FILESIZE   | ADLER32   | RSE: REPLICA   |
+    >   |---------+--------+------------+-----------+----------------|
+    >   +---------+--------+------------+-----------+----------------+
+
+    #
+    # Check the rules for our account.
+    rucio list-rules --account "${RUCIO_CFG_CLIENT_ACCOUNT}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+    >   978c47cf060d464c881b1e71321d2b69  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T1     1         29.000 B                       2025-05-06 15:54:36
+    >   8cb035f184224a2ca74f9807308d81dd  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T0     1         29.000 B                       2025-05-06 15:50:56
+    >   ed99b38d6f6a40f3a1fe3e9876d4025a  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SPSRC_STORM       1         29.000 B                       2025-05-06 16:15:21
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules "${domain}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME            STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   6cf9d14f265d44ca9e27623823d4c008  zarquan    testing:zrq-test-001  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-07 07:03:49  2025-05-06 07:03:49
+    >   978c47cf060d464c881b1e71321d2b69  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T1     1         29.000 B                       2025-05-06 15:54:36
+    >   8cb035f184224a2ca74f9807308d81dd  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SWESRC-OSO-T0     1         29.000 B                       2025-05-06 15:50:56
+    >   ed99b38d6f6a40f3a1fe3e9876d4025a  zarquan    testing:zrq-test-001  STUCK[0/0/1]            SPSRC_STORM       1         29.000 B                       2025-05-06 16:15:21
+
+    #
+    # How do we find which RSEs are OK to use ?
+    # Should these rules have worked ?
+    # Is there anything wrong with the rules ?
+    #
+
+
+    #
+    # If it has no replicas .. where is it ?
+    rucio list-file-replicas "${domain}:${filename}"
+
+    >   +---------+--------+------------+-----------+----------------+
+    >   | SCOPE   | NAME   | FILESIZE   | ADLER32   | RSE: REPLICA   |
+    >   |---------+--------+------------+-----------+----------------|
+    >   +---------+--------+------------+-----------+----------------+
+
+
+    #
+    # Can we download it ?
+    mkdir downloads
+
+    rucio download \
+        --dir downloads \
+        "${domain}:${filename}"
+
+    >   2025-05-06 17:58:07,970	INFO	Processing 1 item(s) for input
+    >   2025-05-06 17:58:08,261	INFO	No preferred protocol impl in rucio.cfg: No section: 'download'
+    >   2025-05-06 17:58:08,263	INFO	Using main thread to download 1 file(s)
+    >   2025-05-06 17:58:08,263	INFO	Preparing download of testing:zrq-test-001
+    >   2025-05-06 17:58:08,263	WARNING	No available source found for file: testing:zrq-test-001
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099: InsecureRequestWarning: Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+    >   2025-05-06 17:58:08,357	ERROR	None of the requested files have been downloaded.
+
+    #
+    # So no, the file has been lost somehow.
+    # NOT reassuring ..
+    #
+
+    rucio stat "${domain}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6fbb06ae
+    >   bytes:    29
+    >   length:   1
+    >   md5:      767a94efc26738a1574c1ca47add5e39
+    >   name:     zrq-test-001
+    >   scope:    testing
+    >   type:     FILE
+
+
+    rucio get-metadata "${domain}:${filename}"
+
+    >   access_cnt:      None
+    >   accessed_at:     None
+    >   account:         zarquan
+    >   adler32:         6fbb06ae
+    >   availability:    AVAILABLE
+    >   bytes:           29
+    >   campaign:        None
+    >   closed_at:       None
+    >   complete:        None
+    >   constituent:     None
+    >   created_at:      2025-05-06 07:03:49
+    >   datatype:        None
+    >   deleted_at:      None
+    >   did_type:        FILE
+    >   eol_at:          None
+    >   events:          None
+    >   expired_at:      None
+    >   guid:            28ed5ec286f2446dbb7a180b3b7c84d6
+    >   hidden:          False
+    >   is_archive:      None
+    >   is_new:          False
+    >   is_open:         None
+    >   length:          None
+    >   lumiblocknr:     None
+    >   md5:             767a94efc26738a1574c1ca47add5e39
+    >   monotonic:       False
+    >   name:            zrq-test-001
+    >   obsolete:        False
+    >   panda_id:        None
+    >   phys_group:      None
+    >   prod_step:       None
+    >   project:         None
+    >   provenance:      None
+    >   purge_replicas:  True
+    >   run_number:      None
+    >   scope:           testing
+    >   stream_name:     None
+    >   suppressed:      False
+    >   task_id:         None
+    >   transient:       False
+    >   updated_at:      2025-05-06 07:04:33
+    >   version:         None
+
+
+    rucio erase "${domain}:${filename}"
+
+    >   2025-05-06 18:09:37,739	INFO	CAUTION! erase operation is irreversible after 24 hours. To cancel this operation you can run the following command:
+    >   rucio erase --undo testing:zrq-test-001
+
+
+
+# -----------------------------------------------------
+
+    #
+    # So we managed to loose our data by accident.
+    # This does NOT inspire confidence.
+    #
+
+    #
+    # Start again with a new file ..
+    #
+
+
+
+
+
+
+
+
+
+
+
+
+
+

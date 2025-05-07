@@ -1,0 +1,77 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Ingestor demonstration
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#demonstration
+
+    ObsCore metadata
+    https://github.com/i4Ds/Karabo-Pipeline/blob/71252c758b192e8098b8b00f628e46709bf37076/karabo/data/obscore.py#L172-L300
+
+
+# -----------------------------------------------------
+
+    [CHOC-17][CHOC-35] Deploy & test ingestion daemon at CSCS
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=284182873
+
+    ObsCore metadata
+    https://github.com/i4Ds/Karabo-Pipeline/blob/main/karabo/data/obscore.py#L172-L300
+
+
+    Former Head of MI6: How The Ukraine War Will End & What If China Invades Taiwan? (Sir Alex Younger)
+    https://www.youtube.com/watch?v=Ra5WbypGnmE
+
+    SKAO / SKA Regional Centres / SRC-DM (Data Management) / Data Ingestor Service
+    https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor#demonstration
+
+    CREATE TABLE rucio.obscore
+    https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-rucio-ivoa-integrations/-/blob/330c5c8612ae42e107225523617781c39bd727ae/postgres-metadata/etc/init/dachs/02-rucio.sql#L54-63
+
+    [LAV-402] Generate obscore metadata for an MWA uvfits file - SKAO Jira
+    https://jira.skatelescope.org/browse/LAV-402
+
+    ****
+    Demo: SP-4896 TAP discovery of MWA visibilities in Rucio - SKA Regional Centre Network project - SKAO Community Confluence
+    https://confluence.skatelescope.org/display/SRCSC/Demo%3A+SP-4896+TAP+discovery+of+MWA+visibilities+in+Rucio
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+    ****
+
+    [SP-5327] Improve discoverability of MWA data via TAP/Rucio - SKAO Jira
+    https://jira.skatelescope.org/browse/SP-5327
+
+    ****
+    2025-05-01 Demos & Discussion (Eastern) - SKA Regional Centre Network project
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995109
+    ****
+
