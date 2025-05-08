@@ -150,11 +150,11 @@
     >   oidc_scope = openid profile offline_access wlcg.groups
     >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
     >   account = zarquan
-    >   
+    >
     >   [auth]
     >   host = https://rucio.srcdev.skao.int
     >   type = oidc
-    >   
+    >
     >   [rucio]
     >   host = https://rucio.srcdev.skao.int
 
@@ -166,13 +166,13 @@
     rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
 
     >   Please use your internet browser, go to:
-    >   
+    >
     >       https://rucio.srcnet.skao.int/auth/oidc_redirect?................
-    >   
+    >
     >   and authenticate with your Identity Provider.
     >   Copy paste the code from the browser to the terminal and press enter:
     >   ................................
-    >   
+    >
     >   status     : ACTIVE
     >   suspended_at : None
     >   account    : ........
@@ -474,10 +474,10 @@ EOF
 # Create our temp directory.
 #[user@desktop]
 
-    ingestdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
-    mkdir "${ingestdir}"
+    tempdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
+    mkdir "${tempdir}"
 
-    echo "${ingestdir}" > "${HOME}/ingestdir.txt"
+    echo "${tempdir}" > "${HOME}/tempdir.txt"
 
 # -----------------------------------------------------
 # Run the ingestor service in a container.
@@ -493,7 +493,7 @@ EOF
 
     imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
 
-    ingestdir=$(cat "${HOME}/ingestdir.txt")
+    tempdir=$(cat "${HOME}/tempdir.txt")
 
     podman run \
         --rm \
@@ -508,7 +508,7 @@ EOF
         --env "RUCIO_INGEST_RSE_NAME=${rsename}" \
         --env "INGESTION_BACKEND_NAME=rucio" \
         --name "ska-rucio-ingestor" \
-        --volume "${ingestdir}:/tmp/ingest:rw,z" \
+        --volume "${tempdir}:/tmp/ingest:rw,z" \
         ${imageurl}
 
     >   File rucio.cfg not found. It will generate one.
@@ -542,16 +542,16 @@ EOF
     filename=zrq-test-$(date +%Y%m%d-%H%M%S)
     lifetime=86400
 
-    ingestdir=$(cat "${HOME}/ingestdir.txt")
-    mkdir -p "${ingestdir}/staging/${domain}"
+    tempdir=$(cat "${HOME}/tempdir.txt")
+    mkdir -p "${tempdir}/staging/${domain}"
 
     #
     # Create test data
-    date > "${ingestdir}/staging/${domain}/${filename}"
+    date > "${tempdir}/staging/${domain}/${filename}"
 
     #
     # Create meta data
-cat > "${ingestdir}/staging/${domain}/${filename}.meta" << EOF
+cat > "${tempdir}/staging/${domain}/${filename}.meta" << EOF
 {
 "name": "${filename}",
 "namespace": "${domain}",
