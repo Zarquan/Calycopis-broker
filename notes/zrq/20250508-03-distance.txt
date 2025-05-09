@@ -45,14 +45,28 @@
       --url http://undefinedundefined/rses/{source}/distances/{destination} \
       --header 'X-Rucio-Auth-Token: REPLACE_KEY_VALUE'
 
-    [
-      {
-        "src_rse_id": "string",
-        "dest_rse_id": "string",
-        "distance": 0,
-        "ranking": 0
-      }
-    ]
+        [
+          {
+            "src_rse_id": "string",
+            "dest_rse_id": "string",
+            "distance": 0,
+            "ranking": 0
+          }
+        ]
+
+# -----------------------------------------------------
+
+    In practice, the length of the queue to process rules
+    may be a significant factor in our time estimates.
+
+    AI based on current data, including time taken by
+    submitting tiny test rules.
+
+# -----------------------------------------------------
+
+
+
+
 
 
 
