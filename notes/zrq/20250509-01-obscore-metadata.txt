@@ -73,7 +73,7 @@
     >         <GROUP ID="ndhgmtiugwla" name="note-calib">
     >           <DESCRIPTION>
     >   The calib_level flag takes the following values:
-    >   
+    >
     >   === ===========================================================
     >    0  Raw Instrumental data requiring instrument-specific tools
     >    1  Instrumental data processable with standard tools
@@ -276,7 +276,7 @@
 #[user@desktop]
 
     #
-    # DataLink reference at the end of the table.
+    # Use the DataLink reference at the end of the table.
     #
 
     dlendpoint=$(
@@ -365,5 +365,6 @@
     >       </TABLE>
     >     </RESOURCE>
     >   </VOTABLE>
+
 
 
