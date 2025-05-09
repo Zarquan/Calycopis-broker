@@ -998,45 +998,28 @@ EOF
 # See if we can find the MWA data in the TAP service.
 #[user@desktop]
 
-    query="SELECT * FROM ivoa.obscore WHERE obs_id = 'hyp_1061312152_ssins_30l_src8k_300it_8s_80kHz.copy.uvfits'"
-
-    curl \
-        --data "LANG=ADQL" \
-        --data "QUERY=${query:?}" \
-        --data "RESPONSEFORMAT=text/xml" \
-        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
-    | xmlstarlet fo \
-    | tee "/tmp/$(date +%Y%m%d-%H%M%S)-obscore.vot"
-
-    >   ....
-    >     <DATA>
-    >       <TABLEDATA/>
-    >     </DATA>
-    >   ....
-
-
-    query="SELECT * FROM ivoa.obscore WHERE obs_id LIKE '%hyp_1061312152%'"
-
-    curl \
-        --data "LANG=ADQL" \
-        --data "QUERY=${query:?}" \
-        --data "RESPONSEFORMAT=text/xml" \
-        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
-    | xmlstarlet fo \
-    | tee "/tmp/$(date +%Y%m%d-%H%M%S)-obscore.vot"
-
-    >   ....
-    >     <DATA>
-    >       <TABLEDATA/>
-    >     </DATA>
-    >   ....
-
-
     #
     # From SP-4896 demo
     # Demo: SP-4896 TAP discovery of MWA visibilities in Rucio - SKA Regional Centre Network project - SKAO Community Confluence
     # https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
     # (*) TAP endpoint is wrong ?
+
+    query="SELECT * FROM ivoa.obscore WHERE obs_id = '1184702048'"
+
+    curl \
+        --data "LANG=ADQL" \
+        --data "QUERY=${query:?}" \
+        --data "RESPONSEFORMAT=text/xml" \
+        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
+    | xmlstarlet fo \
+    | tee "/tmp/$(date +%Y%m%d-%H%M%S)-obscore.vot"
+
+    >   ....
+    >     <DATA>
+    >       <TABLEDATA/>
+    >     </DATA>
+    >   ....
+
 
     query="SELECT * FROM ivoa.obscore where obs_publisher_did = 'ivo://org.mwatelescope/obs_id/1184702048'"
 
