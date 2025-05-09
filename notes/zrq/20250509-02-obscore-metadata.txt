@@ -1005,6 +1005,7 @@ EOF
     # (*) TAP endpoint is wrong ?
 
     query="SELECT * FROM ivoa.obscore WHERE obs_id = '1184702048'"
+    query="SELECT * FROM rucio.obscore WHERE obs_id = '1184702048'"
 
     curl \
         --data "LANG=ADQL" \
@@ -1022,6 +1023,7 @@ EOF
 
 
     query="SELECT * FROM ivoa.obscore where obs_publisher_did = 'ivo://org.mwatelescope/obs_id/1184702048'"
+    query="SELECT * FROM rucio.obscore where obs_publisher_did = 'ivo://org.mwatelescope/obs_id/1184702048'"
 
     curl \
         --data "LANG=ADQL" \
@@ -1036,5 +1038,17 @@ EOF
     >       <TABLEDATA/>
     >     </DATA>
     >   ....
+
+
+    query="SELECT * FROM ivoa.obscore where obs_collection = 'MRO/MWA'"
+    query="SELECT * FROM rucio.obscore where obs_collection = 'MRO/MWA'"
+
+    curl \
+        --data "LANG=ADQL" \
+        --data "QUERY=${query:?}" \
+        --data "RESPONSEFORMAT=text/xml" \
+        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
+    | xmlstarlet fo \
+    | tee "/tmp/$(date +%Y%m%d-%H%M%S)-obscore.vot"
 
 
