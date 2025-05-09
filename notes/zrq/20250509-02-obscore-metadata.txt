@@ -81,13 +81,13 @@
     rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
 
     >   Please use your internet browser, go to:
-    >   
+    >
     >       https://rucio.srcnet.skao.int/auth/oidc_redirect?........
-    >   
+    >
     >   and authenticate with your Identity Provider.
     >   Copy paste the code from the browser to the terminal and press enter:
     >   ........
-    >   
+    >
     >   status     : ACTIVE
     >   suspended_at : ......
     >   account    : ........
@@ -382,11 +382,11 @@ EOF
     done
 
     >   Fri May  9 08:49:55 UTC 2025
-    >   
+    >
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
     >   e16e6caf40124492874ee05e54706ddb  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-10 07:25:13  2025-05-09 07:25:13
-    >   
+    >
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
     >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
@@ -398,14 +398,14 @@ EOF
 
 
     >   Fri May  9 08:49:57 UTC 2025
-    >   
+    >
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
     >   e16e6caf40124492874ee05e54706ddb  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-10 07:25:13  2025-05-09 07:25:13
     >   278516a6bc164aaeb9c5145eb6dc7f53  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
     >   a1ffde1080be48aa94e264d891dd77bd  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-09 09:49:56  2025-05-09 08:49:56
     >   51039b5c114747b7b949a016d1387f83  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
-    >   
+    >
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
     >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
@@ -414,14 +414,14 @@ EOF
 
 
     >   Fri May  9 08:50:59 UTC 2025
-    >   
+    >
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
     >   e16e6caf40124492874ee05e54706ddb  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-10 07:25:13  2025-05-09 07:25:13
     >   278516a6bc164aaeb9c5145eb6dc7f53  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
     >   a1ffde1080be48aa94e264d891dd77bd  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-09 09:49:56  2025-05-09 08:49:56
     >   51039b5c114747b7b949a016d1387f83  zarquan    testing:zrq-test-20250509-082506  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
-    >   
+    >
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
     >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
@@ -430,14 +430,14 @@ EOF
 
 
     >   Fri May  9 08:51:30 UTC 2025
-    >   
+    >
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
     >   e16e6caf40124492874ee05e54706ddb  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-10 07:25:13  2025-05-09 07:25:13
     >   278516a6bc164aaeb9c5145eb6dc7f53  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
     >   a1ffde1080be48aa94e264d891dd77bd  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-09 09:49:56  2025-05-09 08:49:56
     >   51039b5c114747b7b949a016d1387f83  zarquan    testing:zrq-test-20250509-082506  OK[1/0/0]               SWESRC-OSO-T1     1         29.000 B  2025-05-09 09:49:57  2025-05-09 08:49:57
-    >   
+    >
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
     >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
@@ -497,7 +497,7 @@ EOF
     >         <GROUP ID="ndhgmtiugwla" name="note-calib">
     >           <DESCRIPTION>
     >   The calib_level flag takes the following values:
-    >   
+    >
     >   === ===========================================================
     >    0  Raw Instrumental data requiring instrument-specific tools
     >    1  Instrumental data processable with standard tools
@@ -1048,5 +1048,10 @@ EOF
     | xmlstarlet fo \
     | tee "/tmp/$(date +%Y%m%d-%H%M%S)-obscore.vot"
 
+    >   ....
+    >     <DATA>
+    >       <TABLEDATA/>
+    >     </DATA>
+    >   ....
 
 
