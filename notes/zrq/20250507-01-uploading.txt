@@ -109,11 +109,11 @@
     >   oidc_scope = openid profile offline_access wlcg.groups
     >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
     >   account = zarquan
-    >   
+    >
     >   [auth]
     >   host = https://rucio.srcdev.skao.int
     >   type = oidc
-    >   
+    >
     >   [rucio]
     >   host = https://rucio.srcdev.skao.int
 
@@ -125,13 +125,13 @@
     rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
 
     >   Please use your internet browser, go to:
-    >   
+    >
     >       https://rucio.srcnet.skao.int/auth/oidc_redirect?................
-    >   
+    >
     >   and authenticate with your Identity Provider.
     >   Copy paste the code from the browser to the terminal and press enter:
     >   ................................
-    >   
+    >
     >   status     : ACTIVE
     >   suspended_at : None
     >   account    : ........
@@ -146,7 +146,7 @@
 # Create our test file.
 #[user@rucio-client]
 
-    domain=testing
+    scope=testing
     filename=zrq-test-$(date +%Y%m%d-%H%M%S)
     lifetime=86400
 
@@ -159,13 +159,13 @@
 cat > "${filename}.meta" << EOF
 {
 "name": "${filename}",
-"namespace": "${domain}",
+"namespace": "${scope}",
 "lifetime": ${lifetime},
 "meta": {
     "obs_id": "${filename}",
     "obs_collection": "testdata"
-    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
-    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_publisher_did": "ivo://skao.int/testdata/${scope}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${scope}:${filename}",
     "dataproduct_type": "testdata",
     "calib_level": 0
     }
@@ -196,7 +196,7 @@ EOF
     #
     # Check if file exists
     rucio list-dids \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +--------------+--------------+
     >   | SCOPE:NAME   | [DID TYPE]   |
@@ -209,7 +209,7 @@ EOF
     rucio \
         upload \
             --rse STFC_STORM \
-            --scope "${domain}" \
+            --scope "${scope}" \
             --lifetime ${lifetime} \
             "${filename}"
 
@@ -250,7 +250,7 @@ EOF
     #
     # Check the file exists
     rucio list-dids \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +--------------+--------------+
     >   | SCOPE:NAME   | [DID TYPE]   |
@@ -263,7 +263,7 @@ EOF
     rucio \
         upload \
             --rse STFC_STORM \
-            --scope "${domain}" \
+            --scope "${scope}" \
             --lifetime ${lifetime} \
             "${filename}"
 
@@ -306,7 +306,7 @@ EOF
     rucio \
         upload \
             --rse SPSRC_STORM \
-            --scope "${domain}" \
+            --scope "${scope}" \
             --lifetime ${lifetime} \
             "${filename}"
 
@@ -331,7 +331,7 @@ EOF
     #
     # Check the replicas for the file.
     rucio list-file-replicas \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
@@ -343,7 +343,7 @@ EOF
     #
     # Check the rules for the file.
     rucio list-rules \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
@@ -377,7 +377,7 @@ EOF
     #
     # Try adding a replica.
     rucio add-rule \
-        "${domain}:${filename}" \
+        "${scope}:${filename}" \
         2 \
         '*'
 
@@ -387,7 +387,7 @@ EOF
     #
     # Check the replicas for the file.
     rucio list-file-replicas \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
@@ -399,7 +399,7 @@ EOF
     #
     # Check the rules for the file.
     rucio list-rules \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
@@ -421,7 +421,7 @@ EOF
 
     rucio download \
         --dir downloads \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
 
     >   2025-05-07 03:58:44,182	INFO	Processing 1 item(s) for input

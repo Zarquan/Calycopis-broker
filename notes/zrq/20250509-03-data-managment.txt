@@ -1,0 +1,75 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Using the DataManagment API to get a list of Rucio replicas.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Found the source code for the SKAO DataLink service.
+    https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-rucio-ivoa-integrations/-/blob/main/rucio-datalink/src/rucio_datalink/rest/server.py?ref_type=heads
+
+    Helps to debug the missing access_url in the DataLink response
+    *and* contains examples of how to call the DataManagment API.
+
+# -----------------------------------------------------
+
+    DaCHS is returning it's own DataLink service ..
+    but there is a separate Python FastAPI DataLink service, which is integrated with the DataManagment API and Rucio.
+
+    Question is .. how to get the endpoint URL.
+
+# -----------------------------------------------------
+
+    Found a clue
+    https://confluence.skatelescope.org/display/SRCSC/%5BORA-92%5D++Create+ObsCore+and+DataLink+responses
+    file:///home/Zarquan/Downloads/ObsCore_003.xml
+
+    ivoid='ivo://skao.int/data?testing:zrq-test-20250509-082506'
+    dlendpoint=https://ivoa.datalink.srcdev.skao.int/rucio/links
+
+    curl \
+        --insecure \
+        --request GET \
+        --url-query "id=${ivoid}" \
+        "${dlendpoint}"
+
+    >   <html>
+    >   <head><title>503 Service Temporarily Unavailable</title></head>
+    >   <body>
+    >   <center><h1>503 Service Temporarily Unavailable</h1></center>
+    >   <hr><center>nginx</center>
+    >   </body>
+    >   </html>
+
+
+
+# -----------------------------------------------------
+

@@ -1,0 +1,75 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # In theory we can see the distance using the REST API.
+    # Rucio REST API Documentation
+    # https://rucio.cern.ch/documentation/html/rest_api_doc.html
+    #
+    # Get Rse Distances
+    # https://rucio.cern.ch/documentation/html/rest_api_doc.html#tag/Rucio-Storage-Elements/paths/~1rses~1%7Bsource%7D~1distances~1%7Bdestination%7D/get
+
+    curl --request GET \
+      --url http://undefinedundefined/rses/{source}/distances/{destination} \
+      --header 'X-Rucio-Auth-Token: REPLACE_KEY_VALUE'
+
+        [
+          {
+            "src_rse_id": "string",
+            "dest_rse_id": "string",
+            "distance": 0,
+            "ranking": 0
+          }
+        ]
+
+# -----------------------------------------------------
+
+    In practice, the length of the queue to process rules
+    may be a significant factor in our time estimates.
+
+    AI based on current data, including time taken by
+    submitting tiny test rules.
+
+# -----------------------------------------------------
+
+    On a 'good day' it can take ~2min to execute a rule.
+
+# -----------------------------------------------------
+
+
+
+
+
+

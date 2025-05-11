@@ -150,11 +150,11 @@
     >   oidc_scope = openid profile offline_access wlcg.groups
     >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
     >   account = zarquan
-    >   
+    >
     >   [auth]
     >   host = https://rucio.srcdev.skao.int
     >   type = oidc
-    >   
+    >
     >   [rucio]
     >   host = https://rucio.srcdev.skao.int
 
@@ -166,13 +166,13 @@
     rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
 
     >   Please use your internet browser, go to:
-    >   
+    >
     >       https://rucio.srcnet.skao.int/auth/oidc_redirect?................
-    >   
+    >
     >   and authenticate with your Identity Provider.
     >   Copy paste the code from the browser to the terminal and press enter:
     >   ................................
-    >   
+    >
     >   status     : ACTIVE
     >   suspended_at : None
     >   account    : ........
@@ -289,35 +289,35 @@
     tempdir=${HOME}/temp/20250507-064446
     staging=${tempdir}/ingest/${filename}/staging
 
-    domain=testing
+    scope=testing
     filename=zrq-test-$(date +%Y%m%d-%H%M%S)
     lifetime=86400
 
-    mkdir "${staging}/${domain}"
+    mkdir "${staging}/${scope}"
 
     #
     # Create test data
-    date > "${staging}/${domain}/${filename}"
+    date > "${staging}/${scope}/${filename}"
 
     #
     # Create meta data
-cat > "${staging}/${domain}/${filename}.meta" << EOF
+cat > "${staging}/${scope}/${filename}.meta" << EOF
 {
 "name": "${filename}",
-"namespace": "${domain}",
+"namespace": "${scope}",
 "lifetime": ${lifetime},
 "meta": {
     "obs_id": "${filename}",
     "obs_collection": "testdata",
-    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
-    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_publisher_did": "ivo://skao.int/testdata/${scope}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${scope}:${filename}",
     "dataproduct_type": "testdata",
     "calib_level": 0
     }
 }
 EOF
 
-    jq '.' "${staging}/${domain}/${filename}.meta"
+    jq '.' "${staging}/${scope}/${filename}.meta"
 
     >   {
     >     "name": "zrq-test-20250507-065256",
@@ -474,10 +474,10 @@ EOF
 # Create our temp directory.
 #[user@desktop]
 
-    ingestdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
-    mkdir "${ingestdir}"
+    tempdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
+    mkdir "${tempdir}"
 
-    echo "${ingestdir}" > "${HOME}/ingestdir.txt"
+    echo "${tempdir}" > "${HOME}/tempdir.txt"
 
 # -----------------------------------------------------
 # Run the ingestor service in a container.
@@ -493,7 +493,7 @@ EOF
 
     imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
 
-    ingestdir=$(cat "${HOME}/ingestdir.txt")
+    tempdir=$(cat "${HOME}/tempdir.txt")
 
     podman run \
         --rm \
@@ -508,7 +508,7 @@ EOF
         --env "RUCIO_INGEST_RSE_NAME=${rsename}" \
         --env "INGESTION_BACKEND_NAME=rucio" \
         --name "ska-rucio-ingestor" \
-        --volume "${ingestdir}:/tmp/ingest:rw,z" \
+        --volume "${tempdir}:/tmp/ingest:rw,z" \
         ${imageurl}
 
     >   File rucio.cfg not found. It will generate one.
@@ -538,29 +538,29 @@ EOF
 # Create our test data.
 #[user@desktop]
 
-    domain=testing
+    scope=testing
     filename=zrq-test-$(date +%Y%m%d-%H%M%S)
     lifetime=86400
 
-    ingestdir=$(cat "${HOME}/ingestdir.txt")
-    mkdir -p "${ingestdir}/staging/${domain}"
+    tempdir=$(cat "${HOME}/tempdir.txt")
+    mkdir -p "${tempdir}/staging/${scope}"
 
     #
     # Create test data
-    date > "${ingestdir}/staging/${domain}/${filename}"
+    date > "${tempdir}/staging/${scope}/${filename}"
 
     #
     # Create meta data
-cat > "${ingestdir}/staging/${domain}/${filename}.meta" << EOF
+cat > "${tempdir}/staging/${scope}/${filename}.meta" << EOF
 {
 "name": "${filename}",
-"namespace": "${domain}",
+"namespace": "${scope}",
 "lifetime": ${lifetime},
 "meta": {
     "obs_id": "${filename}",
     "obs_collection": "testdata",
-    "obs_publisher_did": "ivo://skao.int/testdata/${domain}:${filename}",
-    "obs_creator_did":   "ivo://skao.int/testdata/${domain}:${filename}",
+    "obs_publisher_did": "ivo://skao.int/testdata/${scope}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/testdata/${scope}:${filename}",
     "dataproduct_type": "testdata",
     "calib_level": 0
     }
@@ -586,13 +586,13 @@ EOF
 # Find the file in Rucio.
 #[user@rucio-client]
 
-    domain=testing
+    scope=testing
     filename=zrq-test-20250507-073423
 
     #
     # Check the file exists.
     rucio stat \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   account:  zarquan
     >   adler32:  6c5006a2
@@ -607,7 +607,7 @@ EOF
     #
     # Check the file exists.
     rucio list-dids \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +--------------+--------------+
     >   | SCOPE:NAME   | [DID TYPE]   |
@@ -619,7 +619,7 @@ EOF
     #
     # Check the replicas for the file.
     rucio list-file-replicas \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
     >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
@@ -631,7 +631,7 @@ EOF
     #
     # Check the rules for the file.
     rucio list-rules \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
     >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
@@ -642,7 +642,7 @@ EOF
     # Try downloading the file
     rucio download \
         --dir downloads \
-        "${domain}:${filename}"
+        "${scope}:${filename}"
 
     >   2025-05-07 06:54:47,486	INFO	Processing 1 item(s) for input
     >   2025-05-07 06:54:47,696	INFO	No preferred protocol impl in rucio.cfg: No section: 'download'

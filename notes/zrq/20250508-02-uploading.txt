@@ -1,0 +1,1265 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create today's temp directory.
+#[user@desktop]
+
+    tempdir=${HOME}/temp/$(date +%Y%m%d-%H%M%S)
+    mkdir "${tempdir}"
+
+    echo "$(readlink -f  ${tempdir})" > "${HOME}/tempdir.txt"
+
+
+# -----------------------------------------------------
+# Run the Rucio client.
+# Demo: SP-4896 TAP discovery of MWA visibilities in Rucio
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+#[user@desktop]
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0
+
+    #
+    # We need to set RUCIO_CFG_CLIENT_ACCOUNT before the merge script is called when the Docker image starts.
+    #
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_CLIENT_ACCOUNT=zarquan \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 4 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+
+
+    cat /opt/rucio/etc/rucio.cfg
+
+    >   [client]
+    >   rucio_host = https://rucio.srcnet.skao.int
+    >   auth_host = https://rucio-auth.srcnet.skao.int
+    >   trace_host = https://rucio-trace.srcnet.skao.int
+    >   ca_cert = /opt/rucio/etc/certs/ISRG_Root_X1.pem
+    >   auth_type = oidc
+    >   oidc_scope = openid profile offline_access wlcg.groups
+    >   oidc_audience = rucio https://wlcg.cern.ch/jwt/v1/any
+    >   account = zarquan
+    >
+    >   [auth]
+    >   host = https://rucio.srcdev.skao.int
+    >   type = oidc
+    >
+    >   [rucio]
+    >   host = https://rucio.srcdev.skao.int
+
+
+# -----------------------------------------------------
+# Login to our account.
+#[user@rucio-client]
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?........
+    >
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   ........
+    >   status     : ACTIVE
+    >   account    : ........
+    >   suspended_at : ......
+    >   account_type : USER
+    >   created_at : ........
+    >   email      : ........
+    >   deleted_at : ........
+    >   updated_at : ........
+
+
+    cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+
+    >   eyJraWQi........DbDLQBbQ
+
+
+# -----------------------------------------------------
+# Check we can read the token from outside.
+#[user@desktop]
+
+    podman exec \
+        ska-rucio-client \
+        cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+
+    >   eyJraWQi........DbDLQBbQ
+
+
+# -----------------------------------------------------
+# Run the ingestor service in a container.
+#[user@desktop]
+
+    rsename=SPSRC_STORM
+
+    token=$(
+        podman exec \
+            ska-rucio-client \
+            cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+        )
+
+    tempdir=$(
+        cat "${HOME}/tempdir.txt"
+        )
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name "ska-rucio-ingestor" \
+        --env "RUCIO_CFG_CLIENT_HOST=https://rucio.srcnet.skao.int" \
+        --env "RUCIO_CFG_CLIENT_AUTH_TYPE=oidc" \
+        --env "RUCIO_CFG_CLIENT_ACCOUNT=zarquan" \
+        --env "RUCIO_CFG_CLIENT_OIDC_SCOPE=openid profile rucio wlcg.groups" \
+        --env "RUCIO_CFG_CLIENT_OIDC_AUDIENCE=rucio https://wlcg.cern.ch/jwt/v1/any" \
+        --env "OIDC_ACCESS_TOKEN=${token}" \
+        --env "RUCIO_INGEST_RSE_NAME=${rsename}" \
+        --env "INGESTION_BACKEND_NAME=rucio" \
+        --volume "${tempdir}:/tmp/ingest:rw,z" \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 5 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+    >   proceeding with oidc authentication using an access token...
+    >   status     : ACTIVE
+    >   account    : ........
+    >   suspended_at : ......
+    >   account_type : USER
+    >   created_at : ........
+    >   email      : ........
+    >   deleted_at : ........
+    >   updated_at : ........
+    >   Token expires in 705 minutes
+    >   2025-05-08 11:53:33,181 [root]     ingest  INFO 15	Starting loop for directory /tmp/ingest/staging...
+    >   2025-05-08 11:53:33,181 [root]     ingest WARNING 15	Couldn't decompose path /tmp/ingest/staging, skipping...
+    >   2025-05-08 11:53:33,181 [root]     ingest  INFO 15	No new files found for this iteration
+    >   2025-05-08 11:53:33,181 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create our test data.
+#[user@desktop]
+
+    scope=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    tempdir=$(
+        cat "${HOME}/tempdir.txt"
+        )
+
+    staging=${tempdir}/staging
+    mkdir -p "${staging}/${scope}"
+
+    #
+    # Create our test data
+
+    date > "${staging}/${scope}/${filename}"
+
+    #
+    # Create our meta data.
+cat > "${staging}/${scope}/${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${scope}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "testdata",
+    "obs_publisher_did": "ivo://skao.int/data/${scope}:${filename}",
+    "obs_creator_did":   "ivo://skao.int/data/${scope}:${filename}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+    jq '.' "${staging}/${scope}/${filename}.meta"
+
+    >   {
+    >     "name": "zrq-test-20250508-124638",
+    >     "namespace": "testing",
+    >     "lifetime": 86400,
+    >     "meta": {
+    >       "obs_id": "zrq-test-20250508-124638",
+    >       "obs_collection": "testdata",
+    >       "obs_publisher_did": "ivo://skao.int/data/testing:zrq-test-20250508-124638",
+    >       "obs_creator_did": "ivo://skao.int/data/testing:zrq-test-20250508-124638",
+    >       "dataproduct_type": "testdata",
+    >       "calib_level": 0
+    >     }
+    >   }
+
+
+    #
+    # Watch the ingestion service logs ..
+    #
+
+    >   ....
+    >   ....
+    >   2025-05-08 11:56:08,438 [root]     ingest  INFO 15	Found the following new files in this iteration: {'/tmp/ingest/staging/testing/zrq-test-20250508-125441': '/tmp/ingest/staging/testing/zrq-test-20250508-125441.meta'}
+    >   2025-05-08 11:56:08,984 [root]     ingest  INFO 46	Ingesting new file /tmp/ingest/staging/testing/zrq-test-20250508-125441 (metadata: /tmp/ingest/staging/testing/zrq-test-20250508-125441.meta) with identifier 67fadfe4-f3f4-4247-98f2-654556785b4d.
+    >   2025-05-08 11:56:09,106 [root] uploadclient  INFO 46	Preparing upload for file zrq-test-20250508-125441
+    >   2025-05-08 11:56:09,717 [root] uploadclient  INFO 46	Trying upload with davs to SPSRC_STORM
+    >   2025-05-08 11:56:10,338 [root] uploadclient  INFO 46	Successful upload of temporary file. davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441.rucio.upload
+    >   2025-05-08 11:56:10,773 [root] uploadclient  INFO 46	Successfully uploaded file zrq-test-20250508-125441
+    >   2025-05-08 11:56:10,982 [root] uploadclient  INFO 46	Successfully added replica in Rucio catalogue at SPSRC_STORM
+    >   2025-05-08 11:56:11,045 [root] uploadclient  INFO 46	Successfully added replication rule at SPSRC_STORM
+    >   2025-05-08 11:56:11,105 [root]     ingest  INFO 46	Ingested /tmp/ingest/staging/testing/zrq-test-20250508-125441 (metadata: /tmp/ingest/staging/testing/zrq-test-20250508-125441.meta) with identifier 67fadfe4-f3f4-4247-98f2-654556785b4d
+    >   2025-05-08 11:56:11,123 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Find the file in Rucio.
+#[user@rucio-client]
+
+    scope=testing
+    filename=zrq-test-20250508-125441
+
+    #
+    # List DIDs in our domain/scope.
+    rucio list-dids \
+        --filter 'type=file' \
+        "${scope}:zrq*"
+
+    >   +----------------------------------+--------------+
+    >   | SCOPE:NAME                       | [DID TYPE]   |
+    >   |----------------------------------+--------------|
+    >   | testing:zrq-test-20250507-024944 | FILE         |
+    >   | testing:zrq-test-20250508-125441 | FILE         |
+    >   +----------------------------------+--------------+
+
+
+    #
+    # Check the file status.
+    rucio stat \
+        "${scope}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6e1c06b3
+    >   bytes:    29
+    >   length:   1
+    >   md5:      609ab300d2dfe6d8c77c3cf622a0c7c7
+    >   name:     zrq-test-20250508-125441
+    >   scope:    testing
+    >   type:     FILE
+
+
+    #
+    # List the replicas for the file.
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+
+
+    #
+    # Try downloading the file
+    mkdir /tmp/downloads
+    rucio download \
+        --dir /tmp/downloads \
+        "${scope}:${filename}"
+
+    >   2025-05-08 12:11:48,720	INFO	Processing 1 item(s) for input
+    >   2025-05-08 12:11:48,958	INFO	No preferred protocol impl in rucio.cfg: No section: 'download'
+    >   2025-05-08 12:11:48,959	INFO	Using main thread to download 1 file(s)
+    >   2025-05-08 12:11:48,960	INFO	Preparing download of testing:zrq-test-20250508-125441
+    >   2025-05-08 12:11:49,027	INFO	Trying to download with davs and timeout of 60s from SPSRC_STORM: testing:zrq-test-20250508-125441
+    >   2025-05-08 12:11:49,080	INFO	Using PFN: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441
+    >   /usr/local/lib/python3.9/site-packages/urllib3/connectionpool.py:1099: InsecureRequestWarning: Unverified HTTPS request is being made to host 'rucio.srcnet.skao.int'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#tls-warnings
+    >     warnings.warn(
+    >   2025-05-08 12:11:49,854	INFO	File testing:zrq-test-20250508-125441 successfully downloaded. 29.000 B in 0.67 seconds = 0.0 MBps
+    >   ----------------------------------
+    >   Download summary
+    >   ----------------------------------------
+    >   DID testing:zrq-test-20250508-125441
+    >   Total files (DID):                            1
+    >   Total files (filtered):                       1
+    >   Downloaded files:                             1
+    >   Files already found locally:                  0
+    >   Files that cannot be downloaded:              0
+
+
+# -----------------------------------------------------
+# Try adding a replica.
+#[user@rucio-client]
+
+    rucio list-rses
+
+    >   AARNET_PER
+    >   AARNET_PER_ND
+    >   AUSRC_STORM
+    >   AUSSRC_STORM
+    >   CASRC_XRD
+    >   CHSRC_DCACHE
+    >   CHSRC_S3
+    >   CHSRC_XRD
+    >   CHSRC_XRD_DEV
+    >   CHSRC_XRD_PROD
+    >   CNAF
+    >   CNSRC-SHAO-T1
+    >   CNSRC_STORM
+    >   CNSRC_STORM_YUN
+    >   CNSRC_XRD
+    >   DESY_DCACHE
+    >   DESY_DCACHE_ND
+    >   IDIA
+    >   IDIA_ND
+    >   IMPERIAL
+    >   ITSRC_IRA_XRD
+    >   ITSRC_OACT_XRD
+    >   JPSRC_STORM
+    >   JPSRC_STORM_PROD
+    >   KRSRC_STORM
+    >   LANCASTER
+    >   LANCASTER_ND
+    >   MANCHESTER
+    >   MANCHESTER_ND
+    >   NLSRC_DCACHE
+    >   NLSRC_PROD_DCACHE
+    >   SESRC_XRD
+    >   SESRC_XRD_RBD
+    >   SKAO_S3
+    >   SPSRC_STORM
+    >   STFC_STORM
+    >   STFC_STORM_ND
+    >   SWESRC-OSO-T0
+    >   SWESRC-OSO-T1
+    >   UKSRC-RAL-T1-TEST
+    >   UKSRC_RAL_XRD_DEVCEPHFS
+
+
+    rucio add-rule \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T0'
+
+    >   b16363d6d477448ab8617b000464d314
+
+
+    #
+    # List the replicas for the file.
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${scope}:${filename}"
+
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B                       2025-05-08 12:18:17
+
+    #
+    # Dog walk at 13:19 ...
+    # Back at 14:11
+    #
+
+    #
+    # List the replicas for the file.
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T0: davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B                       2025-05-08 12:18:17
+
+
+    Adding the rule from the cpmmand line created a 'permanent' placemen with no expiry date.
+
+    If we add another rule for SPSRC_STORM, will that make it permanent ?
+
+    Can we set an expiry date using add-rule ?
+
+    Can we use a wild card for the Swedish nodes 'SWESRC*' ?
+
+    ... lots to explore
+
+    add-rule            Add replication rule.
+    delete-rule         Delete replication rule.
+    rule-info           Retrieve information about a rule.
+    list-rules          List replication rules.
+    list-rules-history  List replication rules history for a DID.
+    update-rule         Update replication rule.
+    move-rule           Move a replication rule to another RSE.
+
+
+    #
+    # Add a rule that only lasts an hour
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T1'
+
+    >   7968f7bd52b44f04890531b538fe02f0
+
+
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B                       2025-05-08 12:18:17
+    >   7968f7bd52b44f04890531b538fe02f0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 14:24:54  2025-05-08 13:24:54
+
+
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T0: davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    rucio rule-info \
+        7968f7bd52b44f04890531b538fe02f0
+
+    >   Id:                         7968f7bd52b44f04890531b538fe02f0
+    >   Account:                    zarquan
+    >   Scope:                      testing
+    >   Name:                       zrq-test-20250508-125441
+    >   RSE Expression:             SWESRC-OSO-T1
+    >   Copies:                     1
+    >   State:                      REPLICATING
+    >   Locks OK/REPLICATING/STUCK: 0/1/0
+    >   Grouping:                   DATASET
+    >   Expires at:                 2025-05-08 14:24:54
+    >   Locked:                     False
+    >   Weight:                     None
+    >   Created at:                 2025-05-08 13:24:54
+    >   Updated at:                 2025-05-08 13:24:54
+    >   Error:                      None
+    >   Subscription Id:            None
+    >   Source replica expression:  None
+    >   Activity:                   User Subscriptions
+    >   Comment:                    None
+    >   Ignore Quota:               False
+    >   Ignore Availability:        False
+    >   Purge replicas:             False
+    >   Notification:               NO
+    >   End of life:                None
+    >   Child Rule Id:              None
+
+    #
+    # Expiry date/time works.
+    #
+
+    >   ....
+    >   Expires at:                 2025-05-08 14:24:54
+    >   Created at:                 2025-05-08 13:24:54
+    >   Updated at:                 2025-05-08 13:24:54
+    >   ....
+
+
+
+    rucio rule-info \
+        b16363d6d477448ab8617b000464d314
+
+    >   Id:                         b16363d6d477448ab8617b000464d314
+    >   Account:                    zarquan
+    >   Scope:                      testing
+    >   Name:                       zrq-test-20250508-125441
+    >   RSE Expression:             SWESRC-OSO-T0
+    >   Copies:                     1
+    >   State:                      OK
+    >   Locks OK/REPLICATING/STUCK: 1/0/0
+    >   Grouping:                   DATASET
+    >   Expires at:                 None
+    >   Locked:                     False
+    >   Weight:                     None
+    >   Created at:                 2025-05-08 12:18:17
+    >   Updated at:                 2025-05-08 12:19:37
+    >   Error:                      None
+    >   Subscription Id:            None
+    >   Source replica expression:  None
+    >   Activity:                   User Subscriptions
+    >   Comment:                    None
+    >   Ignore Quota:               False
+    >   Ignore Availability:        False
+    >   Purge replicas:             False
+    >   Notification:               NO
+    >   End of life:                None
+    >   Child Rule Id:              None
+
+
+    >   ....
+    >   Expires at:                 None
+    >   Created at:                 2025-05-08 12:18:17
+    >   Updated at:                 2025-05-08 12:19:37
+    >   ....
+
+
+
+    rucio update-rule \
+        --lifetime 3600 \
+        b16363d6d477448ab8617b000464d314
+
+    >   Updated Rule
+
+
+    rucio rule-info \
+        b16363d6d477448ab8617b000464d314
+
+    >   Id:                         b16363d6d477448ab8617b000464d314
+    >   Account:                    zarquan
+    >   Scope:                      testing
+    >   Name:                       zrq-test-20250508-125441
+    >   RSE Expression:             SWESRC-OSO-T0
+    >   Copies:                     1
+    >   State:                      OK
+    >   Locks OK/REPLICATING/STUCK: 1/0/0
+    >   Grouping:                   DATASET
+    >   Expires at:                 2025-05-08 14:30:51
+    >   Locked:                     False
+    >   Weight:                     None
+    >   Created at:                 2025-05-08 12:18:17
+    >   Updated at:                 2025-05-08 13:30:51
+    >   Error:                      None
+    >   Subscription Id:            None
+    >   Source replica expression:  None
+    >   Activity:                   User Subscriptions
+    >   Comment:                    None
+    >   Ignore Quota:               False
+    >   Ignore Availability:        False
+    >   Purge replicas:             False
+    >   Notification:               NO
+    >   End of life:                None
+    >   Child Rule Id:              None
+
+
+    >   ....
+    >   Expires at:                 2025-05-08 14:30:51
+    >   Created at:                 2025-05-08 12:18:17
+    >   Updated at:                 2025-05-08 13:30:51
+    >   ....
+
+    Updating the lifetime sets the new expiry date/time relative to now.
+    Makes sense.
+
+
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 14:30:51  2025-05-08 12:18:17
+    >   7968f7bd52b44f04890531b538fe02f0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 14:24:54  2025-05-08 13:24:54
+
+    It is > 30 min since the SWESRC-OSO-T1 rule was created and the status is still REPLICATING.
+    Movement may take time.
+    In this case, the delay to apply the rule is **much** larger than the data transfer costs.
+    Unless we can make the rules more predictable it makes in hard to predict transfer times.
+
+    13:46:14    REPLICATING
+    13:51:27    REPLICATING
+    13:53:50    REPLICATING
+    13:55:09    REPLICATING
+    14:20:29    REPLICATING
+
+    #
+    # The rule expired before it was implemented !?
+    #
+
+    rucio list-rules "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 14:30:51  2025-05-08 12:18:17
+
+
+    date ; rucio list-rules "${scope}:${filename}"
+
+    >   Thu May  8 14:28:28 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 14:30:51  2025-05-08 12:18:17
+
+
+    date ; rucio list-rules "${scope}:${filename}"
+
+    >   Thu May  8 14:29:38 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 14:30:51  2025-05-08 12:18:17
+
+    date ; rucio list-rules "${scope}:${filename}"
+
+    >   Thu May  8 14:30:50 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b16363d6d477448ab8617b000464d314  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 14:30:51  2025-05-08 12:18:17
+
+
+    date ; rucio list-rules "${scope}:${filename}"
+
+    >   Thu May  8 14:31:18 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+
+    #
+    # We created a rule that lasted an hour .. but it took longer than an hour to apply the rule ...
+    # Mmmm OK
+    # Is that in general, or just this RSE ?
+    #
+
+    #
+    # Add two rules that only last an hour
+
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T0'
+
+    >   2d3e258d63fb4e63818b01140f44ce91
+
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T1'
+
+    >   590f56d3b07d4583b39aefe36a0a50ca
+
+
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'STFC_STORM'
+
+    for i in {1..1000}
+    do
+        echo ""
+        echo ""
+        date
+        rucio list-rules \
+            "${scope}:${filename}"
+        sleep 30
+    done
+
+    >   Thu May  8 14:47:18 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+
+
+    >   Thu May  8 14:49:05 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+
+
+    >   Thu May  8 15:14:43 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+
+
+    >   Thu May  8 15:20:18 UTC 2025
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+
+
+    for i in {1..1000}
+    do
+        echo ""
+        echo ""
+        date
+        echo ""
+        rucio list-rules \
+            "${scope}:${filename}"
+        echo ""
+        rucio list-file-replicas \
+            "${scope}:${filename}"
+        sleep 30
+    done
+
+    >   Thu May  8 15:22:46 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    >   Thu May  8 15:23:40 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:34:13 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:40:25 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:41:27 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:41:58 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >   2d3e258d63fb4e63818b01140f44ce91  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 15:41:34  2025-05-08 14:41:34
+    >   590f56d3b07d4583b39aefe36a0a50ca  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 15:41:54  2025-05-08 14:41:54
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    #
+    # SWESRC-OSO-T0 anfd SWESRC-OSO-T0 rules expired at 2025-05-08 15:41
+    #
+
+    >   Thu May  8 15:42:29 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:46:08 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   509e2b6b8481488d8ae42535906a9171  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 15:47:01  2025-05-08 14:47:01
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:47:10 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    #
+    # Rule for STFC_STORM expired at 15:47.
+    #
+
+    >   Thu May  8 15:52:52 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    #
+    # Slack converation with the Rucio team.
+    # Suspected resource limits exceeded by stress testing.
+    # More resources granted.
+    # Try again.
+    #
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T0'
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T1'
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'STFC_STORM'
+
+    for i in {1..1000}
+    do
+        echo ""
+        echo ""
+        date
+        echo ""
+        rucio list-rules \
+            "${scope}:${filename}"
+        echo ""
+        rucio list-file-replicas \
+            "${scope}:${filename}"
+        sleep 30
+    done
+
+    >   Thu May  8 15:55:24 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 15:56:26 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 16:05:45 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+# -----------------------------------------------------
+
+    Slack discussion on the #proj-src-ruco channel
+
+
+        Rob Barnsley
+        @James Walder
+        have you (recently) started some automated tests? I think this is possibly due to the fact we're running only one replica of each transfer daemon
+
+        James Walder
+        @Rob Barnsley
+        good point. I did start some tests. I can cancel most of the rules I think already.
+
+        Rob Barnsley
+        oh no, i didn't mean for you to do that - i'll increase the number of pods for each
+        (just wanted to know if it was perhaps related)
+
+        James Walder
+        These tests are also probably running with the usual Activity.
+        It would have been better to have used already "Data Challenge" I susepct ?
+        (and thanks - I'll keep the rules enabled, unless anyone shouts). (edited)
+
+        Dave Morris
+        still REPLICATING after 5min
+
+        Rob Barnsley
+        this is the same problem, i have 4 instances of the transfer submission mechanism running but it's not picking yours up because it's chugging through a backlog
+        @James Walder do you know any way around this?
+
+        James Walder
+        I've updated the activity and tried to change the priority of the rules. Unfortunately though, if they're submitted already into FTS I don't think rucio will change it.
+
+# -----------------------------------------------------
+
+    >   Thu May  8 16:14:02 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | STFC_STORM: davs://storm.srcnet.skao.int:443/sa/deterministic/testing/fc/e5/zrq-test-20250508-125441           |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T1: davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 16:14:33 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | STFC_STORM: davs://storm.srcnet.skao.int:443/sa/deterministic/testing/fc/e5/zrq-test-20250508-125441           |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T1: davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 16:15:04 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | STFC_STORM: davs://storm.srcnet.skao.int:443/sa/deterministic/testing/fc/e5/zrq-test-20250508-125441           |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T1: davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    >   Thu May  8 16:15:35 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   95508eca68254ccba9f30e3565c17849  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >   abe400a1231c411ea60830be5295f0bd  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 16:55:23  2025-05-08 15:55:23
+    >   cd42c31bf8ac4aee8b63ef0f1dcdcff0  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T1     1         29.000 B  2025-05-08 16:55:24  2025-05-08 15:55:24
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | STFC_STORM: davs://storm.srcnet.skao.int:443/sa/deterministic/testing/fc/e5/zrq-test-20250508-125441           |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T1: davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T0: davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+# -----------------------------------------------------
+
+    date
+    echo ""
+    rucio list-rules \
+        "${scope}:${filename}"
+    echo ""
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T0'
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'SWESRC-OSO-T1'
+
+    rucio add-rule \
+        --lifetime 3600 \
+        "${scope}:${filename}" \
+        1 \
+        'STFC_STORM'
+
+    for i in {1..1000}
+    do
+        echo ""
+        echo ""
+        date
+        echo ""
+        rucio list-rules \
+            "${scope}:${filename}"
+        echo ""
+        rucio list-file-replicas \
+            "${scope}:${filename}"
+        sleep 30
+    done
+
+
+    >   Thu May  8 18:07:35 UTC 2025
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    >   3996be9338dd46589f973ca78a944546
+    >   44d73e2b500241d1906afd5012fbd06b
+    >   b066a8d0014d48af8ee30d94a88047fe
+
+    >   Thu May  8 18:07:37 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b066a8d0014d48af8ee30d94a88047fe  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   3996be9338dd46589f973ca78a944546  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   44d73e2b500241d1906afd5012fbd06b  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    >   Thu May  8 18:08:40 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b066a8d0014d48af8ee30d94a88047fe  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      STFC_STORM        1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   3996be9338dd46589f973ca78a944546  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T0     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   44d73e2b500241d1906afd5012fbd06b  zarquan    testing:zrq-test-20250508-125441  REPLICATING[0/1/0]      SWESRC-OSO-T1     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    >   Thu May  8 18:09:11 UTC 2025
+    >
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   89792140996246dd9ef29c63734eb716  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-09 11:56:11  2025-05-08 11:56:11
+    >   b066a8d0014d48af8ee30d94a88047fe  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               STFC_STORM        1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   3996be9338dd46589f973ca78a944546  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T0     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >   44d73e2b500241d1906afd5012fbd06b  zarquan    testing:zrq-test-20250508-125441  OK[1/0/0]               SWESRC-OSO-T1     1         29.000 B  2025-05-08 19:07:37  2025-05-08 18:07:37
+    >
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/fc/e5/zrq-test-20250508-125441 |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | STFC_STORM: davs://storm.srcnet.skao.int:443/sa/deterministic/testing/fc/e5/zrq-test-20250508-125441           |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T1: davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   | testing | zrq-test-20250508-125441 | 29.000 B   | 6e1c06b3  | SWESRC-OSO-T0: davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/fc/e5/zrq-test-20250508-125441        |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
