@@ -1,0 +1,927 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Check to see if things are as they were on Friday.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run the Rucio client.
+# Demo: SP-4896 TAP discovery of MWA visibilities in Rucio
+# https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+#[user@desktop]
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-da-rucio-client:release-35.6.0
+
+    #
+    # We need to set RUCIO_CFG_CLIENT_ACCOUNT before the merge script is called when the Docker image starts.
+    #
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --env RUCIO_CFG_CLIENT_ACCOUNT=zarquan \
+        --env RUCIO_CFG_RUCIO_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_HOST=https://rucio.srcdev.skao.int \
+        --env RUCIO_CFG_AUTH_TYPE=oidc \
+        --name ska-rucio-client \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 4 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Login to our account.
+#[user@rucio-client]
+
+    rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
+
+    >   Please use your internet browser, go to:
+    >   
+    >       https://rucio.srcnet.skao.int/auth/oidc_redirect?........
+    >   
+    >   and authenticate with your Identity Provider.
+    >   Copy paste the code from the browser to the terminal and press enter:
+    >   XCUWQGIkvvL3VY3CtUjffKri34bwkY9eCACcqAJCxfjOsfwva8
+    >   status     : ........
+    >   account    : ........
+    >   suspended_at : None
+    >   account_type : USER
+    >   created_at : ........
+    >   email      : ........
+    >   deleted_at : ........
+    >   updated_at : ........
+
+
+# -----------------------------------------------------
+# Find the file in Rucio.
+#[user@rucio-client]
+
+    scope=testing
+
+    #
+    # List DIDs in our domain/scope.
+    rucio list-dids \
+        --filter 'type=file' \
+        "${scope}:zrq*"
+
+    >   +----------------------------------+--------------+
+    >   | SCOPE:NAME                       | [DID TYPE]   |
+    >   |----------------------------------+--------------|
+    >   | testing:zrq-test-20250507-024944 | FILE         |
+    >   +----------------------------------+--------------+
+
+
+    filename=zrq-test-20250507-024944
+
+    #
+    # Check the file status.
+    rucio stat \
+        "${scope}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6e9e06a8
+    >   bytes:    29
+    >   length:   1
+    >   md5:      c464fbdc23440b6a0789871164ccc0d8
+    >   name:     zrq-test-20250507-024944
+    >   scope:    testing
+    >   type:     FILE
+
+
+    #
+    # List the replicas for the file.
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250507-024944 | 29.000 B   | 6e9e06a8  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)    CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  ---------------  -------------------
+    >   5b45881af9b448ea82fad3153b9cdb67  zarquan    testing:zrq-test-20250507-024944  REPLICATING[1/1/0]      *                 2         29.000 B                   2025-05-07 03:19:32
+
+    #
+    # Looks like this is an old file from an old experiment.
+    # Stuck in replicating because it is trying to make 2 replicas on one RSE.
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check we can read the token from outside the client container.
+#[user@desktop]
+
+    podman exec \
+        ska-rucio-client \
+        cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+
+    >   eyJraWQi........XqFDN2lA
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run the ingestor service in a container.
+#[user@desktop]
+
+    rsename=SPSRC_STORM
+
+    token=$(
+        podman exec \
+            ska-rucio-client \
+            cat /tmp/user/.rucio_user/auth_token_for_account_zarquan
+        )
+
+    tempdir=$(
+        cat "${HOME}/tempdir.txt"
+        )
+
+    imageurl=registry.gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor:0.1.44
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name "ska-rucio-ingestor" \
+        --env "RUCIO_CFG_CLIENT_HOST=https://rucio.srcnet.skao.int" \
+        --env "RUCIO_CFG_CLIENT_AUTH_TYPE=oidc" \
+        --env "RUCIO_CFG_CLIENT_ACCOUNT=zarquan" \
+        --env "RUCIO_CFG_CLIENT_OIDC_SCOPE=openid profile rucio wlcg.groups" \
+        --env "RUCIO_CFG_CLIENT_OIDC_AUDIENCE=rucio https://wlcg.cern.ch/jwt/v1/any" \
+        --env "OIDC_ACCESS_TOKEN=${token}" \
+        --env "RUCIO_INGEST_RSE_NAME=${rsename}" \
+        --env "INGESTION_BACKEND_NAME=rucio" \
+        --volume "${tempdir}:/tmp/ingest:rw,z" \
+        ${imageurl}
+
+    >   File rucio.cfg not found. It will generate one.
+    >   INFO:root:Merged 7 configuration values from /opt/user/rucio.default.cfg
+    >   INFO:root:Merged 5 configuration values from ENV
+    >   INFO:root:Writing /opt/rucio/etc/rucio.cfg
+    >   Enable shell completion on the rucio commands
+    >   proceeding with oidc authentication using an access token...
+    >   status     : ACTIVE
+    >   suspended_at : None
+    >   account    : ........
+    >   account_type : USER
+    >   created_at : ........
+    >   email      : ........
+    >   deleted_at : ........
+    >   updated_at : ........
+    >   Token expires in 711 minutes
+    >   2025-05-12 17:28:34,379 [root]     ingest  INFO 15	Starting loop for directory /tmp/ingest/staging...
+    >   2025-05-12 17:28:34,379 [root]     ingest WARNING 15	Couldn't decompose path /tmp/ingest/staging, skipping...
+    >   2025-05-12 17:28:34,379 [root]     ingest  INFO 15	No new files found for this iteration
+    >   2025-05-12 17:28:34,379 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create our test data.
+#[user@desktop]
+
+    scope=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    ivoid=ivo://skao.int/data?${scope}:${filename}
+
+    tempdir=$(
+        cat "${HOME}/tempdir.txt"
+        )
+
+    staging=${tempdir}/staging
+    mkdir -p "${staging}/${scope}"
+
+    #
+    # Create our test data
+
+    date > "${staging}/${scope}/${filename}"
+
+    #
+    # Create our meta data.
+cat > "${staging}/${scope}/${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${scope}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "${scope}",
+    "obs_publisher_did": "${ivoid}",
+    "obs_creator_did":   "${ivoid}",
+    "dataproduct_type": "testdata",
+    "calib_level": 0
+    }
+}
+EOF
+
+    jq '.' "${staging}/${scope}/${filename}.meta"
+
+    >   {
+    >     "name": "zrq-test-20250512-183013",
+    >     "namespace": "testing",
+    >     "lifetime": 86400,
+    >     "meta": {
+    >       "obs_id": "zrq-test-20250512-183013",
+    >       "obs_collection": "testing",
+    >       "obs_publisher_did": "ivo://skao.int/data?testing:zrq-test-20250512-183013",
+    >       "obs_creator_did": "ivo://skao.int/data?testing:zrq-test-20250512-183013",
+    >       "dataproduct_type": "testdata",
+    >       "calib_level": 0
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the ingestor logs ...
+#[user@desktop]
+
+    >   ....
+    >   ....
+    >   2025-05-12 17:30:14,565 [root]     ingest  INFO 15	Found the following new files in this iteration: {'/tmp/ingest/staging/testing/zrq-test-20250512-183013': '/tmp/ingest/staging/testing/zrq-test-20250512-183013.meta'}
+    >   2025-05-12 17:30:15,210 [root]     ingest  INFO 24	Ingesting new file /tmp/ingest/staging/testing/zrq-test-20250512-183013 (metadata: /tmp/ingest/staging/testing/zrq-test-20250512-183013.meta) with identifier c1d95672-faa1-40f5-a5d1-fb0485b92f8c.
+    >   2025-05-12 17:30:15,418 [root] uploadclient  INFO 24	Preparing upload for file zrq-test-20250512-183013
+    >   2025-05-12 17:30:15,991 [root] uploadclient  INFO 24	Trying upload with davs to SPSRC_STORM
+    >   2025-05-12 17:30:16,587 [root] uploadclient  INFO 24	Successful upload of temporary file. davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/48/80/zrq-test-20250512-183013.rucio.upload
+    >   2025-05-12 17:30:17,014 [root] uploadclient  INFO 24	Successfully uploaded file zrq-test-20250512-183013
+    >   2025-05-12 17:30:17,449 [root] uploadclient  INFO 24	Successfully added replica in Rucio catalogue at SPSRC_STORM
+    >   2025-05-12 17:30:17,579 [root] uploadclient  INFO 24	Successfully added replication rule at SPSRC_STORM
+    >   2025-05-12 17:30:17,715 [root]     ingest  INFO 24	Ingested /tmp/ingest/staging/testing/zrq-test-20250512-183013 (metadata: /tmp/ingest/staging/testing/zrq-test-20250512-183013.meta) with identifier c1d95672-faa1-40f5-a5d1-fb0485b92f8c
+    >   2025-05-12 17:30:17,741 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Find the file in Rucio.
+#[user@rucio-client]
+
+    scope=testing
+
+    #
+    # List DIDs in our domain/scope.
+    rucio list-dids \
+        --filter 'type=file' \
+        "${scope}:zrq*"
+
+    >   +----------------------------------+--------------+
+    >   | SCOPE:NAME                       | [DID TYPE]   |
+    >   |----------------------------------+--------------|
+    >   | testing:zrq-test-20250507-024944 | FILE         |
+    >   | testing:zrq-test-20250512-183013 | FILE         |
+    >   +----------------------------------+--------------+
+
+
+    filename=zrq-test-20250512-183013
+
+    #
+    # Check the file status.
+    rucio stat \
+        "${scope}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6e6406b5
+    >   bytes:    29
+    >   length:   1
+    >   md5:      4f4fef75d16870d5b63161db19ed5c26
+    >   name:     zrq-test-20250512-183013
+    >   scope:    testing
+    >   type:     FILE
+
+
+    #
+    # List the replicas for the file.
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250512-183013 | 29.000 B   | 6e6406b5  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/48/80/zrq-test-20250512-183013 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+
+    #
+    # Check the rules for the file.
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)        CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  -------------------  -------------------
+    >   428a3fc320854c2c889ad7abbb1c49bc  zarquan    testing:zrq-test-20250512-183013  OK[1/0/0]               SPSRC_STORM       1         29.000 B  2025-05-13 17:30:17  2025-05-12 17:30:17
+
+
+    #
+    # Check the Rucio metadata for the file.
+    rucio get-metadata \
+        "${scope}:${filename}" \
+        --plugin POSTGRES_JSON
+
+    >   calib_level:        0
+    >   dataproduct_type:   testdata
+    >   obs_collection:     testing
+    >   obs_creator_did:    ivo://skao.int/data?testing:zrq-test-20250512-183013
+    >   obs_id:             zrq-test-20250512-183013
+    >   obs_publisher_did:  ivo://skao.int/data?testing:zrq-test-20250512-183013
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check we can find our files in the TAP service.
+#[user@desktop]
+
+    timestamp=$(date +%Y%m%d-%H%M%S)
+
+    query="SELECT * FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%'"
+
+    curl \
+        --data "LANG=ADQL" \
+        --data "QUERY=${query:?}" \
+        --data "RESPONSEFORMAT=text/xml" \
+        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
+    | xmlstarlet fo \
+    | tee "/tmp/${timestamp}-obscore.vot"
+
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT ivoa.obscore.dataproduct_type, ivoa.obscore.dataproduct_subtype, ivoa.obscore.calib_level, ivoa.obscore.obs_collection, ivoa.obscore.obs_id, ivoa.obscore.obs_title, ivoa.obscore.obs_publisher_did, ivoa.obscore.obs_creator_did, ivoa.obscore.access_url, ivoa.obscore.access_format, ivoa.obscore.access_estsize, ivoa.obscore.target_name, ivoa.obscore.target_class, ivoa.obscore.s_ra, ivoa.obscore.s_dec, ivoa.obscore.s_fov, ivoa.obscore.s_region, ivoa.obscore.s_resolution, ivoa.obscore.t_min, ivoa.obscore.t_max, ivoa.obscore.t_exptime, ivoa.obscore.t_resolution, ivoa.obscore.em_min, ivoa.obscore.em_max, ivoa.obscore.em_res_power, ivoa.obscore.o_ucd, ivoa.obscore.pol_states, ivoa.obscore.facility_name, ivoa.obscore.instrument_name, ivoa.obscore.s_xel1, ivoa.obscore.s_xel2, ivoa.obscore.t_xel, ivoa.obscore.em_xel, ivoa.obscore.pol_xel, ivoa.obscore.s_pixel_scale, ivoa.obscore.em_ucd, ivoa.obscore.preview, ivoa.obscore.source_table FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%%' LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT * FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%'"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <COOSYS ID="system" system="ICRS"/>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <GROUP utype="stc:CatalogEntryLocation">
+    >           <PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+    >           <PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+    >           <PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/>
+    >           <FIELDref ref="s_region" utype="stc:AstroCoordArea.Polygon"/>
+    >         </GROUP>
+    >         <GROUP ID="ndhgmtiugwla" name="note-calib">
+    >           <DESCRIPTION>
+    >   The calib_level flag takes the following values:
+    >   
+    >   === ===========================================================
+    >    0  Raw Instrumental data requiring instrument-specific tools
+    >    1  Instrumental data processable with standard tools
+    >    2  Calibrated, science-ready data without instrument signature
+    >    3  Enhanced data products (e.g., mosaics)
+    >   === ===========================================================</DESCRIPTION>
+    >           <FIELDref ref="calib_level"/>
+    >         </GROUP>
+    >         <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
+    >           <DESCRIPTION>High level scientific classification of the data product, taken from an enumeration</DESCRIPTION>
+    >           <VALUES>
+    >             <OPTION name="image" value="image"/>
+    >             <OPTION name="cube" value="cube"/>
+    >             <OPTION name="spectrum" value="spectrum"/>
+    >             <OPTION name="sed" value="sed"/>
+    >             <OPTION name="timeseries" value="timeseries"/>
+    >             <OPTION name="visibility" value="visibility"/>
+    >             <OPTION name="event" value="event"/>
+    >           </VALUES>
+    >         </FIELD>
+    >         <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
+    >           <DESCRIPTION>Data product specific type</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
+    >           <DESCRIPTION>Amount of data processing that has been applied to the data</DESCRIPTION>
+    >           <VALUES null="-32768"/>
+    >         </FIELD>
+    >         <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
+    >           <DESCRIPTION>Name of a data collection (e.g., project name) this data belongs to</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
+    >           <DESCRIPTION>Free-from title of the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
+    >           <DESCRIPTION>The URL at which to obtain the data set.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_format" arraysize="*" datatype="char" name="access_format" ucd="meta.code.mime" utype="obscore:access.format">
+    >           <DESCRIPTION>MIME type of the resource at access_url</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_estsize" datatype="long" name="access_estsize" ucd="phys.size;meta.file" unit="kbyte" utype="obscore:access.size">
+    >           <DESCRIPTION>Estimated size of data product</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         ....
+    >         ....
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>testdata</TD>
+    >               <TD/>
+    >               <TD>0</TD>
+    >               <TD>testing</TD>
+    >               <TD>zrq-test-20250512-183013</TD>
+    >               <TD/>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250512-183013</TD>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250512-183013</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>-1</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="links" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
+
+    #
+    # The ObsCore metadata looks right, but the access_url is null.
+    # The DataLink RESOURCE points to the DACHS DataLink service,
+    # NOT the SRCNet DataLink service.
+    #
+
+    #
+    # Should we be setting the DataLink access_url in our upload ?
+    # Can we update the metadata on an existing record ?
+    #
+    # Examples of Python code for setting the metadata.
+    # https://gitlab.com/ska-telescope/src/src-dm/ska-src-dm-di-ingestor/-/blob/main/src/ingestor/ingestion/backends/rucio.py?ref_type=heads#L74-88
+    # https://github.com/d3v-null/Karabo-Pipeline/blob/bccf5d01e7d5913cf30611adceb5940aa4d63b08/karabo/examples/Rucio_set_metadata.py#L33-L37
+    # https://confluence.skatelescope.org/pages/viewpage.action?pageId=314995894
+    #
+
+    rucio set-metadata --help
+    usage: rucio set-metadata [-h] --did DID --key KEY --value VALUE
+
+    optional arguments:
+      -h, --help     show this help message and exit
+      --did DID      Data identifier whose metadata will be set
+      --key KEY      Attribute key
+      --value VALUE  Attribute value
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create our test data.
+#[user@desktop]
+
+    scope=testing
+    filename=zrq-test-$(date +%Y%m%d-%H%M%S)
+    lifetime=86400
+
+    ivoid=ivo://skao.int/data?${scope}:${filename}
+    urlid=$(echo "${ivoid}" | jq -sRr @uri)
+
+    tempdir=$(
+        cat "${HOME}/tempdir.txt"
+        )
+
+    staging=${tempdir}/staging
+    mkdir -p "${staging}/${scope}"
+
+    #
+    # Create our test data
+
+    date > "${staging}/${scope}/${filename}"
+
+    #
+    # Create our meta data.
+cat > "${staging}/${scope}/${filename}.meta" << EOF
+{
+"name": "${filename}",
+"namespace": "${scope}",
+"lifetime": ${lifetime},
+"meta": {
+    "obs_id": "${filename}",
+    "obs_collection": "${scope}",
+    "obs_publisher_did": "${ivoid}",
+    "obs_creator_did":   "${ivoid}",
+    "dataproduct_type":  "testdata",
+    "calib_level": 0,
+    "access_url":    "https://ivoa.datalink.srcdev.skao.int/rucio/links?ID=${urlid}",
+    "access_format": "application/x-votable+xml;content=datalink"
+    }
+}
+EOF
+
+    jq '.' "${staging}/${scope}/${filename}.meta"
+
+    >   {
+    >     "name": "zrq-test-20250513-041926",
+    >     "namespace": "testing",
+    >     "lifetime": 86400,
+    >     "meta": {
+    >       "obs_id": "zrq-test-20250513-041926",
+    >       "obs_collection": "testing",
+    >       "obs_publisher_did": "ivo://skao.int/data?testing:zrq-test-20250513-041926",
+    >       "obs_creator_did": "ivo://skao.int/data?testing:zrq-test-20250513-041926",
+    >       "dataproduct_type": "testdata",
+    >       "calib_level": 0,
+    >       "access_url": "https://ivoa.datalink.srcdev.skao.int/rucio/links?ID=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250513-041926%0A",
+    >       "access_format": "application/x-votable+xml;content=datalink"
+    >     }
+    >   }
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check the ingestor logs ...
+#[user@desktop]
+
+    >   ....
+    >   ....
+    >   2025-05-13 03:19:42,708 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   2025-05-13 03:19:47,713 [root]     ingest WARNING 15	Couldn't decompose path /tmp/ingest/staging, skipping...
+    >   2025-05-13 03:19:47,760 [root]     ingest  INFO 15	Found the following new files in this iteration: {'/tmp/ingest/staging/testing/zrq-test-20250513-041926': '/tmp/ingest/staging/testing/zrq-test-20250513-041926.meta'}
+    >   2025-05-13 03:19:48,334 [root]     ingest  INFO 625	Ingesting new file /tmp/ingest/staging/testing/zrq-test-20250513-041926 (metadata: /tmp/ingest/staging/testing/zrq-test-20250513-041926.meta) with identifier 7ed8ee92-a201-4c34-80de-074e8cddc2d9.
+    >   2025-05-13 03:19:48,707 [root] uploadclient  INFO 625	Preparing upload for file zrq-test-20250513-041926
+    >   2025-05-13 03:19:49,378 [root] uploadclient  INFO 625	Trying upload with davs to SPSRC_STORM
+    >   2025-05-13 03:19:49,957 [root] uploadclient  INFO 625	Successful upload of temporary file. davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/62/f9/zrq-test-20250513-041926.rucio.upload
+    >   2025-05-13 03:19:50,453 [root] uploadclient  INFO 625	Successfully uploaded file zrq-test-20250513-041926
+    >   2025-05-13 03:19:51,508 [root] uploadclient  INFO 625	Successfully added replica in Rucio catalogue at SPSRC_STORM
+    >   2025-05-13 03:19:51,651 [root] uploadclient  INFO 625	Successfully added replication rule at SPSRC_STORM
+    >   2025-05-13 03:19:51,806 [root]     ingest  INFO 625	Ingested /tmp/ingest/staging/testing/zrq-test-20250513-041926 (metadata: /tmp/ingest/staging/testing/zrq-test-20250513-041926.meta) with identifier 7ed8ee92-a201-4c34-80de-074e8cddc2d9
+    >   2025-05-13 03:19:51,832 [root]     ingest  INFO 15	Sleeping for 5s...
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check we can find our files in the TAP service.
+#[user@desktop]
+
+    timestamp=$(date +%Y%m%d-%H%M%S)
+
+    query="SELECT * FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%'"
+
+    curl \
+        --data "LANG=ADQL" \
+        --data "QUERY=${query:?}" \
+        --data "RESPONSEFORMAT=text/xml" \
+        https://dachs.ivoa.srcnet.skao.int/__system__/tap/run/sync \
+    | xmlstarlet fo \
+    | tee "/tmp/${timestamp}-obscore.vot"
+
+
+    >   <?xml version="1.0" encoding="utf-8"?>
+    >   <VOTABLE xmlns="http://www.ivoa.net/xml/VOTable/v1.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4" xsi:schemaLocation="http://www.ivoa.net/xml/VOTable/v1.3 http://vo.ari.uni-heidelberg.de/docs/schemata/VOTable-1.4.xsd">
+    >     <DESCRIPTION>Definition and support code for the ObsCore data model and table.</DESCRIPTION>
+    >     <RESOURCE type="results">
+    >       <INFO name="server" value="https://dachs.ivoa.srcnet.skao.int:443"/>
+    >       <INFO name="sql_query" value="SELECT ivoa.obscore.dataproduct_type, ivoa.obscore.dataproduct_subtype, ivoa.obscore.calib_level, ivoa.obscore.obs_collection, ivoa.obscore.obs_id, ivoa.obscore.obs_title, ivoa.obscore.obs_publisher_did, ivoa.obscore.obs_creator_did, ivoa.obscore.access_url, ivoa.obscore.access_format, ivoa.obscore.access_estsize, ivoa.obscore.target_name, ivoa.obscore.target_class, ivoa.obscore.s_ra, ivoa.obscore.s_dec, ivoa.obscore.s_fov, ivoa.obscore.s_region, ivoa.obscore.s_resolution, ivoa.obscore.t_min, ivoa.obscore.t_max, ivoa.obscore.t_exptime, ivoa.obscore.t_resolution, ivoa.obscore.em_min, ivoa.obscore.em_max, ivoa.obscore.em_res_power, ivoa.obscore.o_ucd, ivoa.obscore.pol_states, ivoa.obscore.facility_name, ivoa.obscore.instrument_name, ivoa.obscore.s_xel1, ivoa.obscore.s_xel2, ivoa.obscore.t_xel, ivoa.obscore.em_xel, ivoa.obscore.pol_xel, ivoa.obscore.s_pixel_scale, ivoa.obscore.em_ucd, ivoa.obscore.preview, ivoa.obscore.source_table FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%%' LIMIT 20000"/>
+    >       <INFO name="query" value="SELECT * FROM ivoa.obscore WHERE obs_publisher_did LIKE 'ivo://skao.int/data%'"/>
+    >       <INFO name="src_res" value="Contains traces from resource __system__/obscore">Definition and support code for the ObsCore data model and table.</INFO>
+    >       <INFO name="src_table" value="Contains traces from table ivoa.ObsCore">The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</INFO>
+    >       <INFO name="QUERY_STATUS" value="OK">Query successful</INFO>
+    >       <INFO name="citation" ucd="meta.bib" value="https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore">For advice on how to cite the resource(s) that contributed to this result, see https://dachs.ivoa.srcnet.skao.int:443/tableinfo/ivoa.ObsCore</INFO>
+    >       <COOSYS ID="system" system="ICRS"/>
+    >       <TABLE name="ObsCore">
+    >         <DESCRIPTION>The IVOA-defined obscore table, containing generic metadata for
+    >   datasets within this datacenter.</DESCRIPTION>
+    >         <GROUP utype="stc:CatalogEntryLocation">
+    >           <PARAM arraysize="*" datatype="char" name="CoordFlavor" utype="stc:AstroCoordSystem.SpaceFrame.CoordFlavor" value="SPHERICAL"/>
+    >           <PARAM arraysize="*" datatype="char" name="CoordRefFrame" utype="stc:AstroCoordSystem.SpaceFrame.CoordRefFrame" value="ICRS"/>
+    >           <PARAM arraysize="*" datatype="char" name="URI" utype="stc:DataModel.URI" value="http://www.ivoa.net/xml/STC/stc-v1.30.xsd"/>
+    >           <FIELDref ref="s_region" utype="stc:AstroCoordArea.Polygon"/>
+    >         </GROUP>
+    >         <GROUP ID="ndhgmtiugwla" name="note-calib">
+    >           <DESCRIPTION>
+    >   The calib_level flag takes the following values:
+    >   
+    >   === ===========================================================
+    >    0  Raw Instrumental data requiring instrument-specific tools
+    >    1  Instrumental data processable with standard tools
+    >    2  Calibrated, science-ready data without instrument signature
+    >    3  Enhanced data products (e.g., mosaics)
+    >   === ===========================================================</DESCRIPTION>
+    >           <FIELDref ref="calib_level"/>
+    >         </GROUP>
+    >         <FIELD ID="dataproduct_type" arraysize="*" datatype="char" name="dataproduct_type" ucd="meta.code.class" utype="obscore:obsdataset.dataproducttype">
+    >           <DESCRIPTION>High level scientific classification of the data product, taken from an enumeration</DESCRIPTION>
+    >           <VALUES>
+    >             <OPTION name="image" value="image"/>
+    >             <OPTION name="cube" value="cube"/>
+    >             <OPTION name="spectrum" value="spectrum"/>
+    >             <OPTION name="sed" value="sed"/>
+    >             <OPTION name="timeseries" value="timeseries"/>
+    >             <OPTION name="visibility" value="visibility"/>
+    >             <OPTION name="event" value="event"/>
+    >           </VALUES>
+    >         </FIELD>
+    >         <FIELD ID="dataproduct_subtype" arraysize="*" datatype="char" name="dataproduct_subtype" ucd="meta.code.class" utype="obscore:obsdataset.dataproductsubtype">
+    >           <DESCRIPTION>Data product specific type</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="calib_level" datatype="short" name="calib_level" ucd="meta.code;obs.calib" utype="obscore:obsdataset.caliblevel">
+    >           <DESCRIPTION>Amount of data processing that has been applied to the data</DESCRIPTION>
+    >           <VALUES null="-32768"/>
+    >         </FIELD>
+    >         <FIELD ID="obs_collection" arraysize="*" datatype="char" name="obs_collection" ucd="meta.id" utype="obscore:dataid.collection">
+    >           <DESCRIPTION>Name of a data collection (e.g., project name) this data belongs to</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_id" arraysize="*" datatype="char" name="obs_id" ucd="meta.id" utype="obscore:DataID.observationID">
+    >           <DESCRIPTION>Unique identifier for an observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_title" arraysize="*" datatype="char" name="obs_title" ucd="meta.title;obs" utype="obscore:dataid.title">
+    >           <DESCRIPTION>Free-from title of the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_publisher_did" arraysize="*" datatype="char" name="obs_publisher_did" ucd="meta.ref.ivoid" utype="obscore:curation.publisherdid">
+    >           <DESCRIPTION>Dataset identifier assigned by the publisher.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="obs_creator_did" arraysize="*" datatype="char" name="obs_creator_did" ucd="meta.id" utype="obscore:dataid.creatordid">
+    >           <DESCRIPTION>Dataset identifier assigned by the creator.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_url" arraysize="*" datatype="char" name="access_url" ucd="meta.ref.url" utype="obscore:access.reference">
+    >           <DESCRIPTION>The URL at which to obtain the data set.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_format" arraysize="*" datatype="char" name="access_format" ucd="meta.code.mime" utype="obscore:access.format">
+    >           <DESCRIPTION>MIME type of the resource at access_url</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="access_estsize" datatype="long" name="access_estsize" ucd="phys.size;meta.file" unit="kbyte" utype="obscore:access.size">
+    >           <DESCRIPTION>Estimated size of data product</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="target_name" arraysize="*" datatype="char" name="target_name" ucd="meta.id;src" utype="obscore:Target.Name">
+    >           <DESCRIPTION>Object a targeted observation targeted</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="target_class" arraysize="*" datatype="char" name="target_class" ucd="src.class" utype="obscore:target.class">
+    >           <DESCRIPTION>Class of the target object (star, QSO, ...)</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_ra" datatype="double" name="s_ra" ucd="pos.eq.ra" unit="deg" utype="obscore:char.spatialaxis.coverage.location.coord.position2d.value2.c1">
+    >           <DESCRIPTION>RA of (center of) observation, ICRS</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_dec" datatype="double" name="s_dec" ucd="pos.eq.dec" unit="deg" utype="obscore:char.spatialaxis.coverage.location.coord.position2d.value2.c2">
+    >           <DESCRIPTION>Dec of (center of) observation, ICRS</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_fov" datatype="double" name="s_fov" ucd="phys.angSize;instr.fov" unit="deg" utype="obscore:char.spatialaxis.coverage.bounds.extent.diameter">
+    >           <DESCRIPTION>Approximate spatial extent for the region covered by the observation</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_region" arraysize="*" datatype="char" name="s_region" ucd="pos.outline;obs.field" utype="obscore:char.spatialaxis.coverage.support.area" xtype="adql:REGION">
+    >           <DESCRIPTION>Region covered by the observation, as a polygon</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_resolution" datatype="double" name="s_resolution" ucd="pos.angResolution" unit="arcsec" utype="obscore:Char.SpatialAxis.Resolution.refval.value">
+    >           <DESCRIPTION>Best spatial resolution within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_min" datatype="double" name="t_min" ucd="time.start;obs.exposure" unit="d" utype="obscore:char.timeaxis.coverage.bounds.limits.starttime" xtype="mjd">
+    >           <DESCRIPTION>Lower bound of times represented in the data set, as MJD</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_max" datatype="double" name="t_max" ucd="time.end;obs.exposure" unit="d" utype="obscore:char.timeaxis.coverage.bounds.limits.stoptime" xtype="mjd">
+    >           <DESCRIPTION>Upper bound of times represented in the data set, as MJD</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_exptime" datatype="float" name="t_exptime" ucd="time.duration;obs.exposure" unit="s" utype="obscore:char.timeaxis.coverage.support.extent">
+    >           <DESCRIPTION>Total exposure time</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="t_resolution" datatype="float" name="t_resolution" ucd="time.resolution" unit="s" utype="obscore:char.timeaxis.resolution.refval.value">
+    >           <DESCRIPTION>Minimal significant time interval along the time axis</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_min" datatype="double" name="em_min" ucd="em.wl;stat.min" unit="m" utype="obscore:char.spectralaxis.coverage.bounds.limits.lolimit">
+    >           <DESCRIPTION>Minimal wavelength represented within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_max" datatype="double" name="em_max" ucd="em.wl;stat.max" unit="m" utype="obscore:char.spectralaxis.coverage.bounds.limits.hilimit">
+    >           <DESCRIPTION>Maximal wavelength represented within the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_res_power" datatype="double" name="em_res_power" ucd="spect.resolution" utype="obscore:char.spectralaxis.resolution.resolpower.refval">
+    >           <DESCRIPTION>Spectral resolving power lambda/delta lamda</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="o_ucd" arraysize="*" datatype="char" name="o_ucd" ucd="meta.ucd" utype="obscore:char.observableaxis.ucd">
+    >           <DESCRIPTION>UCD for the product's observable</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="pol_states" arraysize="*" datatype="char" name="pol_states" ucd="meta.code;phys.polarization" utype="obscore:Char.PolarizationAxis.stateList">
+    >           <DESCRIPTION>List of polarization states in the data set</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="facility_name" arraysize="*" datatype="char" name="facility_name" ucd="meta.id;instr.tel" utype="obscore:Provenance.ObsConfig.facility.name">
+    >           <DESCRIPTION>Name of the facility at which data was taken</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="instrument_name" arraysize="*" datatype="char" name="instrument_name" ucd="meta.id;instr" utype="obscore:Provenance.ObsConfig.instrument.name">
+    >           <DESCRIPTION>Name of the instrument that produced the data</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="s_xel1" datatype="long" name="s_xel1" ucd="meta.number" utype="obscore:Char.SpatialAxis.numBins1">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the first spatial axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="s_xel2" datatype="long" name="s_xel2" ucd="meta.number" utype="obscore:Char.SpatialAxis.numBins2">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the second spatial axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="t_xel" datatype="long" name="t_xel" ucd="meta.number" utype="obscore:Char.TimeAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the time axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="em_xel" datatype="long" name="em_xel" ucd="meta.number" utype="obscore:Char.SpectralAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the spectral axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="pol_xel" datatype="long" name="pol_xel" ucd="meta.number" utype="obscore:Char.PolarizationAxis.numBins">
+    >           <DESCRIPTION>Number of elements (typically pixels) along the polarization axis.</DESCRIPTION>
+    >           <VALUES null="-1"/>
+    >         </FIELD>
+    >         <FIELD ID="s_pixel_scale" datatype="double" name="s_pixel_scale" ucd="phys.angSize;instr.pixel" unit="arcsec" utype="obscore:Char.SpatialAxis.Sampling.RefVal.SamplingPeriod">
+    >           <DESCRIPTION>Sampling period in world coordinate units along the spatial axis</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="em_ucd" arraysize="*" datatype="char" name="em_ucd" ucd="meta.ucd" utype="obscore:Char.SpectralAxis.ucd">
+    >           <DESCRIPTION>Nature of the product's spectral axis (typically, em.freq, em.wl, or em.energy)</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="preview" arraysize="*" datatype="char" name="preview" ucd="meta.ref.url;meta.preview">
+    >           <DESCRIPTION>URL of a preview (low-resolution, quick-to-retrieve representation) of the data.</DESCRIPTION>
+    >         </FIELD>
+    >         <FIELD ID="source_table" arraysize="*" datatype="char" name="source_table" ucd="meta.id;meta.table">
+    >           <DESCRIPTION>Name of a TAP-queriable table this data originates from. This source table usually provides more information on the the data than what is given in obscore. See the TAP_SCHEMA of the originating TAP server for details.</DESCRIPTION>
+    >         </FIELD>
+    >         <DATA>
+    >           <TABLEDATA>
+    >             <TR>
+    >               <TD>testdata</TD>
+    >               <TD/>
+    >               <TD>0</TD>
+    >               <TD>testing</TD>
+    >               <TD>zrq-test-20250512-183013</TD>
+    >               <TD/>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250512-183013</TD>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250512-183013</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>-1</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >             <TR>
+    >               <TD>testdata</TD>
+    >               <TD/>
+    >               <TD>0</TD>
+    >               <TD>testing</TD>
+    >               <TD>zrq-test-20250513-041926</TD>
+    >               <TD/>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250513-041926</TD>
+    >               <TD>ivo://skao.int/data?testing:zrq-test-20250513-041926</TD>
+    >               <TD>https://ivoa.datalink.srcdev.skao.int/rucio/links?ID=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250513-041926%0A</TD>
+    >               <TD>application/x-votable+xml;content=datalink</TD>
+    >               <TD>-1</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>-1</TD>
+    >               <TD>NaN</TD>
+    >               <TD/>
+    >               <TD/>
+    >               <TD>rucio.obscore</TD>
+    >             </TR>
+    >           </TABLEDATA>
+    >         </DATA>
+    >       </TABLE>
+    >     </RESOURCE>
+    >     <RESOURCE name="links" type="meta" utype="adhoc:service">
+    >       <DESCRIPTION> A datalink service accompanying obscore. This will forward to data
+    >   collection-specific datalink services if they exist or return
+    >   extremely basic datalinks otherwise.</DESCRIPTION>
+    >       <GROUP name="inputParams">
+    >         <PARAM arraysize="*" datatype="char" name="ID" ref="obs_publisher_did" ucd="meta.id;meta.main" value=""/>
+    >       </GROUP>
+    >       <PARAM arraysize="*" datatype="char" name="standardID" value="ivo://ivoa.net/std/DataLink#links-1.0"/>
+    >       <PARAM arraysize="*" datatype="char" name="accessURL" value="https://dachs.ivoa.srcnet.skao.int:443/__system__/obscore/dl/dlmeta"/>
+    >     </RESOURCE>
+    >   </VOTABLE>
+
+    #
+    # So yes, we can do it manually.
+    # IF we know the endpoint address.
+    # Also need to remove the DataLink RESOURCE.
+    #
+
