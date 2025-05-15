@@ -1,3 +1,4 @@
+# A request for 1HR Jupyter notebook session with a downloadable data resource.
 name: example-005
 executable:
   name: executable-005
@@ -8,13 +9,19 @@ schedule:
       duration: PT1H
 resources:
   compute:
-  - name: computer-005
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-    volumes:
-    - name: Calibration data
+    - name: computer-005
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+      volumes:
+        - "Calibration data"
+
+  volumes:
+    - name: "Calibration data"
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
       path: /calibration/
-      mode: READONLY
-      resource: data-005-01
+      mode: READWRITE
+      cardinality: INSTANCE
+      resources:
+        - data-005-01
 
   data:
   - name: data-005-01

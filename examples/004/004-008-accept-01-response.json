@@ -1,0 +1,47 @@
+{
+  "uuid": "98e7cdf2-04ec-44e0-a7b2-7ccd77d77596",
+  "name": "no name",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+  "created": "2025-05-15T05:03:40.268231Z",
+  "href": "http://127.0.0.1:8082/sessions/98e7cdf2-04ec-44e0-a7b2-7ccd77d77596",
+  "phase": "ACCEPTED",
+  "expires": "2025-05-15T10:03:40.079985Z",
+  "executable": {
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "uuid": "2400639d-b4ec-46fc-80f7-9a6476762f86",
+    "name": "executable-004",
+    "created": "2025-05-15T05:03:40.270391Z",
+    "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+  },
+  "resources": {
+    "compute": [
+      {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+        "uuid": "4c3b9c98-b554-4dd7-9fa1-bf68197c2c3a",
+        "name": "computer-004",
+        "cores": {
+          "min": 10,
+          "max": 10
+        },
+        "memory": {
+          "min": 10,
+          "max": 10
+        }
+      }
+    ]
+  },
+  "schedule": {
+    "preparing": {
+      "duration": "PT0S",
+      "start": "1970-01-01T00:00:00Z"
+    },
+    "executing": {
+      "duration": "PT1H",
+      "start": "2025-05-15T07:05:00Z"
+    },
+    "releasing": {
+      "duration": "PT0S",
+      "start": "1970-01-01T00:00:00Z"
+    }
+  }
+}

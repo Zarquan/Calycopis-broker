@@ -16,16 +16,12 @@
             "name": "computer-004",
             "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
             "cores": {
-                "requested": {
-                    "min": 5,
-                    "max": 15
-                    }
+                "min": 5,
+                "max": 15
                 },
             "memory": {
-                "requested": {
-                    "min": 3,
-                    "max": 9
-                    }
+                "min": 3,
+                "max": 9
                 }
             }
         ]
