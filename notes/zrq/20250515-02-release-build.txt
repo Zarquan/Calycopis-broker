@@ -104,3 +104,927 @@ EOF
         ....
         ....
 
+# -----------------------------------------------------
+# Generate our examples
+#[root@spring-builder]
+
+    examplename=001
+    examplepath=/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+
+    ....
+    ....
+
+    ....
+    ....
+
+    ....
+    ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Build and package our webapp.
+#[user@builder]
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean package ; popd
+
+    >   ....
+    >   ....
+    >   [INFO] Replacing main artifact /java/spring/spring-webapp/target/calycopis-webapp-0.0.1-SNAPSHOT-20250515.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+    >   [INFO] The original artifact has been renamed to /java/spring/spring-webapp/target/calycopis-webapp-0.0.1-SNAPSHOT-20250515.jar.original
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  8.567 s
+    >   [INFO] Finished at: 2025-05-15T06:19:36Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create our docker container.
+#[user@desktop]
+
+    jarfile=calycopis-webapp-0.0.1-SNAPSHOT-20250515.jar
+
+    buildtag=$(date '+%Y.%m.%d')
+    buildtime=$(date '+%Y-%m-%dT%H:%M:%S')
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        podman build \
+            --build-arg "jarfile=${jarfile:?}" \
+            --build-arg "buildtag=${buildtag:?}" \
+            --build-arg "buildtime=${buildtime:?}" \
+            --tag "calycopis/calycopis-broker:latest" \
+            --tag "calycopis/calycopis-broker:${buildtag:?}" \
+            --file "docker/java-runtime/Dockerfile" \
+            "java/spring/spring-webapp/target"
+
+    popd
+
+    >   ....
+    >   ....
+    >   Successfully tagged localhost/calycopis/calycopis-broker:2025.05.15
+    >   Successfully tagged localhost/calycopis/calycopis-broker:latest
+    >   a0eac2499c1711f1cd5ed09f72a0e5a2283fce2c56df370c7bfb894a1d25021d
+
+
+# -----------------------------------------------------
+# Run our docker container.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name calycopis-broker \
+        "localhost/calycopis/calycopis-broker:latest"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our service.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    examplename=001
+    examplepath=${CALYCOPIS_CODE}/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | tee "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   uuid: "ddde1ee1-0b03-46c1-bd76-f27ca34c12ed"
+    >   name: "example-001"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-05-15T06:24:11.227433895Z"
+    >   href: "http://127.0.0.1:8082/offersets/ddde1ee1-0b03-46c1-bd76-f27ca34c12ed"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "352d7b0b-a0b9-4f51-90bf-9191cba43ae0"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:24:11.606932559Z"
+    >       href: "http://127.0.0.1:8082/sessions/352d7b0b-a0b9-4f51-90bf-9191cba43ae0"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:24:11.227473068Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "ad9bf28d-2c48-4adc-a95e-7d84902648b4"
+    >         name: "executable-001"
+    >         created: "2025-05-15T06:24:11.641770462Z"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "0ca2cb5d-f08d-4e9a-8403-c7e6125e22c1"
+    >             name: "computer-001"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-05-15T06:25:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "3284a69d-8d1a-45db-83e8-539dd828e932"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:24:11.675688433Z"
+    >       href: "http://127.0.0.1:8082/sessions/3284a69d-8d1a-45db-83e8-539dd828e932"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:24:11.227473068Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "df3d3326-c574-4d04-b205-ae8e4bdfc60d"
+    >         name: "executable-001"
+    >         created: "2025-05-15T06:24:11.685400436Z"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "c49652e2-ca0a-4f42-941c-72f50ae0146f"
+    >             name: "computer-001"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-05-15T08:25:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "3d2e4320-979a-4126-969a-b7bb61957acd"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:24:11.701042868Z"
+    >       href: "http://127.0.0.1:8082/sessions/3d2e4320-979a-4126-969a-b7bb61957acd"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:24:11.227473068Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "286ba9ec-55cc-4456-b6d0-9ee20a1a52ce"
+    >         name: "executable-001"
+    >         created: "2025-05-15T06:24:11.709701958Z"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "6befff7e-f0da-4e70-8680-a42e26ff3d1f"
+    >             name: "computer-001"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-05-15T10:25:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "a01665c1-b231-48f3-80ae-588bad2bac58"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:24:11.722756838Z"
+    >       href: "http://127.0.0.1:8082/sessions/a01665c1-b231-48f3-80ae-588bad2bac58"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:24:11.227473068Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "5a682f9e-2567-430f-8cb5-bb8eef488299"
+    >         name: "executable-001"
+    >         created: "2025-05-15T06:24:11.731303283Z"
+    >         location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "8651a030-fa7d-4e38-a211-7289f98c9829"
+    >             name: "computer-001"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT1H"
+    >           start: "2025-05-15T12:25:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+
+
+    yq '.offers[].uuid' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   352d7b0b-a0b9-4f51-90bf-9191cba43ae0
+    >   3284a69d-8d1a-45db-83e8-539dd828e932
+    >   3d2e4320-979a-4126-969a-b7bb61957acd
+    >   a01665c1-b231-48f3-80ae-588bad2bac58
+
+
+    yq '.offers[].schedule.executing.start' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   2025-05-15T06:25:00Z
+    >   2025-05-15T08:25:00Z
+    >   2025-05-15T10:25:00Z
+    >   2025-05-15T12:25:00Z
+
+
+# -----------------------------------------------------
+# Test our service.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    examplename=006
+    examplepath=${CALYCOPIS_CODE}/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | tee "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   uuid: "a1b23f9a-8ff1-4b9d-9d37-e3e3f759eb53"
+    >   name: "example-006"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-05-15T06:27:51.995388526Z"
+    >   href: "http://127.0.0.1:8082/offersets/a1b23f9a-8ff1-4b9d-9d37-e3e3f759eb53"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "26c7312a-6dae-4262-8245-fcf83c73349e"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:27:52.159873104Z"
+    >       href: "http://127.0.0.1:8082/sessions/26c7312a-6dae-4262-8245-fcf83c73349e"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:27:51.995408634Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "f94210ee-2bd5-41b9-b576-283819663ce6"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:27:52.164653336Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "17650ac1-79a3-45e6-b9b2-ed0f37fe5f8b"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T06:30:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "8718ccdd-7986-484f-a470-ce1bfb4ad30b"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:27:52.264623862Z"
+    >       href: "http://127.0.0.1:8082/sessions/8718ccdd-7986-484f-a470-ce1bfb4ad30b"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:27:51.995408634Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "0cc1972a-de34-49be-86d8-c74c11bf0879"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:27:52.273939112Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "f4e786ea-032f-4fa2-b28c-e8e6933787ca"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T10:30:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "64bcf0a2-9be2-4f4e-a277-425a2f428d5a"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:27:52.382069165Z"
+    >       href: "http://127.0.0.1:8082/sessions/64bcf0a2-9be2-4f4e-a277-425a2f428d5a"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:27:51.995408634Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "55e15287-705e-4b82-83fc-320f2b70cf88"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:27:52.388268325Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "7d369898-8537-43b8-aaea-96108dc7855c"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T14:30:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "c9262404-65ea-425e-ab66-563e6482e13f"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:27:52.478939292Z"
+    >       href: "http://127.0.0.1:8082/sessions/c9262404-65ea-425e-ab66-563e6482e13f"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:27:51.995408634Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "355074a5-98c0-4f10-a27b-8fd5120a1050"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:27:52.483500671Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "60cc324a-2c93-4229-bb1f-318cda784d12"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T18:30:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+
+
+    yq '.offers[].uuid' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   26c7312a-6dae-4262-8245-fcf83c73349e
+    >   8718ccdd-7986-484f-a470-ce1bfb4ad30b
+    >   64bcf0a2-9be2-4f4e-a277-425a2f428d5a
+    >   c9262404-65ea-425e-ab66-563e6482e13f
+
+
+    yq '.offers[].schedule.executing.start' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   2025-05-15T06:30:00Z
+    >   2025-05-15T10:30:00Z
+    >   2025-05-15T14:30:00Z
+    >   2025-05-15T18:30:00Z
+
+
+    yq '.offers[].executable.type' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+
+
+# -----------------------------------------------------
+# Check our secret function works.
+#[user@desktop]
+
+    getsecret example.frog
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Login to the GitHub registry.
+#[user@desktop]
+
+    reponame="ghcr.io"
+    repopath="${reponame}/ivoa"
+
+    guser=$(getsecret 'devops.ghcrio.user')
+    gpass=$(getsecret 'devops.ghcrio.pass')
+
+    echo "${gpass:?}" \
+    | podman login \
+        --password-stdin \
+        --username "${guser:?}" \
+        "${reponame}"
+
+
+# -----------------------------------------------------
+# Push our images to our GitHub repository.
+#[user@desktop]
+
+    buildtag=$(date '+%Y.%m.%d')
+
+    pushtag()
+        {
+        local imagename=${1:?}
+        local imagetag=${2:?}
+        podman tag \
+            "${imagename:?}:${imagetag:?}" \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        podman push \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        }
+
+    pushtag "calycopis/calycopis-broker" "latest"
+    pushtag "calycopis/calycopis-broker" "${buildtag:?}"
+
+    >   Getting image source signatures
+    >   ....
+    >   ....
+    >   Copying config a0eac2499c done   |
+    >   Writing manifest to image destination
+
+    >   Getting image source signatures
+    >   ....
+    >   ....
+    >   Copying config a0eac2499c done   |
+    >   Writing manifest to image destination
+
+
+# -----------------------------------------------------
+# Run our published image.
+#[user@desktop]
+
+    buildtag=$(date '+%Y.%m.%d')
+
+    #
+    # Clear our image cache.
+    podman image rm -f $(podman images -q)
+
+    #
+    # Run the published image.
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name calycopis-broker \
+        "ghcr.io/ivoa/calycopis/calycopis-broker:${buildtag}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test our published image.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    examplename=006
+    examplepath=${CALYCOPIS_CODE}/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | tee "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   uuid: "8e44a7c9-de80-49e5-b7ec-d316667e5a34"
+    >   name: "example-006"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-05-15T06:48:16.448063894Z"
+    >   href: "http://127.0.0.1:8082/offersets/8e44a7c9-de80-49e5-b7ec-d316667e5a34"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "17e0f367-d446-4ff7-a5c1-bebb7de3d621"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:48:16.842648522Z"
+    >       href: "http://127.0.0.1:8082/sessions/17e0f367-d446-4ff7-a5c1-bebb7de3d621"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:48:16.448105453Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "e708b002-7914-4509-bbc6-2c8c635f231d"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:48:16.855021954Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "7f975bfd-b140-4b37-8e8b-3233dac957df"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T06:50:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "fa2a1485-bab6-4447-88be-0241da370726"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:48:16.978948868Z"
+    >       href: "http://127.0.0.1:8082/sessions/fa2a1485-bab6-4447-88be-0241da370726"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:48:16.448105453Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "39b056cd-b437-4677-9836-f28ef05f3e92"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:48:16.985376657Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "2564dbc9-97ae-4372-a5a1-a14b52fb7daf"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T10:50:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "9f3669fe-c34f-4a2a-841f-02a97a044125"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:48:17.067821915Z"
+    >       href: "http://127.0.0.1:8082/sessions/9f3669fe-c34f-4a2a-841f-02a97a044125"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:48:16.448105453Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "352bf810-1713-4c40-a7a1-c09f4e8056d6"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:48:17.07413985Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "f12f9de3-6766-460b-b812-c85caf2412e2"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T14:50:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >     - uuid: "85466158-2493-4a32-9e7a-e1bb20f952c7"
+    >       name: "no name"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-05-15T06:48:17.168596315Z"
+    >       href: "http://127.0.0.1:8082/sessions/85466158-2493-4a32-9e7a-e1bb20f952c7"
+    >       phase: "OFFERED"
+    >       expires: "2025-05-15T11:48:16.448105453Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+    >         uuid: "9cdfc9db-db22-431c-b888-c48496249584"
+    >         name: "executable-006"
+    >         created: "2025-05-15T06:48:17.176025051Z"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >             - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    >           digest: "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         entrypoint: "test-entrypoint"
+    >         environment:
+    >           USER_EMAIL: "albert@example.org"
+    >           USER_NAME: "albert"
+    >         network:
+    >           ports:
+    >             - access: true
+    >               internal:
+    >                 port: 3000
+    >               protocol: "HTTP"
+    >               path: "/"
+    >             - access: true
+    >               internal:
+    >                 port: 3001
+    >               protocol: "HTTPS"
+    >               path: "/"
+    >       resources:
+    >         compute:
+    >           - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >             uuid: "11949317-cd43-46df-8a8d-074ea0264629"
+    >             name: "compute-006"
+    >             cores:
+    >               min: 10
+    >               max: 10
+    >             memory:
+    >               min: 10
+    >               max: 10
+    >       schedule:
+    >         preparing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+    >         executing:
+    >           duration: "PT2H"
+    >           start: "2025-05-15T18:50:00Z"
+    >         releasing:
+    >           duration: "PT0S"
+    >           start: "1970-01-01T00:00:00Z"
+
+
+    yq '.offers[].schedule.executing.start' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   2025-05-15T06:50:00Z
+    >   2025-05-15T10:50:00Z
+    >   2025-05-15T14:50:00Z
+    >   2025-05-15T18:50:00Z
+
+
+    yq '.offers[].executable.type' \
+        "/tmp/${examplename}-002-offerset-response.yaml"
+
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+    >   https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+
+
+
+
+
+
