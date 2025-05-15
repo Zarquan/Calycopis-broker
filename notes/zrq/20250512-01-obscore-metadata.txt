@@ -70,9 +70,9 @@
     rucio --oidc-scope "openid profile offline_access wlcg.groups storage.create:/" whoami
 
     >   Please use your internet browser, go to:
-    >   
+    >
     >       https://rucio.srcnet.skao.int/auth/oidc_redirect?........
-    >   
+    >
     >   and authenticate with your Identity Provider.
     >   Copy paste the code from the browser to the terminal and press enter:
     >   XCUWQGIkvvL3VY3CtUjffKri34bwkY9eCACcqAJCxfjOsfwva8
@@ -414,7 +414,7 @@ EOF
     >         <GROUP ID="ndhgmtiugwla" name="note-calib">
     >           <DESCRIPTION>
     >   The calib_level flag takes the following values:
-    >   
+    >
     >   === ===========================================================
     >    0  Raw Instrumental data requiring instrument-specific tools
     >    1  Instrumental data processable with standard tools
@@ -682,7 +682,7 @@ EOF
     >         <GROUP ID="ndhgmtiugwla" name="note-calib">
     >           <DESCRIPTION>
     >   The calib_level flag takes the following values:
-    >   
+    >
     >   === ===========================================================
     >    0  Raw Instrumental data requiring instrument-specific tools
     >    1  Instrumental data processable with standard tools
@@ -924,4 +924,16 @@ EOF
     # IF we know the endpoint address.
     # Also need to remove the DataLink RESOURCE.
     #
+
+
+
+    This works :
+    https://datalink.ivoa.srcnet.skao.int/rucio/links?id=testing:zrq-test-20250513-041926%0A
+
+
+
+
+
+
+
 

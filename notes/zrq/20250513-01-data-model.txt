@@ -96,7 +96,7 @@
 
     IvoaDataResource
       ivoa:
-        # IVOA ID.
+        # IVOA identifier.
         ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
         # Resolved ObsCore data.
         obs-core:
@@ -129,16 +129,19 @@
         ....
         ....
       skao:
-        dmid: "testing:zrq-test-20250509-082506"
-        replicas:
-          - rse: "SPSRC_STORM"
-            url: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "STFC_STORM"
-            url: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "SWESRC-OSO-T1"
-            url: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "SWESRC-OSO-T0"
-            url: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+        rucio:
+          type:  "FILE"
+          scope: "testing"
+          name:  "zrq-test-20250509-082506"
+          replicas:
+            - rse: "SPSRC_STORM"
+              url: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "STFC_STORM"
+              url: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "SWESRC-OSO-T1"
+              url: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "SWESRC-OSO-T0"
+              url: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
 
 # -----------------------------------------------------
 
@@ -146,23 +149,26 @@
 
     IvoaDataResource
       ivoa:
-        # IVOA ID.
+        # IVOA identifier.
         ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
 
     SkaoDataResource extends IvoaDataResource
       ivoa:
         ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
       skao:
-        dmid: "testing:zrq-test-20250509-082506"
-        replicas:
-          - rse: "SPSRC_STORM"
-            url: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "STFC_STORM"
-            url: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "SWESRC-OSO-T1"
-            url: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
-          - rse: "SWESRC-OSO-T0"
-            url: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+        rucio:
+          type:  "FILE"
+          scope: "testing"
+          name:  "zrq-test-20250509-082506"
+          replicas:
+            - rse: "SPSRC_STORM"
+              url: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "STFC_STORM"
+              url: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "SWESRC-OSO-T1"
+              url: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+            - rse: "SWESRC-OSO-T0"
+              url: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
 
 
 # -----------------------------------------------------
@@ -174,41 +180,55 @@
       # generic-compute-resource
       computer:
         ....
-        # How the data/storage is mounted
+        # How the data/storage resources are mounted in this compute resource.
         volumes:
           - ....
           - ....
+
       # Science resources, resolves into one or more data resources.
-      # Next iteration.
+      # (*) Next iteration.
       science:
         - ....
-        # An imgage cube
-        - type: single
+        # Metadata for a single image cube
+        - type: ivoa-science-resource-instance
+          # The IVOA metadata block
+          ivoa:
+            content-type: image, cube
+          # The data resource linked to this science resource.
           data: ....
-        # A collection of spectra
-        - type: collection
+
+        # Metadata for a collection of spectra
+        - type: ivoa-science-resource-collection
+          # The IVOA metadata block
+          ivoa:
+            content-type: spectra
+          # The data resources for this science resource.
           data:
             - ....
             - ....
             - ....
 
-      # Data resources, assigned to storage resources
+      # Data resources, assigned to storage resources and linked to volumes
       data:
         - type: ivoa-data-resource
           ....
+          # The science resource this is linked to.
           science: ....
+          # The storage resource this is linked to.
           storage: ....
 
         - type: skao-data-resource
           ....
+          # The science resource this is linked to.
           science: ....
+          # The storage resource this is stored in.
           storage: ....
 
       # Storage resources, requested and generated.
-      # Simple generated pools to start with.
       storage:
         - ....
         - ....
+          # The data resources in this storage
           data:
             - ....
             - ....
