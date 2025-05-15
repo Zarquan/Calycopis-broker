@@ -156,7 +156,7 @@
                     - data-resource-002
                     - data-resource-003
 
-        Defining a science resource as _"a collection of spectra"_ is a string use case.
+        Defining a science resource as _"a collection of spectra"_ is a strong use case.
         So science-collection is useful.
 
         If we have science-collection, do we need container volumes ?
