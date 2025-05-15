@@ -1,0 +1,198 @@
+{
+  "uuid": "ec819784-bf34-489e-ab46-5d049e5549b6",
+  "name": "example-004",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0",
+  "created": "2025-05-15T05:03:40.079962Z",
+  "href": "http://127.0.0.1:8082/offersets/ec819784-bf34-489e-ab46-5d049e5549b6",
+  "result": "YES",
+  "offers": [
+    {
+      "uuid": "685c8141-b4b7-42c3-a865-c773ea64af4c",
+      "name": "no name",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "created": "2025-05-15T05:03:40.261731Z",
+      "href": "http://127.0.0.1:8082/sessions/685c8141-b4b7-42c3-a865-c773ea64af4c",
+      "phase": "REJECTED",
+      "expires": "2025-05-15T10:03:40.079985Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "fab34163-55c2-45af-89be-2eee1a53c360",
+        "name": "executable-004",
+        "created": "2025-05-15T05:03:40.264262Z",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "uuid": "1f9bd0e0-2202-4fff-85fa-d4ca744e4b82",
+            "name": "computer-004",
+            "cores": {
+              "min": 10,
+              "max": 10
+            },
+            "memory": {
+              "min": 10,
+              "max": 10
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        },
+        "executing": {
+          "duration": "PT1H",
+          "start": "2025-05-15T05:05:00Z"
+        },
+        "releasing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "uuid": "98e7cdf2-04ec-44e0-a7b2-7ccd77d77596",
+      "name": "no name",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "created": "2025-05-15T05:03:40.268231Z",
+      "href": "http://127.0.0.1:8082/sessions/98e7cdf2-04ec-44e0-a7b2-7ccd77d77596",
+      "phase": "ACCEPTED",
+      "expires": "2025-05-15T10:03:40.079985Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "2400639d-b4ec-46fc-80f7-9a6476762f86",
+        "name": "executable-004",
+        "created": "2025-05-15T05:03:40.270391Z",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "uuid": "4c3b9c98-b554-4dd7-9fa1-bf68197c2c3a",
+            "name": "computer-004",
+            "cores": {
+              "min": 10,
+              "max": 10
+            },
+            "memory": {
+              "min": 10,
+              "max": 10
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        },
+        "executing": {
+          "duration": "PT1H",
+          "start": "2025-05-15T07:05:00Z"
+        },
+        "releasing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "uuid": "d65dfbc2-3423-4802-8e59-b5dec3e4a2b4",
+      "name": "no name",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "created": "2025-05-15T05:03:40.275343Z",
+      "href": "http://127.0.0.1:8082/sessions/d65dfbc2-3423-4802-8e59-b5dec3e4a2b4",
+      "phase": "REJECTED",
+      "expires": "2025-05-15T10:03:40.079985Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "72d0af56-9862-415b-80a9-e173bffdcfc7",
+        "name": "executable-004",
+        "created": "2025-05-15T05:03:40.277742Z",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "uuid": "54535fb6-bd6f-4478-8886-7fae9f810b7b",
+            "name": "computer-004",
+            "cores": {
+              "min": 10,
+              "max": 10
+            },
+            "memory": {
+              "min": 10,
+              "max": 10
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        },
+        "executing": {
+          "duration": "PT1H",
+          "start": "2025-05-15T09:05:00Z"
+        },
+        "releasing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "uuid": "cc0fb1c6-28fe-4934-adcd-a056197758cb",
+      "name": "no name",
+      "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+      "created": "2025-05-15T05:03:40.281371Z",
+      "href": "http://127.0.0.1:8082/sessions/cc0fb1c6-28fe-4934-adcd-a056197758cb",
+      "phase": "REJECTED",
+      "expires": "2025-05-15T10:03:40.079985Z",
+      "executable": {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+        "uuid": "29c02007-c08d-4e3f-a767-987e94f239a6",
+        "name": "executable-004",
+        "created": "2025-05-15T05:03:40.283175Z",
+        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      },
+      "resources": {
+        "compute": [
+          {
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "uuid": "03869fbd-09d3-482f-bd7e-dadad965d29c",
+            "name": "computer-004",
+            "cores": {
+              "min": 10,
+              "max": 10
+            },
+            "memory": {
+              "min": 10,
+              "max": 10
+            }
+          }
+        ]
+      },
+      "schedule": {
+        "preparing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        },
+        "executing": {
+          "duration": "PT1H",
+          "start": "2025-05-15T11:05:00Z"
+        },
+        "releasing": {
+          "duration": "PT0S",
+          "start": "1970-01-01T00:00:00Z"
+        }
+      }
+    }
+  ]
+}

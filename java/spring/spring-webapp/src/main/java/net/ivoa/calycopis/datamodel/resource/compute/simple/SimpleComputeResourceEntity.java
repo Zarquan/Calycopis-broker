@@ -31,6 +31,8 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEnti
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
@@ -214,7 +216,15 @@ public class SimpleComputeResourceEntity
             this.getMessageBeans()
             );
 
-        // TODO fill in the fields 
+        IvoaSimpleComputeCores coresbean = new IvoaSimpleComputeCores();
+        coresbean.setMin(minofferedcores);
+        coresbean.setMax(maxofferedcores);
+        bean.setCores(coresbean);
+        
+        IvoaSimpleComputeMemory memorybean = new IvoaSimpleComputeMemory();
+        memorybean.setMin(minofferedcores);
+        memorybean.setMax(maxofferedcores);
+        bean.setMemory(memorybean);
         
         return bean;
         }
