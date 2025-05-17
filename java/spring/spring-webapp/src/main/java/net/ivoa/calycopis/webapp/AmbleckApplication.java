@@ -51,6 +51,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature ;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import net.ivoa.calycopis.util.YamlConverter;
+
 @SpringBootApplication
 @EntityScan(
     "net.ivoa.calycopis"
