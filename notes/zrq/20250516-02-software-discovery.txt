@@ -1,0 +1,105 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    How to descibe what the Software Discovery API should look like.
+
+    1) Deploy Drupal
+    2) Add the Faceted Search module
+    3) Configure it to handle the example vocabulary from Jesus.
+    4) Populate it with ~100 records describing a range of Astronomy software.
+       1) CADC list of containers
+       2) ...
+
+    This should create a useable platform that we can show to astronomers.
+    Collect feedback from astronomers about the structure of the UI,
+    the structure of the vocabulary.
+    Use this to generate a detailed specification of what we want the
+    Software Discovery to look like.
+
+    I expect that using Drupal Facteted Search for this will get us
+    90% of the things we need 'out of the box', no development needed.
+    Once we have a working prototyp we can decide whether to continue
+    with Drupal, or develop our own implementation.
+    Either way, it will give us a base line definition of what we want
+    it to do.
+    Everything after that can be expressed as a change relative to the
+    baseline Drupal implementation.
+    New system has to replicate features x, y, z from the Drupal implementation,
+    plus additional features a, b, c that extend the system in specific ways.
+
+    Without this, we would need to define exactly what we mean by a "faceted search"
+    service.
+    If we do not define exactly what we mean, then in reality the resulting system
+    will not be functional or useable.
+
+    We need this because the development team will implement exactly what we ask them to.
+    Taking the feature description literally.
+    See
+    https://jira.skatelescope.org/browse/SP-5279
+
+    To avoid wasting their time we need to be very careful about what we ask them to do.
+    Everything needs to be specified, in detail.
+    Expecially if the development is split across multiple teams and/or multiple iterations.
+    If we want it to come together as a whole, we need to start with a detailed coherent design.
+    Which means a lot of up front effort getting the detail right.
+    Or, we start with an existing working platform (e.g. Drupal) and then define what
+    changes we want relative to that.
+
+# -----------------------------------------------------
+
+    Discovery vocabulary - just grab the ChatGPT vocabulary from Jesus.
+    Get something workng, and then add/remove/refine the vocabulary based on feedback.
+
+# -----------------------------------------------------
+
+    Software metadata data model
+
+    ExecutionBroker is a low level model of how to execute workflows.
+
+    DiscoveryVocabulary is a high level vocabulary describing what the software does.
+
+    In between is a complex hierarchical model that addresses versions, deployments, configurations etc.
+
+    Need to propose this as a deliverable, with estimates of the time involved.
+    Again, is Drupal the best platform to evolve this ?
+    Drupal taxonomy and links between contant types would alow us to experiment with the connections in real time.
+
+
+
+
+
+
+
+

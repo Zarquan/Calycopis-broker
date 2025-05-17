@@ -1,0 +1,280 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experiment with the DataManagment API.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    https://data-management.srcdev.skao.int/api/v1
+
+        Needs authentication
+
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api/-/blob/main/src/ska_src_data_management_api/models/response.py
+
+    # Data Location Responses
+    class DataLocateReplicasResponse(Response):
+        """Response model for locating replicas."""
+
+        identifier: str = Field(examples=["STFC_STORM"])
+        associated_storage_area_id: UUID = Field(default_factory=uuid4)
+        replicas: List[str]
+
+
+# -----------------------------------------------------
+
+    Welcome to ska-src-clients’s documentation! — ska-src-clients documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-clients/index.html
+
+    srcnet-oper — ska-src-clients documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-clients/srcnet-oper.html
+
+    podman run \
+        -it \
+        --rm \
+        fedora \
+            bash
+
+--START--
+....
+....
+--END--
+
+        dnf install -y python3 python3-devel pip3
+        dnf install -y git gcc
+        pip install wheel
+
+        python3 -m pip install ska-src-clients --index-url https://gitlab.com/api/v4/groups/70683489/-/packages/pypi/simple
+
+        srcnet-oper token ls
+
+--START--
++--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+| Service Name | Access token | Expires at (UTC) | Expires at (Local) | Path on disk | Has associated refresh token? |
++--------------+--------------+------------------+--------------------+--------------+-------------------------------+
++--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+--END--
+
+        srcnet-oper token request
+
+--START--
+Scan the QR code, or using a browser on another
+device, visit https://ska-iam.stfc.ac.uk/device
+and enter code V2PSXV
+                                     
+                                     
+    █▀▀▀▀▀█ ▀▄▄▄▀   █ ▀▀▀ █▀▀▀▀▀█    
+    █ ███ █ ███▀▀████▄█▀  █ ███ █    
+    █ ▀▀▀ █ ▀ ▄▀▀  ▀▀▄▄█  █ ▀▀▀ █    
+    ▀▀▀▀▀▀▀ ▀ █▄▀ █ █▄▀▄▀ ▀▀▀▀▀▀▀    
+    ████ ▄▀▄█ █▀▀██ ▄▀▀▄ █▄▄█▀▀ █    
+    █▀ █▄▀▀▀▀███▀█▄▄▀▀█  ▄█▄▄ ▀▀▄    
+    ▄ ▀▄▀ ▀██▀▀▄▄▀█▄▀▀ ▄  ▄▄ ▀█▄▄    
+    ▀▀▄  ▄▀▄█ █ ▄ ▄▄▄▀ █▄ ▀▀▄ ▀█▀    
+    ▀  ▄▄▄▀ █▀ ▀█▀ ▄ ▄  █▀ █▀█▄█     
+    ▀ █▀ ▀▀█▀█  ▀▀▀█▀█▄  ▄▀█▄ █      
+     ▀▀▀▀▀▀▀▄▀█▄█ ▀ █▀███▀▀▀███▄▄    
+    █▀▀▀▀▀█  ▀▄█▄▄  █▀▀▀█ ▀ ██ ▀     
+    █ ███ █ ▄█ ▄▄▀█▄▄█ ▄▀▀▀██▄▀█▄    
+    █ ▀▀▀ █ █ █ ▀▀█ █ ▀█▄ ▄█ ▄▀▄▀    
+    ▀▀▀▀▀▀▀ ▀▀▀ ▀▀▀ ▀ ▀▀▀ ▀▀ ▀ ▀     
+                                     
+                                     
+--------------------------------------------------
+
+Polling for token... (13/60)
+
+Successfully polled for token. You are now logged in.
+--END--
+
+
+        srcnet-oper token ls
+
+--START--
++--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+| Service Name | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
++--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+| authn-api    | eyJraWQiOiJyc2ExIiwi | 2025-05-17 06:31:19+00:00 | 2025-05-17 06:31:19 | /tmp/srcnet/user/0c729cee-6d96-4fc1-a146-15ba91616490.token |               ✓               |
++--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+--END--
+
+
+        srcnet-oper token exchange \
+            data-management-api
+
+--START--
+....
+"You do not have permission to access this resource."
+....
+--END--
+
+        #
+        # Requested permission to join the relevant groups in IAM
+        # https://ska-iam.stfc.ac.uk/dashboard#!/home
+        #  data/namespaces/testing
+        #  services/data-management-api
+        #
+        # Waiting ....
+        #
+
+        srcnet-oper data locate \
+            --namespace testing \
+            --name zrq-test-20250508-125441
+
+
+
+
+# -----------------------------------------------------
+# Experiment with Markus's ivoid resolver.
+
+    podman run \
+        -it \
+        --rm \
+        debian \
+            bash
+
+        apt-get update
+        apt-get install -y wget
+        apt-get install -y python3
+        apt-get install -y python3-gavo
+
+        cd ~
+        wget http://svn.ari.uni-heidelberg.de/svn/gavo/hdinputs/ivoidval/bin/didresolver.py
+
+        python3 didresolver.py
+
+--START--
+[
+    {
+    'rec_type': 'RESULT',
+    'message': 'From an obscore service at http://dc.g-vo.org/tap',
+    'access_uri': 'http://dc.g-vo.org/getproduct/apo/cd/9506/L2237_950602_r_01.fits'
+    }
+]
+--END--
+
+
+    python3 '
+import didresolver
+print(
+    didresolver.resolve_did(
+        "ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz",
+        True
+	    )
+    )
+'
+
+--START--
+[{'rec_type': 'ERROR', 'message': 'Could not resolve ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz', 'access_uri': None}]
+--END--
+
+
+    cat > test-resolver.py << EOF
+import sys
+import didresolver
+print(
+    didresolver.resolve_did(
+        sys.argv[1],
+        True
+	    )
+    )
+EOF
+
+    python3 \
+        test-resolver.py \
+            'ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz'
+
+--START--
+[{'rec_type': 'ERROR', 'message': 'Could not resolve ivo://cadc.nrc.ca/HST?i9zf01dzq/i9zf01dzq_drz', 'access_uri': None}]
+--END--
+
+
+    python3 \
+        test-resolver.py \
+            'ivo://CDS.VizieR/J/A+A/591/A5?res=G002.210-0.049_I4.fits'
+
+--START--
+Traceback (most recent call last):
+  File "/root/test-resolver.py", line 4, in <module>
+    didresolver.resolve_did(
+  File "/root/didresolver.py", line 225, in resolve_did
+    resolve_in_service(regpart, pub_DID, results)
+  File "/root/didresolver.py", line 196, in resolve_in_service
+    results.add_obscore(dataset_id, access_url)
+  File "/root/didresolver.py", line 113, in add_obscore
+    for row in query_obscore(dataset_id, access_url):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/didresolver.py", line 134, in query_obscore
+    res = list(metadata.iterDicts(data))
+               ^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'iterDicts'
+--END--
+
+
+    python3 \
+        test-resolver.py \
+            'ivo://CDS.VizieR/J/A+A/555/A110?res=ciza153.fits'
+
+--START--
+....
+....
+AttributeError: 'NoneType' object has no attribute 'iterDicts'
+--END--
+
+
+    python3 \
+        test-resolver.py \
+            'ivo://CDS.VizieR/J/MNRAS/447/3536?res=VAR.178.B.fits'
+
+--START--
+....
+....
+AttributeError: 'NoneType' object has no attribute 'iterDicts'
+--END--
+
+
+    python3 \
+        test-resolver.py \
+            'ivo://CDS.VizieR/J/A+A/541/L1?res=SN1987A_87_smHB.fits'
+
+--START--
+....
+....
+AttributeError: 'NoneType' object has no attribute 'iterDicts'
+--END--
+
+
+    #
+    # Nice idea, but not really.
+    # Too much is broken.
+    #
+
+
+

@@ -1,0 +1,99 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    SRCNet v0.1 Interfaces View
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=294249638
+
+    Discover Science Data Sets Interface (TAP - global)
+        The user layer can look for scientific entities (e.g. observations) using scientific
+        metadata (e.g. position in the sky, proposal information, etc)
+        This service makes use of the IVOA TAP standard as a way to do queries to the science
+        metadata DB and it makes use of ADQL (Astronomical Data Query Language), a subset of SQL
+        that incorporates astronomical functions (in particular, many geometrical functions)
+
+    Data Stage Interface (DataLink - global)
+        The discovery of the data access points will be done by an IVOA data link standard service,
+        that provides to the invoking service a table with all these possible access points,
+        including a description of the service type, for every data product
+
+    Data Stage Interface (DataManagment - global)
+
+        stage(String[] dataIdentifiers)
+        async UWS
+
+        The SRCNet presentation layer could ask for the staging of the data in on SRCNet node.
+        That implies moving the selected data to a unique SRCNet node and putting the data
+        available into storage visible by the computing elements.
+
+        In this first step, the presentation layer sends a set of data identifiers to the global
+        data management API service that will decide the relevant node to move the data
+        (usually where most of the data is located) and invokes the creation of replicas into
+        the storage that has been flagged by nodes as close to the computing elements.
+        A second step will be invoked by the global data management API to the gatekeeper
+        to put the data available into the user area (see Prepare Data Interface)
+
+        After completion, UWS response contains the identifier of the SRCNet node where
+        data have been staged
+
+    Prepare Data Interface (Gatekeepr - local)
+
+        prepare(String[] dataIdentitifiers)
+        async UWS?
+
+        After creating replicas of the selected data into a particular SRCNet node,
+        the Global Data Management API will invoke the gatekeeper so the selected
+        data is made available to the users
+
+    Prepare Data For Users Interface (PrepareData - local)
+
+        prepareData(String[] dataIdentitifiers)
+        sync ?
+
+        After checking permissions on the data, the gatekeeper invokes a PrepareData
+        Function to put the references to the selected data into the users' areas.
+        This could be done by creating symbolic links to the data in the users'
+        areas or by any other future implementation.
+        The implementation of the PrepareData component will depend on the local
+        infrastructure of the SRCNet node, maintaining the signature of the API fixed
+        so the GateKeeper just needs to instantiate the local implementation of the
+        PrepareData module but not change the rest of the code.
+
+
+
+
+
+
+
+

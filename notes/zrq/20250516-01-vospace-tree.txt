@@ -1,0 +1,263 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    We have a hierarchy of things, with collections that contain
+    different types of collections which contain different types
+    of leaves.
+
+        Catalog
+          +-- ident
+          +-- name
+          |
+          +-- tables
+                |
+                +-- Table
+                      +-- ident
+                      +-- name
+                      |
+                      +-- columns
+                      |     |
+                      |     +-- Column
+                      |           +-- ident
+                      |           +-- name
+                      |           +-- type
+                      |
+                      +-- indexes
+                            |
+                            +-- Index
+                                  +-- ident
+                                  +-- name
+                                  |
+                                  +-- columns
+                                        |
+                                        +-- column-ref
+                                        +-- column-ref
+
+        We have identities and groups, which can also be modelled as a hirerarchy of
+        collections of links to leaves or other collections.
+
+        Identities
+          |
+          |
+          +-- Identity
+                +-- ident
+                +-- name
+
+        Groups
+          |
+          +-- Group
+                +-- ident
+                +-- name
+                |
+                +-- members
+                      |
+                      +-- identity-ref
+                      +-- identity-ref
+                      +-- group-ref
+                      +-- group-ref
+
+        We have access conteol lists, which can also be modelled as a hirerarchy of
+        collections of links to leaves or other collections.
+
+        Actions
+          |
+          +-- Action
+                +-- name
+                +-- ident
+
+
+        AccessControlList
+           +-- ident
+           +-- name
+           |
+           +-- AccessControlItem
+                  +-- ident
+                  +-- name
+                  |
+                  +-- actions
+                  |     |
+                  |     +-- action-ref
+                  |     +-- action-ref
+                  |
+                  +-- allowed
+                  |      |
+                  |      +-- group-ref
+                  |      +-- group-ref
+                  |
+                  +-- denied
+                         |
+                         +-- group-ref
+                         +-- group-ref
+
+
+        What if ... everything in that hierarchy has an AccessControlList.
+
+        Catalog
+          +-- ident
+          +-- name
+          +-- permissions (ACL)
+          |      |
+          |      +-- permission (ACI)
+          |             |
+          |             +-- actions List<Action>
+          |             |     |
+          |             |     +-- action-ref
+          |             |     +-- action-ref
+          |             |
+          |             +-- allowed List<Identity|Group>
+          |             |     |
+          |             |     +-- identity-ref
+          |             |     +-- identity-ref
+          |             |     +-- group-ref
+          |             |
+          |             +-- denied List<Identity|Group>
+          |                   |
+          |                   +-- identity-ref
+          |                   +-- identity-ref
+          |                   +-- group-ref
+          |
+          +-- tables List<Table>
+                +-- permissions (ACL)
+                |
+                +-- Table
+                      +-- ident
+                      +-- name
+                      +-- permissions (ACL)
+                      |
+                      +-- columns  List<Column>
+                      |     +-- permissions (ACL)
+                      |     |
+                      |     +-- Column
+                      |           +-- ident
+                      |           +-- name
+                      |           +-- type
+                      |           +-- permissions (ACL)
+                      |
+                      +-- indexes List<Index>
+                            +-- permissions (ACL)
+                            |
+                            +-- Index
+                                  +-- ident
+                                  +-- name
+                                  +-- permissions (ACL)
+                                  |
+                                  +-- columns List<Column>
+                                        +-- permissions (ACL)
+                                        |
+                                        +-- column-ref
+                                        +-- column-ref
+
+        Identities
+          +-- permissions (ACL)
+          |
+          +-- Identity
+                +-- ident
+                +-- name
+                +-- permissions (ACL)
+
+        Groups
+          +-- permissions (ACL)
+          |
+          +-- Group
+                +-- ident
+                +-- name
+                +-- permissions (ACL)
+                |
+                +-- members List<Identity|Group>
+                      +-- permissions (ACL)
+                      |
+                      +-- identity-ref
+                      +-- identity-ref
+                      +-- group-ref
+                      +-- group-ref
+
+
+        AccessControlList
+           +-- ident
+           +-- name
+           +-- permissions (ACL)
+           |
+           +-- items List<AccessControlItem>
+                 +-- permissions (ACL)
+                 |
+                 +-- AccessControlItem
+                       +-- ident
+                       +-- name
+                       +-- permissons (ACL)
+                       |
+                       +-- actions List<Action>
+                       |     |
+                       |     +-- action-ref
+                       |     +-- action-ref
+                       |
+                       +-- allowed List<Identity|Group>
+                       |     |
+                       |     +-- identity-ref
+                       |     +-- identity-ref
+                       |     +-- group-ref
+                       |     +-- group-ref
+                       |
+                       +-- denied List<Identity|Group>
+                             |
+                             +-- identity-ref
+                             +-- identity-ref
+                             +-- group-ref
+                             +-- group-ref
+
+
+    This models the whole tree of things as a hierarchical tree of collections of things,
+    and each node in the tree has a list of permissions (ACL) that define who was allowed
+    to do what to that node.
+    Who is allowed to modify the properties, e.g. name etc.
+    And for collections of things, who is allowed to add or remove items.
+
+    If we defined an API for managing a hierarchical tree of collections of things,
+    a client could traverse the tree, setting properties on the nodes and adding
+    and removing items from the lists.
+
+    If the permissions for the nodes are themselves modeled as an AccessControlList,
+    that contains AccessControlItems, which contain references (links) to actions,
+    and allowed and denied identities, then we could use the same mechanism
+    to control who is allowed to modify an AccessControlList and who is allowed
+    it add and remove members from the allowed and denied groups.
+
+    So we need a common API for navigating a hierarchy of containers, nodes and links,
+    setting properties on the nodes and adding and removing nodes from containers.
+
+
+
+
+
+

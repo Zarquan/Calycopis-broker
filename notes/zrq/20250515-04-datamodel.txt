@@ -1,0 +1,179 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Update the data model to add new features.
+        Required for next week.
+
+            Add IvoaDataResource
+            https://github.com/ivoa/Calycopis-broker/issues/137
+
+            Add SkaoDataResource
+            https://github.com/ivoa/Calycopis-broker/issues/138
+
+            Add DataResources to ExecutionSession
+            https://github.com/ivoa/Calycopis-broker/issues/135
+                Work in progress
+
+            Define the relationship between data resource and storage resource
+            https://github.com/ivoa/Calycopis-broker/issues/211
+                Work in progress
+
+            Add code to validate storage and data resources
+            https://github.com/ivoa/Calycopis-broker/issues/180
+                Work in progress
+
+            Add code to process replicas list into time estimates
+            https://github.com/ivoa/Calycopis-broker/issues/218
+
+
+        Non-urgent model changes
+
+            Make compute resources a single instance
+            https://github.com/ivoa/Calycopis-broker/issues/206
+
+            Link between executable and compute
+            https://github.com/ivoa/Calycopis-broker/issues/188
+                Fixed by '206
+
+            Revisit requested/offered properties
+            https://github.com/ivoa/Calycopis-broker/issues/194
+                Compute done
+                Storage todo
+
+            Move volumes back into compute resource
+            https://github.com/ivoa/Calycopis-broker/issues/215
+
+            Split volume class into two
+            https://github.com/ivoa/Calycopis-broker/issues/209
+
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=datamodel
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Create the new data resources.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi/ivoa/types/resources/data
+
+            edit Ivoa-data-resource-1.0.yaml
+            link Ivoa-data-resource-1.0.yaml -> Ivoa-data-resource-1.0
+            link Ivoa-data-resource-1.0.yaml -> Ivoa-data-resource
+
+	        edit Skao-data-resource-1.0.yaml
+	        link Skao-data-resource-1.0.yaml -> Skao-data-resource-1.0
+	        link Skao-data-resource-1.0.yaml -> Skao-data-resource
+
+        popd
+    popd
+
+
+
+# -----------------------------------------------------
+# Build the project.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Generate the test examples ...
+#[root@spring-builder]
+
+
