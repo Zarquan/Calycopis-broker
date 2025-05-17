@@ -26,8 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceValidator;
+import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -50,12 +52,19 @@ public class AbstractDataResourceValidatorFactoryImpl
     @Autowired
     public AbstractDataResourceValidatorFactoryImpl(
         final SimpleDataResourceEntityFactory simpleDataEntityFactory,
+        final IvoaDataResourceEntityFactory ivoaDataEntityFactory,
         final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super();
         this.validators.add(
-            new SimpleDataResourceValidator(
+            new SimpleDataResourceValidatorImpl(
                 simpleDataEntityFactory,
+                storageValidators
+                )
+            );
+        this.validators.add(
+            new IvoaDataResourceValidatorImpl(
+                ivoaDataEntityFactory,
                 storageValidators
                 )
             );
