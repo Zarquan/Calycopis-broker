@@ -30,6 +30,8 @@ import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceEntityFac
 import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -47,18 +49,26 @@ public class AbstractDataResourceValidatorFactoryImpl
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
+     * TODO Make this part of Platform. 
      * 
      */
     @Autowired
     public AbstractDataResourceValidatorFactoryImpl(
         final SimpleDataResourceEntityFactory simpleDataEntityFactory,
         final IvoaDataResourceEntityFactory ivoaDataEntityFactory,
+        final SkaoDataResourceEntityFactory skaoDataEntityFactory,
         final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super();
         this.validators.add(
             new SimpleDataResourceValidatorImpl(
                 simpleDataEntityFactory,
+                storageValidators
+                )
+            );
+        this.validators.add(
+            new SkaoDataResourceValidatorImpl(
+                skaoDataEntityFactory,
                 storageValidators
                 )
             );

@@ -20,7 +20,7 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.resource.data.ivoa;
+package net.ivoa.calycopis.datamodel.resource.data.skao;
 
 import java.net.URI;
 
@@ -36,29 +36,32 @@ import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;
 
 /**
  * A Validator implementation to handle IvoaDataResources.
  *
  */
 @Slf4j
-public class IvoaDataResourceValidatorImpl
+public class SkaoDataResourceValidatorImpl
 extends AbstractDataResourceValidatorImpl
-implements IvoaDataResourceValidator
+implements SkaoDataResourceValidator
     {
 
     /**
      * Factory for creating Entities.
      *
      */
-    final IvoaDataResourceEntityFactory entityFactory;
+    final SkaoDataResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
      *
      */
-    public IvoaDataResourceValidatorImpl(
-        final IvoaDataResourceEntityFactory entityFactory,
+    public SkaoDataResourceValidatorImpl(
+        final SkaoDataResourceEntityFactory entityFactory,
         final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super(
@@ -74,10 +77,10 @@ implements IvoaDataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
-        if (requested instanceof IvoaIvoaDataResource)
+        if (requested instanceof IvoaSkaoDataResource)
             {
             return validate(
-                (IvoaIvoaDataResource) requested,
+                (IvoaSkaoDataResource) requested,
                 context
                 );
             }
@@ -89,16 +92,16 @@ implements IvoaDataResourceValidator
         }
 
     public AbstractDataResourceValidator.Result validate(
-        final IvoaIvoaDataResource requested,
+        final IvoaSkaoDataResource requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaIvoaDataResource)");
+        log.debug("validate(IvoaSkaoDataResource)");
         log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
 
         boolean success = true ;
 
-        IvoaIvoaDataResource validated = new IvoaIvoaDataResource(
-            IvoaDataResource.TYPE_DISCRIMINATOR
+        IvoaSkaoDataResource validated = new IvoaSkaoDataResource(
+            SkaoDataResource.TYPE_DISCRIMINATOR
             );
 
         success &= duplicateCheck(
@@ -120,8 +123,15 @@ implements IvoaDataResourceValidator
                 requested.getName()
                 )
             );
+        
         success &= validate(
             requested.getIvoa(),
+            validated,
+            context
+            );
+
+        success &= validate(
+            requested.getSkao(),
             validated,
             context
             );
@@ -135,7 +145,7 @@ implements IvoaDataResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public IvoaDataResourceEntity build(final ExecutionSessionEntity session)
+                public SkaoDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
@@ -164,6 +174,7 @@ implements IvoaDataResourceValidator
             }
         }
 
+    // Inherit this from Ivoa validator ?
     public boolean validate(
         final IvoaIvoaDataResourceBlock requested,
         final IvoaIvoaDataResource validated,
@@ -174,21 +185,6 @@ implements IvoaDataResourceValidator
             {
             IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
             validated.setIvoa(block);
-            // TODO validate the URI
-            URI ivoid = requested.getIvoid();
-            if (null != ivoid)
-                {
-                block.setIvoid(
-                    ivoid
-                    );
-                }
-            else {
-                context.getOfferSetEntity().addWarning(
-                    "urn:missing-required-value",
-                    "Ivoa ID (ivoid) required"
-                    );
-                success = false ;
-                }
             
             IvoaIvoaObsCoreItem obscore = requested.getObscore();
             if (null != obscore)
@@ -204,12 +200,36 @@ implements IvoaDataResourceValidator
                 block.setDatalink(datalink);
                 }
             }
-        else {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "Ivoa metadata required"
-                );
-            success = false ;
+        return success ;
+        }
+
+    public boolean validate(
+        final IvoaSkaoDataResourceBlock requested,
+        final IvoaSkaoDataResource validated,
+        final OfferSetRequestParserContext context
+        ){
+        boolean success = true ;
+        if (requested != null)
+            {
+            IvoaSkaoDataResourceBlock block = new IvoaSkaoDataResourceBlock();
+            validated.setSkao(block);
+            // TODO Validate the values.
+            block.setNamespace(requested.getNamespace());
+            block.setObjectname(requested.getObjectname());
+            block.setObjecttype(requested.getObjecttype());
+            block.setDatasize(requested.getDatasize());
+            block.setChecksum(requested.getChecksum());
+
+            for (IvoaSkaoReplicaItem replica : requested.getReplicas())
+                {
+                // TODO Validate the fields
+                IvoaSkaoReplicaItem newReplica = new IvoaSkaoReplicaItem();
+                newReplica.setRsename(replica.getRsename());
+                newReplica.setDataurl(replica.getDataurl());
+                block.addReplicasItem(
+                    newReplica
+                    );
+                }
             }
         return success ;
         }

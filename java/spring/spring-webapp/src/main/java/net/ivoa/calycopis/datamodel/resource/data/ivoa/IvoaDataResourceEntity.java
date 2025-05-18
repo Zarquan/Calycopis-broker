@@ -60,7 +60,7 @@ public class IvoaDataResourceEntity
         {
         super();
         }
-
+    
     /**
      * Protected constructor with parent.
      *
@@ -338,9 +338,15 @@ public class IvoaDataResourceEntity
     @Override
     public IvoaAbstractDataResource getIvoaBean()
         {
-        IvoaIvoaDataResource bean = new IvoaIvoaDataResource(
-            IvoaDataResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaIvoaDataResource(
+                IvoaDataResource.TYPE_DISCRIMINATOR
+                )
             );
+        }
+
+    protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
+        {
         bean.setUuid(
             this.getUuid()
             );
@@ -353,7 +359,6 @@ public class IvoaDataResourceEntity
         bean.setMessages(
             this.getMessageBeans()
             );
-
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(
             block

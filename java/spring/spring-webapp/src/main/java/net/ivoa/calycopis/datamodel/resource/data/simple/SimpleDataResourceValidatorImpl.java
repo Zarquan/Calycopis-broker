@@ -89,10 +89,6 @@ implements SimpleDataResourceValidator
             }
         }
 
-    /**
-     * Validate a simple data resource.
-     *
-     */
     public AbstractDataResourceValidator.Result validate(
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserContext context

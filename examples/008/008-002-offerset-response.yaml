@@ -1,22 +1,22 @@
-uuid: "d45acad7-f562-4f8f-808b-2dae646dcabb"
+uuid: "475e9e3e-ecbc-46f4-9f7a-2ff2096336dd"
 name: "example-008"
 type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-05-18T06:32:31.552957152Z"
-href: "http://127.0.0.1:8082/offersets/d45acad7-f562-4f8f-808b-2dae646dcabb"
+created: "2025-05-18T11:56:12.113954935Z"
+href: "http://127.0.0.1:8082/offersets/475e9e3e-ecbc-46f4-9f7a-2ff2096336dd"
 result: "YES"
 offers:
-  - uuid: "30dc6574-e0bc-4b11-bb75-23de1a6ba9a3"
+  - uuid: "f618f6e1-d3ca-4a07-9f58-0cd23bef7733"
     name: "no name"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-05-18T06:32:31.798252172Z"
-    href: "http://127.0.0.1:8082/sessions/30dc6574-e0bc-4b11-bb75-23de1a6ba9a3"
+    created: "2025-05-18T11:56:12.228120714Z"
+    href: "http://127.0.0.1:8082/sessions/f618f6e1-d3ca-4a07-9f58-0cd23bef7733"
     phase: "OFFERED"
-    expires: "2025-05-18T11:32:31.552993039Z"
+    expires: "2025-05-18T16:56:12.113970593Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "62ba0171-f515-4860-83ee-b536928a4422"
+      uuid: "8303192f-e3e0-46d4-8f0b-c2380fbb2852"
       name: "executable-008-01"
-      created: "2025-05-18T06:32:31.810937249Z"
+      created: "2025-05-18T11:56:12.229989067Z"
       image:
         locations:
           - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -29,7 +29,7 @@ offers:
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "15cd25e4-4d52-4f02-8cbb-40530048735d"
+          uuid: "160090ec-2988-41b7-bf9e-29bce9a62858"
           name: "computer-008-01"
           cores:
             min: 2
@@ -39,14 +39,14 @@ offers:
             max: 2
       storage:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "453cbb70-75ad-405c-8022-efbc76bde6bf"
+          uuid: "6f3e62fc-6437-4475-966b-04506bc8b82f"
           name: "Storage for [data-008-01]"
-          created: "2025-05-18T06:32:31.903751766Z"
+          created: "2025-05-18T11:56:12.252712746Z"
       data:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0"
-          uuid: "825d80fc-975f-4281-9c88-d5ec15c004ec"
+          uuid: "18a7100a-a9ca-4125-8c79-8652dba10cc3"
           name: "data-008-01"
-          created: "2025-05-18T06:32:31.909796919Z"
+          created: "2025-05-18T11:56:12.254487533Z"
           ivoa:
             ivoid: "ivo://example.org/path?012345-000"
             obscore:
@@ -70,22 +70,22 @@ offers:
         start: "1970-01-01T00:00:00Z"
       executing:
         duration: "PT2H"
-        start: "2025-05-18T06:35:00Z"
+        start: "2025-05-18T12:00:00Z"
       releasing:
         duration: "PT0S"
         start: "1970-01-01T00:00:00Z"
-  - uuid: "f391e1e8-6047-4d5f-9cc2-e771834dde2b"
+  - uuid: "3757437d-499a-4f1a-ab3c-825549ca3539"
     name: "no name"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-05-18T06:32:31.921936523Z"
-    href: "http://127.0.0.1:8082/sessions/f391e1e8-6047-4d5f-9cc2-e771834dde2b"
+    created: "2025-05-18T11:56:12.259175143Z"
+    href: "http://127.0.0.1:8082/sessions/3757437d-499a-4f1a-ab3c-825549ca3539"
     phase: "OFFERED"
-    expires: "2025-05-18T11:32:31.552993039Z"
+    expires: "2025-05-18T16:56:12.113970593Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "70bb8096-76ec-4429-a330-a504a2d7437a"
+      uuid: "4ef7ea53-151a-40a9-b149-7013cdc6ad96"
       name: "executable-008-01"
-      created: "2025-05-18T06:32:31.928574505Z"
+      created: "2025-05-18T11:56:12.261444496Z"
       image:
         locations:
           - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -98,7 +98,7 @@ offers:
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "14b104ea-a480-4cdb-8ed3-7e727fcec275"
+          uuid: "d4000721-f4ab-4a91-998b-88fa4358f886"
           name: "computer-008-01"
           cores:
             min: 2
@@ -108,14 +108,14 @@ offers:
             max: 2
       storage:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "9993bb1a-0142-4c90-a985-d006f4c35a03"
+          uuid: "146fc6c2-41ac-4a2e-afbf-11ae20b9936b"
           name: "Storage for [data-008-01]"
-          created: "2025-05-18T06:32:32.003922624Z"
+          created: "2025-05-18T11:56:12.284454706Z"
       data:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0"
-          uuid: "05f3b96a-305b-42ed-8cd2-4946c04456a6"
+          uuid: "bb515c82-92de-4aac-83c3-a861130af851"
           name: "data-008-01"
-          created: "2025-05-18T06:32:32.008092838Z"
+          created: "2025-05-18T11:56:12.286243683Z"
           ivoa:
             ivoid: "ivo://example.org/path?012345-000"
             obscore:
@@ -139,22 +139,22 @@ offers:
         start: "1970-01-01T00:00:00Z"
       executing:
         duration: "PT2H"
-        start: "2025-05-18T10:35:00Z"
+        start: "2025-05-18T16:00:00Z"
       releasing:
         duration: "PT0S"
         start: "1970-01-01T00:00:00Z"
-  - uuid: "7e826ab9-c93c-488b-b79d-c0444bbd5122"
+  - uuid: "2607cedb-7b82-43c5-8b16-44c77770d052"
     name: "no name"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-05-18T06:32:32.017889638Z"
-    href: "http://127.0.0.1:8082/sessions/7e826ab9-c93c-488b-b79d-c0444bbd5122"
+    created: "2025-05-18T11:56:12.290866704Z"
+    href: "http://127.0.0.1:8082/sessions/2607cedb-7b82-43c5-8b16-44c77770d052"
     phase: "OFFERED"
-    expires: "2025-05-18T11:32:31.552993039Z"
+    expires: "2025-05-18T16:56:12.113970593Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "d2ce987d-5fb3-4a82-97d4-8dc91a050c97"
+      uuid: "36451a87-4970-4fa9-89ec-93814e6d7f69"
       name: "executable-008-01"
-      created: "2025-05-18T06:32:32.022454728Z"
+      created: "2025-05-18T11:56:12.292838543Z"
       image:
         locations:
           - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -167,7 +167,7 @@ offers:
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "f9f5aa09-e711-4dde-8eb1-22df9e514af4"
+          uuid: "606b6798-dfda-46f8-a047-2e85f8bcff08"
           name: "computer-008-01"
           cores:
             min: 2
@@ -177,14 +177,14 @@ offers:
             max: 2
       storage:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "f59e7010-fdaf-41d7-9500-70b90afe3052"
+          uuid: "2c353f68-27ea-42b9-9a8e-9af09f0ca675"
           name: "Storage for [data-008-01]"
-          created: "2025-05-18T06:32:32.078960114Z"
+          created: "2025-05-18T11:56:12.3184322Z"
       data:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0"
-          uuid: "c450a341-d8da-49b6-a830-f015996d4f1e"
+          uuid: "a366b9ce-547c-4f29-abe6-63d1a86b62c1"
           name: "data-008-01"
-          created: "2025-05-18T06:32:32.08238638Z"
+          created: "2025-05-18T11:56:12.32077618Z"
           ivoa:
             ivoid: "ivo://example.org/path?012345-000"
             obscore:
@@ -208,22 +208,22 @@ offers:
         start: "1970-01-01T00:00:00Z"
       executing:
         duration: "PT2H"
-        start: "2025-05-18T14:35:00Z"
+        start: "2025-05-18T20:00:00Z"
       releasing:
         duration: "PT0S"
         start: "1970-01-01T00:00:00Z"
-  - uuid: "d1a96c71-d365-469e-9a2e-f53df7f154a0"
+  - uuid: "bdba69d5-e402-4f0c-8326-c22273dc0856"
     name: "no name"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-05-18T06:32:32.089924682Z"
-    href: "http://127.0.0.1:8082/sessions/d1a96c71-d365-469e-9a2e-f53df7f154a0"
+    created: "2025-05-18T11:56:12.325662801Z"
+    href: "http://127.0.0.1:8082/sessions/bdba69d5-e402-4f0c-8326-c22273dc0856"
     phase: "OFFERED"
-    expires: "2025-05-18T11:32:31.552993039Z"
+    expires: "2025-05-18T16:56:12.113970593Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
-      uuid: "15cb958b-1e55-4ad2-a017-347e3c893f1b"
+      uuid: "1c9b82dd-8d32-452d-97bd-16f7ceb4923d"
       name: "executable-008-01"
-      created: "2025-05-18T06:32:32.093863536Z"
+      created: "2025-05-18T11:56:12.328137391Z"
       image:
         locations:
           - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -236,7 +236,7 @@ offers:
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "a2920d7b-1a4d-40be-a366-9c98cbaf3ac0"
+          uuid: "f1182295-32fb-49ac-bafc-2157c4c0d4c1"
           name: "computer-008-01"
           cores:
             min: 2
@@ -246,14 +246,14 @@ offers:
             max: 2
       storage:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "b9d52904-a824-4e97-828d-596c22360962"
+          uuid: "853593ec-c223-4c0f-94ef-b4fefc0ccf2a"
           name: "Storage for [data-008-01]"
-          created: "2025-05-18T06:32:32.142325293Z"
+          created: "2025-05-18T11:56:12.356504907Z"
       data:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0"
-          uuid: "32884380-59b0-44e9-81bf-a82cca29f97c"
+          uuid: "9cb6892f-8656-409b-af2d-e6774124f467"
           name: "data-008-01"
-          created: "2025-05-18T06:32:32.145069023Z"
+          created: "2025-05-18T11:56:12.358470958Z"
           ivoa:
             ivoid: "ivo://example.org/path?012345-000"
             obscore:
@@ -277,7 +277,7 @@ offers:
         start: "1970-01-01T00:00:00Z"
       executing:
         duration: "PT2H"
-        start: "2025-05-18T18:35:00Z"
+        start: "2025-05-19T00:00:00Z"
       releasing:
         duration: "PT0S"
         start: "1970-01-01T00:00:00Z"

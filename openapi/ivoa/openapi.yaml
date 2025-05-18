@@ -440,7 +440,7 @@ components:
       description: >
           A SKA data resource in the SKA data lake.
       allOf:
-        - $ref: 'AbstractDataResource'
+        - $ref: 'IvoaDataResource'
         - $ref: './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResourceSpec'
 
 

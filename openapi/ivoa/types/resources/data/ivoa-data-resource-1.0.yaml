@@ -54,7 +54,7 @@ components:
       name:  IvoaDataResourceBlock
       title: IvoaDataResourceBlock
       description: |
-        A reusable block describing the metadata for an IVOA data resource.
+        The IVOA metadata for the resource.
       properties:
         ivoid:
           description: |
