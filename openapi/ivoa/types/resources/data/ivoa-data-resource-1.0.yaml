@@ -63,26 +63,12 @@ components:
           format: uri
         obscore:
           description: |
-            A list of ObsCore metadata about the resource.
-          type: array
-          items:
-            $ref: 'IvoaObsCoreItem'
+            The ObsCore metadata about the resource.
+          $ref: 'IvoaObsCoreItem'
         datalink:
           description: |
-            A list of DataLink metadata about the resource.
-          type: array
-          items:
-            $ref: 'IvoaDataLinkItem'
-
-#   IvoaObsCoreList:
-#     type: object
-#     name:  IvoaObsCoreList
-#     title: IvoaObsCoreList
-#     description: |
-#       A list of ObsCore metadata about the resource.
-#     array:
-#       items:
-#         $ref: 'IvoaObsCoreItem'
+            The DataLink metadata about the resource.
+          $ref: 'IvoaDataLinkItem'
 
     IvoaObsCoreItem:
       type: object
@@ -110,16 +96,6 @@ components:
         access_format:
           type: string
 
-#   IvoaDataLinkList:
-#     type: object
-#     name:  IvoaDataLinkList
-#     title: IvoaDataLinkList
-#     description: |
-#       A list of DataLink metadata about the resource.
-#     array:
-#       items:
-#         $ref: 'IvoaDataLinkItem'
-
     IvoaDataLinkItem:
       type: object
       name:  IvoaDataLinkItem
@@ -142,7 +118,8 @@ components:
         content_type:
           type: string
         content_length:
-          type: string
+          type: integer
+          format: int32
         content_qualifier:
           type: string
         local_semantics:

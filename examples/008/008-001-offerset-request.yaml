@@ -7,14 +7,10 @@ executable:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
       - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-schedule:
-  requested:
-      duration: PT1H
 resources:
   compute:
     - name: computer-008-01
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-
   volumes:
     - name: volume-008-01
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
@@ -23,38 +19,23 @@ resources:
       cardinality: CONTAINER
       resources:
         - data-008-01
-
   data:
     - name: data-008-01
       type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
       ivoa:
-        ivoid: "ivo://example.net/path?ident"
+        ivoid: "ivo://example.org/path?012345-000"
         obscore:
-          - obs_id:             "012345"
-            obs_collection:     "example"
-            obs_publisher_did:  "ivo://example.org/path?id=012345"
-            obs_creator_did:    "ivo://example.org/path?id=012345"
-            dataproduct_type:   "spectra"
-            calib_level:        0
-            access_url:         "http://download.example.org/data/012345-0"
-            access_format:      "image/fits"
-          - obs_id:             "012345"
-            obs_collection:     "example"
-            obs_publisher_did:  "ivo://example.org/path?id=012345"
-            obs_creator_did:    "ivo://example.org/path?id=012345"
-            dataproduct_type:   "spectra"
-            calib_level:        1
-            access_url:         "http://download.example.org/data/012345-1"
-            access_format:      "image/fits"
-
+          obs_id:             "012345"
+          obs_collection:     "example"
+          obs_publisher_did:  "ivo://example.org/path?012345-000"
+          obs_creator_did:    "ivo://example.org/path?012345-000"
+          dataproduct_type:   "spectrum"
+          calib_level:        0
+          access_url:         "http://datalink.example.org/links?id=ivo%3A%2F%2Fexample.org%2Fpath%3F012345-000"
+          access_format:      "application/x-votable+xml;content=datalink"
         datalink:
-          - ID:                 "ivo://example.org/path?id=012345"
-            access_url:         "http://download.example.org/data/012345-1"
-            content_type:       "spectra"
-            content_length:     123
-          - ID:                 "ivo://example.org/path?id=012345"
-            access_url:         "http://download.example.org/data/012345-1"
-            content_type:       "spectra"
-            content_length:     123
-
-
+          ID:                 "ivo://example.org/path?012345-000"
+          access_url:         "http://download.example.org/data/012345-000"
+          content_type:       "spectrum"
+          content_length:     123
+          semantics:          "#this"

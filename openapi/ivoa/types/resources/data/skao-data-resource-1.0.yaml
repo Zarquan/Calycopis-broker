@@ -48,11 +48,8 @@ components:
       properties:
         ivoa:
           $ref: './ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResourceBlock'
-        data:
-          $ref: './rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResourceBlock'
         skao:
           $ref: 'SkaoDataResourceBlock'
-
 
     SkaoDataResourceBlock:
       type: object
@@ -61,7 +58,61 @@ components:
       description: |
         A reusable block describing the metadata for a SKAO data resource.
       properties:
-        unknown:
+        namespace:
+          description: |
+            The DM-API namespace (equivalent to the Rucio scope).
           type: string
+        objectid:
+          description: |
+            The DM-API object name.
+          type: string
+        objecttype:
+          description: |
+            The data object type.
+          type: string
+          enum:
+            - "FILE"
+            - "CONTAINER"
+            - "DATASET"
+        datasize:
+          type: integer
+          format: int64
+        checksum:
+          $ref: 'SkaoChecksumItem'
+        replicas:
+          description: |
+            A list of known replicas.
+          type: array
+          items:
+            $ref: 'SkaoReplicaItem'
+
+    SkaoChecksumItem:
+      type: object
+      name:  SkaoChecksumItem
+      title: SkaoChecksumItem
+      properties:
+        type:
+          type: string
+        value:
+          type: string
+
+    SkaoReplicaItem:
+      type: object
+      name:  SkaoReplicaItem
+      title: SkaoReplicaItem
+      description: |
+        Metadata about a replica in an RSE.
+      properties:
+        rsename:
+          description: |
+            The RSE name.
+          type: string
+        objecturi:
+          description: |
+            The URL/URI of the object within the RSE.
+          type: string
+
+
+
 
 

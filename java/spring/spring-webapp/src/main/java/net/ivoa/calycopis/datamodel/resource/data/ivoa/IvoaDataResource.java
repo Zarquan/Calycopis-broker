@@ -26,6 +26,8 @@ package net.ivoa.calycopis.datamodel.resource.data.ivoa;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
+import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
 
 /**
  * Public interface for an IVOA DataResource.
@@ -46,5 +48,57 @@ public interface IvoaDataResource
      */
     public URI getIvoid();
 
+    /**
+     * Inner class to represent the ObsCore metadata.
+     * 
+     */
+    public static interface ObsCore
+        {
+        public String  getObsId();
+        public String  getObsCollection();
+        public String  getObsPublisherDid();
+        public String  getObsCreatorDid();
+        public String  getDataproductType();
+        public Integer getCalibLevel();
+        public String  getAccessUrl();
+        public String  getAaccessFormat();
+        
+        public IvoaIvoaObsCoreItem getIvoaBean();
+        }
+
+    /**
+     * Get the ObsCore metadata.
+     * 
+     */
+    public ObsCore getObsCore();
+    
+    /**
+     * Inner class to represent the DataLink metadata.
+     * 
+     */
+    public static interface DataLink
+        {
+        public String  getID();
+        public String  getAccessUrl();
+        public String  getServiceDef();
+        public String  getErrorMessage();
+        public String  getDescription();
+        public String  getSemantics();
+        public String  getContentType();
+        public Integer getContentLength();
+        public String  getContentQualifier();
+        public String  getLocalSemantics();
+        public String  getLinkAuth();
+        public String  getLinkAuthorized();
+        
+        public IvoaIvoaDataLinkItem getIvoaBean();
+        }
+
+    /**
+     * Get the DataLink metadata.
+     * 
+     */
+    public DataLink getDataLink();
+    
     }
 

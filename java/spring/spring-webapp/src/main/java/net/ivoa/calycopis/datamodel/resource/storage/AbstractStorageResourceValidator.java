@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.resource.storage;
 
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -101,4 +102,10 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
             return this.builder;
             }
         }
+    
+    @Override
+    public Result validate(
+        final IvoaAbstractStorageResource requested,
+        final OfferSetRequestParserContext context
+        );
     }

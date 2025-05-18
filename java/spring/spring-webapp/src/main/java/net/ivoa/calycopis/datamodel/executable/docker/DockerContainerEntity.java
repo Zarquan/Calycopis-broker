@@ -381,6 +381,7 @@ public class DockerContainerEntity
     
     /**
      * Build the prepare and release steps.
+     * TODO This moves to the derived type, e.g. PodmanDockerContainer
      *
      */
     public void configure(final TestExecutionStepEntityFactory factory)

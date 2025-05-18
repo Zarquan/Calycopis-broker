@@ -499,7 +499,25 @@ extends ValidatorTools
      * 
      */
     private Map<String, AbstractStorageResourceValidator.Result> dataStorageMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
-    
+
+    @Override
+    public void addDataStorageResult(
+        final IvoaAbstractDataResource dataResource,
+        final AbstractStorageResourceValidator.Result storageResult
+        ){
+        log.debug("addDataStorageResult(IvoaAbstractDataResource, StorageResourceValidator.Result)");
+        log.debug("IvoaAbstractDataResource [{}]", dataResource);
+        log.debug("StorageResult [{}]", storageResult);
+        // TODO
+        // Check for a duplicate already in the map ?
+        dataStorageMap.put(
+            makeDataValidatorResultKey(
+                dataResource
+                ),
+            storageResult
+            );
+        }
+
     @Override
     public void addDataStorageResult(
         final AbstractDataResourceValidator.Result dataResult,

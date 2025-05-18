@@ -157,22 +157,9 @@ implements IvoaDataResourceValidator
                 validated,
                 builder
                 );
-            //
-            // Save the DataResource in the state.
             context.addDataValidatorResult(
                 dataResult
                 );
-            //
-            // Add the link between the DataResource and StorageResource.
-/*
- *
-            state.addDataStorageResult(
-                dataResult,
-                storageResult
-                );
- *
- */
-
             return dataResult ;
             }
         //
@@ -213,24 +200,18 @@ implements IvoaDataResourceValidator
                 success = false ;
                 }
             
-            List<IvoaIvoaObsCoreItem> obscore = requested.getObscore();
+            IvoaIvoaObsCoreItem obscore = requested.getObscore();
             if (null != obscore)
                 {
-                for (IvoaIvoaObsCoreItem item : obscore)
-                    {
-                    log.debug("ObsCoreItem [{}]", item.getObsPublisherDid());
-                    // TODO process the ObsCore data.
-                    }
+                // TODO process the ObsCore data.
+                block.setObscore(obscore);
                 }
 
-            List<IvoaIvoaDataLinkItem> datalink = requested.getDatalink();
+            IvoaIvoaDataLinkItem datalink = requested.getDatalink();
             if (null != datalink)
                 {
-                for (IvoaIvoaDataLinkItem item : datalink)
-                    {
-                    log.debug("DataLinkItem [{}]", item.getID());
-                    // TODO process the DataLink data.
-                    }
+                // TODO process the DataLink data.
+                block.setDatalink(datalink);
                 }
             }
         else {

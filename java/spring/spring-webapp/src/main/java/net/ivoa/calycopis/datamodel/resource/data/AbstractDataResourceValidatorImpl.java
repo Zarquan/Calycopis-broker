@@ -28,6 +28,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
@@ -101,7 +102,7 @@ implements AbstractDataResourceValidator
 
         if (requested.getStorage() != null)
             {
-            Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> storageResult = context.findStorageValidatorResult(
+            AbstractStorageResourceValidator.Result storageResult = context.findStorageValidatorResult(
                 requested.getStorage()
                 );
             if (storageResult != null)
@@ -115,6 +116,10 @@ implements AbstractDataResourceValidator
                             context.makeStorageValidatorResultKey(
                                 storageResource 
                                 )
+                            );
+                        context.addDataStorageResult(
+                            validated,
+                            storageResult
                             );
                         }
                     else {
@@ -166,7 +171,7 @@ implements AbstractDataResourceValidator
 
             //
             // Validate the new StorageResource.
-            Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> storageResult = storageValidators.validate(
+            AbstractStorageResourceValidator.Result storageResult = storageValidators.validate(
                 storageResource,
                 context
                 );
@@ -181,6 +186,10 @@ implements AbstractDataResourceValidator
                         context.makeStorageValidatorResultKey(
                             storageResult.getObject()
                             )
+                        );
+                    context.addDataStorageResult(
+                        validated,
+                        storageResult
                         );
                     }
                 else {
