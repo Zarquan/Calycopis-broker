@@ -1,0 +1,89 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    SKA Regional Centres · GitLab
+    https://gitlab.com/ska-telescope/src/
+
+    src-service-apis
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-clients
+
+    ska-src-data-management-api
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api
+
+    srcnet-oper — ska-src-clients documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-clients/srcnet-oper.html#
+
+    src/ska_src_data_management_api/tasks/data.py
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api/-/blob/main/src/ska_src_data_management_api/tasks/data.py?ref_type=heads
+
+    src/ska_src_data_management_api/client/data_management.py
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api/-/blob/main/src/ska_src_data_management_api/client/data_management.py?ref_type=heads
+
+    SRCNet Site Operator Documentation
+    https://gitlab.com/ska-telescope/src/kb/ska-src-docs-operator
+
+    SRCNet Operations Documentation
+    https://ska-telescope.gitlab.io/src/kb/ska-src-docs-operator/index.html
+
+    data_management — ska-src-data-management-api 0.6.5 documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-data-management-api/autoapi/data_management/index.html
+
+    Rucio-IVOA Metadata Integrations - rucio-datalink/src/rucio_datalink/rest/server.py
+    https://gitlab.com/ska-telescope/src/src-mm/ska-src-mm-rucio-ivoa-integrations/-/blob/main/rucio-datalink/src/rucio_datalink/rest/server.py?ref_type=heads
+
+    src/ska_src_data_management_api/rest/server.py
+    https://gitlab.com/ska-telescope/src/src-service-apis/ska-src-data-management-api/-/blob/main/src/ska_src_data_management_api/rest/server.py?ref_type=heads
+
+        @api_version(1)
+        @app.get(
+            "/data/locate/{namespace}/{name}",
+
+# -----------------------------------------------------
+
+    http://svn.ari.uni-heidelberg.de/svn/gavo/hdinputs/ivoidval/bin/didresolver.py
+
+    Some routines to resolve dataset identifiers.
+
+    For context, see Demleinter et al: Identifiers 2.0, IVOA Recommendation,
+    http://ivoa.net/documents/Identifiers
+
+    This depends on GAVO's VO packages; it also doubles as a core within GAVO DaCHS.
+
+    wget http://svn.ari.uni-heidelberg.de/svn/gavo/hdinputs/ivoidval/bin/didresolver.py
+
+    GAVO libraries are packaged as a Debian deb file, not a Python module.
+    https://packages.debian.org/sid/python3-gavo
+
+

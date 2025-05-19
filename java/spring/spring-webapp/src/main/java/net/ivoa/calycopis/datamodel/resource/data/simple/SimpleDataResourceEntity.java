@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data.simple;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
@@ -38,9 +37,6 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 @Entity
 @Table(
     name = "simpledataresources"
-    )
-@DiscriminatorValue(
-    value="uri:simple-data-resource"
     )
 public class SimpleDataResourceEntity
     extends AbstractDataResourceEntity
@@ -68,7 +64,7 @@ public class SimpleDataResourceEntity
             );
         this.location = template.getLocation();
         }
-    
+
     private String location;
     @Override
     public String getLocation()

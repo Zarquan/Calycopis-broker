@@ -1,0 +1,125 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    We have the datamodel for IvaoDataResource.
+    TODO Entity needs to have the fields.
+    TODO A resolver based on Markus's code ?
+    Need to resolve it into an accessURL.
+    ObsCore has an accessURL.
+    So we could just loose all the IVAO data and resolve it into a simple download.
+    Because, resolving an ivo:// into an accessURL doesn't work.
+    Because .. DataLinks aren't registered, and DataLink ID isn't specified.
+    It could be .. but it isn't.
+
+    Create the datamodel for RucioDataResource.
+    Endpoint
+    Scope (namespace)
+    ObjectID
+    List of replicas
+      RSE (name)
+      RSE (UUID) <-- Is this Skao specific ?
+      URL dav://...
+
+    Create the datamodel for SkaoDataResource.
+    Combination of Ivoa and Rucio.
+    The Rucio fields are the same, but we should't call them that.
+    ** Trying to tie them together is causing problems.
+    ** Skip the RucioDataResource
+    ** IvoaDataResource and SkaoDataResource
+
+    Ivoid
+        obscore
+            single entry for _this_ data object
+        datalink
+            we only really care about #this
+            Is datalink a dictionary not a list ? No.
+            Can't guarantee there won't be more than one with the same key.
+            End up with more than one #this
+            Science user should choose before we get this far.
+            We want THIS data product
+            We want the obscore for THIS data product
+            Acually, we just want the access methods for THIS data product
+
+    For this iteration.
+
+    Start with an IvoaDataResource, based on a SINGLE obscore row.
+    TODO Make obscore and datalink single items NOT lists.
+        User picks a row from TAP ObsCore results.
+        Single instance of ObsCore metadata.
+
+    If the uri starts with skao.int, convert it into an SkaoDataResource.
+    Parse the identifier into namespace (scope) and objectid.
+        Lookup the list of replicas (Rucio or DM-API) (*) both need auth
+        Scope (namespace)
+        ObjectID
+        List of replicas
+          RSE (name)
+          RSE (UUID) <-- Is this SKAO specific ?
+          URL dav://...
+
+        This is the information the schedule() method uses to make the guess.
+        A separate block of code that makes the guess.
+        Database table of RSE and time per MB, time per GB.
+            RSE time_per_MB time_per_GB
+        Generates a guess
+
+        Use that to set the start time
+
+    Ignore RucioDataResource for now.
+    SkaoDataResource
+        IvoaBlock, plus SkaoBlock
+        SkaoBlock has a list of SkaoReplicaItems
+            namespace
+            objectid
+            replicas
+              rse
+                name
+                uuid <-- Is this SKAO specific ?
+              object
+                url dav://...
+                size
+                checksum
+                  type
+                  value
+
+    IAM group request is still pending, so use the Rucio API to get the replicas.
+
+    The data in the SkaoReplicaItem can change.
+    The key thing is it identifies an object in an RSE.
+    We only use the RSE name and the data size in the time estimation.
+    We can get an accurate size from the Rucio metadata.
+
+
+

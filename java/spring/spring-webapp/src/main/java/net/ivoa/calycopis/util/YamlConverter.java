@@ -25,7 +25,7 @@
  *
  */
 
-package net.ivoa.calycopis.webapp;
+package net.ivoa.calycopis.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

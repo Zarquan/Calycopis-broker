@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator.Result;
 import net.ivoa.calycopis.datamodel.resource.storage.simple.SimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.resource.storage.simple.SimpleStorageResourceValidator;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
@@ -68,6 +69,18 @@ implements AbstractStorageResourceValidatorFactory
             resource.getType(),
             resource.getClass().getName()
             );
+        }
+
+    /**
+     * Nasty class cast :-(
+     * 
+     */
+    @Override
+    public AbstractStorageResourceValidator.Result validate(
+        final IvoaAbstractStorageResource requested,
+        final OfferSetRequestParserContext context
+        ){
+        return (AbstractStorageResourceValidator.Result) super.validate(requested, context);
         }
     }
 

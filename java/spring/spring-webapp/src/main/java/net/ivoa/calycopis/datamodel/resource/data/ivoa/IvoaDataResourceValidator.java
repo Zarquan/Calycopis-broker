@@ -18,14 +18,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.data.amazon;
+package net.ivoa.calycopis.datamodel.resource.data.ivoa;
 
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 
 /**
  * 
  */
-public interface AmazonS3DataResourceValidator
+public interface IvoaDataResourceValidator
 extends AbstractDataResourceValidator
     {
 

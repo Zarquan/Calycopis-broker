@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data.amazon;
 
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
@@ -38,9 +37,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 @Entity
 @Table(
     name = "s3dataresources"
-    )
-@DiscriminatorValue(
-    value = "uri:S3-data-resource"
     )
 public class AmazonS3DataResourceEntity
     extends AbstractDataResourceEntity
@@ -71,7 +67,7 @@ public class AmazonS3DataResourceEntity
         this.bucket   = template.getBucket();
         this.object   = template.getObject();
         }
-    
+
     private String endpoint;
     @Override
     public String getEndpoint()
@@ -113,8 +109,8 @@ public class AmazonS3DataResourceEntity
             this.getMessageBeans()
             );
 
-        // TODO fill in the fields 
-            
+        // TODO fill in the fields
+
         return bean;
         }
     }

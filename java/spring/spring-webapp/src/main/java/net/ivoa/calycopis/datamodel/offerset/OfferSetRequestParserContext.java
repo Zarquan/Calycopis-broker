@@ -197,6 +197,12 @@ public interface OfferSetRequestParserContext
      * 
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
+
+    /**
+     * Add a DataValidatorResult and StorageValidatorResult pair.
+     * 
+     */
+    public void addDataStorageResult(final IvoaAbstractDataResource dataResource, final AbstractStorageResourceValidator.Result storageResult);
     
     /**
      * Add a DataValidatorResult and StorageValidatorResult pair.

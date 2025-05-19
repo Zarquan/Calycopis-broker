@@ -1,0 +1,116 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: SkaoDataResource
+  version: "1.0"
+  summary: A SKAO data resource
+  description: |
+    Metadata describing a SKAO data resource in the data lake.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    SkaoDataResourceSpec:
+      type: object
+      name:  SkaoDataResourceSpec
+      title: SkaoDataResourceSpec
+      description: |
+        Metadata describing a SKAO data resource in the data lake.
+      properties:
+        skao:
+          $ref: 'SkaoDataResourceBlock'
+
+    SkaoDataResourceBlock:
+      type: object
+      name:  SkaoDataResourceBlock
+      title: SkaoDataResourceBlock
+      description: |
+        A reusable block describing the metadata for a SKAO data resource.
+      properties:
+        namespace:
+          description: |
+            The DM-API namespace (equivalent to the Rucio scope).
+          type: string
+        objectname:
+          description: |
+            The DM-API object name.
+          type: string
+        objecttype:
+          description: |
+            The data object type.
+          type: string
+          enum:
+            - "FILE"
+            - "CONTAINER"
+            - "DATASET"
+        datasize:
+          type: integer
+          format: int64
+        checksum:
+          $ref: 'SkaoChecksumItem'
+        replicas:
+          description: |
+            A list of known replicas.
+          type: array
+          items:
+            $ref: 'SkaoReplicaItem'
+
+    SkaoChecksumItem:
+      type: object
+      name:  SkaoChecksumItem
+      title: SkaoChecksumItem
+      properties:
+        type:
+          type: string
+        value:
+          type: string
+
+    SkaoReplicaItem:
+      type: object
+      name:  SkaoReplicaItem
+      title: SkaoReplicaItem
+      description: |
+        Metadata about a replica in an RSE.
+      properties:
+        rsename:
+          description: |
+            The RSE name.
+          type: string
+        dataurl:
+          description: |
+            The URL/URI of the object within the RSE.
+          type: string
+
+
+
+
+

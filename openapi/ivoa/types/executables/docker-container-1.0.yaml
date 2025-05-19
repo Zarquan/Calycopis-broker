@@ -24,11 +24,11 @@
 
 openapi: 3.1.0
 info:
-  title: IVOA ExecutionBroker log messages
+  title: DockerContainer
   version: "1.0"
-  summary: IVOA ExecutionBroker DockerContainer
+  summary: A Docker (OCI) container
   description: |
-    OpenAPI schema for a Docker container in IVOA ExecutionBroker
+    Metadata describing a Docker (OCI) container executable.
   contact:
     name: Dave Morris
     url: https://github.com/Zarquan
