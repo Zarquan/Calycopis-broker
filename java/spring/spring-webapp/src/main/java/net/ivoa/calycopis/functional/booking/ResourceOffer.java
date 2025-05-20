@@ -13,6 +13,12 @@ import java.time.Instant;
 public interface ResourceOffer
     {
     /**
+     * The offer name.
+     * 
+     */
+    public String getName();
+
+    /**
      * The offer start time as an instant.
      * TODO Should this be an Interval to allow for batch queue processing.
      * 
@@ -24,5 +30,5 @@ public interface ResourceOffer
      * 
      */
     public Duration getDuration();
-    
+
     }
