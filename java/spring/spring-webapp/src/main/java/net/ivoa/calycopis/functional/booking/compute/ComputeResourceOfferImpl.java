@@ -19,9 +19,10 @@ public class ComputeResourceOfferImpl
     implements ComputeResourceOffer
     {
 
-    public ComputeResourceOfferImpl(final Instant starttime, final Duration duration, final Long cpucores, final Long cpumemory)
+    public ComputeResourceOfferImpl(final String offername, final Instant starttime, final Duration duration, final Long cpucores, final Long cpumemory)
         {
         super(
+            offername,
             starttime,
             duration
             );

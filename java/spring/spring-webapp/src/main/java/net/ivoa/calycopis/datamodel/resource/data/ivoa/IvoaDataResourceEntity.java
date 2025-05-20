@@ -69,6 +69,7 @@ public class IvoaDataResourceEntity
         {
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
 
@@ -358,6 +359,9 @@ public class IvoaDataResourceEntity
             );
         bean.setMessages(
             this.getMessageBeans()
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
             );
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(

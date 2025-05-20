@@ -1,0 +1,20 @@
+name: example-011
+executable:
+  name: executable-011
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: data-011-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   1024
+        replicas:
+          - rsename: "SPSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "AUSRC_STORM"

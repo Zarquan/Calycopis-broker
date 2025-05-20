@@ -23,6 +23,7 @@
 package net.ivoa.calycopis.datamodel.resource.data;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -54,6 +55,7 @@ public class AbstractDataResourceValidatorFactoryImpl
      */
     @Autowired
     public AbstractDataResourceValidatorFactoryImpl(
+        final JdbcTemplate jdbcTemplate,
         final SimpleDataResourceEntityFactory simpleDataEntityFactory,
         final IvoaDataResourceEntityFactory ivoaDataEntityFactory,
         final SkaoDataResourceEntityFactory skaoDataEntityFactory,
@@ -68,6 +70,7 @@ public class AbstractDataResourceValidatorFactoryImpl
             );
         this.validators.add(
             new SkaoDataResourceValidatorImpl(
+                jdbcTemplate,
                 skaoDataEntityFactory,
                 storageValidators
                 )

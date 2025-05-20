@@ -60,6 +60,7 @@ public class SimpleDataResourceEntity
         {
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
         this.location = template.getLocation();

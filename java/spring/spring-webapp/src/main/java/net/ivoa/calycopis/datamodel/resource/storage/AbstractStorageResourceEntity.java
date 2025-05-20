@@ -30,8 +30,9 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 
 /**
  * 
@@ -44,7 +45,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractStorageResourceEntity
-extends ComponentEntity
+extends ScheduledComponentEntity
 implements AbstractStorageResource
     {
     /**
@@ -61,9 +62,12 @@ implements AbstractStorageResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractStorageResourceEntity(final ExecutionSessionEntity session, final String name)
+    protected AbstractStorageResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
         {
-        super(name);
+        super(
+            schedule,
+            name
+            );
         this.session = session;
         session.addStorageResource(
             this

@@ -60,6 +60,7 @@ public class AmazonS3DataResourceEntity
         {
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
         this.endpoint = template.getEndpoint();

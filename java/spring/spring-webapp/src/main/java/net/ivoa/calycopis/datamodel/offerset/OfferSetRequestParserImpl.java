@@ -14,16 +14,13 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMount;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
@@ -38,8 +35,8 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestBlock;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleRequestItem;
+import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
@@ -297,15 +294,15 @@ public class OfferSetRequestParserImpl
      * Validate the requested Schedule.
      *
      */
-    public void validate(final IvoaScheduleRequestBlock schedule, final OfferSetRequestParserContext context)
+    public boolean validate(final IvoaRequestedScheduleBlock schedule, final OfferSetRequestParserContext context)
         {
         // TODO return boolean success
         boolean success = true ;
 
-        log.debug("validate(IvoaScheduleRequestBlock)");
+        log.debug("validate(IvoaRequestedScheduleBlock)");
         if (schedule != null)
             {
-            IvoaScheduleRequestItem requested = schedule.getRequested();
+            IvoaRequestedScheduleItem requested = schedule.getRequested();
             if (requested != null)
                 {
                 String durationstr = requested.getDuration();
@@ -394,6 +391,7 @@ public class OfferSetRequestParserImpl
                 DEFAULT_SESSION_DURATION
                 );
             }
+        return success ;
         }
     
     /**

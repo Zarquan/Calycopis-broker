@@ -17,12 +17,20 @@ public class ResourceOfferImpl
     implements ResourceOffer
     {
 
-    public ResourceOfferImpl(final Instant starttime, final Duration duration)
+    public ResourceOfferImpl(final String offername, final Instant starttime, final Duration duration)
         {
         log.debug("ResourceOfferImpl(...)");
-        log.debug("values [{}][{}]", starttime, duration);
+        log.debug("values [{}][{}][{}]", offername, starttime, duration);
+        this.offername = offername;
         this.starttime = starttime;
         this.duration  = duration;
+        }
+
+    protected final String offername;
+    @Override
+    public String getName()
+        {
+        return this.offername;
         }
 
     protected final Instant starttime;
