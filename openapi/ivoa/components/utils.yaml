@@ -45,6 +45,14 @@ components:
       additionalProperties:
         type: string
 
+    ISO8601Instant:
+      description: >
+        A regular expression filter for an ISO 8601 instant.
+        TODO Add timezone.
+      type: string
+      title: ISO8601Instant
+      pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))$'
+
     ISO8601Duration:
       description: >
         A regular expression filter for an ISO 8601 duration.
@@ -55,6 +63,8 @@ components:
     ISO8601Interval:
       description: >
         A regular expression filter for an ISO 8601 interval.
+        TODO Add timezone to the start time.
+        TODO Expand this to allow [start+end] and [duration+end] ?
       type: string
       title: ISO8601Interval
       pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))\/(P(?=.)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=.)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$'

@@ -30,7 +30,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 
 /**
@@ -44,7 +44,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractDataResourceEntity
-extends ComponentEntity
+extends ScheduledComponentEntity
 implements AbstractDataResource
     {
     /**

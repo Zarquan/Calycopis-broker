@@ -45,6 +45,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -53,11 +54,12 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferBlock;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
+import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
 
 /**
  * An Execution Entity.
@@ -66,13 +68,13 @@ import net.ivoa.calycopis.openapi.model.IvoaScheduleOfferItem;
 @Slf4j
 @Entity
 @Table(
-    name = "sessions"
+    name = "executionsessions"
     )
 @DiscriminatorValue(
     value = "uri:execution-session"
     )
 public class ExecutionSessionEntity
-    extends ComponentEntity
+    extends ScheduledComponentEntity
     implements ExecutionSession
     {
 
@@ -99,18 +101,19 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext state, final ResourceOffer offerblock)
+    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
-        super("no name");
+        super(
+            offerset.getName() + "-" + offerblock.getName()
+            );
         this.phase = IvoaExecutionSessionPhase.OFFERED;
         this.offerset = offerset;
         offerset.addExecutionSession(
             this
             );
         this.expires = offerset.getExpires();
-        this.executionStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
-//      this.startdurationsec = offerblock.getStartTime().toDuration().getSeconds();
-        this.executionDurationSeconds   = state.getExecutionDuration().getSeconds();
+        this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
+        this.availableDurationSeconds     = context.getExecutionDuration().getSeconds();
         }
 
     @Column(name = "phase")
@@ -125,159 +128,6 @@ public class ExecutionSessionEntity
     public void setPhase(final IvoaExecutionSessionPhase phase)
         {
         this.phase = phase;
-        }
-
-    @Column(name = "prepare_start_instant_seconds")
-    private long prepareStartInstantSeconds;
-    @Override
-    public long getPrepareStartInstantSeconds()
-        {
-        return this.prepareStartInstantSeconds;
-        }
-    @Override
-    public Instant getPrepareStartInstant()
-        {
-        return Instant.ofEpochSecond(
-            prepareStartInstantSeconds
-            );
-        }
-
-    @Column(name = "prepare_duration_seconds")
-    private long prepareDurationSeconds;
-    @Override
-    public long getPrepareDurationSeconds()
-        {
-        return this.prepareDurationSeconds;
-        }
-    @Override
-    public Duration getPrepareDuration()
-        {
-        return Duration.ofSeconds(
-            prepareDurationSeconds
-            );
-        }
-
-    @Column(name = "prepare_done_instant_seconds")
-    private long prepareDoneInstantSeconds;
-    @Override
-    public long getPrepareDoneInstantSeconds()
-        {
-        return this.prepareDoneInstantSeconds;
-        }
-    @Override
-    public Instant getPrepareDoneInstant()
-        {
-        return Instant.ofEpochSecond(
-            prepareDoneInstantSeconds
-            );
-        }
-
-    @Column(name = "execution_start_instant_seconds")
-    private long executionStartInstantSeconds;
-    @Override
-    public long getExecutionStartInstantSeconds()
-        {
-        return this.executionStartInstantSeconds;
-        }
-    @Override
-    public Instant getExecutionStartInstant()
-        {
-        return Instant.ofEpochSecond(
-            executionStartInstantSeconds
-            );
-        }
-
-    @Column(name = "execution_start_duration_seconds")
-    private long executionStartDurationSeconds;
-    @Override
-    public long getExecutionStartDurationSeconds()
-        {
-        return this.executionStartDurationSeconds;
-        }
-    @Override
-    public Duration getExecutionStartDuration()
-        {
-        return Duration.ofSeconds(
-            executionStartDurationSeconds
-            );
-        }
-
-    @Override
-    public Interval getExecutionStartInterval()
-        {
-        return Interval.of(
-            getExecutionStartInstant(),
-            getExecutionStartDuration()
-            );
-        }
-
-    @Column(name = "execution_duration_seconds")
-    private long executionDurationSeconds;
-    @Override
-    public long getExecutionDurationSeconds()
-        {
-        return this.executionDurationSeconds;
-        }
-    @Override
-    public Duration getExecutionDuration()
-        {
-        return Duration.ofSeconds(
-            executionDurationSeconds
-            );
-        }
-
-    @Override
-    public Interval getExecutionInterval()
-        {
-        return Interval.of(
-            getExecutionStartInstant(),
-            getExecutionDuration()
-            );
-        }
-
-    @Column(name = "release_start_instant_seconds")
-    private long releaseStartInstantSeconds;
-    @Override
-    public long getReleaseStartInstantSeconds()
-        {
-        return this.releaseStartInstantSeconds;
-        }
-    @Override
-    public Instant getReleaseStartInstant()
-        {
-        return Instant.ofEpochSecond(
-            releaseStartInstantSeconds
-            );
-        }
-
-    @Column(name = "release_duration_seconds")
-    private long releaseDurationSeconds;
-    @Override
-    public long getReleaseDurationSeconds()
-        {
-        return this.releaseDurationSeconds;
-        }
-    @Override
-    public Duration getReleaseDuration()
-        {
-        return Duration.ofSeconds(
-            releaseDurationSeconds
-            );
-        }
-
-    @Column(name = "release_done_instant_seconds")
-    private long releaseDoneInstantSeconds;
-    @Override
-    public long getReleaseDoneInstantSeconds()
-        {
-        return this.releaseDoneInstantSeconds;
-        }
-    @Override
-    public Instant getReleaseDoneInstant()
-        {
-        return Instant.ofEpochSecond(
-            releaseDoneInstantSeconds
-            );
         }
 
     @Column(name = "expires")
@@ -410,30 +260,9 @@ public class ExecutionSessionEntity
                 baseurl
                 )
             );
-
-        IvoaScheduleOfferBlock schedule = new IvoaScheduleOfferBlock();
-        schedule.setPreparing(new IvoaScheduleOfferItem());
-        schedule.getPreparing().setStart(
-            getPrepareStartInstant().toString()
+        bean.setSchedule(
+            this.makeScheduleBean()
             );
-        schedule.getPreparing().setDuration(
-            getPrepareDuration().toString()
-            );
-        schedule.setExecuting(new IvoaScheduleOfferItem());
-        schedule.getExecuting().setStart(
-            getExecutionStartInstant().toString()
-            );
-        schedule.getExecuting().setDuration(
-            getExecutionDuration().toString()
-            );
-        schedule.setReleasing(new IvoaScheduleOfferItem());
-        schedule.getReleasing().setStart(
-            getReleaseStartInstant().toString()
-            );
-        schedule.getReleasing().setDuration(
-            getReleaseDuration().toString()
-            );
-        bean.setSchedule(schedule);
 
         bean.setResources(new IvoaExecutionResourceList());
         for (AbstractComputeResourceEntity resource : this.getComputeResources())

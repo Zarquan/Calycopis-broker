@@ -221,17 +221,38 @@ components:
 
     AccessibleComponent:
       description: >
-        Extends the abstract base class to add href.
+        Adds a href to access this component.
       type: object
       title: AccessibleComponent
-      allOf:
-        - $ref: 'AbstractComponent'
-        - type: object
-          properties:
-            href:
-              description: >
-                The URL to access this component, assigned by the server.
-              type: string
+      properties:
+        href:
+          description: >
+            The URL to access this component, assigned by the server.
+          type: string
+
+    ScheduledComponent:
+      description: >
+        Adds a schedule for this component.
+      type: object
+      title: ScheduledComponent
+      properties:
+        schedule:
+          description: >
+            The expected schedule for this component.
+          xml:
+            name: schedule
+          $ref: 'ComponentSchedule'
+
+    ComponentSchedule:
+      description: >
+        The schedule elements for a ScheduledComponent.
+      type: object
+      title: ComponentSchedule
+      properties:
+        offered:
+          $ref: 'OfferedScheduleBlock'
+        observed:
+          $ref: 'ObservedScheduleBlock'
 
 # compute-resources.yaml
 
@@ -258,6 +279,7 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": 'SimpleComputeResource'
       allOf:
         - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
 
     SimpleComputeResource:
       description: >
@@ -336,6 +358,7 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": 'SimpleStorageResource'
       allOf:
         - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
         - type: object
           properties:
             # TOTO Do we need this here ?
@@ -383,6 +406,7 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0":      'SkaoDataResource'
       allOf:
         - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
         - type: object
           properties:
             # TOTO Do we need this here ?
@@ -443,7 +467,6 @@ components:
         - $ref: 'IvoaDataResource'
         - $ref: './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResourceSpec'
 
-
     AbstractExecutable:
       description: Abstract base class for executables.
       type: object
@@ -458,6 +481,7 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      'JupyterNotebook'
       allOf:
         - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
         - type: object
           properties:
             # TOTO Do we need this here ?
@@ -766,6 +790,7 @@ components:
               type: string
 
     # TODO Move this to utils ?
+    # TODO Remove this - not used.
     MinMaxDuration:
       description: >
         A duration time block describing how long the execution will take.
@@ -795,51 +820,94 @@ components:
             name: update
           $ref: 'AbstractUpdate'
 
-    ScheduleRequestItem:
+    RequestedScheduleItem:
       description: >
-        Details of when to execute the session.
+        Details of the requested timings.
       type: object
-      title: ScheduleRequestItem
+      title: RequestedScheduleItem
       properties:
         duration:
+          description: >
+            The requested duration.
           $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
         start:
+          description: >
+            An array of requested start times.
           type: array
           items:
             $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
-    ScheduleRequestBlock:
+    RequestedScheduleBlock:
       description: >
-        Details of when to execute the session.
+        Details of the requested timings.
       type: object
-      title: ScheduleRequestBlock
+      title: RequestedScheduleBlock
       properties:
         requested:
-          $ref: 'ScheduleRequestItem'
+          $ref: 'RequestedScheduleItem'
 
-    ScheduleOfferItem:
+    OfferedScheduleInstant:
       description: >
-        Details of when the session will be executed.
+        Details of an offered timing.
       type: object
-      title: ScheduleOfferItem
+      title: OfferedScheduleInstant
+      properties:
+        duration:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+        start:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+
+    OfferedScheduleInterval:
+      description: >
+        Details of an offered timing.
+      type: object
+      title: OfferedScheduleInterval
       properties:
         duration:
           $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
         start:
           $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
-    ScheduleOfferBlock:
+    OfferedScheduleBlock:
       description: >
-        Details of when the session will be executed.
+        Details of the offered timings.
       type: object
-      title: ScheduleOfferBlock
+      title: OfferedScheduleBlock
       properties:
         preparing:
-          $ref: 'ScheduleOfferItem'
-        executing:
-          $ref: 'ScheduleOfferItem'
+          $ref: 'OfferedScheduleInstant'
+        available:
+          $ref: 'OfferedScheduleInterval'
         releasing:
-          $ref: 'ScheduleOfferItem'
+          $ref: 'OfferedScheduleInstant'
+
+    ObservedScheduleItem:
+      description: >
+        Details of the observed timings.
+      type: object
+      title: ObservedScheduleItem
+      properties:
+        start:
+          #$ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+          type: string
+          format: date-time
+        done:
+          #$ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+          type: string
+          format: date-time
+
+    ObservedScheduleBlock:
+      description: >
+        Details of the observed timings.
+      type: object
+      title: ObservedScheduleBlock
+      properties:
+        preparing:
+          $ref: 'ObservedScheduleItem'
+        available:
+          $ref: 'ObservedScheduleItem'
+        releasing:
+          $ref: 'ObservedScheduleItem'
 
 # sessions.yaml
 
@@ -864,7 +932,7 @@ components:
       description: >
         Status code for an execution session.
       type: string
-      title: ExecutionSessionStatus
+      title: ExecutionSessionPhase
       enum:
         - PROPOSED
         - OFFERED
@@ -890,7 +958,9 @@ components:
       xml:
         name: execution
       allOf:
+        - $ref: 'AbstractComponent'
         - $ref: 'AccessibleComponent'
+        - $ref: 'ScheduledComponent'
         - type: object
           required:
             - uuid
@@ -916,10 +986,6 @@ components:
               xml:
                 name: resources
               $ref: 'ExecutionResourceList'
-            schedule:
-              xml:
-                name: schedule
-              $ref: 'ScheduleOfferBlock'
             options:
               description: >
                 A List of options the client can apply to this Execution.
@@ -952,7 +1018,7 @@ components:
         schedule:
           xml:
             name: schedule
-          $ref: 'ScheduleRequestBlock'
+          $ref: 'RequestedScheduleBlock'
 
     OfferSetResponse:
       description: >
@@ -966,6 +1032,7 @@ components:
       xml:
         name: offers-response
       allOf:
+        - $ref: 'AbstractComponent'
         - $ref: 'AccessibleComponent'
         - type: object
           properties:
