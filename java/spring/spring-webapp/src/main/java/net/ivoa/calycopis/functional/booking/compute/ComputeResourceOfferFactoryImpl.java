@@ -33,19 +33,19 @@ public class ComputeResourceOfferFactoryImpl
     {
 
     /**
-     * The (auutowired) Spring database template.
+     * Our Spring database template.
      * 
      */
-    private final JdbcTemplate template;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Public constructor.
      *
      */
     @Autowired
-    public ComputeResourceOfferFactoryImpl(final JdbcTemplate template)
+    public ComputeResourceOfferFactoryImpl(final JdbcTemplate jdbcTemplate)
         {
-        this.template = template;
+        this.jdbcTemplate = jdbcTemplate;
         }
 
     // TODO Move all of these values to a PlatformConfiguration that can be shared with the OfferSetRequestParser.
@@ -496,7 +496,7 @@ public class ComputeResourceOfferFactoryImpl
 //--
         log.debug("Running query ...");
         log.debug(query);
-        List<ComputeResourceOffer> list = JdbcClient.create(template)
+        List<ComputeResourceOffer> list = JdbcClient.create(jdbcTemplate)
             .sql(query)
             .query(new ComputeOfferMapper())
             .list();
@@ -504,7 +504,7 @@ public class ComputeResourceOfferFactoryImpl
         return list;
         }
 
-    public static class ComputeOfferMapper implements RowMapper<ComputeResourceOffer>
+    static class ComputeOfferMapper implements RowMapper<ComputeResourceOffer>
         {
         @Override
         public ComputeResourceOffer mapRow(ResultSet resultset, int rownumber)

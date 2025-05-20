@@ -22,7 +22,14 @@
  */
 package net.ivoa.calycopis.datamodel.resource.data.skao;
 
-import java.net.URI;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.util.List;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.JdbcClient;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -32,10 +39,13 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceVali
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;
@@ -49,7 +59,12 @@ public class SkaoDataResourceValidatorImpl
 extends AbstractDataResourceValidatorImpl
 implements SkaoDataResourceValidator
     {
-
+    /**
+     * Our Spring database template.
+     * 
+     */
+    private final JdbcTemplate jdbcTemplate;
+    
     /**
      * Factory for creating Entities.
      *
@@ -61,12 +76,14 @@ implements SkaoDataResourceValidator
      *
      */
     public SkaoDataResourceValidatorImpl(
+        final JdbcTemplate jdbcTemplate,
         final SkaoDataResourceEntityFactory entityFactory,
         final AbstractStorageResourceValidatorFactory storageValidators
         ){
         super(
             storageValidators
             );
+        this.jdbcTemplate  = jdbcTemplate  ;
         this.entityFactory = entityFactory ;
         }
 
@@ -136,6 +153,9 @@ implements SkaoDataResourceValidator
             context
             );
 
+        success &= predictPrepareTime(
+            validated
+            );
         //
         // Everything is good.
         // Create our result and add it to our state.
@@ -232,5 +252,171 @@ implements SkaoDataResourceValidator
                 }
             }
         return success ;
+        }
+
+    boolean predictPrepareTime(
+        final IvoaSkaoDataResource validated
+        ){
+        log.debug("predictPrepareTime()");
+
+        IvoaSkaoDataResourceBlock skaoBlock = validated.getSkao();
+        if (null == skaoBlock)
+            {
+            log.error("Null IvoaSkaoDataResourceBlock");
+            return false ;
+            }
+        
+        StringBuffer replicaList = new StringBuffer();
+        for (IvoaSkaoReplicaItem replica : skaoBlock.getReplicas())
+            {
+            if (false == replicaList.isEmpty())
+                {
+                replicaList.append(", ");
+                }
+            replicaList.append("'");
+            replicaList.append(
+                replica.getRsename()
+                );
+            replicaList.append("'");
+            }
+        log.debug("replicaList [{}]", replicaList);
+        
+        String replicaQuery = "SELECT source, seconds FROM TransferTimes WHERE source IN (:replicalist:) ORDER BY seconds";
+        replicaQuery = replicaQuery.replace(":replicalist:", replicaList); 
+        log.debug("replicaQuery [{}]", replicaQuery);
+
+        List<TransferRateRecord> list = JdbcClient.create(jdbcTemplate)
+            .sql(replicaQuery)
+            .query(new TransferTimeMapper())
+            .list();
+        
+        if (list.isEmpty())
+            {
+            log.error("No TransferTimes found");
+            return false;
+            }
+
+        TransferRateRecord transferRateRecord = list.getFirst();
+        log.debug("TransferTimeCost [{}][{}]", transferRateRecord.getSource(), transferRateRecord.getSeconds());
+
+        Long transferRate = transferRateRecord.getSeconds();
+        if (null == transferRate)
+            {
+            log.error("Null TransferTime seconds");
+            return false;
+            }
+            
+        IvoaComponentSchedule schedule = validated.getSchedule();
+        if (null == schedule)
+            {
+            schedule = new IvoaComponentSchedule(); 
+            validated.setSchedule(
+                schedule
+                );
+            }
+
+        IvoaOfferedScheduleBlock offered = schedule.getOffered();
+        if (null == offered)
+            {
+            offered = new IvoaOfferedScheduleBlock ();
+            schedule.setOffered(
+                offered
+                );   
+            }
+
+        IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+        if (null == preparing)
+            {
+            preparing = new IvoaOfferedScheduleInstant();
+            offered.setPreparing(
+                preparing
+                );
+            }
+
+        String start = preparing.getStart();
+        if (null != start)
+            {
+            log.error("Existing preparing start [{}]", start);
+            return false ;
+            }
+
+        String duration = preparing.getDuration();
+        if (null != duration)
+            {
+            log.error("Existing preparing duration [{}]", duration);
+            return false ;
+            }
+
+        final Long GIGABYTE = 1024L * 1024L * 1024 ;
+
+        Long dataSize = skaoBlock.getDatasize();
+        if (dataSize > GIGABYTE)
+            {
+            dataSize /= GIGABYTE ;
+            }
+        else {
+            dataSize = 1L ;
+            }
+        Long transferTime = transferRate * dataSize ;
+
+        log.debug("Data size (GB) [{}]", dataSize);
+        log.debug("Transfer rate (s/GB) [{}]", transferRate);
+        log.debug("Transfer time (s) [{}]", transferTime);
+
+        String delayQuery = "SELECT seconds FROM ResponseTimes WHERE service = 'rucio.replica.delay' ORDER BY seconds";
+        Object object = JdbcClient.create(jdbcTemplate)
+            .sql(delayQuery)
+            .query()
+            .singleValue();
+        if (object instanceof Long)
+            {
+            Long serviceDelay = (Long) object ; 
+            transferTime += serviceDelay ;
+            log.debug("Service delay (s) [{}]", serviceDelay);
+            log.debug("Transfer time (s) [{}]", transferTime);
+            }
+        
+        // Saving this as a String sucks a bit, but we are using the generated bean class.
+        // If we create a new class for the validated object then we could save this as an number.  
+        preparing.setDuration(
+            Duration.ofSeconds(
+                transferTime
+                ).toString()
+            );
+
+        return true ;
+        }
+
+    static class TransferRateRecord
+        {
+        protected TransferRateRecord(final String source, final Long seconds )
+            {
+            this.source  = source;
+            this.seconds = seconds;
+            }
+        private final String source ;
+        public String getSource()
+            {
+            return this.source;
+            }
+        private final Long seconds;
+        public Long getSeconds()
+            {
+            return this.seconds;
+            }
+        }
+    
+    static class TransferTimeMapper
+    implements RowMapper<TransferRateRecord>
+        {
+        @Override
+        public TransferRateRecord mapRow(ResultSet resultSet, int rowNum)
+        throws SQLException
+            {
+            return new TransferRateRecord(
+                resultSet.getString("source"), 
+                resultSet.getLong("seconds")
+                );
+            }
         }
     }

@@ -69,6 +69,7 @@ public class IvoaDataResourceEntity
         {
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
 

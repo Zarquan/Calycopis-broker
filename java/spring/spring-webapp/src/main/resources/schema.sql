@@ -20,53 +20,65 @@
 --
 
 
--- Create our database table.
-DROP TABLE IF EXISTS OldExecutionBlocks;
-CREATE TABLE OldExecutionBlocks(
-    Ident INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    OfferUuid UUID,
-    ParentUuid UUID,
-    ExpiryTime TIMESTAMP(0) WITH TIME ZONE,
-    BlockState CHAR VARYING,
-    BlockStart LONG,
-    BlockLength LONG,
-    MinCores INT,
-    MaxCores INT,
-    MinMemory INT,
-    MaxMemory INT
+-- Create our transfer times table.
+DROP TABLE IF EXISTS TransferTimes;
+CREATE TABLE TransferTimes (
+    ident   LONG GENERATED ALWAYS AS IDENTITY,
+    source  VARCHAR(50) NOT NULL,
+    seconds LONG
     );
 
--- SELECT * FROM ExecutionBlocks ;
+INSERT INTO TransferTimes(source) VALUES ('AARNET_PER');
+INSERT INTO TransferTimes(source) VALUES ('AARNET_PER_ND');
+INSERT INTO TransferTimes(source) VALUES ('AUSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('AUSSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('CASRC_XRD');
+INSERT INTO TransferTimes(source) VALUES ('CHSRC_DCACHE');
+INSERT INTO TransferTimes(source) VALUES ('CHSRC_S3');
+INSERT INTO TransferTimes(source) VALUES ('CHSRC_XRD');
+INSERT INTO TransferTimes(source) VALUES ('CHSRC_XRD_DEV');
+INSERT INTO TransferTimes(source) VALUES ('CHSRC_XRD_PROD');
+INSERT INTO TransferTimes(source) VALUES ('CNAF');
+INSERT INTO TransferTimes(source) VALUES ('CNSRC-SHAO-T1');
+INSERT INTO TransferTimes(source) VALUES ('CNSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('CNSRC_STORM_YUN');
+INSERT INTO TransferTimes(source) VALUES ('CNSRC_XRD');
+INSERT INTO TransferTimes(source) VALUES ('DESY_DCACHE');
+INSERT INTO TransferTimes(source) VALUES ('DESY_DCACHE_ND');
+INSERT INTO TransferTimes(source) VALUES ('IDIA');
+INSERT INTO TransferTimes(source) VALUES ('IDIA_ND');
+INSERT INTO TransferTimes(source) VALUES ('IMPERIAL');
+INSERT INTO TransferTimes(source) VALUES ('ITSRC_IRA_XRD');
+INSERT INTO TransferTimes(source) VALUES ('ITSRC_OACT_XRD');
+INSERT INTO TransferTimes(source) VALUES ('JPSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('JPSRC_STORM_PROD');
+INSERT INTO TransferTimes(source) VALUES ('KRSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('LANCASTER');
+INSERT INTO TransferTimes(source) VALUES ('LANCASTER_ND');
+INSERT INTO TransferTimes(source) VALUES ('MANCHESTER');
+INSERT INTO TransferTimes(source) VALUES ('MANCHESTER_ND');
+INSERT INTO TransferTimes(source) VALUES ('NLSRC_DCACHE');
+INSERT INTO TransferTimes(source) VALUES ('NLSRC_PROD_DCACHE');
+INSERT INTO TransferTimes(source) VALUES ('SESRC_XRD');
+INSERT INTO TransferTimes(source) VALUES ('SESRC_XRD_RBD');
+INSERT INTO TransferTimes(source) VALUES ('SKAO_S3');
+INSERT INTO TransferTimes(source) VALUES ('SPSRC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('STFC_STORM');
+INSERT INTO TransferTimes(source) VALUES ('STFC_STORM_ND');
+INSERT INTO TransferTimes(source) VALUES ('SWESRC-OSO-T0');
+INSERT INTO TransferTimes(source) VALUES ('SWESRC-OSO-T1');
+INSERT INTO TransferTimes(source) VALUES ('UKSRC-RAL-T1-TEST');
+INSERT INTO TransferTimes(source) VALUES ('UKSRC_RAL_XRD_DEVCEPHFS');
 
--- https://stackoverflow.com/a/39394592
-DROP VIEW IF EXISTS OldBlocksView ;
-CREATE VIEW OldBlocksView AS
-    (
-    SELECT
-        Ident,
-        OfferUuid,
-        ParentUuid,
-        BlockState,
-        FORMATDATETIME(
-            ExpiryTime,
-            'YYYY-dd-MM HH:mm:ss+z'
-            ) AS ExpiryTime,
-        FORMATDATETIME(
-            DATEADD('SECOND', (BlockStart * 60 * 5), DATE '1970-01-01'),
-            'YYYY-dd-MM HH:mm:ss+z'
-            ) AS StartTime,
-        (BlockLength * 5) AS Duration,
-        BlockStart,
-        BlockLength,
-        MinCores,
-        MaxCores,
-        MinMemory,
-        MaxMemory
-    FROM
-        OldExecutionBlocks
+UPDATE TransferTimes SET seconds = (ASCII(source) - 65) / 4 ;
+
+DROP TABLE IF EXISTS ResponseTimes;
+CREATE TABLE ResponseTimes (
+    ident   LONG GENERATED ALWAYS AS IDENTITY,
+    service VARCHAR(50) NOT NULL,
+    seconds LONG
     );
 
--- SELECT * FROM BlocksView ;
--- SELECT * FROM BlocksView WHERE BlockState IN ('PROPOSED','OFFERED') ;
+INSERT INTO ResponseTimes(service, seconds) VALUES ('rucio.replica.delay', 60);
 
 

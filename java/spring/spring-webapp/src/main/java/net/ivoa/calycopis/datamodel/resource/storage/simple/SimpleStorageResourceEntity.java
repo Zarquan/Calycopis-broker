@@ -64,6 +64,7 @@ public class SimpleStorageResourceEntity
         {
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
         // TODO Add the fields ...
@@ -86,6 +87,9 @@ public class SimpleStorageResourceEntity
             );
         bean.setMessages(
             this.getMessageBeans()
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
             );
         return bean ;
         }

@@ -104,6 +104,7 @@ public class ExecutionSessionEntity
     public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
         super(
+            null,
             offerset.getName() + "-" + offerblock.getName()
             );
         this.phase = IvoaExecutionSessionPhase.OFFERED;

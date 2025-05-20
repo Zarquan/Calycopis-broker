@@ -65,11 +65,50 @@ implements ScheduledComponent
     /**
      * 
      */
-    public ScheduledComponentEntity(final String name)
+    public ScheduledComponentEntity(final IvoaComponentSchedule schedule, final String name)
         {
         super(
             name
             );
+        if (schedule != null)
+            {
+            IvoaOfferedScheduleBlock offered = schedule.getOffered();
+            if (null != offered)
+                {
+                IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+                if (null != preparing)
+                    {
+                    String startInstantString = preparing.getStart();
+                    if (null != startInstantString)
+                        {
+                        try {
+                            this.prepareStartInstantSeconds = Instant.parse(
+                                startInstantString
+                                ).getEpochSecond();
+                            }
+                        catch (Exception ouch)
+                            {
+                            log.warn("Exception parsing prepare start instant [{}][{}]", startInstantString, ouch.getMessage());
+                            }
+                        }
+                    String durationString = preparing.getDuration();
+                    if (null != durationString)
+                        {
+                        try {
+                            this.prepareDurationSeconds = Duration.parse(
+                                durationString
+                                ).getSeconds();
+                            }
+                        catch (Exception ouch)
+                            {
+                            log.warn("Exception parsing prepare duration [{}][{}]", durationString, ouch.getMessage());
+                            }
+                        }
+                    }
+                }
+            
+            IvoaObservedScheduleBlock observed = schedule.getObserved();
+            }
         }
 
     @Column(name = "prepare_start_instant_seconds")

@@ -32,6 +32,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 
 /**
  * 
@@ -61,9 +62,12 @@ implements AbstractDataResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractDataResourceEntity(final ExecutionSessionEntity session, final String name)
+    protected AbstractDataResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
         {
-        super(name);
+        super(
+            schedule,
+            name
+            );
         this.session = session;
         session.addDataResource(
             this
