@@ -1,0 +1,857 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Try accessing the DM API.
+        Request to join IAM groups has been processed.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Welcome to ska-src-clients’s documentation! — ska-src-clients documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-clients/index.html
+
+    srcnet-oper — ska-src-clients documentation
+    https://ska-telescope.gitlab.io/src/src-service-apis/ska-src-clients/srcnet-oper.html
+
+    podman run \
+        -it \
+        --rm \
+        fedora \
+            bash
+
+    >   ....
+    >   ....
+
+        dnf install -y python3 python3-devel pip3
+        dnf install -y git gcc
+        pip install wheel
+
+        python3 -m pip install ska-src-clients --index-url https://gitlab.com/api/v4/groups/70683489/-/packages/pypi/simple
+
+        srcnet-oper token ls
+
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+    >   | Service Name | Access token | Expires at (UTC) | Expires at (Local) | Path on disk | Has associated refresh token? |
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+
+        srcnet-oper token request
+
+    >   --------------------------------------------------
+    >   
+    >   Scan the QR code, or using a browser on another
+    >   device, visit https://ska-iam.stfc.ac.uk/device
+    >   and enter code KXQ95I
+    >                                        
+    >                                        
+    >       █▀▀▀▀▀█ ▄▀▀▄█ ██  ▀▀▄ █▀▀▀▀▀█    
+    >       █ ███ █ ▀██▀▀ ███▀ ▄  █ ███ █    
+    >       █ ▀▀▀ █ █▄  ▄▀▄████▄▄ █ ▀▀▀ █    
+    >       ▀▀▀▀▀▀▀ █▄▀▄█ ▀▄▀▄▀▄█ ▀▀▀▀▀▀▀    
+    >       ▀▀ █ ▄▀▀  █▀  █ ▄▄▄▀ ▄█▀▀▄▀▀▄    
+    >       ▄ ▀▄▀▀▀ █▀▀  ▄  █ ▄▀▄ ▀██▀██     
+    >        ▄▄▀▄█▀▄▄ ▄▀ ▀ ▀▄▀ ▄██▀▄ ▀ ▀▀    
+    >       ▀▄▀ ▀█▀  █▀█ █▄▄▄▄█ ▄ ▀▄▀█▀█▀    
+    >         ████▀███  ▄ ▄ ▄█▀▀▀█▄▄ ▄ ▀▄    
+    >       ▀ ▄█▄▄▀▄ ▄█▄▀▀▄ ▄█▄ █▀▄█▄  ██    
+    >       ▀ ▀  ▀▀ █▀▀▄▄█▀ █▄  █▀▀▀█ █▄▄    
+    >       █▀▀▀▀▀█ ▀██▄ █▄▄▀   █ ▀ █▄▄█▄    
+    >       █ ███ █ ▄▀███▀ ▀▀█ ▄█████▄▄ ▀    
+    >       █ ▀▀▀ █ ▄█ █▄▄█ ██▄ ▄ ▄ █▀▀▄▀    
+    >       ▀▀▀▀▀▀▀ ▀▀▀▀  ▀ ▀▀  ▀ ▀ ▀  ▀     
+    >                                        
+    >                                        
+    >   --------------------------------------------------
+    >   
+    >   Polling for token... (4/60)
+    >   
+    >   Successfully polled for token. You are now logged in.
+
+
+        srcnet-oper token ls
+
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | Service Name | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | authn-api    | eyJraWQiOiJyc2ExIiwi | 2025-05-19 13:57:36+00:00 | 2025-05-19 13:57:36 | /tmp/srcnet/user/12e67175-7ca9-46e6-9712-b304d6e15ec8.token |               ✓               |
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+
+
+        srcnet-oper token exchange \
+            data-management-api
+
+        srcnet-oper token ls
+
++---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+| Service Name        | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
++---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+| data-management-api | eyJraWQiOiJyc2ExIiwi | 2025-05-19 13:58:11+00:00 | 2025-05-19 13:58:11 | /tmp/srcnet/user/411bfa69-f8e1-48ba-b3aa-a3df9c7bc96d.token |               ✓               |
++---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+
+
+        srcnet-oper data locate \
+            --namespace testing \
+            --name zrq-test-20250508-125441
+
+    >   Traceback (most recent call last):
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/common/exceptions.py", line 15, in wrapper
+    >       return func(*args, **kwargs)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/client/data_management.py", line 259, in locate_replicas_of_file
+    >       resp.raise_for_status()
+    >       ~~~~~~~~~~~~~~~~~~~~~^^
+    >     File "/usr/local/lib/python3.13/site-packages/requests/models.py", line 953, in raise_for_status
+    >       raise HTTPError(http_error_msg, response=self)
+    >   requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://data-management.srcnet.skao.int/api/v1/data/locate/testing/zrq-test-20250508-125441?ip_address=&sort=nearest_by_ip&limit=10
+    >   
+    >   During handling of the above exception, another exception occurred:
+    >   
+    >   Traceback (most recent call last):
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_clients/common/exceptions.py", line 11, in wrapper
+    >       return func(*args, **kwargs)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_clients/api/data.py", line 199, in locate
+    >       replicas_with_site = client.locate_replicas_of_file(
+    >           namespace=namespace, name=name, sort=sort, ip_address=ip_address)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/common/exceptions.py", line 19, in wrapper
+    >       raise HTTPException(status_code=status_code, detail=detail)
+    >   fastapi.exceptions.HTTPException
+    >   
+    >   During handling of the above exception, another exception occurred:
+    >   
+    >   Traceback (most recent call last):
+    >     File "/usr/local/bin/srcnet-oper", line 448, in <module>
+    >       output['raw'] = DataAPI(session=session).locate(
+    >                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+    >           namespace=args.namespace,
+    >           ^^^^^^^^^^^^^^^^^^^^^^^^^
+    >       ...<2 lines>...
+    >           ip_address=args.ip_address
+    >           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    >       )
+    >       ^
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_clients/common/exceptions.py", line 20, in wrapper
+    >       raise Exception(detail)
+    >   Exception: General error occurred: HTTPException(status_code=403, detail='HTTP error occurred: 403 Client Error: Forbidden for url: https://data-management.srcnet.skao.int/api/v1/data/locate/testing/zrq-test-20250508-125441?ip_address=&sort=nearest_by_ip&limit=10, response: {"detail":"You do not have permission to access this resource."}'), traceback:   File "/usr/local/lib/python3.13/site-packages/ska_src_clients/common/exceptions.py", line 11, in wrapper
+    >       return func(*args, **kwargs)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_clients/api/data.py", line 199, in locate
+    >       replicas_with_site = client.locate_replicas_of_file(
+    >           namespace=namespace, name=name, sort=sort, ip_address=ip_address)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/common/exceptions.py", line 19, in wrapper
+    >       raise HTTPException(status_code=status_code, detail=detail)
+
+    #
+    # Checked in Rucio and that particulat file is no longer there.
+    # Tried a file that is present in Rucio and got the same result.
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    scope=testing
+
+    rucio list-dids \
+        --filter 'type=file' \
+        "${scope}:zrq*"
+
+    >   +----------------------------------+--------------+
+    >   | SCOPE:NAME                       | [DID TYPE]   |
+    >   |----------------------------------+--------------|
+    >   | testing:zrq-test-20250507-024944 | FILE         |
+    >   +----------------------------------+--------------+
+
+    filename=zrq-test-20250507-024944
+
+    rucio stat \
+        "${scope}:${filename}"
+
+    >   account:  zarquan
+    >   adler32:  6e9e06a8
+    >   bytes:    29
+    >   length:   1
+    >   md5:      c464fbdc23440b6a0789871164ccc0d8
+    >   name:     zrq-test-20250507-024944
+    >   scope:    testing
+    >   type:     FILE
+
+    rucio list-file-replicas \
+        "${scope}:${filename}"
+
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+    >   | SCOPE   | NAME                     | FILESIZE   | ADLER32   | RSE: REPLICA                                                                                                   |
+    >   |---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------|
+    >   | testing | zrq-test-20250507-024944 | 29.000 B   | 6e9e06a8  | SPSRC_STORM: davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944 |
+    >   +---------+--------------------------+------------+-----------+----------------------------------------------------------------------------------------------------------------+
+
+    rucio list-rules \
+        "${scope}:${filename}"
+
+    >   ID                                ACCOUNT    SCOPE:NAME                        STATE[OK/REPL/STUCK]    RSE_EXPRESSION    COPIES    SIZE      EXPIRES (UTC)    CREATED (UTC)
+    >   --------------------------------  ---------  --------------------------------  ----------------------  ----------------  --------  --------  ---------------  -------------------
+    >   5b45881af9b448ea82fad3153b9cdb67  zarquan    testing:zrq-test-20250507-024944  REPLICATING[1/1/0]      *                 2         29.000 B                   2025-05-07 03:19:32
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        srcnet-oper data locate \
+            --namespace testing \
+            --name zrq-test-20250507-024944
+
+    >   ....
+    >   requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://data-management.srcnet.skao.int/api/v1/data/locate/testing/zrq-test-20250507-024944?ip_address=&sort=nearest_by_ip&limit=10
+    >   ....
+
+    #
+    # Posted question on #proj-src-iam and a direct message to James Collinson
+    # ....
+    # Turns out I was missing one of "admin or developer or namespace-viewer or namespace-editor or namespace-owner"
+    # https://permissions.srcnet.skao.int/api/v1/policies/route/data-management-api/latest
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    podman run \
+        -it \
+        --rm \
+        fedora \
+            bash
+
+        dnf install -y python3 python3-devel pip3
+        dnf install -y git gcc
+        pip install wheel
+
+        python3 -m pip install ska-src-clients --index-url https://gitlab.com/api/v4/groups/70683489/-/packages/pypi/simple
+
+        srcnet-oper token ls
+
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+    >   | Service Name | Access token | Expires at (UTC) | Expires at (Local) | Path on disk | Has associated refresh token? |
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+    >   +--------------+--------------+------------------+--------------------+--------------+-------------------------------+
+
+        srcnet-oper token request
+
+        srcnet-oper token ls
+
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | Service Name | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | authn-api    | eyJraWQiOiJyc2ExIiwi | 2025-05-19 15:31:37+00:00 | 2025-05-19 15:31:37 | /tmp/srcnet/user/f11d3c82-5217-40ca-84e8-a0f4439b8a5b.token |               ✓               |
+    >   +--------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+
+
+        srcnet-oper token exchange \
+            data-management-api
+
+        srcnet-oper token ls
+
+    >   +---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | Service Name        | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
+    >   +---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | data-management-api | eyJraWQiOiJyc2ExIiwi | 2025-05-19 15:32:15+00:00 | 2025-05-19 15:32:15 | /tmp/srcnet/user/5bbc4fd9-9906-4268-9738-a2f11a20c62c.token |               ✓               |
+    >   +---------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+
+
+        srcnet-oper data locate \
+            --namespace testing \
+            --name zrq-test-20250508-125441
+
+    >   Traceback (most recent call last):
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/common/exceptions.py", line 15, in wrapper
+    >       return func(*args, **kwargs)
+    >     File "/usr/local/lib/python3.13/site-packages/ska_src_data_management_api/client/data_management.py", line 259, in locate_replicas_of_file
+    >       resp.raise_for_status()
+    >       ~~~~~~~~~~~~~~~~~~~~~^^
+    >     File "/usr/local/lib/python3.13/site-packages/requests/models.py", line 953, in raise_for_status
+    >       raise HTTPError(http_error_msg, response=self)
+    >   requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://data-management.srcnet.skao.int/api/v1/data/locate/testing/zrq-test-20250508-125441?ip_address=&sort=nearest_by_ip&limit=10
+    >   ....
+    >   ....
+
+    #
+    # OK, file not found.
+    # Could be presented in a nicer way.
+    #
+
+        srcnet-oper data locate \
+            --namespace testing \
+            --name zrq-test-20250507-024944
+
+    >   ['davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944']
+
+    #
+    # OK, so the DM API just goves us the download URL, not the RSE name.
+    # We will need to request a change to the API to get the RSE names.
+    # Unless the API does give us the names, but the client doesn't show them ..
+    # Need to check.
+    #
+    # For now, let's go with the data we get from Rucio.
+    # Actually, for now, lets invent the requests with the ones we already know.
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    #
+    # Following some clues from James Walder in Slack ...
+    #
+
+    namespace=testing
+    filename=zrq-test-20250507-024944
+
+    tokenfile=/tmp/srcnet/user/5759d281-5209-4c96-9665-118119d9fcb7.token
+    tokenfile=/tmp/srcnet/user/ccbb4f0d-7699-499e-871c-6127a89b9b49.token
+    authtoken=$(
+        jq -r '.access_token' ${tokenfile}
+        )
+
+    curl \
+        -H "Authorization: Bearer ${authtoken}" \
+        "https://data-management.srcnet.skao.int/api/v1/data/locate/${namespace}/${filename}?ip_address=&sort=nearest_by_ip&limit=10"
+
+    >   [{"identifier":"SPSRC_STORM","associated_storage_area_id":"dcbae756-21a9-4787-bff2-2af3b7bfa1b0","replicas":["davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944"]}][root@1d8bcc320100 /]#
+
+
+
+    curl \
+        -H "Authorization: Bearer ${authtoken}" \
+        "https://data-management.srcnet.skao.int/api/v1/data/locate/${namespace}/${filename}" \
+    | jq '.'
+
+    >   [
+    >     {
+    >       "identifier": "SPSRC_STORM",
+    >       "associated_storage_area_id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+    >       "replicas": [
+    >         "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/bd/0c/zrq-test-20250507-024944"
+    >       ]
+    >     }
+    >   ]
+
+    #
+    # Much more useful :-)
+    #
+
+    curl \
+        -H "Authorization: Bearer ${authtoken}" \
+        "https://site-capabilities.srcnet.skao.int/api/v1/storages" \
+    | jq '.'
+
+    >   {
+    >     "detail":
+    >       "
+    >       HTTP error occurred: 401 Client Error: Unauthorized for url:
+    >       https://permissions.srcnet.skao.int/api/v1/authorise/route/site-capabilities-api
+    >           ?version=1
+    >           &route=%2Fstorages
+    >           &method=GET
+    >           &token=eyJraWQi........dHGGU48w,
+    >       response: {
+    >           "detail":"Token has an incorrect audience, got 'data-management-api' expected 'site-capabilities-api'"
+    >           }
+    >       "
+    >   }
+
+
+        srcnet-oper token exchange \
+            site-capabilities-api
+
+        srcnet-oper token ls
+
+    >   +-----------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | Service Name          | Access token         | Expires at (UTC)          | Expires at (Local)  | Path on disk                                                | Has associated refresh token? |
+    >   +-----------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+    >   | data-management-api   | eyJraWQiOiJyc2ExIiwi | 2025-05-19 16:35:04+00:00 | 2025-05-19 16:35:04 | /tmp/srcnet/user/ccbb4f0d-7699-499e-871c-6127a89b9b49.token |               ✓               |
+    >   | site-capabilities-api | eyJraWQiOiJyc2ExIiwi | 2025-05-19 16:49:13+00:00 | 2025-05-19 16:49:13 | /tmp/srcnet/user/03596de9-e276-41fa-b6ba-464e420a38f3.token |               ✓               |
+    >   +-----------------------+----------------------+---------------------------+---------------------+-------------------------------------------------------------+-------------------------------+
+
+
+    tokenfile=/tmp/srcnet/user/03596de9-e276-41fa-b6ba-464e420a38f3.token
+    authtoken=$(
+        jq -r '.access_token' ${tokenfile}
+        )
+
+    curl \
+        -H "Authorization: Bearer ${authtoken}" \
+        "https://site-capabilities.srcnet.skao.int/api/v1/storages" \
+    | jq '.'
+
+    >   [
+    >     {
+    >       "parent_node_name": "AUSSRC",
+    >       "parent_site_name": "AUSSRC",
+    >       "id": "d46c5c0f-96f0-4a9f-9fe6-02f541b6938e",
+    >       "host": "storm-storage-01.aussrc.org",
+    >       "base_path": "/storm/sa",
+    >       "srm": "storm",
+    >       "size_in_terabytes": 0.04,
+    >       "name": "AUSSRC",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "f1902d12-9c48-4673-a55a-7e7d05b6c57b",
+    >           "type": "rse",
+    >           "relative_path": "/test_rse/dev/deterministic",
+    >           "name": "AUSSRC_STORM"
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "KRSRC",
+    >       "parent_site_name": "KRSRC",
+    >       "id": "b5900a8e-c5f2-429a-9343-9e7087d94974",
+    >       "host": "skadtn1.kreonet.net",
+    >       "base_path": "/storm/sa",
+    >       "srm": "xrd",
+    >       "size_in_terabytes": 0.1,
+    >       "name": "KRSRC",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 8443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "1298a618-38f1-43bf-ac66-4e4c2bf20606",
+    >           "type": "rse",
+    >           "relative_path": "/test_rse/dev/deterministic",
+    >           "name": "KRSRC_STORM"
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "CNSRC",
+    >       "parent_site_name": "CNSRC",
+    >       "id": "4751727d-8ce3-4b53-93e1-9dac301c62aa",
+    >       "host": "xrootd.ska.zverse.space",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 600,
+    >       "name": "CNSRC-SHAO-T1",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "c06f0555-579d-4ea6-b434-8e62c65f1983",
+    >           "type": "rse",
+    >           "relative_path": "/",
+    >           "name": "CNSRC-SHAO-T1",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "JPSRC",
+    >       "parent_site_name": "JPSRC",
+    >       "id": "89ee6cac-0977-425e-b766-780a8e14420d",
+    >       "host": "jp-src-s000.mtk.nao.ac.jp",
+    >       "base_path": "/storm/sa",
+    >       "srm": "storm",
+    >       "size_in_terabytes": 0.08,
+    >       "name": "JPSRC",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 8443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "58aa1f5e-6eee-4fad-b991-3aef25fdfe07",
+    >           "type": "rse",
+    >           "name": "JPSRC_STORM",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "JPSRC",
+    >       "parent_site_name": "JPSRC",
+    >       "id": "21a13483-868c-4fe4-afe4-9f8ec94c4ee2",
+    >       "host": "shion-rse.mtk.nao.ac.jp",
+    >       "base_path": "/storm/sa",
+    >       "srm": "storm",
+    >       "size_in_terabytes": 400,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 8443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "3fc8ac9a-dae4-4514-b839-5140fda1cf32",
+    >           "type": "rse",
+    >           "relative_path": "/deterministic",
+    >           "name": "JPSRC_STORM_PROD",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "CHSRC",
+    >       "parent_site_name": "CHSRC",
+    >       "id": "12a3ff8c-ee53-477f-949d-a6193ee51dfc",
+    >       "host": "xrootd.src.skach.org",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "size_in_terabytes": 390,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "downtime": [
+    >         {
+    >           "date_range": "2025-04-30T22:00:00.000Z to 2025-05-11T22:00:00.000Z",
+    >           "type": "Unplanned",
+    >           "reason": "Production cluster incident. Waiting for CSCS to restore data (it's the first time we do it, so no procedures in place for this yet)."
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "f26ff4e4-30af-4339-88ed-bb0cb7037ca0",
+    >           "type": "rse",
+    >           "relative_path": "/deterministic",
+    >           "name": "CHSRC_XRD_PROD",
+    >           "downtime": [
+    >             {
+    >               "date_range": "2025-04-30T22:00:00.000Z to 2025-05-11T22:00:00.000Z",
+    >               "type": "Planned",
+    >               "reason": "Production cluster incident. Waiting for CSCS to restore data (it's the first time we do it, so no procedures in place for this yet)."
+    >             }
+    >           ]
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "CHSRC",
+    >       "parent_site_name": "CHSRC",
+    >       "id": "c0fbb63b-0b9a-4652-a42b-54560efbc359",
+    >       "host": "xrootd.dev.skach.org",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 0.01,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "68cd286e-9a73-417c-9c02-9c542436322f",
+    >           "type": "rse",
+    >           "relative_path": "/deterministic",
+    >           "name": "CHSRC_XRD_DEV",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "CHSRC",
+    >       "parent_site_name": "CHSRC",
+    >       "id": "54012d57-0492-4e86-856a-ac42f916480d",
+    >       "host": "dcache.ska.cscs.ch",
+    >       "base_path": "/pnfs/ska.cscs.ch/ska",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 48,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 2880
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "31637ec6-e7d0-4c89-aef0-1a644ab6108e",
+    >           "type": "rse",
+    >           "name": "CHSRC_DCACHE",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "ITSRC",
+    >       "parent_site_name": "ITSRC",
+    >       "id": "161dc1f7-6a7b-4315-9fab-4056bb5a9091",
+    >       "host": "itrse.oact.inaf.it",
+    >       "base_path": "/storage01/xrootd",
+    >       "srm": "xrd",
+    >       "size_in_terabytes": 27,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "http",
+    >           "port": 80
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "cfb6f1c9-5004-4ef9-b0fd-9fab3beafcce",
+    >           "type": "rse",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "ESPSRC",
+    >       "parent_site_name": "ESPSRC",
+    >       "id": "43505e6c-7ee7-4182-8f01-7adb5ff6f7aa",
+    >       "host": "rucio.espsrc.iaa.csic.es",
+    >       "base_path": "/disk",
+    >       "srm": "storm",
+    >       "device_type": "ssd",
+    >       "size_in_terabytes": 8,
+    >       "name": "SPSRC",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "dcbae756-21a9-4787-bff2-2af3b7bfa1b0",
+    >           "type": "rse",
+    >           "relative_path": "/dev/deterministic",
+    >           "name": "SPSRC_STORM",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "SWESRC",
+    >       "parent_site_name": "SWESRC",
+    >       "id": "e9e8b38b-7131-495a-9ed4-c2578e7ce831",
+    >       "host": "xrootd-01.swesrc.chalmers.se",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 50,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 1094
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "26fd7cac-8baa-4bd7-87a5-804bf69642e0",
+    >           "type": "rse",
+    >           "relative_path": "https://xrootd-01.swesrc.chalmers.se:1094/data",
+    >           "name": "SWESRC-OSO-T1",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "SWESRC",
+    >       "parent_site_name": "SWESRC",
+    >       "id": "377ccaa5-ddec-4caf-9fcb-502bc0526664",
+    >       "host": "xrootd-02.swesrc.chalmers.se",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 30,
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 1094
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "a0eae585-521b-4be2-86a2-d0ff8b33f38d",
+    >           "type": "rse",
+    >           "relative_path": "https://xrootd-02.swesrc.chalmers.se:1094/data",
+    >           "name": "SWESRC-OSO-T0"
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "CANSRC",
+    >       "parent_site_name": "CANSRC",
+    >       "id": "1ace961a-7be6-415a-9f65-5c670906c738",
+    >       "host": "humpback.rcs.uvic.ca",
+    >       "base_path": "/data",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 500,
+    >       "name": "CASRC_XRD",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 8181
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "04432c25-8574-44b1-ad1f-6ee88f794711",
+    >           "type": "rse",
+    >           "relative_path": "/dev/deterministic",
+    >           "name": "CASRC_XRD",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "UKSRC",
+    >       "parent_site_name": "UKSRC RAL Production",
+    >       "id": "a86d5c1e-5495-4971-9131-fc5a2631d99c",
+    >       "host": "xrootd01.uksrc.rl.ac.uk",
+    >       "base_path": "/denebdev/testbed/",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 200,
+    >       "name": "UKSRC-RAL-XRD",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 1094
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "ce04d165-4d5f-4380-a674-2a9ae4aba75e",
+    >           "type": "rse",
+    >           "relative_path": "/",
+    >           "name": "UKSRC_RAL_XRD_PROD",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "UKSRC",
+    >       "parent_site_name": "UKSTC RAL Staging",
+    >       "id": "437956fd-1877-466f-aae9-0950a7e5ea73",
+    >       "host": "uk",
+    >       "base_path": "/denebdev/testbed/",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 200,
+    >       "name": "UKSRC-RAL",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 1094
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "85caccc1-44ff-4bb6-a3ed-914a8d30a5a4",
+    >           "type": "rse",
+    >           "relative_path": "/",
+    >           "name": "UKSRC_RAL_XRD_DEVCEPHFS",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "UKSRC",
+    >       "parent_site_name": "UKSRC Cambridge Production",
+    >       "id": "1c69b06c-7afa-48e5-9c15-97b30c45d50d",
+    >       "host": "xrootd01.uksrc.cam.ac.uk",
+    >       "base_path": "/skadata",
+    >       "srm": "xrd",
+    >       "device_type": "hdd",
+    >       "size_in_terabytes": 0.5,
+    >       "name": "UKSRC_CAM_XRD",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 1094
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "7a86a1f8-ef1d-4465-aeed-1c1755b58794",
+    >           "type": "rse",
+    >           "relative_path": "/",
+    >           "name": "UKSRC_CAM_RSE",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     },
+    >     {
+    >       "parent_node_name": "SKAOSRC",
+    >       "parent_site_name": "SKAOSRC",
+    >       "id": "180f2f39-4548-4f11-80b1-7471564e5c05",
+    >       "host": "storm.srcnet.skao.int",
+    >       "base_path": "/sa",
+    >       "srm": "storm",
+    >       "size_in_terabytes": 5,
+    >       "name": "SKAOSRC",
+    >       "supported_protocols": [
+    >         {
+    >           "prefix": "https",
+    >           "port": 443
+    >         }
+    >       ],
+    >       "areas": [
+    >         {
+    >           "id": "448e27fe-b695-4f91-90c3-0a8f2561ccdf",
+    >           "type": "rse",
+    >           "relative_path": "/deterministic",
+    >           "name": "STFC_STORM",
+    >           "tier": 1
+    >         },
+    >         {
+    >           "id": "f62199c3-62ad-44ee-a6e0-dd34e891d423",
+    >           "type": "rse",
+    >           "relative_path": "/nondeterministic",
+    >           "name": "STFC_STORM_ND",
+    >           "tier": 1
+    >         },
+    >         {
+    >           "id": "f605dd74-7a43-40e5-9229-48845416e30a",
+    >           "type": "ingest",
+    >           "relative_path": "/ingest/staging",
+    >           "tier": 1
+    >         }
+    >       ]
+    >     }
+    >   ]
+
+
