@@ -1,0 +1,334 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    We need to add time values to data resources
+
+    preparing:
+        start:
+        duration:
+    available:
+        start:
+        duration:
+    releasing:
+        start:
+        duration:
+
+    Set the values during the validation phase.
+
+# -----------------------------------------------------
+
+    We should also record what actually happend.
+
+        offered:
+          preparing:
+              start:
+              duration:
+          available:
+              start:
+              duration:
+          releasing:
+              start:
+              duration:
+
+        observed:
+          preparing:
+              start:
+              duration:
+          available:
+              start:
+              duration:
+          releasing:
+              start:
+              duration:
+
+    This is separate from the requested timings, which are part of the request.
+    Unless we want to include lifetime values for storage resources or data results ..
+
+        lifetime:
+          before: <duration>
+          after:  <duration>
+
+    These are a specific use case which we can add later.
+    Out of scope for now.
+
+    Currently we have
+
+        ScheduleOfferItem:
+          description: >
+            Details of when the session will be executed.
+          type: object
+          title: ScheduleOfferItem
+          properties:
+            duration:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+            start:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+        ScheduleOfferBlock:
+          description: >
+            Details of when the session will be executed.
+          type: object
+          title: ScheduleOfferBlock
+          properties:
+            preparing:
+              $ref: 'ScheduleOfferItem'
+            executing:
+              $ref: 'ScheduleOfferItem'
+            releasing:
+              $ref: 'ScheduleOfferItem'
+
+    Used as part of ExecutionSessionResponse
+
+    Changes :
+    Changing 'executing' to 'available' to fit with resources
+    Renaming the Block and Item to remove Offer.
+
+        ScheduleItem (was ScheduleOfferItem)
+          properties:
+            duration:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+            start:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+        ScheduleBlock (was ScheduleOfferBlock)
+          properties:
+            preparing:
+              $ref: 'ScheduleItem'
+            available:
+              $ref: 'ScheduleItem'
+            releasing:
+              $ref: 'ScheduleItem'
+
+        Schedule
+          properties:
+            offered:
+              $ref: 'ScheduleBlock'
+            observed:
+              $ref: 'ScheduleBlock'
+
+    Add an extra base class between ComponentEntity and AbstractDataResourceEntity
+
+    ScheduledEntity
+    something that has three phases, preparing, available and releasing,
+    with a start time and duration for each of them
+
+    With two sets of values, offered and observed.
+
+        @Column(name = "offered_prepare_start_instant_seconds")
+        @Column(name = "offered_prepare_start_range_seconds")
+        @Column(name = "offered_prepare_duration_seconds")
+
+        @Column(name = "offered_available_start_instant_seconds")
+        @Column(name = "offered_available_start_range_seconds")
+        @Column(name = "offered_available_duration_seconds")
+
+        @Column(name = "offered_release_start_instant_seconds")
+        @Column(name = "offered_release_start_range_seconds")
+        @Column(name = "offered_release_duration_seconds")
+
+    Note that the observed just needs to record the start and end times.
+
+        @Column(name = "observed_prepare_start_instant_seconds")
+        @Column(name = "observed_prepare_done_instant_seconds")
+
+        @Column(name = "observed_available_start_instant_seconds")
+        @Column(name = "observed_available_done_instant_seconds")
+
+        @Column(name = "observed_release_start_instant_seconds")
+        @Column(name = "observed_release_done_instant_seconds")
+
+    So the schema becomes
+
+        ScheduleOfferedItem
+          properties:
+            duration:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+            start:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+        ScheduleOfferedBlock
+          properties:
+            preparing:
+              $ref: 'ScheduleOfferedItem'
+            available:
+              $ref: 'ScheduleOfferedItem'
+            releasing:
+              $ref: 'ScheduleOfferedItem'
+
+        ScheduleObservedItem
+          properties:
+            start:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+            done:
+              $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+
+        ScheduleObservedBlock
+          properties:
+            preparing:
+              $ref: 'ScheduleObservedItem'
+            available:
+              $ref: 'ScheduleObservedItem'
+            releasing:
+              $ref: 'ScheduleObservedItem'
+
+        Schedule
+          properties:
+            offered:
+              $ref: 'ScheduleOfferedBlock'
+            observed:
+              $ref: 'ScheduleObservedBlock'
+
+    Example:
+
+        schedule:
+          offered:
+            preparing:
+              start:    "2025-05-20T10:25:00ZPT10M"
+              duration: "PT1H"
+            available:
+              start:    "2025-05-20T11:35:00ZPT10M"
+              duration: "PT1H"
+            releasing:
+              start:    "2025-05-20T12:45:00ZPT10M"
+              duration: "PT1H"
+          observed:
+            preparing:
+              start:    "2025-05-20T10:25:00Z"
+              done:     "2025-05-20T11:15:00Z"
+            available:
+              start:    "2025-05-20T11:40:00Z"
+              done:     "2025-05-20T12:40:00Z"
+            releasing:
+              start:    "2025-05-20T12:40:00Z"
+              done:     "2025-05-20T13:20:00Z"
+
+    Does this make sense ?
+
+        The offered execution start time (session.available) has a range to accomodate
+        variable start times of a batch process.
+
+        schedule:
+          offered:
+            available:
+              start:    "2025-05-20T11:35:00ZPT10M"
+              duration: "PT1H"
+
+        "1 hour of execution, starting between 11:35 and 11:45"
+
+        The preparation duration is calculated from the contents.
+        What data, where is it, how long to transfer it etc.
+
+        schedule:
+          offered:
+            preparing:
+              duration: "PT1H"
+
+        The preparing start time is calculated by subtracting the
+        duration from the beginning of the available range.
+
+        schedule:
+          offered:
+            preparing:
+              duration: "PT1H"
+              start:    = available.start.instant - preparing.duration
+
+        The available start interval and duration are set by the offer.
+
+        schedule:
+          offered:
+            available:
+              start:    "2025-05-20T11:35:00ZPT10M"
+              duration: "PT1H"
+
+        The available done interval is calculated from that.
+        Is that an instant or an interval ?
+
+        schedule:
+          offered:
+            available:
+              start:    "2025-05-20T11:35:00ZPT10M"
+              duration: "PT1H"
+              done:     (available.start.instant + available.start.range) + available.duration
+
+        The releasing duration is calculated from the contents.
+        What data, where does it go, how long to transfer it etc.
+
+        schedule:
+          releasing:
+            duration: "PT1H"
+
+        The releasing start is just the available done time.
+        Unless there is a delay ?
+
+        schedule:
+          offered:
+            releasing:
+              duration: "PT1H"
+              start:    = available.done
+
+        The releasing done is calculated by adding the duration to the start.
+
+        schedule:
+          offered:
+            releasing:
+              duration: "PT1H"
+              start:    = available.done
+              done:     = available.done + releasing.duration
+
+        The observed timings are just the observed instants.
+        Fancy fluff if we calculate the durations, but not needed.
+
+        Solution - we leave the observed for later.
+
+    Example:
+
+        schedule:
+          requested:
+            start:    "2025-05-20T11:35:00ZPT10M"
+            duration: "PT1H"
+          offered:
+            preparing:
+              start:    "2025-05-20T10:25:00ZPT10M"
+              duration: "PT1H"
+            available:
+              start:    "2025-05-20T11:35:00ZPT10M"
+              duration: "PT1H"
+            releasing:
+              start:    "2025-05-20T12:45:00ZPT10M"
+              duration: "PT1H"
+
+
+
+
