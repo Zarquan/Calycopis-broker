@@ -33,7 +33,7 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceVali
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
@@ -46,7 +46,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
  */
 @Slf4j
 public class SimpleComputeResourceValidator
-extends ValidatorTools
+extends AbstractValidatorImpl
 implements AbstractComputeResourceValidator
     {
 

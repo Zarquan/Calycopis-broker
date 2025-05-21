@@ -26,14 +26,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * Base class for Validatior implementations.
  * Provides a set of tools.
  *  
  */
-public class ValidatorTools
+public class AbstractValidatorImpl
     {
 
     /**
@@ -135,4 +134,6 @@ public class ValidatorTools
         
         return success ;
         }
+
+    
     }

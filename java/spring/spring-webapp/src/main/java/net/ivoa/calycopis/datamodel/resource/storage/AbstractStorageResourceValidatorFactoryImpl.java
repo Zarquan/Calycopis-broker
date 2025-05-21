@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator.Result;
 import net.ivoa.calycopis.datamodel.resource.storage.simple.SimpleStorageResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.resource.storage.simple.SimpleStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.resource.storage.simple.SimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
@@ -53,7 +53,7 @@ implements AbstractStorageResourceValidatorFactory
         ){
         super();
         this.validators.add(
-            new SimpleStorageResourceValidator(
+            new SimpleStorageResourceValidatorImpl(
                 storageResourceEntityFactory
                 )
             );

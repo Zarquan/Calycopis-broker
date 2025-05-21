@@ -35,7 +35,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
@@ -52,7 +52,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
  */
 @Slf4j
 public class DockerContainerValidatorImpl
-extends ValidatorTools
+extends AbstractValidatorImpl
 implements DockerContainerValidator
     {
 

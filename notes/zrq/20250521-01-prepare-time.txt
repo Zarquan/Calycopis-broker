@@ -198,6 +198,9 @@ EOF
                     "created": .created,
                     "schedule": .schedule
                     },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
                 "data": [
                     .resources.data[].schedule
                     ]
@@ -205,8 +208,68 @@ EOF
             ]
         '
 
---START--
-....
-....
---END--
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-21T19:46:27.291932717Z"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-05-21T19:50:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-21T19:46:27.404622646Z"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-05-21T23:50:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-21T19:46:27.511732225Z"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-05-22T03:50:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-21T19:46:27.579714471Z"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-05-22T07:50:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
 

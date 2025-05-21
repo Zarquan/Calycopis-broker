@@ -20,123 +20,16 @@
  *
  *
  */
+
 package net.ivoa.calycopis.datamodel.resource.storage.simple;
 
-import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
- * A Validator implementation to handle simple storage resources.
  * 
  */
-@Slf4j
-public class SimpleStorageResourceValidator
-extends ValidatorTools
-implements AbstractStorageResourceValidator
+public interface SimpleStorageResourceValidator
+extends AbstractStorageResourceValidator
     {
-    /**
-     * Factory for creating Entities.
-     * 
-     */
-    final SimpleStorageResourceEntityFactory entityFactory;
 
-    /**
-     * Public constructor.
-     * 
-     */
-    public SimpleStorageResourceValidator(
-        final SimpleStorageResourceEntityFactory entityFactory
-        ){
-        super();
-        this.entityFactory = entityFactory ;
-        }
-    
-    @Override
-    public AbstractStorageResourceValidator.Result validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validate(IvoaAbstractStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        switch(requested)
-            {
-            case IvoaSimpleStorageResource simple:
-                return validate(
-                        simple,
-                        context
-                        );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
-                    );
-            }
-        }
-
-    /**
-     * Validate an IvoaSimpleStorageResource.
-     *
-     */
-    public AbstractStorageResourceValidator.Result validate(
-        final IvoaSimpleStorageResource requested,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validate(IvoaSimpleStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-
-        boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
-            SimpleStorageResource.TYPE_DISCRIMINATOR
-            );
-
-        //
-        // Check maximum size limit,
-        // Validate the lifetime syntax,
-        //
-
-        validated.setName(requested.getName());
-        
-        //
-        // Everything is good.
-        // Create our result and add it to our context.
-        if (success)
-            {
-            EntityBuilder builder = new EntityBuilder()
-                {
-                @Override
-                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        validated
-                        );
-                    }
-                }; 
-            
-            AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
-
-            context.addStorageValidatorResult(
-                storageResult 
-                );
-
-            return storageResult;
-            }
-        //
-        // Something wasn't right, fail the validation.
-        else {
-            context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
-            }
-        }
     }

@@ -100,6 +100,7 @@ public interface OfferSetRequestParserContext
      * Find a DataValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractDataResourceValidator.Result findDataValidatorResult(final AbstractDataResourceValidator.Result result);
 
     /**
@@ -112,6 +113,7 @@ public interface OfferSetRequestParserContext
      * Find a DataValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractDataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**
@@ -142,18 +144,21 @@ public interface OfferSetRequestParserContext
      * Find a ComputeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Find a ComputeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource);
     
     /**
      * Find a ComputeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final String key);
 
     /**
@@ -166,6 +171,7 @@ public interface OfferSetRequestParserContext
      * Generate a StorageValidatorResult key.
      *  
      */
+    @Deprecated
     public String makeStorageValidatorResultKey(final AbstractStorageResourceValidator.Result result);
 
     /**
@@ -184,12 +190,14 @@ public interface OfferSetRequestParserContext
      * Find a StorageValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Find a StorageValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
     
     /**
@@ -214,12 +222,14 @@ public interface OfferSetRequestParserContext
      * Find a StorageValidator result for a DataValidator result.
      * 
      */
+    @Deprecated
     public AbstractStorageResourceValidator.Result findDataStorageResult(final AbstractDataResourceValidator.Result dataResult);
 
     /**
      * Find a StorageValidator result for a IvoaAbstractDataResource.
      * 
      */
+    @Deprecated
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
 
     /**
@@ -232,12 +242,14 @@ public interface OfferSetRequestParserContext
      * Generate a VolumeValidatorResult key.
      *  
      */
+    @Deprecated
     public String makeVolumeValidatorResultKey(final AbstractVolumeMountValidator.Result result);
 
     /**
      * Generate a VolumeMount key.
      *  
      */
+    @Deprecated
     public String makeVolumeValidatorResultKey(final IvoaAbstractVolumeMount resource);
     
     /**
@@ -250,18 +262,21 @@ public interface OfferSetRequestParserContext
      * Find a VolumeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final AbstractVolumeMountValidator.Result result);
 
     /**
      * Find a VolumeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final IvoaAbstractVolumeMount resource);
     
     /**
      * Find a VolumeValidatorResult.
      * 
      */
+    @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key);
     
     /**
@@ -287,88 +302,61 @@ public interface OfferSetRequestParserContext
      *
      */
     public void setExecutionDuration(final Duration duration);
-    
 
     /**
      * Add a core count to the running total.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     void addMinCores(long delta);
 
     /**
      * Add a core count to the running total.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     void addMaxCores(long delta);
-
     
     /**
      * Get the running total of minimum cores.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     public long getTotalMinCores();
 
     /**
      * Get the running total of maximum cores.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     public long getTotalMaxCores();
 
     /**
      * Get the running total of minimum memory.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     public long getTotalMinMemory();
 
     /**
      * Get the running total of maximum memory.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     public long getTotalMaxMemory();
 
     /**
      * Add a memory count to the running total.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     void addMinMemory(long delta);
 
     /**
      * Add a memory count to the running total.
+     * TODO Do we need this if we only have one compute resource ?
      * 
      */
     void addMaxMemory(long delta);
-
-/*
- *
-
-
-    public AbstractExecutable getExecutable();
-
-    // This is a total over all the compute resources.
-    public long getMinCores();
-    //public int getMaxCores();
-    public void addMinCores(long delta);
-    //public void addMaxCores(int delta);
-
-    // This is a total over all the compute resources.
-    public long getMinMemory();
-    //public int getMaxMemory();
-    public void addMinMemory(long delta);
-    //public void addMaxMemory(int delta);
-
-    public interface ScheduleItem
-        {
-        public Interval getStartTime();
-        public Duration getDuration();
-        }
-
-    public ScheduleItem getPreparationTime();
-    public void setPreparationTime(final Interval starttime, final Duration duration);
-
-    public ScheduleItem getExecutionTime();
-    public void setExecutionTime(final Interval starttime, final Duration duration);
-
- *
- */
 
     }

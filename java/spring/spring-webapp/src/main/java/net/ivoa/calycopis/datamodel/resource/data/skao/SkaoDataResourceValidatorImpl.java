@@ -160,6 +160,7 @@ implements SkaoDataResourceValidator
         success &= predictPrepareTime(
             validated
             );
+
         //
         // Everything is good.
         // Create our result and add it to our state.
@@ -259,7 +260,14 @@ implements SkaoDataResourceValidator
         return success ;
         }
 
-    boolean predictPrepareTime(
+    /*
+     * TODO This will be platform dependent.
+     * Different PrepareData implementations will have different preparation times.
+     * Some will just symlink the Rucio data, others will have an additional copy operation.
+     * Alternatively we could offload all of this to the local PrepareData service ? 
+     * 
+     */
+    private boolean predictPrepareTime(
         final IvoaSkaoDataResource validated
         ){
         log.debug("predictPrepareTime()");
@@ -271,7 +279,7 @@ implements SkaoDataResourceValidator
             return false ;
             }
         
-        StringBuffer replicaList = new StringBuffer();
+        StringBuilder replicaList = new StringBuilder();
         for (IvoaSkaoReplicaItem replica : skaoBlock.getReplicas())
             {
             if (false == replicaList.isEmpty())
@@ -311,46 +319,6 @@ implements SkaoDataResourceValidator
             return false;
             }
             
-        IvoaComponentSchedule schedule = validated.getSchedule();
-        if (null == schedule)
-            {
-            schedule = new IvoaComponentSchedule(); 
-            validated.setSchedule(
-                schedule
-                );
-            }
-
-        IvoaOfferedScheduleBlock offered = schedule.getOffered();
-        if (null == offered)
-            {
-            offered = new IvoaOfferedScheduleBlock ();
-            schedule.setOffered(
-                offered
-                );   
-            }
-
-        IvoaOfferedScheduleInstant preparing = offered.getPreparing();
-        if (null == preparing)
-            {
-            preparing = new IvoaOfferedScheduleInstant();
-            offered.setPreparing(
-                preparing
-                );
-            }
-
-        String start = preparing.getStart();
-        if (null != start)
-            {
-            log.error("Existing preparing start [{}]", start);
-            return false ;
-            }
-
-        String duration = preparing.getDuration();
-        if (null != duration)
-            {
-            log.error("Existing preparing duration [{}]", duration);
-            return false ;
-            }
 
         final Long GIGABYTE = 1024L * 1024L * 1024 ;
 
@@ -381,12 +349,9 @@ implements SkaoDataResourceValidator
             log.debug("Transfer time (s) [{}]", transferTime);
             }
         
-        // Saving this as a String sucks a bit, but we are using the generated bean class.
-        // If we create a new class for the validated object then we could save this as an number.  
-        preparing.setDuration(
-            Duration.ofSeconds(
-                transferTime
-                ).toString()
+        this.setPrepareDuration(
+            validated,
+            transferTime
             );
 
         return true ;

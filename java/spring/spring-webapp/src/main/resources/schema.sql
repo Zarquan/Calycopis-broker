@@ -79,6 +79,8 @@ CREATE TABLE ResponseTimes (
     seconds LONG
     );
 
-INSERT INTO ResponseTimes(service, seconds) VALUES ('rucio.replica.delay', 60);
+INSERT INTO ResponseTimes(service, seconds) VALUES ('rucio.replica.delay',  60);
+INSERT INTO ResponseTimes(service, seconds) VALUES ('manila.storage.delay', 30);
+INSERT INTO ResponseTimes(service, seconds) VALUES ('cinder.storage.delay', 30);
 
 

@@ -23,23 +23,28 @@
 
 package net.ivoa.calycopis.datamodel.resource.data;
 
+import java.time.Duration;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * 
  */
 @Slf4j
 public abstract class AbstractDataResourceValidatorImpl
-extends ValidatorTools
+extends AbstractValidatorImpl
 implements AbstractDataResourceValidator
     {
     /**
@@ -211,5 +216,65 @@ implements AbstractDataResourceValidator
                 }
             }
         return storageResult;
+        }
+
+    /**
+     * 
+     */
+    public boolean setPrepareDuration(
+        final IvoaAbstractDataResource validated,
+        long seconds
+        ){
+        IvoaComponentSchedule schedule = validated.getSchedule();
+        if (null == schedule)
+            {
+            schedule = new IvoaComponentSchedule(); 
+            validated.setSchedule(
+                schedule
+                );
+            }
+
+        IvoaOfferedScheduleBlock offered = schedule.getOffered();
+        if (null == offered)
+            {
+            offered = new IvoaOfferedScheduleBlock ();
+            schedule.setOffered(
+                offered
+                );   
+            }
+
+        IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+        if (null == preparing)
+            {
+            preparing = new IvoaOfferedScheduleInstant();
+            offered.setPreparing(
+                preparing
+                );
+            }
+
+        String start = preparing.getStart();
+        if (null != start)
+            {
+            log.error("Existing preparing start [{}]", start);
+            return false ;
+            }
+
+        String duration = preparing.getDuration();
+        if (null != duration)
+            {
+            log.error("Existing preparing duration [{}]", duration);
+            return false ;
+            }
+
+        // Saving this as a String sucks a bit, but we are using the generated bean class.
+        // TODO If we create a new class for the validated object that wraps or extends the generated bean
+        // then we could save this as an number.
+        preparing.setDuration(
+            Duration.ofSeconds(
+                seconds
+                ).toString()
+            );
+        
+        return true ;
         }
     }
