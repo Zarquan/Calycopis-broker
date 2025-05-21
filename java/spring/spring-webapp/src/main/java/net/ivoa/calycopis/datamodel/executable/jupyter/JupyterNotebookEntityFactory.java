@@ -3,7 +3,6 @@
  */
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;

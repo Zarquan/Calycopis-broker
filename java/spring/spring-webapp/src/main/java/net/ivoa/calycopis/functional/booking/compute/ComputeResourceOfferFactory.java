@@ -9,7 +9,6 @@ import java.util.List;
 import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.functional.booking.ResourceOfferFactory;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * Public interface for a ComputeResourceOffer factory. 

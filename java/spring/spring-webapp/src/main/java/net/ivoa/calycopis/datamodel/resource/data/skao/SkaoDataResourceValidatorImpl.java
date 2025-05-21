@@ -24,7 +24,6 @@ package net.ivoa.calycopis.datamodel.resource.data.skao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,20 +34,15 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.Validator.ResultEnum;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;

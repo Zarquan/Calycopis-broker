@@ -37,7 +37,6 @@ import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
 import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * 

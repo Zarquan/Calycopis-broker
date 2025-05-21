@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;

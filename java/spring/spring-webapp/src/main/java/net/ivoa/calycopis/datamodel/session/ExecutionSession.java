@@ -23,12 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
-
-import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;

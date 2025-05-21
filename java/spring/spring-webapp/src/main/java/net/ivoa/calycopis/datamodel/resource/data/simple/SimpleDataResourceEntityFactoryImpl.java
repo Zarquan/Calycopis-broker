@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data.simple;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,10 +32,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**

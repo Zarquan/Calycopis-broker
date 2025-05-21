@@ -30,8 +30,8 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
+import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 

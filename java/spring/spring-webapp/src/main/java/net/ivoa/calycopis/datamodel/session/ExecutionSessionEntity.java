@@ -23,13 +23,9 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.threeten.extra.Interval;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -44,7 +40,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
@@ -54,12 +49,9 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
-import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
 
 /**
  * An Execution Entity.
