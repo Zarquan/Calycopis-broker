@@ -37,6 +37,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
@@ -73,10 +74,11 @@ public class SkaoDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SkaoDataResourceEntity(final ExecutionSessionEntity session, final IvoaSkaoDataResource template)
+    public SkaoDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSkaoDataResource template)
         {
         super(
             session,
+            storage,
             template
             );
 

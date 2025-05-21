@@ -20,36 +20,17 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.resource.storage;
 
-package net.ivoa.calycopis.datamodel.resource.data.ivoa;
-
-import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * An IvoaDataResource Factory.
+ * JpaRepository for AbstractStorageResourceEntity.
  *
  */
-public interface IvoaDataResourceEntityFactory
-    extends FactoryBase
+public interface AbstractStorageResourceEntityRepository
+extends JpaRepository<AbstractStorageResourceEntity, UUID>
     {
-
-    /**
-     * Select an IvoaDataResource based on UUID.
-     *
-     */
-    public Optional<IvoaDataResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new IvoaDataResource based on a template.
-     *
-     */
-    public IvoaDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template);
-
     }
-

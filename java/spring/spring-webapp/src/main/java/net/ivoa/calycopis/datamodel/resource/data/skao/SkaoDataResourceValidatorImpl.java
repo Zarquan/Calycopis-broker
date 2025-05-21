@@ -35,9 +35,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.functional.validator.Validator.ResultEnum;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
@@ -126,12 +129,13 @@ implements SkaoDataResourceValidator
             context
             );
 
-        success &= storageCheck(
+        AbstractStorageResourceValidator.Result storage = storageCheck(
             requested,
             validated,
             context
             );
-        
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
+                
         validated.setUuid(
             requested.getUuid()
             );
@@ -169,6 +173,7 @@ implements SkaoDataResourceValidator
                     {
                     return entityFactory.create(
                         session,
+                        storage.getEntity(),
                         validated
                         );
                     }

@@ -26,9 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.functional.validator.Validator.ResultEnum;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
@@ -106,11 +109,12 @@ implements AmazonS3DataResourceValidator
             context
             );
 
-        success &= storageCheck(
+        AbstractStorageResourceValidator.Result storage = storageCheck(
             requested,
             validated,
             context
             );
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
 
         String name = trim(
             requested.getName()
@@ -173,10 +177,11 @@ implements AmazonS3DataResourceValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public AmazonS3DataResourceEntity build(ExecutionSessionEntity session)
+                public AmazonS3DataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
+                        storage.getEntity(),
                         validated
                         );
                     }

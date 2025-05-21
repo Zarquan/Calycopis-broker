@@ -199,7 +199,7 @@ components:
           type: string
         type:
           description: >
-            The component type identifiers.
+            The component type identifier.
           type: string
           xml:
             attribute: true
@@ -315,13 +315,13 @@ components:
           "https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0": 'SimpleVolumeMount'
       allOf:
         - $ref: 'AbstractComponent'
-        - type: object
-          properties:
-            # TOTO Do we need this here ?
-            type:
-              type: string
-              xml:
-                attribute: true
+#       - type: object
+#         properties:
+#           # TOTO Do we need this here ?
+#           type:
+#             type: string
+#             xml:
+#               attribute: true
 
     SimpleVolumeMount:
       description: >
@@ -340,8 +340,8 @@ components:
         A list of storage resources.
       type: array
       title: StorageResourceList
-      xml:
-        name: storage
+#     xml:
+#       name: storage
       items:
         $ref: 'AbstractStorageResource'
 
@@ -361,11 +361,15 @@ components:
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-            # TOTO Do we need this here ?
-            type:
-              type: string
-              xml:
-                attribute: true
+#           # TOTO Do we need this here ?
+#           type:
+#             type: string
+#             xml:
+#               attribute: true
+            data:
+              type: array
+              items:
+                type: string
 
     SimpleStorageResource:
       description: >
@@ -409,11 +413,11 @@ components:
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-            # TOTO Do we need this here ?
-            type:
-              type: string
-              xml:
-                attribute: true
+#           # TOTO Do we need this here ?
+#           type:
+#             type: string
+#             xml:
+#               attribute: true
             storage:
               type: string
 
@@ -484,13 +488,13 @@ components:
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-            # TOTO Do we need this here ?
-            type:
-              description: >
-                The component type discriminator
-              type: string
-              xml:
-                attribute: true
+#           # TOTO Do we need this here ?
+#           type:
+#             description: >
+#               The component type discriminator
+#             type: string
+#             xml:
+#               attribute: true
             access:
               description: >
                 A list of access methods that the client can use to monitor and interact with the execution.
@@ -623,7 +627,7 @@ components:
           properties:
             values:
               description: >
-                The list of allowed values to use.
+                The list of available options.
               type: array
               items:
                 type: string

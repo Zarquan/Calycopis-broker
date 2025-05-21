@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.resource.data.skao;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
@@ -48,7 +49,7 @@ public interface SkaoDataResourceEntityFactory
      * Create a new IvoaDataResource based on a template.
      *
      */
-    public SkaoDataResourceEntity create(final ExecutionSessionEntity session, final IvoaSkaoDataResource template);
+    public SkaoDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSkaoDataResource template);
 
     }
 

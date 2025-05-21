@@ -23,34 +23,23 @@
 
 package net.ivoa.calycopis.datamodel.resource.data;
 
-import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-public interface AbstractDataResource
-    extends ScheduledComponent
+@Slf4j
+public class AbstractDataResourceFactoryImpl
+extends FactoryBaseImpl
+implements AbstractDataResourceFactory
     {
-    /**
-     * Get the parent ExecutionSession.  
-     * TODO Can we make this just the interface ?
-     * 
-     */
-    public ExecutionSessionEntity getSession();
 
     /**
-     * Get the storage for this data.  
-     *
+     * 
      */
-    public AbstractStorageResource getStorage();
-    
-    /**
-     * Get an IVOA bean representation.
-     *  
-     */
-    public IvoaAbstractDataResource getIvoaBean();
-    
+    public AbstractDataResourceFactoryImpl()
+        {
+        super();
+        }
     }

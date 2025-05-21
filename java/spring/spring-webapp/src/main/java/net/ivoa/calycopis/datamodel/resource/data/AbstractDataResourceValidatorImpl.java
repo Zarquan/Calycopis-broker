@@ -27,10 +27,8 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -90,19 +88,20 @@ implements AbstractDataResourceValidator
         }
 
     /**
-     * Check our context for for a duplicate resource.
-     * 
+     * Find the corresponding storage resource.
+     *  
      */
-    protected boolean storageCheck(
+    protected AbstractStorageResourceValidator.Result storageCheck(
         final IvoaAbstractDataResource requested,
         final IvoaAbstractDataResource validated,
         final OfferSetRequestParserContext context
         ){
         boolean success = true ;
-
+        AbstractStorageResourceValidator.Result storageResult ;
+        
         if (requested.getStorage() != null)
             {
-            AbstractStorageResourceValidator.Result storageResult = context.findStorageValidatorResult(
+            storageResult = context.findStorageValidatorResult(
                 requested.getStorage()
                 );
             if (storageResult != null)
@@ -171,7 +170,7 @@ implements AbstractDataResourceValidator
 
             //
             // Validate the new StorageResource.
-            AbstractStorageResourceValidator.Result storageResult = storageValidators.validate(
+            storageResult = storageValidators.validate(
                 storageResource,
                 context
                 );
@@ -182,6 +181,7 @@ implements AbstractDataResourceValidator
                 {
                 if (null != storageResult.getObject())
                     {
+                    log.debug("Adding storage reference [{}][{}]", storageResult.getObject().getName(),storageResult.getObject().getUuid());
                     validated.setStorage(
                         context.makeStorageValidatorResultKey(
                             storageResult.getObject()
@@ -210,6 +210,6 @@ implements AbstractDataResourceValidator
                 success = false ;
                 }
             }
-        return success;
+        return storageResult;
         }
     }

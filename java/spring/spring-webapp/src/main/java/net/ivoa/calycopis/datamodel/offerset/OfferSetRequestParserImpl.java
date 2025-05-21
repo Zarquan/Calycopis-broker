@@ -19,6 +19,8 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
@@ -471,7 +473,7 @@ public class OfferSetRequestParserImpl
                     // Add our storage resources.
                     for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
                         {
-                        result.getBuilder().build(
+                        result.build(
                             executionSessionEntity
                             );
                         }

@@ -30,6 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
@@ -41,33 +44,35 @@ import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 @Slf4j
 @Component
 public class IvoaDataResourceEntityFactoryImpl
-    extends FactoryBaseImpl
+    extends AbstractDataResourceFactoryImpl
     implements IvoaDataResourceEntityFactory
     {
 
-    private final IvoaDataResourceEntityRepository repository;
+    private final IvoaDataResourceEntityRepository entityRepository;
 
     @Autowired
-    public IvoaDataResourceEntityFactoryImpl(final IvoaDataResourceEntityRepository repository)
-        {
+    public IvoaDataResourceEntityFactoryImpl(
+        final IvoaDataResourceEntityRepository entityRepository
+        ){
         super();
-        this.repository = repository;
+        this.entityRepository = entityRepository;
         }
 
     @Override
     public Optional<IvoaDataResourceEntity> select(UUID uuid)
         {
-        return this.repository.findById(
+        return this.entityRepository.findById(
             uuid
             );
         }
 
     @Override
-    public IvoaDataResourceEntity create(final ExecutionSessionEntity session, final IvoaIvoaDataResource template)
+    public IvoaDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template)
         {
-        return this.repository.save(
+        return this.entityRepository.save(
             new IvoaDataResourceEntity(
                 session,
+                storage,
                 template
                 )
             );

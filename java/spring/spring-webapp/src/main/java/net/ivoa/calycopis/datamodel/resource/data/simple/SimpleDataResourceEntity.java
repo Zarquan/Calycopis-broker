@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.resource.data.simple;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
@@ -56,10 +57,11 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionSessionEntity session, final IvoaSimpleDataResource template)
+    public SimpleDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template)
         {
         super(
             session,
+            storage,
             template.getSchedule(),
             template.getName()
             );

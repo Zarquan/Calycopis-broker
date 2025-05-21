@@ -23,6 +23,9 @@
 
 package net.ivoa.calycopis.datamodel.resource.storage;
 
+import java.util.List;
+
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
@@ -36,6 +39,12 @@ public interface AbstractStorageResource
      *
      */
     public ExecutionSession getSession();
+
+    /**
+     * Get a list of the data resources stored in this storage resource.
+     *
+     */
+    public List<AbstractDataResourceEntity> getDataResources();
 
     /**
      * Get an IVOA bean representation.

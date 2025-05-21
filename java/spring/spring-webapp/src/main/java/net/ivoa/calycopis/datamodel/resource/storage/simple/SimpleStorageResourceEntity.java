@@ -76,21 +76,8 @@ public class SimpleStorageResourceEntity
         IvoaSimpleStorageResource bean = new IvoaSimpleStorageResource(
             SimpleStorageResource.TYPE_DISCRIMINATOR
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-        bean.setSchedule(
-            this.makeScheduleBean()
-            );
+        super.fillBean(bean);
+
         return bean ;
         }
     }

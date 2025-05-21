@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.resource.data.simple;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
@@ -48,7 +49,7 @@ public interface SimpleDataResourceEntityFactory
      * Create a new SimpleDataResource based on a template.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleDataResource template);
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template);
 
     }
 

@@ -31,8 +31,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 
 /**
  * 
@@ -62,7 +66,7 @@ implements AbstractDataResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractDataResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
+    protected AbstractDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaComponentSchedule schedule, final String name)
         {
         super(
             schedule,
@@ -70,6 +74,10 @@ implements AbstractDataResource
             );
         this.session = session;
         session.addDataResource(
+            this
+            );
+        this.storage = storage;
+        storage.addDataResource(
             this
             );
         }
@@ -82,5 +90,41 @@ implements AbstractDataResource
     public ExecutionSessionEntity getSession()
         {
         return this.session ;
+        }
+    
+    @JoinColumn(name = "storage", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AbstractStorageResourceEntity storage;
+    @Override
+    public AbstractStorageResource getStorage()
+        {
+        return this.storage;
+        }
+    public void setStorage(final AbstractStorageResourceEntity storage)
+        {
+        this.storage = storage;
+        }
+    
+    protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)
+        {
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
+            );
+        bean.setStorage(
+            this.storage.getUuid().toString()
+            );
+        return bean;
         }
     }

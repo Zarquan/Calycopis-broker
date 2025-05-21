@@ -18,7 +18,6 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator.Result;
 import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;

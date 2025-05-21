@@ -21,36 +21,43 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.data;
+package net.ivoa.calycopis.datamodel.resource.storage;
 
-import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResource;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-public interface AbstractDataResource
-    extends ScheduledComponent
+@Slf4j
+@Component
+public class AbstractStorageResourceEntityFactoryImpl
+extends FactoryBaseImpl
+implements AbstractStorageResourceEntityFactory
     {
-    /**
-     * Get the parent ExecutionSession.  
-     * TODO Can we make this just the interface ?
-     * 
-     */
-    public ExecutionSessionEntity getSession();
+
+    private final AbstractStorageResourceEntityRepository repository;
 
     /**
-     * Get the storage for this data.  
-     *
+     * 
      */
-    public AbstractStorageResource getStorage();
-    
-    /**
-     * Get an IVOA bean representation.
-     *  
-     */
-    public IvoaAbstractDataResource getIvoaBean();
-    
+    @Autowired
+    public AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
+        {
+        this.repository = repository;
+        }
+
+    @Override
+    public Optional<AbstractStorageResourceEntity> select(UUID uuid)
+        {
+        return this.repository.findById(
+            uuid
+            );
+        }
     }

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,35 +21,24 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.data.ivoa;
+package net.ivoa.calycopis.datamodel.resource.storage;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 
 /**
- * An IvoaDataResource Factory.
- *
+ * 
  */
-public interface IvoaDataResourceEntityFactory
-    extends FactoryBase
+public interface AbstractStorageResourceEntityFactory
+extends FactoryBase
     {
 
     /**
-     * Select an IvoaDataResource based on UUID.
+     * Select an AbstractStorageResource based on UUID.
      *
      */
-    public Optional<IvoaDataResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new IvoaDataResource based on a template.
-     *
-     */
-    public IvoaDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template);
+    public Optional<AbstractStorageResourceEntity> select(final UUID uuid);
 
     }
-
