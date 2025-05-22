@@ -23,7 +23,9 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,7 +108,9 @@ public class ExecutionSessionEntity
             );
         this.expires = offerset.getExpires();
         this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
-        this.availableDurationSeconds     = context.getExecutionDuration().getSeconds();
+        this.availableDurationSeconds     = offerblock.getDuration().toSeconds();
+        this.prepareDurationSeconds       = context.getMaxPreparationDuration().toSeconds();
+        this.prepareStartInstantSeconds   = this.availableStartInstantSeconds - this.prepareDurationSeconds;
         }
 
     @Column(name = "phase")

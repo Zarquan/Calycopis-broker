@@ -39,6 +39,7 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceVali
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
@@ -151,10 +152,14 @@ implements SkaoDataResourceValidator
             context
             );
 
-        success &= predictPrepareTime(
-            validated
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
             );
-
+        
         //
         // Everything is good.
         // Create our result and add it to our state.
@@ -261,16 +266,15 @@ implements SkaoDataResourceValidator
      * Alternatively we could offload all of this to the local PrepareData service ? 
      * 
      */
-    private boolean predictPrepareTime(
-        final IvoaSkaoDataResource validated
-        ){
+    private Long predictPrepareTime(final IvoaSkaoDataResource validated)
+        {
         log.debug("predictPrepareTime()");
 
         IvoaSkaoDataResourceBlock skaoBlock = validated.getSkao();
         if (null == skaoBlock)
             {
             log.error("Null IvoaSkaoDataResourceBlock");
-            return false ;
+            return null ;
             }
         
         StringBuilder replicaList = new StringBuilder();
@@ -300,7 +304,7 @@ implements SkaoDataResourceValidator
         if (list.isEmpty())
             {
             log.error("No TransferTimes found");
-            return false;
+            return null;
             }
 
         TransferRateRecord transferRateRecord = list.getFirst();
@@ -310,9 +314,8 @@ implements SkaoDataResourceValidator
         if (null == transferRate)
             {
             log.error("Null TransferTime seconds");
-            return false;
+            return null;
             }
-            
 
         final Long GIGABYTE = 1024L * 1024L * 1024 ;
 
@@ -342,13 +345,7 @@ implements SkaoDataResourceValidator
             log.debug("Service delay (s) [{}]", serviceDelay);
             log.debug("Transfer time (s) [{}]", transferTime);
             }
-        
-        this.setPrepareDuration(
-            validated,
-            transferTime
-            );
-
-        return true ;
+        return transferTime;
         }
 
     static class TransferRateRecord

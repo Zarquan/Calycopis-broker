@@ -18,3 +18,12 @@ resources:
           - rsename: "AUSRC_STORM"
           - rsename: "JPSRC_STORM"
           - rsename: "SPSRC_STORM"
+    - name: data-012-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize:   274877906944
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"

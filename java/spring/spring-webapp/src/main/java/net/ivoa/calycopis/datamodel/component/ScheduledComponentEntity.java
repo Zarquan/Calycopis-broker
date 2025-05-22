@@ -106,9 +106,6 @@ implements ScheduledComponent
                         }
                     }
                 }
-            /*
-            IvoaObservedScheduleBlock observed = schedule.getObserved();
-            */
             }
         }
 

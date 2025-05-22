@@ -637,4 +637,25 @@ extends AbstractValidatorImpl
         {
         this.totalMaxMemory += delta;
         }
+
+    private Duration maxPreparationDuration = Duration.ZERO;
+    
+    @Override
+    public void addPreparationDuration(final Duration duration)
+        {
+        log.debug("Adding prep duration [{}]", duration);
+        if (null != duration)
+            {
+            if (duration.compareTo(this.maxPreparationDuration) > 0)
+                {
+                this.maxPreparationDuration = duration;
+                }
+            }
+        }
+
+    @Override
+    public Duration getMaxPreparationDuration()
+        {
+        return maxPreparationDuration ;
+        }
     }

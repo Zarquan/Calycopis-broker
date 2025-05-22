@@ -221,59 +221,71 @@ implements AbstractDataResourceValidator
      * 
      */
     public boolean setPrepareDuration(
+        final OfferSetRequestParserContext context,
         final IvoaAbstractDataResource validated,
-        long seconds
+        final Long seconds
         ){
-        IvoaComponentSchedule schedule = validated.getSchedule();
-        if (null == schedule)
+        if (null != seconds)
             {
-            schedule = new IvoaComponentSchedule(); 
-            validated.setSchedule(
-                schedule
-                );
-            }
-
-        IvoaOfferedScheduleBlock offered = schedule.getOffered();
-        if (null == offered)
-            {
-            offered = new IvoaOfferedScheduleBlock ();
-            schedule.setOffered(
-                offered
-                );   
-            }
-
-        IvoaOfferedScheduleInstant preparing = offered.getPreparing();
-        if (null == preparing)
-            {
-            preparing = new IvoaOfferedScheduleInstant();
-            offered.setPreparing(
-                preparing
-                );
-            }
-
-        String start = preparing.getStart();
-        if (null != start)
-            {
-            log.error("Existing preparing start [{}]", start);
-            return false ;
-            }
-
-        String duration = preparing.getDuration();
-        if (null != duration)
-            {
-            log.error("Existing preparing duration [{}]", duration);
-            return false ;
-            }
-
-        // Saving this as a String sucks a bit, but we are using the generated bean class.
-        // TODO If we create a new class for the validated object that wraps or extends the generated bean
-        // then we could save this as an number.
-        preparing.setDuration(
-            Duration.ofSeconds(
+            IvoaComponentSchedule schedule = validated.getSchedule();
+            if (null == schedule)
+                {
+                schedule = new IvoaComponentSchedule(); 
+                validated.setSchedule(
+                    schedule
+                    );
+                }
+    
+            IvoaOfferedScheduleBlock offered = schedule.getOffered();
+            if (null == offered)
+                {
+                offered = new IvoaOfferedScheduleBlock ();
+                schedule.setOffered(
+                    offered
+                    );   
+                }
+    
+            IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+            if (null == preparing)
+                {
+                preparing = new IvoaOfferedScheduleInstant();
+                offered.setPreparing(
+                    preparing
+                    );
+                }
+    
+            String start = preparing.getStart();
+            if (null != start)
+                {
+                log.error("Existing preparing start [{}]", start);
+                return false ;
+                }
+    
+            if (null != preparing.getDuration())
+                {
+                log.error("Existing preparing duration [{}]", preparing.getDuration());
+                return false ;
+                }
+    
+            // Saving this as a String sucks a bit, but we are using the generated bean class.
+            // TODO If we create a new class for the validated object that wraps or extends the generated bean
+            // then we could save this as an number.
+            Duration dataDuration = Duration.ofSeconds(
                 seconds
-                ).toString()
-            );
-        
-        return true ;
+                );
+            preparing.setDuration(
+                dataDuration.toString()
+                );
+            // TODO Need to add in the storage preparation for this data.
+            context.addPreparationDuration(
+                dataDuration
+                );
+            
+            return true ;
+            }
+        else {
+            log.error("Null prepare duration");
+            return false ;
+            }
         }
     }

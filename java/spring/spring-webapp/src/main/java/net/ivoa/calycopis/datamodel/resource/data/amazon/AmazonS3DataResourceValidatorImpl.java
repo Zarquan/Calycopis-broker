@@ -32,6 +32,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -114,9 +115,18 @@ implements AmazonS3DataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
 
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
+            );
+        
         String name = trim(
             requested.getName()
             );
+        
         String endpoint = trim(
             requested.getEndpoint()
             );
@@ -207,5 +217,20 @@ implements AmazonS3DataResourceValidator
                 Validator.ResultEnum.FAILED
                 );
             }
+        }
+
+    /*
+     * TODO This will be platform dependent.
+     * Different PrepareData implementations will have different preparation times.
+     * Some will just symlink the Rucio data, others will have an additional copy operation.
+     * Alternatively we could offload all of this to the local PrepareData service ? 
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    private Long predictPrepareTime(final IvoaAmazonS3DataResource validated)
+        {
+        log.debug("predictPrepareTime()");
+        return DEFAULT_PREPARE_TIME;
         }
     }

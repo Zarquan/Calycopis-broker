@@ -108,13 +108,13 @@ public class OfferSetResponseBean
         {
         return entity.getName();
         }
-/*
-    @Schema(name = "type", description = "The type identifier.")
-    public String getType()
+
+    @Override
+    public String getDescription()
         {
-        return TYPE_DISCRIMINATOR;
+        return entity.getDescription();
         }
- */
+
     @Override
     public OffsetDateTime getCreated()
         {

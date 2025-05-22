@@ -350,13 +350,25 @@ public interface OfferSetRequestParserContext
      * TODO Do we need this if we only have one compute resource ?
      * 
      */
-    void addMinMemory(long delta);
+    public void addMinMemory(long delta);
 
     /**
      * Add a memory count to the running total.
      * TODO Do we need this if we only have one compute resource ?
      * 
      */
-    void addMaxMemory(long delta);
+    public void addMaxMemory(long delta);
+
+    /**
+     * Add the preparation time for a DataResource and StorageResource.
+     * 
+     */
+    public void addPreparationDuration(final Duration duration);
+    
+    /**
+     * Get the maximum preparation time.
+     * 
+     */
+    public Duration getMaxPreparationDuration();
 
     }

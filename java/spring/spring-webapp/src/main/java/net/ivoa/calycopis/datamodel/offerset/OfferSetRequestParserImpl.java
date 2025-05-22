@@ -8,6 +8,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
@@ -17,6 +20,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactor
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
@@ -28,13 +32,17 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.Validator.Result;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
@@ -170,7 +178,7 @@ public class OfferSetRequestParserImpl
                     dataValidators.validate(
                         resource,
                         context
-                        );            
+                        );
                     // TODO Check the result ?
                     }
                 }
@@ -289,33 +297,41 @@ public class OfferSetRequestParserImpl
      *
      */
     public static final Duration DEFAULT_START_DURATION = Duration.ofHours(2);
-    
+
     /**
      * Validate the requested Schedule.
      *
      */
     public boolean validate(final IvoaRequestedScheduleBlock schedule, final OfferSetRequestParserContext context)
         {
-        // TODO return boolean success
         boolean success = true ;
 
         log.debug("validate(IvoaRequestedScheduleBlock)");
+
+        Duration prepareDuration = context.getMaxPreparationDuration();
+        Instant prepareDoneInstant = Instant.now().plus(
+            prepareDuration
+            );
+        
+        log.debug("Prepare duration [{}]", prepareDuration);
+        log.debug("Prepare done [{}]", prepareDoneInstant);
+
         if (schedule != null)
             {
             IvoaRequestedScheduleItem requested = schedule.getRequested();
             if (requested != null)
                 {
-                String durationstr = requested.getDuration();
-                if (durationstr != null)
+                String durationString = requested.getDuration();
+                if (durationString != null)
                     {
                     try {
-                        log.debug("Duration string [{}]", durationstr);
-                        Duration durationval = Duration.parse(
-                            durationstr
+                        log.debug("Duration string [{}]", durationString);
+                        Duration durationValue = Duration.parse(
+                            durationString
                             );
-                        log.debug("Duration value [{}]", durationval);
+                        log.debug("Duration value [{}]", durationValue);
                         context.setExecutionDuration(
-                            durationval
+                            durationValue
                             );
                         }
                     catch (Exception ouch)
@@ -325,7 +341,7 @@ public class OfferSetRequestParserImpl
                             "Unable to parse duration [${string}][${message}]",
                             Map.of(
                                 "value",
-                                durationstr,
+                                durationString,
                                 "message",
                                 ouch.getMessage()
                                 )
@@ -334,22 +350,28 @@ public class OfferSetRequestParserImpl
                         context.valid(false);
                         }
                     }
-
-                List<String> startstrlist = requested.getStart();
-                if (startstrlist != null)
+                
+                List<String> startStringList = requested.getStart();
+                if (startStringList != null)
                     {
-                    for (String startstr : startstrlist)
+                    for (String startString : startStringList)
                         {
                         try {
-                            log.debug("Interval String [{}]", startstr);
-                            Interval startint = Interval.parse(
-                                startstr
+                            log.debug("Interval String [{}]", startString);
+                            Interval startinterval = Interval.parse(
+                                startString
                                 );
-                            // TODO If interval has already passed - skip and warn.
-                            log.debug("Interval value [{}]", startint);
-                            context.addStartInterval(
-                                startint
-                                );
+                            log.debug("Interval value [{}]", startinterval);
+                            if (startinterval.startsBefore(prepareDoneInstant))
+                                {
+                                log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
+                                // TODO Add a message ..
+                                }
+                            else {
+                                context.addStartInterval(
+                                    startinterval
+                                    );
+                                }
                             }
                         catch (Exception ouch)
                             {
@@ -359,7 +381,7 @@ public class OfferSetRequestParserImpl
                                 "Unable to parse interval [${string}][${message}]",
                                 Map.of(
                                     "string",
-                                    startstr,
+                                    startString,
                                     "message",
                                     ouch.getMessage()
                                     )
@@ -374,8 +396,9 @@ public class OfferSetRequestParserImpl
 
         if (context.getStartIntervals().isEmpty())
             {
+            // Default start is after the prepare time.
             Interval defaultint = Interval.of(
-                Instant.now(),
+                prepareDoneInstant,
                 DEFAULT_START_DURATION
                 );
             log.debug("Interval list is empty, adding default [{}]", defaultint);
@@ -428,6 +451,12 @@ public class OfferSetRequestParserImpl
             for (Interval startInterval : context.getStartIntervals())
                 {
                 //
+                // Check if the interval is possible.
+                // Is the interval start greater than now + context.totalPreparationTime
+                //
+                
+                
+                //
                 // Generate a list of available resources.
                 List<ComputeResourceOffer> computeOffers = computeOfferFactory.generate(
                     startInterval,
@@ -447,11 +476,10 @@ public class OfferSetRequestParserImpl
                         );
                     log.debug("ExecutionEntity [{}]", executionSessionEntity);
 
-                    log.debug("Executable [{}]", context.getExecutableResult().getObject());
-
+                    
+                    
                     //
                     // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
-                    // TODO Should this be part of the constructor ?
                     executionSessionEntity.setExecutable(
                         context.getExecutableResult().getBuilder().build(
                             executionSessionEntity

@@ -30,6 +30,7 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEnti
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * A Simple data resource.
@@ -78,20 +79,17 @@ public class SimpleDataResourceEntity
     @Override
     public IvoaAbstractDataResource getIvoaBean()
         {
-        IvoaSimpleDataResource bean = new IvoaSimpleDataResource(
-            SimpleDataResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaSimpleDataResource(
+                SimpleDataResource.TYPE_DISCRIMINATOR
+                )
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
+        }
+
+    protected IvoaSimpleDataResource fillBean(final IvoaSimpleDataResource bean)
+        {
+        super.fillBean(
+            bean
             );
         bean.setLocation(
             this.getLocation()

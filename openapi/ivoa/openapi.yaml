@@ -1011,6 +1011,10 @@ components:
           description: >
             A human readable name.
           type: string
+        description:
+          description: >
+            A human readable description.
+          type: string
         executable:
           xml:
             name: executable
@@ -1051,6 +1055,10 @@ components:
               enum:
                 - "YES"
                 - "NO"
+            description:
+              description: >
+                A human readable description.
+              type: string
             offers:
               type: array
               xml:

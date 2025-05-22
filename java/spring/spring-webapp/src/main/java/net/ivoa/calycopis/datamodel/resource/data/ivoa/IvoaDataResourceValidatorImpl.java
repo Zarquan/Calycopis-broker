@@ -37,6 +37,7 @@ import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * A Validator implementation to handle IvoaDataResources.
@@ -122,6 +123,15 @@ implements IvoaDataResourceValidator
                 requested.getName()
                 )
             );
+
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
+            );
+        
         success &= validate(
             requested.getIvoa(),
             validated,
@@ -215,5 +225,20 @@ implements IvoaDataResourceValidator
             success = false ;
             }
         return success ;
+        }
+    
+    /*
+     * TODO This will be platform dependent.
+     * Different PrepareData implementations will have different preparation times.
+     * Some will just symlink the Rucio data, others will have an additional copy operation.
+     * Alternatively we could offload all of this to the local PrepareData service ? 
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    private Long predictPrepareTime(final IvoaIvoaDataResource validated)
+        {
+        log.debug("predictPrepareTime()");
+        return DEFAULT_PREPARE_TIME;
         }
     }

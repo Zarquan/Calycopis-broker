@@ -83,6 +83,7 @@ public class OfferSetFactoryImpl
     	{
     	OfferSetEntity offersetEntity = new OfferSetEntity(
 	        offersetRequest.getName(),
+            offersetRequest.getDescription(),
 	        OffsetDateTime.now(),
 	        OffsetDateTime.now().plusMinutes(
                 DEFAULT_EXPIRY_TIME_SECONDS

@@ -26,10 +26,12 @@ package net.ivoa.calycopis.datamodel.resource.data.amazon;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
  * An Amazon S3 data resource.
@@ -102,17 +104,20 @@ public class AmazonS3DataResourceEntity
     @Override
     public IvoaAbstractDataResource getIvoaBean()
         {
-        IvoaAmazonS3DataResource bean = new IvoaAmazonS3DataResource(
-            AmazonS3DataResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaAmazonS3DataResource (
+                AmazonS3DataResource.TYPE_DISCRIMINATOR
+                )
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
+        }
+
+    protected IvoaAmazonS3DataResource fillBean(final IvoaAmazonS3DataResource bean)
+        {
+        super.fillBean(
+            bean
             );
 
-        // TODO fill in the fields
+        // TODO fill in the Amazon fields
 
         return bean;
         }

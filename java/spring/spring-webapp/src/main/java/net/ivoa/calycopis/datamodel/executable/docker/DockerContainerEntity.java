@@ -86,6 +86,7 @@ public class DockerContainerEntity
         ){
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
 
@@ -115,24 +116,23 @@ public class DockerContainerEntity
             }
         }
 
+    
     @Override
-    public IvoaAbstractExecutable getIvoaBean(final String baseurl)
+    public IvoaAbstractExecutable getIvoaBean(final String baseUrl)
         {
-        IvoaDockerContainer bean = new IvoaDockerContainer(
-            DockerContainer.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaDockerContainer(
+                DockerContainer.TYPE_DISCRIMINATOR
+                )
             );
-        bean.setUuid(
-            this.getUuid()
+        }
+
+    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
+        {
+        super.fillBean(
+            bean
             );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
+        
         bean.setPrivileged(
             this.privileged
             );
