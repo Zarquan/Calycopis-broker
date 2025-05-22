@@ -1,0 +1,598 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Create a new release on GitHub.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=release-build
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the project.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean package ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create our docker container.
+#[user@desktop]
+
+    jarfile=calycopis-webapp-0.0.1-SNAPSHOT-20250522.jar
+
+    buildtag=$(date '+%Y.%m.%d')
+    buildtime=$(date '+%Y-%m-%dT%H:%M:%S')
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        podman build \
+            --build-arg "jarfile=${jarfile:?}" \
+            --build-arg "buildtag=${buildtag:?}" \
+            --build-arg "buildtime=${buildtime:?}" \
+            --tag "calycopis/calycopis-broker:latest" \
+            --tag "calycopis/calycopis-broker:${buildtag:?}" \
+            --file "docker/java-runtime/Dockerfile" \
+            "java/spring/spring-webapp/target"
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Check our secret function works.
+#[user@desktop]
+
+    getsecret example.frog
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Login to the GitHub registry.
+#[user@desktop]
+
+    reponame="ghcr.io"
+    repopath="${reponame}/ivoa"
+
+    guser=$(getsecret 'devops.ghcrio.user')
+    gpass=$(getsecret 'devops.ghcrio.pass')
+
+    echo "${gpass:?}" \
+    | podman login \
+        --password-stdin \
+        --username "${guser:?}" \
+        "${reponame}"
+
+
+# -----------------------------------------------------
+# Push our images to our GitHub repository.
+#[user@desktop]
+
+    buildtag=$(date '+%Y.%m.%d')
+
+    pushtag()
+        {
+        local imagename=${1:?}
+        local imagetag=${2:?}
+        podman tag \
+            "${imagename:?}:${imagetag:?}" \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        podman push \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        }
+
+    pushtag "calycopis/calycopis-broker" "latest"
+    pushtag "calycopis/calycopis-broker" "${buildtag:?}"
+
+    >   ....
+    >   ....
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run our published image.
+#[user@desktop]
+
+    buildtag=$(date '+%Y.%m.%d')
+
+    #
+    # Clear our image cache.
+    podman image rm -f $(podman images -q)
+
+    #
+    # Run the published image.
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name calycopis-broker \
+        "ghcr.io/ivoa/calycopis/calycopis-broker:${buildtag}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Test our published image.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    examplename=012
+    examplepath=${CALYCOPIS_CODE}/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T04:10:30.84591729Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T04:11:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T04:12:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T04:10:30.922046529Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T08:11:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T08:12:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T04:10:30.997504939Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T12:11:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T12:12:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T04:10:31.07305659Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T16:11:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T16:12:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+
+
+# -----------------------------------------------------
+# Test our published image.
+#[user@desktop]
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-003-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T04:11:17.858529521Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T04:11:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T04:21:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T04:11:17.909259681Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T08:11:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T08:21:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T04:11:17.966453174Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T12:11:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T12:21:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T04:11:18.047598128Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T16:11:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T16:21:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+
+
+# -----------------------------------------------------
+# Test our published image.
+#[user@desktop]
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-005-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T04:12:09.827670458Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T04:12:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T04:31:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T04:12:09.886953784Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T08:12:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T08:31:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T04:12:09.970950429Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T12:12:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T12:31:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T04:12:10.05467916Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T16:12:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T16:31:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+
