@@ -30,7 +30,6 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEnti
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * A Simple data resource.

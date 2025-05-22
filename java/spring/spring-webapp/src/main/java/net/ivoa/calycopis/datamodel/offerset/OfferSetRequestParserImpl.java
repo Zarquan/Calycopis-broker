@@ -8,9 +8,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Pattern;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
@@ -20,7 +17,6 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactor
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.compute.simple.SimpleComputeResource;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
@@ -32,17 +28,13 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.validator.Validator.Result;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleItem;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;

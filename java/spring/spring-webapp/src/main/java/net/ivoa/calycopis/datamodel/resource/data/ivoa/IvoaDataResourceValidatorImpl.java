@@ -37,7 +37,6 @@ import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
-import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
  * A Validator implementation to handle IvoaDataResources.

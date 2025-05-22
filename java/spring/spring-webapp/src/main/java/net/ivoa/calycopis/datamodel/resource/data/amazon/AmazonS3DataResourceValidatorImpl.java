@@ -32,7 +32,6 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 
 /**
  * A validator implementation to handle simple data resources.

@@ -23,9 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 

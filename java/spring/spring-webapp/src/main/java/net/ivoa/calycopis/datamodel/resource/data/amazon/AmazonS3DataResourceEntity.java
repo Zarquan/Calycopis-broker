@@ -26,12 +26,10 @@ package net.ivoa.calycopis.datamodel.resource.data.amazon;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
  * An Amazon S3 data resource.
