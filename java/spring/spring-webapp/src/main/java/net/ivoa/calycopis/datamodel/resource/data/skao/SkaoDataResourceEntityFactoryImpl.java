@@ -30,8 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 
 /**
@@ -41,17 +42,21 @@ import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 @Slf4j
 @Component
 public class SkaoDataResourceEntityFactoryImpl
-    extends FactoryBaseImpl
+    extends AbstractDataResourceFactoryImpl
     implements SkaoDataResourceEntityFactory
     {
 
+    /**
+     * 
+     */
     private final SkaoDataResourceEntityRepository repository;
 
     @Autowired
-    public SkaoDataResourceEntityFactoryImpl(final SkaoDataResourceEntityRepository repository)
-        {
+    public SkaoDataResourceEntityFactoryImpl(
+        final SkaoDataResourceEntityRepository entityRepository
+        ){
         super();
-        this.repository = repository;
+        this.repository = entityRepository;
         }
 
     @Override
@@ -63,11 +68,12 @@ public class SkaoDataResourceEntityFactoryImpl
         }
 
     @Override
-    public SkaoDataResourceEntity create(final ExecutionSessionEntity session, final IvoaSkaoDataResource template)
+    public SkaoDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSkaoDataResource template)
         {
         return this.repository.save(
             new SkaoDataResourceEntity(
                 session,
+                storage,
                 template
                 )
             );

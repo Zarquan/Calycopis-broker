@@ -28,12 +28,12 @@ import java.util.List;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
 
 /**
  * A SimpleVolumeMount Entity.

@@ -47,7 +47,13 @@ public interface Component
      *
      */
     public String getName();
-    
+
+    /**
+     * Get the Component description.
+     *
+     */
+    public String getDescription();
+
     /**
      * Get the Component creation date.
      *

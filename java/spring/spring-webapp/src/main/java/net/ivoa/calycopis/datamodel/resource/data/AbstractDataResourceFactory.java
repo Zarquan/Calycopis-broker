@@ -21,15 +21,16 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.storage.simple;
+package net.ivoa.calycopis.datamodel.resource.data;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
-public interface SimpleStorageResourceValidator
-extends AbstractStorageResourceValidator
+public interface AbstractDataResourceFactory
+extends FactoryBase
     {
 
+    
     }

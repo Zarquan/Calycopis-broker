@@ -85,6 +85,7 @@ public class ComponentEntity
         {
         this(
             name,
+            null,
             OffsetDateTime.now()
             );
         }
@@ -93,10 +94,24 @@ public class ComponentEntity
      * Protected constructor.
      *
      */
-    protected ComponentEntity(final String name, final OffsetDateTime created)
+    protected ComponentEntity(final String name, final String description)
+        {
+        this(
+            name,
+            description,
+            OffsetDateTime.now()
+            );
+        }
+
+    /**
+     * Protected constructor.
+     *
+     */
+    protected ComponentEntity(final String name, final String description, final OffsetDateTime created)
         {
         this.name = name;
         this.created = created;
+        this.description = description;
         }
 
     @Id
@@ -114,6 +129,14 @@ public class ComponentEntity
     public String getName()
         {
         return this.name;
+        }
+
+    @Column(name = "description")
+    private String description;
+    @Override
+    public String getDescription()
+        {
+        return this.description;
         }
 
     @Column(name = "created")

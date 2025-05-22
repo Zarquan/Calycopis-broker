@@ -23,17 +23,19 @@
 
 package net.ivoa.calycopis.datamodel.resource.data;
 
+import java.time.Duration;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -41,7 +43,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
  */
 @Slf4j
 public abstract class AbstractDataResourceValidatorImpl
-extends ValidatorTools
+extends AbstractValidatorImpl
 implements AbstractDataResourceValidator
     {
     /**
@@ -90,19 +92,20 @@ implements AbstractDataResourceValidator
         }
 
     /**
-     * Check our context for for a duplicate resource.
-     * 
+     * Find the corresponding storage resource.
+     *  
      */
-    protected boolean storageCheck(
+    protected AbstractStorageResourceValidator.Result storageCheck(
         final IvoaAbstractDataResource requested,
         final IvoaAbstractDataResource validated,
         final OfferSetRequestParserContext context
         ){
         boolean success = true ;
-
+        AbstractStorageResourceValidator.Result storageResult ;
+        
         if (requested.getStorage() != null)
             {
-            AbstractStorageResourceValidator.Result storageResult = context.findStorageValidatorResult(
+            storageResult = context.findStorageValidatorResult(
                 requested.getStorage()
                 );
             if (storageResult != null)
@@ -171,7 +174,7 @@ implements AbstractDataResourceValidator
 
             //
             // Validate the new StorageResource.
-            AbstractStorageResourceValidator.Result storageResult = storageValidators.validate(
+            storageResult = storageValidators.validate(
                 storageResource,
                 context
                 );
@@ -182,6 +185,7 @@ implements AbstractDataResourceValidator
                 {
                 if (null != storageResult.getObject())
                     {
+                    log.debug("Adding storage reference [{}][{}]", storageResult.getObject().getName(),storageResult.getObject().getUuid());
                     validated.setStorage(
                         context.makeStorageValidatorResultKey(
                             storageResult.getObject()
@@ -210,6 +214,78 @@ implements AbstractDataResourceValidator
                 success = false ;
                 }
             }
-        return success;
+        return storageResult;
+        }
+
+    /**
+     * 
+     */
+    public boolean setPrepareDuration(
+        final OfferSetRequestParserContext context,
+        final IvoaAbstractDataResource validated,
+        final Long seconds
+        ){
+        if (null != seconds)
+            {
+            IvoaComponentSchedule schedule = validated.getSchedule();
+            if (null == schedule)
+                {
+                schedule = new IvoaComponentSchedule(); 
+                validated.setSchedule(
+                    schedule
+                    );
+                }
+    
+            IvoaOfferedScheduleBlock offered = schedule.getOffered();
+            if (null == offered)
+                {
+                offered = new IvoaOfferedScheduleBlock ();
+                schedule.setOffered(
+                    offered
+                    );   
+                }
+    
+            IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+            if (null == preparing)
+                {
+                preparing = new IvoaOfferedScheduleInstant();
+                offered.setPreparing(
+                    preparing
+                    );
+                }
+    
+            String start = preparing.getStart();
+            if (null != start)
+                {
+                log.error("Existing preparing start [{}]", start);
+                return false ;
+                }
+    
+            if (null != preparing.getDuration())
+                {
+                log.error("Existing preparing duration [{}]", preparing.getDuration());
+                return false ;
+                }
+    
+            // Saving this as a String sucks a bit, but we are using the generated bean class.
+            // TODO If we create a new class for the validated object that wraps or extends the generated bean
+            // then we could save this as an number.
+            Duration dataDuration = Duration.ofSeconds(
+                seconds
+                );
+            preparing.setDuration(
+                dataDuration.toString()
+                );
+            // TODO Need to add in the storage preparation for this data.
+            context.addPreparationDuration(
+                dataDuration
+                );
+            
+            return true ;
+            }
+        else {
+            log.error("Null prepare duration");
+            return false ;
+            }
         }
     }

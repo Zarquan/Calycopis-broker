@@ -27,7 +27,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * JpaRepository for IvoaDataResourceEntity.
+ * JpaRepository for SkaoDataResourceEntity.
  *
  */
 public interface SkaoDataResourceEntityRepository

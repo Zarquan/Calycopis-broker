@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2024 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,16 +20,17 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.resource.storage;
 
-package net.ivoa.calycopis.datamodel.resource.storage.simple;
+import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * 
+ * JpaRepository for AbstractStorageResourceEntity.
+ *
  */
-public interface SimpleStorageResourceValidator
-extends AbstractStorageResourceValidator
+public interface AbstractStorageResourceEntityRepository
+extends JpaRepository<AbstractStorageResourceEntity, UUID>
     {
-
     }

@@ -21,15 +21,25 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.storage.simple;
+package net.ivoa.calycopis.datamodel.resource.data;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-public interface SimpleStorageResourceValidator
-extends AbstractStorageResourceValidator
+@Slf4j
+public class AbstractDataResourceFactoryImpl
+extends FactoryBaseImpl
+implements AbstractDataResourceFactory
     {
 
+    /**
+     * 
+     */
+    public AbstractDataResourceFactoryImpl()
+        {
+        super();
+        }
     }

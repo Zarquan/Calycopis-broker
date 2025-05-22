@@ -28,17 +28,14 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -46,7 +43,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
  */
 @Slf4j
 public class SimpleComputeResourceValidator
-extends ValidatorTools
+extends AbstractValidatorImpl
 implements AbstractComputeResourceValidator
     {
 

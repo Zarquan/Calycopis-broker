@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data.amazon;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,9 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 
 /**
@@ -43,33 +42,35 @@ import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
 @Slf4j
 @Component
 public class AmazonS3DataResourceEntityFactoryImpl
-    extends FactoryBaseImpl
+    extends AbstractDataResourceFactoryImpl
     implements AmazonS3DataResourceEntityFactory
     {
 
-    private final AmazonS3DataResourceEntityRepository repository;
+    private final AmazonS3DataResourceEntityRepository entityRepository;
 
     @Autowired
-    public AmazonS3DataResourceEntityFactoryImpl(final AmazonS3DataResourceEntityRepository repository)
-        {
+    public AmazonS3DataResourceEntityFactoryImpl(
+        final AmazonS3DataResourceEntityRepository entityRepository
+        ){
         super();
-        this.repository = repository;
+        this.entityRepository = entityRepository;
         }
 
     @Override
     public Optional<AmazonS3DataResourceEntity> select(UUID uuid)
         {
-        return this.repository.findById(
+        return this.entityRepository.findById(
             uuid
             );
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final IvoaAmazonS3DataResource template)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaAmazonS3DataResource template)
         {
-        return this.repository.save(
+        return this.entityRepository.save(
             new AmazonS3DataResourceEntity(
                 session,
+                storage,
                 template
                 )
             );

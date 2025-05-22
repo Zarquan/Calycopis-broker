@@ -26,9 +26,6 @@ package net.ivoa.calycopis.datamodel.resource.data.skao;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
@@ -37,6 +34,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.resource.data.ivoa.IvoaDataResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
@@ -73,10 +71,11 @@ public class SkaoDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SkaoDataResourceEntity(final ExecutionSessionEntity session, final IvoaSkaoDataResource template)
+    public SkaoDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSkaoDataResource template)
         {
         super(
             session,
+            storage,
             template
             );
 

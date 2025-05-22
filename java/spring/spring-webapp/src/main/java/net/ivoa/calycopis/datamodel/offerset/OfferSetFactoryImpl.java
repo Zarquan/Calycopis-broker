@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
@@ -84,6 +83,7 @@ public class OfferSetFactoryImpl
     	{
     	OfferSetEntity offersetEntity = new OfferSetEntity(
 	        offersetRequest.getName(),
+            offersetRequest.getDescription(),
 	        OffsetDateTime.now(),
 	        OffsetDateTime.now().plusMinutes(
                 DEFAULT_EXPIRY_TIME_SECONDS

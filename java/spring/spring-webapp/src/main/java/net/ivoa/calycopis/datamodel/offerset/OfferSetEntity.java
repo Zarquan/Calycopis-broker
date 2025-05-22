@@ -56,10 +56,11 @@ extends ComponentEntity
         super();
         }
 
-    protected OfferSetEntity(final String name, final OffsetDateTime created, final OffsetDateTime expires)
+    protected OfferSetEntity(final String name, final String description, final OffsetDateTime created, final OffsetDateTime expires)
         {
         super(
             name,
+            description,
             created
             );
         this.expires = expires;

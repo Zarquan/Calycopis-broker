@@ -22,21 +22,16 @@
  */
 package net.ivoa.calycopis.datamodel.resource.data.simple;
 
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
  * A Validator implementation to handle simple data resources.
@@ -107,11 +102,12 @@ implements SimpleDataResourceValidator
             context
             );
 
-        success &= storageCheck(
+        AbstractStorageResourceValidator.Result storage = storageCheck(
             requested,
             validated,
             context
             );
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
         
         validated.setUuid(
             requested.getUuid()
@@ -120,6 +116,14 @@ implements SimpleDataResourceValidator
             trim(requested.getName())
             );
 
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
+            );
+        
         String location = trim(
             requested.getLocation()
             );
@@ -146,6 +150,7 @@ implements SimpleDataResourceValidator
                     {
                     return entityFactory.create(
                         session,
+                        storage.getEntity(),
                         validated
                         );
                     }
@@ -173,4 +178,17 @@ implements SimpleDataResourceValidator
                 );
             }
         }
+
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    /*
+     * TODO This will be platform dependent.
+     * Different types of storage will have different preparation times.
+     * 
+     */
+    private Long predictPrepareTime(final IvoaAbstractDataResource validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
+    
     }

@@ -42,7 +42,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     public static interface EntityBuilder
         {
         /**
-         * Build an entity based on a validation result. 
+         * Build an entity based on our validation result. 
          *
          */
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
@@ -55,12 +55,24 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
         {
-        // A list of the data resources stored in this resource.
         /**
          * Create a builder with the validation result.
          * 
          */
         public EntityBuilder getBuilder();
+
+        /**
+         * Get the corresponding entity.
+         * 
+         */
+        public AbstractStorageResourceEntity getEntity();
+
+        /**
+         * Build an entity based on our validation result. 
+         *
+         */
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
+        
         }
     
     /**
@@ -101,6 +113,21 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
             {
             return this.builder;
             }
+        
+        private AbstractStorageResourceEntity entity;
+        public AbstractStorageResourceEntity getEntity()
+            {
+            return this.entity;
+            }
+
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session)
+            {
+            this.entity = this.builder.build(
+                session
+                );
+            return this.entity;
+            }
+
         }
     
     @Override

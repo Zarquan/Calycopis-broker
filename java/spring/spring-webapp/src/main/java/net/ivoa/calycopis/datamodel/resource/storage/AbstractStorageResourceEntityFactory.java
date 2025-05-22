@@ -21,15 +21,24 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.resource.storage.simple;
+package net.ivoa.calycopis.datamodel.resource.storage;
 
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import java.util.Optional;
+import java.util.UUID;
+
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
-public interface SimpleStorageResourceValidator
-extends AbstractStorageResourceValidator
+public interface AbstractStorageResourceEntityFactory
+extends FactoryBase
     {
+
+    /**
+     * Select an AbstractStorageResource based on UUID.
+     *
+     */
+    public Optional<AbstractStorageResourceEntity> select(final UUID uuid);
 
     }

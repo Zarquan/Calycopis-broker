@@ -24,7 +24,6 @@ package net.ivoa.calycopis.datamodel.resource.data.skao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,17 +34,15 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;
@@ -126,12 +123,13 @@ implements SkaoDataResourceValidator
             context
             );
 
-        success &= storageCheck(
+        AbstractStorageResourceValidator.Result storage = storageCheck(
             requested,
             validated,
             context
             );
-        
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
+                
         validated.setUuid(
             requested.getUuid()
             );
@@ -153,9 +151,14 @@ implements SkaoDataResourceValidator
             context
             );
 
-        success &= predictPrepareTime(
-            validated
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
             );
+        
         //
         // Everything is good.
         // Create our result and add it to our state.
@@ -169,6 +172,7 @@ implements SkaoDataResourceValidator
                     {
                     return entityFactory.create(
                         session,
+                        storage.getEntity(),
                         validated
                         );
                     }
@@ -254,19 +258,25 @@ implements SkaoDataResourceValidator
         return success ;
         }
 
-    boolean predictPrepareTime(
-        final IvoaSkaoDataResource validated
-        ){
+    /*
+     * TODO This will be platform dependent.
+     * Different PrepareData implementations will have different preparation times.
+     * Some will just symlink the Rucio data, others will have an additional copy operation.
+     * Alternatively we could offload all of this to the local PrepareData service ? 
+     * 
+     */
+    private Long predictPrepareTime(final IvoaSkaoDataResource validated)
+        {
         log.debug("predictPrepareTime()");
 
         IvoaSkaoDataResourceBlock skaoBlock = validated.getSkao();
         if (null == skaoBlock)
             {
             log.error("Null IvoaSkaoDataResourceBlock");
-            return false ;
+            return null ;
             }
         
-        StringBuffer replicaList = new StringBuffer();
+        StringBuilder replicaList = new StringBuilder();
         for (IvoaSkaoReplicaItem replica : skaoBlock.getReplicas())
             {
             if (false == replicaList.isEmpty())
@@ -293,7 +303,7 @@ implements SkaoDataResourceValidator
         if (list.isEmpty())
             {
             log.error("No TransferTimes found");
-            return false;
+            return null;
             }
 
         TransferRateRecord transferRateRecord = list.getFirst();
@@ -303,48 +313,7 @@ implements SkaoDataResourceValidator
         if (null == transferRate)
             {
             log.error("Null TransferTime seconds");
-            return false;
-            }
-            
-        IvoaComponentSchedule schedule = validated.getSchedule();
-        if (null == schedule)
-            {
-            schedule = new IvoaComponentSchedule(); 
-            validated.setSchedule(
-                schedule
-                );
-            }
-
-        IvoaOfferedScheduleBlock offered = schedule.getOffered();
-        if (null == offered)
-            {
-            offered = new IvoaOfferedScheduleBlock ();
-            schedule.setOffered(
-                offered
-                );   
-            }
-
-        IvoaOfferedScheduleInstant preparing = offered.getPreparing();
-        if (null == preparing)
-            {
-            preparing = new IvoaOfferedScheduleInstant();
-            offered.setPreparing(
-                preparing
-                );
-            }
-
-        String start = preparing.getStart();
-        if (null != start)
-            {
-            log.error("Existing preparing start [{}]", start);
-            return false ;
-            }
-
-        String duration = preparing.getDuration();
-        if (null != duration)
-            {
-            log.error("Existing preparing duration [{}]", duration);
-            return false ;
+            return null;
             }
 
         final Long GIGABYTE = 1024L * 1024L * 1024 ;
@@ -375,16 +344,7 @@ implements SkaoDataResourceValidator
             log.debug("Service delay (s) [{}]", serviceDelay);
             log.debug("Transfer time (s) [{}]", transferTime);
             }
-        
-        // Saving this as a String sucks a bit, but we are using the generated bean class.
-        // If we create a new class for the validated object then we could save this as an number.  
-        preparing.setDuration(
-            Duration.ofSeconds(
-                transferTime
-                ).toString()
-            );
-
-        return true ;
+        return transferTime;
         }
 
     static class TransferRateRecord

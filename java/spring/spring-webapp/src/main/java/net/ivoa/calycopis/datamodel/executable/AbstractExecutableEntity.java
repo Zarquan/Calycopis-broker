@@ -10,8 +10,10 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 
 /**
  * 
@@ -24,7 +26,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractExecutableEntity
-    extends ComponentEntity
+extends ScheduledComponentEntity
     implements AbstractExecutable
     {
     /**
@@ -40,9 +42,12 @@ public abstract class AbstractExecutableEntity
      * Protected constructor.
      * 
      */
-    protected AbstractExecutableEntity(final ExecutionSessionEntity session, final String name)
+    protected AbstractExecutableEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
         {
-        super(name);
+        super(
+            schedule,
+            name
+            );
         this.session = session;
         session.setExecutable(
             this
@@ -57,5 +62,25 @@ public abstract class AbstractExecutableEntity
     public ExecutionSessionEntity getSession()
         {
         return this.session;
+        }
+
+    protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
+        {
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
+            );
+        return bean;
         }
     }

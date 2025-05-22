@@ -48,12 +48,6 @@ components:
       properties:
         size:
           $ref: 'SimpleStorageSize'
-        resources:
-          description: >
-            A list of the data resources stored in this storage resource.
-          type: array
-          items:
-            type: string
 
     SimpleStorageSize:
       description: |

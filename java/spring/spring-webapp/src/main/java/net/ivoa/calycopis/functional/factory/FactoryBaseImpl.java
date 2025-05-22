@@ -23,9 +23,9 @@
 
 package net.ivoa.calycopis.functional.factory;
 
-import com.github.f4b6a3.uuid.UuidCreator;
-
 import java.util.UUID;
+
+import com.github.f4b6a3.uuid.UuidCreator;
 
 public class FactoryBaseImpl
 implements FactoryBase

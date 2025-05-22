@@ -106,8 +106,6 @@ implements ScheduledComponent
                         }
                     }
                 }
-            
-            IvoaObservedScheduleBlock observed = schedule.getObserved();
             }
         }
 
@@ -359,7 +357,7 @@ implements ScheduledComponent
 
     public IvoaObservedScheduleItem makeObservedPreparingBean()
         {
-        IvoaObservedScheduleItem bean = new IvoaObservedScheduleItem(); 
+        IvoaObservedScheduleItem bean = new IvoaObservedScheduleItem();
         return bean;
         }
 
@@ -396,9 +394,12 @@ implements ScheduledComponent
         bean.setOffered(
             this.makeOfferedScheduleBean()
             );
+        /*
+         * Don't include this if it is empty.
         bean.setObserved(
             this.makeObservedScheduleBean()
             );
+         */
         return bean;
         }
     }

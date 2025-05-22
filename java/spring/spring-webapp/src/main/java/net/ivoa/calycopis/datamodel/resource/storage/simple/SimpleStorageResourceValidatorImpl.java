@@ -20,53 +20,53 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.resource.volume.simple;
+package net.ivoa.calycopis.datamodel.resource.storage.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
  * A Validator implementation to handle simple storage resources.
- *
+ * 
  */
 @Slf4j
-public class SimpleVolumeMountValidator
-extends AbstractValidatorImpl
-implements AbstractVolumeMountValidator
+public class SimpleStorageResourceValidatorImpl
+extends AbstractStorageResourceValidatorImpl
+implements SimpleStorageResourceValidator
     {
     /**
      * Factory for creating Entities.
-     *
+     * 
      */
-    final SimpleVolumeMountEntityFactory entityFactory;
+    final SimpleStorageResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
-     *
+     * 
      */
-    public SimpleVolumeMountValidator(
-        final SimpleVolumeMountEntityFactory entityFactory
+    public SimpleStorageResourceValidatorImpl(
+        final SimpleStorageResourceEntityFactory entityFactory
         ){
         super();
         this.entityFactory = entityFactory ;
         }
-
+    
     @Override
-    public AbstractVolumeMountValidator.Result validate(
-        final IvoaAbstractVolumeMount requested,
+    public AbstractStorageResourceValidator.Result validate(
+        final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaAbstractVolumeMount)");
+        log.debug("validate(IvoaAbstractStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
         switch(requested)
             {
-            case IvoaSimpleVolumeMount simple:
+            case IvoaSimpleStorageResource simple:
                 return validate(
                         simple,
                         context
@@ -79,36 +79,33 @@ implements AbstractVolumeMountValidator
         }
 
     /**
-     * Validate an IvoaSimpleVolumeMount.
+     * Validate an IvoaSimpleStorageResource.
      *
      */
-    public AbstractVolumeMountValidator.Result validate(
-        final IvoaSimpleVolumeMount requested,
+    public AbstractStorageResourceValidator.Result validate(
+        final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaSimpleVolumeMount)");
+        log.debug("validate(IvoaSimpleStorageResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount(
-            SimpleVolumeMount.TYPE_DISCRIMINATOR
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
+            SimpleStorageResource.TYPE_DISCRIMINATOR
             );
-        validated.setName(
-            requested.getName()
-            );
-        validated.setPath(
-            requested.getPath()
-            );
-        validated.setMode(
-            requested.getMode()
-            );
-        validated.setCardinality(
-            requested.getCardinality()
-            );
+
         //
-        // TODO Check the list of data resources.
+        // Check available size.
         //
+
+        validated.setName(requested.getName());
         
+        success &= setPrepareDuration(
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
+            );
         
         //
         // Everything is good.
@@ -118,26 +115,26 @@ implements AbstractVolumeMountValidator
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
-                public SimpleVolumeMountEntity build(final ExecutionSessionEntity session)
+                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
                         validated
                         );
                     }
-                };
-
-            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
+                }; 
+            
+            AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
                 );
 
-            context.addVolumeValidatorResult(
-                volumeResult
+            context.addStorageValidatorResult(
+                storageResult 
                 );
 
-            return volumeResult;
+            return storageResult;
             }
         //
         // Something wasn't right, fail the validation.
@@ -147,5 +144,17 @@ implements AbstractVolumeMountValidator
                 Validator.ResultEnum.FAILED
                 );
             }
+        }
+
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    /*
+     * TODO This will be platform dependent.
+     * Different types of storage will have different preparation times.
+     * 
+     */
+    private Long predictPrepareTime(final IvoaAbstractStorageResource validated)
+        {
+        return DEFAULT_PREPARE_TIME;
         }
     }

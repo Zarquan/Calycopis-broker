@@ -18,8 +18,7 @@ import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceVali
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator.Result;
-import net.ivoa.calycopis.functional.validator.ValidatorTools;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -31,7 +30,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
  */
 @Slf4j
 public class OfferSetRequestParserContextImpl
-extends ValidatorTools
+extends AbstractValidatorImpl
     implements OfferSetRequestParserContext
     {
 
@@ -637,5 +636,26 @@ extends ValidatorTools
     public void addMaxMemory(long delta)
         {
         this.totalMaxMemory += delta;
+        }
+
+    private Duration maxPreparationDuration = Duration.ZERO;
+    
+    @Override
+    public void addPreparationDuration(final Duration duration)
+        {
+        log.debug("Adding prep duration [{}]", duration);
+        if (null != duration)
+            {
+            if (duration.compareTo(this.maxPreparationDuration) > 0)
+                {
+                this.maxPreparationDuration = duration;
+                }
+            }
+        }
+
+    @Override
+    public Duration getMaxPreparationDuration()
+        {
+        return maxPreparationDuration ;
         }
     }

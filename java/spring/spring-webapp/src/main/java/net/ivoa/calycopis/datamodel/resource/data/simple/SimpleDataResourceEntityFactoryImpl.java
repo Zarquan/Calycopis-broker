@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.resource.data.simple;
 
-import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,9 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
@@ -43,33 +42,36 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 @Slf4j
 @Component
 public class SimpleDataResourceEntityFactoryImpl
-    extends FactoryBaseImpl
+    extends AbstractDataResourceFactoryImpl
     implements SimpleDataResourceEntityFactory
     {
 
-    private final SimpleDataResourceEntityRepository repository;
+    private final SimpleDataResourceEntityRepository entityRepository;
 
     @Autowired
-    public SimpleDataResourceEntityFactoryImpl(final SimpleDataResourceEntityRepository repository)
+    public SimpleDataResourceEntityFactoryImpl(
+        final SimpleDataResourceEntityRepository entityRepository
+        )
         {
         super();
-        this.repository = repository;
+        this.entityRepository = entityRepository;
         }
 
     @Override
     public Optional<SimpleDataResourceEntity> select(UUID uuid)
         {
-        return this.repository.findById(
+        return this.entityRepository.findById(
             uuid
             );
         }
 
     @Override
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleDataResource template)
+    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template)
         {
-        return this.repository.save(
+        return this.entityRepository.save(
             new SimpleDataResourceEntity(
                 session,
+                storage,
                 template
                 )
             );

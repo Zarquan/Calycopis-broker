@@ -31,6 +31,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
@@ -65,10 +66,11 @@ public class IvoaDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public IvoaDataResourceEntity(final ExecutionSessionEntity session, final IvoaIvoaDataResource template)
+    public IvoaDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template)
         {
         super(
             session,
+            storage,
             template.getSchedule(),
             template.getName()
             );
@@ -348,21 +350,8 @@ public class IvoaDataResourceEntity
 
     protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-        bean.setSchedule(
-            this.makeScheduleBean()
-            );
+        super.fillBean(bean);
+
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(
             block
@@ -382,7 +371,6 @@ public class IvoaDataResourceEntity
                 this.getDataLink().getIvoaBean()
                 );
             }
-        
         return bean;
         }
     }

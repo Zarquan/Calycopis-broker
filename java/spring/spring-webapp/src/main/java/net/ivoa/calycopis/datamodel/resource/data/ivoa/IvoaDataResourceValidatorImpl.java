@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -106,11 +107,12 @@ implements IvoaDataResourceValidator
             context
             );
 
-        success &= storageCheck(
+        AbstractStorageResourceValidator.Result storage = storageCheck(
             requested,
             validated,
             context
             );
+        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
         
         validated.setUuid(
             requested.getUuid()
@@ -120,6 +122,15 @@ implements IvoaDataResourceValidator
                 requested.getName()
                 )
             );
+
+        success &= setPrepareDuration(
+            context,
+            validated,
+            this.predictPrepareTime(
+                validated
+                )
+            );
+        
         success &= validate(
             requested.getIvoa(),
             validated,
@@ -139,6 +150,7 @@ implements IvoaDataResourceValidator
                     {
                     return entityFactory.create(
                         session,
+                        storage.getEntity(),
                         validated
                         );
                     }
@@ -212,5 +224,20 @@ implements IvoaDataResourceValidator
             success = false ;
             }
         return success ;
+        }
+    
+    /*
+     * TODO This will be platform dependent.
+     * Different PrepareData implementations will have different preparation times.
+     * Some will just symlink the Rucio data, others will have an additional copy operation.
+     * Alternatively we could offload all of this to the local PrepareData service ? 
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    private Long predictPrepareTime(final IvoaIvoaDataResource validated)
+        {
+        log.debug("predictPrepareTime()");
+        return DEFAULT_PREPARE_TIME;
         }
     }
