@@ -1,0 +1,66 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Revolutionising supercomputing with Isambard-AI | Russell Group
+    https://www.russellgroup.ac.uk/impact/revolutionising-supercomputing-isambard-ai
+
+    Under the bonnet at Dawn, the UK's fastest AI supercomputer
+    https://www.cam.ac.uk/stories/under-the-bonnet-at-AI-supercomputer-Dawn
+
+# -----------------------------------------------------
+
+    COR-755 [ExecBroker] What the Execution Broker does and how it can contribute to SRCNet
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=306954710
+
+
+    Hacking The Unconscious - Rory Sutherland
+    https://www.youtube.com/watch?v=1ei6F3dk4gE&t=1580s
+
+    Uber - provides us with the information we need that's relevant at the point at which we we travel through the booking process.
+
+    ... it doesn't have to reduce the waiting time it just has to reduce the uncertainty ...
+
+    .... we're actually happier waiting nine minutes for a train knowing it's nine minutes than waiting four minutes for a train in a state of not-knowing, in state of uncertainty ...
+
+
+# -----------------------------------------------------
+
+Compute resource at AUSRC.
+One 256GB data resources available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM.
+The replica at AUSRC_STORM have zero transfer time.
+The replica at JPSRC_STORM have 2s/GB transfer rate.
+The replica at SPSRC_STORM have 4s/GB transfer rate.
+
+
