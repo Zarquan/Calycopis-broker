@@ -1,0 +1,141 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Notes and ideas following the discussion on Slack and after the demos.
+    on Thursday 22nd May.
+
+# -----------------------------------------------------
+
+Centralised vs devolved control
+
+Initial impression of PanDAs was that it is a centrally controlled system,
+with a central controller distribiting jobs to the best available platform.
+
+Following xxx's talk I realise that this isn't the case.
+PanDAs is in fact a very devolved system.
+
+Where the central system merley acts as collection pint for clients
+to send their job submissions to.
+
+The harvester nodes select jobs from the pool that are appropriate to
+the kind of platform they represent, a Kubernetes harvester selects
+jobs that can be run on a Kubernetes system, a Slurm harvester
+selects jobs that can be run on a Slurm system.
+
+The harvesters then make these pools of jobs available to the
+pilot jobs running on the compute platforms.
+It is thses pilot jobs that make the final selection
+of which job to run, selecting the most appropriate
+job from the harvester's pool.
+
+So rather than the push mode, centrally managed system,
+PanDAS is very much a pull mode system where the job selection
+is delegated to the leaf nodes.
+
+# -----------------------------------------------------
+
+Execution Broker - key design ideas.
+
+My talk on Thursday concentrated on the job scheduling aspects of
+the Execution Broker because that was the goal of the specific feature
+I was reporting on. SP-xxxx.
+
+However job scheduling is only one aspect of the design of the Execution Broker
+API.
+
+The first goal of Execution Broker is to design a common API that can be used to
+describe a wide variety of different tyoes of tasks in a declarative manner.
+The user describes what they want to happen, run <this> executable with <that> data,
+and the system works out the details of how it si going to do it.
+
+The second goal is to allow the user to make an informed choice about
+which platform to select.
+The user submits their job description and the Execution Broker
+services at each of the compute platrforms reply with one or more
+offers of how they would execute the job.
+
+The user can then choose which offer they want to accept to run the job.
+
+The third part of the design is to provide information about when
+a job can be executed.
+The data model for job submission allows the the user can specify when
+they want their job to be executed,
+now, in the next 10 minutes, or sometime today, and
+in return it enables the platforms to specify
+when they think they will be able to execute the job.
+
+# -----------------------------------------------------
+
+Batch vs interactive
+
+Allowing details of the implementation architecture
+to drive the user interface is a bad design pattern.
+
+It requires the user to step out of their world,
+take time and attention away from thinking about what they
+wanted to do, and spend time learning and understanding
+a new and unfamiliar frame of reference.
+
+As a challenge look at all of the user defined use cases that
+we have for SKA.
+How many of them include the term 'batch' in their descriptuon ?
+
+Of those that do include the word 'batch' how many of them
+use the term because that it is a term that previous
+implementations and platforms have taught the user to use ?
+
+Of those that do include the word 'batch', can we re-phrase the use
+cases removing the word 'batch' with a simple time constraint ?
+
+I want to run my analysis as a batch process.
+I want to run my analysis sometime today.
+I want to run my analysis sometime in the next 24hrs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

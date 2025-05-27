@@ -113,7 +113,7 @@ EOF
     examplepath=/examples/${examplename}
     examplefull=${examplepath}/${examplename}
 
-    # Three 256GB data resources:
+    # Three 25TB data resources:
     # the first is available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM,
     # the second is only available from JPSRC_STORM, and SPSRC_STORM,
     # the third is only available from SPSRC_STORM,
