@@ -67,7 +67,7 @@ is delegated to the leaf nodes.
 
 # -----------------------------------------------------
 
-Execution Broker - key design ideas.
+Execution Broker - not just scheduling.
 
 My talk on Thursday concentrated on the job scheduling aspects of
 the Execution Broker because that was the goal of the specific feature
@@ -79,15 +79,15 @@ API.
 The first goal of Execution Broker is to design a common API that can be used to
 describe a wide variety of different tyoes of tasks in a declarative manner.
 The user describes what they want to happen, run <this> executable with <that> data,
-and the system works out the details of how it si going to do it.
+and the individual platforms work out the details of how to do it.
 
 The second goal is to allow the user to make an informed choice about
 which platform to select.
-The user submits their job description and the Execution Broker
-services at each of the compute platrforms reply with one or more
+The user submits a job description and the Execution Broker
+services at each compute platform reply with one or more
 offers of how they would execute the job.
 
-The user can then choose which offer they want to accept to run the job.
+The user can then choose which offer they want to accept.
 
 The third part of the design is to provide information about when
 a job can be executed.
@@ -95,41 +95,276 @@ The data model for job submission allows the the user can specify when
 they want their job to be executed,
 now, in the next 10 minutes, or sometime today, and
 in return it enables the platforms to specify
-when they think they will be able to execute the job.
+when they think they will be able to execute the job,
+now, in the next 10 minutes, or sometime today.
+
+This flexibility is intended to enable the system to support both
+'interactive' and 'batch' tasks, blurring the lines between them.
 
 # -----------------------------------------------------
 
 Batch vs interactive
 
-Allowing details of the implementation architecture
-to drive the user interface is a bad design pattern.
+The term 'batch processing' is a relic of the 1970s
+when jobs were loaded onto the system in batches
+to run overnight while no one was using the system.
+
+In the 2020s, using the term in our design process restricts
+the way that we think about the tasks and how they are processed.
+
+Explosing the term to our end users is a category error,
+to allows details of the implementation architecture
+to drive the design of the user interface, which is a bad design pattern.
 
 It requires the user to step out of their world,
 take time and attention away from thinking about what they
-wanted to do, and spend time learning and understanding
+want to do, and spend time learning and understanding
 a new and unfamiliar frame of reference.
 
-As a challenge look at all of the user defined use cases that
-we have for SKA.
-How many of them include the term 'batch' in their descriptuon ?
+I would ask all of us to try the following challenge:
+
+To look at all of the user defined use cases that we have for SKA
+and count how many of them include the term 'batch' in their descriptuon ?
 
 Of those that do include the word 'batch' how many of them
-use the term because that it is a term that previous
-implementations and platforms have taught the user to use ?
+use the term because it is a term that previous
+platforms have taught the user to use, or is it actually relevant
+the description of the ise case ?
 
-Of those that do include the word 'batch', can we re-phrase the use
-cases removing the word 'batch' with a simple time constraint ?
+Of those that do include the word 'batch' in their description,
+can we re-phrase them to remove the word 'batch' and replace it
+with a simple time constraint ?
 
-I want to run my analysis as a batch process.
-I want to run my analysis sometime today.
-I want to run my analysis sometime in the next 24hrs.
+* I want to run my analysis as a batch process.
+becomes
+* I want to run my analysis sometime in the next 24hrs.
+
+Are there any cases where the word 'batch' has a meaning that is critical
+to the description of the task ?
+
+The word 'interactive' has more meaning that the word 'batch', but it
+does not mean the opposite of 'batch'.
+
+In general terms, the word 'interactive' means the user wants to observe the
+progress of the job, be able to adjust the inputs and observe a change in the outputs.
+
+In common use this implies the user is interacting with the job in real time,
+but that is not an absolute requirement.
+
+In practice the interactiveness of a job is determined by several factors
+including the design of the software, the architecture of the platform it is
+running on and the network connection between the platform and the user.
+
+Going forward it may become more important to specify the level of
+interactiveness that a job requires in terms of bandwidth and latency
+of the network connection between the user and the platform.
+
+To illustrate this we can take two examples of things that at the moment
+are considered interactive jobs, a Jupyter notebook and a 3D cube visualization.
+
+Taking the Jupyter notebook example first, many platform designs consider this to be
+an 'interactive' task, and handle it via separate channel than 'batch' processing.
+
+The first assumption is that there is a hard requirement for an 'interactive'
+notebook session to start immediately.
+
+In fact, the only requirement on the start time is that the user is aware of
+when it will start, so that they can be present. If they want to.
+
+A typical use case would be for a user to develop their analysis in a notebook
+in the 'traditional' interactive' mode, running the cells manually one step at
+a time to develop the code.
+
+They may then just want to sit back and run the same analysis on 10,000 files
+with no interaction, simply running all the cells in the notebook as a single task.
+
+If some of those 10,000 runs fail, the user may then want to be able
+to pick up some of the failed notebooks, load them into an 'interactive'
+platform and step through the code to find out why they failed.
+
+The same software changes from an interactive notebook to a batch process
+and back to an interactive process, without changing what the software is,
+just how the user wants to use it.
+
+Another use case could be where a user develops their analysis 'interactivley'
+on a standard compute platform, capable of handling a small subset of their data.
+
+When it comes time to run their analysis on the full dataset, it requires
+a lot more processing capability.
+
+If there is a platform capable of providing that processing capability already available
+then their task can be routed to that platform and their analysis can start immediately.
+
+On the other hand, of there is no suitable computing platform available
+right now, the system may offer to run the analysis at a later date.
+
+   "We can offer you a 2hr session starting at 4pm"
+
+As long as the system can provide a reliable estimate for the start time
+the user may be happy to pause and come back later in return
+for the offer of significantly more compute resources.
+
+In this example, the user accepts the offer, goes away and has lunch and then
+re-connects to the platform at 4pm to run their analysis on the
+compute resources that have been reserved for them.
+
+This is a mixture between the two modes, batch and interactive.
+The job starts at a fixed time in the future running on compute resources
+that have been reserved in advance, but the user is connecting to the
+job and interacting with it in real time.
+
+We can extend this example by replacing the Jupyter notebook with
+a 3D visualization application.
+Most Jupyter notebooks do not require a hign bandwith or low latency network
+connection.
+Most of the interactions between the user and the software are text based,
+selecting editing and running the cells one at a time.
+Some cases may produce a 2D image, and some cells may produce a basic
+3D rendering of some of the data.
+
+In contrast a high respolution 3D visualization application that enables the
+user to fly through their data using a head mounted display and real time
+navigation controls.
+
+This type of appliocation tends to require a high bandwith and low latency
+network connection for the immersive experience to feel real to the user.
+
+Again, if a suitable platform is available now, then the user can go ahead and
+run their 3D visualization application now.
+
+On the other hand, if a suitable platform is not available, then the system
+could offer the user a choice between two options.
+
+1) A low to medium bandwidth system available now
+2) A high bandwidth low latency system available tomorrow
+
+The user may choose to go for both.
+Running the 3D visualization application in wire frame mode on the slower
+platform to develop their analysis and identify interesting candidates
+in their data, and reserve a session on the high bandwidth low latency
+platform tomorrow to run the 3D visualization in full ray tracing
+4k resolution to complete their analysis.
+
+The same software running interactively now and tomorrow,
+making use of the hardware that is available now and reserving
+a more capable platform for tomorrow.
+
+A more complex scheduling system might not be able to reserve a fixed start
+time. Instead the user may accept an offer to run the high resolution job
+'sometime tomorrow morning' and ask the platform to send them a notification
+when the resources become available.
+
+This could be in the form of an email or Slack message telling them
+"Your high bandwidth session will be available to start in 20 min"
+
+This is a highly interactive real time 3D visualization job, scheduled
+to run like a batch job, 'sometime tomorrow morning'.
+
+We should remove the distinction between 'batch' and 'interactive' at the
+platform and hardware configuration level as well.
+
+IF a HPC platform running Slurm or Kubernetes is willing to accept a job that
+requires an external network connection, then it can be considered capable of
+running an 'interactive' session.
+
+If the user submits a job request to run a Jupyter notebook, and the Slurm system
+has nothing in its queue, then there is no reason why we shouldn't use it to run
+the interactive notebook session.
+
+Routing an 'interactive' job to run on what would traditionally be considered a
+'batch' system.
+
+In summary, we should stop thinking of 'batch' and 'interactive' as
+separate modes, and we should remove the distinction from our architecture.
+
+Everything should be treated as enabling the user to select some software and
+some data, and let the platform figure out how and when it can do it.
+
+# -----------------------------------------------------
+
+Interactive job reserved to run at a specific time
+
+Reserving resources for 20 students attending a 3D visualization workshop next Tuesday.
+
+.....
 
 
+# -----------------------------------------------------
 
+Preparation time
 
+The size of our data sets means that data transfer times will have a significant
+impact on when and where we can execure tasks.
 
+.....
 
+# -----------------------------------------------------
 
+Hybrid system
+
+Part of the original design for Execution Broker allowed the user and the platform to
+specify start times as intervals rather than instants.
+
+The user can specify a time range for when they want to start their job:
+
+* "Now"
+* "Within the next 10 min"
+* "Sometime this afternoon"
+* "Sometime today"
+
+The system can offer a similar range of start times:
+
+* "Now"
+* "Within the next 10 min"
+* "Sometime this afternoon"
+* "Sometime today"
+
+This enables the same system to handle a traditional 'interactive'
+Jupyter notebook sesison, starting "now", and
+a traditional 'batch' job, scheduled to start "sometime today".
+
+Using this model, we could imagine a system
+which combines both ExecutionBroker services at individual nodes
+and a distributed PanDA system connecting the majority of the
+SRCNet computing resources.
+
+A central Workflow Execution service would provide an Execution Broker API
+job submission service, which then routes the jobs to different systems
+depending on their requirements and constraints.
+
+80 or 90% of the offers would be fulfilled based on passing the jobs to the
+PaNDAs platform for execution.
+Using metrics about the length of the queues and current waiting times
+to predict when the system thinks the jobs will start.
+
+* "Within the next 10 min"
+* "Sometime this afternoon"
+* "Sometime today"
+
+The 10 or 20% of the requests that require specialist hardware or specific
+time constraints would be passed on to the local Execution Broker
+services at specific noders.
+
+As far as the user is concerned, the system would look and behave as a single system.
+The majority of the computing resources would be integrated into the
+PaNDAs system and used to fulfill the majority of the job requests.
+
+As far as the Workflow Execution service is concerned, the PaNDAs system
+acts as a single large execution platform which can handle job requests with
+flexible time constraints.
+
+* "Sometime this afternoon"
+* "Sometime today"
+* "Sometime today or tomorrow"
+
+We can implement a set of ExecutionBroker services at some of the SRCNet
+nodes which offer to handle job requests with more specific time constraints.
+
+* "Now"
+* "Within the next 10 min"
+* "At 10am tomorrow"
+
+Making best use of the features and capabilities of the two systenms.
 
 
 
