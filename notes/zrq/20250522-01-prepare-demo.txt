@@ -1,0 +1,926 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Propagate the preparation time for data and storage resources to the session start
+        https://github.com/ivoa/Calycopis-broker/issues/235
+
+        Define the relationship between data resource and storage resource
+        https://github.com/ivoa/Calycopis-broker/issues/211
+
+    Result:
+
+        Success
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=prepare-time
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the project.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Create some examples to work with.
+#[root@spring-builder]
+
+    examplename=022
+    examplepath=/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+
+    # One 256GB data resources available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM.
+    # Replicas at AUSRC_STORM have zero transfer time.
+    # Replicas at JPSRC_STORM have 2s/GB transfer rate.
+    # Replicas at SPSRC_STORM have 4s/GB transfer rate.
+    # Default service delay is 60s.
+
+    cat > "${examplefull}-001-offerset-request.yaml" << EOF
+name: example-${examplename}
+executable:
+  name: executable-${examplename}
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: data-${examplename}-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   274877906944
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T02:25:06.733308891Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T02:26:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T02:27:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T02:25:06.775892085Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T06:26:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T06:27:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T02:25:06.815749689Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T10:26:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T10:27:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T02:25:06.866132064Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >             start: "2025-05-22T14:26:00Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T14:27:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+
+    >   ....
+    >   ....
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [AUSRC_STORM][0]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [0]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [0]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [60]
+    >   2025-05-22 02:25:06 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT1M]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create some examples to work with.
+#[root@spring-builder]
+
+    # Two 256GB data resources:
+    # the first is available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM,
+    # the second is only available from JPSRC_STORM, and SPSRC_STORM.
+    # Replicas at AUSRC_STORM have zero transfer time.
+    # Replicas at JPSRC_STORM have 2s/GB transfer rate.
+    # Replicas at SPSRC_STORM have 4s/GB transfer rate.
+    # Default service delay is 60s.
+
+    cat > "${examplefull}-003-offerset-request.yaml" << EOF
+name: example-${examplename}
+executable:
+  name: executable-${examplename}
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: data-${examplename}-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   274877906944
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: data-${examplename}-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize:   274877906944
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-003-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T02:26:08.778589897Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T02:26:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T02:36:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T02:26:08.826736894Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T06:26:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T06:36:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T02:26:08.864995283Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T10:26:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T10:36:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T02:26:08.907583122Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >             start: "2025-05-22T14:26:28Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T14:36:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+
+    >   ....
+    >   ....
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [AUSRC_STORM][0]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [0]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [0]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [60]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT1M]
+    >   ....
+    >   ....
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [JPSRC_STORM][2]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [2]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [512]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [572]
+    >   2025-05-22 02:26:08 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT9M32S]
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Create some examples to work with.
+#[root@spring-builder]
+
+    # Three 256GB data resources:
+    # the first is available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM,
+    # the second is only available from JPSRC_STORM, and SPSRC_STORM,
+    # the third is only available from SPSRC_STORM,
+    # Replicas at AUSRC_STORM have zero transfer time.
+    # Replicas at JPSRC_STORM have 2s/GB transfer rate.
+    # Replicas at SPSRC_STORM have 4s/GB transfer rate.
+    # Default service delay is 60s.
+
+    cat > "${examplefull}-005-offerset-request.yaml" << EOF
+name: example-${examplename}
+executable:
+  name: executable-${examplename}
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: data-${examplename}-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   274877906944
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: data-${examplename}-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize:   274877906944
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: data-${examplename}-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-123401"
+        datasize:   274877906944
+        replicas:
+          - rsename: "SPSRC_STORM"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-005-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T02:27:27.180506343Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T02:27:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T02:46:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T02:27:27.216335906Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T06:27:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T06:46:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T02:27:27.256490564Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T10:27:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T10:46:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T02:27:27.296755839Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+    >             start: "2025-05-22T14:27:56Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-22T14:46:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT9M32S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT18M4S"
+
+    >   ....
+    >   ....
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [AUSRC_STORM][0]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [0]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [0]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [60]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT1M]
+    >   ....
+    >   ....
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [JPSRC_STORM][2]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [2]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [512]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [572]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT9M32S]
+    >   ....
+    >   ....
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [SPSRC_STORM][4]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [256]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [4]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [1024]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [1084]
+    >   2025-05-22 02:27:26 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT18M4S]
+    >   ....
+    >   ....
+
+# -----------------------------------------------------
+# Create some examples to work with.
+#[root@spring-builder]
+
+    # Three 25TB data resources:
+    # the first is available from AUSRC_STORM, JPSRC_STORM, and SPSRC_STORM,
+    # the second is only available from JPSRC_STORM, and SPSRC_STORM,
+    # the third is only available from SPSRC_STORM,
+    # Replicas at AUSRC_STORM have zero transfer time.
+    # Replicas at JPSRC_STORM have 2s/GB transfer rate.
+    # Replicas at SPSRC_STORM have 4s/GB transfer rate.
+    # Default service delay is 60s.
+
+    cat > "${examplefull}-007-offerset-request.yaml" << EOF
+name: example-${examplename}
+executable:
+  name: executable-${examplename}
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: data-${examplename}-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize: 27487790694400
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: data-${examplename}-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize: 27487790694400
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: data-${examplename}-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-123401"
+        datasize: 27487790694400
+        replicas:
+          - rsename: "SPSRC_STORM"
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-007-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | yq '.' \
+    | tee "${examplefull}-008-offerset-response.yaml" \
+    | yq '
+        .offers[] | [
+                {
+                "session": {
+                    "name": .name,
+                    "created": .created,
+                    "schedule": .schedule
+                    },
+                "storage": [
+                    .resources.storage[].schedule
+                    ],
+                "data": [
+                    .resources.data[].schedule
+                    ]
+                }
+            ]
+        '
+
+    >   - session:
+    >       name: "example-012-offer-0"
+    >       created: "2025-05-22T12:12:21.81049302Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >             start: "2025-05-22T12:13:20Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-23T16:41:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT14H14M20S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >   - session:
+    >       name: "example-012-offer-1"
+    >       created: "2025-05-22T12:12:21.94298703Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >             start: "2025-05-22T16:13:20Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-23T20:41:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT14H14M20S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >   - session:
+    >       name: "example-012-offer-2"
+    >       created: "2025-05-22T12:12:22.033236338Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >             start: "2025-05-22T20:13:20Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-24T00:41:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT14H14M20S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >   - session:
+    >       name: "example-012-offer-3"
+    >       created: "2025-05-22T12:12:22.100268025Z"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+    >             start: "2025-05-23T00:13:20Z"
+    >           available:
+    >             duration: "PT4H"
+    >             start: "2025-05-24T04:41:00Z"
+    >     storage:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT5S"
+    >     data:
+    >       - offered:
+    >           preparing:
+    >             duration: "PT1M"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT14H14M20S"
+    >       - offered:
+    >           preparing:
+    >             duration: "PT28H27M40S"
+
+    >   ....
+    >   ....
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [AUSRC_STORM][0]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [25600]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [0]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [0]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [60]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT1M]
+    >   ....
+    >   ....
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [JPSRC_STORM][2]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [25600]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [2]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [51200]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [51260]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT14H14M20S]
+    >   ....
+    >   ....
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl TransferTimeCost [SPSRC_STORM][4]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Data size (GB) [25600]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer rate (s/GB) [4]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [102400]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Service delay (s) [60]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.resource.data.skao.SkaoDataResourceValidatorImpl Transfer time (s) [102460]
+    >   2025-05-22 12:12:21 DEBUG net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContextImpl Adding prep duration [PT28H27M40S]
+    >   ....
+    >   ....
+
