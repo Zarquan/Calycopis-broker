@@ -41,11 +41,11 @@
 
 Centralised vs devolved control
 
-Initial impression of PanDAs was that it is a centrally controlled system,
+Initial impression of PanDA was that it is a centrally controlled system,
 with a central controller distribiting jobs to the best available platform.
 
 Following xxx's talk I realise that this isn't the case.
-PanDAs is in fact a very devolved system.
+PanDA is in fact a very devolved system.
 
 Where the central system merley acts as collection pint for clients
 to send their job submissions to.
@@ -62,7 +62,7 @@ of which job to run, selecting the most appropriate
 job from the harvester's pool.
 
 So rather than the push mode, centrally managed system,
-PanDAS is very much a pull mode system where the job selection
+PanDA is very much a pull mode system where the job selection
 is delegated to the leaf nodes.
 
 # -----------------------------------------------------
@@ -333,7 +333,7 @@ job submission service, which then routes the jobs to different systems
 depending on their requirements and constraints.
 
 80 or 90% of the offers would be fulfilled based on passing the jobs to the
-PaNDAs platform for execution.
+PanDA platform for execution.
 Using metrics about the length of the queues and current waiting times
 to predict when the system thinks the jobs will start.
 
@@ -347,9 +347,9 @@ services at specific noders.
 
 As far as the user is concerned, the system would look and behave as a single system.
 The majority of the computing resources would be integrated into the
-PaNDAs system and used to fulfill the majority of the job requests.
+PanDA system and used to fulfill the majority of the job requests.
 
-As far as the Workflow Execution service is concerned, the PaNDAs system
+As far as the Workflow Execution service is concerned, the PanDA system
 acts as a single large execution platform which can handle job requests with
 flexible time constraints.
 
@@ -365,7 +365,6 @@ nodes which offer to handle job requests with more specific time constraints.
 * "At 10am tomorrow"
 
 Making best use of the features and capabilities of the two systenms.
-
 
 
 
