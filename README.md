@@ -32,7 +32,7 @@ curl \
     --silent \
     --show-error \
     --header 'Content-Type: application/yaml' \
-    --data-binary "@examples/001/offerset-request.yaml" \
+    --data-binary "@examples/001/001-001-offerset-request.yaml" \
     --header 'Accept: application/yaml' \
     'http://127.0.0.1:8082/offersets'
 ```
@@ -45,7 +45,7 @@ curl \
     --silent \
     --show-error \
     --header 'Content-Type: application/json' \
-    --data-binary "@examples/004/offerset-request.json" \
+    --data-binary "@examples/004/004-001-offerset-request.json" \
     --header 'Accept: application/json' \
     'http://127.0.0.1:8082/offersets'
 ```
