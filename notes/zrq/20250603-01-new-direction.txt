@@ -1,0 +1,180 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Miro board
+        https://miro.com/app/board/uXjVIuPAZJ4=/
+
+        PI27 Planning agenda
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=325585720
+
+        PI27 Planning - Zoom, Rooms & Miro
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=325590849
+
+# -----------------------------------------------------
+
+21st May 17:01
+Robert Perry
+
+    Hey - I'd like us to discuss Dave's deployment for PI27. We can have a call if needed. I can see several opportunities, noting the conditions of the restructure:
+
+    Continued development effort in the Coral+ team.
+    Efforts would be limited to the "Science Enabling" and "Operations Enabling and Interoperability" products.
+
+    "Distributed Data Computing" (and OEI) in the Chocolate+ team.
+    This will be the home of federated / planned execution service development.
+    Prioritisation and implementation decisions will ultimately be Rohini's, as PO, with the empowerment to direct the team cross-SRCs (subject to the Architect's + Technical Group's guardrails).
+
+    Feature Owner responsibilities - which are not restricted to teams.
+
+    Consultations with the Architect, PO(s), SRCNet Technical Group... (I'm not proposing STG membership given the already long list, but those decisions are with Jesus).
+
+    Note that DevOps members are expected to belong to one team with 0.5+ FTE on SRCNet features only.
+    With implementation being a focus area for the SRCNet team moving forwards, further development of the IVOA standard would be outside of SRCNet time.
+    As with all the deployments - these decisions aren't forever - we will have the opportunity to make changes every PI from now on.
+
+    ** further development of the IVOA standard would be outside of SRCNet time **
+
+# -----------------------------------------------------
+
+    Phone call with Robert Perry
+
+    Not able to join Chocolate because politics.
+
+    If I join Coral I will be restricted to "science enabling" only.
+
+    SRCNet way is rapid experiments and throw away
+    IVOA way is big complex getting it right first time
+    Not true, but never mind.
+
+    Work with Rohini and others to create a "technically agnostic" road map.
+    - WTF does that mean ?
+
+    Try not to get bogged down in technical details this iteration.
+
+    Indigo will join Chocolate.
+    Software Discovery is considered "science enabling" (no, it isn't).
+
+# -----------------------------------------------------
+
+3rd June 12:40
+Robert Perry
+
+    Hello again all - and apologies for the fragmented messages.
+    For @Susana Sánchez @Laura Darriba's awareness - we are not expecting INSRC members to join Coral++ this PI.
+    Similarly, I am not expecting CANSRC members to join Chocolate++ this PI.
+    All of the former Red development effort should be split between Coral++ and the Metadata Management team.
+
+    Regarding Dave - I believe we now have an outcome for the PI27 team picture.
+    Thank you for our call today Dave.
+    Apologies if I miss / repeat anything - this Slack is to also update the PT
+
+Robert Perry
+
+    This PI:
+    Dave will not be joining the OEI+DDC (Chocolate++) team as a member
+
+    Dave will continue as a SE+OEI (Coral++) team member
+    Dave's FTE level is to be determined - likely as a function of the feature plan
+
+    Both teams are empowered to work on OEI
+    Dave may continue collaborating with INSRC members on features, for example
+
+    Software Discovery is currently categorised as Science Enabling product - we have not moved this to MM
+    so there is a further opportunity for feature work
+    further backlog refinement may be be necessary - but Dave and the team should prioritise planning already agreed Program Backlog items
+    We are all agreed that DDC discussions will continue - with a priority this PI clarifying the roadmap ahead, translating requirements from one level to another, and aligning the architectural roadmap.
+
+Robert Perry
+
+    Specifically, we'd like to see people in this space review each others' "look ahead" artefacts.
+    This could be via the Architectural Review. In the meantime, I trust that activities can be shared /organised - like Feature Ownership, and topics/dates for technical discussions.
+    Thank you all for your patience as we progress with the team restructuring.
+
+# -----------------------------------------------------
+
+    In planning
+
+    SoftwareExecution has been assigned to Indigo in Chocolate.
+    WorkflowExecution has been assigned to Indigo in Chocolate
+
+# -----------------------------------------------------
+
+    Too late to propose new features.
+    I have to choose from backlog items already assigned to "Science Enabling"
+
+    [SP-5550] Enabling submission of batch jobs to Slurm cluster from CANFAR at sweSRC
+    https://jira.skatelescope.org/browse/SP-5550
+
+    [SP-5551] Enabling GPU-based workflows in CANFAR at sweSRC
+    https://jira.skatelescope.org/browse/SP-5551
+
+    [SP-4993] Scalability Assessment of the prepareData Mount Approach
+    https://jira.skatelescope.org/browse/SP-4993
+
+    Reduced to picking up the crumbs.
+    Throwing away the last 12mths work.
+
+# -----------------------------------------------------
+
+    Final plan - involved in three tasks
+
+    [SP-5555] Deploy a new CANFAR registry within the SRCNet
+    https://jira.skatelescope.org/browse/SP-5555
+
+    [SP-5550] Enabling submission of batch jobs to Slurm cluster from CANFAR at sweSRC
+    https://jira.skatelescope.org/browse/SP-5550
+
+    [SP-5551] Enabling GPU-based workflows in CANFAR at sweSRC
+    https://jira.skatelescope.org/browse/SP-5551
+
+    5 days updating EB data model
+    5 days updating document
+
+# -----------------------------------------------------
+
+    Chocolate are going back to the start.
+
+    [SP-5579] Implement job submission and job polling endpoints of the distributed data computing global service
+    https://jira.skatelescope.org/browse/SP-5579
+
+    We will need to define and implement SRC-owned compute APIs independent of a specific WMS implementation and IVOA standards.
+
+    This feature would build a python implementation of a global service using the current API structure based on the PanDA
+    workload management system and implement two basic endpoints - job submission and job polling.
+
+# -----------------------------------------------------
+
+    Jesus - tech coordination group will define Execution API this iteration.
+
+# -----------------------------------------------------
+
+
+
