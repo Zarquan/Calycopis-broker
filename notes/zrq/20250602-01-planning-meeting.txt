@@ -1,0 +1,53 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Confluence with all the info:
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=314978530
+    Catania tourism info webpage:
+        https://turismo.comune.catania.it/en/default.aspx
+
+# -----------------------------------------------------
+
+    SRCNet Effort Accounting - PI27 is now available - please capture your planned data.
+
+    The (Attribution) Deployment tab has been updated to include additional fields.
+    We will use this tab to track deployment decisions / status as part of the team restructuring. There are plenty of follow up discussions to follow.
+    Effort Accounting Guidance has been updated - including recordings.
+    Please reach out with any questions.
+
+# -----------------------------------------------------
+
+
+

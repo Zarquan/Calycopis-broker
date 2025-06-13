@@ -1,0 +1,996 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+This page describes how the current data model and service API
+enables the Software Discovery, Science Gateway, Workflow Execution, and
+Execution Broker services to work together to enable the user
+to define a single workflow step.
+
+The metadata for a workflow step starts with a description of the software component we want execute.
+This might be a Jupyter notebook:
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+      location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+
+or a Docker container:
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+
+The Docker container image can be downloaded from a number of diffeerent locations.
+In SRCNet-0.1 each node has its own Harbor image registey, and many of them
+contain copies of the common Docker images used in SRCNet.
+
+To support this the data model allows includes more than one image location,
+and a digest checksum to verify we get the correct image.
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+          - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+        digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+
+This particular Docker container runs a remote desktop.
+It provides the full Ubuntu desktop display acessible from a webbrowser via a HTTP connection.
+Which means the containers needs to be able to open a network port on the server
+for the client to connect to.
+
+    executable:
+      ....
+      network:
+        ports:
+        - internal:
+            port: 3000
+
+This defines a network port on port 3000 of the container that will be made
+available on a public accessible IP address when the container is run.
+
+The way that the webtop remote desktop works this external port forms the
+base for a HTTP URL that will be used to access the container while it is running.
+So we need to tell the server to allow HTTP traffic to this port number.
+
+    executable:
+      ....
+      network:
+        ports:
+        - internal:
+            port: 3000
+          access: true
+          protocol: HTTP
+          path: "/webtop-path"
+
+These fields in the request tell the server to expose port 3000 on the container
+to make a publicly accessible HTTP URL with '/webtop-path' as the path.
+
+Once the session is running, the internal container port 3000 will be mapped to an
+external public IP address and port assigned by the server, and a firewall
+rule will be added to allow HTTP traffic.
+
+The server will fill in the details of the external port in the session
+status so that the client can connect to the container.
+
+    executable:
+      ....
+      network:
+        ports:
+        - ....
+          external:
+            port: 52811
+            addresses:
+              - "165.22.2.250"
+              - "2604:a880:400:d1:0:2:678:3001"
+
+To make this easy to find, the server will also add a list
+of access URLs for the executable.
+
+    executable:
+      ...
+      access:
+        - protocol: HTTP
+          status: ACTIVE
+          locations:
+            http://165.22.2.250:52811/webtop-path
+            http://[2604:a880:400:d1:0:2:678:3001]:52811/webtop-path
+
+
+This means a generic client doesn't have to understand the details about
+what type of executable is running.
+The client can just use the list of access URLs to redirect the user
+to the right location.
+
+    http://165.22.2.250:52811/webtop-path
+
+If we go back to our executable
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+
+We may want to set what computing resources we need to run our application.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        cores:
+          min: 5
+          max: 15
+        memory:
+          min: 3
+          max: 9
+
+The min and max values specifiy how much the executable needs, and the maximum it can make use of.
+The server must respond with an offer of at least the minimum, but it may offer more.
+The reason for this flexibility is that compute platforms like Openstack allocate
+computing resources according to a fixed set ot templates, (flavors in Openstack).
+Putting the min and max values in the request allows the platform to select the best fit from
+its available templates.
+The server MUST provide at least 3MiB of memory. It may provide more than that,
+but there is no point in offering more than 9MiB because the executable can't make use of it.
+
+The next thing we may want to specify is the data that the executable needs.
+There are two levels of data references in the metadata model.
+We have abstract level of science resources which describe the kind of data we need
+based on a vocabulary of scientific terms terms,
+and a concrete level of references to specific data resources.
+
+Note that the science level metadata is still in the early stanges of development,
+and will need more input from the user community to to understand how
+they would want to describe their data requirements.
+
+The following example of two science data resources,
+a single SKAO image cube and a collection of spectra.
+
+    resources:
+      science:
+        - name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+            ....
+          skao:
+            # SKAO specific vocabulary
+            ....
+
+        - name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+            ....
+
+This part of the metadata comes from the developer of the application,
+as part of the execution metadata stored in the Software Discovery service.
+
+The science data descriptions will be used by the Science Gateway and Workflow Execution
+service to select data resources and link them into the workflow step.
+
+If we take the first of the two science resources; asking for
+an SKAO image cube.
+
+    resources:
+      science:
+        - name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+          skao:
+            # SKAO specific vocabulary
+            ....
+
+The Science Gateway would use this to prompt the user to select
+a cube from the SKAO DataLake and add it to the workflow step.
+
+    resources:
+      data:
+        - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+
+When the data-resource is added to the workflow step
+the Workflow Execution service will add UUID identifiers
+to link the science-resource and data-resource together.
+
+    resources:
+
+      science:
+        - uuid: dc723c9e-5492-4d63-a411-7cb651b975d1
+          name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          data-resource: 7b352a3b-4be0-4704-8879-286a021c92cf
+
+      data:
+        - uuid: 7b352a3b-4be0-4704-8879-286a021c92cf
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+          science-resouce: dc723c9e-5492-4d63-a411-7cb651b975d1
+
+Because the data cube was added as a skao-data-resource, the Workflow Execution service can use the Data Managment API
+to resolve the SKAO specific metadata about the data object, including the size, checksum, and the location of the Rucio replicas.
+
+    resources:
+      data:
+        - uuid: 7b352a3b-4be0-4704-8879-286a021c92cf
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resouce: dc723c9e-5492-4d63-a411-7cb651b975d1
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+
+The second science resource refers to a collection of spectra.
+
+    resources:
+      science:
+        ....
+        - uuid: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+
+This means that the Science Gateway should prompt the user to select
+some spectra and add them to the workflow step.
+
+If our user selects two spectra from an external data provider and one spectra from the SKAO Data Lake,
+then the Science Gateway would add the following to the workflow step.
+
+    resources:
+      data:
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+
+Again, the Workflow Execution service will add the UUID identifiers and link
+the data resources to the corresponding science resources.
+
+    resources:
+
+      science:
+        ....
+        - uuid: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            content-type: spectra
+          data-resources:
+            - 39f94488-84f3-4996-a78c-168a4d68c067
+            - 39f94488-84f3-4996-a78c-168a4d68c067
+            - f4293852-522a-4ba1-8dfe-47493de0df13
+
+      data:
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+
+When the user selects the ivoa-data-resources the Science Gateway can add the IVOA metadata
+about the resources.
+
+The first two data resources refer to data published by external data providers outside SKAO.
+The Science Gateway has added ObsCore metadata for them, including the access_url, access_format, and access_estsize
+fields which will give the execution platform enough information to
+be able to download the data.
+
+    resources:
+      data:
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+            obscore:
+              obs_id:             "example-spectra-56"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-56"
+              obs_creator_did:    "ivo://other.org/spectra?f619a2ab"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-f619a2ab"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     239075328
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+            obscore:
+              obs_id:             "example-spectra-99"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-99"
+              obs_creator_did:    "ivo://other.org/spectra?35ec470d"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-35ec470d"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     649068544
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+            obscore:
+              obs_id:             "012345"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://skao.int/data?testing:spectra-20250512-101014"
+              obs_creator_did:    "ivo://skao.int/data?testing:spectra-20250512-101014"
+              dataproduct_type:   "spectrum"
+              calib_level:        0
+              access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Aspectra-20250512-101014"
+              access_format:      "application/x-votable+xml;content=datalink"
+            datalink:
+              ID:                 "ivo://skao.int/data?testing:spectra-20250512-101014"
+              access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+              content_type:       "spectrum"
+              content_length:     123
+              semantics:          "#this"
+
+The third spectra that the user selected is a references to a data product in the SRCNet Data Lake.
+
+Assuming the SRCNet adopts the proposed schema for IVOA identifiers
+[https://confluence.skatelescope.org/pages/viewpage.action?pageId=319989873]
+the Workflow Execution service will
+recognise that the IVOA identifier refers to objects in the Data Lake
+because the identifiers start with 'ivo://skao.int/data'.
+
+In which case the Workflow Execution service will also add the SKAO DataLake metadata from the
+DataManagment API.
+
+    resources:
+      data:
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+            ....
+
+          skao:
+            namespace:  "testing"
+            objectname: "spectra-20250512-101014"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/spectra-20250512-101014"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+
+The last step we need to do is to define how to mount these data resources in the computing environment.
+This is defined as part of the metadata provided by the Software Discovery service,
+using the names of the science resources to link them to the volume mounts.
+
+We can mount the data cube as a single instance-volume-mount that mounts a single file
+into the container's filesystem.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        ....
+        volumes:
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/instance-volume-mount-1.0
+            path: /input-cube
+            mode: READONLY
+            science-resource: "input-image-cube"
+
+      science:
+        - name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          ....
+
+We can mount the collection of spectra using a container-volume-mount that will
+create a directory in the container's filesystem and then mount the individual
+spectra files into that.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        ....
+        volumes:
+          ....
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/container-volume-mount-1.0
+            path: /spectra
+            mode: READONLY
+            science-resource: "reference-spectra"
+
+      science:
+        ....
+        - name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ....
+
+
+#----------------------------------
+
+In summary.
+The Software Discovery for a simple Docker container just needs to define where to get the containter image from.
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+
+If the application in ther container is interactive, we can define an internal network port.
+
+      network:
+        ports:
+        - internal:
+            port: 3000
+
+If we want this exposed as an access URL we can add the protocol and path.
+
+      network:
+        ports:
+        - internal:
+            port: 3000
+          access: true
+          protocol: HTTP
+          path: "/webtop-path"
+
+If the application needs specific computing resources we can add a maximium and minimum values for the cores and memory.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        cores:
+          min: 5
+          max: 15
+        memory:
+          min: 3
+          max: 9
+
+If the application needs an SKAO data cube to work on, we can add this as a science resource,
+using both IVOA and SKAO vocabulary terms to describe what is needed.
+
+    resources:
+      science:
+        - name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+          skao:
+            # SKAO specific vocabulary
+            ....
+
+We can use a volume mount to tell the execution platform where we want this to appear
+in the computing resource's filesystem.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        ....
+        volumes:
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/instance-volume-mount-1.0
+            path: /input-cube
+            mode: READONLY
+            science-resource: "input-image-cube"
+
+If the application needs a collection of spectra to compare with the cube we can add them as a science resource,
+using IVOA vocabulary terms to describe what is needed.
+
+    resources:
+      science:
+        - name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+
+With a volume mount to place the spectra in a directory
+in the computing resource's filesystem.
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        ....
+        volumes:
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/container-volume-mount-1.0
+            path: /spectra
+            mode: READONLY
+            science-resource: "reference-spectra"
+
+So the Software Discovery metadata for this workflow step is as follows:
+
+    executable:
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      network:
+        ports:
+          access: true
+          protocol: HTTP
+          path: "/webtop-path"
+
+    resources:
+      compute:
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        cores:
+          min: 5
+          max: 15
+        memory:
+          min: 3
+          max: 9
+        volumes:
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/instance-volume-mount-1.0
+            path: /input-cube
+            mode: READONLY
+            science-resource: "input-image-cube"
+          - type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/container-volume-mount-1.0
+            path: /spectra
+            mode: READONLY
+            science-resource: "reference-spectra"
+
+      science:
+        - name: "input-image-cube"
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+          skao:
+            # SKAO specific vocabulary
+            ....
+        - name: "reference-spectra"
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+
+The user discovers and selects the metadata for this workflow step using the Software Discovery tools,
+and then loads it into the Workflow Execution service where they can edit it.
+
+When a workflow step is loaded into the Workflow Execution service the service
+will assign unique UUIDs to the elements so that they can be referenced and edited individually.
+
+    executable:
+      uuid: 71ad700f-f793-497b-9156-8d242dda2386
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      network:
+        ports:
+          access: true
+          protocol: HTTP
+          path: "/webtop-path"
+
+    resources:
+      compute:
+        uuid: 1884d573-de02-4ef0-835d-8b88aeddedbb
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        cores:
+          min: 5
+          max: 15
+        memory:
+          min: 3
+          max: 9
+        volumes:
+          - uuid: ea441a42-320a-4f91-a36a-4cbe4c5c8504
+            type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/instance-volume-mount-1.0
+            path: /input-cube
+            mode: READONLY
+            science-resource: "input-image-cube"
+          - uuid: f1f3a0bb-b813-4126-ad72-40696864b527
+            type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/container-volume-mount-1.0
+            path: /spectra
+            mode: READONLY
+            science-resource: "reference-spectra"
+
+      science:
+        - name: "input-image-cube"
+          uuid: 663cf20c-a78b-494e-8c91-69d2228f6396
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+          skao:
+            # SKAO specific vocabulary
+            ....
+        - name: "reference-spectra"
+          uuid: d5038f39-0cc6-4999-8a34-e286ac7770d4
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+
+The Science Gateway can use the metadata in the first science resource to prompt the user
+to find the SKAO data cube they are interested in and add it to the
+workflow step using the editing API of the Workflow Execution service.
+
+    resources:
+      data:
+
+        - uuid: 7b352a3b-4be0-4704-8879-286a021c92cf
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resouce: dc723c9e-5492-4d63-a411-7cb651b975d1
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+
+This is then resolved by the Workflow Execution service into the full metadata for an object in the
+SKAO Data Lake.
+
+    resources:
+      data:
+
+        - uuid: 7b352a3b-4be0-4704-8879-286a021c92cf
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resouce: dc723c9e-5492-4d63-a411-7cb651b975d1
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+
+The Science Gateway can use the metadata in the second science resource to prompt the user
+to select some spectra files and add them to the workflow step.
+
+    resources:
+      data:
+
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+
+The Workflow Execution service will expand the metadata for the IVOA data resources
+by resolving them in the respective IVOA ObsCore and DataLink services.
+
+    resources:
+      data:
+
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+            obscore:
+              obs_id:             "example-spectra-56"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-56"
+              obs_creator_did:    "ivo://other.org/spectra?f619a2ab"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-f619a2ab"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     239075328
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+            obscore:
+              obs_id:             "example-spectra-99"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-99"
+              obs_creator_did:    "ivo://other.org/spectra?35ec470d"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-35ec470d"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     649068544
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+            obscore:
+              obs_id:             "012345"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://skao.int/data?testing:spectra-20250512-101014"
+              obs_creator_did:    "ivo://skao.int/data?testing:spectra-20250512-101014"
+              dataproduct_type:   "spectrum"
+              calib_level:        0
+              access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Aspectra-20250512-101014"
+              access_format:      "application/x-votable+xml;content=datalink"
+            datalink:
+              ID:                 "ivo://skao.int/data?testing:spectra-20250512-101014"
+              access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+              content_type:       "spectrum"
+              content_length:     123
+              semantics:          "#this"
+
+The Workflow Execution service will recognise that the IVOA identifier for the third spectra
+references an SKAO data product, so it will use the SRCNet Data Managment API to
+add the metadata about the object in the Data Lake.
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+            ....
+          skao:
+            namespace:  "testing"
+            objectname: "spectra-20250512-101014"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/spectra-20250512-101014"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/spectra-20250512-101014"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/spectra-20250512-101014"
+
+
+
+#----------------------------------
+
+The final descrition for the workflow step is as follows:
+
+    executable:
+      uuid: 71ad700f-f793-497b-9156-8d242dda2386
+      type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+      image:
+        locations:
+          - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      network:
+        ports:
+          access: true
+          protocol: HTTP
+          path: "/webtop-path"
+
+    resources:
+      compute:
+        uuid: 1884d573-de02-4ef0-835d-8b88aeddedbb
+        type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+        cores:
+          min: 5
+          max: 15
+        memory:
+          min: 3
+          max: 9
+
+        volumes:
+          - uuid: ea441a42-320a-4f91-a36a-4cbe4c5c8504
+            type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/instance-volume-mount-1.0
+            path: /input-cube
+            mode: READONLY
+            science-resource: "input-image-cube"
+            data-resource: 7b352a3b-4be0-4704-8879-286a021c92cf
+          - uuid: f1f3a0bb-b813-4126-ad72-40696864b527
+            type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/container-volume-mount-1.0
+            path: /spectra
+            mode: READONLY
+            science-resource: "reference-spectra"
+            data-resources:
+              - 39f94488-84f3-4996-a78c-168a4d68c067
+              - f187c317-aa4d-49b0-815a-f722aef7c7a1
+              - f4293852-522a-4ba1-8dfe-47493de0df13
+
+      science:
+        - name: "input-image-cube"
+          uuid: 663cf20c-a78b-494e-8c91-69d2228f6396
+          type: uri:skao-science-resource-instance
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: image, cube
+            ....
+          skao:
+            # SKAO specific vocabulary
+            ....
+          data-resource: 7b352a3b-4be0-4704-8879-286a021c92cf
+
+        - name: "reference-spectra"
+          uuid: d5038f39-0cc6-4999-8a34-e286ac7770d4
+          type: uri:ivoa-science-resource-collection
+          ivoa:
+            # IVOA specific vocabulary
+            content-type: spectra
+            ....
+          data-resources:
+            - 39f94488-84f3-4996-a78c-168a4d68c067
+            - f187c317-aa4d-49b0-815a-f722aef7c7a1
+            - f4293852-522a-4ba1-8dfe-47493de0df13
+
+      data:
+        - uuid: 7b352a3b-4be0-4704-8879-286a021c92cf
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+          science-resouce: dc723c9e-5492-4d63-a411-7cb651b975d1
+          skao:
+            namespace:  "testing"
+            objectname: "data-cube-20250509-082506"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/data-cube-20250509-082506"
+
+        - uuid: 39f94488-84f3-4996-a78c-168a4d68c067
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-56"
+            obscore:
+              obs_id:             "example-spectra-56"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-56"
+              obs_creator_did:    "ivo://other.org/spectra?f619a2ab"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-f619a2ab"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     239075328
+
+        - uuid: f187c317-aa4d-49b0-815a-f722aef7c7a1
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://example.org/data?example-spectra-99"
+            obscore:
+              obs_id:             "example-spectra-99"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://example.org/data?example-spectra-99"
+              obs_creator_did:    "ivo://other.org/spectra?35ec470d"
+              dataproduct_type:   "spectrum"
+              access_url:         "https://example.org/download/spectra-35ec470d"
+              access_format:      "application/fits;content=spectra"
+              access_estsize:     649068544
+
+        - uuid: f4293852-522a-4ba1-8dfe-47493de0df13
+          type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+          science-resource: 72abdcfd-6fdb-455d-80bc-b22e03a8fad1
+          ivoa:
+            ivoid: "ivo://skao.int/data?testing:spectra-20250512-101014"
+            obscore:
+              obs_id:             "012345"
+              obs_collection:     "example"
+              obs_publisher_did:  "ivo://skao.int/data?testing:spectra-20250512-101014"
+              obs_creator_did:    "ivo://skao.int/data?testing:spectra-20250512-101014"
+              dataproduct_type:   "spectrum"
+              calib_level:        0
+              access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Aspectra-20250512-101014"
+              access_format:      "application/x-votable+xml;content=datalink"
+            datalink:
+              ID:                 "ivo://skao.int/data?testing:spectra-20250512-101014"
+              access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+              content_type:       "spectrum"
+              content_length:     123
+              semantics:          "#this"
+          skao:
+            namespace:  "testing"
+            objectname: "spectra-20250512-101014"
+            objecttype: "FILE"
+            datasize:   268435456000
+            checksum:
+              type:  "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/spectra-20250512-101014"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/spectra-20250512-101014"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/spectra-20250512-101014"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/spectra-20250512-101014"
+
+This is the description of the workflow step that is sent to the execution platforms.
+
+The data model for this is designed to be easily converted into execution instructions for a range of different execution platforms,
+including:
+
+* Openstack REST API calls for an Openstack platform.
+* Docker REST API calls for a Docker or Podman platform.
+* A Docker-Compose file for a Docker or Podman platform.
+* kubectl commands for a Kubernetes platform.
+* A Helm chart for a Kubernetes platform.
+* REST API commands for the CANFAR Skaha REST interface.
+
+It should also be possible to convert this into a PanDA job description.
+
+
+
+
+
