@@ -1,0 +1,239 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Update the examples.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Update example 001.
+#[root@spring-builder]
+
+    examplename=001
+    examplepath=/examples/${examplename}
+    examplefull=${examplepath}/${examplename}
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee "${examplefull}-002-offerset-response.yaml" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+    #
+    # Request the offerset.
+    #
+
+    offerseturl=$(
+        yq '
+            .href
+            ' \
+            "${examplefull}-002-offerset-response.yaml"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/json' \
+        "${offerseturl}" \
+    | tee "${examplefull}-003-offerset-response.json" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    #
+    # Request the first offer.
+    #
+
+    offerurl=$(
+        yq '
+            .offers[0].href
+            ' \
+            "${examplefull}-002-offerset-response.yaml"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerurl}" \
+    | tee "${examplefull}-004-session-00-response.yaml" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/json' \
+        "${offerurl}" \
+    | tee "${examplefull}-005-session-00-response.json" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    #
+    # Reject the first offer.
+    #
+
+    offerurl=$(
+        yq '
+            .offers[0].href
+            ' \
+            "${examplefull}-002-offerset-response.yaml"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@${examplefull}-006-reject-00-request.yaml" \
+        --header 'Accept: application/yaml' \
+        "${offerurl}" \
+    | tee "${examplefull}-007-reject-00-response.yaml" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    #
+    # Request the second offer.
+    #
+
+    offerurl=$(
+        jq -r '
+            .offers[1].href
+            ' \
+            "${examplefull}-003-offerset-response.json"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerurl}" \
+    | tee "${examplefull}-008-session-01-response.yaml" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/json' \
+        "${offerurl}" \
+    | tee "${examplefull}-009-session-01-response.json" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    #
+    # Accept the second offer.
+    #
+
+    offerurl=$(
+        jq '
+            .offers[1].href
+            ' \
+            "${examplefull}-003-offerset-response.json"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/json' \
+        --data-binary "@${examplefull}-010-accept-01-request.json" \
+        --header 'Accept: application/json' \
+        "${offerurl}" \
+    | tee "${examplefull}-011-accept-01-response.json" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    #
+    # Request the offerset.
+    #
+
+    offerseturl=$(
+        jq '
+            .href
+            ' \
+            "${examplefull}-003-offerset-response.json"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/json' \
+        "${offerseturl}" \
+    | tee "${examplefull}-012-offerset-response.json" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerseturl}" \
+    | tee "${examplefull}-013-offerset-response.yaml" \
+    | yq '.'
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Update example 002.
+#[root@spring-builder]
+
+
+
