@@ -1,43 +1,43 @@
 {
-  "uuid": "21c14afa-a0b0-4336-bfc7-02a3c18ea7df",
-  "name": "example-001",
+  "uuid": "58fd7b3f-9ff0-4056-bbbe-77ad8a52c495",
+  "name": "example-004",
   "type": "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0",
-  "created": "2025-06-14T05:08:26.603458Z",
-  "href": "http://127.0.0.1:8082/offersets/21c14afa-a0b0-4336-bfc7-02a3c18ea7df",
+  "created": "2025-06-16T05:17:19.041433Z",
+  "href": "http://127.0.0.1:8082/offersets/58fd7b3f-9ff0-4056-bbbe-77ad8a52c495",
   "result": "YES",
   "offers": [
     {
-      "uuid": "ae218c03-ebb5-4a19-b2a1-feaaeba0aa36",
-      "name": "example-001-offer-0",
+      "uuid": "0186d1e7-14c3-42a2-98f3-3c042ce0887b",
+      "name": "example-004-offer-0",
       "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-      "created": "2025-06-14T05:08:27.116999Z",
-      "href": "http://127.0.0.1:8082/sessions/ae218c03-ebb5-4a19-b2a1-feaaeba0aa36",
+      "created": "2025-06-16T05:17:22.233062Z",
+      "href": "http://127.0.0.1:8082/sessions/0186d1e7-14c3-42a2-98f3-3c042ce0887b",
       "schedule": {
         "offered": {
           "preparing": {
-            "start": "2025-06-14T05:09:00Z"
+            "start": "2025-06-16T05:18:00Z"
           },
           "available": {
             "duration": "PT2H",
-            "start": "2025-06-14T05:09:00Z"
+            "start": "2025-06-16T05:18:00Z"
           }
         }
       },
-      "phase": "OFFERED",
-      "expires": "2025-06-14T10:08:26.603472Z",
+      "phase": "REJECTED",
+      "expires": "2025-06-16T10:17:19.041438Z",
       "executable": {
         "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-        "uuid": "0b33a7d9-74f0-4373-917a-e279de25a5f8",
-        "name": "executable-001",
-        "created": "2025-06-14T05:08:27.119844Z",
-        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+        "uuid": "2df911fc-ff2c-4fe5-a189-030a563dc36d",
+        "name": "example-004-executable",
+        "created": "2025-06-16T05:17:22.235636Z",
+        "location": "https://www.example.org/example-004.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "uuid": "912f1e7f-a78c-4cac-83ae-7c84b484b6c1",
-            "name": "computer-001",
+            "uuid": "f82b18df-57b1-4f6c-a21a-491924c8fa4c",
+            "name": "example-004-computer",
             "cores": {
               "min": 10,
               "max": 10
@@ -51,37 +51,37 @@
       }
     },
     {
-      "uuid": "4a771736-80e1-4f05-94a9-d10c9d647829",
-      "name": "example-001-offer-1",
+      "uuid": "f197501c-a773-44f6-9b40-5509b25f5f14",
+      "name": "example-004-offer-1",
       "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-      "created": "2025-06-14T05:08:27.126101Z",
-      "href": "http://127.0.0.1:8082/sessions/4a771736-80e1-4f05-94a9-d10c9d647829",
+      "created": "2025-06-16T05:17:22.237506Z",
+      "href": "http://127.0.0.1:8082/sessions/f197501c-a773-44f6-9b40-5509b25f5f14",
       "schedule": {
         "offered": {
           "preparing": {
-            "start": "2025-06-14T07:09:00Z"
+            "start": "2025-06-16T07:18:00Z"
           },
           "available": {
             "duration": "PT2H",
-            "start": "2025-06-14T07:09:00Z"
+            "start": "2025-06-16T07:18:00Z"
           }
         }
       },
-      "phase": "OFFERED",
-      "expires": "2025-06-14T10:08:26.603472Z",
+      "phase": "ACCEPTED",
+      "expires": "2025-06-16T10:17:19.041438Z",
       "executable": {
         "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-        "uuid": "9b73344d-4278-470c-a163-3e2005ec12e6",
-        "name": "executable-001",
-        "created": "2025-06-14T05:08:27.128662Z",
-        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+        "uuid": "a2f3cc79-875f-4269-a3d3-ce2488eb9afd",
+        "name": "example-004-executable",
+        "created": "2025-06-16T05:17:22.238721Z",
+        "location": "https://www.example.org/example-004.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "uuid": "a2d3189e-4fb8-4957-a625-e9ff8175b4b9",
-            "name": "computer-001",
+            "uuid": "809810b1-252b-48f9-8ff3-23f2aeab2ab9",
+            "name": "example-004-computer",
             "cores": {
               "min": 10,
               "max": 10
@@ -95,37 +95,37 @@
       }
     },
     {
-      "uuid": "ef79df04-8f8a-4b18-8c67-4f821b992803",
-      "name": "example-001-offer-2",
+      "uuid": "17fdd4bd-0c9f-4e66-a934-52b27a349464",
+      "name": "example-004-offer-2",
       "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-      "created": "2025-06-14T05:08:27.132326Z",
-      "href": "http://127.0.0.1:8082/sessions/ef79df04-8f8a-4b18-8c67-4f821b992803",
+      "created": "2025-06-16T05:17:22.240711Z",
+      "href": "http://127.0.0.1:8082/sessions/17fdd4bd-0c9f-4e66-a934-52b27a349464",
       "schedule": {
         "offered": {
           "preparing": {
-            "start": "2025-06-14T09:09:00Z"
+            "start": "2025-06-16T09:18:00Z"
           },
           "available": {
             "duration": "PT2H",
-            "start": "2025-06-14T09:09:00Z"
+            "start": "2025-06-16T09:18:00Z"
           }
         }
       },
-      "phase": "OFFERED",
-      "expires": "2025-06-14T10:08:26.603472Z",
+      "phase": "REJECTED",
+      "expires": "2025-06-16T10:17:19.041438Z",
       "executable": {
         "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-        "uuid": "289b1823-7f74-450b-924a-2f86849afd1f",
-        "name": "executable-001",
-        "created": "2025-06-14T05:08:27.13461Z",
-        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+        "uuid": "b52289b4-1546-4a05-8a70-58f8eeedd28c",
+        "name": "example-004-executable",
+        "created": "2025-06-16T05:17:22.241646Z",
+        "location": "https://www.example.org/example-004.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "uuid": "41296431-19c2-4289-b8d4-5627a05b2cee",
-            "name": "computer-001",
+            "uuid": "840f2ec9-9937-44c0-b680-6f07fc962ca1",
+            "name": "example-004-computer",
             "cores": {
               "min": 10,
               "max": 10
@@ -139,37 +139,37 @@
       }
     },
     {
-      "uuid": "40e2ef2a-c63c-4c57-9bba-a0b59e4b209a",
-      "name": "example-001-offer-3",
+      "uuid": "a6e3adf1-6ef6-47f0-88df-17794efd3e01",
+      "name": "example-004-offer-3",
       "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-      "created": "2025-06-14T05:08:27.139332Z",
-      "href": "http://127.0.0.1:8082/sessions/40e2ef2a-c63c-4c57-9bba-a0b59e4b209a",
+      "created": "2025-06-16T05:17:22.243383Z",
+      "href": "http://127.0.0.1:8082/sessions/a6e3adf1-6ef6-47f0-88df-17794efd3e01",
       "schedule": {
         "offered": {
           "preparing": {
-            "start": "2025-06-14T11:09:00Z"
+            "start": "2025-06-16T11:18:00Z"
           },
           "available": {
             "duration": "PT2H",
-            "start": "2025-06-14T11:09:00Z"
+            "start": "2025-06-16T11:18:00Z"
           }
         }
       },
-      "phase": "OFFERED",
-      "expires": "2025-06-14T10:08:26.603472Z",
+      "phase": "REJECTED",
+      "expires": "2025-06-16T10:17:19.041438Z",
       "executable": {
         "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-        "uuid": "8309b8e6-291c-46ea-8a3a-387e0c71e7f7",
-        "name": "executable-001",
-        "created": "2025-06-14T05:08:27.14217Z",
-        "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+        "uuid": "43b86c49-85be-496b-be1a-3f99ea406c36",
+        "name": "example-004-executable",
+        "created": "2025-06-16T05:17:22.244456Z",
+        "location": "https://www.example.org/example-004.ipynb"
       },
       "resources": {
         "compute": [
           {
             "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "uuid": "db5e1aa6-0608-453f-810a-59dd0d0be28b",
-            "name": "computer-001",
+            "uuid": "edfd6757-0600-458f-9d7f-2f6c7c24aa5c",
+            "name": "example-004-computer",
             "cores": {
               "min": 10,
               "max": 10

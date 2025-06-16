@@ -1,0 +1,135 @@
+uuid: "3df48ef5-9d51-4f1d-81ee-3653644d744b"
+name: "example-006"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+created: "2025-06-16T05:18:00.931524634Z"
+href: "http://127.0.0.1:8082/offersets/3df48ef5-9d51-4f1d-81ee-3653644d744b"
+result: "YES"
+offers:
+  - uuid: "9cd4ddb2-7af8-40c1-afc2-79bb2a0a5874"
+    name: "example-006-offer-0"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:04.362648996Z"
+    href: "http://127.0.0.1:8082/sessions/9cd4ddb2-7af8-40c1-afc2-79bb2a0a5874"
+    schedule:
+      offered:
+        preparing:
+          start: "2025-06-16T05:19:00Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T05:19:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:00.931528471Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "b6722469-016f-4a0e-9983-af0793e3c2c3"
+      name: "example-006-executable"
+      created: "2025-06-16T05:18:04.36510548Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "503c9d81-3547-4df2-9e99-981ee5add9c1"
+          name: "example-006-compute"
+          cores:
+            min: 10
+            max: 10
+          memory:
+            min: 10
+            max: 10
+  - uuid: "fc444e86-f75e-4902-9dd4-b24038a1901d"
+    name: "example-006-offer-1"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:04.401660176Z"
+    href: "http://127.0.0.1:8082/sessions/fc444e86-f75e-4902-9dd4-b24038a1901d"
+    schedule:
+      offered:
+        preparing:
+          start: "2025-06-16T09:19:00Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T09:19:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:00.931528471Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "3605fb7b-db2e-4f93-9fd0-daa5760161b6"
+      name: "example-006-executable"
+      created: "2025-06-16T05:18:04.403176638Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "c71b3f98-b8bb-46e8-8bd2-1b2794355498"
+          name: "example-006-compute"
+          cores:
+            min: 10
+            max: 10
+          memory:
+            min: 10
+            max: 10
+  - uuid: "11f23295-9e3d-4cd3-bc12-0223a77755fa"
+    name: "example-006-offer-2"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:04.422402455Z"
+    href: "http://127.0.0.1:8082/sessions/11f23295-9e3d-4cd3-bc12-0223a77755fa"
+    schedule:
+      offered:
+        preparing:
+          start: "2025-06-16T13:19:00Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T13:19:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:00.931528471Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "b8a85cd7-274a-4e2b-952a-7dc6ae634223"
+      name: "example-006-executable"
+      created: "2025-06-16T05:18:04.423846961Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "474de005-0caa-4ab3-a19d-80d81077557f"
+          name: "example-006-compute"
+          cores:
+            min: 10
+            max: 10
+          memory:
+            min: 10
+            max: 10
+  - uuid: "be489f74-2a4c-4d5e-b030-3119307b4dde"
+    name: "example-006-offer-3"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:04.44117868Z"
+    href: "http://127.0.0.1:8082/sessions/be489f74-2a4c-4d5e-b030-3119307b4dde"
+    schedule:
+      offered:
+        preparing:
+          start: "2025-06-16T17:19:00Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T17:19:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:00.931528471Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "4f63ef91-32b1-4b6a-ae3a-e5430b06ad18"
+      name: "example-006-executable"
+      created: "2025-06-16T05:18:04.442510219Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "2fd283d8-1f86-4bba-919f-c5a009f3fb9b"
+          name: "example-006-compute"
+          cores:
+            min: 10
+            max: 10
+          memory:
+            min: 10
+            max: 10

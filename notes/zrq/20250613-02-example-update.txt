@@ -27,213 +27,1252 @@
 
         Update the examples.
 
+    Issues:
+
+        Example 005
+        Volumes are missing.
+
+        Example 006
+        Network is missing.
+
+        Example 007
+        Volumes fail to parse.
+
     Result:
 
         Work in progress ...
 
 
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=model-update
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the project.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
 # -----------------------------------------------------
 # Update example 001.
 #[root@spring-builder]
 
-    examplename=001
+    examplename=example-001
     examplepath=/examples/${examplename}
-    examplefull=${examplepath}/${examplename}
+    examplefullpath=${examplepath}/${examplename}
 
-    curl \
-        --silent \
-        --show-error \
-        --header 'Content-Type: application/yaml' \
-        --data-binary "@${examplefull}-001-offerset-request.yaml" \
-        --header 'Accept: application/yaml' \
-        'http://127.0.0.1:8082/offersets' \
-    | tee "${examplefull}-002-offerset-response.yaml" \
-    | yq '.'
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
 
-    >   ....
-    >   ....
+        #
+        # Jupyter notebook for 1HR.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+resources:
+  compute:
+  - name: ${examplename}-computer
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    cores:
+      min: 5
+      max: 15
+    memory:
+      min: 3
+      max: 9
+EOF
 
-    #
-    # Request the offerset.
-    #
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
 
-    offerseturl=$(
-        yq '
-            .href
-            ' \
-            "${examplefull}-002-offerset-response.yaml"
-        )
+        #
+        # Get the full offerset.
+        offerseturl=$(
+            yq '
+              .href
+              ' \
+              "${examplename}-002-offerset-response.yaml"
+            )
 
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/json' \
-        "${offerseturl}" \
-    | tee "${examplefull}-003-offerset-response.json" \
-    | yq '.'
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/json' \
+            "${offerseturl}" \
+        | jq '.' \
+        | tee "${examplename}-003-offerset-response.json"
 
-    >   ....
-    >   ....
+        #
+        # Request the first offer.
+        offerurl=$(
+            yq '
+              .offers[0].href
+              ' \
+              "${examplename}-002-offerset-response.yaml"
+            )
 
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "${examplename}-004-session-00-response.yaml"
 
-    #
-    # Request the first offer.
-    #
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "${examplename}-005-session-00-response.json"
 
-    offerurl=$(
-        yq '
-            .offers[0].href
-            ' \
-            "${examplefull}-002-offerset-response.yaml"
-        )
+        #
+        # Reject the first offer.
+        offerurl=$(
+            yq '
+                .offers[0].href
+                ' \
+                "${examplename}-002-offerset-response.yaml"
+            )
 
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/yaml' \
-        "${offerurl}" \
-    | tee "${examplefull}-004-session-00-response.yaml" \
-    | yq '.'
+        cat > "${examplename}-006-reject-00-request.yaml" << EOF
+update:
+  type:  uri:enum-value-update
+  path:  phase
+  value: REJECTED
+EOF
 
-    >   ....
-    >   ....
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-006-reject-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "${examplename}-007-reject-00-response.yaml"
 
+        #
+        # Request the second offer.
+        offerurl=$(
+            jq -r '
+                .offers[1].href
+                ' \
+                "${examplename}-003-offerset-response.json"
+            )
 
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/json' \
-        "${offerurl}" \
-    | tee "${examplefull}-005-session-00-response.json" \
-    | yq '.'
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "${examplename}-008-session-01-response.yaml"
 
-    >   ....
-    >   ....
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "${examplename}-009-session-01-response.json"
 
+        #
+        # Accept the second offer.
+        offerurl=$(
+            jq -r '
+                .offers[1].href
+                ' \
+                "${examplename}-003-offerset-response.json"
+            )
 
-    #
-    # Reject the first offer.
-    #
+        cat > "${examplename}-010-accept-01-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
 
-    offerurl=$(
-        yq '
-            .offers[0].href
-            ' \
-            "${examplefull}-002-offerset-response.yaml"
-        )
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${examplename}-010-accept-01-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "${examplename}-011-accept-01-response.json"
 
-    curl \
-        --silent \
-        --show-error \
-        --header 'Content-Type: application/yaml' \
-        --data-binary "@${examplefull}-006-reject-00-request.yaml" \
-        --header 'Accept: application/yaml' \
-        "${offerurl}" \
-    | tee "${examplefull}-007-reject-00-response.yaml" \
-    | yq '.'
+        #
+        # Request the whole offerset.
+        offerseturl=$(
+            jq -r '
+                .href
+                ' \
+                "${examplename}-003-offerset-response.json"
+            )
 
-    >   ....
-    >   ....
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/json' \
+            "${offerseturl}" \
+        | jq '.' \
+        | tee "${examplename}-012-offerset-response.json"
 
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerseturl}" \
+        | yq '.' \
+        | tee "${examplename}-013-offerset-response.yaml"
 
-    #
-    # Request the second offer.
-    #
-
-    offerurl=$(
-        jq -r '
-            .offers[1].href
-            ' \
-            "${examplefull}-003-offerset-response.json"
-        )
-
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/yaml' \
-        "${offerurl}" \
-    | tee "${examplefull}-008-session-01-response.yaml" \
-    | yq '.'
-
-    >   ....
-    >   ....
-
-
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/json' \
-        "${offerurl}" \
-    | tee "${examplefull}-009-session-01-response.json" \
-    | yq '.'
-
-    >   ....
-    >   ....
-
-
-    #
-    # Accept the second offer.
-    #
-
-    offerurl=$(
-        jq '
-            .offers[1].href
-            ' \
-            "${examplefull}-003-offerset-response.json"
-        )
-
-    curl \
-        --silent \
-        --show-error \
-        --header 'Content-Type: application/json' \
-        --data-binary "@${examplefull}-010-accept-01-request.json" \
-        --header 'Accept: application/json' \
-        "${offerurl}" \
-    | tee "${examplefull}-011-accept-01-response.json" \
-    | yq '.'
-
-    >   ....
-    >   ....
-
-
-    #
-    # Request the offerset.
-    #
-
-    offerseturl=$(
-        jq '
-            .href
-            ' \
-            "${examplefull}-003-offerset-response.json"
-        )
-
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/json' \
-        "${offerseturl}" \
-    | tee "${examplefull}-012-offerset-response.json" \
-    | yq '.'
-
-    >   ....
-    >   ....
-
-
-    curl \
-        --silent \
-        --show-error \
-        --header 'Accept: application/yaml' \
-        "${offerseturl}" \
-    | tee "${examplefull}-013-offerset-response.yaml" \
-    | yq '.'
-
-    >   ....
-    >   ....
-
+    popd
 
 # -----------------------------------------------------
 # Update example 002.
 #[root@spring-builder]
 
+    examplename=example-002
+    examplepath=/examples/${examplename}
 
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # Minimal YAML request for a Jupyter notebook session.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+executable:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+# -----------------------------------------------------
+# Update example 003.
+#[root@spring-builder]
+
+    examplename=example-003
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # Minimal JSON request for a Jupyter notebook session.
+        cat > "${examplename}-001-offerset-request.json" << EOF
+{
+"executable": {
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+  "location": "https://www.example.org/${examplename}.ipynb"
+  }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${examplename}-001-offerset-request.json" \
+            --header 'Accept: application/json' \
+            'http://127.0.0.1:8082/offersets' \
+        | jq '.' \
+        | tee "${examplename}-002-offerset-response.json"
+
+    popd
+
+# -----------------------------------------------------
+# Update example 004.
+#[root@spring-builder]
+
+    examplename=example-004
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # JSON request for a 1HR jupyter notebook with specific compute resources.
+        cat > "${examplename}-001-offerset-request.json" << EOF
+{
+"name": "${examplename}",
+"executable": {
+    "name": "${examplename}-executable",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "location": "https://www.example.org/${examplename}.ipynb"
+    },
+"schedule": {
+    "requested": {
+        "duration": "PT1H"
+        }
+    },
+"resources": {
+    "compute": [
+            {
+            "name": "${examplename}-computer",
+            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+            "cores": {
+                "min": 5,
+                "max": 15
+                },
+            "memory": {
+                "min": 3,
+                "max": 9
+                }
+            }
+        ]
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${examplename}-001-offerset-request.json" \
+            --header 'Accept: application/json' \
+            'http://127.0.0.1:8082/offersets' \
+        | jq '.' \
+        | tee "${examplename}-002-offerset-response.json"
+
+        #
+        # Reject the first offer.
+        offerurl=$(
+            jq -r '
+                .offers[0].href
+                ' \
+                "${examplename}-002-offerset-response.json"
+            )
+
+        cat > "${examplename}-003-reject-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "REJECTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${examplename}-003-reject-00-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "${examplename}-004-reject-00-response.json"
+
+
+        #
+        # Accept the second offer.
+        offerurl=$(
+            jq -r '
+                .offers[1].href
+                ' \
+                "${examplename}-002-offerset-response.json"
+            )
+
+        cat > "${examplename}-005-accept-01-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@${examplename}-005-accept-01-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "${examplename}-006-reject-00-response.json"
+
+        #
+        # Request the whole offerset.
+        offerseturl=$(
+            jq -r '
+                .href
+                ' \
+                "${examplename}-002-offerset-response.json"
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/json' \
+            "${offerseturl}" \
+        | jq '.' \
+        | tee "${examplename}-007-offerset-response.json"
+
+    popd
+
+# -----------------------------------------------------
+# Update example 005.
+#[root@spring-builder]
+
+# TODO
+# Volumes are ignored.
+#
+
+    examplename=example-005
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # YAML request for a 1HR jupyter notebook with a data resource.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+      duration: PT1H
+resources:
+  compute:
+    - name: ${examplename}-computer
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+      volumes:
+        - "Calibration data"
+
+  volumes:
+    - name: "Calibration data"
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /calibration/
+      mode: READWRITE
+      cardinality: INSTANCE
+      resources:
+        - ${examplename}-data-01
+
+  data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-005.vot
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+# -----------------------------------------------------
+# Update example 006.
+#[root@spring-builder]
+
+    examplename=example-006
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # YAML request for Docker container with a public network port.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+  network:
+    ports:
+    - access: true
+      internal:
+        port: 3000
+      protocol: HTTP
+      path: "/"
+    - access: true
+      internal:
+        port: 3001
+      protocol: HTTPS
+      path: "/"
+  entrypoint: "test-entrypoint"
+  environment:
+    "USER_NAME":  "albert"
+    "USER_EMAIL": "albert@example.org"
+
+resources:
+  compute:
+  - name: ${examplename}-compute
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    cores:
+      min: 5
+      max: 15
+    memory:
+      min: 3
+      max: 9
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+# -----------------------------------------------------
+# Update example 007.
+#[root@spring-builder]
+
+    examplename=example-007
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # YAML request for Jupyter notebook with data mounted in volumes.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+
+schedule:
+  requested:
+      duration: PT1H
+
+resources:
+  compute:
+    - name: ${examplename}-computer
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+      cores:
+        min:  8
+        max: 16
+      memory:
+        min:  8
+        max: 16
+      volumes:
+        - ${examplename}-volume-01
+
+  volumes:
+    - name: ${examplename}-volume-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /calibration
+      mode: READONLY
+      cardinality: CONTAINER
+      resources:
+        - ${examplename}-data-01
+        - ${examplename}-data-02
+
+    - name: ${examplename}-volume-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /input
+      mode: READONLY
+      cardinality: CONTAINER
+      resources:
+        - ${examplename}-data-03
+
+    - name: ${examplename}-volume-04
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /working
+      mode: READWRITE
+      cardinality: INSTANCE
+      resources:
+        - ${examplename}-storage-04
+
+# TODO Split volume into data volume and storage volume
+# Controls what is mounted
+
+  storage:
+    - name: ${examplename}-storage-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      resources:
+        - ${examplename}-data-01
+        - ${examplename}-data-02
+
+    - name: ${examplename}-storage-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      resources:
+        - ${examplename}-data-03
+
+    - name: ${examplename}-storage-04
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+      size:
+        min: 2048
+
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-01.vot
+
+    - name: ${examplename}-data-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-02.vot
+
+    - name: ${examplename}-data-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+      location: https://example.org/data/data-007-03.vot
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update example 008.
+#[root@spring-builder]
+
+    examplename=example-008
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # IVOA data resource.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  compute:
+    - name: ${examplename}-computer
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  volumes:
+    - name: ${examplename}-volume-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /calibration
+      mode: READONLY
+      cardinality: CONTAINER
+      resources:
+        - ${examplename}-data-01
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+      ivoa:
+        ivoid: "ivo://example.org/path?012345-000"
+        obscore:
+          obs_id:             "012345"
+          obs_collection:     "example"
+          obs_publisher_did:  "ivo://example.org/path?012345-000"
+          obs_creator_did:    "ivo://example.org/path?012345-000"
+          dataproduct_type:   "spectrum"
+          calib_level:        0
+          access_url:         "http://datalink.example.org/links?id=ivo%3A%2F%2Fexample.org%2Fpath%3F012345-000"
+          access_format:      "application/x-votable+xml;content=datalink"
+        datalink:
+          ID:                 "ivo://example.org/path?012345-000"
+          access_url:         "http://download.example.org/data/012345-000"
+          content_type:       "spectrum"
+          content_length:     123
+          semantics:          "#this"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update example 009.
+#[root@spring-builder]
+
+    examplename=example-009
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # IVOA and SKAO data resource.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+      - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  compute:
+    - name: ${examplename}-computer-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  volumes:
+    - name: ${examplename}-volume-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /calibration
+      mode: READONLY
+      cardinality: CONTAINER
+      resources:
+        - ${examplename}-data-01
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      ivoa:
+        ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        obscore:
+          obs_id:             "012345"
+          obs_collection:     "example"
+          obs_publisher_did:  "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          obs_creator_did:    "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          dataproduct_type:   "spectrum"
+          calib_level:        0
+          access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+          access_format:      "application/x-votable+xml;content=datalink"
+        datalink:
+          ID:                 "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+          content_type:       "spectrum"
+          content_length:     123
+          semantics:          "#this"
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        objecttype: "FILE"
+        datasize:   29
+        checksum:
+          type:  "ADLER32"
+          value: "6c9f06a7"
+        replicas:
+          - rsename: "SPSRC_STORM"
+            dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "STFC_STORM"
+            dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "SWESRC-OSO-T1"
+            dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "SWESRC-OSO-T0"
+            dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update example 010.
+#[root@spring-builder]
+
+    examplename=example-010
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # SKAO data resource.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  compute:
+    - name: ${examplename}-computer-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  volumes:
+    - name: ${examplename}-volume-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+      path: /calibration
+      mode: READONLY
+      cardinality: CONTAINER
+      resources:
+        - ${examplename}-data-01
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        objecttype: "FILE"
+        datasize:   29
+        checksum:
+          type:  "ADLER32"
+          value: "6c9f06a7"
+        replicas:
+          - rsename: "SPSRC_STORM"
+            dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "STFC_STORM"
+            dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "SWESRC-OSO-T1"
+            dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+          - rsename: "SWESRC-OSO-T0"
+            dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update example 011.
+#[root@spring-builder]
+
+    examplename=example-011
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # Data size 25KiB, three replicas.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   25600
+        replicas:
+          - rsename: "SPSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "AUSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+
+        #
+        # Data size 25MiB, two replicas.
+        cat > "${examplename}-003-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   26214400
+        replicas:
+          - rsename: "SPSRC_STORM"
+          - rsename: "JPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-003-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-004-offerset-response.yaml"
+
+
+        #
+        # Data size 25GiB, two replicas.
+        cat > "${examplename}-005-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   26843545600
+        replicas:
+          - rsename: "SPSRC_STORM"
+          - rsename: "JPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-005-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-006-offerset-response.yaml"
+
+
+        #
+        # Data size 25TiB, two replicas.
+        cat > "${examplename}-007-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   27487790694400
+        replicas:
+          - rsename: "SPSRC_STORM"
+          - rsename: "JPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-007-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-008-offerset-response.yaml"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update example 012.
+#[root@spring-builder]
+
+    examplename=example-012
+    examplepath=/examples/${examplename}
+
+    rm -rf "${examplepath}"
+    mkdir  "${examplepath}"
+    pushd  "${examplepath}"
+
+        #
+        # Data size 25TiB, three replicas.
+        cat > "${examplename}-001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   27487790694400
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-002-offerset-response.yaml"
+
+
+        #
+        # Data size 25TiB, three replicas.
+        # Data size 25GiB, rwo replicas.
+        cat > "${examplename}-003-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   27487790694400
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: ${examplename}-data-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize:   26843545600
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-003-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-004-offerset-response.yaml"
+
+
+
+        #
+        # Data size 25TiB, three replicas.
+        # Data size 25GiB, two replicas.
+        # Data size 25MiB, one replica.
+        cat > "${examplename}-005-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+resources:
+  data:
+    - name: ${examplename}-data-01
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-082506"
+        datasize:   27487790694400
+        replicas:
+          - rsename: "AUSRC_STORM"
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: ${examplename}-data-02
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-094501"
+        datasize:   26843545600
+        replicas:
+          - rsename: "JPSRC_STORM"
+          - rsename: "SPSRC_STORM"
+    - name: ${examplename}-data-03
+      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+      skao:
+        namespace:  "testing"
+        objectname: "zrq-test-20250509-123401"
+        datasize:   26214400
+        replicas:
+          - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-005-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "${examplename}-006-offerset-response.yaml"
+
+    popd
 

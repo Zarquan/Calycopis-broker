@@ -1,0 +1,255 @@
+uuid: "7876cf77-f94d-48d5-a573-63775cdaf5e8"
+name: "example-011"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+created: "2025-06-16T05:19:11.823485096Z"
+href: "http://127.0.0.1:8082/offersets/7876cf77-f94d-48d5-a573-63775cdaf5e8"
+result: "YES"
+offers:
+  - uuid: "5071901f-ddd2-4f79-86e2-46c7614cf1fc"
+    name: "example-011-offer-0"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:19:16.357196794Z"
+    href: "http://127.0.0.1:8082/sessions/5071901f-ddd2-4f79-86e2-46c7614cf1fc"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M2S"
+          start: "2025-06-16T05:19:58Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T05:21:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:19:11.823488211Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "fc0f1204-b16b-47cc-9b70-257e06d9f737"
+      name: "example-011-executable"
+      created: "2025-06-16T05:19:16.359636617Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "3410f10f-259e-457e-8ff5-e0db267b0819"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "3fe21308-7cd7-4df7-b5a9-2eae46ffa3bf"
+          name: "Storage for [example-011-data-01]"
+          created: "2025-06-16T05:19:16.37135328Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "3bab53d4-57a2-44d4-b5fd-731e36c7fbb8"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "3bab53d4-57a2-44d4-b5fd-731e36c7fbb8"
+          name: "example-011-data-01"
+          created: "2025-06-16T05:19:16.372172022Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M2S"
+          storage: "3fe21308-7cd7-4df7-b5a9-2eae46ffa3bf"
+          ivoa: {}
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            datasize: 26214400
+            checksum: {}
+            replicas:
+              - rsename: "SPSRC_STORM"
+              - rsename: "JPSRC_STORM"
+  - uuid: "f8377913-7ffd-4072-ba55-f714831175a0"
+    name: "example-011-offer-1"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:19:16.373412639Z"
+    href: "http://127.0.0.1:8082/sessions/f8377913-7ffd-4072-ba55-f714831175a0"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M2S"
+          start: "2025-06-16T09:19:58Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T09:21:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:19:11.823488211Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "8ffb6723-fe7b-47d8-a6d4-0086cb3977ad"
+      name: "example-011-executable"
+      created: "2025-06-16T05:19:16.37441615Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "09651a05-a323-4f20-8f29-bd92e4b1848b"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "abf43995-5bfe-4fdf-976b-a9839f993032"
+          name: "Storage for [example-011-data-01]"
+          created: "2025-06-16T05:19:16.388110313Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "d87d57f1-6f61-4676-a9bb-94774ff7b7f9"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "d87d57f1-6f61-4676-a9bb-94774ff7b7f9"
+          name: "example-011-data-01"
+          created: "2025-06-16T05:19:16.389128343Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M2S"
+          storage: "abf43995-5bfe-4fdf-976b-a9839f993032"
+          ivoa: {}
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            datasize: 26214400
+            checksum: {}
+            replicas:
+              - rsename: "SPSRC_STORM"
+              - rsename: "JPSRC_STORM"
+  - uuid: "192282a2-a2b2-453a-a17c-7eb19498df04"
+    name: "example-011-offer-2"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:19:16.390475429Z"
+    href: "http://127.0.0.1:8082/sessions/192282a2-a2b2-453a-a17c-7eb19498df04"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M2S"
+          start: "2025-06-16T13:19:58Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T13:21:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:19:11.823488211Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "6b576f00-5454-4b00-92ec-115f081daac2"
+      name: "example-011-executable"
+      created: "2025-06-16T05:19:16.391736581Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "76720e00-1e91-4212-a59f-728abdd2fc30"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "8441defb-51d8-44e0-a344-d37ff98bd0ff"
+          name: "Storage for [example-011-data-01]"
+          created: "2025-06-16T05:19:16.40691026Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "0fb31531-42d0-4c40-8638-a7cdcf3157ec"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "0fb31531-42d0-4c40-8638-a7cdcf3157ec"
+          name: "example-011-data-01"
+          created: "2025-06-16T05:19:16.408234981Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M2S"
+          storage: "8441defb-51d8-44e0-a344-d37ff98bd0ff"
+          ivoa: {}
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            datasize: 26214400
+            checksum: {}
+            replicas:
+              - rsename: "SPSRC_STORM"
+              - rsename: "JPSRC_STORM"
+  - uuid: "7a473aa7-8087-40c5-a1a9-830cb11f06d9"
+    name: "example-011-offer-3"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:19:16.410098695Z"
+    href: "http://127.0.0.1:8082/sessions/7a473aa7-8087-40c5-a1a9-830cb11f06d9"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M2S"
+          start: "2025-06-16T17:19:58Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T17:21:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:19:11.823488211Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "fc03c053-0044-4bb2-aab8-b499d9136a11"
+      name: "example-011-executable"
+      created: "2025-06-16T05:19:16.411562051Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "fe1cfe6e-2efe-4592-9570-8b167e0c2845"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "aae8708b-2dd3-407a-a729-811d8cf866e0"
+          name: "Storage for [example-011-data-01]"
+          created: "2025-06-16T05:19:16.428387558Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "6d335270-6a5a-4f3c-8db5-0b6cf541dc8a"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "6d335270-6a5a-4f3c-8db5-0b6cf541dc8a"
+          name: "example-011-data-01"
+          created: "2025-06-16T05:19:16.429743321Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M2S"
+          storage: "aae8708b-2dd3-407a-a729-811d8cf866e0"
+          ivoa: {}
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            datasize: 26214400
+            checksum: {}
+            replicas:
+              - rsename: "SPSRC_STORM"
+              - rsename: "JPSRC_STORM"

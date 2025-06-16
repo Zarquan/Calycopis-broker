@@ -1,128 +1,128 @@
-uuid: "21c14afa-a0b0-4336-bfc7-02a3c18ea7df"
+uuid: "0d4d3dbc-ea45-4d27-99a5-6de280d52d64"
 name: "example-001"
 type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-06-14T05:08:26.603458Z"
-href: "http://127.0.0.1:8082/offersets/21c14afa-a0b0-4336-bfc7-02a3c18ea7df"
+created: "2025-06-16T05:16:46.717998Z"
+href: "http://127.0.0.1:8082/offersets/0d4d3dbc-ea45-4d27-99a5-6de280d52d64"
 result: "YES"
 offers:
-  - uuid: "ae218c03-ebb5-4a19-b2a1-feaaeba0aa36"
+  - uuid: "c3d713d4-c9ae-4759-ac07-36ea64509815"
     name: "example-001-offer-0"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-14T05:08:27.116999Z"
-    href: "http://127.0.0.1:8082/sessions/ae218c03-ebb5-4a19-b2a1-feaaeba0aa36"
+    created: "2025-06-16T05:16:49.371564Z"
+    href: "http://127.0.0.1:8082/sessions/c3d713d4-c9ae-4759-ac07-36ea64509815"
     schedule:
       offered:
         preparing:
-          start: "2025-06-14T05:09:00Z"
+          start: "2025-06-16T05:17:00Z"
         available:
           duration: "PT2H"
-          start: "2025-06-14T05:09:00Z"
+          start: "2025-06-16T05:17:00Z"
     phase: "REJECTED"
-    expires: "2025-06-14T10:08:26.603472Z"
+    expires: "2025-06-16T10:16:46.718002Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "0b33a7d9-74f0-4373-917a-e279de25a5f8"
-      name: "executable-001"
-      created: "2025-06-14T05:08:27.119844Z"
-      location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      uuid: "e2fd121c-08f9-49a2-a6a1-e41ec9873af5"
+      name: "example-001-executable"
+      created: "2025-06-16T05:16:49.374083Z"
+      location: "https://www.example.org/example-001.ipynb"
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "912f1e7f-a78c-4cac-83ae-7c84b484b6c1"
-          name: "computer-001"
+          uuid: "0a5c2107-48d3-47b0-a383-1eae2a5f227d"
+          name: "example-001-computer"
           cores:
             min: 10
             max: 10
           memory:
             min: 10
             max: 10
-  - uuid: "4a771736-80e1-4f05-94a9-d10c9d647829"
+  - uuid: "aacda142-fba6-4ccd-a88d-922364317fc9"
     name: "example-001-offer-1"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-14T05:08:27.126101Z"
-    href: "http://127.0.0.1:8082/sessions/4a771736-80e1-4f05-94a9-d10c9d647829"
+    created: "2025-06-16T05:16:49.405636Z"
+    href: "http://127.0.0.1:8082/sessions/aacda142-fba6-4ccd-a88d-922364317fc9"
     schedule:
       offered:
         preparing:
-          start: "2025-06-14T07:09:00Z"
+          start: "2025-06-16T07:17:00Z"
         available:
           duration: "PT2H"
-          start: "2025-06-14T07:09:00Z"
+          start: "2025-06-16T07:17:00Z"
     phase: "ACCEPTED"
-    expires: "2025-06-14T10:08:26.603472Z"
+    expires: "2025-06-16T10:16:46.718002Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "9b73344d-4278-470c-a163-3e2005ec12e6"
-      name: "executable-001"
-      created: "2025-06-14T05:08:27.128662Z"
-      location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      uuid: "826d2c8d-ed79-47c5-b72c-7eea1b612271"
+      name: "example-001-executable"
+      created: "2025-06-16T05:16:49.406627Z"
+      location: "https://www.example.org/example-001.ipynb"
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "a2d3189e-4fb8-4957-a625-e9ff8175b4b9"
-          name: "computer-001"
+          uuid: "9c137549-25b0-47df-ad84-7b31d7205573"
+          name: "example-001-computer"
           cores:
             min: 10
             max: 10
           memory:
             min: 10
             max: 10
-  - uuid: "ef79df04-8f8a-4b18-8c67-4f821b992803"
+  - uuid: "6b200ef3-b3f5-49c3-a3c0-087a24883efe"
     name: "example-001-offer-2"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-14T05:08:27.132326Z"
-    href: "http://127.0.0.1:8082/sessions/ef79df04-8f8a-4b18-8c67-4f821b992803"
+    created: "2025-06-16T05:16:49.408267Z"
+    href: "http://127.0.0.1:8082/sessions/6b200ef3-b3f5-49c3-a3c0-087a24883efe"
     schedule:
       offered:
         preparing:
-          start: "2025-06-14T09:09:00Z"
+          start: "2025-06-16T09:17:00Z"
         available:
           duration: "PT2H"
-          start: "2025-06-14T09:09:00Z"
+          start: "2025-06-16T09:17:00Z"
     phase: "REJECTED"
-    expires: "2025-06-14T10:08:26.603472Z"
+    expires: "2025-06-16T10:16:46.718002Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "289b1823-7f74-450b-924a-2f86849afd1f"
-      name: "executable-001"
-      created: "2025-06-14T05:08:27.13461Z"
-      location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      uuid: "1059aaf4-b66d-4c84-9ab5-35c88c730dd9"
+      name: "example-001-executable"
+      created: "2025-06-16T05:16:49.409223Z"
+      location: "https://www.example.org/example-001.ipynb"
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "41296431-19c2-4289-b8d4-5627a05b2cee"
-          name: "computer-001"
+          uuid: "81f091f9-ad46-4b13-b635-fdf539d30652"
+          name: "example-001-computer"
           cores:
             min: 10
             max: 10
           memory:
             min: 10
             max: 10
-  - uuid: "40e2ef2a-c63c-4c57-9bba-a0b59e4b209a"
+  - uuid: "a97ba8f7-a1d7-42d7-8127-9318503b4e0b"
     name: "example-001-offer-3"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-14T05:08:27.139332Z"
-    href: "http://127.0.0.1:8082/sessions/40e2ef2a-c63c-4c57-9bba-a0b59e4b209a"
+    created: "2025-06-16T05:16:49.411002Z"
+    href: "http://127.0.0.1:8082/sessions/a97ba8f7-a1d7-42d7-8127-9318503b4e0b"
     schedule:
       offered:
         preparing:
-          start: "2025-06-14T11:09:00Z"
+          start: "2025-06-16T11:17:00Z"
         available:
           duration: "PT2H"
-          start: "2025-06-14T11:09:00Z"
+          start: "2025-06-16T11:17:00Z"
     phase: "REJECTED"
-    expires: "2025-06-14T10:08:26.603472Z"
+    expires: "2025-06-16T10:16:46.718002Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "8309b8e6-291c-46ea-8a3a-387e0c71e7f7"
-      name: "executable-001"
-      created: "2025-06-14T05:08:27.14217Z"
-      location: "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+      uuid: "c6353021-f249-4b7b-8646-500a60f3b1a5"
+      name: "example-001-executable"
+      created: "2025-06-16T05:16:49.412015Z"
+      location: "https://www.example.org/example-001.ipynb"
     resources:
       compute:
         - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "db5e1aa6-0608-453f-810a-59dd0d0be28b"
-          name: "computer-001"
+          uuid: "5ac6c3bc-03bd-47f7-821d-fad5cfedea6b"
+          name: "example-001-computer"
           cores:
             min: 10
             max: 10

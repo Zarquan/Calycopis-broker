@@ -1,0 +1,355 @@
+uuid: "cef92682-ea44-4186-9218-fd5a44e55819"
+name: "example-009"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+created: "2025-06-16T05:18:39.156871725Z"
+href: "http://127.0.0.1:8082/offersets/cef92682-ea44-4186-9218-fd5a44e55819"
+result: "YES"
+offers:
+  - uuid: "ba43a672-1553-452d-a8f0-0a6cf99c6285"
+    name: "example-009-offer-0"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:43.075103571Z"
+    href: "http://127.0.0.1:8082/sessions/ba43a672-1553-452d-a8f0-0a6cf99c6285"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M4S"
+          start: "2025-06-16T05:18:56Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T05:20:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:39.156875031Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "94a69927-4f2f-43aa-9125-6a84d91317d5"
+      name: "example-009-executable"
+      created: "2025-06-16T05:18:43.077468592Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "8456a748-3e85-4fe5-a694-516760d9df98"
+          name: "example-009-computer-01"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "8c2eec87-8d75-4069-a427-93e71bb6b0db"
+          name: "Storage for [example-009-data-01]"
+          created: "2025-06-16T05:18:43.090375179Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "5965cc2d-7f03-4d1b-ae4c-7f3a43714abe"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "5965cc2d-7f03-4d1b-ae4c-7f3a43714abe"
+          name: "example-009-data-01"
+          created: "2025-06-16T05:18:43.091279436Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M4S"
+          storage: "8c2eec87-8d75-4069-a427-93e71bb6b0db"
+          ivoa:
+            obscore:
+              obs_id: "012345"
+              obs_collection: "example"
+              obs_publisher_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              obs_creator_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              dataproduct_type: "spectrum"
+              calib_level: 0
+              access_url: "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+              access_format: "application/x-votable+xml;content=datalink"
+            datalink:
+              access_url: "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              semantics: "#this"
+              content_type: "spectrum"
+              content_length: 123
+              ID: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            objecttype: "FILE"
+            datasize: 29
+            checksum:
+              type: "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+  - uuid: "58013e79-b1e6-4f21-9f1f-6f5a2f030099"
+    name: "example-009-offer-1"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:43.102741381Z"
+    href: "http://127.0.0.1:8082/sessions/58013e79-b1e6-4f21-9f1f-6f5a2f030099"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M4S"
+          start: "2025-06-16T09:18:56Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T09:20:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:39.156875031Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "55388fde-e769-4dbe-a13a-2e5524a057d2"
+      name: "example-009-executable"
+      created: "2025-06-16T05:18:43.103881815Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "95b4acc6-2f08-4159-b02c-b440ae6535b1"
+          name: "example-009-computer-01"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "5f3abd70-3b88-428e-a63b-835a429b3817"
+          name: "Storage for [example-009-data-01]"
+          created: "2025-06-16T05:18:43.119828918Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "b5993649-ddd3-47f5-acd2-fe13a65a2606"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "b5993649-ddd3-47f5-acd2-fe13a65a2606"
+          name: "example-009-data-01"
+          created: "2025-06-16T05:18:43.121608482Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M4S"
+          storage: "5f3abd70-3b88-428e-a63b-835a429b3817"
+          ivoa:
+            obscore:
+              obs_id: "012345"
+              obs_collection: "example"
+              obs_publisher_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              obs_creator_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              dataproduct_type: "spectrum"
+              calib_level: 0
+              access_url: "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+              access_format: "application/x-votable+xml;content=datalink"
+            datalink:
+              access_url: "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              semantics: "#this"
+              content_type: "spectrum"
+              content_length: 123
+              ID: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            objecttype: "FILE"
+            datasize: 29
+            checksum:
+              type: "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+  - uuid: "2791782c-bc39-4648-a279-046efcd3f462"
+    name: "example-009-offer-2"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:43.125985506Z"
+    href: "http://127.0.0.1:8082/sessions/2791782c-bc39-4648-a279-046efcd3f462"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M4S"
+          start: "2025-06-16T13:18:56Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T13:20:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:39.156875031Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "7beca1bc-2bb6-48e8-b978-81c82e42993b"
+      name: "example-009-executable"
+      created: "2025-06-16T05:18:43.128004677Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "beffaaf3-cc30-44c5-a682-742dbaafd628"
+          name: "example-009-computer-01"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "11162ca1-c6c3-4212-b0e4-3efa8eae2f25"
+          name: "Storage for [example-009-data-01]"
+          created: "2025-06-16T05:18:43.146300859Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "558436a1-72be-4b03-9785-c04c82a641ad"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "558436a1-72be-4b03-9785-c04c82a641ad"
+          name: "example-009-data-01"
+          created: "2025-06-16T05:18:43.147726714Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M4S"
+          storage: "11162ca1-c6c3-4212-b0e4-3efa8eae2f25"
+          ivoa:
+            obscore:
+              obs_id: "012345"
+              obs_collection: "example"
+              obs_publisher_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              obs_creator_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              dataproduct_type: "spectrum"
+              calib_level: 0
+              access_url: "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+              access_format: "application/x-votable+xml;content=datalink"
+            datalink:
+              access_url: "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              semantics: "#this"
+              content_type: "spectrum"
+              content_length: 123
+              ID: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            objecttype: "FILE"
+            datasize: 29
+            checksum:
+              type: "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+  - uuid: "a743f0de-e22c-4ae8-bc0b-acade9f50ea3"
+    name: "example-009-offer-3"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    created: "2025-06-16T05:18:43.151692837Z"
+    href: "http://127.0.0.1:8082/sessions/a743f0de-e22c-4ae8-bc0b-acade9f50ea3"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT1M4S"
+          start: "2025-06-16T17:18:56Z"
+        available:
+          duration: "PT4H"
+          start: "2025-06-16T17:20:00Z"
+    phase: "OFFERED"
+    expires: "2025-06-16T10:18:39.156875031Z"
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0"
+      uuid: "c08af6ba-d629-46f1-9817-f09324d7f2b9"
+      name: "example-009-executable"
+      created: "2025-06-16T05:18:43.153203715Z"
+      schedule: {}
+      privileged: false
+    resources:
+      compute:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+          uuid: "a85cc88d-2da5-442f-9a07-44a0e4e313ff"
+          name: "example-009-computer-01"
+          cores:
+            min: 2
+            max: 2
+          memory:
+            min: 2
+            max: 2
+      storage:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+          uuid: "d2b85bb1-0704-4be9-85c5-a93e3f03920d"
+          name: "Storage for [example-009-data-01]"
+          created: "2025-06-16T05:18:43.172974172Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT5S"
+          data:
+            - "c66a8e29-4950-4f91-be56-d68d191d697c"
+      data:
+        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0"
+          uuid: "c66a8e29-4950-4f91-be56-d68d191d697c"
+          name: "example-009-data-01"
+          created: "2025-06-16T05:18:43.174490467Z"
+          schedule:
+            offered:
+              preparing:
+                duration: "PT1M4S"
+          storage: "d2b85bb1-0704-4be9-85c5-a93e3f03920d"
+          ivoa:
+            obscore:
+              obs_id: "012345"
+              obs_collection: "example"
+              obs_publisher_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              obs_creator_did: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+              dataproduct_type: "spectrum"
+              calib_level: 0
+              access_url: "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+              access_format: "application/x-votable+xml;content=datalink"
+            datalink:
+              access_url: "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              semantics: "#this"
+              content_type: "spectrum"
+              content_length: 123
+              ID: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+          skao:
+            namespace: "testing"
+            objectname: "zrq-test-20250509-082506"
+            objecttype: "FILE"
+            datasize: 29
+            checksum:
+              type: "ADLER32"
+              value: "6c9f06a7"
+            replicas:
+              - rsename: "SPSRC_STORM"
+                dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "STFC_STORM"
+                dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T1"
+                dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+              - rsename: "SWESRC-OSO-T0"
+                dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"

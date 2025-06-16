@@ -1,35 +1,35 @@
 {
-  "uuid": "ae218c03-ebb5-4a19-b2a1-feaaeba0aa36",
-  "name": "example-001-offer-0",
+  "uuid": "aacda142-fba6-4ccd-a88d-922364317fc9",
+  "name": "example-001-offer-1",
   "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-  "created": "2025-06-14T05:08:27.116999Z",
-  "href": "http://127.0.0.1:8082/sessions/ae218c03-ebb5-4a19-b2a1-feaaeba0aa36",
+  "created": "2025-06-16T05:16:49.405636Z",
+  "href": "http://127.0.0.1:8082/sessions/aacda142-fba6-4ccd-a88d-922364317fc9",
   "schedule": {
     "offered": {
       "preparing": {
-        "start": "2025-06-14T05:09:00Z"
+        "start": "2025-06-16T07:17:00Z"
       },
       "available": {
         "duration": "PT2H",
-        "start": "2025-06-14T05:09:00Z"
+        "start": "2025-06-16T07:17:00Z"
       }
     }
   },
   "phase": "OFFERED",
-  "expires": "2025-06-14T10:08:26.603472Z",
+  "expires": "2025-06-16T10:16:46.718002Z",
   "executable": {
     "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-    "uuid": "0b33a7d9-74f0-4373-917a-e279de25a5f8",
-    "name": "executable-001",
-    "created": "2025-06-14T05:08:27.119844Z",
-    "location": "https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb"
+    "uuid": "826d2c8d-ed79-47c5-b72c-7eea1b612271",
+    "name": "example-001-executable",
+    "created": "2025-06-16T05:16:49.406627Z",
+    "location": "https://www.example.org/example-001.ipynb"
   },
   "resources": {
     "compute": [
       {
         "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-        "uuid": "912f1e7f-a78c-4cac-83ae-7c84b484b6c1",
-        "name": "computer-001",
+        "uuid": "9c137549-25b0-47df-ad84-7b31d7205573",
+        "name": "example-001-computer",
         "cores": {
           "min": 10,
           "max": 10
