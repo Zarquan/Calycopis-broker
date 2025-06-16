@@ -1,0 +1,18 @@
+name: example-001
+executable:
+  name: example-001-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  location: https://www.example.org/example-001.ipynb
+schedule:
+  requested:
+    duration: PT1H
+resources:
+  compute:
+  - name: example-001-computer
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+    cores:
+      min: 5
+      max: 15
+    memory:
+      min: 3
+      max: 9

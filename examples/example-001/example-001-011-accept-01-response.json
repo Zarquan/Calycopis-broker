@@ -1,0 +1,44 @@
+{
+  "uuid": "aacda142-fba6-4ccd-a88d-922364317fc9",
+  "name": "example-001-offer-1",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
+  "created": "2025-06-16T05:16:49.405636Z",
+  "href": "http://127.0.0.1:8082/sessions/aacda142-fba6-4ccd-a88d-922364317fc9",
+  "schedule": {
+    "offered": {
+      "preparing": {
+        "start": "2025-06-16T07:17:00Z"
+      },
+      "available": {
+        "duration": "PT2H",
+        "start": "2025-06-16T07:17:00Z"
+      }
+    }
+  },
+  "phase": "ACCEPTED",
+  "expires": "2025-06-16T10:16:46.718002Z",
+  "executable": {
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "uuid": "826d2c8d-ed79-47c5-b72c-7eea1b612271",
+    "name": "example-001-executable",
+    "created": "2025-06-16T05:16:49.406627Z",
+    "location": "https://www.example.org/example-001.ipynb"
+  },
+  "resources": {
+    "compute": [
+      {
+        "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+        "uuid": "9c137549-25b0-47df-ad84-7b31d7205573",
+        "name": "example-001-computer",
+        "cores": {
+          "min": 10,
+          "max": 10
+        },
+        "memory": {
+          "min": 10,
+          "max": 10
+        }
+      }
+    ]
+  }
+}
