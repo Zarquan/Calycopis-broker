@@ -1,4 +1,0 @@
-# A minimal request for a Jupyter notebook session.
-executable:
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
-  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
