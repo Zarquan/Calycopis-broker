@@ -1,223 +1,219 @@
-uuid: "a26fa8c6-4498-4388-8273-0a3edac6c008"
+uuid: "7e995848-f0dd-48b3-8ce6-0ae919a0bcde"
 name: "example-005"
 type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-06-16T05:17:33.013251569Z"
-href: "http://127.0.0.1:8082/offersets/a26fa8c6-4498-4388-8273-0a3edac6c008"
+created: "2025-06-18T05:06:22.996578603Z"
+href: "http://127.0.0.1:8082/offersets/7e995848-f0dd-48b3-8ce6-0ae919a0bcde"
 result: "YES"
 offers:
-  - uuid: "2c782f0c-a65a-48db-b3b6-2a0af428835c"
+  - uuid: "1e4a3b7b-0f54-4394-b701-67e994df5de3"
     name: "example-005-offer-0"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-16T05:17:36.221576708Z"
-    href: "http://127.0.0.1:8082/sessions/2c782f0c-a65a-48db-b3b6-2a0af428835c"
+    created: "2025-06-18T05:06:23.803965115Z"
+    href: "http://127.0.0.1:8082/sessions/1e4a3b7b-0f54-4394-b701-67e994df5de3"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-16T05:17:55Z"
+          start: "2025-06-18T05:06:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-16T05:18:00Z"
-    phase: "OFFERED"
-    expires: "2025-06-16T10:17:33.013254999Z"
+          start: "2025-06-18T05:07:00Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "6c9fd550-da6f-4271-9246-232b3fc5c72e"
+      uuid: "a0a127f5-ba2d-4b32-b73a-c63831180bae"
       name: "example-005-executable"
-      created: "2025-06-16T05:17:36.224091974Z"
+      created: "2025-06-18T05:06:23.814932485Z"
       location: "https://www.example.org/example-005.ipynb"
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "790e5b27-2d41-4e1e-a231-07d288ca7da0"
-          name: "example-005-computer"
-          cores:
-            min: 2
-            max: 2
-          memory:
-            min: 2
-            max: 2
-      storage:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "547ec982-1f59-4a64-8ca2-c672d183bd33"
-          name: "Storage for [example-005-data-01]"
-          created: "2025-06-16T05:17:36.225750418Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          data:
-            - "5eb0b770-f433-4608-836f-cf8fa7165fe5"
-      data:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-          uuid: "5eb0b770-f433-4608-836f-cf8fa7165fe5"
-          name: "example-005-data-01"
-          created: "2025-06-16T05:17:36.256839967Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          storage: "547ec982-1f59-4a64-8ca2-c672d183bd33"
-          location: "https://example.org/data/data-005.vot"
-  - uuid: "494bcc8a-7c8a-489f-ae5d-53f1299a405c"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      uuid: "fdba36fb-23e9-4346-9f96-d7b503fcd22b"
+      name: "example-005-computer"
+      cores:
+        min: 2
+        max: 2
+      memory:
+        min: 2
+        max: 2
+    storage:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+        uuid: "79edd967-974b-44cb-9414-8988f205da80"
+        name: "Storage for [example-005-data-01]"
+        created: "2025-06-18T05:06:23.827421148Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        data:
+          - "f92e5909-9284-4eb7-8d29-dc6ab3a6f3ff"
+    data:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
+        uuid: "f92e5909-9284-4eb7-8d29-dc6ab3a6f3ff"
+        name: "example-005-data-01"
+        created: "2025-06-18T05:06:23.836972499Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        storage: "79edd967-974b-44cb-9414-8988f205da80"
+        location: "https://example.org/data/data-005.vot"
+    phase: "OFFERED"
+    expires: "2025-06-18T10:06:22.996593604Z"
+  - uuid: "daaaaa31-e2de-448f-bf9a-f275802bbc9f"
     name: "example-005-offer-1"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-16T05:17:36.283512424Z"
-    href: "http://127.0.0.1:8082/sessions/494bcc8a-7c8a-489f-ae5d-53f1299a405c"
+    created: "2025-06-18T05:06:23.848750187Z"
+    href: "http://127.0.0.1:8082/sessions/daaaaa31-e2de-448f-bf9a-f275802bbc9f"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-16T07:17:55Z"
+          start: "2025-06-18T07:06:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-16T07:18:00Z"
-    phase: "OFFERED"
-    expires: "2025-06-16T10:17:33.013254999Z"
+          start: "2025-06-18T07:07:00Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "5713d6ab-977c-46f5-b7ea-10a3dbf7fa8f"
+      uuid: "2eed0607-03a6-4dd8-b012-b45f3742ef4f"
       name: "example-005-executable"
-      created: "2025-06-16T05:17:36.284609821Z"
+      created: "2025-06-18T05:06:23.851174345Z"
       location: "https://www.example.org/example-005.ipynb"
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "33147b46-36b2-4ed8-8aa5-a56e22524423"
-          name: "example-005-computer"
-          cores:
-            min: 2
-            max: 2
-          memory:
-            min: 2
-            max: 2
-      storage:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "d5bda6e1-12e8-44b2-8529-5f58cf0c97c4"
-          name: "Storage for [example-005-data-01]"
-          created: "2025-06-16T05:17:36.287059613Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          data:
-            - "9b22951f-1c15-4068-97c5-72abb1695e97"
-      data:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-          uuid: "9b22951f-1c15-4068-97c5-72abb1695e97"
-          name: "example-005-data-01"
-          created: "2025-06-16T05:17:36.288715818Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          storage: "d5bda6e1-12e8-44b2-8529-5f58cf0c97c4"
-          location: "https://example.org/data/data-005.vot"
-  - uuid: "e7254770-2c53-4c81-9bbf-3cfdd1aa405e"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      uuid: "dbd73f08-2fe5-416a-bb87-e91de18809f6"
+      name: "example-005-computer"
+      cores:
+        min: 2
+        max: 2
+      memory:
+        min: 2
+        max: 2
+    storage:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+        uuid: "df468bf9-19f7-477c-aba3-dd628ba723b3"
+        name: "Storage for [example-005-data-01]"
+        created: "2025-06-18T05:06:23.855214912Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        data:
+          - "724d26b0-3eab-44f7-96d3-04930fcef0e4"
+    data:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
+        uuid: "724d26b0-3eab-44f7-96d3-04930fcef0e4"
+        name: "example-005-data-01"
+        created: "2025-06-18T05:06:23.857354534Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        storage: "df468bf9-19f7-477c-aba3-dd628ba723b3"
+        location: "https://example.org/data/data-005.vot"
+    phase: "OFFERED"
+    expires: "2025-06-18T10:06:22.996593604Z"
+  - uuid: "d504213b-7a2a-424c-8ef8-f65c6d8a6cae"
     name: "example-005-offer-2"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-16T05:17:36.292112764Z"
-    href: "http://127.0.0.1:8082/sessions/e7254770-2c53-4c81-9bbf-3cfdd1aa405e"
+    created: "2025-06-18T05:06:23.862573371Z"
+    href: "http://127.0.0.1:8082/sessions/d504213b-7a2a-424c-8ef8-f65c6d8a6cae"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-16T09:17:55Z"
+          start: "2025-06-18T09:06:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-16T09:18:00Z"
-    phase: "OFFERED"
-    expires: "2025-06-16T10:17:33.013254999Z"
+          start: "2025-06-18T09:07:00Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "02ee124c-7651-4f8b-b837-a922c45f03cf"
+      uuid: "4c34e185-67d6-4a33-bfe1-2bed4caf0f1d"
       name: "example-005-executable"
-      created: "2025-06-16T05:17:36.293946462Z"
+      created: "2025-06-18T05:06:23.86567147Z"
       location: "https://www.example.org/example-005.ipynb"
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "7d1bb304-9010-4b55-a8f8-9b728420475a"
-          name: "example-005-computer"
-          cores:
-            min: 2
-            max: 2
-          memory:
-            min: 2
-            max: 2
-      storage:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "f8f02c8d-ff2b-4ae7-bb1b-5e3109ab9893"
-          name: "Storage for [example-005-data-01]"
-          created: "2025-06-16T05:17:36.296280676Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          data:
-            - "49c0085d-4412-4686-a7d7-f5a2dc708dc5"
-      data:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-          uuid: "49c0085d-4412-4686-a7d7-f5a2dc708dc5"
-          name: "example-005-data-01"
-          created: "2025-06-16T05:17:36.297658067Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          storage: "f8f02c8d-ff2b-4ae7-bb1b-5e3109ab9893"
-          location: "https://example.org/data/data-005.vot"
-  - uuid: "7c6abaae-b0e9-4a60-b844-fddf5a103cf0"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      uuid: "f37a8788-1c79-4b3b-936f-5b97d88df761"
+      name: "example-005-computer"
+      cores:
+        min: 2
+        max: 2
+      memory:
+        min: 2
+        max: 2
+    storage:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+        uuid: "7e50abdf-7310-47f9-a386-e1e95010a648"
+        name: "Storage for [example-005-data-01]"
+        created: "2025-06-18T05:06:23.87092708Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        data:
+          - "79faea87-8a4b-4c8e-82ce-f431755bd87f"
+    data:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
+        uuid: "79faea87-8a4b-4c8e-82ce-f431755bd87f"
+        name: "example-005-data-01"
+        created: "2025-06-18T05:06:23.873175231Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        storage: "7e50abdf-7310-47f9-a386-e1e95010a648"
+        location: "https://example.org/data/data-005.vot"
+    phase: "OFFERED"
+    expires: "2025-06-18T10:06:22.996593604Z"
+  - uuid: "34644714-9a5d-451b-ab87-279c8f4bb4e5"
     name: "example-005-offer-3"
     type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-16T05:17:36.30016881Z"
-    href: "http://127.0.0.1:8082/sessions/7c6abaae-b0e9-4a60-b844-fddf5a103cf0"
+    created: "2025-06-18T05:06:23.877995006Z"
+    href: "http://127.0.0.1:8082/sessions/34644714-9a5d-451b-ab87-279c8f4bb4e5"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-16T11:17:55Z"
+          start: "2025-06-18T11:06:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-16T11:18:00Z"
-    phase: "OFFERED"
-    expires: "2025-06-16T10:17:33.013254999Z"
+          start: "2025-06-18T11:07:00Z"
     executable:
       type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "f97ae17e-d320-4340-80a2-b824fd4fee6c"
+      uuid: "02a8c994-f968-43ea-a58a-09f03d507ed5"
       name: "example-005-executable"
-      created: "2025-06-16T05:17:36.301829092Z"
+      created: "2025-06-18T05:06:23.881203897Z"
       location: "https://www.example.org/example-005.ipynb"
-    resources:
-      compute:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-          uuid: "7af665e6-f4a0-400a-b593-f55af631a87f"
-          name: "example-005-computer"
-          cores:
-            min: 2
-            max: 2
-          memory:
-            min: 2
-            max: 2
-      storage:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-          uuid: "f3be54ca-2fcd-45df-8a70-697b9204193a"
-          name: "Storage for [example-005-data-01]"
-          created: "2025-06-16T05:17:36.30470035Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          data:
-            - "91fd3adb-a5ab-4502-ab3c-eb7a4efb3451"
-      data:
-        - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-          uuid: "91fd3adb-a5ab-4502-ab3c-eb7a4efb3451"
-          name: "example-005-data-01"
-          created: "2025-06-16T05:17:36.30606378Z"
-          schedule:
-            offered:
-              preparing:
-                duration: "PT5S"
-          storage: "f3be54ca-2fcd-45df-8a70-697b9204193a"
-          location: "https://example.org/data/data-005.vot"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      uuid: "05cfeb44-91a5-4d93-9e8a-f2386c2418cc"
+      name: "example-005-computer"
+      cores:
+        min: 2
+        max: 2
+      memory:
+        min: 2
+        max: 2
+    storage:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
+        uuid: "db4aaba6-da2c-4b1f-83a9-c9480dc6fe88"
+        name: "Storage for [example-005-data-01]"
+        created: "2025-06-18T05:06:23.886851839Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        data:
+          - "85be6301-686a-4b09-96ec-29b4a304c357"
+    data:
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
+        uuid: "85be6301-686a-4b09-96ec-29b4a304c357"
+        name: "example-005-data-01"
+        created: "2025-06-18T05:06:23.8895456Z"
+        schedule:
+          offered:
+            preparing:
+              duration: "PT5S"
+        storage: "db4aaba6-da2c-4b1f-83a9-c9480dc6fe88"
+        location: "https://example.org/data/data-005.vot"
+    phase: "OFFERED"
+    expires: "2025-06-18T10:06:22.996593604Z"

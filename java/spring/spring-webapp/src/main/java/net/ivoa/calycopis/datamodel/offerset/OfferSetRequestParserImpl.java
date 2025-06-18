@@ -32,7 +32,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
@@ -132,77 +131,63 @@ public class OfferSetRequestParserImpl
         {
         log.debug("validate(OfferSetRequestParserState)");
         final IvoaOfferSetRequest offersetRequest = context.getOriginalOfferSetRequest();
-        final IvoaOfferSetRequest offersetResult  = context.getValidatedOfferSetRequest();
-        //
-        // Initialise our result. 
-        if (offersetResult.getResources() == null)
-            {
-            offersetResult.setResources(
-                new IvoaExecutionResourceList()
-                );
-            }
         //
         // Validate the requested resources.
         log.debug("Validating the requested resources");
-        if (offersetRequest.getResources() != null)
-            {
-            //
-            // Validate the requested storage resources.
-            log.debug("Validating the requested storage resources");
-            if (offersetRequest.getResources().getStorage() != null)
-                {
-                for (IvoaAbstractStorageResource resource : offersetRequest.getResources().getStorage())
-                    {
-                    storageValidators.validate(
-                        resource,
-                        context
-                        );
-                    // TODO Check the result ?
-                    }
-                }
-            //
-            // Validate the requested data resources.
-            log.debug("Validating the requested data resources");
-            if (offersetRequest.getResources().getData() != null)
-                {
-                for (IvoaAbstractDataResource resource : offersetRequest.getResources().getData())
-                    {
-                    dataValidators.validate(
-                        resource,
-                        context
-                        );
-                    // TODO Check the result ?
-                    }
-                }
-            //
-            // Validate the requested volume mounts.
-            log.debug("Validating the requested volume mounts");
-            if (offersetRequest.getResources().getVolumes() != null)
-                {
-                for (IvoaAbstractVolumeMount resource : offersetRequest.getResources().getVolumes())
-                    {
-                    volumeValidators.validate(
-                        resource,
-                        context
-                        );
-                    // TODO Check the result ?
-                    }
-                }
 
-            //
-            // Validate the requested compute resources.
-            log.debug("Validating the requested compute resources");
-            if (offersetRequest.getResources().getCompute() != null)
+        //
+        // Validate the requested storage resources.
+        log.debug("Validating the requested storage resources");
+        if (offersetRequest.getStorage() != null)
+            {
+            for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())
                 {
-                for (IvoaAbstractComputeResource resource : offersetRequest.getResources().getCompute())
-                    {
-                    computeValidators.validate(
-                        resource,
-                        context
-                        );            
-                    // TODO Check the result ?
-                    }
+                storageValidators.validate(
+                    resource,
+                    context
+                    );
+                // TODO Check the result ?
                 }
+            }
+        //
+        // Validate the requested data resources.
+        log.debug("Validating the requested data resources");
+        if (offersetRequest.getData() != null)
+            {
+            for (IvoaAbstractDataResource resource : offersetRequest.getData())
+                {
+                dataValidators.validate(
+                    resource,
+                    context
+                    );
+                // TODO Check the result ?
+                }
+            }
+        //
+        // Validate the requested volume mounts.
+        log.debug("Validating the requested volume mounts");
+        if (offersetRequest.getVolumes() != null)
+            {
+            for (IvoaAbstractVolumeMount resource : offersetRequest.getVolumes())
+                {
+                volumeValidators.validate(
+                    resource,
+                    context
+                    );
+                // TODO Check the result ?
+                }
+            }
+
+        //
+        // Validate the requested compute resources.
+        log.debug("Validating the requested compute resources");
+        if (offersetRequest.getComputer() != null)
+            {
+            computeValidators.validate(
+                offersetRequest.getComputer(),
+                context
+                );            
+            // TODO Check the result ?
             }
         log.debug("Finished validating the resources");
         

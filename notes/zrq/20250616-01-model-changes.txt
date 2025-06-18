@@ -1,0 +1,196 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Structural changes to the model that were held back last iteration.
+
+    Result:
+
+        Work in progress ...
+
+        [Tech debt] Complete changes to the Execution Broker data model
+        https://jira.skatelescope.org/browse/COR-891
+
+# -----------------------------------------------------
+#
+
+    Single compute
+
+    Split volumes
+        instance-volume
+        container-volume
+
+    Split volumes
+        data and storage ?
+
+    Volumes part of compute
+        Contained is logical
+        Separate is very K8S
+        Separate allows more complex mounting
+
+    Science data
+        Contains data
+
+    A science resource is just a type of data resource.
+    No need for the 'science' block.
+
+    Structure for container.network.access
+    Rather than 'true', create a URL if protocol is recognised.
+    Add a type field ?
+
+    Remove the 'resources' step.
+    Everything is at the same level.
+
+        executable:
+          type: ..
+          name: ..
+          uuid: ..
+          href: ..
+        computer:
+          type: ..
+          name: ..
+          uuid: ..
+          href: ..
+        volumes:
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+        storage:
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+        data:
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+          - type: ..
+            name: ..
+            uuid: ..
+            href: ..
+
+        A container executable can contain installed executables.
+        A container computer can contain computer nodes.
+
+        A container volume contains data resources.
+        A container volume contains storage resources.
+
+        A storage resource contains data resources.
+        A science resource contains data resources.
+
+
+# -----------------------------------------------------
+#
+
+    Default pool for storage
+
+    Fix storage references
+
+    Fix container network
+
+    Process uuids in inputs
+
+    Everything editable
+        endpoints
+        hrefs
+
+# -----------------------------------------------------
+#
+
+    SRCNet names services not interfaces.
+    ExecutionBroker is the interface
+    XyzBrokers are the services.
+
+    PlatformBroker
+
+        DockerBroker
+
+        LibvirtBroker
+
+        CanfarBroker
+
+        OpenstackBroker
+
+    WorkflowExecution - probably can't get this changed :-(
+    WorkflowBroker
+
+        Editable requests
+        POST to the request endpoint
+            phase = EDITING
+
+        POST to the request endpoint
+            phase = SENDING
+
+
+# -----------------------------------------------------
+#
+
+    Split volumes
+        instance-volume
+        container-volume
+
+        instance-volume pointing to data-resource
+            => mounted as a file
+        instance-volume pointing to storage-resource
+            => mounted as a directory
+
+        container-volume pointing to data-resource
+            => mounted as a file in a directory
+        container-volume pointing to storage-resource
+            => mounted as a sub-directory
+
+        container-volume creates a directory in the filesystem
+        and then mounts the resources inside that
+
+    Add science resources to the mix.
+
+        science-instance-resource
+        equivalent to a file
+
+        instance-volume pointing to science-instance
+            pointing to a single data-resource
+            => science-instance name mapped to
+                => data-resource mounted as a file
+
+        instance-volume pointing to science-container
+            containing a data-resource
+            => science-instance name mapped to directory
+               containing
+                => data-resource(s) mounted as files
+
+
+
+

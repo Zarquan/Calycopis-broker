@@ -8,74 +8,70 @@ schedule:
   requested:
       duration: PT1H
 
-resources:
-  compute:
-    - name: example-007-computer
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-      cores:
-        min:  8
-        max: 16
-      memory:
-        min:  8
-        max: 16
-      volumes:
-        - example-007-volume-01
-
+computer:
+  name: example-007-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  cores:
+    min:  8
+    max: 16
+  memory:
+    min:  8
+    max: 16
   volumes:
-    - name: example-007-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - example-007-data-01
-        - example-007-data-02
+    - example-007-volume-01
 
-    - name: example-007-volume-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /input
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - example-007-data-03
+volumes:
+  - name: example-007-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-007-data-01
+      - example-007-data-02
 
-    - name: example-007-volume-04
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /working
-      mode: READWRITE
-      cardinality: INSTANCE
-      resources:
-        - example-007-storage-04
+  - name: example-007-volume-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /input
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-007-data-03
 
-# TODO Split volume into data volume and storage volume
-# Controls what is mounted
+  - name: example-007-volume-04
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /working
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - example-007-storage-04
 
-  storage:
-    - name: example-007-storage-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      resources:
-        - example-007-data-01
-        - example-007-data-02
+storage:
+  - name: example-007-storage-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+#   resources:
+#     - example-007-data-01
+#     - example-007-data-02
 
-    - name: example-007-storage-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      resources:
-        - example-007-data-03
+  - name: example-007-storage-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+#   resources:
+#     - example-007-data-03
 
-    - name: example-007-storage-04
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      size:
-        min: 2048
+  - name: example-007-storage-04
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    size:
+      min: 2048
 
-  data:
-    - name: example-007-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-01.vot
+data:
+  - name: example-007-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-01.vot
 
-    - name: example-007-data-02
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-02.vot
+  - name: example-007-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-02.vot
 
-    - name: example-007-data-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-03.vot
+  - name: example-007-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-03.vot

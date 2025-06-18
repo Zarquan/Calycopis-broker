@@ -65,7 +65,7 @@ implements AbstractComputeResource
         {
         super(name);
         this.session = session;
-        session.addComputeResource(
+        session.setComputeResource(
             this
             );
         }

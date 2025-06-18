@@ -206,10 +206,10 @@ public interface ExecutionSession
     public AbstractExecutableEntity getExecutable();
 
     /**
-     * Get a list of the ComputeResources.
+     * Get the ComputeResource.
      *
      */
-    public List<AbstractComputeResourceEntity> getComputeResources();
+    public AbstractComputeResourceEntity getComputeResource();
 
     /**
      * Get a list of the DataResources.

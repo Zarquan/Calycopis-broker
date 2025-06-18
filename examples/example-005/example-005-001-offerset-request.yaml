@@ -6,23 +6,22 @@ executable:
 schedule:
   requested:
       duration: PT1H
-resources:
-  compute:
-    - name: example-005-computer
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-      volumes:
-        - "Calibration data"
-
+computer:
+  name: example-005-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
   volumes:
-    - name: "Calibration data"
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration/
-      mode: READWRITE
-      cardinality: INSTANCE
-      resources:
-        - example-005-data-01
+    - "Calibration data"
 
-  data:
-  - name: example-005-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-    location: https://example.org/data/data-005.vot
+volumes:
+  - name: "Calibration data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration/
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - example-005-data-01
+
+data:
+- name: example-005-data-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+  location: https://example.org/data/data-005.vot

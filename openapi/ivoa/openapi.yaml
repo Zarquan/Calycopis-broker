@@ -256,16 +256,6 @@ components:
 
 # compute-resources.yaml
 
-    ComputeResourceList:
-      description: >
-        A list of compute resources.
-      type: array
-      title: ComputeResourceList
-      xml:
-        name: compute
-      items:
-        $ref: 'AbstractComputeResource'
-
     AbstractComputeResource:
       description: >
         Abstract base class for compute resources.
@@ -913,18 +903,17 @@ components:
         releasing:
           $ref: 'ObservedScheduleItem'
 
-# sessions.yaml
-
-    ExecutionResourceList:
+#   ExecutionResourceList:
+    ExecutionComponents:
       description: >
-        Combined compute, storage, volumes, and data lists.
+        The combination of an executable and the compute, storage, volumes, and data resources it needs.
       type: object
-      title: ExecutionResourceList
-      xml:
-        name: resources
+      title: ExecutionComponents
       properties:
-        compute:
-          $ref: 'ComputeResourceList'
+        executable:
+          $ref: 'AbstractExecutable'
+        computer:
+          $ref: 'AbstractComputeResource'
         storage:
           $ref: 'StorageResourceList'
         volumes:
@@ -965,6 +954,7 @@ components:
         - $ref: 'AbstractComponent'
         - $ref: 'AccessibleComponent'
         - $ref: 'ScheduledComponent'
+        - $ref: 'ExecutionComponents'
         - type: object
           required:
             - uuid
@@ -982,14 +972,14 @@ components:
                 name: expires
               type: string
               format: date-time
-            executable:
-              xml:
-                name: executable
-              $ref: 'AbstractExecutable'
-            resources:
-              xml:
-                name: resources
-              $ref: 'ExecutionResourceList'
+#           executable:
+#             xml:
+#               name: executable
+#             $ref: 'AbstractExecutable'
+#           resources:
+#             xml:
+#               name: resources
+#             $ref: 'ExecutionResourceList'
             options:
               description: >
                 A List of options the client can apply to this Execution.
@@ -1006,27 +996,30 @@ components:
       title: OfferSetRequest
       xml:
         name: offers-request
-      properties:
-        name:
-          description: >
-            A human readable name.
-          type: string
-        description:
-          description: >
-            A human readable description.
-          type: string
-        executable:
-          xml:
-            name: executable
-          $ref: 'AbstractExecutable'
-        resources:
-          xml:
-            name: resources
-          $ref: 'ExecutionResourceList'
-        schedule:
-          xml:
-            name: schedule
-          $ref: 'RequestedScheduleBlock'
+      allOf:
+        - $ref: 'ExecutionComponents'
+        - type: object
+          properties:
+            name:
+              description: >
+                A human readable name.
+              type: string
+            description:
+              description: >
+                A human readable description.
+              type: string
+#       executable:
+#         xml:
+#           name: executable
+#         $ref: 'AbstractExecutable'
+#       resources:
+#         xml:
+#           name: resources
+#         $ref: 'ExecutionResourceList'
+            schedule:
+              xml:
+                name: schedule
+              $ref: 'RequestedScheduleBlock'
 
     OfferSetResponse:
       description: >
