@@ -7,52 +7,54 @@ executable:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
       - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  compute:
-    - name: example-009-computer-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-  volumes:
-    - name: example-009-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - example-009-data-01
-  data:
-    - name: example-009-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      ivoa:
-        ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-        obscore:
-          obs_id:             "012345"
-          obs_collection:     "example"
-          obs_publisher_did:  "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          obs_creator_did:    "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          dataproduct_type:   "spectrum"
-          calib_level:        0
-          access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
-          access_format:      "application/x-votable+xml;content=datalink"
-        datalink:
-          ID:                 "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          content_type:       "spectrum"
-          content_length:     123
-          semantics:          "#this"
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        objecttype: "FILE"
-        datasize:   29
-        checksum:
-          type:  "ADLER32"
-          value: "6c9f06a7"
-        replicas:
-          - rsename: "SPSRC_STORM"
-            dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "STFC_STORM"
-            dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T1"
-            dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T0"
-            dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+
+computer:
+  name: example-009-computer-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+
+volumes:
+  - name: example-009-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-009-data-01
+
+data:
+  - name: example-009-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    ivoa:
+      ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+      obscore:
+        obs_id:             "012345"
+        obs_collection:     "example"
+        obs_publisher_did:  "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        obs_creator_did:    "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        dataproduct_type:   "spectrum"
+        calib_level:        0
+        access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+        access_format:      "application/x-votable+xml;content=datalink"
+      datalink:
+        ID:                 "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        content_type:       "spectrum"
+        content_length:     123
+        semantics:          "#this"
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      objecttype: "FILE"
+      datasize:   29
+      checksum:
+        type:  "ADLER32"
+        value: "6c9f06a7"
+      replicas:
+        - rsename: "SPSRC_STORM"
+          dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "STFC_STORM"
+          dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T1"
+          dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T0"
+          dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"

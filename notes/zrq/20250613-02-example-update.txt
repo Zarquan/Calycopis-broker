@@ -126,7 +126,6 @@ EOF
 
     examplename=example-001
     examplepath=/examples/${examplename}
-    examplefullpath=${examplepath}/${examplename}
 
     rm -rf "${examplepath}"
     mkdir  "${examplepath}"
@@ -143,16 +142,15 @@ executable:
 schedule:
   requested:
     duration: PT1H
-resources:
-  compute:
-  - name: ${examplename}-computer
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-    cores:
-      min: 5
-      max: 15
-    memory:
-      min: 3
-      max: 9
+computer:
+  name: ${examplename}-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  cores:
+    min: 5
+    max: 15
+  memory:
+    min: 3
+    max: 9
 EOF
 
         curl \
@@ -405,21 +403,17 @@ EOF
         "duration": "PT1H"
         }
     },
-"resources": {
-    "compute": [
-            {
-            "name": "${examplename}-computer",
-            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "cores": {
-                "min": 5,
-                "max": 15
-                },
-            "memory": {
-                "min": 3,
-                "max": 9
-                }
-            }
-        ]
+"computer": {
+    "name": "${examplename}-computer",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+    "cores": {
+        "min": 5,
+        "max": 15
+        },
+    "memory": {
+        "min": 3,
+        "max": 9
+        }
     }
 }
 EOF
@@ -538,26 +532,25 @@ executable:
 schedule:
   requested:
       duration: PT1H
-resources:
-  compute:
-    - name: ${examplename}-computer
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-      volumes:
-        - "Calibration data"
-
+computer:
+  name: ${examplename}-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
   volumes:
-    - name: "Calibration data"
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration/
-      mode: READWRITE
-      cardinality: INSTANCE
-      resources:
-        - ${examplename}-data-01
+    - "Calibration data"
 
-  data:
-  - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-    location: https://example.org/data/data-005.vot
+volumes:
+  - name: "Calibration data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration/
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - ${examplename}-data-01
+
+data:
+- name: ${examplename}-data-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+  location: https://example.org/data/data-005.vot
 EOF
 
         curl \
@@ -611,17 +604,15 @@ executable:
   environment:
     "USER_NAME":  "albert"
     "USER_EMAIL": "albert@example.org"
-
-resources:
-  compute:
-  - name: ${examplename}-compute
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-    cores:
-      min: 5
-      max: 15
-    memory:
-      min: 3
-      max: 9
+computer:
+  name: ${examplename}-compute
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  cores:
+    min: 5
+    max: 15
+  memory:
+    min: 3
+    max: 9
 EOF
 
         curl \
@@ -640,6 +631,10 @@ EOF
 # Update example 007.
 #[root@spring-builder]
 
+#
+# TODO Add resources to storage.
+# https://github.com/ivoa/Calycopis-broker/issues/253
+#
     examplename=example-007
     examplepath=/examples/${examplename}
 
@@ -660,77 +655,73 @@ schedule:
   requested:
       duration: PT1H
 
-resources:
-  compute:
-    - name: ${examplename}-computer
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-      cores:
-        min:  8
-        max: 16
-      memory:
-        min:  8
-        max: 16
-      volumes:
-        - ${examplename}-volume-01
-
+computer:
+  name: ${examplename}-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  cores:
+    min:  8
+    max: 16
+  memory:
+    min:  8
+    max: 16
   volumes:
-    - name: ${examplename}-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - ${examplename}-data-01
-        - ${examplename}-data-02
+    - ${examplename}-volume-01
 
-    - name: ${examplename}-volume-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /input
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - ${examplename}-data-03
+volumes:
+  - name: ${examplename}-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - ${examplename}-data-01
+      - ${examplename}-data-02
 
-    - name: ${examplename}-volume-04
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /working
-      mode: READWRITE
-      cardinality: INSTANCE
-      resources:
-        - ${examplename}-storage-04
+  - name: ${examplename}-volume-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /input
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - ${examplename}-data-03
 
-# TODO Split volume into data volume and storage volume
-# Controls what is mounted
+  - name: ${examplename}-volume-04
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /working
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - ${examplename}-storage-04
 
-  storage:
-    - name: ${examplename}-storage-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      resources:
-        - ${examplename}-data-01
-        - ${examplename}-data-02
+storage:
+  - name: ${examplename}-storage-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+#   resources:
+#     - ${examplename}-data-01
+#     - ${examplename}-data-02
 
-    - name: ${examplename}-storage-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      resources:
-        - ${examplename}-data-03
+  - name: ${examplename}-storage-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+#   resources:
+#     - ${examplename}-data-03
 
-    - name: ${examplename}-storage-04
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
-      size:
-        min: 2048
+  - name: ${examplename}-storage-04
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    size:
+      min: 2048
 
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-01.vot
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-01.vot
 
-    - name: ${examplename}-data-02
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-02.vot
+  - name: ${examplename}-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-02.vot
 
-    - name: ${examplename}-data-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
-      location: https://example.org/data/data-007-03.vot
+  - name: ${examplename}-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-03.vot
 EOF
 
         curl \
@@ -769,38 +760,40 @@ executable:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
       - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  compute:
-    - name: ${examplename}-computer
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-  volumes:
-    - name: ${examplename}-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - ${examplename}-data-01
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
-      ivoa:
-        ivoid: "ivo://example.org/path?012345-000"
-        obscore:
-          obs_id:             "012345"
-          obs_collection:     "example"
-          obs_publisher_did:  "ivo://example.org/path?012345-000"
-          obs_creator_did:    "ivo://example.org/path?012345-000"
-          dataproduct_type:   "spectrum"
-          calib_level:        0
-          access_url:         "http://datalink.example.org/links?id=ivo%3A%2F%2Fexample.org%2Fpath%3F012345-000"
-          access_format:      "application/x-votable+xml;content=datalink"
-        datalink:
-          ID:                 "ivo://example.org/path?012345-000"
-          access_url:         "http://download.example.org/data/012345-000"
-          content_type:       "spectrum"
-          content_length:     123
-          semantics:          "#this"
+
+computer:
+  name: ${examplename}-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+
+volumes:
+  - name: ${examplename}-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - ${examplename}-data-01
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+    ivoa:
+      ivoid: "ivo://example.org/path?012345-000"
+      obscore:
+        obs_id:             "012345"
+        obs_collection:     "example"
+        obs_publisher_did:  "ivo://example.org/path?012345-000"
+        obs_creator_did:    "ivo://example.org/path?012345-000"
+        dataproduct_type:   "spectrum"
+        calib_level:        0
+        access_url:         "http://datalink.example.org/links?id=ivo%3A%2F%2Fexample.org%2Fpath%3F012345-000"
+        access_format:      "application/x-votable+xml;content=datalink"
+      datalink:
+        ID:                 "ivo://example.org/path?012345-000"
+        access_url:         "http://download.example.org/data/012345-000"
+        content_type:       "spectrum"
+        content_length:     123
+        semantics:          "#this"
 EOF
 
         curl \
@@ -839,55 +832,57 @@ executable:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
       - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  compute:
-    - name: ${examplename}-computer-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-  volumes:
-    - name: ${examplename}-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - ${examplename}-data-01
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      ivoa:
-        ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-        obscore:
-          obs_id:             "012345"
-          obs_collection:     "example"
-          obs_publisher_did:  "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          obs_creator_did:    "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          dataproduct_type:   "spectrum"
-          calib_level:        0
-          access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
-          access_format:      "application/x-votable+xml;content=datalink"
-        datalink:
-          ID:                 "ivo://skao.int/data?testing:zrq-test-20250509-082506"
-          access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          content_type:       "spectrum"
-          content_length:     123
-          semantics:          "#this"
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        objecttype: "FILE"
-        datasize:   29
-        checksum:
-          type:  "ADLER32"
-          value: "6c9f06a7"
-        replicas:
-          - rsename: "SPSRC_STORM"
-            dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "STFC_STORM"
-            dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T1"
-            dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T0"
-            dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+
+computer:
+  name: ${examplename}-computer-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+
+volumes:
+  - name: ${examplename}-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - ${examplename}-data-01
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    ivoa:
+      ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+      obscore:
+        obs_id:             "012345"
+        obs_collection:     "example"
+        obs_publisher_did:  "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        obs_creator_did:    "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        dataproduct_type:   "spectrum"
+        calib_level:        0
+        access_url:         "https://ivoa.datalink.srcdev.skao.int/rucio/links?id=ivo%3A%2F%2Fskao.int%2Fdata%3Ftesting%3Azrq-test-20250509-082506"
+        access_format:      "application/x-votable+xml;content=datalink"
+      datalink:
+        ID:                 "ivo://skao.int/data?testing:zrq-test-20250509-082506"
+        access_url:         "https://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        content_type:       "spectrum"
+        content_length:     123
+        semantics:          "#this"
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      objecttype: "FILE"
+      datasize:   29
+      checksum:
+        type:  "ADLER32"
+        value: "6c9f06a7"
+      replicas:
+        - rsename: "SPSRC_STORM"
+          dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "STFC_STORM"
+          dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T1"
+          dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T0"
+          dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
 EOF
 
         curl \
@@ -925,38 +920,39 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  compute:
-    - name: ${examplename}-computer-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-  volumes:
-    - name: ${examplename}-volume-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
-      path: /calibration
-      mode: READONLY
-      cardinality: CONTAINER
-      resources:
-        - ${examplename}-data-01
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        objecttype: "FILE"
-        datasize:   29
-        checksum:
-          type:  "ADLER32"
-          value: "6c9f06a7"
-        replicas:
-          - rsename: "SPSRC_STORM"
-            dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "STFC_STORM"
-            dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T1"
-            dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
-          - rsename: "SWESRC-OSO-T0"
-            dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+
+computer:
+  name: ${examplename}-computer-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+
+volumes:
+  - name: ${examplename}-volume-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - ${examplename}-data-01
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      objecttype: "FILE"
+      datasize:   29
+      checksum:
+        type:  "ADLER32"
+        value: "6c9f06a7"
+      replicas:
+        - rsename: "SPSRC_STORM"
+          dataurl: "davs://rucio.espsrc.iaa.csic.es:443/disk/dev/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "STFC_STORM"
+          dataurl: "davs://storm.srcnet.skao.int:443/sa/deterministic/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T1"
+          dataurl: "davs://xrootd-01.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
+        - rsename: "SWESRC-OSO-T0"
+          dataurl: "davs://xrootd-02.swesrc.chalmers.se:1094/data/rse/testing/7a/98/zrq-test-20250509-082506"
 EOF
 
         curl \
@@ -994,18 +990,18 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   25600
-        replicas:
-          - rsename: "SPSRC_STORM"
-          - rsename: "JPSRC_STORM"
-          - rsename: "AUSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   25600
+      replicas:
+        - rsename: "SPSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "AUSRC_STORM"
 EOF
 
         curl \
@@ -1030,17 +1026,17 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   26214400
-        replicas:
-          - rsename: "SPSRC_STORM"
-          - rsename: "JPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   26214400
+      replicas:
+        - rsename: "SPSRC_STORM"
+        - rsename: "JPSRC_STORM"
 EOF
 
         curl \
@@ -1065,17 +1061,17 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   26843545600
-        replicas:
-          - rsename: "SPSRC_STORM"
-          - rsename: "JPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   26843545600
+      replicas:
+        - rsename: "SPSRC_STORM"
+        - rsename: "JPSRC_STORM"
 EOF
 
         curl \
@@ -1100,17 +1096,17 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   27487790694400
-        replicas:
-          - rsename: "SPSRC_STORM"
-          - rsename: "JPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "SPSRC_STORM"
+        - rsename: "JPSRC_STORM"
 EOF
 
         curl \
@@ -1148,18 +1144,18 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   27487790694400
-        replicas:
-          - rsename: "AUSRC_STORM"
-          - rsename: "JPSRC_STORM"
-          - rsename: "SPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
 EOF
 
         curl \
@@ -1185,27 +1181,27 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   27487790694400
-        replicas:
-          - rsename: "AUSRC_STORM"
-          - rsename: "JPSRC_STORM"
-          - rsename: "SPSRC_STORM"
-    - name: ${examplename}-data-02
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-094501"
-        datasize:   26843545600
-        replicas:
-          - rsename: "JPSRC_STORM"
-          - rsename: "SPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: ${examplename}-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
 EOF
 
         curl \
@@ -1233,35 +1229,35 @@ executable:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-resources:
-  data:
-    - name: ${examplename}-data-01
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-082506"
-        datasize:   27487790694400
-        replicas:
-          - rsename: "AUSRC_STORM"
-          - rsename: "JPSRC_STORM"
-          - rsename: "SPSRC_STORM"
-    - name: ${examplename}-data-02
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-094501"
-        datasize:   26843545600
-        replicas:
-          - rsename: "JPSRC_STORM"
-          - rsename: "SPSRC_STORM"
-    - name: ${examplename}-data-03
-      type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
-      skao:
-        namespace:  "testing"
-        objectname: "zrq-test-20250509-123401"
-        datasize:   26214400
-        replicas:
-          - rsename: "SPSRC_STORM"
+
+data:
+  - name: ${examplename}-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: ${examplename}-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: ${examplename}-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-123401"
+      datasize:   26214400
+      replicas:
+        - rsename: "SPSRC_STORM"
 EOF
 
         curl \

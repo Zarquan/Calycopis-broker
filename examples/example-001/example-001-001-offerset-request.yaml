@@ -6,13 +6,12 @@ executable:
 schedule:
   requested:
     duration: PT1H
-resources:
-  compute:
-  - name: example-001-computer
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
-    cores:
-      min: 5
-      max: 15
-    memory:
-      min: 3
-      max: 9
+computer:
+  name: example-001-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  cores:
+    min: 5
+    max: 15
+  memory:
+    min: 3
+    max: 9

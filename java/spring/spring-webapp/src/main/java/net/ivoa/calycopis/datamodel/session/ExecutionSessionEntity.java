@@ -49,7 +49,6 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionResourceList;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
@@ -150,25 +149,22 @@ public class ExecutionSessionEntity
         this.executable = executable;
         }
 
-    @OneToMany(
+    @OneToOne(
         mappedBy = "session",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<AbstractComputeResourceEntity> computeresources = new ArrayList<AbstractComputeResourceEntity>();
+    private AbstractComputeResourceEntity computer;
 
     @Override
-    public List<AbstractComputeResourceEntity> getComputeResources()
+    public AbstractComputeResourceEntity getComputeResource()
         {
-        return computeresources;
+        return computer;
         }
-
-    public void addComputeResource(final AbstractComputeResourceEntity resource)
+    public void setComputeResource(final AbstractComputeResourceEntity computer)
         {
-        computeresources.add(
-            resource
-            );
+        this.computer = computer;
         }
 
     @OneToMany(
@@ -259,35 +255,29 @@ public class ExecutionSessionEntity
             this.makeScheduleBean()
             );
 
-        bean.setResources(new IvoaExecutionResourceList());
-        for (AbstractComputeResourceEntity resource : this.getComputeResources())
-            {
-            bean.getResources().addComputeItem(
-                resource.getIvoaBean(
-                    baseurl
-                    )
-                );
-            }
+        bean.setComputer(
+            this.getComputeResource().getIvoaBean(
+                baseurl
+                )
+            );
 
         for (AbstractDataResourceEntity resource : this.getDataResources())
             {
-            bean.getResources().addDataItem(
+            bean.addDataItem(
                 resource.getIvoaBean()
                 );
             }
 
         for (AbstractStorageResourceEntity resource : this.getStorageResources())
             {
-            bean.getResources().addStorageItem(
+            bean.addStorageItem(
                 resource.getIvoaBean(
                     baseurl
                     )
                 );
             }
 
-
         bean.setOptions(null);
-
 
         return bean;
         }
