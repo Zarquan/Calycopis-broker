@@ -23,7 +23,14 @@ import wtf.metio.storageunits.model.StorageUnits;
 
 /**
  * A ComputeResourceOfferFactory implementation.
- * 
+ *
+ * AIMetrics: [
+ *     {
+ *     "name": "ChatGPT",
+ *     "contribution": "90%"
+ *     }
+ *   ]
+ *
  */
 @Slf4j
 @Component
@@ -34,7 +41,7 @@ public class ComputeResourceOfferFactoryImpl
 
     /**
      * Our Spring database template.
-     * 
+     *
      */
     private final JdbcTemplate jdbcTemplate;
 
@@ -128,7 +135,7 @@ public class ComputeResourceOfferFactoryImpl
      *
      */
     public static final Long TOTAL_AVAILABLE_CPU_CORES = 32L ;
-    
+
     /**
      * How many more CPU cores we are allowed to offer over the original requested duration.
      * Set to twice the requested value.
@@ -151,7 +158,7 @@ public class ComputeResourceOfferFactoryImpl
      *
      */
     public static final StorageUnit<?> MAXIMUM_CPU_MEMORY_REQUEST = StorageUnits.gibibyte(32);
-    
+
     /**
      * The total amount of memory available on the platform.
      * TODO make this configurable.
@@ -197,7 +204,7 @@ public class ComputeResourceOfferFactoryImpl
         {
         return MAXIMUM_CPU_MEMORY_REQUEST.longValue();
         }
-    
+
     @Override
     public List<ComputeResourceOffer> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
         {
