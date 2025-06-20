@@ -39,10 +39,10 @@ info:
 components:
   schemas:
 
-    AmazonS3DataResource:
+    S3DataResource:
       type: object
-      name:  AmazonS3DataResource
-      title: AmazonS3DataResource
+      name:  S3DataResource
+      title: S3DataResource
       description: >-
         A data resource in a S3 storage system.
       allOf:

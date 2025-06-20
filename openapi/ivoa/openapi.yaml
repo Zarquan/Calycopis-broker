@@ -353,11 +353,11 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0":    './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/amazon-s3-data-resource-1.0": './types/resources/data/Amazon-S3-data-resource-1.0.yaml#/components/schemas/AmazonS3DataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0":     './types/resources/data/rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0":      './types/resources/data/ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0":      './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     './types/resources/data/S3-data-resource-1.0.yaml#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0":  './types/resources/data/rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0":   './types/resources/data/ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0":   './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResource'
       allOf:
         - $ref: 'AbstractComponent'
         - $ref: 'ScheduledComponent'

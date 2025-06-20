@@ -29,7 +29,7 @@ import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
  * An Amazon S3 data resource.
@@ -57,7 +57,7 @@ public class AmazonS3DataResourceEntity
      * Protected constructor with parent and template.
      *
      */
-    public AmazonS3DataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaAmazonS3DataResource template)
+    public AmazonS3DataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaS3DataResource template)
         {
         super(
             session,
@@ -103,13 +103,13 @@ public class AmazonS3DataResourceEntity
     public IvoaAbstractDataResource getIvoaBean()
         {
         return fillBean(
-            new IvoaAmazonS3DataResource (
+            new IvoaS3DataResource (
                 AmazonS3DataResource.TYPE_DISCRIMINATOR
                 )
             );
         }
 
-    protected IvoaAmazonS3DataResource fillBean(final IvoaAmazonS3DataResource bean)
+    protected IvoaS3DataResource fillBean(final IvoaS3DataResource bean)
         {
         super.fillBean(
             bean

@@ -31,7 +31,7 @@ import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceVali
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
  * A validator implementation to handle simple data resources.
@@ -71,10 +71,10 @@ implements AmazonS3DataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        if (requested instanceof IvoaAmazonS3DataResource)
+        if (requested instanceof IvoaS3DataResource)
             {
             return validate(
-                (IvoaAmazonS3DataResource) requested,
+                (IvoaS3DataResource) requested,
                 context
                 );
             }
@@ -90,7 +90,7 @@ implements AmazonS3DataResourceValidator
      *
      */
     public AbstractDataResourceValidator.Result validate(
-        final IvoaAmazonS3DataResource requested,
+        final IvoaS3DataResource requested,
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaS3DataResource)");
@@ -98,7 +98,7 @@ implements AmazonS3DataResourceValidator
 
         boolean success = true ;
 
-        IvoaAmazonS3DataResource validated = new IvoaAmazonS3DataResource(
+        IvoaS3DataResource validated = new IvoaS3DataResource(
             AmazonS3DataResource.TYPE_DISCRIMINATOR
             );
 
@@ -227,7 +227,7 @@ implements AmazonS3DataResourceValidator
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
 
-    private Long predictPrepareTime(final IvoaAmazonS3DataResource validated)
+    private Long predictPrepareTime(final IvoaS3DataResource validated)
         {
         log.debug("predictPrepareTime()");
         return DEFAULT_PREPARE_TIME;

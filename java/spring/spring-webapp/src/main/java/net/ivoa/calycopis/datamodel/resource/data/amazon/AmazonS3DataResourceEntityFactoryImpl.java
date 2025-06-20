@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceFactoryImpl;
 import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAmazonS3DataResource;
+import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
  * A SimpleDataResource Factory implementation.
@@ -65,7 +65,7 @@ public class AmazonS3DataResourceEntityFactoryImpl
         }
 
     @Override
-    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaAmazonS3DataResource template)
+    public AmazonS3DataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaS3DataResource template)
         {
         return this.entityRepository.save(
             new AmazonS3DataResourceEntity(
