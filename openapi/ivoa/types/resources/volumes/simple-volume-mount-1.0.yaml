@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker volume mounts
   version: "1.0"
   summary: IVOA ExecutionBroker SimpleVolumeMount
-  description: |
+  description: >-
     OpenAPI schema for a simple volume mount in IVOA ExecutionBroker
   contact:
     name: Dave Morris
@@ -43,7 +43,7 @@ components:
       type: object
       name:  SimpleVolumeMount
       title: SimpleVolumeMount
-      description: |
+      description: >-
         A simple volume mount.
       properties:
         path:

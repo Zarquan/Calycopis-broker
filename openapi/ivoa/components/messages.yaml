@@ -40,7 +40,7 @@ components:
   schemas:
 
     MessageItem:
-      description: >
+      description: >-
         A log message based on the Message Templates standard.
         https://messagetemplates.org/
       type: object

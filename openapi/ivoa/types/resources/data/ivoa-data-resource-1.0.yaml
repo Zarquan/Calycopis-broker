@@ -27,7 +27,7 @@ info:
   title: IvoaDataResource
   version: "1.0"
   summary: An IVOA data resource
-  description: |
+  description: >-
     Metadata describing an IVOA data resource.
   contact:
     name: Dave Morris
@@ -43,7 +43,7 @@ components:
       type: object
       name:  IvoaDataResourceSpec
       title: IvoaDataResourceSpec
-      description: |
+      description: >-
         Metadata describing an IVOA data resource.
       properties:
         ivoa:
@@ -53,20 +53,20 @@ components:
       type: object
       name:  IvoaDataResourceBlock
       title: IvoaDataResourceBlock
-      description: |
+      description: >-
         The IVOA metadata for the resource.
       properties:
         ivoid:
-          description: |
+          description: >-
             The IVOA data identifier (DID).
           type: string
           format: uri
         obscore:
-          description: |
+          description: >-
             The ObsCore metadata about the resource.
           $ref: 'IvoaObsCoreItem'
         datalink:
-          description: |
+          description: >-
             The DataLink metadata about the resource.
           $ref: 'IvoaDataLinkItem'
 
@@ -74,7 +74,7 @@ components:
       type: object
       name:  IvoaObsCoreItem
       title: IvoaObsCoreItem
-      description: |
+      description: >-
         A row of ObsCore metadata about the resource.
       properties:
         obs_id:
@@ -100,7 +100,7 @@ components:
       type: object
       name:  IvoaDataLinkItem
       title: IvoaDataLinkItem
-      description: |
+      description: >-
         A row of DataLink metadata about the resource.
       properties:
         ID:

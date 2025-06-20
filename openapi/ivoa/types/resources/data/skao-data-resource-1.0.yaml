@@ -27,7 +27,7 @@ info:
   title: SkaoDataResource
   version: "1.0"
   summary: A SKAO data resource
-  description: |
+  description: >-
     Metadata describing a SKAO data resource in the data lake.
   contact:
     name: Dave Morris
@@ -43,7 +43,7 @@ components:
       type: object
       name:  SkaoDataResourceSpec
       title: SkaoDataResourceSpec
-      description: |
+      description: >-
         Metadata describing a SKAO data resource in the data lake.
       properties:
         skao:
@@ -53,19 +53,19 @@ components:
       type: object
       name:  SkaoDataResourceBlock
       title: SkaoDataResourceBlock
-      description: |
+      description: >-
         A reusable block describing the metadata for a SKAO data resource.
       properties:
         namespace:
-          description: |
+          description: >-
             The DM-API namespace (equivalent to the Rucio scope).
           type: string
         objectname:
-          description: |
+          description: >-
             The DM-API object name.
           type: string
         objecttype:
-          description: |
+          description: >-
             The data object type.
           type: string
           enum:
@@ -78,7 +78,7 @@ components:
         checksum:
           $ref: 'SkaoChecksumItem'
         replicas:
-          description: |
+          description: >-
             A list of known replicas.
           type: array
           items:
@@ -98,15 +98,15 @@ components:
       type: object
       name:  SkaoReplicaItem
       title: SkaoReplicaItem
-      description: |
+      description: >-
         Metadata about a replica in an RSE.
       properties:
         rsename:
-          description: |
+          description: >-
             The RSE name.
           type: string
         dataurl:
-          description: |
+          description: >-
             The URL/URI of the object within the RSE.
           type: string
 

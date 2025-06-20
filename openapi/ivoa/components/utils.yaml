@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker utility classes
   version: "0.8"
   summary: IVOA ExecutionBroker utility classes
-  description: >
+  description: >-
     Utility classes used in the IVOA ExecutionBroker data model
   contact:
     name: Dave Morris
@@ -37,7 +37,7 @@ components:
   schemas:
 
     NameValueMap:
-      description: >
+      description: >-
         A map of name->value properties.
         See https://swagger.io/docs/specification/data-models/dictionaries/
       type: object
@@ -46,7 +46,7 @@ components:
         type: string
 
     ISO8601Instant:
-      description: >
+      description: >-
         A regular expression filter for an ISO 8601 instant.
         TODO Add timezone.
       type: string
@@ -54,14 +54,14 @@ components:
       pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))$'
 
     ISO8601Duration:
-      description: >
+      description: >-
         A regular expression filter for an ISO 8601 duration.
       type: string
       title: ISO8601Duration
       pattern: '^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$'
 
     ISO8601Interval:
-      description: >
+      description: >-
         A regular expression filter for an ISO 8601 interval.
         TODO Add timezone to the start time.
         TODO Expand this to allow [start+end] and [duration+end] ?
@@ -70,7 +70,7 @@ components:
       pattern: '^(\d{4}(?:-\d{2}){2}T\d{2}(?::\d{2}){2}(?>[^\/]+))\/(P(?=.)(?:\d+Y)?(?:\d+M)?(?:\d+D)?(?:T(?=.)(?:\d+H)?(?:\d+M)?(?:\d+S)?)?)$'
 
     MinMaxInteger:
-      description: >
+      description: >-
         A 32bit integer minimum and maximum pair.
       type: object
       title: MinMaxInteger
@@ -83,7 +83,7 @@ components:
           format: int32
 
     MinMaxIntegerUnits:
-      description: >
+      description: >-
         A 32bit integer minimum and maximum pair, with a units string.
       type: object
       title: MinMaxIntegerUnits
@@ -95,7 +95,7 @@ components:
               type: string
 
     MinMaxLong:
-      description: >
+      description: >-
         A 64bit integer minimum and maximum pair.
       type: object
       title: MinMaxLong
@@ -108,7 +108,7 @@ components:
           format: int64
 
     MinMaxLongUnits:
-      description: >
+      description: >-
         A 64bit integer minimum and maximum pair, with a units string.
       type: object
       title: MinMaxLongUnits
@@ -120,7 +120,7 @@ components:
               type: string
 
     MinMaxFloat:
-      description: >
+      description: >-
         A floating point minimum and maximum pair.
       type: object
       title: MinMaxFloat
@@ -133,7 +133,7 @@ components:
           format: float
 
     MinMaxFloatUnits:
-      description: >
+      description: >-
         A floating point minimum and maximum pair, with a units string.
       type: object
       title: MinMaxFloatUnits
@@ -145,7 +145,7 @@ components:
               type: string
 
     MinMaxString:
-      description: >
+      description: >-
         A minimum and maximum pair for a string value.
       type: object
       title: MinMaxString
@@ -156,7 +156,7 @@ components:
           type: string
 
     MinMaxStringUnits:
-      description: >
+      description: >-
         A minimum and maximum pair for a string value, with a units string.
       type: object
       title: MinMaxStringUnits
@@ -168,7 +168,7 @@ components:
               type: string
 
     ComputeUnitsEnum:
-      description: >
+      description: >-
         Units for the size of computing resources, multiples of 1000^n and 1024^n.
         https://github.com/metio/storage-units.java/
         https://en.wikipedia.org/wiki/Byte#Multiple-byte_units
@@ -193,7 +193,7 @@ components:
         - YiB
 
     MinMaxComputeInteger:
-      description: >
+      description: >-
         A minimum and maximum 32bit integer with computing units.
       type: object
       title: MinMaxComputeInteger
@@ -205,7 +205,7 @@ components:
               $ref: 'ComputeUnitsEnum'
 
     MinMaxComputeLong:
-      description: >
+      description: >-
         A minimum and maximum 64bit integer with computing units.
       type: object
       title: MinMaxComputeLong

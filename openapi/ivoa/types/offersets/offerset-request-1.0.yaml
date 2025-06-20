@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker offerset request
   version: "1.0"
   summary: IVOA ExecutionBroker offerset request
-  description: |
+  description: >-
     OpenAPI schema for an IVOA ExecutionBroker execution offerset request.
   contact:
     name: Dave Morris

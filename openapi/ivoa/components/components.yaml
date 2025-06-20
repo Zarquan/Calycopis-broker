@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker abstract components
   version: "0.8"
   summary: IVOA ExecutionBroker abstract components
-  description: >
+  description: >-
     Abstract components used in the IVOA ExecutionBroker data model
   contact:
     name: Dave Morris

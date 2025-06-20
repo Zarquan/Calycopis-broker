@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker log messages
   version: "1.0"
   summary: IVOA ExecutionBroker SimpleStorageResource
-  description: |
+  description: >-
     OpenAPI schema for a simple storage resource in IVOA ExecutionBroker
   contact:
     name: Dave Morris
@@ -43,14 +43,14 @@ components:
       type: object
       name:  SimpleStorageResource
       title: SimpleStorageResource
-      description: |
+      description: >-
         A simple storage resource.
       properties:
         size:
           $ref: 'SimpleStorageSize'
 
     SimpleStorageSize:
-      description: |
+      description: >-
         The size of storage requested.
         The minimum represents the minimum size the excution requires.
         The maximum represents the maximum size that the excution can use.

@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker simple data resource
   version: "1.0"
   summary: IVOA ExecutionBroker simple data resource
-  description: |
+  description: >-
     OpenAPI schema for an IVOA ExecutionBroker simple data resource
   contact:
     name: Dave Morris
@@ -40,13 +40,13 @@ components:
   schemas:
 
     SimpleDataResourceSpec:
-      description: |
+      description: >-
           A simple downloadable data resource.
       type: object
       title: SimpleDataResource
       properties:
         location:
-          description: |
+          description: >-
             The URL of the data to import.
           type: string
 # TODO add checksums
