@@ -157,12 +157,8 @@
                         </goals>
                         <configuration>
                             <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
-                            <inputSpec>${schema.path}/openapi.yaml</inputSpec>
-                            <!--inputSpec>${schema.path}/components/compute-resources.yaml</inputSpec-->
-                            <!--inputSpec>${project.basedir}/target/merged/merged-schema.yaml</inputSpec-->
-                            <!--inputSpecRootDirectory>${schema.path}</inputSpecRootDirectory-->
-                            <!--inputSpecRootDirectory>/openapi/ivoa</inputSpecRootDirectory-->
-                            <!--mergedFileName>merged-spec</mergedFileName-->
+                            <!--inputSpec>${schema.path}/openapi.yaml</inputSpec-->
+                            <inputSpec>${schema.path}/combined-openapi.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <generateAliasAsModel>false</generateAliasAsModel>
                             <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>
