@@ -1,0 +1,500 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+    Target:
+
+        Create a schema pre-processor to resolve external references
+        and bring them into a single file.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=schema-processor
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Iterate with ChatGPT to create a Python program to process the schema.
+    https://chatgpt.com/share/6854571e-1b5c-8008-986a-ba74db5d491f
+
+    Resulting code :
+
+import yaml
+import os
+
+def load_yaml(file_path):
+    with open(file_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def normalize_ref(ref):
+    return ref.split("/")[-1]
+
+def resolve_ref_target(ref, base_path):
+    """Resolves the reference and returns (component, new_base_path, full_spec)"""
+    if '#' not in ref:
+        return None, None, None
+
+    file_part, fragment = ref.split('#', 1)
+    path = os.path.normpath(os.path.join(base_path, file_part)) if file_part else None
+    new_base = os.path.dirname(path) if path else base_path
+    spec = load_yaml(path) if path else None
+
+    if spec is None:
+        return None, None, None
+
+    value = spec
+    for part in fragment.strip("/").split("/"):
+        if not isinstance(value, dict):
+            return None, None, None
+        value = value.get(part)
+        if value is None:
+            return None, None, None
+    return value, new_base, spec
+
+def process_refs(spec, base_path, main_local_schemas=None, inlined=None, external_specs=None):
+    if inlined is None:
+        inlined = set()
+    if external_specs is None:
+        external_specs = {}
+
+    main_local_schemas = spec.setdefault("components", {}).setdefault("schemas", {})
+
+    def recurse(data, current_base_path, current_spec_schemas):
+        if isinstance(data, dict):
+            for key, value in list(data.items()):
+                if key == "$ref" and isinstance(value, str):
+                    # Expand short-form
+                    if "#" not in value and "/" not in value:
+                        expanded = f"#/components/schemas/{value}"
+                        print(f"Expanding short $ref: '{value}' → '{expanded}'")
+                        data[key] = value = expanded
+
+                    # External $ref (has file path)
+                    if ".yaml" in value and value.index(".yaml") < value.index("#"):
+                        ref_key = (value, current_base_path)
+                        if ref_key in inlined:
+                            continue
+                        inlined.add(ref_key)
+
+                        component, new_base, ext_spec = resolve_ref_target(value, current_base_path)
+                        if not component:
+                            print(f"Failed to resolve: {value}")
+                            continue
+
+                        schema_name = normalize_ref(value)
+                        if schema_name not in main_local_schemas:
+                            print(f"Inlining schema '{schema_name}' from: {value}")
+                            main_local_schemas[schema_name] = component
+
+                            # Extract and reuse external file’s schemas if present
+                            ext_schemas = ext_spec.get("components", {}).get("schemas", {})
+                            external_specs[new_base] = ext_schemas
+
+                            recurse(component, new_base, ext_schemas)
+
+                        data[key] = f"#/components/schemas/{schema_name}"
+
+                    # Internal $ref (e.g., #/components/schemas/Foo)
+                    elif value.startswith("#/components/schemas/"):
+                        schema_name = normalize_ref(value)
+                        # Look first in current file's schemas (including external)
+                        if schema_name in current_spec_schemas:
+                            if schema_name not in main_local_schemas:
+                                print(f"Inlining local schema from context: {schema_name}")
+                                component = current_spec_schemas[schema_name]
+                                main_local_schemas[schema_name] = component
+                                recurse(component, current_base_path, current_spec_schemas)
+                        else:
+                            print(f"Warning: Could not find internal schema '{schema_name}' in current spec context")
+
+                elif key == "discriminator" and isinstance(value, dict):
+                    mapping = value.get("mapping")
+                    if isinstance(mapping, dict):
+                        for mkey, mval in list(mapping.items()):
+                            if "#" not in mval:
+                                new_ref = f"#/components/schemas/{mval}"
+                                print(f"Expanding discriminator mapping: {mval} → {new_ref}")
+                                mapping[mkey] = new_ref
+                else:
+                    recurse(value, current_base_path, current_spec_schemas)
+        elif isinstance(data, list):
+            for item in data:
+                recurse(item, current_base_path, current_spec_schemas)
+
+    # Start processing the root file
+    current_spec_schemas = spec.get("components", {}).get("schemas", {})
+    recurse(spec, base_path, current_spec_schemas)
+
+# --- Run Example ---
+main_file = "openapi.yaml"
+base_path = os.path.dirname(os.path.abspath(main_file))
+spec = load_yaml(main_file)
+
+process_refs(spec, base_path)
+
+with open("openapi-processed.yaml", "w") as f:
+    yaml.dump(spec, f)
+
+print("✅ Complete: forward references handled and saved to 'openapi-processed.yaml'")
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test the code that ChatGPT generates
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        fedora:42 \
+        bash
+
+        dnf install -y \
+            python3 \
+            pip3
+
+        pip3 install \
+            pyyaml
+
+        pushd /openapi
+
+            bin/schema-processor.py \
+                ivoa/openapi.yaml \
+                build/combined-openapi.yaml
+
+    #
+    # The results are 90% complete, but there are three unresolved references.
+    # Probably because they are more than one component loaded from the same file
+    # and the recursion keeps track of imported files not inported components.
+    # Manually fixing them for now ...
+    #
+
+--START--
+....
+    OfferedScheduleInstant:
+      description: Details of an offered timing.
+      properties:
+        duration:
+          $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+        start:
+          $ref: '#/components/schemas/ISO8601Instant'
+      title: OfferedScheduleInstant
+      type: object
+    OfferedScheduleInterval:
+      description: Details of an offered timing.
+      properties:
+        duration:
+          $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+        start:
+          $ref: ./components/utils.yaml#/components/schemas/ISO8601Interval
+      title: OfferedScheduleInterval
+      type: object
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check to see if the processed schema still works in Java.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update example 001.
+#[root@spring-builder]
+
+    examplename=example-001
+    examplepath=/examples/${examplename}
+
+    pushd  "${examplepath}"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.'
+
+    popd
+
+--START--
+created: "2025-06-19T18:27:55.983538114Z"
+name: "example-001"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+uuid: "69a04359-e4e1-4a5f-8834-e16a622d9d81"
+href: "http://127.0.0.1:8082/offersets/69a04359-e4e1-4a5f-8834-e16a622d9d81"
+offers:
+  - created: "2025-06-19T18:27:56.269569266Z"
+    name: "example-001-offer-0"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    uuid: "8d5c501b-9f36-4e28-bae0-c0965998dfcc"
+    href: "http://127.0.0.1:8082/sessions/8d5c501b-9f36-4e28-bae0-c0965998dfcc"
+    schedule:
+      offered:
+        available:
+          duration: "PT2H"
+          start: "2025-06-19T18:28:00Z"
+        preparing:
+          start: "2025-06-19T18:28:00Z"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      name: "example-001-computer"
+      uuid: "1f812592-1ea6-46da-86c5-dce4f10177b7"
+      cores:
+        max: 10
+        min: 10
+      memory:
+        max: 10
+        min: 10
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+      created: "2025-06-19T18:27:56.281210316Z"
+      name: "example-001-executable"
+      uuid: "2ea6014b-aa9e-4e28-bf02-dbc9f43a0b42"
+      location: "https://www.example.org/example-001.ipynb"
+    expires: "2025-06-19T23:27:55.98356925Z"
+    phase: "OFFERED"
+  - created: "2025-06-19T18:27:56.29483121Z"
+    name: "example-001-offer-1"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    uuid: "af025fd2-1242-40d6-9339-ad66f75bc046"
+    href: "http://127.0.0.1:8082/sessions/af025fd2-1242-40d6-9339-ad66f75bc046"
+    schedule:
+      offered:
+        available:
+          duration: "PT2H"
+          start: "2025-06-19T20:28:00Z"
+        preparing:
+          start: "2025-06-19T20:28:00Z"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      name: "example-001-computer"
+      uuid: "0e0c0093-1d5d-4fe8-aa2b-dde86eac5ccd"
+      cores:
+        max: 10
+        min: 10
+      memory:
+        max: 10
+        min: 10
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+      created: "2025-06-19T18:27:56.300231165Z"
+      name: "example-001-executable"
+      uuid: "4f9dd68f-15dc-4f28-8ed3-9016b7b1657a"
+      location: "https://www.example.org/example-001.ipynb"
+    expires: "2025-06-19T23:27:55.98356925Z"
+    phase: "OFFERED"
+  - created: "2025-06-19T18:27:56.312217Z"
+    name: "example-001-offer-2"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    uuid: "2746b2cf-3cb1-41e2-a32a-0eeb6756a420"
+    href: "http://127.0.0.1:8082/sessions/2746b2cf-3cb1-41e2-a32a-0eeb6756a420"
+    schedule:
+      offered:
+        available:
+          duration: "PT2H"
+          start: "2025-06-19T22:28:00Z"
+        preparing:
+          start: "2025-06-19T22:28:00Z"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      name: "example-001-computer"
+      uuid: "81ffd00b-3482-456b-b8eb-8e3369be4c07"
+      cores:
+        max: 10
+        min: 10
+      memory:
+        max: 10
+        min: 10
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+      created: "2025-06-19T18:27:56.31777964Z"
+      name: "example-001-executable"
+      uuid: "9748b718-387a-4620-adc9-27bdfb7c0f94"
+      location: "https://www.example.org/example-001.ipynb"
+    expires: "2025-06-19T23:27:55.98356925Z"
+    phase: "OFFERED"
+  - created: "2025-06-19T18:27:56.327978425Z"
+    name: "example-001-offer-3"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    uuid: "901826c9-fd87-4108-9ecd-10411077d1d0"
+    href: "http://127.0.0.1:8082/sessions/901826c9-fd87-4108-9ecd-10411077d1d0"
+    schedule:
+      offered:
+        available:
+          duration: "PT2H"
+          start: "2025-06-20T00:28:00Z"
+        preparing:
+          start: "2025-06-20T00:28:00Z"
+    computer:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+      name: "example-001-computer"
+      uuid: "50505aed-3d90-4413-8dac-f66cb4579b77"
+      cores:
+        max: 10
+        min: 10
+      memory:
+        max: 10
+        min: 10
+    executable:
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+      created: "2025-06-19T18:27:56.33337275Z"
+      name: "example-001-executable"
+      uuid: "a6ec6bc7-4bba-476d-9f58-c23a24d8a973"
+      location: "https://www.example.org/example-001.ipynb"
+    expires: "2025-06-19T23:27:55.98356925Z"
+    phase: "OFFERED"
+result: "YES"
+--END--
+
+    #
+    # OK, looks like the Java code generator still works :-)
+    # Now we try the Python code generatorto see what we get.
+    #
+
+# -----------------------------------------------------
+# Test the fastapi Python code generator.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        fedora:35 \
+        bash
+
+        dnf install -y \
+            gcc \
+            python3 \
+            python3-pip \
+            python3-devel
+
+        pip install fastapi-code-generator
+
+        pushd /python/
+            mkdir albert
+            pushd albert
+
+            fastapi-codegen \
+                --input /openapi/ivoa/openapi-processed.yaml \
+                --output webapp
+
+--START--
+....
+....
+--END--
+
+        #
+        # Generates a good set of classes .. but no type discriminators ?
+        #
