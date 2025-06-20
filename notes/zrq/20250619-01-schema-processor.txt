@@ -230,28 +230,26 @@ if __name__ == "__main__":
     # Manually fixing them for now ...
     #
 
---START--
-....
-    OfferedScheduleInstant:
-      description: Details of an offered timing.
-      properties:
-        duration:
-          $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
-        start:
-          $ref: '#/components/schemas/ISO8601Instant'
-      title: OfferedScheduleInstant
-      type: object
-    OfferedScheduleInterval:
-      description: Details of an offered timing.
-      properties:
-        duration:
-          $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
-        start:
-          $ref: ./components/utils.yaml#/components/schemas/ISO8601Interval
-      title: OfferedScheduleInterval
-      type: object
-....
---END--
+    >   ....
+    >       OfferedScheduleInstant:
+    >         description: Details of an offered timing.
+    >         properties:
+    >           duration:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+    >           start:
+    >             $ref: '#/components/schemas/ISO8601Instant'
+    >         title: OfferedScheduleInstant
+    >         type: object
+    >       OfferedScheduleInterval:
+    >         description: Details of an offered timing.
+    >         properties:
+    >           duration:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+    >           start:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Interval
+    >         title: OfferedScheduleInterval
+    >         type: object
+    >   ....
 
 
 # -----------------------------------------------------
@@ -332,135 +330,133 @@ EOF
 
     popd
 
---START--
-created: "2025-06-19T18:27:55.983538114Z"
-name: "example-001"
-type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-uuid: "69a04359-e4e1-4a5f-8834-e16a622d9d81"
-href: "http://127.0.0.1:8082/offersets/69a04359-e4e1-4a5f-8834-e16a622d9d81"
-offers:
-  - created: "2025-06-19T18:27:56.269569266Z"
-    name: "example-001-offer-0"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    uuid: "8d5c501b-9f36-4e28-bae0-c0965998dfcc"
-    href: "http://127.0.0.1:8082/sessions/8d5c501b-9f36-4e28-bae0-c0965998dfcc"
-    schedule:
-      offered:
-        available:
-          duration: "PT2H"
-          start: "2025-06-19T18:28:00Z"
-        preparing:
-          start: "2025-06-19T18:28:00Z"
-    computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      name: "example-001-computer"
-      uuid: "1f812592-1ea6-46da-86c5-dce4f10177b7"
-      cores:
-        max: 10
-        min: 10
-      memory:
-        max: 10
-        min: 10
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      created: "2025-06-19T18:27:56.281210316Z"
-      name: "example-001-executable"
-      uuid: "2ea6014b-aa9e-4e28-bf02-dbc9f43a0b42"
-      location: "https://www.example.org/example-001.ipynb"
-    expires: "2025-06-19T23:27:55.98356925Z"
-    phase: "OFFERED"
-  - created: "2025-06-19T18:27:56.29483121Z"
-    name: "example-001-offer-1"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    uuid: "af025fd2-1242-40d6-9339-ad66f75bc046"
-    href: "http://127.0.0.1:8082/sessions/af025fd2-1242-40d6-9339-ad66f75bc046"
-    schedule:
-      offered:
-        available:
-          duration: "PT2H"
-          start: "2025-06-19T20:28:00Z"
-        preparing:
-          start: "2025-06-19T20:28:00Z"
-    computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      name: "example-001-computer"
-      uuid: "0e0c0093-1d5d-4fe8-aa2b-dde86eac5ccd"
-      cores:
-        max: 10
-        min: 10
-      memory:
-        max: 10
-        min: 10
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      created: "2025-06-19T18:27:56.300231165Z"
-      name: "example-001-executable"
-      uuid: "4f9dd68f-15dc-4f28-8ed3-9016b7b1657a"
-      location: "https://www.example.org/example-001.ipynb"
-    expires: "2025-06-19T23:27:55.98356925Z"
-    phase: "OFFERED"
-  - created: "2025-06-19T18:27:56.312217Z"
-    name: "example-001-offer-2"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    uuid: "2746b2cf-3cb1-41e2-a32a-0eeb6756a420"
-    href: "http://127.0.0.1:8082/sessions/2746b2cf-3cb1-41e2-a32a-0eeb6756a420"
-    schedule:
-      offered:
-        available:
-          duration: "PT2H"
-          start: "2025-06-19T22:28:00Z"
-        preparing:
-          start: "2025-06-19T22:28:00Z"
-    computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      name: "example-001-computer"
-      uuid: "81ffd00b-3482-456b-b8eb-8e3369be4c07"
-      cores:
-        max: 10
-        min: 10
-      memory:
-        max: 10
-        min: 10
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      created: "2025-06-19T18:27:56.31777964Z"
-      name: "example-001-executable"
-      uuid: "9748b718-387a-4620-adc9-27bdfb7c0f94"
-      location: "https://www.example.org/example-001.ipynb"
-    expires: "2025-06-19T23:27:55.98356925Z"
-    phase: "OFFERED"
-  - created: "2025-06-19T18:27:56.327978425Z"
-    name: "example-001-offer-3"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    uuid: "901826c9-fd87-4108-9ecd-10411077d1d0"
-    href: "http://127.0.0.1:8082/sessions/901826c9-fd87-4108-9ecd-10411077d1d0"
-    schedule:
-      offered:
-        available:
-          duration: "PT2H"
-          start: "2025-06-20T00:28:00Z"
-        preparing:
-          start: "2025-06-20T00:28:00Z"
-    computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      name: "example-001-computer"
-      uuid: "50505aed-3d90-4413-8dac-f66cb4579b77"
-      cores:
-        max: 10
-        min: 10
-      memory:
-        max: 10
-        min: 10
-    executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      created: "2025-06-19T18:27:56.33337275Z"
-      name: "example-001-executable"
-      uuid: "a6ec6bc7-4bba-476d-9f58-c23a24d8a973"
-      location: "https://www.example.org/example-001.ipynb"
-    expires: "2025-06-19T23:27:55.98356925Z"
-    phase: "OFFERED"
-result: "YES"
---END--
+    >   created: "2025-06-20T15:32:07.671120905Z"
+    >   name: "example-001"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   uuid: "5d08cb28-196c-4576-9864-76d75e9dbe58"
+    >   href: "http://127.0.0.1:8082/offersets/5d08cb28-196c-4576-9864-76d75e9dbe58"
+    >   offers:
+    >     - created: "2025-06-20T15:32:07.965874775Z"
+    >       name: "example-001-offer-0"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       uuid: "b6cc6b3c-3963-4c64-9451-2c805079a605"
+    >       href: "http://127.0.0.1:8082/sessions/b6cc6b3c-3963-4c64-9451-2c805079a605"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T15:33:00Z"
+    >           preparing:
+    >             start: "2025-06-20T15:33:00Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         name: "example-001-computer"
+    >         uuid: "a31dd25c-dc97-4c2b-904c-6c54b14eb9d4"
+    >         cores:
+    >           max: 10
+    >           min: 10
+    >         memory:
+    >           max: 10
+    >           min: 10
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         created: "2025-06-20T15:32:07.976844893Z"
+    >         name: "example-001-executable"
+    >         uuid: "9a8ba773-6727-46d3-a3bf-4c87ff5a370a"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       phase: "OFFERED"
+    >     - created: "2025-06-20T15:32:07.988681034Z"
+    >       name: "example-001-offer-1"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       uuid: "3a8a7e6b-471c-4796-9622-a31b780c0c89"
+    >       href: "http://127.0.0.1:8082/sessions/3a8a7e6b-471c-4796-9622-a31b780c0c89"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T17:33:00Z"
+    >           preparing:
+    >             start: "2025-06-20T17:33:00Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         name: "example-001-computer"
+    >         uuid: "76cfaf71-5679-4279-98ae-c4d36895d0aa"
+    >         cores:
+    >           max: 10
+    >           min: 10
+    >         memory:
+    >           max: 10
+    >           min: 10
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         created: "2025-06-20T15:32:07.996322573Z"
+    >         name: "example-001-executable"
+    >         uuid: "e6a6a5d4-84b9-44bb-84e9-0738334b5ca4"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       phase: "OFFERED"
+    >     - created: "2025-06-20T15:32:08.006510054Z"
+    >       name: "example-001-offer-2"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       uuid: "3e87088e-de64-4e29-9b95-b793902cdae0"
+    >       href: "http://127.0.0.1:8082/sessions/3e87088e-de64-4e29-9b95-b793902cdae0"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T19:33:00Z"
+    >           preparing:
+    >             start: "2025-06-20T19:33:00Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         name: "example-001-computer"
+    >         uuid: "99e9911e-f57b-46e8-8f45-9e5deb865734"
+    >         cores:
+    >           max: 10
+    >           min: 10
+    >         memory:
+    >           max: 10
+    >           min: 10
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         created: "2025-06-20T15:32:08.012569167Z"
+    >         name: "example-001-executable"
+    >         uuid: "6c367a4f-4812-4e9d-8e4e-0e04ff092b42"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       phase: "OFFERED"
+    >     - created: "2025-06-20T15:32:08.021333137Z"
+    >       name: "example-001-offer-3"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       uuid: "f693d221-4c44-489f-8593-6419ebb3338a"
+    >       href: "http://127.0.0.1:8082/sessions/f693d221-4c44-489f-8593-6419ebb3338a"
+    >       schedule:
+    >         offered:
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T21:33:00Z"
+    >           preparing:
+    >             start: "2025-06-20T21:33:00Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         name: "example-001-computer"
+    >         uuid: "be363c70-ba55-4a1d-a218-d7efd3fa5825"
+    >         cores:
+    >           max: 10
+    >           min: 10
+    >         memory:
+    >           max: 10
+    >           min: 10
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         created: "2025-06-20T15:32:08.028611493Z"
+    >         name: "example-001-executable"
+    >         uuid: "f03001bf-cf78-46aa-ac6f-63eb7dbe7ed1"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       phase: "OFFERED"
+    >   result: "YES"
 
     #
     # OK, looks like the Java code generator still works :-)
@@ -468,7 +464,9 @@ result: "YES"
     #
 
 # -----------------------------------------------------
+# -----------------------------------------------------
 # Test the fastapi Python code generator.
+# Note we have to drop back to an older version of Fedora due to build issues with the latest version.
 #[user@desktop]
 
     source "${HOME:?}/calycopis.env"
@@ -477,7 +475,7 @@ result: "YES"
         --rm \
         --tty \
         --interactive \
-        --name python-builder \
+        --name python-webapp \
         --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
         --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
         fedora:35 \
@@ -487,7 +485,8 @@ result: "YES"
             gcc \
             python3 \
             python3-pip \
-            python3-devel
+            python3-devel \
+            python3-wheel
 
         pip install fastapi-code-generator
 
@@ -496,14 +495,15 @@ result: "YES"
             pushd albert
 
             fastapi-codegen \
-                --input /openapi/ivoa/openapi-processed.yaml \
+                --input /openapi/build/combined-openapi.yaml \
                 --output webapp
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
         #
-        # Generates a good set of classes .. but no type discriminators ?
+        # It looks like it generates all of rhe classes,
+        # but no type discriminators for polymorphism.
         #
+
+
