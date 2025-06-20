@@ -38,7 +38,7 @@
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>21</java.version>
-        <schema.path>${project.basedir}/ivoa</schema.path>
+        <schema.path>${project.basedir}/schema</schema.path>
         <!--build.version>0.0.1-SNAPSHOT-${maven.build.timestamp}</build.version-->
         <!--build.version>0.0.1-SNAPSHOT-20250515</build.version-->
         <!--maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format-->
@@ -157,12 +157,8 @@
                         </goals>
                         <configuration>
                             <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
-                            <inputSpec>${schema.path}/openapi.yaml</inputSpec>
-                            <!--inputSpec>${schema.path}/components/compute-resources.yaml</inputSpec-->
-                            <!--inputSpec>${project.basedir}/target/merged/merged-schema.yaml</inputSpec-->
-                            <!--inputSpecRootDirectory>${schema.path}</inputSpecRootDirectory-->
-                            <!--inputSpecRootDirectory>/openapi/ivoa</inputSpecRootDirectory-->
-                            <!--mergedFileName>merged-spec</mergedFileName-->
+                            <!--inputSpec>${schema.path}/openapi.yaml</inputSpec-->
+                            <inputSpec>${schema.path}/combined-openapi.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <generateAliasAsModel>false</generateAliasAsModel>
                             <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>

@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker
   version: "1.0"
   summary: IVOA ExecutionBroker interface
-  description: >
+  description: >-
     IVOA ExecutionBroker interface
   contact:
     name: Dave Morris
@@ -57,7 +57,7 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "303":
-          description: >
+          description: >-
             A redirect response to the '/offersets/{uuid}' endpoint.
           headers:
             Location:
@@ -66,7 +66,7 @@ paths:
                 type: string
                 format: url
         "200":
-          description: >
+          description: >-
             A simple OK response with the same contant as the '/offersets/{uuid}' endpoint.
           content:
             application/json:
@@ -94,7 +94,7 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: >
+          description: >-
             Required description ...
           content:
             application/json:
@@ -122,7 +122,7 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: >
+          description: >-
             Required description ...
           content:
             application/json:
@@ -140,7 +140,7 @@ paths:
       parameters:
         - name: uuid
           in: path
-          description: >
+          description: >-
             The session UUID identifier
           required: true
           schema:
@@ -162,7 +162,7 @@ paths:
       # TODO Errors return error codes and ErrorResponse.
       responses:
         "200":
-          description: >
+          description: >-
             Required description ...
           content:
             application/json:
@@ -181,7 +181,7 @@ components:
 # components.yaml
 
     AbstractComponent:
-      description: >
+      description: >-
         Abstract base class for all our components.
         This class provides a name, a UUID identifier, a href URL,
         and a list of messages.
@@ -189,27 +189,27 @@ components:
       title: AbstractComponent
       properties:
         uuid:
-          description: >
+          description: >-
             A machine readable UUID, assigned by the server.
           type: string
           format: uuid
         name:
-          description: >
+          description: >-
             A human readable name, assigned by the client.
           type: string
         type:
-          description: >
+          description: >-
             The component type identifier.
           type: string
           xml:
             attribute: true
         created:
-          description: >
+          description: >-
             The date and time the component was created.
           type: string
           format: date-time
         messages:
-          description: >
+          description: >-
             A list of messages about this component.
           xml:
             name: messages
@@ -220,31 +220,31 @@ components:
               name: message
 
     AccessibleComponent:
-      description: >
+      description: >-
         Adds a href to access this component.
       type: object
       title: AccessibleComponent
       properties:
         href:
-          description: >
+          description: >-
             The URL to access this component, assigned by the server.
           type: string
 
     ScheduledComponent:
-      description: >
+      description: >-
         Adds a schedule for this component.
       type: object
       title: ScheduledComponent
       properties:
         schedule:
-          description: >
+          description: >-
             The expected schedule for this component.
           xml:
             name: schedule
           $ref: 'ComponentSchedule'
 
     ComponentSchedule:
-      description: >
+      description: >-
         The schedule elements for a ScheduledComponent.
       type: object
       title: ComponentSchedule
@@ -257,7 +257,7 @@ components:
 # compute-resources.yaml
 
     AbstractComputeResource:
-      description: >
+      description: >-
         Abstract base class for compute resources.
       type: object
       title: AbstractComputeResource
@@ -266,24 +266,15 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": 'SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0": './types/resources/compute/simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeResource'
       allOf:
         - $ref: 'AbstractComponent'
         - $ref: 'ScheduledComponent'
 
-    SimpleComputeResource:
-      description: >
-        A simple compute resource.
-      type: object
-      title: SimpleComputeResource
-      allOf:
-        - $ref: 'AbstractComputeResource'
-        - $ref: './types/resources/compute/simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeSpec'
-
 # volume-mounts.yaml
 
     VolumeMountList:
-      description: >
+      description: >-
         A list of volume mounts.
       type: array
       title: VolumeMountList
@@ -293,7 +284,7 @@ components:
         $ref: 'AbstractVolumeMount'
 
     AbstractVolumeMount:
-      description: >
+      description: >-
         Abstract base class for volume mounts.
       type: object
       title: AbstractVolumeMount
@@ -302,31 +293,14 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0": 'SimpleVolumeMount'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0": './types/resources/volumes/simple-volume-mount-1.0.yaml#/components/schemas/SimpleVolumeMount'
       allOf:
         - $ref: 'AbstractComponent'
-#       - type: object
-#         properties:
-#           # TOTO Do we need this here ?
-#           type:
-#             type: string
-#             xml:
-#               attribute: true
-
-    SimpleVolumeMount:
-      description: >
-        A simple volume mount.
-      type: object
-      name:  SimpleVolumeMount
-      title: SimpleVolumeMount
-      allOf:
-        - $ref: 'AbstractVolumeMount'
-        - $ref: './types/resources/volumes/simple-volume-mount-1.0.yaml#/components/schemas/SimpleVolumeMountSpec'
 
 # storage-resources.yaml
 
     StorageResourceList:
-      description: >
+      description: >-
         A list of storage resources.
       type: array
       title: StorageResourceList
@@ -336,7 +310,7 @@ components:
         $ref: 'AbstractStorageResource'
 
     AbstractStorageResource:
-      description: >
+      description: >-
         Abstract base class for storage resources.
       type: object
       title: AbstractStorageResource
@@ -345,36 +319,22 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": 'SimpleStorageResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0": './types/resources/storage/simple-storage-resource-1.0.yaml#/components/schemas/SimpleStorageResource'
       allOf:
         - $ref: 'AbstractComponent'
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-#           # TOTO Do we need this here ?
-#           type:
-#             type: string
-#             xml:
-#               attribute: true
             data:
               type: array
               items:
                 type: string
 
-    SimpleStorageResource:
-      description: >
-        A simple storage resource.
-      type: object
-      name:  SimpleStorageResource
-      title: SimpleStorageResource
-      allOf:
-        - $ref: 'AbstractStorageResource'
-        - $ref: './types/resources/storage/simple-storage-resource-1.0.yaml#/components/schemas/SimpleStorageSpec'
 
 # data-resources.yaml
 
     DataResourceList:
-      description: >
+      description: >-
         A list of data resources.
       type: array
       title: DataResourceList
@@ -384,7 +344,7 @@ components:
         $ref: 'AbstractDataResource'
 
     AbstractDataResource:
-      description: >
+      description: >-
         Abstract base class for data resources.
       type: object
       title: AbstractDataResource
@@ -393,73 +353,18 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0":    'SimpleDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/amazon-s3-data-resource-1.0": 'AmazonS3DataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0":     'RucioDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0":      'IvoaDataResource'
-          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0":      'SkaoDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0": './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/S3-data-resource-1.0":     './types/resources/data/S3-data-resource-1.0.yaml#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/rucio-data-resource-1.0":  './types/resources/data/rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0":   './types/resources/data/ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0":   './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResource'
       allOf:
         - $ref: 'AbstractComponent'
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-#           # TOTO Do we need this here ?
-#           type:
-#             type: string
-#             xml:
-#               attribute: true
             storage:
               type: string
-
-    SimpleDataResource:
-      type: object
-      name:  SimpleDataResource
-      title: SimpleDataResource
-      description: >
-          A simple downloadable data resource.
-      allOf:
-        - $ref: 'AbstractDataResource'
-        - $ref: './types/resources/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResourceSpec'
-
-    AmazonS3DataResource:
-      type: object
-      name:  AmazonS3DataResource
-      title: AmazonS3DataResource
-      description: >
-          A data resource in a S3 storage system.
-      allOf:
-        - $ref: 'AbstractDataResource'
-        - $ref: './types/resources/data/Amazon-S3-data-resource-1.0.yaml#/components/schemas/AmazonS3DataResourceSpec'
-
-    RucioDataResource:
-      type: object
-      name:  RucioDataResource
-      title: RucioDataResource
-      description: >
-          A data resource in a Rucio storage system.
-      allOf:
-        - $ref: 'AbstractDataResource'
-        - $ref: './types/resources/data/rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResourceSpec'
-
-    IvoaDataResource:
-      type: object
-      name:  IvoaDataResource
-      title: IvoaDataResource
-      description: >
-          An IVOA data resource, with metadata from an ObsCore or DataLink response.
-      allOf:
-        - $ref: 'AbstractDataResource'
-        - $ref: './types/resources/data/ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResourceSpec'
-
-    SkaoDataResource:
-      type: object
-      name:  SkaoDataResource
-      title: SkaoDataResource
-      description: >
-          A SKA data resource in the SKA data lake.
-      allOf:
-        - $ref: 'IvoaDataResource'
-        - $ref: './types/resources/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResourceSpec'
 
     AbstractExecutable:
       description: Abstract base class for executables.
@@ -470,28 +375,21 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0":      'DockerContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0": 'SingularityContainer'
-          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      'JupyterNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0":      './types/executables/docker-container-1.0.yaml#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/singularity-container-1.0": './types/executables/singularity-container-1.0.yaml#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0":      './types/executables/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebook'
       allOf:
         - $ref: 'AbstractComponent'
         - $ref: 'ScheduledComponent'
         - type: object
           properties:
-#           # TOTO Do we need this here ?
-#           type:
-#             description: >
-#               The component type discriminator
-#             type: string
-#             xml:
-#               attribute: true
             access:
-              description: >
+              description: >-
                 A list of access methods that the client can use to monitor and interact with the execution.
               $ref: 'ExecutableAccessList'
 
     ExecutableAccessList:
-      description: >
+      description: >-
         A list of data access methods.
       type: array
       title: ExecutableAccessList
@@ -513,55 +411,25 @@ components:
             - PREPARING
             - ACTIVE
             - FINISHED
-          description: >
+          description: >-
             A flag to indicate the staus of the connection.
         protocol:
           type: string
-          description: >
+          description: >-
             The access protocol, provided by the server when an offer is made.
             Typically one of [TCP, HTTP, HTTPS].
         locations:
           type: array
           items:
             type: string
-          description: >
+          description: >-
             A list of access URLs, provided by the server once the execution is ready to start.
             This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
-
-    DockerContainer:
-      description: |
-        A Docker or OCI container executable.
-        See https://opencontainers.org/
-      type: object
-      title: DockerContainer
-      allOf:
-        - $ref: 'AbstractExecutable'
-        - $ref: './types/executables/docker-container-1.0.yaml#/components/schemas/DockerContainerSpec'
-
-    SingularityContainer:
-      description: |
-        A Singularity container executable.
-        See https://docs.sylabs.io/guides/latest/user-guide/
-      type: object
-      title: SingularContainer
-      allOf:
-        - $ref: 'AbstractExecutable'
-        - $ref: './types/executables/singularity-container-1.0.yaml#/components/schemas/SingularityContainerSpec'
-
-    JupyterNotebook:
-      description: >
-        A Jupyter notebook executable.
-        See https://jupyter.org/
-      type: object
-      title: JupyterNotebook
-      allOf:
-        - $ref: 'AbstractExecutable'
-        - $ref: './types/executables/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebookSpec'
 
 # update-options.yaml
 
     AbstractOption:
-      description: >
+      description: >-
         Abstract base class for describing options.
         This includes the `type` discriminator and the target `path` to update.
       type: object
@@ -582,14 +450,14 @@ components:
           xml:
             attribute: true
         path:
-          description: >
+          description: >-
             The target path that the option applies to.
           type: string
           xml:
             attribute: false
 
     StringValueOption:
-      description: >
+      description: >-
         A simple string value option.
         This option enables the client to set a string value pointed to by the path.
       type: object
@@ -599,12 +467,12 @@ components:
         - type: object
           properties:
             pattern:
-              description: >
+              description: >-
                 A regular expression pattern restricting the value.
               type: string
 
     EnumValueOption:
-      description: >
+      description: >-
         A simple enum value option.
         This option enables the client to set an enum value pointed to by the path.
       type: object
@@ -616,14 +484,14 @@ components:
         - type: object
           properties:
             values:
-              description: >
+              description: >-
                 The list of available options.
               type: array
               items:
                 type: string
 
     IntegerValueOption:
-      description: >
+      description: >-
         A simple integer value option.
         This option enables the client to set an integer value pointed to by the path.
       type: object
@@ -633,17 +501,17 @@ components:
         - type: object
           properties:
             min:
-              description: >
+              description: >-
                 The minimum value that can be set.
               type: integer
               format: int64
             max:
-              description: >
+              description: >-
                 The maximum value that can be set.
               type: integer
               format: int64
             units:
-              description: >
+              description: >-
                 The units used for the maximum and minimum values
                 and the default units used for the update.
                 The client may specify different units in the
@@ -651,7 +519,7 @@ components:
               type: string
 
     IntegerDeltaOption:
-      description: >
+      description: >-
         A simple integer delta option.
         This option enables the client to increment or decrement an integer value pointed to by the path.
       type: object
@@ -661,17 +529,17 @@ components:
         - type: object
           properties:
             min:
-              description: >
+              description: >-
                 The minimum change that can be applied.
               type: integer
               format: int64
             max:
-              description: >
+              description: >-
                 The maximum change that can be applied.
               type: integer
               format: int64
             units:
-              description: >
+              description: >-
                 The units used for the maximum and minimum values
                 and the default units used for the update.
                 The client may specify different units in the
@@ -681,7 +549,7 @@ components:
 # update-actions.yaml
 
     AbstractUpdate:
-      description: >
+      description: >-
         Abstract base class for updates.
         This includes the `type` discriminator and the target `path` to update.
       type: object
@@ -702,14 +570,14 @@ components:
           xml:
             attribute: true
         path:
-          description: >
+          description: >-
             The target path that the update applies to.
           type: string
           xml:
             attribute: false
 
     StringValueUpdate:
-      description: >
+      description: >-
         A simple string value update.
       type: object
       title: StringValueUpdate
@@ -720,12 +588,12 @@ components:
         - type: object
           properties:
             value:
-              description: >
+              description: >-
                 The string value to use.
               type: string
 
     EnumValueUpdate:
-      description: >
+      description: >-
         A simple enum value update.
       type: object
       title: EnumValueUpdate
@@ -736,12 +604,12 @@ components:
         - type: object
           properties:
             value:
-              description: >
+              description: >-
                 The enum value to use.
               type: string
 
     IntegerValueUpdate:
-      description: >
+      description: >-
         A simple integer value update.
       type: object
       title: IntegerValueUpdate
@@ -752,17 +620,17 @@ components:
         - type: object
           properties:
             value:
-              description: >
+              description: >-
                 The integer value to use.
               type: integer
               format: int64
             units:
-              description: >
+              description: >-
                 The units to use for the value.
               type: string
 
     IntegerDeltaUpdate:
-      description: >
+      description: >-
         A simple integer delta update.
         This increments or decrements the target value by the specified amount.
       type: object
@@ -774,19 +642,19 @@ components:
         - type: object
           properties:
             delta:
-              description: >
+              description: >-
                 The increment or decrement to apply.
               type: integer
               format: int64
             units:
-              description: >
+              description: >-
                 The units to use for the change.
               type: string
 
     # TODO Move this to utils ?
     # TODO Remove this - not used.
     MinMaxDuration:
-      description: >
+      description: >-
         A duration time block describing how long the execution will take.
         The max and min values are expressed as ISO 8601 time durations.
         See https://en.wikipedia.org/wiki/ISO_8601#Durations
@@ -802,7 +670,7 @@ components:
 
     # TODO This should be is-a AbstractUpdate rather than has-a AbstractUpdate
     UpdateRequest:
-      description: >
+      description: >-
         A request to update an execution.
       type: object
       title: UpdateRequest
@@ -815,24 +683,24 @@ components:
           $ref: 'AbstractUpdate'
 
     RequestedScheduleItem:
-      description: >
+      description: >-
         Details of the requested timings.
       type: object
       title: RequestedScheduleItem
       properties:
         duration:
-          description: >
+          description: >-
             The requested duration.
           $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
         start:
-          description: >
+          description: >-
             An array of requested start times.
           type: array
           items:
             $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
     RequestedScheduleBlock:
-      description: >
+      description: >-
         Details of the requested timings.
       type: object
       title: RequestedScheduleBlock
@@ -841,7 +709,7 @@ components:
           $ref: 'RequestedScheduleItem'
 
     OfferedScheduleInstant:
-      description: >
+      description: >-
         Details of an offered timing.
       type: object
       title: OfferedScheduleInstant
@@ -852,7 +720,7 @@ components:
           $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
 
     OfferedScheduleInterval:
-      description: >
+      description: >-
         Details of an offered timing.
       type: object
       title: OfferedScheduleInterval
@@ -863,7 +731,7 @@ components:
           $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
 
     OfferedScheduleBlock:
-      description: >
+      description: >-
         Details of the offered timings.
       type: object
       title: OfferedScheduleBlock
@@ -876,7 +744,7 @@ components:
           $ref: 'OfferedScheduleInstant'
 
     ObservedScheduleItem:
-      description: >
+      description: >-
         Details of the observed timings.
       type: object
       title: ObservedScheduleItem
@@ -891,7 +759,7 @@ components:
           format: date-time
 
     ObservedScheduleBlock:
-      description: >
+      description: >-
         Details of the observed timings.
       type: object
       title: ObservedScheduleBlock
@@ -905,7 +773,7 @@ components:
 
 #   ExecutionResourceList:
     ExecutionComponents:
-      description: >
+      description: >-
         The combination of an executable and the compute, storage, volumes, and data resources it needs.
       type: object
       title: ExecutionComponents
@@ -922,7 +790,7 @@ components:
           $ref: 'DataResourceList'
 
     ExecutionSessionPhase:
-      description: >
+      description: >-
         Status code for an execution session.
       type: string
       title: ExecutionSessionPhase
@@ -944,7 +812,7 @@ components:
         - CANCELLED
 
     ExecutionSessionResponse:
-      description: >
+      description: >-
         An Execution session, including uuid, href, and status.
       type: object
       title: ExecutionSessionResponse
@@ -965,7 +833,7 @@ components:
             phase:
               $ref: 'ExecutionSessionPhase'
             expires:
-              description: >
+              description: >-
                 The date and time that this execution offer expires.
                 Only valid while the state is OFFERED.
               xml:
@@ -981,7 +849,7 @@ components:
 #               name: resources
 #             $ref: 'ExecutionResourceList'
             options:
-              description: >
+              description: >-
                 A List of options the client can apply to this Execution.
               type: array
               items:
@@ -990,7 +858,7 @@ components:
 # offersets.yaml
 
     OfferSetRequest:
-      description: >
+      description: >-
         A request for a set of offers for an execution.
       type: object
       title: OfferSetRequest
@@ -1001,11 +869,11 @@ components:
         - type: object
           properties:
             name:
-              description: >
+              description: >-
                 A human readable name.
               type: string
             description:
-              description: >
+              description: >-
                 A human readable description.
               type: string
 #       executable:
@@ -1022,7 +890,7 @@ components:
               $ref: 'RequestedScheduleBlock'
 
     OfferSetResponse:
-      description: >
+      description: >-
         A set of executions offered in response to a request,
         including a uuid, href, and an expiry date for the set.
       type: object
@@ -1038,7 +906,7 @@ components:
         - type: object
           properties:
             result:
-              description: >
+              description: >-
                 A flag to indicate whether the request can be handled by this service.
                 If service is able to handle the request, then the `result` will be `YES`
                 and the `offers` block should contain one or more offers.
@@ -1049,7 +917,7 @@ components:
                 - "YES"
                 - "NO"
             description:
-              description: >
+              description: >-
                 A human readable description.
               type: string
             offers:

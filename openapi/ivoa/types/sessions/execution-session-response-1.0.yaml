@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker session response
   version: "1.0"
   summary: IVOA ExecutionBroker session response
-  description: |
+  description: >-
     OpenAPI schema for an IVOA ExecutionBroker execution session response.
   contact:
     name: Dave Morris

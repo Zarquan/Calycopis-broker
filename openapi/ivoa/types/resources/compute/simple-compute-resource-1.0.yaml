@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker simple compute resource
   version: "1.0"
   summary: IVOA ExecutionBroker simple compute resource
-  description: |
+  description: >-
     OpenAPI schema for a simple compute resource in IVOA ExecutionBroker
   contact:
     name: Dave Morris
@@ -39,26 +39,29 @@ info:
 components:
   schemas:
 
-    SimpleComputeSpec:
+    SimpleComputeResource:
       type: object
       name:  SimpleComputeResource
       title: SimpleComputeResource
-      description: |
+      description: >-
         A simple compute resource.
-      properties:
-        cores:
-          $ref: 'SimpleComputeCores'
-        memory:
-          $ref: 'SimpleComputeMemory'
-        volumes:
-          description: |
-            A list of the filesystem volumes to mount.
-          type: array
-          items:
-            type: string
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractComputeResource'
+        - type: object
+          properties:
+            cores:
+              $ref: 'SimpleComputeCores'
+            memory:
+              $ref: 'SimpleComputeMemory'
+            volumes:
+              description: >-
+                A list of the filesystem volumes to mount.
+              type: array
+              items:
+                type: string
 
     SimpleComputeCores:
-      description: |
+      description: >-
         The number of CPU cores requested by the user.
         The minimum represents the lower limit that the excution requires.
         The maximum represents the highest number of cores that the excution can use.
@@ -77,7 +80,7 @@ components:
           format: int64
 
     SimpleComputeMemory:
-      description: |
+      description: >-
         The amount of memory requested by the user.
         The minimum represents the lower limit that the excution requires.
         The maximum represents the highest amount of memory that the excution can use.

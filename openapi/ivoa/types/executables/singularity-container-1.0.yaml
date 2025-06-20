@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker log messages
   version: "1.0"
   summary: IVOA ExecutionBroker SingularityContainer
-  description: |
+  description: >-
     OpenAPI schema for a Singularity container in IVOA ExecutionBroker
   contact:
     name: Dave Morris
@@ -39,15 +39,19 @@ info:
 components:
   schemas:
 
-    SingularityContainerSpec:
-      description: |
+    SingularityContainer:
+      type: object
+      name:  SingularContainer
+      title: SingularContainer
+      description: >-
         Details for a Singularity container executable.
         See https://docs.sylabs.io/guides/latest/user-guide/
-      type: object
-      title: SingularContainer
-      properties:
-        location:
-          type: string
-          description: |
-            The URL to download the container image from.
+      allOf:
+        - $ref: '../../openapi.yaml#AbstractExecutable'
+        - type: object
+          properties:
+            location:
+              type: string
+              description: >-
+                The URL to download the container image from.
 

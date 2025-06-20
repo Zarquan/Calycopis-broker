@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker Jupyter notebook
   version: "1.0"
   summary: IVOA ExecutionBroker Jupyter notebook
-  description: |
+  description: >-
     OpenAPI schema for a Jupyter notebook in IVOA ExecutionBroker
   contact:
     name: Dave Morris
@@ -39,16 +39,20 @@ info:
 components:
   schemas:
 
-    JupyterNotebookSpec:
-      description: |
+    JupyterNotebook:
+      type: object
+      name:  JupyterNotebook
+      title: JupyterNotebook
+      description: >-
         Details for a Jupyter notebook executable.
         See https://jupyter.org/
-      type: object
-      title: JupyterNotebook
-      properties:
-        location:
-          type: string
-          description: |
-            The URL of the notebook.
-            TODO - This needs to take into account different ways of referring to a notebook.
+      allOf:
+        - $ref: '../../openapi.yaml#AbstractExecutable'
+        - type: object
+          properties:
+            location:
+              type: string
+              description: >-
+                The URL of the notebook.
+                TODO - This needs to take into account different ways of referring to a notebook.
 

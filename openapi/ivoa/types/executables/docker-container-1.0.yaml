@@ -27,7 +27,7 @@ info:
   title: DockerContainer
   version: "1.0"
   summary: A Docker (OCI) container
-  description: |
+  description: >-
     Metadata describing a Docker (OCI) container executable.
   contact:
     name: Dave Morris
@@ -39,45 +39,49 @@ info:
 components:
   schemas:
 
-    DockerContainerSpec:
-      description: |
+    DockerContainer:
+      type: object
+      name:  DockerContainer
+      title: DockerContainer
+      description: >-
         Details for a Docker or OCI container executable.
         See https://opencontainers.org/
-      type: object
-      title: DockerContainer
-      properties:
-        image:
-          description: |
-            Details of the container image.
-          $ref: 'DockerImageSpec'
-        privileged:
-          type: boolean
-          default: false
-          description: |
-            Set the privileged flag on execution.
-            The default is `false`.
-            See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
-        entrypoint:
-          type: string
-          description: |
-            Overwrite the default ENTRYPOINT of the image.
-        environment:
-          description: |
-            A name => value map of environment variables to pass to the container.
-          $ref: '../../components/utils.yaml#/components/schemas/NameValueMap'
-        network:
-          description: |
-            Details of the network access available to the container.
-          $ref: 'DockerNetworkSpec'
+      allOf:
+        - $ref: '../../openapi.yaml#AbstractExecutable'
+        - type: object
+          properties:
+            image:
+              description: >-
+                Details of the container image.
+              $ref: 'DockerImageSpec'
+            privileged:
+              type: boolean
+              default: false
+              description: >-
+                Set the privileged flag on execution.
+                The default is `false`.
+                See https://docs.docker.com/reference/cli/docker/container/run/#privileged.
+            entrypoint:
+              type: string
+              description: >-
+                Overwrite the default ENTRYPOINT of the image.
+            environment:
+              description: >-
+                A name => value map of environment variables to pass to the container.
+              $ref: '../../components/utils.yaml#/components/schemas/NameValueMap'
+            network:
+              description: >-
+                Details of the network access available to the container.
+              $ref: 'DockerNetworkSpec'
 
     DockerImageSpec:
-      description: |
+      description: >-
         Details of the container image.
       type: object
       title: DockerImageSpec
       properties:
         locations:
-          description: |
+          description: >-
             An array of repository locations.
             <repository>/<namespace>/<container>:<tag>
             e.g.
@@ -87,7 +91,7 @@ components:
             type: string
         digest:
           type: string
-          description: |
+          description: >-
             Images that use the v2 or later format have a content-addressable identifier called a digest.
             As long as the input used to generate the image is unchanged, the digest value is predictable.
             The digest is generated as a sha256 checksum when the image is built.
@@ -96,7 +100,7 @@ components:
           $ref: 'DockerPlatformSpec'
 
     DockerPlatformSpec:
-      description: |
+      description: >-
         Details of the platform the container image is built for.
         Debatable whether we need to have this here.
         The information will be in the container, and the platform will probably need to check it anyway to make sure.
@@ -107,38 +111,38 @@ components:
         architecture:
           type: string
           default: amd64
-          description: |
+          description: >-
             The CPU architecture the image is built for.
             The default is `amd64`.
         os:
           type: string
           default: linux
-          description: |
+          description: >-
             The operating system the image is built for.
             The default is `linux`.
 
     DockerNetworkSpec:
-      description: |
+      description: >-
         Details of the network access available to the container.
       type: object
       title: DockerNetworkSpec
       properties:
         ports:
-          description: |
+          description: >-
             An array of network ports to publish.
           type: array
           items:
             $ref: 'DockerNetworkPort'
 
     DockerNetworkPort:
-      description: |
+      description: >-
         Details of a network port on the container made available for connection from outside.
       type: object
       title: DockerNetworkPort
       properties:
         access:
           type: boolean
-          description: |
+          description: >-
             A flag to indicate whether this port should be listed in the access methods for the execution.
         internal:
           $ref: 'DockerInternalPort'
@@ -146,20 +150,20 @@ components:
           $ref: 'DockerExternalPort'
         protocol:
           type: string
-          description: |
+          description: >-
             The network protocol to use, typically one of [UDP, TCP, HTTP, HTTPS], with a default of `TCP`.
             This should be defined as part of the description of the executable supplied by the client.
             The `HTTP` and `HTTPS` values further specify the protocol to use on top of `TCP`.
             Specifying `HTTPS` may help to meet firewall restrictions at some sites.
         path:
           type: string
-          description: |
+          description: >-
             The path component of an access URL.
             This should be defined as part of the description of the executable supplied by the client.
             This can be used to provide the path of a notebook within a JupyterNotebook container.
 
     DockerInternalPort:
-      description: |
+      description: >-
         Details of an internal network port on a container.
       type: object
       title: DockerInternalPort
@@ -167,12 +171,12 @@ components:
         port:
           type: integer
           format: int32
-          description: |
+          description: >-
             The port number on the container to publish.
             This should be defined as part of the description of the executable.
 
     DockerExternalPort:
-      description: |
+      description: >-
         Details of an external network port accessible from outside.
       type: object
       title: DockerExternalPort
@@ -180,14 +184,14 @@ components:
         port:
           type: integer
           format: int32
-          description: |
+          description: >-
             The port number of the external interface.
             The service will populate this value when it sets up the execution.
         addresses:
           type: array
           items:
             type: string
-          description: |
+          description: >-
             A list of public hostnames or IPv4 or IPv6 addresses for the external interface.
             The service will populate this list when it sets up the execution.
 

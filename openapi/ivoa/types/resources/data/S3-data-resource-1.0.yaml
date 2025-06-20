@@ -27,7 +27,7 @@ info:
   title: IVOA ExecutionBroker S3 data resource
   version: "1.0"
   summary: IVOA ExecutionBroker S3 data resource
-  description: |
+  description: >-
     OpenAPI schema for an IVOA ExecutionBroker S3 data resource
   contact:
     name: Dave Morris
@@ -39,30 +39,33 @@ info:
 components:
   schemas:
 
-    AmazonS3DataResourceSpec:
+    S3DataResource:
       type: object
-      name:  AmazonS3DataResource
-      title: AmazonS3DataResource
-      description: |
+      name:  S3DataResource
+      title: S3DataResource
+      description: >-
         A data resource in a S3 storage system.
-      properties:
-        endpoint:
-          description: |
-            The endpoint address of the S3 service.
-          type: string
-        template:
-          description: |
-            The URL template for the S3 service.
-          type: string
-        bucket:
-          description: |
-            The target bucket name.
-          type: string
-        object:
-          description: |
-            The target object name.
-            Leaving this blank will mount the whole bucket as a directory.
-          type: string
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            endpoint:
+              description: >-
+                The endpoint address of the S3 service.
+              type: string
+            template:
+              description: >-
+                The URL template for the S3 service.
+              type: string
+            bucket:
+              description: >-
+                The target bucket name.
+              type: string
+            object:
+              description: >-
+                The target object name.
+                Leaving this blank will mount the whole bucket as a directory.
+              type: string
 # TODO add checksums
 # TODO add a size estimate
 # TODO add download time estimate

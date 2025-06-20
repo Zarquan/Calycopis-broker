@@ -1,0 +1,381 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": "100%",
+#     "references": [
+#       "https://chatgpt.com/share/6854571e-1b5c-8008-986a-ba74db5d491f"
+#       ]
+#     }
+#   ]
+#
+
+    Target:
+
+        Create a schema pre-processor to resolve external references
+        and bring them into a single file.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=schema-processor
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Iterate with ChatGPT to create a Python program to process the schema.
+    https://chatgpt.com/share/6854571e-1b5c-8008-986a-ba74db5d491f
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test the code that ChatGPT generates
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        fedora:42 \
+        bash
+
+        dnf install -y \
+            python3 \
+            pip3
+
+        pip3 install \
+            pyyaml
+
+        pushd /openapi
+
+            bin/schema-processor.py \
+                ivoa/openapi.yaml \
+                build/combined-openapi.yaml
+
+    #
+    # The results are 90% complete, but there are three unresolved references.
+    # Probably because they are more than one component loaded from the same file
+    # and the recursion keeps track of imported files not inported components.
+    # Manually fixing them for now ...
+    #
+
+    >   ....
+    >       OfferedScheduleInstant:
+    >         description: Details of an offered timing.
+    >         properties:
+    >           duration:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+    >           start:
+    >             $ref: '#/components/schemas/ISO8601Instant'
+    >         title: OfferedScheduleInstant
+    >         type: object
+    >       OfferedScheduleInterval:
+    >         description: Details of an offered timing.
+    >         properties:
+    >           duration:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Duration
+    >           start:
+    >             $ref: ./components/utils.yaml#/components/schemas/ISO8601Interval
+    >         title: OfferedScheduleInterval
+    >         type: object
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Check to see if the processed schema still works in Java.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test example 001.
+#[root@spring-builder]
+
+    examplename=example-001
+    examplepath=/examples/${examplename}
+
+    pushd  "${examplepath}"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@${examplename}-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.'
+
+    popd
+
+    >   uuid: "67ad5cfc-7326-4c57-a520-21c185c1fbd3"
+    >   name: "example-001"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
+    >   created: "2025-06-20T17:08:38.935487385Z"
+    >   href: "http://127.0.0.1:8082/offersets/67ad5cfc-7326-4c57-a520-21c185c1fbd3"
+    >   result: "YES"
+    >   offers:
+    >     - uuid: "0b03dade-9084-476e-9171-b6f0b4a94282"
+    >       name: "example-001-offer-0"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-06-20T17:08:39.26832896Z"
+    >       href: "http://127.0.0.1:8082/sessions/0b03dade-9084-476e-9171-b6f0b4a94282"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             start: "2025-06-20T17:09:00Z"
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T17:09:00Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "4dae8fec-9d3b-4b77-9dec-94b0d30c2f64"
+    >         name: "example-001-executable"
+    >         created: "2025-06-20T17:08:39.277697241Z"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "7b377a5a-3e61-4e1b-aa1d-22c7d0bbf3ae"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
+    >       phase: "OFFERED"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "4d7f61cd-27f3-4aae-8d8e-7b15be5739ef"
+    >       name: "example-001-offer-1"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-06-20T17:08:39.290330943Z"
+    >       href: "http://127.0.0.1:8082/sessions/4d7f61cd-27f3-4aae-8d8e-7b15be5739ef"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             start: "2025-06-20T19:09:00Z"
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T19:09:00Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "be2191a3-c28d-4df1-b89b-9beaf217b895"
+    >         name: "example-001-executable"
+    >         created: "2025-06-20T17:08:39.295612869Z"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "1085a6a5-5ea9-4e75-a14f-7ed404d0951c"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
+    >       phase: "OFFERED"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "9470d7af-2251-4332-a172-5a7332c79425"
+    >       name: "example-001-offer-2"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-06-20T17:08:39.30580377Z"
+    >       href: "http://127.0.0.1:8082/sessions/9470d7af-2251-4332-a172-5a7332c79425"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             start: "2025-06-20T21:09:00Z"
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T21:09:00Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "636359b8-87b3-4807-8e45-1f174381568e"
+    >         name: "example-001-executable"
+    >         created: "2025-06-20T17:08:39.311578307Z"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "da2679ae-142a-4977-9462-5c2aa0062eb7"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
+    >       phase: "OFFERED"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "a212e3fc-040d-4a5a-8421-bc37f808e2de"
+    >       name: "example-001-offer-3"
+    >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
+    >       created: "2025-06-20T17:08:39.321896195Z"
+    >       href: "http://127.0.0.1:8082/sessions/a212e3fc-040d-4a5a-8421-bc37f808e2de"
+    >       schedule:
+    >         offered:
+    >           preparing:
+    >             start: "2025-06-20T23:09:00Z"
+    >           available:
+    >             duration: "PT2H"
+    >             start: "2025-06-20T23:09:00Z"
+    >       executable:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
+    >         uuid: "ba27a8e1-76c6-4670-b15f-ac68fb84f1c0"
+    >         name: "example-001-executable"
+    >         created: "2025-06-20T17:08:39.327893591Z"
+    >         location: "https://www.example.org/example-001.ipynb"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "41c83375-bdb2-4c2e-8e4d-3d89d2517404"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
+    >       phase: "OFFERED"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+
+    #
+    # OK, looks like the Java code generator still works :-)
+    # Now we try the Python code generatorto see what we get.
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test the fastapi Python code generator.
+# Note we have to drop back to an older version of Fedora due to build issues with the latest version.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-webapp \
+        --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        fedora:40 \
+        bash
+
+        dnf install -y \
+            gcc \
+            python3 \
+            python3-pip \
+            python3-devel \
+            python3-wheel
+
+        pip install \
+            fastapi-code-generator
+
+        pushd /python/
+            mkdir albert
+            pushd albert
+
+            fastapi-codegen \
+                --input /openapi/build/combined-openapi.yaml \
+                --output webapp
+
+    >   ....
+    >   ....
+
+        #
+        # It looks like it generates all of rhe classes,
+        # but no type discriminators for polymorphism.
+        #
+
+

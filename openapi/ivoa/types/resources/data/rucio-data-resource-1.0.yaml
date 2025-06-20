@@ -27,7 +27,7 @@ info:
   title: RucioDataResource
   version: "1.0"
   summary: A data resource in a Rucio storage system
-  description: |
+  description: >-
     Metadata describing a data resource in a Rucio storage system.
   contact:
     name: Dave Morris
@@ -39,37 +39,40 @@ info:
 components:
   schemas:
 
-    RucioDataResourceSpec:
+    RucioDataResource:
       type: object
-      name:  RucioDataResourceSpec
-      title: RucioDataResourceSpec
-      description: |
+      name:  RucioDataResource
+      title: RucioDataResource
+      description: >-
         Metadata describing a data resource in a Rucio storage system.
-      properties:
-        rucio:
-          $ref: 'RucioDataResourceBlock'
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            rucio:
+              $ref: 'RucioDataResourceBlock'
 
     RucioDataResourceBlock:
       type: object
       name:  RucioDataResourceBlock
       title: RucioDataResourceBlock
-      description: |
+      description: >-
         A reusable block describing a data resource in a Rucio storage system.
       properties:
         endpoint:
-          description: |
+          description: >-
             The endpoint address of the Rucio service.
           type: string
         scope:
-          description: |
+          description: >-
             The Rucio scope.
           type: string
         object:
-          description: |
+          description: >-
             The target object name.
           type: string
         type:
-          description: |
+          description: >-
             The Rucio data object type.
           type: string
           enum:
@@ -81,15 +84,15 @@ components:
       type: object
       name:  RucioReplicaBlock
       title: RucioReplicaBlock
-      description: |
+      description: >-
         A reusable block describing a Rucio replica.
       properties:
         rse:
-          description: |
+          description: >-
             The name of the Rucio Storage Element.
           type: string
         url:
-          description: |
+          description: >-
             The access URL of the data object within the RSE.
           type: string
 
