@@ -39,15 +39,18 @@ info:
 components:
   schemas:
 
-    SimpleStorageSpec:
+    SimpleStorageResource:
       type: object
       name:  SimpleStorageResource
       title: SimpleStorageResource
       description: >-
         A simple storage resource.
-      properties:
-        size:
-          $ref: 'SimpleStorageSize'
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractStorageResource'
+        - type: object
+          properties:
+            size:
+              $ref: 'SimpleStorageSize'
 
     SimpleStorageSize:
       description: >-

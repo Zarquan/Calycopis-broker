@@ -39,8 +39,8 @@ def load_yaml(file_path):
     with open(file_path, 'r') as f:
         return yaml.safe_load(f)
 
-def normalize_ref(ref):
-    return ref.split("/")[-1]
+def get_schema_name_from_fragment(fragment):
+    return fragment.strip().split("/")[-1]
 
 def resolve_ref_target(ref, base_path):
     if '#' not in ref:
@@ -63,76 +63,152 @@ def resolve_ref_target(ref, base_path):
             return None, None, None
     return value, new_base, spec
 
-def process_refs(spec, base_path, main_local_schemas=None, inlined=None, external_specs=None):
+def process_refs(spec, base_path, root_file, inlined=None, external_specs=None, ref_remap=None):
     if inlined is None:
         inlined = set()
     if external_specs is None:
         external_specs = {}
+    if ref_remap is None:
+        ref_remap = {}
 
     main_local_schemas = spec.setdefault("components", {}).setdefault("schemas", {})
+    root_spec_schemas = spec.get("components", {}).get("schemas", {})
 
-    def recurse(data, current_base_path, current_spec_schemas):
+    def recurse(data, current_base_path, current_spec_schemas, root_spec_schemas):
         if isinstance(data, dict):
             for key, value in list(data.items()):
                 if key == "$ref" and isinstance(value, str):
-                    # Expand short-form
                     if "#" not in value and "/" not in value:
                         expanded = f"#/components/schemas/{value}"
                         print(f"Expanding short $ref: '{value}' → '{expanded}'")
                         data[key] = value = expanded
 
-                    # External $ref
-                    if ".yaml" in value and value.index(".yaml") < value.index("#"):
-                        ref_key = (value, current_base_path)
+                    if ".yaml" in value and "#" in value:
+                        file_part, fragment = value.split('#', 1)
+                        abs_path = os.path.abspath(os.path.join(current_base_path, file_part))
+                        schema_name = get_schema_name_from_fragment(fragment)
+                        internal_ref = f"#/components/schemas/{schema_name}"
+                        ref_key = (abs_path, fragment)
+
+                        if abs_path == root_file:
+                            if schema_name not in main_local_schemas:
+                                print(f"Inlining back-reference to main spec: {schema_name}")
+                                component = root_spec_schemas.get(schema_name)
+                                if component:
+                                    main_local_schemas[schema_name] = component
+                                    recurse(component, base_path, root_spec_schemas, root_spec_schemas)
+                            ref_remap[ref_key] = internal_ref
+                            data[key] = internal_ref
+                            continue
+
+                        if ref_key in ref_remap:
+                            data[key] = ref_remap[ref_key]
+                            continue
+
                         if ref_key in inlined:
                             continue
                         inlined.add(ref_key)
 
                         component, new_base, ext_spec = resolve_ref_target(value, current_base_path)
                         if not component:
-                            print(f"Failed to resolve: {value}")
+                            print(f"⚠️ Could not resolve external $ref: {value}")
                             continue
 
-                        schema_name = normalize_ref(value)
                         if schema_name not in main_local_schemas:
-                            print(f"Inlining schema '{schema_name}' from: {value}")
+                            print(f"Inlining external schema '{schema_name}' from: {value}")
                             main_local_schemas[schema_name] = component
-
                             ext_schemas = ext_spec.get("components", {}).get("schemas", {})
                             external_specs[new_base] = ext_schemas
+                            recurse(component, new_base, ext_schemas, root_spec_schemas)
 
-                            recurse(component, new_base, ext_schemas)
+                        ref_remap[ref_key] = internal_ref
+                        data[key] = internal_ref
 
-                        data[key] = f"#/components/schemas/{schema_name}"
-
-                    # Internal $ref
                     elif value.startswith("#/components/schemas/"):
-                        schema_name = normalize_ref(value)
+                        schema_name = get_schema_name_from_fragment(value)
+
                         if schema_name in current_spec_schemas:
                             if schema_name not in main_local_schemas:
-                                print(f"Inlining local schema from context: {schema_name}")
+                                print(f"Inlining local schema: {schema_name}")
                                 component = current_spec_schemas[schema_name]
                                 main_local_schemas[schema_name] = component
-                                recurse(component, current_base_path, current_spec_schemas)
+                                recurse(component, current_base_path, current_spec_schemas, root_spec_schemas)
+
+                        elif schema_name in root_spec_schemas:
+                            if schema_name not in main_local_schemas:
+                                print(f"Inlining schema from root spec: {schema_name}")
+                                component = root_spec_schemas[schema_name]
+                                main_local_schemas[schema_name] = component
+                                recurse(component, base_path, root_spec_schemas, root_spec_schemas)
+
                         else:
-                            print(f"Warning: Could not find internal schema '{schema_name}' in current spec context")
+                            print(f"⚠️ Could not find internal schema '{schema_name}' in any context")
 
                 elif key == "discriminator" and isinstance(value, dict):
                     mapping = value.get("mapping")
                     if isinstance(mapping, dict):
                         for mkey, mval in list(mapping.items()):
-                            if "#" not in mval:
-                                new_ref = f"#/components/schemas/{mval}"
-                                print(f"Expanding discriminator mapping: {mval} → {new_ref}")
-                                mapping[mkey] = new_ref
+                            if isinstance(mval, str):
+                                if mval.startswith("#/components/schemas/"):
+                                    schema_name = get_schema_name_from_fragment(mval)
+                                    if schema_name in current_spec_schemas and schema_name not in main_local_schemas:
+                                        print(f"Inlining from discriminator mapping: {schema_name}")
+                                        main_local_schemas[schema_name] = current_spec_schemas[schema_name]
+                                        recurse(current_spec_schemas[schema_name], current_base_path, current_spec_schemas, root_spec_schemas)
+                                    elif schema_name in root_spec_schemas and schema_name not in main_local_schemas:
+                                        print(f"Inlining from root via discriminator mapping: {schema_name}")
+                                        main_local_schemas[schema_name] = root_spec_schemas[schema_name]
+                                        recurse(root_spec_schemas[schema_name], base_path, root_spec_schemas, root_spec_schemas)
+
+                                elif ".yaml" in mval and "#" in mval:
+                                    file_part, fragment = mval.split('#', 1)
+                                    abs_path = os.path.abspath(os.path.join(current_base_path, file_part))
+                                    schema_name = get_schema_name_from_fragment(fragment)
+                                    internal_ref = f"#/components/schemas/{schema_name}"
+                                    ref_key = (abs_path, fragment)
+
+                                    if abs_path == root_file:
+                                        if schema_name not in main_local_schemas:
+                                            print(f"Inlining back-reference from discriminator: {schema_name}")
+                                            component = root_spec_schemas.get(schema_name)
+                                            if component:
+                                                main_local_schemas[schema_name] = component
+                                                recurse(component, base_path, root_spec_schemas, root_spec_schemas)
+                                        ref_remap[ref_key] = internal_ref
+                                        mapping[mkey] = internal_ref
+                                        continue
+
+                                    if ref_key in ref_remap:
+                                        mapping[mkey] = ref_remap[ref_key]
+                                        continue
+
+                                    if ref_key in inlined:
+                                        continue
+                                    inlined.add(ref_key)
+
+                                    component, new_base, ext_spec = resolve_ref_target(mval, current_base_path)
+                                    if not component:
+                                        print(f"⚠️ Could not resolve external discriminator mapping: {mval}")
+                                        continue
+
+                                    if schema_name not in main_local_schemas:
+                                        print(f"Inlining external schema from discriminator mapping: {schema_name}")
+                                        main_local_schemas[schema_name] = component
+                                        ext_schemas = ext_spec.get("components", {}).get("schemas", {})
+                                        external_specs[new_base] = ext_schemas
+                                        recurse(component, new_base, ext_schemas, root_spec_schemas)
+
+                                    ref_remap[ref_key] = internal_ref
+                                    mapping[mkey] = internal_ref
+
                 else:
-                    recurse(value, current_base_path, current_spec_schemas)
+                    recurse(value, current_base_path, current_spec_schemas, root_spec_schemas)
+
         elif isinstance(data, list):
             for item in data:
-                recurse(item, current_base_path, current_spec_schemas)
+                recurse(item, current_base_path, current_spec_schemas, root_spec_schemas)
 
-    current_spec_schemas = spec.get("components", {}).get("schemas", {})
-    recurse(spec, base_path, current_spec_schemas)
+    recurse(spec, base_path, root_spec_schemas, root_spec_schemas)
 
 def main():
     parser = argparse.ArgumentParser(description="Inline and expand OpenAPI $ref entries.")
@@ -143,17 +219,18 @@ def main():
     input_path = os.path.abspath(args.input)
     output_path = os.path.abspath(args.output)
     base_path = os.path.dirname(input_path)
+    root_file = input_path
 
-    print(f"Input:  {input_path}")
-    print(f"Output: {output_path}")
+    print(f"📥 Input:  {input_path}")
+    print(f"📤 Output: {output_path}")
 
     spec = load_yaml(input_path)
-    process_refs(spec, base_path)
+    process_refs(spec, base_path, root_file)
 
     with open(output_path, "w") as f:
-        yaml.dump(spec, f)
+        yaml.dump(spec, f, sort_keys=False)
 
-    print("All references processed and file saved.")
+    print("✅ All references processed and saved.")
 
 if __name__ == "__main__":
     main()

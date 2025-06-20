@@ -39,15 +39,18 @@ info:
 components:
   schemas:
 
-    IvoaDataResourceSpec:
+    IvoaDataResource:
       type: object
-      name:  IvoaDataResourceSpec
-      title: IvoaDataResourceSpec
+      name:  IvoaDataResource
+      title: IvoaDataResource
       description: >-
         Metadata describing an IVOA data resource.
-      properties:
-        ivoa:
-          $ref: 'IvoaDataResourceBlock'
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            ivoa:
+              $ref: 'IvoaDataResourceBlock'
 
     IvoaDataResourceBlock:
       type: object

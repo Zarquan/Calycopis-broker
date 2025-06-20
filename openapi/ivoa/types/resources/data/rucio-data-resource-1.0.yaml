@@ -39,15 +39,18 @@ info:
 components:
   schemas:
 
-    RucioDataResourceSpec:
+    RucioDataResource:
       type: object
-      name:  RucioDataResourceSpec
-      title: RucioDataResourceSpec
+      name:  RucioDataResource
+      title: RucioDataResource
       description: >-
         Metadata describing a data resource in a Rucio storage system.
-      properties:
-        rucio:
-          $ref: 'RucioDataResourceBlock'
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            rucio:
+              $ref: 'RucioDataResourceBlock'
 
     RucioDataResourceBlock:
       type: object

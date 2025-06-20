@@ -39,30 +39,33 @@ info:
 components:
   schemas:
 
-    AmazonS3DataResourceSpec:
+    AmazonS3DataResource:
       type: object
       name:  AmazonS3DataResource
       title: AmazonS3DataResource
       description: >-
         A data resource in a S3 storage system.
-      properties:
-        endpoint:
-          description: >-
-            The endpoint address of the S3 service.
-          type: string
-        template:
-          description: >-
-            The URL template for the S3 service.
-          type: string
-        bucket:
-          description: >-
-            The target bucket name.
-          type: string
-        object:
-          description: >-
-            The target object name.
-            Leaving this blank will mount the whole bucket as a directory.
-          type: string
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            endpoint:
+              description: >-
+                The endpoint address of the S3 service.
+              type: string
+            template:
+              description: >-
+                The URL template for the S3 service.
+              type: string
+            bucket:
+              description: >-
+                The target bucket name.
+              type: string
+            object:
+              description: >-
+                The target object name.
+                Leaving this blank will mount the whole bucket as a directory.
+              type: string
 # TODO add checksums
 # TODO add a size estimate
 # TODO add download time estimate

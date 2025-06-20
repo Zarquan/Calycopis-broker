@@ -39,40 +39,43 @@ info:
 components:
   schemas:
 
-    SimpleVolumeMountSpec:
+    SimpleVolumeMount:
       type: object
       name:  SimpleVolumeMount
       title: SimpleVolumeMount
       description: >-
         A simple volume mount.
-      properties:
-        path:
-          description: >
-            The filesystem mount point.
-          type: string
-        mode:
-          description: >
-            The read-write access mode.
-          type: string
-          enum:
-            - READONLY
-            - READWRITE
-        cardinality:
-          description: >
-            If cardinality is set to INSTANCE, then this volume-mount will mount a single resource at the location set by path.
-            If cardinality is set to CONTAINER, then this volume-mount will create a directory in the target file system,
-            at the location set by path, and mount the resources within that directory.
-          type: string
-          enum:
-            - INSTANCE
-            - CONTAINER
-        resources:
-          description: >
-            A list of the data resources in this volume mount.
-            If cardinality is set to INSTANCE then this list should only contain one resource.
-            If cardinality is set to INSTANCE and this list has more than one resource, it should fail validation.
-            If cardinality is set to CONTAINER then this list may contain more than one resource.
-          type: array
-          items:
-            type: string
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractVolumeMount'
+        - type: object
+          properties:
+            path:
+              description: >
+                The filesystem mount point.
+              type: string
+            mode:
+              description: >
+                The read-write access mode.
+              type: string
+              enum:
+                - READONLY
+                - READWRITE
+            cardinality:
+              description: >
+                If cardinality is set to INSTANCE, then this volume-mount will mount a single resource at the location set by path.
+                If cardinality is set to CONTAINER, then this volume-mount will create a directory in the target file system,
+                at the location set by path, and mount the resources within that directory.
+              type: string
+              enum:
+                - INSTANCE
+                - CONTAINER
+            resources:
+              description: >
+                A list of the data resources in this volume mount.
+                If cardinality is set to INSTANCE then this list should only contain one resource.
+                If cardinality is set to INSTANCE and this list has more than one resource, it should fail validation.
+                If cardinality is set to CONTAINER then this list may contain more than one resource.
+              type: array
+              items:
+                type: string
 

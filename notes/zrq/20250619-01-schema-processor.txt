@@ -23,10 +23,10 @@
 # AIMetrics: [
 #     {
 #     "name": "ChatGPT",
-#     "contribution": {
-#       "value": 100,
-#       "units": "%"
-#       }
+#     "contribution": "100%",
+#     "references": [
+#       "https://chatgpt.com/share/6854571e-1b5c-8008-986a-ba74db5d491f"
+#       ]
 #     }
 #   ]
 #
@@ -63,135 +63,6 @@
 
     Iterate with ChatGPT to create a Python program to process the schema.
     https://chatgpt.com/share/6854571e-1b5c-8008-986a-ba74db5d491f
-
-    Resulting code :
-
-import yaml
-import os
-import argparse
-
-def load_yaml(file_path):
-    with open(file_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def normalize_ref(ref):
-    return ref.split("/")[-1]
-
-def resolve_ref_target(ref, base_path):
-    if '#' not in ref:
-        return None, None, None
-
-    file_part, fragment = ref.split('#', 1)
-    path = os.path.normpath(os.path.join(base_path, file_part)) if file_part else None
-    new_base = os.path.dirname(path) if path else base_path
-    spec = load_yaml(path) if path else None
-
-    if spec is None:
-        return None, None, None
-
-    value = spec
-    for part in fragment.strip("/").split("/"):
-        if not isinstance(value, dict):
-            return None, None, None
-        value = value.get(part)
-        if value is None:
-            return None, None, None
-    return value, new_base, spec
-
-def process_refs(spec, base_path, main_local_schemas=None, inlined=None, external_specs=None):
-    if inlined is None:
-        inlined = set()
-    if external_specs is None:
-        external_specs = {}
-
-    main_local_schemas = spec.setdefault("components", {}).setdefault("schemas", {})
-
-    def recurse(data, current_base_path, current_spec_schemas):
-        if isinstance(data, dict):
-            for key, value in list(data.items()):
-                if key == "$ref" and isinstance(value, str):
-                    # Expand short-form
-                    if "#" not in value and "/" not in value:
-                        expanded = f"#/components/schemas/{value}"
-                        print(f"Expanding short $ref: '{value}' → '{expanded}'")
-                        data[key] = value = expanded
-
-                    # External $ref
-                    if ".yaml" in value and value.index(".yaml") < value.index("#"):
-                        ref_key = (value, current_base_path)
-                        if ref_key in inlined:
-                            continue
-                        inlined.add(ref_key)
-
-                        component, new_base, ext_spec = resolve_ref_target(value, current_base_path)
-                        if not component:
-                            print(f"Failed to resolve: {value}")
-                            continue
-
-                        schema_name = normalize_ref(value)
-                        if schema_name not in main_local_schemas:
-                            print(f"Inlining schema '{schema_name}' from: {value}")
-                            main_local_schemas[schema_name] = component
-
-                            ext_schemas = ext_spec.get("components", {}).get("schemas", {})
-                            external_specs[new_base] = ext_schemas
-
-                            recurse(component, new_base, ext_schemas)
-
-                        data[key] = f"#/components/schemas/{schema_name}"
-
-                    # Internal $ref
-                    elif value.startswith("#/components/schemas/"):
-                        schema_name = normalize_ref(value)
-                        if schema_name in current_spec_schemas:
-                            if schema_name not in main_local_schemas:
-                                print(f"Inlining local schema from context: {schema_name}")
-                                component = current_spec_schemas[schema_name]
-                                main_local_schemas[schema_name] = component
-                                recurse(component, current_base_path, current_spec_schemas)
-                        else:
-                            print(f"Warning: Could not find internal schema '{schema_name}' in current spec context")
-
-                elif key == "discriminator" and isinstance(value, dict):
-                    mapping = value.get("mapping")
-                    if isinstance(mapping, dict):
-                        for mkey, mval in list(mapping.items()):
-                            if "#" not in mval:
-                                new_ref = f"#/components/schemas/{mval}"
-                                print(f"Expanding discriminator mapping: {mval} → {new_ref}")
-                                mapping[mkey] = new_ref
-                else:
-                    recurse(value, current_base_path, current_spec_schemas)
-        elif isinstance(data, list):
-            for item in data:
-                recurse(item, current_base_path, current_spec_schemas)
-
-    current_spec_schemas = spec.get("components", {}).get("schemas", {})
-    recurse(spec, base_path, current_spec_schemas)
-
-def main():
-    parser = argparse.ArgumentParser(description="Inline and expand OpenAPI $ref entries.")
-    parser.add_argument("input", help="Input OpenAPI YAML file")
-    parser.add_argument("output", help="Output YAML file with inlined references")
-    args = parser.parse_args()
-
-    input_path = os.path.abspath(args.input)
-    output_path = os.path.abspath(args.output)
-    base_path = os.path.dirname(input_path)
-
-    print(f"Input:  {input_path}")
-    print(f"Output: {output_path}")
-
-    spec = load_yaml(input_path)
-    process_refs(spec, base_path)
-
-    with open(output_path, "w") as f:
-        yaml.dump(spec, f)
-
-    print("All references processed and file saved.")
-
-if __name__ == "__main__":
-    main()
 
 
 # -----------------------------------------------------
@@ -311,7 +182,7 @@ EOF
 
 # -----------------------------------------------------
 # -----------------------------------------------------
-# Update example 001.
+# Test example 001.
 #[root@spring-builder]
 
     examplename=example-001
@@ -330,133 +201,133 @@ EOF
 
     popd
 
-    >   created: "2025-06-20T15:32:07.671120905Z"
+    >   uuid: "67ad5cfc-7326-4c57-a520-21c185c1fbd3"
     >   name: "example-001"
     >   type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-    >   uuid: "5d08cb28-196c-4576-9864-76d75e9dbe58"
-    >   href: "http://127.0.0.1:8082/offersets/5d08cb28-196c-4576-9864-76d75e9dbe58"
+    >   created: "2025-06-20T17:08:38.935487385Z"
+    >   href: "http://127.0.0.1:8082/offersets/67ad5cfc-7326-4c57-a520-21c185c1fbd3"
+    >   result: "YES"
     >   offers:
-    >     - created: "2025-06-20T15:32:07.965874775Z"
+    >     - uuid: "0b03dade-9084-476e-9171-b6f0b4a94282"
     >       name: "example-001-offer-0"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       uuid: "b6cc6b3c-3963-4c64-9451-2c805079a605"
-    >       href: "http://127.0.0.1:8082/sessions/b6cc6b3c-3963-4c64-9451-2c805079a605"
+    >       created: "2025-06-20T17:08:39.26832896Z"
+    >       href: "http://127.0.0.1:8082/sessions/0b03dade-9084-476e-9171-b6f0b4a94282"
     >       schedule:
     >         offered:
+    >           preparing:
+    >             start: "2025-06-20T17:09:00Z"
     >           available:
     >             duration: "PT2H"
-    >             start: "2025-06-20T15:33:00Z"
-    >           preparing:
-    >             start: "2025-06-20T15:33:00Z"
-    >       computer:
-    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >         name: "example-001-computer"
-    >         uuid: "a31dd25c-dc97-4c2b-904c-6c54b14eb9d4"
-    >         cores:
-    >           max: 10
-    >           min: 10
-    >         memory:
-    >           max: 10
-    >           min: 10
+    >             start: "2025-06-20T17:09:00Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-    >         created: "2025-06-20T15:32:07.976844893Z"
+    >         uuid: "4dae8fec-9d3b-4b77-9dec-94b0d30c2f64"
     >         name: "example-001-executable"
-    >         uuid: "9a8ba773-6727-46d3-a3bf-4c87ff5a370a"
+    >         created: "2025-06-20T17:08:39.277697241Z"
     >         location: "https://www.example.org/example-001.ipynb"
-    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "7b377a5a-3e61-4e1b-aa1d-22c7d0bbf3ae"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
     >       phase: "OFFERED"
-    >     - created: "2025-06-20T15:32:07.988681034Z"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "4d7f61cd-27f3-4aae-8d8e-7b15be5739ef"
     >       name: "example-001-offer-1"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       uuid: "3a8a7e6b-471c-4796-9622-a31b780c0c89"
-    >       href: "http://127.0.0.1:8082/sessions/3a8a7e6b-471c-4796-9622-a31b780c0c89"
+    >       created: "2025-06-20T17:08:39.290330943Z"
+    >       href: "http://127.0.0.1:8082/sessions/4d7f61cd-27f3-4aae-8d8e-7b15be5739ef"
     >       schedule:
     >         offered:
+    >           preparing:
+    >             start: "2025-06-20T19:09:00Z"
     >           available:
     >             duration: "PT2H"
-    >             start: "2025-06-20T17:33:00Z"
-    >           preparing:
-    >             start: "2025-06-20T17:33:00Z"
-    >       computer:
-    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >         name: "example-001-computer"
-    >         uuid: "76cfaf71-5679-4279-98ae-c4d36895d0aa"
-    >         cores:
-    >           max: 10
-    >           min: 10
-    >         memory:
-    >           max: 10
-    >           min: 10
+    >             start: "2025-06-20T19:09:00Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-    >         created: "2025-06-20T15:32:07.996322573Z"
+    >         uuid: "be2191a3-c28d-4df1-b89b-9beaf217b895"
     >         name: "example-001-executable"
-    >         uuid: "e6a6a5d4-84b9-44bb-84e9-0738334b5ca4"
+    >         created: "2025-06-20T17:08:39.295612869Z"
     >         location: "https://www.example.org/example-001.ipynb"
-    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "1085a6a5-5ea9-4e75-a14f-7ed404d0951c"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
     >       phase: "OFFERED"
-    >     - created: "2025-06-20T15:32:08.006510054Z"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "9470d7af-2251-4332-a172-5a7332c79425"
     >       name: "example-001-offer-2"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       uuid: "3e87088e-de64-4e29-9b95-b793902cdae0"
-    >       href: "http://127.0.0.1:8082/sessions/3e87088e-de64-4e29-9b95-b793902cdae0"
+    >       created: "2025-06-20T17:08:39.30580377Z"
+    >       href: "http://127.0.0.1:8082/sessions/9470d7af-2251-4332-a172-5a7332c79425"
     >       schedule:
     >         offered:
+    >           preparing:
+    >             start: "2025-06-20T21:09:00Z"
     >           available:
     >             duration: "PT2H"
-    >             start: "2025-06-20T19:33:00Z"
-    >           preparing:
-    >             start: "2025-06-20T19:33:00Z"
-    >       computer:
-    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >         name: "example-001-computer"
-    >         uuid: "99e9911e-f57b-46e8-8f45-9e5deb865734"
-    >         cores:
-    >           max: 10
-    >           min: 10
-    >         memory:
-    >           max: 10
-    >           min: 10
+    >             start: "2025-06-20T21:09:00Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-    >         created: "2025-06-20T15:32:08.012569167Z"
+    >         uuid: "636359b8-87b3-4807-8e45-1f174381568e"
     >         name: "example-001-executable"
-    >         uuid: "6c367a4f-4812-4e9d-8e4e-0e04ff092b42"
+    >         created: "2025-06-20T17:08:39.311578307Z"
     >         location: "https://www.example.org/example-001.ipynb"
-    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "da2679ae-142a-4977-9462-5c2aa0062eb7"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
     >       phase: "OFFERED"
-    >     - created: "2025-06-20T15:32:08.021333137Z"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
+    >     - uuid: "a212e3fc-040d-4a5a-8421-bc37f808e2de"
     >       name: "example-001-offer-3"
     >       type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    >       uuid: "f693d221-4c44-489f-8593-6419ebb3338a"
-    >       href: "http://127.0.0.1:8082/sessions/f693d221-4c44-489f-8593-6419ebb3338a"
+    >       created: "2025-06-20T17:08:39.321896195Z"
+    >       href: "http://127.0.0.1:8082/sessions/a212e3fc-040d-4a5a-8421-bc37f808e2de"
     >       schedule:
     >         offered:
+    >           preparing:
+    >             start: "2025-06-20T23:09:00Z"
     >           available:
     >             duration: "PT2H"
-    >             start: "2025-06-20T21:33:00Z"
-    >           preparing:
-    >             start: "2025-06-20T21:33:00Z"
-    >       computer:
-    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-    >         name: "example-001-computer"
-    >         uuid: "be363c70-ba55-4a1d-a218-d7efd3fa5825"
-    >         cores:
-    >           max: 10
-    >           min: 10
-    >         memory:
-    >           max: 10
-    >           min: 10
+    >             start: "2025-06-20T23:09:00Z"
     >       executable:
     >         type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-    >         created: "2025-06-20T15:32:08.028611493Z"
+    >         uuid: "ba27a8e1-76c6-4670-b15f-ac68fb84f1c0"
     >         name: "example-001-executable"
-    >         uuid: "f03001bf-cf78-46aa-ac6f-63eb7dbe7ed1"
+    >         created: "2025-06-20T17:08:39.327893591Z"
     >         location: "https://www.example.org/example-001.ipynb"
-    >       expires: "2025-06-20T20:32:07.671156697Z"
+    >       computer:
+    >         type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
+    >         uuid: "41c83375-bdb2-4c2e-8e4d-3d89d2517404"
+    >         name: "example-001-computer"
+    >         cores:
+    >           min: 10
+    >           max: 10
+    >         memory:
+    >           min: 10
+    >           max: 10
     >       phase: "OFFERED"
-    >   result: "YES"
+    >       expires: "2025-06-20T22:08:38.93551823Z"
 
     #
     # OK, looks like the Java code generator still works :-)
@@ -478,7 +349,7 @@ EOF
         --name python-webapp \
         --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
         --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
-        fedora:35 \
+        fedora:40 \
         bash
 
         dnf install -y \
@@ -488,7 +359,8 @@ EOF
             python3-devel \
             python3-wheel
 
-        pip install fastapi-code-generator
+        pip install \
+            fastapi-code-generator
 
         pushd /python/
             mkdir albert

@@ -39,15 +39,18 @@ info:
 components:
   schemas:
 
-    SkaoDataResourceSpec:
+    SkaoDataResource:
       type: object
-      name:  SkaoDataResourceSpec
-      title: SkaoDataResourceSpec
+      name:  SkaoDataResource
+      title: SkaoDataResource
       description: >-
         Metadata describing a SKAO data resource in the data lake.
-      properties:
-        skao:
-          $ref: 'SkaoDataResourceBlock'
+      allOf:
+        - $ref: './ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResource'
+        - type: object
+          properties:
+            skao:
+              $ref: 'SkaoDataResourceBlock'
 
     SkaoDataResourceBlock:
       type: object

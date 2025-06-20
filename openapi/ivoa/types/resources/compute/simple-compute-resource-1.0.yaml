@@ -39,23 +39,26 @@ info:
 components:
   schemas:
 
-    SimpleComputeSpec:
+    SimpleComputeResource:
       type: object
       name:  SimpleComputeResource
       title: SimpleComputeResource
       description: >-
         A simple compute resource.
-      properties:
-        cores:
-          $ref: 'SimpleComputeCores'
-        memory:
-          $ref: 'SimpleComputeMemory'
-        volumes:
-          description: >-
-            A list of the filesystem volumes to mount.
-          type: array
-          items:
-            type: string
+      allOf:
+        - $ref: '../../../openapi.yaml#AbstractComputeResource'
+        - type: object
+          properties:
+            cores:
+              $ref: 'SimpleComputeCores'
+            memory:
+              $ref: 'SimpleComputeMemory'
+            volumes:
+              description: >-
+                A list of the filesystem volumes to mount.
+              type: array
+              items:
+                type: string
 
     SimpleComputeCores:
       description: >-
