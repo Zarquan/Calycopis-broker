@@ -1,3 +1,3 @@
 executable:
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/example-002.ipynb

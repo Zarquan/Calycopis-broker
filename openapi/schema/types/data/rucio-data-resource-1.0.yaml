@@ -46,7 +46,7 @@ components:
       description: >-
         Metadata describing a data resource in a Rucio storage system.
       allOf:
-        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - $ref: '../../openapi.yaml#AbstractDataResource'
         - type: object
           properties:
             rucio:

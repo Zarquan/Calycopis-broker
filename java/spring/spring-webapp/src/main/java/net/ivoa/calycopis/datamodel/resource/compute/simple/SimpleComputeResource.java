@@ -36,7 +36,7 @@ public interface SimpleComputeResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0" ;
 
     /**
      * The minimum number of CPU cores requested.

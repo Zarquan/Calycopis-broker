@@ -1,32 +1,32 @@
-uuid: "a432648c-368f-4c22-bb25-5538cdd49db7"
+uuid: "8c57400c-b858-4cff-8a9e-e76c80c731f3"
 name: "example-007"
-type: "https://www.purl.org/ivoa.net/EB/schema/types/offersets/offerset-response-1.0"
-created: "2025-06-18T05:23:35.212576266Z"
-href: "http://127.0.0.1:8082/offersets/a432648c-368f-4c22-bb25-5538cdd49db7"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0"
+created: "2025-06-21T12:19:18.347828388Z"
+href: "http://127.0.0.1:8082/offersets/8c57400c-b858-4cff-8a9e-e76c80c731f3"
 result: "YES"
 offers:
-  - uuid: "f18e2c9f-4e1e-4e6e-9995-4e52125b437a"
+  - uuid: "b732dc21-48a5-4c70-a6e9-1c6268b65069"
     name: "example-007-offer-0"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-18T05:23:36.546158344Z"
-    href: "http://127.0.0.1:8082/sessions/f18e2c9f-4e1e-4e6e-9995-4e52125b437a"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    created: "2025-06-21T12:19:19.40570998Z"
+    href: "http://127.0.0.1:8082/sessions/b732dc21-48a5-4c70-a6e9-1c6268b65069"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-18T05:23:55Z"
+          start: "2025-06-21T12:19:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-18T05:24:00Z"
+          start: "2025-06-21T12:20:00Z"
     executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "7e0cdb57-ade6-4aa0-8f64-83a5897f84bb"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0"
+      uuid: "cb773028-9908-4b24-a417-e21dd72dd500"
       name: "example-007-executable"
-      created: "2025-06-18T05:23:36.556997244Z"
+      created: "2025-06-21T12:19:19.408617617Z"
       location: "https://www.example.org/example-007.ipynb"
     computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      uuid: "79a4caf1-fb91-4700-bd9f-d088d5498e57"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+      uuid: "1120acf2-eea3-495b-978e-cb9d04fc7ff7"
       name: "example-007-computer"
       cores:
         min: 16
@@ -35,115 +35,115 @@ offers:
         min: 16
         max: 16
     storage:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "1acce6b5-1cfd-40fc-8d2c-704bfd6c5d06"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "30a56e5e-e02a-4010-aeee-1fc218d1b720"
         name: "example-007-storage-01"
-        created: "2025-06-18T05:23:36.567170732Z"
+        created: "2025-06-21T12:19:19.411995385Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "65f78adb-7b7f-443d-ac0c-eeb5e3f96658"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "add52b9b-ae10-4b4b-9071-8d0083e58e1d"
         name: "example-007-storage-03"
-        created: "2025-06-18T05:23:36.572388401Z"
+        created: "2025-06-21T12:19:19.413846936Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "bbd7af2c-7779-4a20-ae51-e5570ef7714a"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "a8a951a7-48d7-4ce7-8778-db020859f491"
         name: "example-007-storage-04"
-        created: "2025-06-18T05:23:36.575405322Z"
+        created: "2025-06-21T12:19:19.415983977Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "2323bdd7-d6c7-41bd-a980-7cdcc7150989"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "4481f225-e3b6-4aee-ad1d-df291fba3398"
         name: "Storage for [example-007-data-01]"
-        created: "2025-06-18T05:23:36.577393324Z"
+        created: "2025-06-21T12:19:19.418069256Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "ed54de68-d1cc-44ba-988f-809fea9d849c"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "43b1dcaf-1397-4bbc-b489-b128f91eb3ad"
+          - "cdd3affb-41bc-431f-b810-c978373d3b1f"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "9e5c01f4-1db2-453a-b837-5d3342f5ac2a"
         name: "Storage for [example-007-data-02]"
-        created: "2025-06-18T05:23:36.579514834Z"
+        created: "2025-06-21T12:19:19.420666397Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "43af97cb-8dc1-4daf-a9e2-8a8b2766997a"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "5d30dd59-e4c7-45af-b57a-14544563c53d"
+          - "7c739213-8a40-4f06-b7f0-2cd22e5b2b8f"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "86c39727-8139-4336-9423-285b8853396a"
         name: "Storage for [example-007-data-03]"
-        created: "2025-06-18T05:23:36.581180583Z"
+        created: "2025-06-21T12:19:19.422269075Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "3f279a03-6a89-4150-9515-3cc1a172c8fb"
+          - "1c998c08-7883-4ccb-9498-2b68d4222648"
     data:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "ed54de68-d1cc-44ba-988f-809fea9d849c"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "cdd3affb-41bc-431f-b810-c978373d3b1f"
         name: "example-007-data-01"
-        created: "2025-06-18T05:23:36.582445318Z"
+        created: "2025-06-21T12:19:19.423917858Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "2323bdd7-d6c7-41bd-a980-7cdcc7150989"
+        storage: "4481f225-e3b6-4aee-ad1d-df291fba3398"
         location: "https://example.org/data/data-007-01.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "43af97cb-8dc1-4daf-a9e2-8a8b2766997a"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "7c739213-8a40-4f06-b7f0-2cd22e5b2b8f"
         name: "example-007-data-02"
-        created: "2025-06-18T05:23:36.587294112Z"
+        created: "2025-06-21T12:19:19.425432016Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "43b1dcaf-1397-4bbc-b489-b128f91eb3ad"
+        storage: "9e5c01f4-1db2-453a-b837-5d3342f5ac2a"
         location: "https://example.org/data/data-007-02.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "3f279a03-6a89-4150-9515-3cc1a172c8fb"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "1c998c08-7883-4ccb-9498-2b68d4222648"
         name: "example-007-data-03"
-        created: "2025-06-18T05:23:36.588966245Z"
+        created: "2025-06-21T12:19:19.427030416Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "5d30dd59-e4c7-45af-b57a-14544563c53d"
+        storage: "86c39727-8139-4336-9423-285b8853396a"
         location: "https://example.org/data/data-007-03.vot"
     phase: "OFFERED"
-    expires: "2025-06-18T10:23:35.212588003Z"
-  - uuid: "94a7f79e-e732-4bf3-b853-a661374bcb8a"
+    expires: "2025-06-21T17:19:18.347836413Z"
+  - uuid: "7fed9b05-1916-4fe7-a431-9e9da2fdfa56"
     name: "example-007-offer-1"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-18T05:23:36.598465003Z"
-    href: "http://127.0.0.1:8082/sessions/94a7f79e-e732-4bf3-b853-a661374bcb8a"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    created: "2025-06-21T12:19:19.43460889Z"
+    href: "http://127.0.0.1:8082/sessions/7fed9b05-1916-4fe7-a431-9e9da2fdfa56"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-18T07:23:55Z"
+          start: "2025-06-21T14:19:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-18T07:24:00Z"
+          start: "2025-06-21T14:20:00Z"
     executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "1c323779-23fb-4bce-8184-4ea5c24448bc"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0"
+      uuid: "06c27966-13c5-4e4b-8d5c-ae85b6341f44"
       name: "example-007-executable"
-      created: "2025-06-18T05:23:36.600510475Z"
+      created: "2025-06-21T12:19:19.437818788Z"
       location: "https://www.example.org/example-007.ipynb"
     computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      uuid: "5cf1b16f-bd0d-4941-8ca7-756b82b42050"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+      uuid: "753b610b-4679-403b-87dd-6e6bbda87f03"
       name: "example-007-computer"
       cores:
         min: 16
@@ -152,115 +152,115 @@ offers:
         min: 16
         max: 16
     storage:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "89599316-08b0-49f5-b8f6-5e1e6cfac308"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "0c68b224-581f-40c9-93d2-f05a6e10c3af"
         name: "example-007-storage-01"
-        created: "2025-06-18T05:23:36.605696873Z"
+        created: "2025-06-21T12:19:19.441911366Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "0ca4a593-92e7-49dd-8743-7db603e31300"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "16dda423-3009-45fa-977c-60a0e2ed69a5"
         name: "example-007-storage-03"
-        created: "2025-06-18T05:23:36.607693397Z"
+        created: "2025-06-21T12:19:19.44411714Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "3bc5b66e-6313-44e1-9c5a-37aa1a747dce"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "9dcb6c3c-94f6-4b15-8777-31a874e9fdb7"
         name: "example-007-storage-04"
-        created: "2025-06-18T05:23:36.609387252Z"
+        created: "2025-06-21T12:19:19.446435983Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "36362ce5-9101-49f1-87c9-049d1ebcdc7b"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "da458e3a-211b-4d2e-8faa-1e95b44970dc"
         name: "Storage for [example-007-data-01]"
-        created: "2025-06-18T05:23:36.611705234Z"
+        created: "2025-06-21T12:19:19.448458444Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "d672270e-ae07-4f93-9569-7588fdb11672"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "578748c8-6a32-4534-8d93-d8b8f2d3fe27"
+          - "6e6f3e98-1ae0-4c4e-9b5c-26e68fef6af5"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "d70c05a8-5726-4895-a5ab-363bdfb468fc"
         name: "Storage for [example-007-data-02]"
-        created: "2025-06-18T05:23:36.614452927Z"
+        created: "2025-06-21T12:19:19.450053562Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "c444f46a-eb96-4a32-a9a7-82d34a3dfd17"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "618ffdb1-1c71-4740-bf9f-0f1f31aa300f"
+          - "b85918db-4395-41fe-be46-fbb71427c7d4"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "82c02549-c601-483e-8ed6-c329a6c473db"
         name: "Storage for [example-007-data-03]"
-        created: "2025-06-18T05:23:36.617090587Z"
+        created: "2025-06-21T12:19:19.451679007Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "7cd69775-7f19-43b3-944a-16d7805ccee1"
+          - "080def62-ebee-47b0-b720-fc7ed8cb9ed4"
     data:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "d672270e-ae07-4f93-9569-7588fdb11672"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "6e6f3e98-1ae0-4c4e-9b5c-26e68fef6af5"
         name: "example-007-data-01"
-        created: "2025-06-18T05:23:36.619386312Z"
+        created: "2025-06-21T12:19:19.453720481Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "36362ce5-9101-49f1-87c9-049d1ebcdc7b"
+        storage: "da458e3a-211b-4d2e-8faa-1e95b44970dc"
         location: "https://example.org/data/data-007-01.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "c444f46a-eb96-4a32-a9a7-82d34a3dfd17"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "b85918db-4395-41fe-be46-fbb71427c7d4"
         name: "example-007-data-02"
-        created: "2025-06-18T05:23:36.621600951Z"
+        created: "2025-06-21T12:19:19.455840808Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "578748c8-6a32-4534-8d93-d8b8f2d3fe27"
+        storage: "d70c05a8-5726-4895-a5ab-363bdfb468fc"
         location: "https://example.org/data/data-007-02.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "7cd69775-7f19-43b3-944a-16d7805ccee1"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "080def62-ebee-47b0-b720-fc7ed8cb9ed4"
         name: "example-007-data-03"
-        created: "2025-06-18T05:23:36.624018455Z"
+        created: "2025-06-21T12:19:19.458031325Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "618ffdb1-1c71-4740-bf9f-0f1f31aa300f"
+        storage: "82c02549-c601-483e-8ed6-c329a6c473db"
         location: "https://example.org/data/data-007-03.vot"
     phase: "OFFERED"
-    expires: "2025-06-18T10:23:35.212588003Z"
-  - uuid: "d2ed57b6-50b6-4303-8293-8a2069b0f5aa"
+    expires: "2025-06-21T17:19:18.347836413Z"
+  - uuid: "3568bd4f-c11b-4018-9fc0-b30377b00c42"
     name: "example-007-offer-2"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-18T05:23:36.632355087Z"
-    href: "http://127.0.0.1:8082/sessions/d2ed57b6-50b6-4303-8293-8a2069b0f5aa"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    created: "2025-06-21T12:19:19.466043872Z"
+    href: "http://127.0.0.1:8082/sessions/3568bd4f-c11b-4018-9fc0-b30377b00c42"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-18T09:23:55Z"
+          start: "2025-06-21T16:19:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-18T09:24:00Z"
+          start: "2025-06-21T16:20:00Z"
     executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "d7830962-9646-41f3-920e-608ee5b14428"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0"
+      uuid: "cfdec7a5-bb5c-46f6-9e28-ed047941a228"
       name: "example-007-executable"
-      created: "2025-06-18T05:23:36.634452995Z"
+      created: "2025-06-21T12:19:19.468088146Z"
       location: "https://www.example.org/example-007.ipynb"
     computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      uuid: "d49a036e-8c34-4359-a0c4-43f5a01d4e1c"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+      uuid: "c8d46155-77a0-443f-90f8-26b9860a06de"
       name: "example-007-computer"
       cores:
         min: 16
@@ -269,115 +269,115 @@ offers:
         min: 16
         max: 16
     storage:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "86ede54e-1564-46a0-abeb-09e108e320d5"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "b50b53c7-47ce-4daf-b29a-6926163359e6"
         name: "example-007-storage-01"
-        created: "2025-06-18T05:23:36.639752076Z"
+        created: "2025-06-21T12:19:19.472075817Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "7cd04278-a56d-47a0-8e47-0f5f565488c6"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "988017b9-0086-40bd-91ff-a440696c8236"
         name: "example-007-storage-03"
-        created: "2025-06-18T05:23:36.64218033Z"
+        created: "2025-06-21T12:19:19.474008452Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "88cfd312-f890-4576-989f-756646d9fcdb"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "3f0a8598-cc07-437d-86fa-2db4311e8194"
         name: "example-007-storage-04"
-        created: "2025-06-18T05:23:36.644211567Z"
+        created: "2025-06-21T12:19:19.476359507Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "e246d25a-3c17-49e3-aa11-9aef0b148a6f"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "82c1e39f-7ed2-48dc-8ab4-e0129b92d22b"
         name: "Storage for [example-007-data-01]"
-        created: "2025-06-18T05:23:36.646445984Z"
+        created: "2025-06-21T12:19:19.478941913Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "92047b95-4387-4edf-a96d-e027928035c6"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "667af129-2b21-43c0-818e-c9d683fbe9a8"
+          - "7789d17d-435f-4e83-a975-00239815323b"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "bc429a98-552b-4630-bc91-344977c697d7"
         name: "Storage for [example-007-data-02]"
-        created: "2025-06-18T05:23:36.648590456Z"
+        created: "2025-06-21T12:19:19.48134586Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "690e99c9-7308-419b-ba88-ec4635f80b49"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "4f38d527-93ef-4bd5-8b07-8649582eea28"
+          - "4ba69efd-9bbb-492a-8256-d7022e6b40b7"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "55597995-e4a9-4170-8a73-372b33f9fff7"
         name: "Storage for [example-007-data-03]"
-        created: "2025-06-18T05:23:36.650376139Z"
+        created: "2025-06-21T12:19:19.483349785Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "4f184323-ed1b-4db3-b39b-1bcfa8cb8682"
+          - "123c4db7-ce08-493d-9b0f-83907eaf7f1b"
     data:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "92047b95-4387-4edf-a96d-e027928035c6"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "7789d17d-435f-4e83-a975-00239815323b"
         name: "example-007-data-01"
-        created: "2025-06-18T05:23:36.652813355Z"
+        created: "2025-06-21T12:19:19.485367596Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "e246d25a-3c17-49e3-aa11-9aef0b148a6f"
+        storage: "82c1e39f-7ed2-48dc-8ab4-e0129b92d22b"
         location: "https://example.org/data/data-007-01.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "690e99c9-7308-419b-ba88-ec4635f80b49"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "4ba69efd-9bbb-492a-8256-d7022e6b40b7"
         name: "example-007-data-02"
-        created: "2025-06-18T05:23:36.655546516Z"
+        created: "2025-06-21T12:19:19.487800266Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "667af129-2b21-43c0-818e-c9d683fbe9a8"
+        storage: "bc429a98-552b-4630-bc91-344977c697d7"
         location: "https://example.org/data/data-007-02.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "4f184323-ed1b-4db3-b39b-1bcfa8cb8682"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "123c4db7-ce08-493d-9b0f-83907eaf7f1b"
         name: "example-007-data-03"
-        created: "2025-06-18T05:23:36.658010543Z"
+        created: "2025-06-21T12:19:19.489875328Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "4f38d527-93ef-4bd5-8b07-8649582eea28"
+        storage: "55597995-e4a9-4170-8a73-372b33f9fff7"
         location: "https://example.org/data/data-007-03.vot"
     phase: "OFFERED"
-    expires: "2025-06-18T10:23:35.212588003Z"
-  - uuid: "5ef1bc9e-9d21-4436-bb38-b4d9dcc420f8"
+    expires: "2025-06-21T17:19:18.347836413Z"
+  - uuid: "a1451c93-7b64-4046-a462-0fc39a275f17"
     name: "example-007-offer-3"
-    type: "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0"
-    created: "2025-06-18T05:23:36.667296065Z"
-    href: "http://127.0.0.1:8082/sessions/5ef1bc9e-9d21-4436-bb38-b4d9dcc420f8"
+    type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    created: "2025-06-21T12:19:19.498262729Z"
+    href: "http://127.0.0.1:8082/sessions/a1451c93-7b64-4046-a462-0fc39a275f17"
     schedule:
       offered:
         preparing:
           duration: "PT5S"
-          start: "2025-06-18T11:23:55Z"
+          start: "2025-06-21T18:19:55Z"
         available:
           duration: "PT2H"
-          start: "2025-06-18T11:24:00Z"
+          start: "2025-06-21T18:20:00Z"
     executable:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0"
-      uuid: "1c788d01-2c67-4c47-943c-a3d2e92e9d6f"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0"
+      uuid: "ccf1f89c-5d9f-4238-96a4-1ad166f1aadb"
       name: "example-007-executable"
-      created: "2025-06-18T05:23:36.669619645Z"
+      created: "2025-06-21T12:19:19.50049521Z"
       location: "https://www.example.org/example-007.ipynb"
     computer:
-      type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0"
-      uuid: "8ee8f3c1-7534-43a6-971d-307580596fc3"
+      type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+      uuid: "5fbdb77b-308d-421e-baca-2b973bc6dc1a"
       name: "example-007-computer"
       cores:
         min: 16
@@ -386,90 +386,90 @@ offers:
         min: 16
         max: 16
     storage:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "32145b65-32cb-4c59-a3f4-16a871dc9bd2"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "7718b39f-a1ee-4c07-acea-2f1e4d9d40dd"
         name: "example-007-storage-01"
-        created: "2025-06-18T05:23:36.673765352Z"
+        created: "2025-06-21T12:19:19.50561535Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "b6f10d7d-73ec-4f83-a3a8-d226cd490ee5"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "f663eb0f-ac0f-4dfa-a313-d3be8135d8f6"
         name: "example-007-storage-03"
-        created: "2025-06-18T05:23:36.675812077Z"
+        created: "2025-06-21T12:19:19.507992174Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "cfa65e14-a96b-4104-9549-93a77a9b73b6"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "0b4ca899-9a7b-4a41-a36c-cfc6aee38f45"
         name: "example-007-storage-04"
-        created: "2025-06-18T05:23:36.67776439Z"
+        created: "2025-06-21T12:19:19.510551087Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "b47267a4-b571-4c1b-8b79-860a17a8a273"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "334f92e0-3740-4687-9d06-4b126f4248f0"
         name: "Storage for [example-007-data-01]"
-        created: "2025-06-18T05:23:36.680220827Z"
+        created: "2025-06-21T12:19:19.513395444Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "6ebc3f97-ba76-4e17-bd72-b0d8749dd0d0"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "85b858f6-b81b-4a77-b5ff-2571ce5af846"
+          - "58ac56ea-c0fc-4f2b-bf4d-0dff7a211cbd"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "d81f804a-4d0a-4ae7-9f09-d08a2dfeb958"
         name: "Storage for [example-007-data-02]"
-        created: "2025-06-18T05:23:36.682150222Z"
+        created: "2025-06-21T12:19:19.515678685Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "d04b7279-d81f-4bc5-a459-35766723f309"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0"
-        uuid: "2c8fd7a2-66e1-43d1-b79b-a03a3b13b36e"
+          - "42be1200-35d5-4f11-8a9f-781d1a89394f"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+        uuid: "ed90607a-93e2-4f69-a45e-81e4ba9c129e"
         name: "Storage for [example-007-data-03]"
-        created: "2025-06-18T05:23:36.684156849Z"
+        created: "2025-06-21T12:19:19.518340892Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
         data:
-          - "4dae8968-11c4-4358-9853-990e1bd32629"
+          - "9739a079-e0a3-441c-9576-e15e446b3a6a"
     data:
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "6ebc3f97-ba76-4e17-bd72-b0d8749dd0d0"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "58ac56ea-c0fc-4f2b-bf4d-0dff7a211cbd"
         name: "example-007-data-01"
-        created: "2025-06-18T05:23:36.686269474Z"
+        created: "2025-06-21T12:19:19.520895992Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "b47267a4-b571-4c1b-8b79-860a17a8a273"
+        storage: "334f92e0-3740-4687-9d06-4b126f4248f0"
         location: "https://example.org/data/data-007-01.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "d04b7279-d81f-4bc5-a459-35766723f309"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "42be1200-35d5-4f11-8a9f-781d1a89394f"
         name: "example-007-data-02"
-        created: "2025-06-18T05:23:36.688643387Z"
+        created: "2025-06-21T12:19:19.523424111Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "85b858f6-b81b-4a77-b5ff-2571ce5af846"
+        storage: "d81f804a-4d0a-4ae7-9f09-d08a2dfeb958"
         location: "https://example.org/data/data-007-02.vot"
-      - type: "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0"
-        uuid: "4dae8968-11c4-4358-9853-990e1bd32629"
+      - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+        uuid: "9739a079-e0a3-441c-9576-e15e446b3a6a"
         name: "example-007-data-03"
-        created: "2025-06-18T05:23:36.691267774Z"
+        created: "2025-06-21T12:19:19.525788775Z"
         schedule:
           offered:
             preparing:
               duration: "PT5S"
-        storage: "2c8fd7a2-66e1-43d1-b79b-a03a3b13b36e"
+        storage: "ed90607a-93e2-4f69-a45e-81e4ba9c129e"
         location: "https://example.org/data/data-007-03.vot"
     phase: "OFFERED"
-    expires: "2025-06-18T10:23:35.212588003Z"
+    expires: "2025-06-21T17:19:18.347836413Z"

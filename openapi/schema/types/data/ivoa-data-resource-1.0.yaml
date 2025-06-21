@@ -46,7 +46,7 @@ components:
       description: >-
         Metadata describing an IVOA data resource.
       allOf:
-        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - $ref: '../../openapi.yaml#AbstractDataResource'
         - type: object
           properties:
             ivoa:

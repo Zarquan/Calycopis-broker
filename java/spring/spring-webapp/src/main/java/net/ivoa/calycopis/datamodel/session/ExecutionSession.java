@@ -47,7 +47,7 @@ public interface ExecutionSession
      * The type identifier for an execution session response.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0" ;
 
     /**
      * The URL path for an execution session.

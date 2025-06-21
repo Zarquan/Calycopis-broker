@@ -46,7 +46,7 @@ components:
       description: >-
         A simple compute resource.
       allOf:
-        - $ref: '../../../openapi.yaml#AbstractComputeResource'
+        - $ref: '../../openapi.yaml#AbstractComputeResource'
         - type: object
           properties:
             cores:

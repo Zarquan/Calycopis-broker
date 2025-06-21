@@ -1,14 +1,14 @@
 name: example-001
 executable:
   name: example-001-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/example-001.ipynb
 schedule:
   requested:
     duration: PT1H
 computer:
   name: example-001-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   cores:
     min: 5
     max: 15

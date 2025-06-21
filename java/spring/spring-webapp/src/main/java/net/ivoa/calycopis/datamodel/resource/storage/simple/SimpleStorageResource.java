@@ -36,7 +36,7 @@ public interface SimpleStorageResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0" ;
 
     }
 

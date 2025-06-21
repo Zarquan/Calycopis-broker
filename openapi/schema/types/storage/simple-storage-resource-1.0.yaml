@@ -46,7 +46,7 @@ components:
       description: >-
         A simple storage resource.
       allOf:
-        - $ref: '../../../openapi.yaml#AbstractStorageResource'
+        - $ref: '../../openapi.yaml#AbstractStorageResource'
         - type: object
           properties:
             size:

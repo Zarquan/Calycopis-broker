@@ -39,7 +39,7 @@ public interface SkaoDataResource
      * The OpenAPI type identifier.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0" ;
 
     public String getNamespace();
     public String getObjectid();

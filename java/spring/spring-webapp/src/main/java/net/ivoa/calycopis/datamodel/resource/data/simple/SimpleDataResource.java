@@ -36,7 +36,7 @@ public interface SimpleDataResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0" ;
     
     /**
      * Get the data location.

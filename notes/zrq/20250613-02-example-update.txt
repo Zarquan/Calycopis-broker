@@ -137,14 +137,14 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/${examplename}.ipynb
 schedule:
   requested:
     duration: PT1H
 computer:
   name: ${examplename}-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   cores:
     min: 5
     max: 15
@@ -327,7 +327,7 @@ EOF
         # Minimal YAML request for a Jupyter notebook session.
         cat > "${examplename}-001-offerset-request.yaml" << EOF
 executable:
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/${examplename}.ipynb
 EOF
 
@@ -359,7 +359,7 @@ EOF
         cat > "${examplename}-001-offerset-request.json" << EOF
 {
 "executable": {
-  "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0",
   "location": "https://www.example.org/${examplename}.ipynb"
   }
 }
@@ -395,7 +395,7 @@ EOF
 "name": "${examplename}",
 "executable": {
     "name": "${examplename}-executable",
-    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0",
     "location": "https://www.example.org/${examplename}.ipynb"
     },
 "schedule": {
@@ -405,7 +405,7 @@ EOF
     },
 "computer": {
     "name": "${examplename}-computer",
-    "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0",
     "cores": {
         "min": 5,
         "max": 15
@@ -527,20 +527,20 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/${examplename}.ipynb
 schedule:
   requested:
       duration: PT1H
 computer:
   name: ${examplename}-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   volumes:
     - "Calibration data"
 
 volumes:
   - name: "Calibration data"
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration/
     mode: READWRITE
     cardinality: INSTANCE
@@ -549,7 +549,7 @@ volumes:
 
 data:
 - name: ${examplename}-data-01
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
   location: https://example.org/data/data-005.vot
 EOF
 
@@ -582,7 +582,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -606,7 +606,7 @@ executable:
     "USER_EMAIL": "albert@example.org"
 computer:
   name: ${examplename}-compute
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   cores:
     min: 5
     max: 15
@@ -648,7 +648,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/${examplename}.ipynb
 
 schedule:
@@ -657,7 +657,7 @@ schedule:
 
 computer:
   name: ${examplename}-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   cores:
     min:  8
     max: 16
@@ -669,7 +669,7 @@ computer:
 
 volumes:
   - name: ${examplename}-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
@@ -678,7 +678,7 @@ volumes:
       - ${examplename}-data-02
 
   - name: ${examplename}-volume-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /input
     mode: READONLY
     cardinality: CONTAINER
@@ -686,7 +686,7 @@ volumes:
       - ${examplename}-data-03
 
   - name: ${examplename}-volume-04
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /working
     mode: READWRITE
     cardinality: INSTANCE
@@ -695,32 +695,32 @@ volumes:
 
 storage:
   - name: ${examplename}-storage-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
 #   resources:
 #     - ${examplename}-data-01
 #     - ${examplename}-data-02
 
   - name: ${examplename}-storage-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
 #   resources:
 #     - ${examplename}-data-03
 
   - name: ${examplename}-storage-04
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
     size:
       min: 2048
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-01.vot
 
   - name: ${examplename}-data-02
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-02.vot
 
   - name: ${examplename}-data-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-03.vot
 EOF
 
@@ -754,7 +754,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -763,11 +763,11 @@ executable:
 
 computer:
   name: ${examplename}-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
 
 volumes:
   - name: ${examplename}-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
@@ -776,7 +776,7 @@ volumes:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/ivoa-data-resource-1.0
     ivoa:
       ivoid: "ivo://example.org/path?012345-000"
       obscore:
@@ -826,7 +826,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -835,11 +835,11 @@ executable:
 
 computer:
   name: ${examplename}-computer-01
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
 
 volumes:
   - name: ${examplename}-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
@@ -848,7 +848,7 @@ volumes:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     ivoa:
       ivoid: "ivo://skao.int/data?testing:zrq-test-20250509-082506"
       obscore:
@@ -915,7 +915,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -923,11 +923,11 @@ executable:
 
 computer:
   name: ${examplename}-computer-01
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
 
 volumes:
   - name: ${examplename}-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
@@ -935,7 +935,7 @@ volumes:
       - ${examplename}-data-01
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -985,7 +985,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -993,7 +993,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1021,7 +1021,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1029,7 +1029,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1056,7 +1056,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1064,7 +1064,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1091,7 +1091,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1099,7 +1099,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1139,7 +1139,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1147,7 +1147,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1176,7 +1176,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1184,7 +1184,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1194,7 +1194,7 @@ data:
         - rsename: "JPSRC_STORM"
         - rsename: "SPSRC_STORM"
   - name: ${examplename}-data-02
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-094501"
@@ -1224,7 +1224,7 @@ EOF
 name: ${examplename}
 executable:
   name: ${examplename}-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
@@ -1232,7 +1232,7 @@ executable:
 
 data:
   - name: ${examplename}-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-082506"
@@ -1242,7 +1242,7 @@ data:
         - rsename: "JPSRC_STORM"
         - rsename: "SPSRC_STORM"
   - name: ${examplename}-data-02
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-094501"
@@ -1251,7 +1251,7 @@ data:
         - rsename: "JPSRC_STORM"
         - rsename: "SPSRC_STORM"
   - name: ${examplename}-data-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/skao-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
     skao:
       namespace:  "testing"
       objectname: "zrq-test-20250509-123401"

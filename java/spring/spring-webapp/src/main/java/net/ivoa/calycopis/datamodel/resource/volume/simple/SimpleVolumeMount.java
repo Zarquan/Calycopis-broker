@@ -40,7 +40,7 @@ public interface SimpleVolumeMount
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0" ;
     
     /**
      * Reference to the DataResources mounted in this volume.

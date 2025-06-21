@@ -24,11 +24,11 @@
 
 openapi: 3.1.0
 info:
-  title: IVOA ExecutionBroker S3 data resource
+  title: IVOA ExecutionBroker simple data resource
   version: "1.0"
-  summary: IVOA ExecutionBroker S3 data resource
+  summary: IVOA ExecutionBroker simple data resource
   description: >-
-    OpenAPI schema for an IVOA ExecutionBroker S3 data resource
+    OpenAPI schema for an IVOA ExecutionBroker simple data resource
   contact:
     name: Dave Morris
     url: https://github.com/Zarquan
@@ -39,32 +39,19 @@ info:
 components:
   schemas:
 
-    S3DataResource:
+    SimpleDataResource:
       type: object
-      name:  S3DataResource
-      title: S3DataResource
+      name:  SimpleDataResource
+      title: SimpleDataResource
       description: >-
-        A data resource in a S3 storage system.
+          A simple downloadable data resource.
       allOf:
-        - $ref: '../../../openapi.yaml#AbstractDataResource'
+        - $ref: '../../openapi.yaml#AbstractDataResource'
         - type: object
           properties:
-            endpoint:
+            location:
               description: >-
-                The endpoint address of the S3 service.
-              type: string
-            template:
-              description: >-
-                The URL template for the S3 service.
-              type: string
-            bucket:
-              description: >-
-                The target bucket name.
-              type: string
-            object:
-              description: >-
-                The target object name.
-                Leaving this blank will mount the whole bucket as a directory.
+                The URL of the data to import.
               type: string
 # TODO add checksums
 # TODO add a size estimate
