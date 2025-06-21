@@ -8,11 +8,11 @@ import java.util.List;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
