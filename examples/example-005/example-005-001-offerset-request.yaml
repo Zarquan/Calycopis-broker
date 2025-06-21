@@ -1,20 +1,20 @@
 name: example-005
 executable:
   name: example-005-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/example-005.ipynb
 schedule:
   requested:
       duration: PT1H
 computer:
   name: example-005-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   volumes:
     - "Calibration data"
 
 volumes:
   - name: "Calibration data"
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration/
     mode: READWRITE
     cardinality: INSTANCE
@@ -23,5 +23,5 @@ volumes:
 
 data:
 - name: example-005-data-01
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
   location: https://example.org/data/data-005.vot

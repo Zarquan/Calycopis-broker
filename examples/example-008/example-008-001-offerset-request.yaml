@@ -1,27 +1,29 @@
 name: example-008
 executable:
   name: example-008-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/docker-container-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
       - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
       - "docker.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
     digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+
 computer:
   name: example-008-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
 
 volumes:
   - name: example-008-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
     resources:
       - example-008-data-01
+
 data:
   - name: example-008-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/ivoa-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/ivoa-data-resource-1.0
     ivoa:
       ivoid: "ivo://example.org/path?012345-000"
       obscore:

@@ -15,7 +15,7 @@ public interface JupyterNotebook
      * The type discriminator for Jupyter notebooks.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0" ;
     
     /**
      * Get the location of the notebook.

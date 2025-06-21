@@ -1,7 +1,7 @@
 name: example-007
 executable:
   name: example-007-executable
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
   location: https://www.example.org/example-007.ipynb
 
 schedule:
@@ -10,7 +10,7 @@ schedule:
 
 computer:
   name: example-007-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
   cores:
     min:  8
     max: 16
@@ -22,7 +22,7 @@ computer:
 
 volumes:
   - name: example-007-volume-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /calibration
     mode: READONLY
     cardinality: CONTAINER
@@ -31,7 +31,7 @@ volumes:
       - example-007-data-02
 
   - name: example-007-volume-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /input
     mode: READONLY
     cardinality: CONTAINER
@@ -39,7 +39,7 @@ volumes:
       - example-007-data-03
 
   - name: example-007-volume-04
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/volumes/simple-volume-mount-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
     path: /working
     mode: READWRITE
     cardinality: INSTANCE
@@ -48,30 +48,30 @@ volumes:
 
 storage:
   - name: example-007-storage-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
 #   resources:
 #     - example-007-data-01
 #     - example-007-data-02
 
   - name: example-007-storage-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
 #   resources:
 #     - example-007-data-03
 
   - name: example-007-storage-04
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/storage/simple-storage-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0
     size:
       min: 2048
 
 data:
   - name: example-007-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-01.vot
 
   - name: example-007-data-02
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-02.vot
 
   - name: example-007-data-03
-    type: https://www.purl.org/ivoa.net/EB/schema/types/resources/data/simple-data-resource-1.0
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
     location: https://example.org/data/data-007-03.vot

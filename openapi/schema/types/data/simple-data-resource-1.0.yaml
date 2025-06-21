@@ -1,0 +1,60 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker simple data resource
+  version: "1.0"
+  summary: IVOA ExecutionBroker simple data resource
+  description: >-
+    OpenAPI schema for an IVOA ExecutionBroker simple data resource
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    SimpleDataResource:
+      type: object
+      name:  SimpleDataResource
+      title: SimpleDataResource
+      description: >-
+          A simple downloadable data resource.
+      allOf:
+        - $ref: '../../openapi.yaml#AbstractDataResource'
+        - type: object
+          properties:
+            location:
+              description: >-
+                The URL of the data to import.
+              type: string
+# TODO add checksums
+# TODO add a size estimate
+# TODO add download time estimate
+# TODO add status flag ... WAITING|PREPARING|READY|RELEASING|COMPLETED|CANCELLED|FAILED
+

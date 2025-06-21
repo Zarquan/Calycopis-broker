@@ -27,12 +27,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
-import net.ivoa.calycopis.datamodel.resource.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.resource.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
@@ -47,7 +47,7 @@ public interface ExecutionSession
      * The type identifier for an execution session response.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0" ;
+    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0" ;
 
     /**
      * The URL path for an execution session.

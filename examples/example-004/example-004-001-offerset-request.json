@@ -2,7 +2,7 @@
 "name": "example-004",
 "executable": {
     "name": "example-004-executable",
-    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0",
     "location": "https://www.example.org/example-004.ipynb"
     },
 "schedule": {
@@ -10,20 +10,16 @@
         "duration": "PT1H"
         }
     },
-"resources": {
-    "compute": [
-            {
-            "name": "example-004-computer",
-            "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-            "cores": {
-                "min": 5,
-                "max": 15
-                },
-            "memory": {
-                "min": 3,
-                "max": 9
-                }
-            }
-        ]
+"computer": {
+    "name": "example-004-computer",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0",
+    "cores": {
+        "min": 5,
+        "max": 15
+        },
+    "memory": {
+        "min": 3,
+        "max": 9
+        }
     }
 }

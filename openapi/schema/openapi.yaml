@@ -1,0 +1,934 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker
+  version: "1.0"
+  summary: IVOA ExecutionBroker interface
+  description: >-
+    IVOA ExecutionBroker interface
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+servers:
+  - url: http://localhost:8080
+    description: Localhost development
+paths:
+  /offersets:
+    post:
+      operationId: OfferSetPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'OfferSetRequest'
+          application/xml:
+            schema:
+              $ref: 'OfferSetRequest'
+          application/yaml:
+            schema:
+              $ref: 'OfferSetRequest'
+        required: true
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "303":
+          description: >-
+            A redirect response to the '/offersets/{uuid}' endpoint.
+          headers:
+            Location:
+              required: true
+              schema:
+                type: string
+                format: url
+        "200":
+          description: >-
+            A simple OK response with the same contant as the '/offersets/{uuid}' endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: 'OfferSetResponse'
+            application/xml:
+              schema:
+                $ref: 'OfferSetResponse'
+            application/yaml:
+              schema:
+                $ref: 'OfferSetResponse'
+
+  /offersets/{uuid}:
+    get:
+      operationId: OfferSetGet
+      parameters:
+        - name: uuid
+          in: path
+          description: The offerset identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: 'OfferSetResponse'
+            application/xml:
+              schema:
+                $ref: 'OfferSetResponse'
+            application/yaml:
+              schema:
+                $ref: 'OfferSetResponse'
+
+  /sessions/{uuid}:
+    get:
+      operationId: ExecutionSessionGet
+      parameters:
+        - name: uuid
+          in: path
+          description: The session identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+            application/xml:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+            application/yaml:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+
+    post:
+      operationId: ExecutionSessionPost
+      parameters:
+        - name: uuid
+          in: path
+          description: >-
+            The session UUID identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'UpdateRequest'
+          application/xml:
+            schema:
+              $ref: 'UpdateRequest'
+          application/yaml:
+            schema:
+              $ref: 'UpdateRequest'
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+            application/xml:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+            application/yaml:
+              schema:
+                $ref: 'ExecutionSessionResponse'
+
+components:
+  schemas:
+
+# components.yaml
+
+    AbstractComponent:
+      description: >-
+        Abstract base class for all our components.
+        This class provides a name, a UUID identifier, a href URL,
+        and a list of messages.
+      type: object
+      title: AbstractComponent
+      properties:
+        uuid:
+          description: >-
+            A machine readable UUID, assigned by the server.
+          type: string
+          format: uuid
+        name:
+          description: >-
+            A human readable name, assigned by the client.
+          type: string
+        type:
+          description: >-
+            The component type identifier.
+          type: string
+          xml:
+            attribute: true
+        created:
+          description: >-
+            The date and time the component was created.
+          type: string
+          format: date-time
+        messages:
+          description: >-
+            A list of messages about this component.
+          xml:
+            name: messages
+          type: array
+          items:
+            $ref: './components/messages.yaml#/components/schemas/MessageItem'
+            xml:
+              name: message
+
+    AccessibleComponent:
+      description: >-
+        Adds a href to access this component.
+      type: object
+      title: AccessibleComponent
+      properties:
+        href:
+          description: >-
+            The URL to access this component, assigned by the server.
+          type: string
+
+    ScheduledComponent:
+      description: >-
+        Adds a schedule for this component.
+      type: object
+      title: ScheduledComponent
+      properties:
+        schedule:
+          description: >-
+            The expected schedule for this component.
+          xml:
+            name: schedule
+          $ref: 'ComponentSchedule'
+
+    ComponentSchedule:
+      description: >-
+        The schedule elements for a ScheduledComponent.
+      type: object
+      title: ComponentSchedule
+      properties:
+        offered:
+          $ref: 'OfferedScheduleBlock'
+        observed:
+          $ref: 'ObservedScheduleBlock'
+
+# compute-resources.yaml
+
+    AbstractComputeResource:
+      description: >-
+        Abstract base class for compute resources.
+      type: object
+      title: AbstractComputeResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0": './types/computer/simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeResource'
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
+
+# volume-mounts.yaml
+
+    VolumeMountList:
+      description: >-
+        A list of volume mounts.
+      type: array
+      title: VolumeMountList
+      xml:
+        name: storage
+      items:
+        $ref: 'AbstractVolumeMount'
+
+    AbstractVolumeMount:
+      description: >-
+        Abstract base class for volume mounts.
+      type: object
+      title: AbstractVolumeMount
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0": './types/volume/simple-volume-mount-1.0.yaml#/components/schemas/SimpleVolumeMount'
+      allOf:
+        - $ref: 'AbstractComponent'
+
+# storage-resources.yaml
+
+    StorageResourceList:
+      description: >-
+        A list of storage resources.
+      type: array
+      title: StorageResourceList
+#     xml:
+#       name: storage
+      items:
+        $ref: 'AbstractStorageResource'
+
+    AbstractStorageResource:
+      description: >-
+        Abstract base class for storage resources.
+      type: object
+      title: AbstractStorageResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0": './types/storage/simple-storage-resource-1.0.yaml#/components/schemas/SimpleStorageResource'
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                type: string
+
+
+# data-resources.yaml
+
+    DataResourceList:
+      description: >-
+        A list of data resources.
+      type: array
+      title: DataResourceList
+      xml:
+        name: storage
+      items:
+        $ref: 'AbstractDataResource'
+
+    AbstractDataResource:
+      description: >-
+        Abstract base class for data resources.
+      type: object
+      title: AbstractDataResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0": './types/data/simple-data-resource-1.0.yaml#/components/schemas/SimpleDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/data/S3-data-resource-1.0":     './types/data/S3-data-resource-1.0.yaml#/components/schemas/S3DataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/data/rucio-data-resource-1.0":  './types/data/rucio-data-resource-1.0.yaml#/components/schemas/RucioDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/data/ivoa-data-resource-1.0":   './types/data/ivoa-data-resource-1.0.yaml#/components/schemas/IvoaDataResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0":   './types/data/skao-data-resource-1.0.yaml#/components/schemas/SkaoDataResource'
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
+        - type: object
+          properties:
+            storage:
+              type: string
+
+    AbstractExecutable:
+      description: Abstract base class for executables.
+      type: object
+      title: AbstractExecutable
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0":      './types/executable/docker-container-1.0.yaml#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/singularity-container-1.0": './types/executable/singularity-container-1.0.yaml#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0":      './types/executable/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebook'
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'ScheduledComponent'
+        - type: object
+          properties:
+            access:
+              description: >-
+                A list of access methods that the client can use to monitor and interact with the execution.
+              $ref: 'ExecutableAccessList'
+
+    ExecutableAccessList:
+      description: >-
+        A list of data access methods.
+      type: array
+      title: ExecutableAccessList
+      xml:
+        name: access
+      items:
+        $ref: 'ExecutableAccessMethod'
+
+    ExecutableAccessMethod:
+      description: |
+        Details of an access method the client can use to monitor and interact with the execution.
+        These details are provided by the service based on the description of the executable and how it is implemented.
+      type: object
+      title: DockerContainer
+      properties:
+        status:
+          type: string
+          enum:
+            - PREPARING
+            - ACTIVE
+            - FINISHED
+          description: >-
+            A flag to indicate the staus of the connection.
+        protocol:
+          type: string
+          description: >-
+            The access protocol, provided by the server when an offer is made.
+            Typically one of [TCP, HTTP, HTTPS].
+        locations:
+          type: array
+          items:
+            type: string
+          description: >-
+            A list of access URLs, provided by the server once the execution is ready to start.
+            This is defined as a list to provide support for internal and external, IPv4 and IPv6 addresses.
+
+# update-options.yaml
+
+    AbstractOption:
+      description: >-
+        Abstract base class for describing options.
+        This includes the `type` discriminator and the target `path` to update.
+      type: object
+      title: AbstractOption
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "uri:string-value-option":  'StringValueOption'
+          "uri:enum-value-option":    'EnumValueOption'
+          "uri:integer-value-option": 'IntegerValueOption'
+          "uri:integer-delta-option": 'IntegerDeltaOption'
+      properties:
+        type:
+          type: string
+          xml:
+            attribute: true
+        path:
+          description: >-
+            The target path that the option applies to.
+          type: string
+          xml:
+            attribute: false
+
+    StringValueOption:
+      description: >-
+        A simple string value option.
+        This option enables the client to set a string value pointed to by the path.
+      type: object
+      title: StringValueOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            pattern:
+              description: >-
+                A regular expression pattern restricting the value.
+              type: string
+
+    EnumValueOption:
+      description: >-
+        A simple enum value option.
+        This option enables the client to set an enum value pointed to by the path.
+      type: object
+      title: EnumValueOption
+      required:
+        - values
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            values:
+              description: >-
+                The list of available options.
+              type: array
+              items:
+                type: string
+
+    IntegerValueOption:
+      description: >-
+        A simple integer value option.
+        This option enables the client to set an integer value pointed to by the path.
+      type: object
+      title: IntegerValueOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            min:
+              description: >-
+                The minimum value that can be set.
+              type: integer
+              format: int64
+            max:
+              description: >-
+                The maximum value that can be set.
+              type: integer
+              format: int64
+            units:
+              description: >-
+                The units used for the maximum and minimum values
+                and the default units used for the update.
+                The client may specify different units in the
+                update if they need to.
+              type: string
+
+    IntegerDeltaOption:
+      description: >-
+        A simple integer delta option.
+        This option enables the client to increment or decrement an integer value pointed to by the path.
+      type: object
+      title: IntegerDeltaOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            min:
+              description: >-
+                The minimum change that can be applied.
+              type: integer
+              format: int64
+            max:
+              description: >-
+                The maximum change that can be applied.
+              type: integer
+              format: int64
+            units:
+              description: >-
+                The units used for the maximum and minimum values
+                and the default units used for the update.
+                The client may specify different units in the
+                update if they need to.
+              type: string
+
+# update-actions.yaml
+
+    AbstractUpdate:
+      description: >-
+        Abstract base class for updates.
+        This includes the `type` discriminator and the target `path` to update.
+      type: object
+      title: AbstractUpdate
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "uri:string-value-update":  'StringValueUpdate'
+          "uri:enum-value-update":    'EnumValueUpdate'
+          "uri:integer-value-update": 'IntegerValueUpdate'
+          "uri:integer-delta-update": 'IntegerDeltaUpdate'
+      properties:
+        type:
+          type: string
+          xml:
+            attribute: true
+        path:
+          description: >-
+            The target path that the update applies to.
+          type: string
+          xml:
+            attribute: false
+
+    StringValueUpdate:
+      description: >-
+        A simple string value update.
+      type: object
+      title: StringValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The string value to use.
+              type: string
+
+    EnumValueUpdate:
+      description: >-
+        A simple enum value update.
+      type: object
+      title: EnumValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The enum value to use.
+              type: string
+
+    IntegerValueUpdate:
+      description: >-
+        A simple integer value update.
+      type: object
+      title: IntegerValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The integer value to use.
+              type: integer
+              format: int64
+            units:
+              description: >-
+                The units to use for the value.
+              type: string
+
+    IntegerDeltaUpdate:
+      description: >-
+        A simple integer delta update.
+        This increments or decrements the target value by the specified amount.
+      type: object
+      title: IntegerDeltaUpdate
+      required:
+        - delta
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            delta:
+              description: >-
+                The increment or decrement to apply.
+              type: integer
+              format: int64
+            units:
+              description: >-
+                The units to use for the change.
+              type: string
+
+    # TODO Move this to utils ?
+    # TODO Remove this - not used.
+    MinMaxDuration:
+      description: >-
+        A duration time block describing how long the execution will take.
+        The max and min values are expressed as ISO 8601 time durations.
+        See https://en.wikipedia.org/wiki/ISO_8601#Durations
+      type: object
+      title: MinMaxDuration
+      xml:
+        name: duration
+      properties:
+        min:
+          type: string
+        max:
+          type: string
+
+    # TODO This should be is-a AbstractUpdate rather than has-a AbstractUpdate
+    UpdateRequest:
+      description: >-
+        A request to update an execution.
+      type: object
+      title: UpdateRequest
+      xml:
+        name: update-request
+      properties:
+        update:
+          xml:
+            name: update
+          $ref: 'AbstractUpdate'
+
+    RequestedScheduleItem:
+      description: >-
+        Details of the requested timings.
+      type: object
+      title: RequestedScheduleItem
+      properties:
+        duration:
+          description: >-
+            The requested duration.
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+        start:
+          description: >-
+            An array of requested start times.
+          type: array
+          items:
+            $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+    RequestedScheduleBlock:
+      description: >-
+        Details of the requested timings.
+      type: object
+      title: RequestedScheduleBlock
+      properties:
+        requested:
+          $ref: 'RequestedScheduleItem'
+
+    OfferedScheduleInstant:
+      description: >-
+        Details of an offered timing.
+      type: object
+      title: OfferedScheduleInstant
+      properties:
+        duration:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+        start:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+
+    OfferedScheduleInterval:
+      description: >-
+        Details of an offered timing.
+      type: object
+      title: OfferedScheduleInterval
+      properties:
+        duration:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+        start:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+
+    OfferedScheduleBlock:
+      description: >-
+        Details of the offered timings.
+      type: object
+      title: OfferedScheduleBlock
+      properties:
+        preparing:
+          $ref: 'OfferedScheduleInstant'
+        available:
+          $ref: 'OfferedScheduleInterval'
+        releasing:
+          $ref: 'OfferedScheduleInstant'
+
+    ObservedScheduleItem:
+      description: >-
+        Details of the observed timings.
+      type: object
+      title: ObservedScheduleItem
+      properties:
+        start:
+          #$ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+          type: string
+          format: date-time
+        done:
+          #$ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+          type: string
+          format: date-time
+
+    ObservedScheduleBlock:
+      description: >-
+        Details of the observed timings.
+      type: object
+      title: ObservedScheduleBlock
+      properties:
+        preparing:
+          $ref: 'ObservedScheduleItem'
+        available:
+          $ref: 'ObservedScheduleItem'
+        releasing:
+          $ref: 'ObservedScheduleItem'
+
+#   ExecutionResourceList:
+    ExecutionComponents:
+      description: >-
+        The combination of an executable and the compute, storage, volumes, and data resources it needs.
+      type: object
+      title: ExecutionComponents
+      properties:
+        executable:
+          $ref: 'AbstractExecutable'
+        computer:
+          $ref: 'AbstractComputeResource'
+        storage:
+          $ref: 'StorageResourceList'
+        volumes:
+          $ref: 'VolumeMountList'
+        data:
+          $ref: 'DataResourceList'
+
+    ExecutionSessionPhase:
+      description: >-
+        Status code for an execution session.
+      type: string
+      title: ExecutionSessionPhase
+      enum:
+        - PROPOSED
+        - OFFERED
+        - ACCEPTED
+        - REJECTED
+        - EXPIRED
+
+        - WAITING
+        - PREPARING
+        - READY
+        - RUNNING
+        - RELEASING
+
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+
+    ExecutionSessionResponse:
+      description: >-
+        An Execution session, including uuid, href, and status.
+      type: object
+      title: ExecutionSessionResponse
+      xml:
+        name: execution
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'AccessibleComponent'
+        - $ref: 'ScheduledComponent'
+        - $ref: 'ExecutionComponents'
+        - type: object
+          required:
+            - uuid
+            - state
+            - href
+            - type
+          properties:
+            phase:
+              $ref: 'ExecutionSessionPhase'
+            expires:
+              description: >-
+                The date and time that this execution offer expires.
+                Only valid while the state is OFFERED.
+              xml:
+                name: expires
+              type: string
+              format: date-time
+#           executable:
+#             xml:
+#               name: executable
+#             $ref: 'AbstractExecutable'
+#           resources:
+#             xml:
+#               name: resources
+#             $ref: 'ExecutionResourceList'
+            options:
+              description: >-
+                A List of options the client can apply to this Execution.
+              type: array
+              items:
+                $ref: 'AbstractOption'
+
+# offersets.yaml
+
+    OfferSetRequest:
+      description: >-
+        A request for a set of offers for an execution.
+      type: object
+      title: OfferSetRequest
+      xml:
+        name: offers-request
+      allOf:
+        - $ref: 'ExecutionComponents'
+        - type: object
+          properties:
+            name:
+              description: >-
+                A human readable name.
+              type: string
+            description:
+              description: >-
+                A human readable description.
+              type: string
+#       executable:
+#         xml:
+#           name: executable
+#         $ref: 'AbstractExecutable'
+#       resources:
+#         xml:
+#           name: resources
+#         $ref: 'ExecutionResourceList'
+            schedule:
+              xml:
+                name: schedule
+              $ref: 'RequestedScheduleBlock'
+
+    OfferSetResponse:
+      description: >-
+        A set of executions offered in response to a request,
+        including a uuid, href, and an expiry date for the set.
+      type: object
+      title: OfferSetResponse
+      required:
+        - uuid
+        - href
+      xml:
+        name: offers-response
+      allOf:
+        - $ref: 'AbstractComponent'
+        - $ref: 'AccessibleComponent'
+        - type: object
+          properties:
+            result:
+              description: >-
+                A flag to indicate whether the request can be handled by this service.
+                If service is able to handle the request, then the `result` will be `YES`
+                and the `offers` block should contain one or more offers.
+                If service is not able to handle the request, the `result` will be `NO`
+                and the `messages` block should contain one or more reasons explaining why.
+              type: string
+              enum:
+                - "YES"
+                - "NO"
+            description:
+              description: >-
+                A human readable description.
+              type: string
+            offers:
+              type: array
+              xml:
+                name: offers
+                wrapped: true
+              items:
+                $ref: 'ExecutionSessionResponse'
+                xml:
+                  name: execution
+
+
+

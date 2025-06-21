@@ -1,44 +1,40 @@
 {
-  "uuid": "f197501c-a773-44f6-9b40-5509b25f5f14",
+  "uuid": "82819cfd-2874-48f0-b387-3e4cbc590699",
   "name": "example-004-offer-1",
-  "type": "https://www.purl.org/ivoa.net/EB/schema/types/sessions/execution-session-response-1.0",
-  "created": "2025-06-16T05:17:22.237506Z",
-  "href": "http://127.0.0.1:8082/sessions/f197501c-a773-44f6-9b40-5509b25f5f14",
+  "type": "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0",
+  "created": "2025-06-21T12:17:19.233776Z",
+  "href": "http://127.0.0.1:8082/sessions/82819cfd-2874-48f0-b387-3e4cbc590699",
   "schedule": {
     "offered": {
       "preparing": {
-        "start": "2025-06-16T07:18:00Z"
+        "start": "2025-06-21T14:18:00Z"
       },
       "available": {
         "duration": "PT2H",
-        "start": "2025-06-16T07:18:00Z"
+        "start": "2025-06-21T14:18:00Z"
       }
     }
   },
-  "phase": "ACCEPTED",
-  "expires": "2025-06-16T10:17:19.041438Z",
   "executable": {
-    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executables/jupyter-notebook-1.0",
-    "uuid": "a2f3cc79-875f-4269-a3d3-ce2488eb9afd",
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0",
+    "uuid": "33262354-6fe2-4535-873e-e94a95105987",
     "name": "example-004-executable",
-    "created": "2025-06-16T05:17:22.238721Z",
+    "created": "2025-06-21T12:17:19.237276Z",
     "location": "https://www.example.org/example-004.ipynb"
   },
-  "resources": {
-    "compute": [
-      {
-        "type": "https://www.purl.org/ivoa.net/EB/schema/types/resources/compute/simple-compute-resource-1.0",
-        "uuid": "809810b1-252b-48f9-8ff3-23f2aeab2ab9",
-        "name": "example-004-computer",
-        "cores": {
-          "min": 10,
-          "max": 10
-        },
-        "memory": {
-          "min": 10,
-          "max": 10
-        }
-      }
-    ]
-  }
+  "computer": {
+    "type": "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0",
+    "uuid": "f3c0a66d-0178-4fce-89d1-5265027fb3c3",
+    "name": "example-004-computer",
+    "cores": {
+      "min": 10,
+      "max": 10
+    },
+    "memory": {
+      "min": 10,
+      "max": 10
+    }
+  },
+  "phase": "ACCEPTED",
+  "expires": "2025-06-21T17:17:18.631481Z"
 }
