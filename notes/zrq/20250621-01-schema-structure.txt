@@ -1,0 +1,174 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Refactor parts of the schema and test the fast api code generator.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=schema-structure
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Move the schema from 'ivoa' to 'schema'.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        pushd openapi
+
+            git mv ivoa schema
+            git commit -m "Renamed openapi schema from 'ivoa' to 'schema'"
+
+        popd
+
+    popd
+
+
+# -----------------------------------------------------
+# Test the Java fastapi generator.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
+        fedora:42 \
+        bash
+
+        #
+        # Run our schema processor.
+
+        dnf install -y \
+            python3 \
+            python3-pip
+
+        pip3 install \
+            pyyaml
+
+        /openapi/bin/schema-processor.py \
+            /openapi/schema/openapi.yaml \
+            /openapi/build/combined-openapi.yaml
+
+
+        #
+        # Install and run the FastAPI generator.
+
+        rm -rf /python/albert
+        mkdir  /python/albert
+
+        dnf install -y \
+            wget
+
+        wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.13.0/openapi-generator-cli-7.13.0.jar \
+             -O /tmp/openapi-generator.jar
+
+        dnf install -y \
+            java-latest-openjdk
+
+        java -jar /tmp/openapi-generator.jar \
+            generate \
+            --generator-name python-fastapi \
+            --input-spec /openapi/build/combined-openapi.yaml \
+            --output     /python/albert
+
+        #
+        # Yep, this generates all of the classes, with type discriminators.
+        # Looks like a whole webapp.
+        #
+
+    #
+    # Need to drop back to Fedora 40 for this to get Python-3.12 rather than Python-3.13
+    # which causes errors when building the requirements.
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
+        fedora:40 \
+        bash
+
+        dnf install -y \
+            python3 \
+            python3-pip \
+            python3-devel \
+            python3-uvicorn
+
+        dnf install -y \
+            g++ \
+            gcc
+
+        pip3 install \
+            wheel \
+            fastapi
+
+        pushd  /python/albert
+
+            pip3 install \
+                -r requirements.txt
+
+            pushd src
+
+                uvicorn openapi_server.main:app --host 0.0.0.0 --port 8080
+
+    >   INFO:     Started server process [220]
+    >   INFO:     Waiting for application startup.
+    >   INFO:     Application startup complete.
+    >   INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+    >   ....
+    >   ....
+
+        #
+        # So in theory we have an webapp with JSON/YAML message processing.
+        # Need to test it ...
+        #
+
