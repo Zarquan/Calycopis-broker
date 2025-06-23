@@ -1,0 +1,185 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        First attempt at a combined service.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=combined-service
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Editing API
+    POST to /requests to create a SessionRequest.
+    Anything from 0% to 100%.
+
+    Redirected to /requests/{uuid}
+    Status is EDITING
+    Validation adds errors and warnings.
+
+    Use the options and update methods to edit it.
+    POST an update to /requests/{uuid}
+    If update is accepted, returns 200 with updated document.
+    If update is not accepted, returns error code and document includes error messages.
+    Status stays as EDITING
+
+
+    When ready, update the status to SUBMITTED.
+    Validation will accept or reject.
+    If update is accepted, submitted as an offerset request, client redirected to offersets/{uuid}
+    Status set to as SUBMITTED
+        lifetime is limited ..
+
+    If update is not accepted, returns error code and document includes error messages.
+    Status stays as EDITING
+
+
+    WHY are we not using the standard HTTP methods ?
+    POST   - update
+    PUT    - create
+    DELETE -  DELETE
+
+    We can if it makes you happy.
+
+    POST   /requests - create a new request
+    PUT    /requests - create a new request
+        data can be 0%-100%
+
+    GET    /requests/{uuid} - select
+    POST   /requests/{uuid} - update
+        data:
+          update:
+            type:  ....
+            path:  ....
+            value: ....
+
+    DELETE /requests/{uuid}  - delete the whole request
+    DELETE /component/{uuid} - delete a component
+
+    Single value changes using updates
+      update:
+        type:  value-update
+        path:  ....
+        value: ....
+
+    Whole component inserts ..
+        Add a new executable
+        Add a new computer
+        Add a new data resource
+        Add a new storage resource
+        Add a new a volume
+
+        PUT/POST the component with a parent reference ?
+        PUT/POST /component/
+
+    Whole component updates ..
+        Replace a whole executable
+        Replace a whole computer
+        Replace a whole data resource
+        Replace a whole storage resource
+        Replace a whole volume
+
+        Delete the whole thing and then insert a new one.
+        DELETE /component/{uuid}
+        PUT/POST /component/
+
+    Components of a request have a 'parent' reference.
+    Components in general have a 'parent' reference.
+
+    When things transition from editing requests to offersets
+    the UUID values are all generated again.
+    So we don't have to track a component as it is passed from
+    a request to a session in an offerset.
+    .. because there is more than one offer in an offerset
+    so the offers, and their components, are new objects in their own right
+
+--------------------
+
+    To get rid of the parent problem, use the URL
+
+    POST /requests - creates a new request
+        data can be 0%-100% of the request
+        everything is optional
+
+        response is a redirect to a new SessionRequest object
+        phase EDITING
+
+    GET    /requests/{uuid}  - gets the current state
+    DELETE /requests/{uuid}  - deletes the whole request
+
+    POST   /requests/{uuid}/updates - update a request property
+        type:  ....
+        path:  ....
+        value: ....
+
+    If component is one of [execution, computer]
+    POST     /requests/{uuid}/component - add or replace a <component> of a request
+    GET      /requests/{uuid}/component - get a <component> of a request
+    DELETE   /requests/{uuid}/component - delete a <component> of the request
+    POST     /requests/{uuid}/component/updates - update a <component> of the request
+        type:  ....
+        path:  ....
+        value: ....
+
+    If component is one of [data, storage, volume]
+    POST   /requests/{uuid}/component - add a new a <component> to a request
+    GET    /requests/{uuid}/component/{uuid} - get a <component> of the request
+    POST   /requests/{uuid}/component/{uuid} - replace a <component> of a request
+    DELETE /requests/{uuid}/component/{uuid} - delete a <component> of the request
+    POST   /requests/{uuid}/component/{uuid}/updates - update a <component> of the request
+        type:  ....
+        path:  ....
+        value: ....
+
+
+    GET    /component/{uuid} - get a <component>
+    DELETE /component/{uuid} - delete a <component>
+    POST   /component/{uuid}/updates - update a <component>
+        type:  ....
+        path:  ....
+        value: ....
+
+
