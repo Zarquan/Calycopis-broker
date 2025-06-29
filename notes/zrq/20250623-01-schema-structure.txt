@@ -1,0 +1,59 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Thoughts on a new structure for the schema.
+    Now that we have the OpenAPI pre-processor, we can move things into separate files and directories.
+
+    One step to check, does the pre-processor follow $ref links in the service part of the specification ?
+
+    Assuming that works, or can be fixed, we move everything into separate files.
+
+# -----------------------------------------------------
+
+    EditorRequest
+    EditorResponse
+
+    UpdateRequest
+    UpdateResponse
+
+    OffersRequest
+    OffersResponse
+
+    SessionRequest
+    SessionResponse
+
+
+
+
