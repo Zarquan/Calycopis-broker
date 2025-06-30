@@ -105,7 +105,7 @@
         --rm \
         --tty \
         --interactive \
-        --name python-builder \
+        --name python-fastapi \
         --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
         --volume "${CALYCOPIS_CODE}/python:/python:rw,z" \
         fedora:42 \

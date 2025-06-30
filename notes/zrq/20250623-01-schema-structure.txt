@@ -55,5 +55,274 @@
     SessionResponse
 
 
+# -----------------------------------------------------
+
+    /requests
+        GET 200 => List<EditingResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<EditingResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+        PUT  EditingRequest
+        POST EditingRequest
+            200 => EditingResponse + 300 redirect to /requests/{uuid}
+            x00 => ErrorRespose
+
+    /requests/{uuid}
+        GET 200 => EditingResponse
+            x00 => ErrorRespose
+
+    /requests/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /requests/{uuid}
+            x00 => ErrorRespose
+
+        Setting phase = SUBMITTED is equivalent to POST to /offers
+        with redirect to /offers/{uuid}
+
+
+    /offers
+        GET 200 => List<OfferSetResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<OfferSetResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+        PUT  OfferSetRequest
+        POST OfferSetRequest
+            200 => OfferSetResponse + 300 redirect to /offers/{uuid}
+            x00 => ErrorRespose
+
+    /offers/{uuid}
+        GET 200 => OfferSetResponse
+            x00 => ErrorRespose
+
+    /offers/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /offers/{uuid}
+            x00 => ErrorRespose
+
+    /sessions
+        GET 200 => List<SessionResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<SessionResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+    /sessions/{uuid}
+        GET 200 => SessionResponse
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /sessions/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable
+        GET 200 => AbstractExecutable
+            x00 => ErrorRespose
+
+        PUT  AbstractExecutable
+        POST AbstractExecutable
+            200 => AbstractExecutable + 300 redirect to /sessions/{uuid}/excutable/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable/{uuid}
+        GET 200 => AbstractExecutable
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /sessions/{uuid}/excutable/{uuid}
+            x00 => ErrorRespose
+
+
+    /sessions/{uuid}/compute
+        Same as executable
+
+
+    /sessions/{uuid}/data
+        GET 200 => List<AbstractDataResourceResponse>
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<AbstractDataResourceResponse> with phase = <phase>
+            x00 => ErrorRespose
+
+        PUT  AbstractDataResourceRequest
+        POST AbstractDataResourceRequest
+            200 => AbstractDataResourceResponse + 300 redirect to /sessions/{uuid}/data/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/data/{uuid}
+        GET 200 => AbstractDataResourceResponse
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/data/{uuid}/update
+        POST UpdateRequest
+            200 => AbstractDataResourceResponse + 300 redirect to /sessions/{uuid}/data/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/storage
+        Same as data
+
+    /sessions/{uuid}/vlume
+        Same as data
+
+
+# -----------------------------------------------------
+
+
+    BaseComponent
+        uuid
+        name
+        description
+
+    AbstractComponent
+        type
+
+    RequestComponent
+
+    ResponseComponent
+        BaseComponent
+        phase:  ComponentLifecyclePhase
+        owner:    string
+        created:  datetime
+        modified: datetime
+        expires:  datetime
+
+    ComponentLifecyclePhase
+        EDITING
+        SUBMITTED
+
+        ACCEPTED
+        REJECTED
+        EXPIRED
+
+        PREPARING
+        ACTIVE
+        RELEASING
+
+        COMPLETED
+        CANCELLED
+        FAILED
+
+    UpdateRequest
+        ....
+
+    ErrorResponse
+        ....
+
+    SessionScheduleRequest
+        start: array interval
+        duration: duration
+
+    SessionScheduleResponse
+        preparing: interval
+        available: interval
+        releasing: interval
+
+    ResourceScheduleRequest
+        before: duration
+        after:  duration
+
+    ResourceScheduleResponse
+        preparing: interval
+        available: interval
+        releasing: interval
+
+    SessionEditingRequest
+        RequestComponent
+        SessionRequest
+
+    SessionEditingResponse
+        ResponseComponent
+        SessionRequest
+
+    SessionRequest
+        BaseComponent
+        AbstractComponent
+        RequestComponent
+        schedule: ScheduleRequest
+        executable: ExecutableRequest
+        compute: ComputeResourceRequest
+        data: List<DataResourceRequest>
+        storage: List<StorageResourceRequest>
+        volumes: List<VolumeMountRequest>
+
+    SessionResponse
+        BaseComponent
+        AbstractComponent
+        ResponseComponent
+        schedule: ScheduleResponse
+        excutable: ExecutableResponse
+        computer: ComputeResourceResponse
+        data: List<DataResourceResponse>
+        storage: List<StorageResourceResponse>
+        volumes: List<VolumeMountResponse>
+
+    OfferSetRequest
+        SessionRequest
+
+    OfferSetResponse
+        BaseComponent
+        AbstractComponent
+        ResponseComponent
+        offers: List<SessionResponse>
+
+    AbstractExecutable
+        BaseComponent
+        AbstractComponent
+    ExecutableRequest
+        RequestComponent
+        AbstractExecutable
+    ExecutableResponse
+        ResponseComponent
+        AbstractExecutable
+
+    AbstractComputeResource
+        BaseComponent
+        AbstractComponent
+    ComputeResourceRequest
+        RequestComponent
+        AbstractComputeResource
+    ComputeResourceResponse
+        ResponseComponent
+        AbstractComputeResource
+
+    AbstractDataResource
+        BaseComponent
+        AbstractComponent
+    DataResourceRequest
+        RequestComponent
+        AbstractDataResource
+    DataResourceResponse
+        ResponseComponent
+        AbstractDataResource
+
+    AbstractStorageResource
+        BaseComponent
+        AbstractComponent
+    StorageResourceRequest
+        RequestComponent
+        AbstractStorageResource
+    StorageResourceResponse
+        ResponseComponent
+        AbstractStorageResource
+
+    AbstractVolumeMount
+        BaseComponent
+        AbstractComponent
+    VolumeMountRequest
+        RequestComponent
+        AbstractVolumeMount
+    VolumeMountResponse
+        ResponseComponent
+        AbstractVolumeMount
+
 
 
