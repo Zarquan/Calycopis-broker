@@ -1,0 +1,132 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: Options describing the available update actions
+  version: "0.8"
+  summary: Options describing the available update actions for a resource
+  description: >-
+    Options describing the available update actions for a resource.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    # TODO Give these full PURLs
+    AbstractUpdate:
+      description: >-
+        Abstract base class for updates.
+        This includes the `type` discriminator and the `path` of the target.
+      type: object
+      title: AbstractUpdate
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "uri:string-value-update":  'StringValueUpdate'
+          "uri:enum-value-update":    'EnumValueUpdate'
+          "uri:integer-value-update": 'IntegerValueUpdate'
+          "uri:integer-delta-update": 'IntegerDeltaUpdate'
+      allOf:
+        - $ref: '../../components/components.yaml#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            path:
+              description: >-
+                The target path that the update applies to.
+              type: string
+              xml:
+                attribute: false
+
+    StringValueUpdate:
+      description: >-
+        A simple string value update.
+        This enables the client to set a string value.
+      type: object
+      title: StringValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The string value to use.
+              type: string
+
+    EnumValueUpdate:
+      description: >-
+        A simple enum value update.
+        This enables the client to set an enum value.
+      type: object
+      title: EnumValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The enum value to use.
+              type: string
+
+    IntegerValueUpdate:
+      description: >-
+        A simple integer value update.
+        This enables the client to set an integer value.
+      type: object
+      title: IntegerValueUpdate
+      required:
+        - value
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            value:
+              description: >-
+                The integer value to use.
+              type: integer
+              format: int64
+
+    IntegerDeltaUpdate:
+      description: >-
+        A simple integer delta update.
+        This enables the client to increment or decrement an integer value.
+      type: object
+      title: IntegerDeltaUpdate
+      required:
+        - delta
+      allOf:
+        - $ref: 'AbstractUpdate'
+        - type: object
+          properties:
+            delta:
+              description: >-
+                The increment or decrement to apply.
+              type: integer
+              format: int64
+
+

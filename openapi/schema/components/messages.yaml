@@ -1,7 +1,7 @@
 #
 # <meta:header>
 #   <meta:licence>
-#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
 #
 #     This work is made available under the Creative Commons
 #     Attribution-ShareAlike 4.0 International licence.
@@ -14,10 +14,7 @@
 # AIMetrics: [
 #     {
 #     "name": "ChatGPT",
-#     "contribution": {
-#       "value": 5,
-#       "units": "%"
-#       }
+#     "contribution": "5%"
 #     }
 #   ]
 #
@@ -49,50 +46,66 @@ components:
         name: message
       properties:
         type:
-          description: >
+          description: >-
             The message type identifier.
             Typically a URL pointing to a human readable description of the message.
           type: string
         time:
-          description: >
+          description: >-
             The date and time of the message.
           type: string
           format: date-time
         level:
-          description: >
+          description: >-
             The message level.
           type: string
           enum:
-            - "DEBUG"
-            - "WARN"
             - "ERROR"
+            - "WARN"
+            - "DEBUG"
             - "INFO"
             - "OTHER"
         template:
-          description: >
+          description: >-
             The message template.
           type: string
         values:
-          description: >
+          description: >-
             A map of name->value properties.
           xml:
             name: values
           $ref: './utils.yaml#/components/schemas/NameValueMap'
         message:
-          description: >
+          description: >-
             The resulting message.
           type: string
 
-    MessageList:
-      description: >
-        A list of log messages.
-      xml:
-        name: messages
-      type: array
-      title: MessageList
-      items:
-        $ref: 'MessageItem'
-        xml:
-          name: message
+#   MessageList:
+#     description: >-
+#       A list of messages.
+#     xml:
+#       name: messages
+#     type: array
+#     title: MessageList
+#     items:
+#       $ref: 'MessageItem'
+#       xml:
+#         name: message
 
+    MessageSubject:
+      description: >-
+        A component that is the subject of a list of messages.
+      type: object
+      title: MessageSubject
+      properties:
+        messages:
+          description: >-
+            A list of messages about this component.
+          xml:
+            name: messages
+          type: array
+          items:
+            $ref: 'MessageItem'
+            xml:
+              name: message
 

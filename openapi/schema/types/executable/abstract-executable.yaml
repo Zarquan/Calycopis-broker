@@ -1,0 +1,94 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: An abstract base class for executables
+  version: "0.8"
+  summary: An abstract base class for executables
+  description: >-
+    A base class for executables with a discriminator mapping for derived types.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    AbstractExecutable:
+      description: Abstract base class for an executable.
+      type: object
+      title: AbstractExecutable
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0":      './types/executable/docker-container-1.0.yaml#/components/schemas/DockerContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/singularity-container-1.0": './types/executable/singularity-container-1.0.yaml#/components/schemas/SingularityContainer'
+          "https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0":      './types/executable/jupyter-notebook-1.0.yaml#/components/schemas/JupyterNotebook'
+          "https://www.purl.org/ivoa.net/EB/schema/types/unknown":                              '../../components/components.yaml#/components/schemas/UnknownComponent'
+      allOf:
+        - $ref: '../../components/components.yaml#/components/schemas/GenericComponent'
+        - $ref: '../../components/components.yaml#/components/schemas/AbstractComponent'
+        - $ref: '../../components/resource-schedule.yaml#/components/schemas/ScheduledResource'
+        - type: object
+          properties:
+            access:
+              description: >-
+                A list of access methods that can be used to monitor or interact with the execution.
+              $ref: 'AccessMethodList'
+
+    AccessMethodList:
+      description: >-
+        A list of access methods.
+      type: array
+      title: AccessMethodList
+      xml:
+        name: access
+      items:
+        $ref: 'AccessMethod'
+
+    AccessMethod:
+      description: |
+        Details of an access method to monitor or interact with a component.
+      type: object
+      title: AccessMethod
+      properties:
+        type:
+          description: >-
+            The type of access method - is this a polymorphic type ?
+            TODO make this a type URI/URL.
+          type: string
+        status:
+          description: >-
+            The staus of the access method.
+          type: string
+          enum:
+            - UNDEFINED
+            - PREPARING
+            - AVAILABLE
+            - FINISHED
+        urls:
+          description: >-
+            A list of access URLs.
+          type: array
+          items:
+            type: string
+

@@ -1,0 +1,447 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    ExecutionSessionBody:
+      description: >-
+        The main body of a Session, including the executable and the compute, storage, and data resources it needs.
+      type: object
+      title: ExecutionComponents
+      properties:
+        executable:
+          $ref: 'AbstractExecutable'
+        compute:
+          $ref: 'AbstractComputeResource'
+        volumes:
+          $ref: 'VolumeMountList'
+        storage:
+          $ref: 'StorageResourceList'
+        data:
+          $ref: 'DataResourceList'
+
+
+    Problem is the components themselves will change depending on where in time they are.
+
+        AbstractExecutable
+        AbstractComputeResource
+        AbstractVolumeMount
+        AbstractStorageResource
+        AbstractDataResource
+
+    In software discovery the WorkstepDiscoveryBlock does not have any schedule or phase.
+
+    WorkstepDiscoveryBlock
+
+        phase: -
+        schedule: -
+
+    In editing, the top level WorkstepRequestBlock gets a WorkstepRequestPhase and a WorkstepRequestSchedule block,
+    with requested start times (Intervals) and duration.
+
+    WorkstepRequestBlock
+      WorkstepRequestPhase
+      WorkstepRequestSchedule
+
+        phase: EDITING, SUBMITTED ....
+        schedule:
+          requested:
+            duration: 1H
+            start:
+              - 20250602T1855PT1H
+              - 20250602T1955PT1H
+
+    When the request is submitted the top level WorkstepExecutionBlock block,
+    gets a WorkstepExecutionPhase and a WorkstepExecutionSchedule
+    with offered values for preparing, available and releasing, each containing a start time (Instant) and duration.
+
+    WorkstepExecutionBlock
+      WorkstepExecutionPhase
+      WorkstepExecutionSchedule
+
+        phase: OFFERED, ACCEPTED ....
+        schedule:
+          requested: -
+          offered:
+            preparing:
+              start: 20250602T1855
+              duration: 1H
+            available:
+              start: 20250602T1955
+              duration: 2H
+            releasing:
+              start: 20250602T2155
+              duration: 1M
+
+    In editing, the individual resources don't have any schedule
+
+        schedule: -
+
+    When the session request is submitted each ResourceOfferBlock gets its own ResourceOfferPhase and ResourceOfferSchedule block,
+    with offered values for preparing, available and releasing, each containing a start time (Instant) and duration.
+
+    ResourceOfferBlock
+      ResourceOfferPhase
+      ResourceOfferSchedule
+
+        phase: WAITING, PREPARING, AVAILABLE ....
+        schedule:
+          offered:
+            preparing:
+              start: ....
+              duration: 1H
+            available:
+              start: ....
+              duration: 2H
+            releasing:
+              start: ....
+              duration: 1M
+    .
+# -----------------------------------------------------
+
+    We can't extend two base classes, and to make the polymorphism work the main body for a resource
+    needs to extend it's AbstractResourceType parent.
+
+        SimpleDataResource
+        extends AbstractDataResource
+
+    In order to have different shapes at different times, we can take a leaf from
+    Kubernetes and move the polymorphic part into a specific block.
+
+    In the process, we can put all of the server side properties in a `meta` block.
+
+    DataResourceDiscoveryBlock (extends ResourceDiscoveryBlock)
+
+        name: ....
+        type: ....
+
+        meta:
+          uuid: ....
+          urls: ....
+          owner: ...
+          created: ...
+          modified: ...
+
+        spec:
+           type: SimpleDataResource (extends AbstractDataResource)
+           ... type specific properties
+
+    DataResourceRequestBlock (extends ResourceRequestBlock)
+
+        name: ....
+        type: ....
+
+        meta:
+          uuid: ....
+          urls: ....
+          owner: ...
+          created: ...
+          modified: ...
+
+        spec:
+           type: SimpleDataResource (extends AbstractDataResource)
+           ... type specific properties
+
+
+    DataResourceOfferBlock (extends ResourceOfferBlock)
+
+        name: ....
+        type: ....
+
+        meta:
+          uuid: ....
+          urls: ....
+          owner: ...
+          created: ...
+          modified: ...
+
+        phase: WAITING, PREPARING, AVAILABLE ....
+
+        schedule:
+          offered:
+            preparing:
+              start: ....
+              duration: 1H
+            available:
+              start: ....
+              duration: 2H
+            releasing:
+              start: ....
+              duration: 1M
+
+
+        spec:
+           type: SimpleDataResource (extends AbstractDataResource)
+           ... type specific properties
+
+
+# -----------------------------------------------------
+
+    Why split things into blocks ?
+
+    The 'meta' block makes it clear these fields are server generated.
+    The server may read the 'meta' block in the request to get things like the uuid,
+    which may be used to link things together in the request,
+    but once the request has been validated they will be replaced by a new set
+    generated by this service.
+
+    The 'spec' block gives us an object to apply the polymorphism to.
+
+    The 'schedule' block contains different things depending on where
+    in the lifetime we are, editing, requesting, offering and executing.
+
+    Does the 'schedule' block need the 'requested' and 'offered' blocks ?
+    In a request it is requesting, in an offer it is offered, in an execution
+    it is ... ?
+
+    We could have both requested and offered in an offer, but we don't need to.
+    It does give us space to have 'measured' as well - to harvest data about the
+    estimation accuracy.
+
+    We could replace 'schedule' with just 'time', or 'timing', to make it less clumsy.
+
+
+        name: ....
+        type: ....
+
+        meta:
+          uuid: ....
+          urls: ....
+          owner: ...
+          created: ...
+          modified: ...
+
+        phase: WAITING, PREPARING, AVAILABLE ....
+
+        timing:
+          offered:
+            preparing:
+              start: ....
+              duration: 1H
+            available:
+              start: ....
+              duration: 2H
+            releasing:
+              start: ....
+              duration: 1M
+
+        spec:
+           type: SimpleDataResource (extends AbstractDataResource)
+           ... type specific properties
+
+
+# -----------------------------------------------------
+
+    I think this is a good treason for restoring the blocks.
+
+    meta is for server side stuff
+    spec is for polymorphic types
+    timing is only in responses
+    phase  is only in responses
+
+
+# -----------------------------------------------------
+
+
+    WorkStepBase
+    WorkStepDiscovery (discovery only)
+    WorkStepRequest   (editing only)
+    WorkStepExecution (offer and execution)
+
+        TypedComponent
+        type: ....
+
+        WorkStepMetadata
+        extends MetadataBlock
+        meta:
+          name: ....
+          uuid: ....
+          urls: ....
+          owner: ...
+          created: ...
+          modified: ...
+        WorkStepMetadata (WorkStepRequest and WorkStepExecution)
+        + accessed: ... # editing find is based on recely used
+        + expires:  ... # editing and offered have a lifetime
+
+        WorkStepSpec
+        spec:
+
+            ExecutableResourceBase
+            ExecutableResourceDiscovery (discovery only)
+            ExecutableResourceRequest   (editing only)
+            ExecutableResourceExecution (offer and execution)
+            executable:
+
+                TypedComponent
+                type: ....
+
+                MetadataBlock
+                meta:
+                  name: ....
+                  uuid: ....
+                  urls: ....
+                  owner: ...
+                  created: ...
+                  modified: ...
+
+                AbstractExecutable
+                spec:
+                  DockerContainer
+                  extends AbstractExecutable
+
+                    TypedComponent
+                    type: ....
+                     ... type specific properties
+
+                ExecutableResourceExecution only
+                ResourceTimingBlock
+                timing:
+                  offered:
+                    preparing:
+                        start: ....
+                        duration: ....
+                    available:
+                        start: ....
+                        duration: ....
+                    releasing:
+                        start: ....
+                        duration: ....
+                  measured:
+                    preparing:
+                        start: ....
+                        duration: ....
+                    available:
+                        start: ....
+                        duration: ....
+                    releasing:
+                        start: ....
+                        duration: ....
+
+              ComputeResourceBase
+              ComputeResourceRequest   (discovery and editing)
+              ComputeResourceExecution (offer and execution)
+              compute:
+
+                TypedComponent
+                type: ....
+
+                MetadataBlock
+                meta:
+                  name: ....
+                  uuid: ....
+                  urls: ....
+                  owner: ...
+                  created: ...
+                  modified: ...
+
+                AbstractComputeResource
+                spec:
+
+                  SimpleComputeResource
+                  extends AbstractComputeResource
+
+                    TypedComponent
+                    type: ....
+                     ... type specific properties
+
+                ComputeResourceExecution only
+                ResourceTimingBlock
+                timing:
+                  offered:
+                    preparing:
+                        start: ....
+                        duration: ....
+                    available:
+                        start: ....
+                        duration: ....
+                    releasing:
+                        start: ....
+                        duration: ....
+                  measured:
+                    preparing:
+                        start: ....
+                        duration: ....
+                    available:
+                        start: ....
+                        duration: ....
+                    releasing:
+                        start: ....
+                        duration: ....
+
+
+    WorkStepRequest only
+    WorkStepRequestTiming
+    timing:
+      requested:
+        duration: ....
+        start:
+          - ....
+          - ....
+          - ....
+
+    WorkStepExecution only
+    WorkStepExecutionTiming
+    timing:
+      requested:
+        start: ....
+        duration: ....
+      offered:
+        preparing:
+            start: ....
+            duration: ....
+        available:
+            start: ....
+            duration: ....
+        releasing:
+            start: ....
+            duration: ....
+      measured:
+        preparing:
+            start: ....
+            duration: ....
+        available:
+            start: ....
+            duration: ....
+        releasing:
+            start: ....
+            duration: ....
+
+
+
+# -----------------------------------------------------
+
+    OK, lets try to build it ...
+
+
+

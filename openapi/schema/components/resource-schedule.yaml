@@ -1,0 +1,90 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: Resource schedule components
+  version: "0.8"
+  summary: Resource schedule components
+  description: >-
+    A set of components to describe the requested and offered schedule for a Resource.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    ScheduledResource:
+      description: >-
+        A Resource schedule.
+      type: object
+      title: ScheduledResource
+      properties:
+        schedule:
+          type: object
+          allOf:
+            - $ref: 'RequestedResourceScheduleBlock'
+            - $ref: 'OfferedResourceScheduleBlock'
+
+    RequestedResourceScheduleBlock:
+      description: >-
+        Requested schedule for a Resource, relative to it's parent Session.
+      type: object
+      title: RequestedResourceScheduleBlock
+      properties:
+        requested:
+          $ref: 'RequestedResourceScheduleItem'
+
+    RequestedResourceScheduleItem:
+      description: >-
+        Requested schedule for a Resource, relative to it's parent Session.
+      type: object
+      title: RequestedResourceScheduleItem
+      properties:
+        before:
+          description: >-
+            How long the Resource should be available for before the Session starts.
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+        after:
+          description: >-
+            How long the Resource should be available for after the Session ends.
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+
+    OfferedResourceScheduleBlock:
+      description: >-
+        The offered schedule for a Resource.
+      type: object
+      title: OfferedResourceScheduleBlock
+      properties:
+        offered:
+          $ref: 'OfferedResourceScheduleItem'
+
+    OfferedResourceScheduleItem:
+      description: >-
+        The offered schedule for a Resource.
+      type: object
+      title: OfferedResourceScheduleItem
+      properties:
+        start:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+        duration:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+
+

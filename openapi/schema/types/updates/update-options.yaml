@@ -1,0 +1,141 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: Options describing the available update actions
+  version: "0.8"
+  summary: Options describing the available update actions for a resource
+  description: >-
+    Options describing the available update actions for a resource.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    # TODO Give these full PURLs
+    AbstractOption:
+      description: >-
+        Abstract base class for describing options.
+        This includes the `type` discriminator and the `path` of the target.
+      type: object
+      title: AbstractOption
+      required:
+        - type
+        - path
+      discriminator:
+        propertyName: type
+        mapping:
+          "uri:string-value-option":  'StringValueOption'
+          "uri:enum-value-option":    'EnumValueOption'
+          "uri:integer-value-option": 'IntegerValueOption'
+          "uri:integer-delta-option": 'IntegerDeltaOption'
+      allOf:
+        - $ref: '../../components/components.yaml#/components/schemas/AbstractComponent'
+        - type: object
+          properties:
+            path:
+              description: >-
+                The path of the target that the option applies to.
+              type: string
+              xml:
+                attribute: false
+
+    StringValueOption:
+      description: >-
+        A simple string value option.
+        This enables the client to set a string value,
+        with a regular expression pattern restricting the value.
+      type: object
+      title: StringValueOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            pattern:
+              description: >-
+                A regular expression pattern restricting the value.
+              type: string
+
+    EnumValueOption:
+      description: >-
+        A simple enum value option.
+        This enables the client to set an enum value,
+        with a list of allowed values.
+      type: object
+      title: EnumValueOption
+      required:
+        - values
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            values:
+              description: >-
+                The list of allowed values.
+              type: array
+              items:
+                type: string
+
+    IntegerValueOption:
+      description: >-
+        A simple integer value option.
+        This enables the client to set an integer value,
+        with minimum and maximum values to limit the range.
+      type: object
+      title: IntegerValueOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            min:
+              description: >-
+                The minimum value that can be set.
+              type: integer
+              format: int64
+            max:
+              description: >-
+                The maximum value that can be set.
+              type: integer
+              format: int64
+
+    IntegerDeltaOption:
+      description: >-
+        A simple integer delta option.
+        This option enables the client to increment or decrement an integer value,
+        with minimum and maximum values to limit the range.
+      type: object
+      title: IntegerDeltaOption
+      allOf:
+        - $ref: 'AbstractOption'
+        - type: object
+          properties:
+            min:
+              description: >-
+                The minimum change that can be applied.
+              type: integer
+              format: int64
+            max:
+              description: >-
+                The maximum change that can be applied.
+              type: integer
+              format: int64
+

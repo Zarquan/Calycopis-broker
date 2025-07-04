@@ -14,10 +14,7 @@
 # AIMetrics: [
 #     {
 #     "name": "ChatGPT",
-#     "contribution": {
-#       "value": 5,
-#       "units": "%"
-#       }
+#     "contribution": "5%"
 #     }
 #   ]
 #
@@ -38,5 +35,148 @@ info:
 
 components:
   schemas:
+
+    BaseComponent:
+      description: >-
+        A base class for all our components.
+        This class provides a name, a UUID identifier, and a desciption.
+      type: object
+      title: BaseComponent
+      properties:
+        uuid:
+          description: >-
+            A machine readable globally unique UUID.
+          type: string
+          format: uuid
+        name:
+          description: >-
+            A human readable name.
+          type: string
+        description:
+          description: >-
+            A human readable description.
+          type: string
+
+    AbstractComponent:
+      description: >-
+        Abstract base class for our polymorphic components.
+      type: object
+      title: AbstractComponent
+      required:
+        - type
+      properties:
+        type:
+          description: >-
+            The component type identifier.
+          type: string
+          xml:
+            attribute: true
+
+    # TODO Combine these into GenericComponent
+    OwnedComponent:
+      description: >-
+        A base class for components that are owned by someone or something.
+      title: OwnedComponent
+      type: object
+      properties:
+        owner:
+          description: >-
+            A URI or URL pointing to the owner's identity.
+          type: string
+
+    # TODO Combine these into GenericComponent
+    ServedComponent:
+      description: >-
+        A server side component that can be accessed via a URL.
+        TODO Upgrade this to a list of URLs.
+        TODO Upgrade this to a list of objects with URL, type and description.
+      title: ServedComponent
+      type: object
+      properties:
+        href:
+          description: >-
+            The URL to access this component, assigned by the server.
+          type: string
+
+    # TODO Combine these into GenericComponent
+    DatedComponent:
+      description: >-
+        A base class for a component that has a created and modified date.
+        TODO Rename this to ManagedComponent ?
+      title: OwnedComponent
+      type: object
+      properties:
+        created:
+          description: >-
+            When the component was created.
+          type: string
+          format: date-time
+        modified:
+          description: >-
+            When the component was last modified.
+          type: string
+          format: date-time
+
+    # TODO Combine these into GenericComponent
+    LifecycleComponent:
+      description: >-
+        A base class for a component that has a lifecycle.
+      title: LifecycleComponent
+      type: object
+      properties:
+        phase:
+          $ref: 'LifecyclePhaseEnum'
+
+    # TODO Is this too generic ?
+    LifecyclePhaseEnum:
+      description: >-
+        An enumeration of the component lifecycle phases.
+        In this context AVAILABLE and RUNNING are synonyms.
+      title: LifecyclePhaseEnum
+      type: string
+      enum:
+        - EDITING
+        - SUBMITTED
+
+        - OFFERED
+        - ACCEPTED
+        - REJECTED
+        - EXPIRED
+
+        - WAITING
+        - PREPARING
+        - AVAILABLE
+        - RUNNING
+        - RELEASING
+
+        - COMPLETED
+        - FAILED
+        - CANCELLED
+
+    GenericComponent:
+      description: >-
+        A combined base class for generic components.
+        This includes uuid, name, description, owner, created and modified dates,
+        access URLs, lifecycle phase, and messages.
+      title: GenericComponent
+      type: object
+      allOf:
+        - $ref: 'BaseComponent'
+        - $ref: 'OwnedComponent'
+        - $ref: 'ServedComponent'
+        - $ref: 'DatedComponent'
+        - $ref: 'LifecycleComponent'
+        - $ref: './messages.yaml#/components/schemas/MessageSubject'
+
+    UnknownComponent:
+      description: >-
+        A place holder for an unknown type of component.
+        If a service doesn't recognise a component type, it should treat the main body as a JSON blob.
+      title: UnknownComponent
+      type: object
+      allOf:
+        - $ref: 'GenericComponent'
+        - $ref: './utils.yaml#/components/schemas/AnyValue'
+
 
 

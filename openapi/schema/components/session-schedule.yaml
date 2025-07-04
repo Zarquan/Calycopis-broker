@@ -1,0 +1,93 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: Session schedule components
+  version: "0.8"
+  summary: Session schedule components
+  description: >-
+    A set of components to describe the requested and offered schedule for a Session.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    ScheduledSession:
+      description: >-
+        The schedule for a Session.
+        This has different requested/offered blocks compared to a resource.
+      type: object
+      title: ScheduledSession
+      properties:
+        schedule:
+          type: object
+          allOf:
+            - $ref: 'RequestedSessionScheduleBlock'
+            - $ref: 'OfferedSessionScheduleBlock'
+
+    RequestedSessionScheduleItem:
+      description: >-
+        The requested schedule for a Session.
+      type: object
+      title: RequestedSessionScheduleItem
+      properties:
+        start:
+          description: >-
+            An array of requested start times.
+          type: array
+          items:
+            $ref: './components/utils.yaml#/components/schemas/ISO8601Interval'
+        duration:
+          description: >-
+            The requested duration.
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+
+    RequestedSessionScheduleBlock:
+      description: >-
+        The requested schedule for a Session.
+      type: object
+      title: RequestedSessionScheduleBlock
+      properties:
+        requested:
+          $ref: 'RequestedSessionScheduleItem'
+
+    OfferedSessionScheduleBlock:
+      description: >-
+        The offered schedule for a Session.
+      type: object
+      title: OfferedSessionScheduleBlock
+      properties:
+        offered:
+          $ref: 'OfferedSessionScheduleItem'
+
+    OfferedSessionScheduleItem:
+      description: >-
+        The offered schedule for a Session.
+      type: object
+      title: OfferedSessionScheduleItem
+      properties:
+        start:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Instant'
+        duration:
+          $ref: './components/utils.yaml#/components/schemas/ISO8601Duration'
+
+

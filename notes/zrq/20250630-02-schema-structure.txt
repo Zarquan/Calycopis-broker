@@ -1,0 +1,587 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Create the new schema ....
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    How do we move from here to there ....
+
+    Start by moving all of the objects out of the current openapi.yaml
+    Initially keep the schema itself the same, but gradually evolve them.
+
+    All the time, keeping checking the Java and Python code generators still work.
+
+
+# -----------------------------------------------------
+
+    # From previous notes
+
+    /worksteps
+        GET 200 => List<WorkstepResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<WorkstepResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+        PUT  WorkstepRequest
+        POST WorkstepRequest
+            200 => WorkstepResponse + 300 redirect to /worksteps/{uuid}
+            x00 => ErrorRespose
+
+    /worksteps/{uuid}
+        GET 200 => WorkstepResponse
+            x00 => ErrorRespose
+
+    /worksteps/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /worksteps/{uuid}
+            x00 => ErrorRespose
+
+        Setting phase = SUBMITTED is equivalent to POST to /offers
+        with redirect to /offers/{uuid}
+
+
+    /offersets
+        GET 200 => List<OfferSetResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<OfferSetResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+        PUT  OfferSetRequest
+        POST OfferSetRequest
+            200 => OfferSetResponse + 300 redirect to /offers/{uuid}
+            x00 => ErrorRespose
+
+    /offersets/{uuid}
+        GET 200 => OfferSetResponse
+            x00 => ErrorRespose
+
+    /offersets/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /offers/{uuid}
+            x00 => ErrorRespose
+
+    /sessions
+        GET 200 => List<SessionResponse> owned by this user
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<SessionResponse> with phase = <phase>, owned by this user
+            x00 => ErrorRespose
+
+    /sessions/{uuid}
+        GET 200 => SessionResponse
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /sessions/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable
+        GET 200 => AbstractExecutable
+            x00 => ErrorRespose
+
+        PUT  AbstractExecutable
+        POST AbstractExecutable
+            200 => AbstractExecutable + 300 redirect to /sessions/{uuid}/excutable/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable/{uuid}
+        GET 200 => AbstractExecutable
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/excutable/{uuid}/update
+        POST UpdateRequest
+            200 => UpdateRespose + 300 redirect to /sessions/{uuid}/excutable/{uuid}
+            x00 => ErrorRespose
+
+
+    /sessions/{uuid}/compute
+        Same as executable
+
+
+    /sessions/{uuid}/data
+        GET 200 => List<AbstractDataResourceResponse>
+            x00 => ErrorRespose
+
+        GET ?phase=<phase>
+            200 => List<AbstractDataResourceResponse> with phase = <phase>
+            x00 => ErrorRespose
+
+        PUT  AbstractDataResourceRequest
+        POST AbstractDataResourceRequest
+            200 => AbstractDataResourceResponse + 300 redirect to /sessions/{uuid}/data/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/data/{uuid}
+        GET 200 => AbstractDataResourceResponse
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/data/{uuid}/update
+        POST UpdateRequest
+            200 => AbstractDataResourceResponse + 300 redirect to /sessions/{uuid}/data/{uuid}
+            x00 => ErrorRespose
+
+    /sessions/{uuid}/storage
+        Same as data
+
+    /sessions/{uuid}/volume
+        Same as data
+
+
+# -----------------------------------------------------
+
+    Request/response classses
+
+        WorkstepRequest
+        WorkstepResponse
+
+        UpdateRequest
+        UpdateRespose
+
+        OfferSetRequest
+        OfferSetResponse
+
+        SessionResponse
+
+        ExecutableRequest  = AbstractExecutable
+        ExecutableResponse = AbstractExecutable
+
+        # Same for compute
+
+        DataResourceRequest  = AbstractDataResource
+        DataResourceResponse = AbstractDataResource
+
+        # Same for storage
+        # Same for volumes
+
+# -----------------------------------------------------
+
+    Need to take into account what we get from SoftwareDiscovery.
+
+    /executable/{uuid}
+        GET 200 => DiscoveryResponse
+            x00 => ErrorRespose
+
+    In general, we should be able to just POST the result from SoftwareDiscovery
+    into the WorkStep editor.
+
+        DiscoveryResponse = WorkstepRequest
+
+    /worksteps
+
+        PUT  WorkstepRequest
+        POST WorkstepRequest
+            200 => WorkstepResponse + 300 redirect to /worksteps/{uuid}
+            x00 => ErrorRespose
+
+
+# -----------------------------------------------------
+
+    LegoBricks.
+    So the request/responses can have different componetnts.
+    Different schedules
+    Different phases
+    etc
+
+
+
+    Request/response classses
+
+        DiscoveryResponse
+
+            curation.metadata specific to the Discovery service.
+
+                schedule.requested Shouldn't have specific details, just the expected duration.
+                schedule.offered   Should be empty.
+                schedule:
+                  requested:
+                    duration: ...
+
+            uuid:
+            name:
+            type:
+            meta:
+                owner:
+                created:
+                modified:
+                messages:
+            spec:
+                phase: # empty
+                schedule: # empty
+                executable:
+                  phase: # empty
+                  schedule: # empty
+                  ....
+                compute:
+                  name:
+                  uuid:
+                  phase: # empty
+                  schedule: # empty
+                  ....
+                storage:
+                  - name:
+                    uuid:
+                    phase: # empty
+                    schedule: # empty
+                    ....
+                volumes:
+                  - name:
+                    uuid:
+                    phase: # empty
+                    schedule: # empty
+                    ....
+                data:
+                  - name:
+                    uuid:
+                    phase: # empty
+                    schedule: # empty
+                    ....
+
+        WorkstepRequest
+
+            phase              Ignored on input.
+            curation.metadata  Ignored on input.
+            schedule.requested Can have specific schedule details if the user creates them.
+            schedule.offered   Ignored on input.
+
+            type:
+            meta: # ignored
+            spec:
+                phase: # ignored
+                schedule: # for the execution
+                  requested:
+                    start:
+                    duration:
+                  offered: # ignored
+                executable:
+                compute:
+                storage:
+                volumes:
+                data:
+
+        WorkStepResponse
+
+            phase              EDITING
+            curation.metadata  specific to the WorkStep service.
+
+            type:
+            meta:
+                owner:
+                created:
+                modified:
+                messages:
+            spec:
+                phase:
+                  - EDITING
+                  - SUBMITTED
+                  - EXPIRED
+                offerset: # populated on submisison
+                schedule: # for the execution
+                  requested:
+                    start:
+                    duration:
+                  offered: # empty
+                executable:
+                compute:
+                storage:
+                volumes:
+                data:
+
+        OfferSetRequest
+
+            phase              Ignored on input.
+            curation.metadata  Ignored on input.
+
+            type:
+            meta: # ignored
+            spec:
+                phase: # ignored
+                schedule:
+                  requested:
+                    start:
+                    duration:
+                  offered: # empty
+                executable:
+                compute:
+                storage:
+                volumes:
+                data:
+
+        OfferSetResponse
+
+            uuid:
+            name:
+            type:
+            meta:
+                owner:
+                created:
+                modified:
+                messages:
+            NO PHASE
+            offers:
+              - uuid:
+                name:
+                type:
+                meta:
+                    owner:
+                    created:
+                    modified:
+                    messages:
+                spec:
+                    phase:
+                      - OFFERED
+                      - ACCEPTED
+                      - REJECTED
+                      - EXPIRED
+                    schedule: # for the offer
+                      requested: # empty
+                      offered:
+                        preparing:
+                          start:
+                          duration:
+                        available:
+                          start:
+                          duration:
+                        releasing:
+                          start:
+                          duration:
+                    executable:
+                      uuid:
+                      name:
+                      type:
+                      phase:
+                      schedule:
+                        offered:
+                          preparing:
+                            start:
+                            duration:
+                          available:
+                            start:
+                            duration:
+                          releasing:
+                            start:
+                            duration:
+                    compute:
+                      uuid:
+                      name:
+                      type:
+                      phase:
+                      schedule:
+                        offered:
+                          preparing:
+                            start:
+                            duration:
+                          available:
+                            start:
+                            duration:
+                          releasing:
+                            start:
+                            duration:
+                    storage:
+                      uuid:
+                      name:
+                      type:
+                      phase:
+                      schedule:
+                        offered:
+                          preparing:
+                            start:
+                            duration:
+                          available:
+                            start:
+                            duration:
+                          releasing:
+                            start:
+                            duration:
+                    volumes:
+                      uuid:
+                      name:
+                      type:
+                      phase:
+                      schedule:
+                        offered:
+                          preparing:
+                            start:
+                            duration:
+                          available:
+                            start:
+                            duration:
+                          releasing:
+                            start:
+                            duration:
+                    data:
+                      uuid:
+                      name:
+                      type:
+                      phase:
+                      schedule:
+                        offered:
+                          preparing:
+                            start:
+                            duration:
+                          available:
+                            start:
+                            duration:
+                          releasing:
+                            start:
+                            duration:
+
+
+        SessionResponse
+
+            uuid:
+            name:
+            type:
+            meta:
+                owner:
+                created:
+                modified:
+                messages:
+            spec:
+                phase:
+                  - OFFERED
+                  - ACCEPTED
+                  - REJECTED
+                  - EXPIRED
+
+                  - WAITING
+                  - PREPARING
+                  - READY
+                  - RUNNING
+                  - RELEASING
+
+                  - COMPLETED
+                  - FAILED
+                  - CANCELLED
+                schedule: # for the offer
+                  requested: # empty
+                  offered:
+                    preparing:
+                      start:
+                      duration:
+                    available:
+                      start:
+                      duration:
+                    releasing:
+                      start:
+                      duration:
+                executable:
+                  uuid:
+                  name:
+                  type:
+                  phase:
+                    - WAITING
+                    - PREPARING
+                    - READY
+                    - RUNNING
+                    - RELEASING
+                  schedule:
+                    offered:
+                      preparing:
+                        start:
+                        duration:
+                      available:
+                        start:
+                        duration:
+                      releasing:
+                        start:
+                        duration:
+                compute:
+                  uuid:
+                  name:
+                  type:
+                  phase:
+                  schedule:
+                    offered:
+                      preparing:
+                        start:
+                        duration:
+                      available:
+                        start:
+                        duration:
+                      releasing:
+                        start:
+                        duration:
+                storage:
+                  uuid:
+                  name:
+                  type:
+                  phase:
+                  schedule:
+                    offered:
+                      preparing:
+                        start:
+                        duration:
+                      available:
+                        start:
+                        duration:
+                      releasing:
+                        start:
+                        duration:
+                volumes:
+                  uuid:
+                  name:
+                  type:
+                  phase:
+                  schedule:
+                    offered:
+                      preparing:
+                        start:
+                        duration:
+                      available:
+                        start:
+                        duration:
+                      releasing:
+                        start:
+                        duration:
+                data:
+                  uuid:
+                  name:
+                  type:
+                  phase:
+                  schedule:
+                    offered:
+                      preparing:
+                        start:
+                        duration:
+                      available:
+                        start:
+                        duration:
+                      releasing:
+                        start:
+                        duration:
+

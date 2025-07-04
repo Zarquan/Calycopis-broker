@@ -42,48 +42,34 @@
 
 # -----------------------------------------------------
 
-    EditorRequest
-    EditorResponse
 
-    UpdateRequest
-    UpdateResponse
-
-    OffersRequest
-    OffersResponse
-
-    SessionRequest
-    SessionResponse
-
-
-# -----------------------------------------------------
-
-    /requests
-        GET 200 => List<EditingResponse> owned by this user
+    /worksteps
+        GET 200 => List<WorkstepResponse> owned by this user
             x00 => ErrorRespose
 
         GET ?phase=<phase>
-            200 => List<EditingResponse> with phase = <phase>, owned by this user
+            200 => List<WorkstepResponse> with phase = <phase>, owned by this user
             x00 => ErrorRespose
 
-        PUT  EditingRequest
-        POST EditingRequest
-            200 => EditingResponse + 300 redirect to /requests/{uuid}
+        PUT  WorkstepRequest
+        POST WorkstepRequest
+            200 => WorkstepResponse + 300 redirect to /worksteps/{uuid}
             x00 => ErrorRespose
 
-    /requests/{uuid}
-        GET 200 => EditingResponse
+    /worksteps/{uuid}
+        GET 200 => WorkstepResponse
             x00 => ErrorRespose
 
-    /requests/{uuid}/update
+    /worksteps/{uuid}/update
         POST UpdateRequest
-            200 => UpdateRespose + 300 redirect to /requests/{uuid}
+            200 => UpdateRespose + 300 redirect to /worksteps/{uuid}
             x00 => ErrorRespose
 
         Setting phase = SUBMITTED is equivalent to POST to /offers
         with redirect to /offers/{uuid}
 
 
-    /offers
+    /offersets
         GET 200 => List<OfferSetResponse> owned by this user
             x00 => ErrorRespose
 
@@ -96,11 +82,11 @@
             200 => OfferSetResponse + 300 redirect to /offers/{uuid}
             x00 => ErrorRespose
 
-    /offers/{uuid}
+    /offersets/{uuid}
         GET 200 => OfferSetResponse
             x00 => ErrorRespose
 
-    /offers/{uuid}/update
+    /offersets/{uuid}/update
         POST UpdateRequest
             200 => UpdateRespose + 300 redirect to /offers/{uuid}
             x00 => ErrorRespose
@@ -170,7 +156,7 @@
     /sessions/{uuid}/storage
         Same as data
 
-    /sessions/{uuid}/vlume
+    /sessions/{uuid}/volume
         Same as data
 
 
@@ -235,11 +221,11 @@
         available: interval
         releasing: interval
 
-    SessionEditingRequest
+    WorkstepRequest
         RequestComponent
         SessionRequest
 
-    SessionEditingResponse
+    WorkstepResponse
         ResponseComponent
         SessionRequest
 

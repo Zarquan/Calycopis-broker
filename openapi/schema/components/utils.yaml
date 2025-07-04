@@ -36,6 +36,11 @@ info:
 components:
   schemas:
 
+    AnyValue:
+      description: >-
+        Anything: string, number, array, object, etc., including `null`.
+        See https://stackoverflow.com/questions/32841298/openapi-what-schema-to-accept-any-complex-json-value
+
     NameValueMap:
       description: >-
         A map of name->value properties.

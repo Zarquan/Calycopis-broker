@@ -1,0 +1,82 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []Eb9fe7oh Ohsh2yad uC8cheeR ahGot1iy
+#
+
+    Target:
+
+        Setup a new repository for the OpenAPI pre-processor.
+        Calycopis-Isobeon
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Created a new repository in the IVOA project space.
+    https://github.com/ivoa/Calycopis-Isobeon
+
+    Added README.md with image from Wikipedia.
+    https://github.com/ivoa/Calycopis-Isobeon/blob/main/README.md
+    https://commons.wikimedia.org/wiki/File:CalycopisIsobeonF_BelizeUpUnAC1.jpg
+
+    Created my personal fork of the project
+    https://github.com/Zarquan/Calycopis-Isobeon
+
+# -----------------------------------------------------
+
+    We will need to revist this with uv.
+    https://docs.astral.sh/uv/
+
+
+# -----------------------------------------------------
+# Run our OpenAPI pre-processor.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name isobeon-builder \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        fedora:42 \
+        bash
+
+        #
+        # Run our schema processor.
+
+        dnf install -y \
+            python3 \
+            python3-pip
+
+
+        pip3 install -r /isobeon/requirements.txt
+
+        /isobeon/schema-processor.py \
+            /openapi/schema/openapi.yaml \
+            /openapi/build/combined-openapi.yaml
+
+

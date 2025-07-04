@@ -1,0 +1,51 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: []
+#
+
+openapi: 3.1.0
+info:
+  title: An abstract base class for compute resources
+  version: "0.8"
+  summary: An abstract base class for compute resources
+  description: >-
+    A base class for compute resources with a discriminator mapping for derived types.
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+
+components:
+  schemas:
+
+    AbstractComputeResource:
+      description: >-
+        Abstract base class for compute resources.
+      type: object
+      title: AbstractComputeResource
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0": './simple-compute-resource-1.0.yaml#/components/schemas/SimpleComputeResource'
+          "https://www.purl.org/ivoa.net/EB/schema/types/unknown":                              '../../components/components.yaml#/components/schemas/UnknownComponent'
+      allOf:
+        - $ref: '../../components/components.yaml#/components/schemas/GenericComponent'
+        - $ref: '../../components/components.yaml#/components/schemas/AbstractComponent'
+        - $ref: '../../components/resource-schedule.yaml#/components/schemas/ScheduledResource'
+
+
