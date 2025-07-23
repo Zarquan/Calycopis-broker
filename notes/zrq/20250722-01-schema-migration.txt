@@ -1,0 +1,542 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Move the schema files into a separate GitHub reposiroty.
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        Git Tools - Submodules
+        https://git-scm.com/book/en/v2/Git-Tools-Submodules
+
+# -----------------------------------------------------
+
+    Last work on this was over a week ago.
+    Branch was taken out over a month ago !!
+    Side tracked by politics and planning bureaucracy.
+    OMG it is so hard to get anything done in this system.
+
+# -----------------------------------------------------
+
+    Sanity checking what we are doing
+
+        If we just move the schema and nothing else, then we can use
+        git submodule to include the schema into our main project.
+
+        If we move the schema and the code generation build scripts
+        (e.g. Maven and Make etc.) then the better way to import them
+        would be as project dependencies.
+
+        So for the Java version we would transfer the Maven build
+        for the spring-openapi project.
+
+        Problem with that is that at the moment the spring-openapi
+        project includes not just the classes for the data model,
+        it also includes the code for the web service as well.
+
+        Can we get the code generators to just create the data model
+        classes and not the web service code ?
+
+        It might be possible - would need to explore what the selective
+        generation parameters actually do ..
+        https://github.com/openapitools/openapi-generator/blob/master/docs/customization.md#selective-generation
+
+        In the mean time.
+        1) Move just the schema files into a separate git project.
+        2) Use a git submodule link to import the schema into the existing broker code base.
+        3) Get on with updating the model and the code.
+        ...
+        98) Profit ?
+
+        Actually - the schema project doesn't need to contain an openapi file.
+        Each web service would contain an openapi file that uses $ref references
+        to bring in components from the schema ....
+
+        That's another step ...
+
+
+# -----------------------------------------------------
+
+    Where we are :
+
+        No one has had time to review .. anything.
+
+        The model design has moved forwards on a branch.
+        The pre-processing means we should be able to split the model into logical components.
+        First attempt at the split in on a branch in the broker code base.
+
+        IVOA GitHub repository is ready to host the schema.
+        SKAO GitLab repository is still being talked about.
+
+    Where we want to be:
+
+        Ideally we would want the schema in the new repository before it is reviewed.
+        Makes the review instructions a lot simpler.
+
+    How to get there:
+
+        Create a new branch in the broker code base - 20250722-zrq-schema-migration.
+        Check everything works in the current main branch of the broker code base.
+
+        Create a new branch in the schema repository - 20250722-zrq-schema-migration.
+        Copy the schema structure from the broker code base to the new repository.
+        Delete the schema structure in the broker code base.
+        Create a submodule to import the schema repository into the broker code base
+
+
+
+
+        Checkout a copy of the old branch in the broker code base - 20250629-zrq-schema-structure.
+        Create a new branch on the new repository 20250722-zrq-schema-structure and use meld to evaluate the changes.
+
+# -----------------------------------------------------
+# Create a new branch in the broker code base.
+#[user@desktop]
+
+    branchname=schema-migration
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the OpenAPI Uber schema.
+#[user@desktop]
+
+    #
+    # TODO Publish the schema processor as a Docker container.
+    #
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        fedora:42 \
+        bash
+
+        dnf install -y \
+            python3 \
+            python3-pip
+
+        pip3 install \
+            pyyaml
+
+        basedir=/calycopis/java/spring/spring-openapi/openapi
+        rm -rf "${basedir}/target"
+        mkdir  "${basedir}/target"
+
+        pushd "${basedir}"
+
+            /isobeon/schema-processor.py \
+                "openapi.yaml" \
+                "target/openapi-full.yaml"
+
+        popd
+
+
+# -----------------------------------------------------
+# Build the broker.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Check the examples all work.
+#[user@desktop]
+
+        ....
+        ....
+
+        #
+        # OK, looks good.
+        #
+
+
+# -----------------------------------------------------
+# Create a new branch in the schema repository.
+#[user@desktop]
+
+    branchname=schema-migration
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Move the schema from the broker code to the new repository.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    mv "${CALYCOPIS_CODE}/openapi/schema" \
+        "${TREBULA_CODE}/schema"
+
+
+# -----------------------------------------------------
+# Commit the changes in the schema repository.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git status
+
+    >   On branch 20250722-zrq-schema-migration
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	schema/
+
+
+        git add .
+
+    >   On branch 20250722-zrq-schema-migration
+    >   Changes to be committed:
+    >     (use "git restore --staged <file>..." to unstage)
+    >   	new file:   schema/components.yaml
+    >   	new file:   schema/components/components.yaml
+    >   	new file:   schema/components/messages.yaml
+    >   	new file:   schema/components/utils.yaml
+    >       ....
+    >       ....
+    >   	new file:   schema/types/storage/simple-storage-resource-1.0.yaml
+    >   	new file:   schema/types/volume/simple-volume-mount
+    >   	new file:   schema/types/volume/simple-volume-mount-1.0
+    >   	new file:   schema/types/volume/simple-volume-mount-1.0.yaml
+
+
+        ls -al schema/types/executable/
+
+    >   total 40
+    >   drwxr-xr-x. 1 Zarquan Zarquan  396 Jul 22 12:40 .
+    >   drwxr-xr-x. 1 Zarquan Zarquan  118 Jul 22 07:28 ..
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   25 Jun 21 14:00 docker-container -> docker-container-1.0.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   25 Jun 21 14:00 docker-container-1.0 -> docker-container-1.0.yaml
+    >   -rw-r--r--. 1 Zarquan Zarquan 6612 Jul 22 12:39 docker-container-1.0.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   25 Jun 21 14:00 jupyter-notebook -> jupyter-notebook-1.0.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   25 Jun 21 14:00 jupyter-notebook-1.0 -> jupyter-notebook-1.0.yaml
+    >   -rw-r--r--. 1 Zarquan Zarquan 1495 Jul 22 12:40 jupyter-notebook-1.0.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   30 Jun 21 14:00 singularity-container -> singularity-container-1.0.yaml
+    >   lrwxrwxrwx. 1 Zarquan Zarquan   30 Jun 21 14:00 singularity-container-1.0 -> singularity-container-1.0.yaml
+    >   -rw-r--r--. 1 Zarquan Zarquan 1465 Jul 22 12:40 singularity-container-1.0.yaml
+
+
+        git commit -m "Initial import from Calycopis-broker"
+
+    >   [20250722-zrq-schema-migration 6c34d7a] Initial import from Calycopis-broker
+    >    46 files changed, 2503 insertions(+)
+    >    create mode 100644 schema/components.yaml
+    >    create mode 100644 schema/components/components.yaml
+    >    create mode 100644 schema/components/messages.yaml
+    >    create mode 100644 schema/components/utils.yaml
+    >   ....
+    >   ....
+    >    create mode 100644 schema/types/storage/simple-storage-resource-1.0.yaml
+    >    create mode 120000 schema/types/volume/simple-volume-mount
+    >    create mode 120000 schema/types/volume/simple-volume-mount-1.0
+    >    create mode 100644 schema/types/volume/simple-volume-mount-1.0.yaml
+
+
+        git push --set-upstream origin 20250722-zrq-schema-migration
+
+    >   Enumerating objects: 45, done.
+    >   Counting objects: 100% (45/45), done.
+    >   Delta compression using up to 4 threads
+    >   Compressing objects: 100% (30/30), done.
+    >   Writing objects: 100% (44/44), 14.87 KiB | 2.12 MiB/s, done.
+    >   Total 44 (delta 16), reused 0 (delta 0), pack-reused 0 (from 0)
+    >   ....
+    >   ....
+
+    popd
+
+
+# -----------------------------------------------------
+
+        #
+        # Create a change request and merge the branch in GitHub.
+        #
+
+# -----------------------------------------------------
+# Merge the changes from the upstream repository.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git fetch upstream
+
+    >   remote: Enumerating objects: 1, done.
+    >   remote: Counting objects: 100% (1/1), done.
+    >   remote: Total 1 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+    >   Unpacking objects: 100% (1/1), 920 bytes | 920.00 KiB/s, done.
+    >   From github.com:ivoa/Calycopis-schema
+    >      9d61d05..71ed9f2  main       -> upstream/main
+
+
+        git merge upstream/main
+
+    >   Updating 9d61d05..71ed9f2
+    >   Fast-forward
+    >    schema/components.yaml                                   | 795 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    >    schema/components/components.yaml                        |  42 +++++++
+    >    schema/components/messages.yaml                          |  98 ++++++++++++++++
+    >    schema/components/utils.yaml                             | 220 +++++++++++++++++++++++++++++++++++
+    >   ....
+    >   ....
+    >    create mode 100644 schema/types/storage/simple-storage-resource-1.0.yaml
+    >    create mode 120000 schema/types/volume/simple-volume-mount
+    >    create mode 120000 schema/types/volume/simple-volume-mount-1.0
+    >    create mode 100644 schema/types/volume/simple-volume-mount-1.0.yaml
+
+
+        git push
+
+        git branch -d 20250722-zrq-schema-migration
+
+
+    popd
+
+
+# -----------------------------------------------------
+# Commit the deletions from the broker code base.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+	    git add openapi
+
+        git add java/spring/spring-openapi/pom.xml
+	    git add java/spring/spring-openapi/schema
+        git add java/spring/spring-openapi/openapi/
+
+        git commit -m "Removed the OpenAPI schema"
+
+    >   [20250722-zrq-schema-migration f9315f8] Removed the OpenAPI schema
+    >    52 files changed, 183 insertions(+), 2871 deletions(-)
+    >    create mode 100644 java/spring/spring-openapi/openapi/.gitignore
+    >    create mode 100644 java/spring/spring-openapi/openapi/openapi.yaml
+    >    delete mode 120000 java/spring/spring-openapi/schema
+    >    delete mode 100644 openapi/.gitignore
+    >    ....
+    >    ....
+    >    delete mode 100644 openapi/schema/types/storage/simple-storage-resource-1.0.yaml
+    >    delete mode 120000 openapi/schema/types/volume/simple-volume-mount
+    >    delete mode 120000 openapi/schema/types/volume/simple-volume-mount-1.0
+    >    delete mode 100644 openapi/schema/types/volume/simple-volume-mount-1.0.yaml
+
+    popd
+
+# -----------------------------------------------------
+# Create the git sub-module in the broker code base.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+
+
+    popd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
+# Build the OpenAPI Uber schema.
+#[user@desktop]
+
+    #
+    # TODO Publish the schema processor as a Docker container.
+    #
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name python-builder \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        fedora:42 \
+        bash
+
+        dnf install -y \
+            python3 \
+            python3-pip
+
+        pip3 install \
+            pyyaml
+
+        basedir=/calycopis/java/spring/spring-openapi/openapi
+        ls -al "${basedir}"
+        rm -rf "${basedir}/target"
+        mkdir  "${basedir}/target"
+
+        /isobeon/schema-processor.py \
+            "${basedir}/openapi.yaml" \
+            "${basedir}/target/openapi-full.yaml"
+
+
+
+# -----------------------------------------------------
+# Build the broker.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/maven/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/openapi:/openapi:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    #
+    # Add a reference to the Maven repository on the host.
+    # Only need this if we want the internal Maven build to share the same repo as the host.
+    mkdir ${HOME}/.m2
+    cat > ${HOME}/.m2/settings.xml << EOF
+<settings>
+    <localRepository>/maven/repository</localRepository>
+</settings>
+EOF
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

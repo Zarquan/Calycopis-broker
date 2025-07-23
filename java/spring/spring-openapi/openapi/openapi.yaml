@@ -1,0 +1,178 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+info:
+  title: IVOA ExecutionBroker
+  version: "1.0"
+  summary: IVOA ExecutionBroker interface
+  description: >-
+    IVOA ExecutionBroker interface
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: Creative Commons Attribution Share Alike 4.0 International
+    identifier: CC-BY-SA-4.0
+servers:
+  - url: http://localhost:8080
+    description: Localhost development
+paths:
+  /offersets:
+    post:
+      operationId: OfferSetPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/OfferSetRequest'
+          application/xml:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/OfferSetRequest'
+          application/yaml:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/OfferSetRequest'
+        required: true
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "303":
+          description: >-
+            A redirect response to the '/offersets/{uuid}' endpoint.
+          headers:
+            Location:
+              required: true
+              schema:
+                type: string
+                format: url
+        "200":
+          description: >-
+            A simple OK response with the same contant as the '/offersets/{uuid}' endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+            application/xml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+            application/yaml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+
+  /offersets/{uuid}:
+    get:
+      operationId: OfferSetGet
+      parameters:
+        - name: uuid
+          in: path
+          description: The offerset identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+            application/xml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+            application/yaml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/OfferSetResponse'
+
+  /sessions/{uuid}:
+    get:
+      operationId: ExecutionSessionGet
+      parameters:
+        - name: uuid
+          in: path
+          description: The session identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+            application/xml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+            application/yaml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+
+    post:
+      operationId: ExecutionSessionPost
+      parameters:
+        - name: uuid
+          in: path
+          description: >-
+            The session UUID identifier
+          required: true
+          schema:
+            type: string
+            format: uuid
+          style: simple
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/UpdateRequest'
+          application/xml:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/UpdateRequest'
+          application/yaml:
+            schema:
+              $ref: './schema/components.yaml#/components/schemas/UpdateRequest'
+      # TODO Errors return error codes and ErrorResponse.
+      responses:
+        "200":
+          description: >-
+            Required description ...
+          content:
+            application/json:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+            application/xml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+            application/yaml:
+              schema:
+                $ref: './schema/components.yaml#/components/schemas/ExecutionSessionResponse'
+
+

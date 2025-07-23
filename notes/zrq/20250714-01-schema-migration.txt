@@ -1,0 +1,56 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Move the schema files into a separate GitHub reposiroty.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Create a new repository in the IVOA project space.
+    https://github.com/ivoa/Calycopis-schema
+
+    Added README.md with image from Wikipedia.
+    https://github.com/ivoa/Calycopis-schema/blob/main/README.md
+
+        https://www.butterfliesofamerica.com/L/calycopis_trebula.htm
+        https://www.butterfliesofamerica.com/L/t/Calycopis_trebula_a.htm
+
+        https://commons.wikimedia.org/wiki/File:Trebula_groundstreak_(Calycopis_trebula).jpg
+        <a title="Charles J. Sharp, CC BY-SA 4.0 &lt;https://creativecommons.org/licenses/by-sa/4.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Trebula_groundstreak_(Calycopis_trebula).jpg"><img width="512" alt="Trebula groundstreak (Calycopis trebula)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Trebula_groundstreak_%28Calycopis_trebula%29.jpg/512px-Trebula_groundstreak_%28Calycopis_trebula%29.jpg?20190617114007"></a>
+
+    Created my personal fork of the project
+    https://github.com/Zarquan/Calycopis-schema
+
+    Use client side remotes to sync content.
+    Pull from one push to the other ..
+    Can this work in both directions ?
+
+
+
