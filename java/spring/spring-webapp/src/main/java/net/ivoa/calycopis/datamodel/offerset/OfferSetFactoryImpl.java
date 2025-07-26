@@ -85,7 +85,7 @@ public class OfferSetFactoryImpl
 	        offersetRequest.getName(),
             offersetRequest.getDescription(),
 	        OffsetDateTime.now(),
-	        OffsetDateTime.now().plusMinutes(
+	        OffsetDateTime.now().plusSeconds(
                 DEFAULT_EXPIRY_TIME_SECONDS
                 )
 	        );
