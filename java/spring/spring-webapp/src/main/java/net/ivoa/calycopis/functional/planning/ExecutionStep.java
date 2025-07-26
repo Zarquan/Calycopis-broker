@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -37,7 +37,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 public interface ExecutionStep
     {
     /**
-     * Get the UUID identifiers.
+     * Get the UUID identifier.
      * 
      */
     public UUID getUuid();

@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 /**
  * Public interface for a bi-directional list of execution steps. 

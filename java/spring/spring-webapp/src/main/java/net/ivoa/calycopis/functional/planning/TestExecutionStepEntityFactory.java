@@ -21,64 +21,39 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
- * Entity factory for TestExecutionSteps.
+ * Public interface for a TestExecutionStep factory.
  * 
  */
-@Slf4j
-@Component
-public class TestExecutionStepEntityFactoryImpl
-extends FactoryBaseImpl
-implements TestExecutionStepEntityFactory
+public interface TestExecutionStepEntityFactory
+extends FactoryBase
     {
+    /**
+     * Find a TestExecutionStepEntity based on UUID.
+     * 
+     */
+    public Optional<TestExecutionStepEntity> select(final UUID uuid);
 
-    private final TestExecutionStepEntityRepository repository;
-
-    @Autowired
-    public TestExecutionStepEntityFactoryImpl(final TestExecutionStepEntityRepository repository)
-        {
-        super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<TestExecutionStepEntity> select(UUID uuid)
-        {
-        return this.repository.findById(
-            uuid
-            );
-        }
-
-    @Override
+    /**
+     * Create and save a new TestExecutionStepEntity based on a template.
+     *
+     */
     public TestExecutionStepEntity create(
         final ExecutionSessionEntity session,
         final ComponentEntity component,
         final Duration offset,
         final Duration duration,
         final String message
-        ){
-        return this.repository.save(
-            new TestExecutionStepEntity(
-                session,
-                component,
-                offset,
-                duration,
-                message
-                )
-            );
-        }
+        );
+
     }
