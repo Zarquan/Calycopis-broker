@@ -45,6 +45,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter ;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +56,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.ivoa.calycopis.util.YamlConverter;
 
 @SpringBootApplication
+@EnableAsync
+@EnableScheduling
 @EntityScan(
     "net.ivoa.calycopis"
     )
