@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
  * An Execution Factory.
@@ -46,6 +48,12 @@ public interface ExecutionSessionEntityFactory
     public Optional<ExecutionSessionEntity> select(final UUID uuid);
 
     /**
+     * Select ExecutionSessionEntities based on phase.
+     *
+     */
+    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase);
+    
+    /**
      * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
      *
      */
@@ -55,7 +63,13 @@ public interface ExecutionSessionEntityFactory
      * Apply an Update request to an Execution.
      *
      */
-    public Optional<ExecutionSessionEntity> update(final UUID uuid, IvoaAbstractUpdate request);
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
+
+    /**
+     * Save a ExecutionSessionEntity.
+     *
+     */
+    public ExecutionSessionEntity save(final ExecutionSessionEntity entity);
     
     }
 

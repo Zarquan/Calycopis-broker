@@ -22,10 +22,13 @@
  */
 package net.ivoa.calycopis.datamodel.session;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
  * JpaRepository for ExecutionSessionEntity.
@@ -35,5 +38,8 @@ import org.springframework.stereotype.Repository;
 public interface ExecutionSessionEntityRepository
     extends JpaRepository<ExecutionSessionEntity, UUID>
     {
+    
+    List<ExecutionSessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
+    
     }
 
