@@ -23,35 +23,37 @@
 
 package net.ivoa.calycopis.functional.planning;
 
+import java.util.Iterator;
+
 /**
- * Public interface for a bi-directional list of execution steps. 
+ * Public interface for a bi-directional list of steps. 
  * 
  */
-public interface ExecutionStepList
+public interface PlanningStepSequence
+extends PlanningStep, Iterable<PlanningStep>, PlanningStepCollection
     {
-
     /**
      * Get the first step in the list.
      *
      */
-    public ExecutionStep getFirst();
+    public PlanningStep getFirst();
 
     /**
      * Get the last step in the list.
      *
      */
-    public ExecutionStep getLast();
+    public PlanningStep getLast();
 
     /**
      * Get a forwards iterator for the list.
      *
      */
-    public Iterable<ExecutionStep> forwards();
+    public Iterator<PlanningStep> forwards();
 
     /**
      * Get a backwards iterator for the list.
      *
      */
-    public Iterable<ExecutionStep> backwards();
-
+    public Iterator<PlanningStep> backwards();
+    
     }

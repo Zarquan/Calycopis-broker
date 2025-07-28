@@ -46,7 +46,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.planning.ExecutionStep;
+import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -476,7 +476,7 @@ public class DockerContainerEntity
 
     protected void prepare()
         {
-        for (ExecutionStep step : getPrepareList().forwards())
+        for (PlanningStep step : getPrepareList().forwards())
             {
             step.execute();
             }
@@ -484,7 +484,7 @@ public class DockerContainerEntity
 
     protected void release()
         {
-        for (ExecutionStep step : getReleaseList().forwards())
+        for (PlanningStep step : getReleaseList().forwards())
             {
             step.execute();
             }
