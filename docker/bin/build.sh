@@ -41,9 +41,9 @@
         podman build \
             --build-arg "buildtag=${buildtag:?}" \
             --build-arg "buildtime=${buildtime:?}" \
-            --tag "calycopis/java-builder:latest" \
-            --tag "calycopis/java-builder:${buildtag:?}" \
-            docker/java-builder
+            --tag "calycopis/developer-tools:latest" \
+            --tag "calycopis/developer-tools:${buildtag:?}" \
+            docker/developer-tools
 
     popd
 

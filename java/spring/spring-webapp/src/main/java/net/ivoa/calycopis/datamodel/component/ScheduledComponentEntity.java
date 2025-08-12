@@ -258,15 +258,12 @@ implements ScheduledComponent
             buffer.append(
                 getAvailableStartInstant().toString()
                 );
-            if (getAvailableStartDurationSeconds() > 0)
-                {
-                buffer.append(
-                    "/"
-                    );
-                buffer.append(
-                    getAvailableStartDuration().toString()
-                    );
-                }
+            buffer.append(
+                "/"
+                );
+            buffer.append(
+                getAvailableStartDuration().toString()
+                );
             bean.setStart(
                 buffer.toString()
                 );

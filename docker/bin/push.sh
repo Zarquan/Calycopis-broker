@@ -67,7 +67,6 @@
     pushtag "calycopis/fedora-base" "latest"
     pushtag "calycopis/fedora-base" "${buildtag:?}"
 
-    pushtag "calycopis/java-builder" "latest"
-    pushtag "calycopis/java-builder" "${buildtag:?}"
-
+    pushtag "calycopis/developer-tools" "latest"
+    pushtag "calycopis/developer-tools" "${buildtag:?}"
 

@@ -22,6 +22,17 @@
 #
 
 # -----------------------------------------------------
+# Delete all our active pods.
+#[user@desktop]
+
+    echo "Checking pods"
+    if [ -n "$(podman pod ps -q)" ]
+    then
+        echo "Deleting pods"
+        podman pod rm -f $(podman pod ps -q)
+    fi
+
+# -----------------------------------------------------
 # Delete all our active containers.
 #[user@desktop]
 
