@@ -1,0 +1,404 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Update the build tools and dependencies.
+
+    Result:
+
+        All good - Python client can ask Java server for an offerset.
+
+        TODO Figure out how to enable the Python client to handle YAML.
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=gardening
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Update our developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        ....
+        ....
+        ....
+
+        docker/bin/clean.sh
+
+        docker/bin/build.sh
+
+        docker/bin/push.sh
+
+    popd
+
+
+# -----------------------------------------------------
+# Start a new Pod
+#[user@desktop]
+
+    podman pod rm -f \
+        testing
+
+    podman pod create \
+        --publish 8082 \
+        --publish 8082 \
+        --name testing
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --pod testing \
+        --interactive \
+        --name java-service \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Combine the OpenAPI schema
+#[root@java-service]
+
+        source=$(
+            mktemp --directory
+            )
+
+        # Create links to the openapi.yaml file from the Java service
+        # and the rest of the schema from the schema project.
+        ln -s '/calycopis/java/spring/spring-openapi/openapi/openapi.yaml' "${source}"
+        ln -s '/trebula/schema' "${source}"
+        ls -al "${source}"
+
+        target=/trebula/build
+
+        rm -rf "${target}"
+        mkdir  "${target}"
+        ls -al "${target}"
+
+        /isobeon/schema-processor.py \
+            "${source}/openapi.yaml" \
+            "${target}/openapi-full.yaml"
+
+    >   ....
+    >   ....
+    >   Inlining from discriminator mapping: IntegerValueUpdate
+    >   Expanding short $ref: 'AbstractUpdate' → '#/components/schemas/AbstractUpdate'
+    >   Inlining from discriminator mapping: IntegerDeltaUpdate
+    >   Expanding short $ref: 'AbstractUpdate' → '#/components/schemas/AbstractUpdate'
+    >   ✅ All references processed and saved.
+
+
+# -----------------------------------------------------
+# Link the combined schema back into the Java project.
+#[root@java-service]
+
+    #
+    # Need to figure out where things belong.
+    # We end up with multiple links back and forth between
+    # the openapi schema and java service projects.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+
+        rm -rf ./openapi/target
+        mkdir  ./openapi/target
+        ln -s  /trebula/build/openapi-full.yaml \
+               ./openapi/target/openapi-full.yaml
+
+        ls -al ./openapi/target
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@java-service]
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@java-service]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run another instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --pod testing \
+        --interactive \
+        --name python-client \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+        ....
+        ....
+
+# -----------------------------------------------------
+# Generate the Python client.
+#[root@python-client]
+
+        #
+        # Download the openapi-generator.
+        # TODO Could we do this as another a Maven project ?
+
+        wget https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/7.14.0/openapi-generator-cli-7.14.0.jar \
+             -O /tmp/openapi-generator.jar
+
+        source=/trebula/build/
+        target=/calycopis/python/albert
+
+        rm -rf "${target}"
+        mkdir  "${target}"
+        ls -al "${target}"
+
+        #
+        # Generate a Python client.
+        # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+        java -jar /tmp/openapi-generator.jar \
+            generate \
+            --generator-name python \
+            --input-spec "${source}/openapi-full.yaml" \
+            --output     "${target}/client"
+
+    >   ....
+    >   ....
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/python/albert/client/openapi_client/rest.py
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/python/albert/client/.openapi-generator-ignore
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/python/albert/client/.openapi-generator/VERSION
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/python/albert/client/.openapi-generator/FILES
+
+
+# -----------------------------------------------------
+# Test the Python client.
+#[root@python-client]
+
+        pushd /calycopis/python/albert/client/
+
+            pip install -r requirements.txt
+
+            python
+
+import openapi_client
+from openapi_client.rest import ApiException
+from pprint import pprint
+
+configuration = openapi_client.Configuration(
+    host = "http://127.0.0.1:8082"
+    )
+
+api_client = openapi_client.ApiClient(
+    configuration
+    )
+
+api_instance = openapi_client.DefaultApi(
+    api_client
+    )
+
+from openapi_client.models.offer_set_request import OfferSetRequest
+from openapi_client.models.jupyter_notebook  import JupyterNotebook
+
+request = OfferSetRequest()
+
+request.executable = JupyterNotebook(
+    type = 'https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0',
+    location = 'http://example.org'
+    )
+
+try:
+    api_response = api_instance.offer_set_post(request)
+    print("Response:\n")
+    pprint(api_response)
+
+except ApiException as e:
+    print("Exception: %s\n" % e)
+
+
+    #
+    # All good - Python client can ask Java server for an offerset.
+    #
+
+    >   ....
+    >   ....
+    >   OfferSetResponse(
+    >       uuid='16316d41-93e6-4aa3-8584-8abacf48d9e2',
+    >       name=None,
+    >       type='https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0',
+    >       created=datetime.datetime(
+    >           2025,8,12,17,49,30,879442,
+    >           tzinfo=TzInfo(UTC)
+    >           ),
+    >       messages=None,
+    >       href='http://127.0.0.1:8082/offersets/16316d41-93e6-4aa3-8584-8abacf48d9e2',
+    >       result='YES',
+    >       description=None,
+    >       offers=[
+    >           ExecutionSessionResponse(
+    >               uuid='99f470cd-9845-4f20-9f49-f2a28677ca82',
+    >               name='null-offer-0',
+    >               type='https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0',
+    >               created=datetime.datetime(
+    >                   2025,8,12,17,49,31,242038,
+    >                   tzinfo=TzInfo(UTC)
+    >                   ),
+    >           messages=None,
+    >           href='http://127.0.0.1:8082/sessions/99f470cd-9845-4f20-9f49-f2a28677ca82',
+    >           schedule=ComponentSchedule(
+    >               offered=OfferedScheduleBlock(
+    >                   preparing=OfferedScheduleInstant(
+    >                   duration=None,
+    >                   start='2025-08-12T17:50:00Z'),
+    >                   available=OfferedScheduleInterval(
+    >                       duration='PT4H',
+    >                       start='2025-08-12T17:50:00Z/PT0S'
+    >                       ),
+    >                   releasing=None
+    >                   ),
+    >               observed=None
+    >               ),
+    >           executable=JupyterNotebook(
+    >               uuid='bbe9e4a9-a829-42cb-bef4-1ec557108b6e',
+    >               name=None,
+    >               type='https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0',
+    >               created=datetime.datetime(
+    >                   2025,8,12,17,49,31,248301,
+    >                   tzinfo=TzInfo(UTC)
+    >                   ),
+    >                   messages=None,
+    >                   schedule=None,
+    >                   access=None,
+    >               location='http://example.org'
+    >               ),
+    >           computer=SimpleComputeResource(
+    >               uuid='049f14cd-9ada-4038-a224-306c3bdb40cb',
+    >               name=None,
+    >               type='https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0',
+    >               created=None,
+    >               messages=None,
+    >               schedule=None,
+    >               cores=SimpleComputeCores(
+    >                   min=2,
+    >                   max=2
+    >                   ),
+    >               memory=SimpleComputeMemory(
+    >                   min=2,
+    >                   max=2
+    >                   ),
+    >               volumes=None
+    >               ),
+    >           storage=None,
+    >           volumes=None,
+    >           data=None,
+    >           phase=<ExecutionSessionPhase.OFFERED: 'OFFERED'>,
+    >           expires=datetime.datetime(
+    >               2025,8,12,22,49,30,879467,
+    >               tzinfo=TzInfo(UTC)
+    >               ),
+    >           options=None
+    >           ),
+    >           ....
+    >           ....
+    >           ]
+    >       )
+
+
+
+# -----------------------------------------------------
+
+    #
+    # Discovered a bug in the Python generator that might cause problems later.
+    # https://github.com/OpenAPITools/openapi-generator/issues/19517
+    #
+
+    >   ....
+    >   ....
+    >   api_response.to_json()
+    >   
+    >   Traceback (most recent call last):
+    >     File "<python-input-34>", line 1, in <module>
+    >       api_response.to_json()
+    >       ~~~~~~~~~~~~~~~~~~~~^^
+    >     File "/calycopis/python/albert/client/openapi_client/models/offer_set_response.py", line 67, in to_json
+    >       return json.dumps(self.to_dict())
+    >              ~~~~~~~~~~^^^^^^^^^^^^^^^^
+    >     File "/usr/lib64/python3.13/json/__init__.py", line 231, in dumps
+    >       return _default_encoder.encode(obj)
+    >              ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+    >     File "/usr/lib64/python3.13/json/encoder.py", line 200, in encode
+    >       chunks = self.iterencode(o, _one_shot=True)
+    >     File "/usr/lib64/python3.13/json/encoder.py", line 261, in iterencode
+    >       return _iterencode(o, 0)
+    >     File "/usr/lib64/python3.13/json/encoder.py", line 180, in default
+    >       raise TypeError(f'Object of type {o.__class__.__name__} '
+    >                       f'is not JSON serializable')
+    >   TypeError: Object of type datetime is not JSON serializable
+
+
