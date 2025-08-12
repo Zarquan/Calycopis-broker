@@ -37,8 +37,9 @@ LABEL org.opencontainers.image.source   "https://github.com/ivoa/Calycopis-broke
 LABEL org.opencontainers.image.authors  "https://github.com/Zarquan"
 
 #
-# Install Java
-RUN dnf -y install java-latest-openjdk-devel
+# Install the latest Java JDK
+RUN dnf install -y \
+    java-latest-openjdk-devel
 
 #
 # Add our install scripts.
@@ -48,5 +49,16 @@ RUN chmod a+x /usr/local/bin/*.sh
 #
 # Run our install script.
 RUN /usr/local/bin/install-java-home.sh
+
+#
+# Install Python and Pip
+RUN dnf install -y \
+    python3 \
+    python3-pip
+
+#
+# Install PyYAML for our OpenAPI processor.
+RUN dnf install -y \
+    python3-pyyaml
 
 

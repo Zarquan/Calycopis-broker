@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # https://docs.fedoraproject.org/en-US/fedora/latest/release-notes/
-FROM registry.fedoraproject.org/fedora:40
+FROM registry.fedoraproject.org/fedora:42
 
 # https://docs.docker.com/v17.09/engine/reference/builder/#understand-how-arg-and-from-interact
 ARG buildtag
@@ -82,7 +82,8 @@ RUN dnf install -y \
 
 #
 # Install the S3 client
-RUN dnf install -y s3cmd
+RUN dnf install -y \
+    s3cmd
 
 #
 # Install JSON, YAML and XML parsers.
@@ -95,15 +96,18 @@ RUN dnf install -y \
 #
 # Install the ipcalc tools.
 # http://jodies.de/ipcalc
-RUN dnf install -y ipcalc
+RUN dnf install -y \
+    ipcalc
 
 #
 # Install rsync
-RUN dnf install -y rsync
+RUN dnf install -y \
+    rsync
 
 #
 # Install git
-RUN dnf install -y git
+RUN dnf install -y \
+    git
 
 #
 # Add our install scripts.
