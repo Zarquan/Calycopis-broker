@@ -208,38 +208,7 @@
 	</dependencies>
 
 	<build>
-        <!--sourceDirectory>src/main/java, target/generated-sources/openapi/src/main/java</sourceDirectory-->
 		<plugins>
-            <!--+
-                | OpenAPI generator from the Spring documentation.
-                | https://www.baeldung.com/java-openapi-generator-server#plugin
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.6.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>
-                                ${schema.yaml}
-                            </inputSpec>
-                            <generatorName>spring</generatorName>
-                            <apiPackage>com.baeldung.openapi.api</apiPackage>
-                            <modelPackage>com.baeldung.openapi.model</modelPackage>
-                            <supportingFilesToGenerate>
-                                ApiUtil.java
-                            </supportingFilesToGenerate>
-                            <configOptions>
-                                <delegatePattern>true</delegatePattern>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-                +-->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
