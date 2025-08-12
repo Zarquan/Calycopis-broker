@@ -27,18 +27,18 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.5.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-webapp</artifactId>
-	<version>0.0.1-SNAPSHOT-20250618</version>
+	<version>0.0.1-SNAPSHOT-20250812</version>
 	<packaging>jar</packaging>
 	<name>Calycopis webapp</name>
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>21</java.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
         <!--build.version>0.0.1-SNAPSHOT-${maven.build.timestamp}</build.version-->
         <!--build.version>0.0.1-SNAPSHOT-20250515</build.version-->
         <!--maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format-->
@@ -58,7 +58,7 @@
         <dependency>
           <groupId>com.github.f4b6a3</groupId>
           <artifactId>uuid-creator</artifactId>
-          <version>6.0.0</version>
+          <version>6.1.1</version>
         </dependency>
         <!--+
             | Embedded H2 database.
@@ -94,17 +94,17 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
-            <version>2.24.3</version>
+            <version>2.25.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.24.3</version>
+            <version>2.25.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.24.3</version>
+            <version>2.25.1</version>
         </dependency>
         <!--+
             | Exclude default logging from SpringBoot.
@@ -149,13 +149,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.13.0</version>
+            <version>1.14.0</version>
         </dependency>
 
     	<dependency>
         	<groupId>wtf.metio.storage-units</groupId>
         	<artifactId>storage-units-model</artifactId>
-        	<version>2023.12.20</version>
+        	<version>2025.8.6</version>
     	</dependency>
 
         <!--+
@@ -182,17 +182,17 @@
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.18.3</version>
+            <version>2.19.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-            <version>2.18.3</version>
+            <version>2.19.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.18.3</version>
+            <version>2.19.2</version>
         </dependency>
 
         <!--+
