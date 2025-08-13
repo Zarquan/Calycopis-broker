@@ -1,0 +1,145 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Picking things up again after working on CADC registry for a couple of weeks.
+
+    Execution Broker
+
+        Re-starting the work on active agents.
+
+        Process a request into a set of planning steps with cost estimates (time + other) for each.
+
+        Use the initial planning steps to create a set of offers.
+            Take the estimated steps and create concrete steps based on the execution start time.
+            Save the concrete steps in the database.
+
+        Accepting an offer creates a set of active agents for to execute the planning steps.
+
+            Create a separate thread to execute each chain in the plan.
+            One container step can split into several concurrent steps.
+            Each step has a start time.
+            Once started the thread sleeps until its start time and then starts to execute.
+            At the end of the step the thread updates its parent and completes.
+
+
+    Workflow Execution
+
+        Work with JSON blobs, not the parsed classes.
+        Create a thread for each broker and send them the request.
+
+        Collect the responses in a list
+        List<Summary>
+
+            Summary
+                fields
+                + full response
+
+            Main thread has a timelimit.
+            At the timelimit we take a snapshot of the List and return that as the initial offerset response.
+            Subsequent get requests may get more offers once they arrive.
+
+            Process a response, parse the JSON object to extract specific fields.
+            Create a Summary object in in-memory DB.
+            Sort the responses by Summary fields, start time etc.
+            Return all of the offers we have.
+
+            If we truncate, then an early offer might be top of the list to start with but get cut off by better offers.
+            Which means UI might have a reference to an offer that is no longer in the list ?
+            Does that matter ?
+            Can the UI cope with that ?
+
+            Modified OpenAPI model for the Workflow Execution.
+            Offer and OfferSet are defined, but the payload isn't.
+            In order to do that, we need to promote things like schedule to be part of the Offer.
+            The abstract things are treated as JSON blobs.
+
+                name
+                type
+                info
+                    uuid
+                    urls
+                spec
+                    schedule
+                    --------
+                    execution
+                    compute
+                    storage
+                    data
+
+
+# -----------------------------------------------------
+
+    Software Discovery
+
+        Publish the text about algorithm, software and executable in the SKAO Confluence.
+        Use that as a basis for new discussion.
+
+        Multiple layers.
+
+        1) The executable workflow step, or workstep.
+           Covered by the execution data model.
+
+           Instances of the model as documents referred to by URLs.
+           In record the Indego repository.
+           A text file in a git repository.
+           A component of data provenance.
+           A workstep in the user's history.
+
+        2) The human description.
+           What it is called, what it does.
+           LLM text search of the documentation, readme and comments in the code ?
+
+           Experiment with milvus ?
+           https://www.turingpost.com/p/zilliz7
+           https://milvus.io/docs/schema-hands-on.md
+
+        3) The glue between them - relational DB ?
+           Versions of the software
+           Packaging method, how and by who
+           Version of the package
+
+        Publish an OpenAPI specification for the Indego repository.
+
+            GET <url> => WorkStep template
+
+
+# -----------------------------------------------------
+
+
+
+
+
+
+

@@ -47,9 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
 import net.ivoa.calycopis.datamodel.message.MessageSubject;
-import net.ivoa.calycopis.functional.execution.AbstractExecutionStepEntity;
-import net.ivoa.calycopis.functional.execution.ExecutionStep;
-import net.ivoa.calycopis.functional.execution.ExecutionStepList;
+import net.ivoa.calycopis.functional.planning.AbstractPlanningStepEntity;
+import net.ivoa.calycopis.functional.planning.PlanningStep;
+import net.ivoa.calycopis.functional.planning.PlanningStepSequence;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -75,6 +75,7 @@ public class ComponentEntity
      */
     protected ComponentEntity()
         {
+        super();
         }
 
     /**
@@ -320,7 +321,7 @@ public class ComponentEntity
      * 
      */
     public abstract class ExecutionStepListImpl
-    implements ExecutionStepList
+    implements PlanningStepSequence
         {
         
         public ExecutionStepListImpl()
@@ -328,7 +329,7 @@ public class ComponentEntity
             super();
             }
         
-        public void addStep(final AbstractExecutionStepEntity step)
+        public void addStep(final AbstractPlanningStepEntity step)
             {
             log.debug("Add step [{}]", step);
             if (this.getFirst() == null)
@@ -347,22 +348,22 @@ public class ComponentEntity
             this.setLast(step);
             }
         
-        public abstract AbstractExecutionStepEntity getFirst();
-        public abstract void setFirst(final AbstractExecutionStepEntity step);
+        public abstract AbstractPlanningStepEntity getFirst();
+        public abstract void setFirst(final AbstractPlanningStepEntity step);
 
-        public abstract AbstractExecutionStepEntity getLast();
-        public abstract void setLast(final AbstractExecutionStepEntity step);
+        public abstract AbstractPlanningStepEntity getLast();
+        public abstract void setLast(final AbstractPlanningStepEntity step);
 
-        public Iterable<ExecutionStep> forwards()
+        public Iterable<PlanningStep> forwards()
             {
-            return new Iterable<ExecutionStep>()
+            return new Iterable<PlanningStep>()
                 {
                 @Override
-                public Iterator<ExecutionStep> iterator()
+                public Iterator<PlanningStep> iterator()
                     {
-                    return new Iterator<ExecutionStep>()
+                    return new Iterator<PlanningStep>()
                         {
-                        private ExecutionStep step = getFirst();
+                        private PlanningStep step = getFirst();
                         
                         @Override
                         public boolean hasNext()
@@ -371,9 +372,9 @@ public class ComponentEntity
                             }
 
                         @Override
-                        public ExecutionStep next()
+                        public PlanningStep next()
                             {
-                            ExecutionStep temp = step;
+                            PlanningStep temp = step;
                             if (step != null)
                                 {
                                 step = step.getNext();
@@ -385,16 +386,16 @@ public class ComponentEntity
                 };
             }
 
-        public Iterable<ExecutionStep> backwards()
+        public Iterable<PlanningStep> backwards()
             {
-            return new Iterable<ExecutionStep>()
+            return new Iterable<PlanningStep>()
                 {
                 @Override
-                public Iterator<ExecutionStep> iterator()
+                public Iterator<PlanningStep> iterator()
                     {
-                    return new Iterator<ExecutionStep>()
+                    return new Iterator<PlanningStep>()
                         {
-                        private ExecutionStep step = getLast();
+                        private PlanningStep step = getLast();
                         
                         @Override
                         public boolean hasNext()
@@ -403,9 +404,9 @@ public class ComponentEntity
                             }
 
                         @Override
-                        public ExecutionStep next()
+                        public PlanningStep next()
                             {
-                            ExecutionStep temp = step;
+                            PlanningStep temp = step;
                             if (step != null)
                                 {
                                 step = step.getPrev();
@@ -420,36 +421,36 @@ public class ComponentEntity
 
     @JoinColumn(name = "preparefirst", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity prepareFirst;
+    private AbstractPlanningStepEntity prepareFirst;
 
     @JoinColumn(name = "preparelast", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity prepareLast;
+    private AbstractPlanningStepEntity prepareLast;
         
     public ExecutionStepListImpl getPrepareList()
         {
         return new ExecutionStepListImpl()
             {
             @Override
-            public AbstractExecutionStepEntity getFirst()
+            public AbstractPlanningStepEntity getFirst()
                 {
                 return prepareFirst;
                 }
 
             @Override
-            public void setFirst(final AbstractExecutionStepEntity step)
+            public void setFirst(final AbstractPlanningStepEntity step)
                 {
                 prepareFirst = step;
                 }
 
             @Override
-            public AbstractExecutionStepEntity getLast()
+            public AbstractPlanningStepEntity getLast()
                 {
                 return prepareLast;
                 }
 
             @Override
-            public void setLast(final AbstractExecutionStepEntity step)
+            public void setLast(final AbstractPlanningStepEntity step)
                 {
                 prepareLast = step;
                 }
@@ -458,36 +459,36 @@ public class ComponentEntity
     
     @JoinColumn(name = "releasefirst", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity releaseFirst;
+    private AbstractPlanningStepEntity releaseFirst;
 
     @JoinColumn(name = "releaselast", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity releaseLast;
+    private AbstractPlanningStepEntity releaseLast;
     
     public ExecutionStepListImpl getReleaseList()
         {
         return new ExecutionStepListImpl()
             {
             @Override
-            public AbstractExecutionStepEntity getFirst()
+            public AbstractPlanningStepEntity getFirst()
                 {
                 return releaseFirst;
                 }
 
             @Override
-            public void setFirst(final AbstractExecutionStepEntity step)
+            public void setFirst(final AbstractPlanningStepEntity step)
                 {
                 releaseFirst = step;
                 }
 
             @Override
-            public AbstractExecutionStepEntity getLast()
+            public AbstractPlanningStepEntity getLast()
                 {
                 return releaseLast;
                 }
 
             @Override
-            public void setLast(final AbstractExecutionStepEntity step)
+            public void setLast(final AbstractPlanningStepEntity step)
                 {
                 releaseLast = step;
                 }

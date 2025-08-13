@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 import java.time.Duration;
 
@@ -45,8 +45,8 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
     value="uri:test-execution-step"
     )
 public class TestExecutionStepEntity
-extends AbstractExecutionStepEntity
-implements ExecutionStep
+extends AbstractPlanningStepEntity
+implements PlanningStep
     {
 
     /**

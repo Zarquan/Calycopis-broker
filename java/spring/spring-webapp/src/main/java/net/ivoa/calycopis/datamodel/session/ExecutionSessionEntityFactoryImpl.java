@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -130,6 +131,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
+    // TODO Move the phase change checking into the entity.
     protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, ValueUpdate)");
@@ -138,10 +140,10 @@ public class ExecutionSessionEntityFactoryImpl
         switch(update.getPath())
             {
             case "phase" :
-                IvoaExecutionSessionPhase oldstate = entity.getPhase();
-                IvoaExecutionSessionPhase newstate = oldstate;
+                IvoaExecutionSessionPhase oldphase = entity.getPhase();
+                IvoaExecutionSessionPhase newphase = oldphase;
                 try {
-                    newstate = IvoaExecutionSessionPhase.fromValue(
+                    newphase = IvoaExecutionSessionPhase.fromValue(
                         update.getValue()
                         );
                     }
@@ -151,24 +153,21 @@ public class ExecutionSessionEntityFactoryImpl
                     }
                 //
                 // If this is a change.
-                if (newstate != oldstate)
+                if (newphase != oldphase)
                     {
-                    switch(oldstate)
+                    switch(oldphase)
                         {
                         case OFFERED :
-                            switch(newstate)
+                            switch(newphase)
                                 {
                                 case ACCEPTED:
+                                    //
+                                    // ACCEPT this Session.
                                     entity.setPhase(
                                         IvoaExecutionSessionPhase.ACCEPTED
                                         );
-                                    /*
-                                     * 
-                                    entity.getParent().setAccepted(
-                                        entity
-                                        );
-                                     * 
-                                     */
+                                    //
+                                    // REJECT the other Sessions in the offer.
                                     for (ExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
                                         {
                                         if (sibling != entity)
@@ -204,6 +203,22 @@ public class ExecutionSessionEntityFactoryImpl
                 break;
             }
         return entity;
+        }
+
+    @Override
+    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase)
+        {
+        return repository.findByPhase(
+            phase
+            );
+        }
+
+    @Override
+    public ExecutionSessionEntity save(final ExecutionSessionEntity entity)
+        {
+        return repository.save(
+            entity
+            );
         }
     }
 

@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,10 +34,10 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  * Public interface for an execution step. 
  * 
  */
-public interface ExecutionStep
+public interface PlanningStep
     {
     /**
-     * Get the UUID identifiers.
+     * Get the UUID identifier.
      * 
      */
     public UUID getUuid();
@@ -49,41 +49,23 @@ public interface ExecutionStep
     public ExecutionSessionEntity getSession();
     
     /**
-     * Get the Executable, DataResource, or ComputeResource this step is linked to.
-     * TODO Should these all have a common base class/interface ? 
-     *
-     */
-    public Component getComponent();
-
-    /**
      * Get the previous step.
      *
      */
-    public ExecutionStep getPrev();
-
-    /**
-     * Set the previous step.
-     *
-    public void setPrev(final ExecutionStep step);
-     */
+    public PlanningStep getPrev();
 
     /**
      * Get the next step.
      *
      */
-    public ExecutionStep getNext();
+    public PlanningStep getNext();
 
-    /**
-     * Set the next step.
-     *
-    public void setNext(final ExecutionStep step);
-     */
-    
     /**
      * The step state/phase.
      *
      */
     enum Phase {
+        PREPARING(),
         WAITING(),
         EXECUTING(),
         COMPLETED(),
@@ -98,11 +80,11 @@ public interface ExecutionStep
     public Phase getPhase();
 
     /**
-     * Get the start time, calculated from the Session execution plus the offset.
+     * Get the step duration.
      *
      */
-    public Instant  getStart();
-    
+    public Duration getDuration();
+
     /**
      * Get the start offset, relative to the Session execution.
      *
@@ -110,16 +92,15 @@ public interface ExecutionStep
     public Duration getOffset();
 
     /**
-     * Get the step duration.
+     * Get the start time, calculated from the Session execution.
      *
      */
-    public Duration getDuration();
+    public Instant getStart();
 
     /**
      * Execute this step.
      *
      */
     void execute();
-
 
     }

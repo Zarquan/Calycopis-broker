@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,26 +20,29 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.session;
 
-import java.util.List;
-import java.util.UUID;
+package net.ivoa.calycopis.functional.planning;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import java.util.Iterator;
 
 /**
- * JpaRepository for ExecutionSessionEntity.
- *
+ * Public interface for a collection of steps. 
+ * 
  */
-@Repository
-public interface ExecutionSessionEntityRepository
-    extends JpaRepository<ExecutionSessionEntity, UUID>
-    {
-    
-    List<ExecutionSessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
-    
-    }
+public interface PlanningStepCollection
+extends PlanningStep, Iterable<PlanningStep>
 
+    {
+    /**
+     * Add a step to the collection.
+     *
+     */
+    public void addStep(final PlanningStep step); 
+
+    /**
+     * Get an iterator for the collection.
+     *
+     */
+    public Iterator<PlanningStep> iterator();
+
+    }

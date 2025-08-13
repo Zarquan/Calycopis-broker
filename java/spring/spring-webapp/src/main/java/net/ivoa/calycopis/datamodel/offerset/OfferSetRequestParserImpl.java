@@ -120,6 +120,11 @@ public class OfferSetRequestParserImpl
         validate(
             context
             );
+        //
+        // Process the request.
+        process(
+            context
+            );
         }
     
     /**
@@ -127,7 +132,7 @@ public class OfferSetRequestParserImpl
      * TODO Move this into an OfferSetValidator.
      * 
      */
-    public void validate(final OfferSetRequestParserContext context)
+    public OfferSetRequestParserContext validate(final OfferSetRequestParserContext context)
         {
         log.debug("validate(OfferSetRequestParserState)");
         final IvoaOfferSetRequest offersetRequest = context.getOriginalOfferSetRequest();
@@ -252,9 +257,7 @@ public class OfferSetRequestParserImpl
             context.valid(false);
             }
         
-        // Exit if errors ..
-        
-        build(context);
+        return context;
         }
 
     
@@ -398,7 +401,7 @@ public class OfferSetRequestParserImpl
      * Build the entities from the validated input.
      *  
      */
-    public void build(final OfferSetRequestParserContext context)
+    public OfferSetRequestParserContext process(final OfferSetRequestParserContext context)
         {
         log.debug("build(OfferSetRequestParserState)");
 
@@ -508,5 +511,7 @@ public class OfferSetRequestParserImpl
         context.getOfferSetEntity().setResult(
             resultEnum
             );
+
+        return context;
         }
     }

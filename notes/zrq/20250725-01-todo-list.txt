@@ -1,0 +1,52 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Change computer to compute
+        https://github.com/ivoa/Calycopis-broker/issues/266
+
+        Split volume class into two
+        https://github.com/ivoa/Calycopis-broker/issues/209
+
+        Move volume mounts into SimpleCompute
+        https://github.com/ivoa/Calycopis-broker/issues/271
+
+        Create ScheduleValidator interface · Issue #272 · ivoa/Calycopis-broker
+        https://github.com/ivoa/Calycopis-broker/issues/272
+
+        Create a factory interface for OfferSetRequestParser · Issue #273 · ivoa/Calycopis-broker
+        https://github.com/ivoa/Calycopis-broker/issues/273
+
+        Make Platform an interface · Issue #274 · ivoa/Calycopis-broker
+        https://github.com/ivoa/Calycopis-broker/issues/274
+
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+

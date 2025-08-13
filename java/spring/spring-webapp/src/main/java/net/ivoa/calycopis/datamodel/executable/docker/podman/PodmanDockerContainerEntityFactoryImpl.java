@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.functional.execution.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**

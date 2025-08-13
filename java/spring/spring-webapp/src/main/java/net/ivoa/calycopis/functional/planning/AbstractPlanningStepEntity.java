@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -45,28 +45,43 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
  * 
  */
 @Entity
-@Table(name = "executionsteps")
+@Table(name = "planningsteps")
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class AbstractExecutionStepEntity
-implements ExecutionStep
+public abstract class AbstractPlanningStepEntity
+implements PlanningStep
     {
 
-    public AbstractExecutionStepEntity(final ExecutionSessionEntity session, final ComponentEntity component, final Duration offset, final Duration duration)
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev, final AbstractPlanningStepEntity template)
         {
-        this(session, component);
+        this(
+            session,
+            prev,
+            template.offset,
+            template.duration
+            );
+        }
+
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev)
+        {
+        this(session);
+        this.prev = prev;
+        }
+    
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev, final Duration offset, final Duration duration)
+        {
+        this(session, prev);
         this.offset   = offset;
         this.duration = duration;
         }
 
-    public AbstractExecutionStepEntity(final ExecutionSessionEntity session, final ComponentEntity component)
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session)
         {
         super();
-        this.session   = session;
-        this.component = component ;
+        this.session = session;
         }
-
+    
     @Id
     @GeneratedValue
     protected UUID uuid;
@@ -85,37 +100,28 @@ implements ExecutionStep
         return this.session;
         }
 
-    @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ComponentEntity component;
-    @Override
-    public ComponentEntity getComponent()
-        {
-        return this.component;
-        }
-
     @JoinColumn(name = "prev", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity prev;
+    private AbstractPlanningStepEntity prev;
     @Override
-    public AbstractExecutionStepEntity getPrev()
+    public AbstractPlanningStepEntity getPrev()
         {
         return this.prev;
         }
-    public void setPrev(final AbstractExecutionStepEntity step)
+    public void setPrev(final AbstractPlanningStepEntity step)
         {
         this.prev = step;
         }
 
     @JoinColumn(name = "next", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
-    private AbstractExecutionStepEntity next;
+    private AbstractPlanningStepEntity next;
     @Override
-    public AbstractExecutionStepEntity getNext()
+    public AbstractPlanningStepEntity getNext()
         {
         return this.next;
         }
-    public void setNext(final AbstractExecutionStepEntity step)
+    public void setNext(final AbstractPlanningStepEntity step)
         {
         this.next = step;
         }
@@ -144,7 +150,7 @@ implements ExecutionStep
         this.start= instant;
         }
 
-    @Column(name = "fred")
+    @Column(name = "offfset")
     private Duration offset;
     @Override
     public Duration getOffset()

@@ -21,37 +21,20 @@
  *
  */
 
-package net.ivoa.calycopis.functional.execution;
+package net.ivoa.calycopis.functional.planning;
+
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
- * Public interface for a bi-directional list of execution steps. 
+ * JpaRepository for TestExecutionStepEntity.
  * 
  */
-public interface ExecutionStepList
+@Repository
+public interface TestExecutionStepEntityRepository
+extends JpaRepository<TestExecutionStepEntity, UUID>
     {
-
-    /**
-     * Get the first step in the list.
-     *
-     */
-    public ExecutionStep getFirst();
-
-    /**
-     * Get the last step in the list.
-     *
-     */
-    public ExecutionStep getLast();
-
-    /**
-     * Get a forwards iterator for the list.
-     *
-     */
-    public Iterable<ExecutionStep> forwards();
-
-    /**
-     * Get a backwards iterator for the list.
-     *
-     */
-    public Iterable<ExecutionStep> backwards();
 
     }

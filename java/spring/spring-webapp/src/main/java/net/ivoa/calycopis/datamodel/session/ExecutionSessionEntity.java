@@ -89,6 +89,16 @@ public class ExecutionSessionEntity
         }
 
     /**
+     * Protected constructor, used to create an example for the find method.
+     *
+     */
+    protected ExecutionSessionEntity(final IvoaExecutionSessionPhase phase)
+        {
+        super();
+        this.phase = phase;
+        }
+    
+    /**
      * Protected constructor with parent.
      *
      */
@@ -119,11 +129,13 @@ public class ExecutionSessionEntity
         return this.phase;
         }
     @Override
-    public void setPhase(final IvoaExecutionSessionPhase phase)
+    public void setPhase(final IvoaExecutionSessionPhase newphase)
         {
-        this.phase = phase;
+        // TODO This is where we need to have the phase transition checking.
+        this.phase = newphase;
         }
-
+    
+    
     @Column(name = "expires")
     private OffsetDateTime expires;
     @Override

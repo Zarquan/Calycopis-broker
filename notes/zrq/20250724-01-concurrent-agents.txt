@@ -1,0 +1,200 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Experiment with concurrent agents in Spring.
+
+        Two candidates.
+
+        SpringBoot
+        https://www.geeksforgeeks.org/advance-java/spring-boot-handling-background-tasks-with-spring-boot/
+        https://www.geeksforgeeks.org/springboot/spring-boot-async-annotation/
+
+        JobRunr
+        https://www.jobrunr.io/en/guides/intro/java-job-request/
+        https://www.baeldung.com/java-jobrunr-spring
+
+        JobRunr looks quite powerful and scaleable.
+        Including scaling out to additional servers.
+
+        Try the SpringBoot version first, because we are already using Spring.
+        ....
+
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch in the broker code base.
+#[user@desktop]
+
+    branchname=concurrent-agents
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the broker.
+# Note the change of volume mount - just mount the user's .m2 directory anyway.
+# Technically we would need something to check if the directory exists or not.
+# If it doesn't - then do we skip the voilume mount, or mount something in /tmp ?
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name spring-builder \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        --volume "${CALYCOPIS_CODE}/java:/java:rw,z" \
+        --volume "${CALYCOPIS_CODE}/examples:/examples:rw,z" \
+        ghcr.io/ivoa/calycopis/java-builder:2024.08.30 \
+        bash
+
+    pushd /java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+    pushd /java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        spring-builder \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# ....
+#[user@desktop]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Jupyter notebook for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "002-offerset-response.yaml"
+
+        #
+        # Get the first offer.
+        offerurl=$(
+            yq '
+              .offers[0].href
+              ' \
+              "002-offerset-response.yaml"
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "003-offered-00-response.yaml"
+
+        #
+        # Accept the offer.
+
+        cat > "004-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@004-accept-00-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "005-accept-00-response.json"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "006-status-00-response.yaml"
+
+
+
+
