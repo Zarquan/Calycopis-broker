@@ -79,7 +79,7 @@ implements PlanningStep
         try {
             log.debug("sleeping ...");
             Thread.sleep(
-                this.getDuration()
+                this.getStepDuration()
                 );
             log.debug(".... awake");
             }
@@ -93,7 +93,7 @@ implements PlanningStep
 
     public void start()
         {
-        log.debug("Start [{}][{}][{}]", this.getOffset(), this.getDuration(), this.message);
+        log.debug("Start [{}][{}][{}]", this.getStartOffset(), this.getStepDuration(), this.message);
         this.setPhase(
             Phase.EXECUTING
             );
@@ -101,7 +101,7 @@ implements PlanningStep
 
     public void done()
         {
-        log.debug("Done  [{}][{}][{}]", this.getOffset(), this.getDuration(), this.message);
+        log.debug("Done  [{}][{}][{}]", this.getStartOffset(), this.getStepDuration(), this.message);
         if (this.getPhase() == Phase.EXECUTING)
             {
             this.setPhase(

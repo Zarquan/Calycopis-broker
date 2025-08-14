@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.functional.planning;
 
-import java.time.Duration;
 import java.util.Iterator;
 
 import jakarta.persistence.Entity;
@@ -34,6 +33,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 
 /**
@@ -50,26 +50,12 @@ extends AbstractPlanningStepEntity
 implements PlanningStep, PlanningStepSequence
     {
 
-    public PlanningStepSequenceEntity(final ExecutionSessionEntity session, final  AbstractPlanningStepEntity prev, final AbstractPlanningStepEntity template)
+    public PlanningStepSequenceEntity(final ExecutionSessionEntity session, final ComponentEntity component)
         {
         super(
             session,
-            prev,
-            template
+            component
             );
-        }
-
-    public PlanningStepSequenceEntity(final ExecutionSessionEntity session, final  AbstractPlanningStepEntity prev)
-        {
-        super(
-            session,
-            prev
-            );
-        }
-
-    public PlanningStepSequenceEntity(ExecutionSessionEntity session)
-        {
-        super(session);
         }
 
     @JoinColumn(name = "first", referencedColumnName = "uuid", nullable = true)
@@ -90,19 +76,7 @@ implements PlanningStep, PlanningStepSequence
         return this.last;
         }
 
-    @Override
-    public void addStep(final PlanningStep step)
-        {
-        if (step instanceof AbstractPlanningStepEntity)
-            {
-            this.addStep((AbstractPlanningStepEntity) step);
-            }
-        else {
-            log.warn("Unexpected step class [" + step.getClass().getName() + "]");
-            }
-        }
-    
-    protected void addStep(final AbstractPlanningStepEntity step)
+    public void addStep(final AbstractPlanningStepEntity step)
         {
         if (this.last != null)
             {
@@ -113,26 +87,79 @@ implements PlanningStep, PlanningStepSequence
         }
     
     @Override
-    public Iterator<PlanningStep> iterator()
+    public Iterable<PlanningStep> forwards()
         {
-        return null;
-        }
-    
-    @Override
-    public Iterator<PlanningStep> forwards()
-        {
-        return null;
+        return new Iterable<PlanningStep>()
+            {
+            @Override
+            public Iterator<PlanningStep> iterator()
+                {
+                return new Iterator<PlanningStep>()
+                    {
+                    AbstractPlanningStepEntity step = first;
+                    @Override
+                    public boolean hasNext()
+                        {
+                        return (step != null);
+                        }
+                    @Override
+                    public PlanningStep next()
+                        {
+                        AbstractPlanningStepEntity temp = step ;
+                        if (step != null)
+                            {
+                            step = step.getNext();
+                            }
+                        return temp;
+                        }
+                    } ;
+                }
+            };
         }
 
     @Override
-    public Iterator<PlanningStep> backwards()
+    public Iterable<PlanningStep> backwards()
         {
-        return null;
+        return new Iterable<PlanningStep>()
+            {
+            @Override
+            public Iterator<PlanningStep> iterator()
+                {
+                return new Iterator<PlanningStep>()
+                    {
+                    AbstractPlanningStepEntity step = last;
+                    @Override
+                    public boolean hasNext()
+                        {
+                        return (step != null);
+                        }
+                    @Override
+                    public PlanningStep next()
+                        {
+                        AbstractPlanningStepEntity temp = step ;
+                        if (step != null)
+                            {
+                            step = step.getPrev();
+                            }
+                        return temp;
+                        }
+                    } ;
+                }
+            };
+        }
+
+    @Override
+    public void schedule()
+        {
+        }
+
+    @Override
+    public void activate()
+        {
         }
 
     @Override
     public void execute()
         {
         }
-
     }

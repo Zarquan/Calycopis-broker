@@ -135,7 +135,7 @@ public class ExecutionSessionEntityFactoryImpl
     protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, ValueUpdate)");
-        log.debug("Entity [{}]", entity.getUuid());
+        log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
         log.debug("Update [{}][{}]", update.getPath(), update.getValue());
         switch(update.getPath())
             {

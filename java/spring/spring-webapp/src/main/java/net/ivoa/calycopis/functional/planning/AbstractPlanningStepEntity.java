@@ -53,33 +53,31 @@ public abstract class AbstractPlanningStepEntity
 implements PlanningStep
     {
 
-    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev, final AbstractPlanningStepEntity template)
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final ComponentEntity component, final AbstractPlanningStepEntity template)
         {
         this(
             session,
-            prev,
+            component,
             template.offset,
             template.duration
             );
         }
 
-    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev)
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final ComponentEntity component, final Duration offset, final Duration duration)
         {
-        this(session);
-        this.prev = prev;
-        }
-    
-    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final AbstractPlanningStepEntity prev, final Duration offset, final Duration duration)
-        {
-        this(session, prev);
+        this(
+            session,
+            component
+            );
         this.offset   = offset;
         this.duration = duration;
         }
 
-    public AbstractPlanningStepEntity(final ExecutionSessionEntity session)
+    public AbstractPlanningStepEntity(final ExecutionSessionEntity session, final ComponentEntity component)
         {
         super();
         this.session = session;
+        this.component = component ;
         }
     
     @Id
@@ -100,6 +98,15 @@ implements PlanningStep
         return this.session;
         }
 
+    @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private ComponentEntity component;
+    @Override
+    public ComponentEntity getComponent()
+        {
+        return this.component;
+        }
+    
     @JoinColumn(name = "prev", referencedColumnName = "uuid", nullable = true)
     @OneToOne(fetch = FetchType.LAZY)
     private AbstractPlanningStepEntity prev;
@@ -141,11 +148,11 @@ implements PlanningStep
     @Column(name = "start")
     private Instant start;
     @Override
-    public Instant getStart()
+    public Instant getStartInstant()
         {
         return this.start;
         }
-    public void setStart(final Instant instant)
+    public void setStartInstant(final Instant instant)
         {
         this.start= instant;
         }
@@ -153,7 +160,7 @@ implements PlanningStep
     @Column(name = "offfset")
     private Duration offset;
     @Override
-    public Duration getOffset()
+    public Duration getStartOffset()
         {
         return this.offset;
         }
@@ -165,12 +172,23 @@ implements PlanningStep
     @Column(name = "duration")
     private Duration duration;
     @Override
-    public Duration getDuration()
+    public Duration getStepDuration()
         {
         return this.duration;
         }
     public void setDuration(final Duration duration)
         {
         this.duration = duration;
+        }
+
+    @Override
+    public void schedule()
+        {
+        }
+
+    @Override
+    public void activate()
+        {
+        // Create a new thread and sleep until our start time.
         }
     }

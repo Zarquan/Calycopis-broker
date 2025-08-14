@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.datamodel.executable.docker;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -386,7 +387,7 @@ public class DockerContainerEntity
      */
     public void configure(final TestExecutionStepEntityFactory factory)
         {
-        getPrepareList().addStep(
+        this.getPrepareList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -396,7 +397,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getPrepareList().addStep(
+        this.getPrepareList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -406,7 +407,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getPrepareList().addStep(
+        this.getPrepareList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -416,7 +417,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getPrepareList().addStep(
+        this.getPrepareList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -426,7 +427,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getReleaseList().addStep(
+        this.getReleaseList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -436,7 +437,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getReleaseList().addStep(
+        this.getReleaseList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -446,7 +447,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getReleaseList().addStep(
+        this.getReleaseList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -456,7 +457,7 @@ public class DockerContainerEntity
                 )
             );
 
-        getReleaseList().addStep(
+        this.getReleaseList().addStep(
             factory.create(
                 this.getSession(),
                 this,
@@ -470,24 +471,45 @@ public class DockerContainerEntity
     protected void schedule()
         {
         //
-        // Calculate the start time of each step.
+        // Calculate the start time of each prepare step.
+        // Starting from the session available time and work backwards.
+        Instant time = this.getSession().getAvailableStartInstant();
+        for (PlanningStep step : this.getPrepareList().backwards())
+            {
+            time = time.minus(
+                step.getStepDuration()
+                );
+            step.setStartInstant(
+                time
+                );
+            }
+        
+        //
+        // Calculate the start time of each release step.
+        // Starting from the session completion time and work forwards.
+        time = this.getSession().getAvailableStartInstant().plus(
+            this.getSession().getAvailableDuration()
+            );
+        for (PlanningStep step : this.getReleaseList().forwards())
+            {
+            time = time.minus(
+                step.getStepDuration()
+                );
+            step.setStartInstant(
+                time
+                );
+            }
         
         }
 
     protected void prepare()
         {
-        for (PlanningStep step : getPrepareList().forwards())
-            {
-            step.execute();
-            }
+        this.getPrepareList().getFirst().execute();
         }
 
     protected void release()
         {
-        for (PlanningStep step : getReleaseList().forwards())
-            {
-            step.execute();
-            }
+        this.getReleaseList().getFirst().execute();
         }
     
     }

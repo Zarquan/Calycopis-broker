@@ -317,18 +317,18 @@ public class ComponentEntity
         }
     
     /**
-     * Local implementation of an ExecutionStepList. 
+     * A SequenceList of PlanningSteps. 
      * 
      */
-    public abstract class ExecutionStepListImpl
+    public abstract class PlanningStepListImpl
     implements PlanningStepSequence
         {
         
-        public ExecutionStepListImpl()
+        public PlanningStepListImpl()
             {
             super();
             }
-        
+
         public void addStep(final AbstractPlanningStepEntity step)
             {
             log.debug("Add step [{}]", step);
@@ -427,9 +427,9 @@ public class ComponentEntity
     @OneToOne(fetch = FetchType.LAZY)
     private AbstractPlanningStepEntity prepareLast;
         
-    public ExecutionStepListImpl getPrepareList()
+    public PlanningStepListImpl getPrepareList()
         {
-        return new ExecutionStepListImpl()
+        return new PlanningStepListImpl()
             {
             @Override
             public AbstractPlanningStepEntity getFirst()
@@ -465,9 +465,9 @@ public class ComponentEntity
     @OneToOne(fetch = FetchType.LAZY)
     private AbstractPlanningStepEntity releaseLast;
     
-    public ExecutionStepListImpl getReleaseList()
+    public PlanningStepListImpl getReleaseList()
         {
-        return new ExecutionStepListImpl()
+        return new PlanningStepListImpl()
             {
             @Override
             public AbstractPlanningStepEntity getFirst()
