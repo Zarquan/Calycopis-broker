@@ -1,0 +1,103 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Test the Python client.
+#[root@python-client]
+
+        pushd /calycopis/python/albert/client/
+
+            pip install -r requirements.txt
+
+            python
+
+import openapi_client
+from openapi_client.rest import ApiException
+from pprint import pprint
+
+apiConfig = openapi_client.Configuration(
+    host = "http://127.0.0.1:8082"
+    )
+
+apiClient = openapi_client.ApiClient(
+    apiConfig
+    )
+
+apiInstance = openapi_client.DefaultApi(
+    apiClient
+    )
+
+from openapi_client.models.offer_set_request import OfferSetRequest
+from openapi_client.models.jupyter_notebook  import JupyterNotebook
+
+offersetRequest = OfferSetRequest(
+    executable = JupyterNotebook(
+        type = 'https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0',
+        location = 'http://example.org'
+        )
+    )
+
+try:
+    offersetObject = apiInstance.offer_set_post(offersetRequest)
+    print("Response:\n")
+    pprint(offersetObject)
+
+except ApiException as e:
+    print("Exception: %s\n" % e)
+
+offerObject = offersetObject.offers[1]
+print("Offer : [%s]" % offerObject.uuid)
+
+from openapi_client.models.update_request import UpdateRequest
+from openapi_client.models.enum_value_update import EnumValueUpdate
+
+updateRequest = UpdateRequest(
+    update = EnumValueUpdate(
+        type = "uri:enum-value-update",
+        path = "phase",
+        value = "ACCEPTED"
+        )
+    )
+
+try:
+    updateResponse = apiInstance.execution_session_post(
+        offerObject.uuid,
+        updateRequest
+        )
+    pprint(updateResponse)
+
+except ApiException as ouch:
+    print("Exception [%s]" % ouch)
+
+

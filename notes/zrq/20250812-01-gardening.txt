@@ -80,7 +80,6 @@
 
     podman pod create \
         --publish 8082 \
-        --publish 8082 \
         --name testing
 
 
@@ -281,7 +280,6 @@ try:
 except ApiException as e:
     print("Exception: %s\n" % e)
 
-
     #
     # All good - Python client can ask Java server for an offerset.
     #
@@ -381,7 +379,7 @@ except ApiException as e:
     >   ....
     >   ....
     >   api_response.to_json()
-    >   
+    >
     >   Traceback (most recent call last):
     >     File "<python-input-34>", line 1, in <module>
     >       api_response.to_json()

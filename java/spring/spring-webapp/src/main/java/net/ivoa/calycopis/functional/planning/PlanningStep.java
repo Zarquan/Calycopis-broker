@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.Component;
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 
 /**
@@ -47,6 +48,12 @@ public interface PlanningStep
      *
      */
     public ExecutionSessionEntity getSession();
+
+    /**
+     * Get the Component this step is linked to.  
+     *
+     */
+    public ComponentEntity getComponent();
     
     /**
      * Get the previous step.
@@ -83,24 +90,42 @@ public interface PlanningStep
      * Get the step duration.
      *
      */
-    public Duration getDuration();
+    public Duration getStepDuration();
 
     /**
      * Get the start offset, relative to the Session execution.
      *
      */
-    public Duration getOffset();
+    public Duration getStartOffset();
 
     /**
      * Get the start time, calculated from the Session execution.
      *
      */
-    public Instant getStart();
+    public Instant getStartInstant();
+
+    /**
+     * Set the start time, calculated from the Session execution.
+     *
+     */
+    public void setStartInstant(final Instant instant);
+    
+    /**
+     * Schedule this step.
+     *
+     */
+    void schedule();
+    
+    /**
+     * Activate this step.
+     *
+     */
+    void activate();
 
     /**
      * Execute this step.
      *
      */
     void execute();
-
+    
     }

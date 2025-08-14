@@ -23,14 +23,12 @@
 
 package net.ivoa.calycopis.functional.planning;
 
-import java.util.Iterator;
-
 /**
  * Public interface for a collection of steps. 
  * 
  */
 public interface PlanningStepCollection
-extends PlanningStep, Iterable<PlanningStep>
+extends Iterable<PlanningStep>
 
     {
     /**
@@ -38,11 +36,5 @@ extends PlanningStep, Iterable<PlanningStep>
      *
      */
     public void addStep(final PlanningStep step); 
-
-    /**
-     * Get an iterator for the collection.
-     *
-     */
-    public Iterator<PlanningStep> iterator();
 
     }
