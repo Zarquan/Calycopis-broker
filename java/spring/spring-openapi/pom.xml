@@ -32,13 +32,14 @@
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-openapi</artifactId>
-	<version>0.0.1-SNAPSHOT-20250812</version>
+	<version>0.0.1-SNAPSHOT-20250825</version>
 	<packaging>jar</packaging>
 	<name>Calycopis OpenAPI</name>
 	<description>IVOA ExecutionBroker implementation</description>
 	<properties>
 		<java.version>21</java.version>
-        <schema.path>${project.basedir}/openapi/target</schema.path>
+        <!--maven.compiler.release>21</maven.compiler.release-->
+        <!--schema.path>${project.basedir}/openapi/target</schema.path-->
         <!--build.version>0.0.1-SNAPSHOT-${maven.build.timestamp}</build.version-->
         <!--build.version>0.0.1-SNAPSHOT-20250515</build.version-->
         <!--maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format-->
@@ -169,7 +170,7 @@
                         </goals>
                         <configuration>
                             <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
-                            <inputSpec>${project.basedir}/openapi/target/openapi-full.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/openapi/target/Calycopis-broker-full.yaml</inputSpec>
                             <generatorName>spring</generatorName>
                             <generateAliasAsModel>false</generateAliasAsModel>
                             <apiPackage>net.ivoa.calycopis.openapi.webapp</apiPackage>

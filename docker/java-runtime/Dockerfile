@@ -20,7 +20,10 @@ ARG buildtag
 # From Eclipse Temurin
 # https://adoptium.net/
 # https://hub.docker.com/_/eclipse-temurin
-FROM docker.io/library/eclipse-temurin:21
+# FROM docker.io/library/eclipse-temurin:21
+# FROM docker.io/library/eclipse-temurin:21-jre-ubi9-minimal
+# FROM docker.io/library/eclipse-temurin:21-jre-ubi10-minimal
+FROM docker.io/library/eclipse-temurin:21-jre-ubi9
 
 ARG buildtag
 ARG buildtime
