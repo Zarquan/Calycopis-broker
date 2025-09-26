@@ -72,7 +72,7 @@ public interface PlanningStep
      *
      */
     enum Phase {
-        PREPARING(),
+        INACTIVE(),
         WAITING(),
         EXECUTING(),
         COMPLETED(),
