@@ -331,45 +331,39 @@ public class OfferSetRequestParserImpl
                         }
                     }
                 
-                List<String> startStringList = requested.getStart();
-                if (startStringList != null)
-                    {
-                    for (String startString : startStringList)
+                String startString = requested.getStart();
+                try {
+                    log.debug("Interval String [{}]", startString);
+                    Interval startinterval = Interval.parse(
+                        startString
+                        );
+                    log.debug("Interval value [{}]", startinterval);
+                    if (startinterval.startsBefore(prepareDoneInstant))
                         {
-                        try {
-                            log.debug("Interval String [{}]", startString);
-                            Interval startinterval = Interval.parse(
-                                startString
-                                );
-                            log.debug("Interval value [{}]", startinterval);
-                            if (startinterval.startsBefore(prepareDoneInstant))
-                                {
-                                log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
-                                // TODO Add a message ..
-                                }
-                            else {
-                                context.addStartInterval(
-                                    startinterval
-                                    );
-                                }
-                            }
-                        catch (Exception ouch)
-                            {
-                            log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
-                            context.getOfferSetEntity().addWarning(
-                                "urn:input-syntax-fail",
-                                "Unable to parse interval [${string}][${message}]",
-                                Map.of(
-                                    "string",
-                                    startString,
-                                    "message",
-                                    ouch.getMessage()
-                                    )
-                                );
-                            success = false ;
-                            context.valid(false);
-                            }
+                        log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
+                        // TODO Add a message ..
                         }
+                    else {
+                        context.addStartInterval(
+                            startinterval
+                            );
+                        }
+                    }
+                catch (Exception ouch)
+                    {
+                    log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
+                    context.getOfferSetEntity().addWarning(
+                        "urn:input-syntax-fail",
+                        "Unable to parse interval [${string}][${message}]",
+                        Map.of(
+                            "string",
+                            startString,
+                            "message",
+                            ouch.getMessage()
+                            )
+                        );
+                    success = false ;
+                    context.valid(false);
                     }
                 }
             }
@@ -437,7 +431,7 @@ public class OfferSetRequestParserImpl
                 
                 
                 //
-                // Generate a list of available resources.
+                // Generate a list of offers.
                 List<ComputeResourceOffer> computeOffers = computeOfferFactory.generate(
                     startInterval,
                     context.getExecutionDuration(),
