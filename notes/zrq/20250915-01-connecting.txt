@@ -1,0 +1,219 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Bring the schema and broker branches together.
+#[user@desktop]
+
+    branchname=connecting
+
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git status
+        git branch --move "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git status
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+
+# -----------------------------------------------------
+# Process the schema into a single file.
+#[root@developer-tools]
+
+    ls -al "/trebula/target"
+    rm -rf "/trebula/target"
+    mkdir  "/trebula/target"
+
+    datestamp='0.0.1-SNAPSHOT-20250915'
+
+    /isobeon/schema-processor.py \
+        "/trebula/schema/Calycopis-broker.yaml" \
+        "/trebula/target/Calycopis-broker-${datestamp:?}.yaml"
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # TODO Move this to the schema project.
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+
+        rm -rf "openapi/target"
+        mkdir  "openapi/target"
+        cp "/trebula/target/Calycopis-broker-${datestamp:?}.yaml" \
+            "openapi/target/Calycopis-broker-${datestamp:?}.yaml"
+
+        ls -al ./openapi/target
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+
+    pushd "$(mktemp --directory)"
+
+        cat > "012-001-offerset-request.yaml" << EOF
+name: example-012
+executable:
+  name: example-012-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+data:
+  - name: example-012-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@012-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "012-002-offerset-response.yaml"
+
+
+# -----------------------------------------------------
+
+    Where we are
+        We can estimate the (total) prepare time for an SkaoDataResource.
+        We need to estimate the (total) prepare time for an IvoaDataResource and a SimpleDataResource.
+
+        We need to apply the DataResource prepare time to the storage holding the data.
+        Checking that the storage is created before the data is downloaded.
+
+
+    Need to make these platform specific
+
+        IvoaDataResourceValidatorImpl
+            predictPrepareTime(IvoaIvoaDataResource)
+
+        SkaoDataResourceValidatorImpl
+            predictPrepareTime(IvoaSkaoDataResource)
+
+        SimpleDataResourceValidatorImpl
+            predictPrepareTime(IvoaAbstractDataResource)
+
+
+
+        SimpleStorageResourceValidatorImpl
+            predictPrepareTime(IvoaAbstractStorageResource)
+
+

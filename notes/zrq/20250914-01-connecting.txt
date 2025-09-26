@@ -1,0 +1,310 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Connecting the bits together.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    If we are trying to produce a SRCNet/CANFAR implementation.
+
+    We need a set of classes that implement the SRCNet/CANFAR specific steps.
+
+    CanfarDockerContainer
+    CanfarDockerContainerEntity
+    CanfarDockerContainerEntityFactory
+    CanfarDockerContainerEntityFactoryImpl
+    CanfarDockerContainerEntityRepository
+
+        prepare:
+            Downloads the container image
+        execute:
+            Launch the container
+        release:
+            -
+
+    CanfarNotebookContainer
+    CanfarNotebookContainerEntity
+    CanfarNotebookContainerEntityFactory
+    CanfarNotebookContainerEntityFactoryImpl
+    CanfarNotebookContainerEntityRepository
+
+        prepare:
+            Downloads the notebook
+        execute:
+            Launch the default container
+        release:
+            -
+
+
+    CanfarSkaoDataResource
+    CanfarSkaoDataResourceEntity
+    CanfarSkaoDataResourceEntityFactory
+    CanfarSkaoDataResourceEntityFactoryImpl
+    CanfarSkaoDataResourceEntityRepository
+
+        prepare:
+            Call prepareData to stage the data
+        execute:
+            -
+        release:
+            -
+
+    CanfarSimpleDataResource
+    CanfarSimpleDataResourceEntity
+    CanfarSimpleDataResourceEntityFactory
+    CanfarSimpleDataResourceEntityFactoryImpl
+    CanfarSimpleDataResourceEntityRepository
+
+        prepare:
+            Call Cavern to transfer the data
+        execute:
+            -
+        release:
+            -
+
+    CanfarIvoaDataResource
+    CanfarIvoaDataResourceEntity
+    CanfarIvoaDataResourceEntityFactory
+    CanfarIvoaDataResourceEntityFactoryImpl
+    CanfarIvoaDataResourceEntityRepository
+
+        prepare:
+            Resolve the download URL from the IVOA metadata
+            Call Cavern to transfer the data
+        execute:
+            -
+        release:
+            -
+
+
+    CanfarRucioStorageResource
+    CanfarRucioStorageResourceEntity
+    CanfarRucioStorageResourceEntityFactory
+    CanfarRucioStorageResourceEntityFactoryImpl
+    CanfarRucioStorageResourceEntityRepository
+
+        // Space allocated in the local Rucio RSE storage.
+        // We dont't need to do anything at this pont.
+        // Does Rucio leep track of how much is used ?
+        // Will we need to handle quotas at this level ?
+
+        prepare:
+            -
+        execute:
+            -
+        release:
+            -
+
+
+    CanfarCavernStorageResource
+    CanfarCavernStorageResourceEntity
+    CanfarCavernStorageResourceEntityFactory
+    CanfarCavernStorageResourceEntityFactoryImpl
+    CanfarCavernStorageResourceEntityRepository
+
+        // Space allocated in the local Cavern storage.
+        // Will we need to handle quotas at this level ?
+
+        prepare:
+            Call Cavern to create the directory
+        execute:
+            -
+        release:
+            Call Cavern to delete the directory
+
+
+# -----------------------------------------------------
+
+    At the moment there is a gap between the work done in previous iteration
+    on estimating the cost of Rucio replicas, and the current work on
+    PlanningSteps ...
+
+    Looks like the work done in the previous PI was a botch job to get it
+    working by the time of the demo.
+
+    // Validating a SkaoDataResource estimates the prepare duration.
+    // Based on the location of the data.
+    SkaoDataResourceValidatorImpl
+        validate(..)
+            setPrepareDuration(
+                // Query the historical database based on locations
+                predictPrepareTime(..)
+                )
+
+    // Adds the estimate to the validated IvoaObject (as a String)
+    // This could be improved by extending the IvoaObject to include a numeric start estimate.
+    AbstractDataResourceValidatorImpl
+        // Create the schedule blocks
+        setPrepareDuration(..)
+
+    // Add this prepare time to the context, as a number.
+    OfferSetRequestParserContextImpl
+        addPreparationDuration(..)
+            // Saves the maximun it receives.
+
+    //
+    // At this point:
+    //      Context has a record of the longest estimated prepare duration, as a number.
+    //      IvoaObject has a record of the estimated prepare duration, as a String.
+    //
+    // This is the problem - we need to estimate the prepare time *before* we create the entities.
+    // Because the entities are created with specific start times.
+    // and we need to know the total prepare time before we can query the database for execution offers
+    // so we have a tangled mixture of resposibilities
+    //
+
+    //
+    // In the current form, we create an initial estimate for the prepareDuration for each DataResource,
+    // based on the data location.
+    // but at the moment this doesn't include the prepareDuration for the storage
+    // we also only have a single prepareDuration estimate for the whole IvoaObject
+    // we need more details when we configure the PlanningSteps later ...
+    //
+
+
+    // Then we validate the requested schedule
+    OfferSetRequestParserImpl
+        validate(schedule, context)
+            // We calculate the earliest time that the session prepare steps would be done.
+            Duration prepareDuration = context.getMaxPreparationDuration();
+            Instant prepareDoneInstant = Instant.now().plus(
+                prepareDuration
+                );
+
+        //
+        // Calculate the earliest start time (now + maxPrepareTime)
+        // Use that to make sure the request is valid
+        //      (startInstantStart > (now + maxPrepTime))
+        //      (startInstantEnd   > (now + expiryDuration))
+        //
+
+        //
+        // Use our startInstantStart to generate some compute offers.
+        // Use the offers to create SessionEntities for each offer.
+        //
+        // Now we start to create the PlanningSteps, in the configure() method.
+        // Setting the duration of prepare PlanningStep based on the estimated preparation duration.
+        //
+        // Then set the start of each PlanningStep, in the schedule() method.
+        // Setting the start time as an offset from the session/offer start time.
+        //
+
+        //
+        // The SessionEntities in the OffeSet are saved, with their PlanningSteps configured with start and duration.
+        //
+        // When an OFFERED SessionEntity is changed to ACCEPTED.
+        // The PlanningSteps are activated [INACTIVE -> WAITING -> ACTIVE -> COMPETED|FAILED|CANCELLED]
+        // Once activated each PlanningStep waits for it's start time before doing executinmg the step.
+        //
+        // Simplest form is just to wait and then go, no further checks.
+        // More complex form checks that the step before has completed before going ahead.
+        //
+
+# -----------------------------------------------------
+
+    Longer term, we replace the validated IvoaObject witn an unsaved Entity (not saved in the DB).
+    Using a factory createUnsaved method to create the unsaved Entity from the IvoaObject in the request.
+    The unsaved Entity would have numerical (non String) values for the prepare start Interval and Duration.
+
+    Does the unsaved Entity have PlanningSteps ?
+    It doesn't need to run Threads, but it does need to create the timing values.
+
+# -----------------------------------------------------
+
+    Medium term, we can extend the IvoaObject to add additional properties,
+    like the numeric values for the prepare duration.
+
+    Does this ExtendedIvoaObject have some unsaved PlanningSteps attached to it ?
+
+    Could we could do that ?
+    Move the configure method to the ExtendedIvoaObject
+    Create the PlanningSteps as part of the validation process ?
+
+    So only one call to configure() on the ExtendedIvoaObject and then schedule() later.
+    Move the configure() method to the ExtendedIvoaObject.
+    Unsaved PlanningSteps attached to the ExtendedIvoaObject.
+
+    This is all possible, but do we need to do it today ?
+
+# -----------------------------------------------------
+
+    Really short term - like now.
+    IvoaObject has a String value for the prepareDuration.
+    ExtendedIvoaObject has a numeric value for the prepareDuration.
+    That figure covers the preparation for the whole of that IvoaObject.
+
+    Use that to request the offers.
+
+    Create the PlanningSteps when we create the SessionEntity and it's children.
+    Keep the configure() and then schedule() methods on SessionEntity.
+    Call them during the SessionEntity create stage.
+
+    Do we actually have any Entity objects that have more than one PlanningStep ?
+    Not at this stage.
+
+    Go with this.
+
+# -----------------------------------------------------
+
+    More important to get the preparation estimates set for all of the IvoaObjects in the request.
+
+    SkaoDataResourceValidatorImpl
+        validate(SkaoDataResource ...)
+            has access to AbstractStorageResourceValidator.Result storage
+                which has a Builder, a reference to the built Entity, and the original IvoaObject
+
+            so we could set the StorageResource start offset based on how long it
+            will take to prepare the SkaoDataResource
+
+            Need to check if the StorageResource has a list of the DataResources following validation ?
+            Or do we call back from the DataResource to update the StorageResource start offeset to be enough to prepare the DataResource.
+
+            Probably the second one.
+            Call from the DataResource validation to set the StorageResource minimum required offset (whent the storage is needed).
+
+            storage.prepareStartOffset < this.prepareDuration
+            storage.prepareStartOffset = this.prepareDuration
+
+            So the thing that needs extending is IvoaComponentSchedule
+            Numeric values for
+                prepareDurationEstimate - how long it will take
+                prepareStartOffset      - when to start, relative to the session start
+
+
+
+    TODO We changed the wrong schema
+    TODO We need to update the right schema and then re-build the combined schema.
+
+# -----------------------------------------------------
+
+
+
+

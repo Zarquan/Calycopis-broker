@@ -1,0 +1,118 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Break the work down into PI planning steps.
+        If we don't do this - what can we do ?
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Available time :
+
+        I1 5 days PI planning, online
+        I2 5 days Call Skaha to launch session
+        I3 5 days Call prepareData to stage data
+        I4 5 days Integration testing
+        I5 0 days -
+        I6 5 days PI planning, Perth
+
+    Iteration goals
+
+        Iteration 1: 5d
+            1d Complete CANFAR reg
+            4d PI planning
+
+        Iteration 2: 6d
+            2d Deploy CANFAR reg
+            4d Call Skaha to launch session
+
+            Call from Broker to Skaha to launch a notebook in container session.
+                Background polling to check status
+                    Simple wait loop then weighted wait loop
+                Connect the container network port to the primary access URL.
+                Schedule 100 jobs, find out what goes wrong
+                    Expecting race conditions
+                Simple authentication
+                    a) With manual auth token.
+                    b) Stretch - with live auth token.
+
+        Iteration 3: 5d
+            1d Deploy CANFAR reg
+            4d Call prepareData to stage data
+
+            Call from Broker to prepareData to stage the requested data product from SRCNet DataLake.
+                Question - Can I call this from an external IP address ?
+                Background scheduling to stage the data and then launch the container in the right sequence.
+                Background polling to check status
+                    Simple wait loop then weighted wait loop
+                Schedule 100 jobs, find out what goes wrong
+                    Expecting race conditions
+                Simple authentication
+                    a) With manual auth token.
+                    b) Stretch - with live auth token.
+
+        Iteration 4: 5d
+            1d Deploy CANFAR reg
+            4d Scripted integration tests
+
+            Scripted integration tests to setup test data in the DataLake.
+                Setup different datasets at different distances from the test node.
+                Run a notebook that calculates MD5sum and collect the result.
+                Schedule 1000 jobs, find out what goes wrong
+                    Expecting race conditions
+                a) Hard coded transfer time estimates for each RSE.
+                b) Stretch - keep a history of the download time
+                c) Stretch - dynamic transfer time estimates
+
+        Iteration 5: 0d
+            ADASS and IVOA meetings (not SRCNet)
+
+        Iteration 6: 1d
+            Demo of launching a notebook in CANFAR.
+            Stretch - with DataLake data
+            Stretch - with live auth tokens
+
+        Stretch goal : 5d
+            Add token handling to the Java prototype.
+                1) Add token handling to the OpenAPI specification
+                2) Collect token from an offerset request - needed to assign ownership.
+                3) Add 'owner' to the JPA Entities - owner has read+write, others read only.
+                4) Collect token from an ACCEPT request - needed to check permission.
+                5) Save token from the ACCEPT request - needed for background threads.
+                6) Keep alive token from the ACCEPT request - needed for background threads.
+                7) Extreme stretch goal - Python client and Java service with real tokens.
+
+        Listing 4d for each step because I'm expecting gotchas and dragons.
+        Asynchronous sequencing is the primary goal.
+        Start with simple no-auth static token implementation to get the asynchronous sequencing to work.
+        Stretch goal to add live token handling, ownership and permissions - can be developed separately.
+
+
+

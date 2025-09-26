@@ -1,0 +1,119 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    git status
+
+    >   On branch 20250915-zrq-connecting
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   java/spring/spring-openapi/pom.xml
+    >   	modified:   java/spring/spring-webapp/pom.xml
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/component/ScheduledComponentEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceValidatorImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/booking/compute/ComputeResourceOfferFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/AbstractPlanningStepEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/PlanningStep.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/TestExecutionStepEntity.java
+    >
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/schedule/
+    >   	notes/zrq/20250910-01-thinking.txt
+    >   	notes/zrq/20250911-01-gardening.txt
+    >   	notes/zrq/20250914-01-connecting.txt
+    >   	notes/zrq/20250914-02-concerns.txt
+    >   	notes/zrq/20250915-01-connecting.txt
+    >   	notes/zrq/20250916-01-planning-steps.txt
+
+# -----------------------------------------------------
+
+    git add \
+        java/spring/spring-openapi/pom.xml \
+        java/spring/spring-webapp/pom.xml
+    git commit -m \
+        "Version bump"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/component/ScheduledComponentEntity.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceValidatorImpl.java
+    git commit -m \
+        "Changing ScheduleInstant to ScheduleDurationInstant"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java
+    git commit -m \
+        "Adding a schedule() method"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java
+    git commit -m \
+        "Adding configure() method"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java
+    git commit -m \
+        "Converting requested start time from a list to a single value "
+
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/AbstractPlanningStepEntity.java \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/TestExecutionStepEntity.java
+    git commit -m \
+        "Added default constructor"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/planning/PlanningStep.java
+    git commit -m \
+        "Changed PREPARING to INACTIVE"
+
+    git add \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/schedule
+    git commit -m \
+        "Extending the validation bean classes"
+
+    git add \
+        notes
+    git commit -m \
+        "Adding notes ..."
+
+

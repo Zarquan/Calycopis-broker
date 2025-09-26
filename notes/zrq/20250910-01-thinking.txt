@@ -1,0 +1,61 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Just thinking.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Question about where to put the OpenAPI schema.
+
+    Technically, the common parts are the components
+    and the REST endpoints are the broker specific parts.
+
+    On the other hand, if we want to demonstrate the common data
+    model for SRCNet, splitting things up could loose momentum.
+
+    Demonstrating the cross links to Jesus was complicated
+    and might have diluted the impact.
+
+    Probably best to start with everything in the same place.
+
+    Combine the broker schema and it's components, along
+    with the tools to build the classes.
+
+# -----------------------------------------------------
+
+    TODO
+
+    Build steps for the schema products.
+    Including Python packages.
+
+
+
+
