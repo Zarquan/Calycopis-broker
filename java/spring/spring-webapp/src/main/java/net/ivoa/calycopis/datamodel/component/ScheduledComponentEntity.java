@@ -38,8 +38,8 @@ import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleBlock;
 import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInterval;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInterval;
 
 /**
  * 
@@ -75,7 +75,7 @@ implements ScheduledComponent
             IvoaOfferedScheduleBlock offered = schedule.getOffered();
             if (null != offered)
                 {
-                IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+                IvoaOfferedScheduleDurationInstant preparing = offered.getPreparing();
                 if (null != preparing)
                     {
                     String startInstantString = preparing.getStart();
@@ -221,10 +221,10 @@ implements ScheduledComponent
             );
         }
 
-    public IvoaOfferedScheduleInstant makeOfferedPreparingBean()
+    public IvoaOfferedScheduleDurationInstant makeOfferedPreparingBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleInstant bean = new IvoaOfferedScheduleInstant(); 
+        IvoaOfferedScheduleDurationInstant bean = new IvoaOfferedScheduleDurationInstant(); 
         if (getPrepareStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -248,10 +248,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaOfferedScheduleInterval makeOfferedAvailableBean()
+    public IvoaOfferedScheduleDurationInterval makeOfferedAvailableBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleInterval bean = new IvoaOfferedScheduleInterval();
+        IvoaOfferedScheduleDurationInterval bean = new IvoaOfferedScheduleDurationInterval();
         if (getAvailableStartInstantSeconds() > 0)
             {
             StringBuffer buffer = new StringBuffer();
@@ -285,10 +285,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaOfferedScheduleInstant makeOfferedReleasingBean()
+    public IvoaOfferedScheduleDurationInstant makeOfferedReleasingBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleInstant bean = new IvoaOfferedScheduleInstant(); 
+        IvoaOfferedScheduleDurationInstant bean = new IvoaOfferedScheduleDurationInstant(); 
         if (getReleaseStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -317,7 +317,7 @@ implements ScheduledComponent
         boolean valid = false;
         IvoaOfferedScheduleBlock bean = new IvoaOfferedScheduleBlock(); 
 
-        IvoaOfferedScheduleInstant preparing = this.makeOfferedPreparingBean();
+        IvoaOfferedScheduleDurationInstant preparing = this.makeOfferedPreparingBean();
         if (null != preparing)
             {
             bean.setPreparing(
@@ -326,7 +326,7 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaOfferedScheduleInterval available = this.makeOfferedAvailableBean();
+        IvoaOfferedScheduleDurationInterval available = this.makeOfferedAvailableBean();
         if (null != available)
             {
             bean.setAvailable(
@@ -335,7 +335,7 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaOfferedScheduleInstant releasing = this.makeOfferedReleasingBean(); 
+        IvoaOfferedScheduleDurationInstant releasing = this.makeOfferedReleasingBean(); 
         if (releasing != null)
             {
             bean.setReleasing(

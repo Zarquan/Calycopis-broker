@@ -28,6 +28,7 @@ import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.schedule.ExtendedScheduleDurationInstantImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
@@ -35,7 +36,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -168,6 +169,9 @@ implements AbstractDataResourceValidator
             // TODO Replace this with the default storage pool for this platform.
             // Storage create is delegated to the Platform
 
+// The CANFAR version of this should call Cavern to create a session directory in the user's home space.
+// /users/home/<username>/sessions/<sessionid>
+        
             // Create a request for a new StorageResource.
             IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource();
             storageResource.setName("Storage for [" + context.makeDataValidatorResultKey(requested) + "]");
@@ -225,6 +229,7 @@ implements AbstractDataResourceValidator
         final IvoaAbstractDataResource validated,
         final Long seconds
         ){
+        log.debug("setPrepareDuration [{}]", seconds);
         if (null != seconds)
             {
             IvoaComponentSchedule schedule = validated.getSchedule();
@@ -244,43 +249,50 @@ implements AbstractDataResourceValidator
                     offered
                     );   
                 }
-    
-            IvoaOfferedScheduleInstant preparing = offered.getPreparing();
-            if (null == preparing)
+
+            //
+            // Nasty class cast to step up from the generated object.
+            log.debug("Creating the prepare schedule.");
+            IvoaOfferedScheduleDurationInstant basic = offered.getPreparing();
+
+            if ((basic != null) && ((basic instanceof ExtendedScheduleDurationInstantImpl) == false))
                 {
-                preparing = new IvoaOfferedScheduleInstant();
-                offered.setPreparing(
-                    preparing
+                log.error("Not the class we expected [{}]", basic.getClass().getSimpleName());
+                }
+            else {
+                ExtendedScheduleDurationInstantImpl preparing = (ExtendedScheduleDurationInstantImpl) offered.getPreparing();
+                if (null == preparing)
+                    {
+                    preparing = new ExtendedScheduleDurationInstantImpl();
+                    offered.setPreparing(
+                        preparing
+                        );
+                    }
+                String start = preparing.getStart();
+                if (null != start)
+                    {
+                    log.error("Existing preparing start [{}]", start);
+                    return false ;
+                    }
+        
+                if (null != preparing.getDuration())
+                    {
+                    log.error("Existing preparing duration [{}]", preparing.getDuration());
+                    return false ;
+                    }
+    
+                Duration dataDuration = Duration.ofSeconds(
+                    seconds
+                    );
+                preparing.setDurationObject(
+                    dataDuration
+                    );
+                // TODO Need to add in the storage preparation for this data.
+                context.addPreparationDuration(
+                    dataDuration
                     );
                 }
-    
-            String start = preparing.getStart();
-            if (null != start)
-                {
-                log.error("Existing preparing start [{}]", start);
-                return false ;
-                }
-    
-            if (null != preparing.getDuration())
-                {
-                log.error("Existing preparing duration [{}]", preparing.getDuration());
-                return false ;
-                }
-    
-            // Saving this as a String sucks a bit, but we are using the generated bean class.
-            // TODO If we create a new class for the validated object that wraps or extends the generated bean
-            // then we could save this as an number.
-            Duration dataDuration = Duration.ofSeconds(
-                seconds
-                );
-            preparing.setDuration(
-                dataDuration.toString()
-                );
-            // TODO Need to add in the storage preparation for this data.
-            context.addPreparationDuration(
-                dataDuration
-                );
-            
+
             return true ;
             }
         else {
