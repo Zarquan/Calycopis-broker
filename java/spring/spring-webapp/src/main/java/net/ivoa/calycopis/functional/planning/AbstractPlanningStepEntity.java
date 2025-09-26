@@ -79,7 +79,12 @@ implements PlanningStep
         this.session = session;
         this.component = component ;
         }
-    
+
+    protected AbstractPlanningStepEntity()
+        {
+        super();
+        }
+
     @Id
     @GeneratedValue
     protected UUID uuid;
