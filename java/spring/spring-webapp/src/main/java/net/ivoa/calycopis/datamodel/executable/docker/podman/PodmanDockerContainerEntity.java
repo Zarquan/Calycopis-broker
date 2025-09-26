@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
+import java.time.Duration;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -30,6 +32,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
@@ -67,6 +70,46 @@ public class PodmanDockerContainerEntity
             );
         }
 
-    // Extra Podman related stuff ...
-    
+    /**
+     * Configure the prepare and release steps.
+     * TODO This should be in a base class.
+     */
+    public void configure(final TestExecutionStepEntityFactory factory)
+        {
+        //
+        // If this really was download image step,
+        // we would first check whether the image is already here,
+        // then, if not, we would make a guess as to how long it would take to download. 
+        this.getSession().getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(30),
+                Duration.ofSeconds(30),
+                "Download image"
+                )
+            );
+        //
+        // This just check the checksum ?
+        this.getSession().getPrepareList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(10),
+                Duration.ofSeconds(10),
+                "Verify image"
+                )
+            );
+
+        this.getSession().getReleaseList().addStep(
+            factory.create(
+                this.getSession(),
+                this,
+                Duration.ofSeconds(5),
+                Duration.ofSeconds(5),
+                "Release image"
+                )
+            );
+
+        }
     }
