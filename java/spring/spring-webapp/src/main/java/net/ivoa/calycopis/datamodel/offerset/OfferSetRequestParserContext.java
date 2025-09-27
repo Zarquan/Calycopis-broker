@@ -280,16 +280,16 @@ public interface OfferSetRequestParserContext
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key);
     
     /**
-     * Get a List of start intervals.
+     * Get the start interval.
      *
      */
-    public List<Interval> getStartIntervals();
+    public Interval getStartInterval();
 
     /**
-     * Add a start interval.
+     * Set the start interval.
      *
      */
-    public void addStartInterval(final Interval interval);
+    public void setStartInterval(final Interval interval);
 
     /**
      * Get the requested start Duration.
