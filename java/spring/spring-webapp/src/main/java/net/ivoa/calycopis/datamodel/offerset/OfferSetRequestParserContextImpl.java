@@ -560,22 +560,23 @@ extends AbstractValidatorImpl
         }
     
     /**
-     * Our List of requested start Intervals.
+     * The requested start Interval.
      *
      */
-    private List<Interval> startIntervals = new ArrayList<Interval>();
-    public List<Interval> getStartIntervals()
+    private Interval startInterval = null;
+    @Override
+    public Interval getStartInterval()
         {
-        return this.startIntervals;
+        return this.startInterval;
         }
     @Override
-    public void addStartInterval(Interval interval)
+    public void setStartInterval(Interval interval)
         {
-        this.startIntervals.add(interval);
+        this.startInterval = interval;
         }
     
     /**
-     * The requested duration.
+     * The requested execution duration.
      *
      */
     private Duration executionDuration = null;

@@ -1,0 +1,428 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        Bob's code to launch a session in Skaha
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=284188338
+        https://github.com/DrWhatson/CIRASA-planner/tree/20240722-zrq-internals/experiments/openapi/impl/python/chatgpt/webapp-0.6-canfar
+
+            images.canfar.net/skaha/base-notebook:latest
+
+        ESPSRC services
+
+            Skaha
+            https://canfar.espsrc.iaa.csic.es/skaha/capabilities
+
+            Cavern
+            https://canfar.espsrc.iaa.csic.es/cavern/capabilities
+
+        SRCNet resource capabilities
+        https://gitlab.com/ska-telescope/src/deployments/espsrc/ska-src-espsrc-services-cd/-/blob/main/apps/global-reg/config/reg/reg-resource-caps.properties?ref_type=heads
+
+        Background tasks in Spring
+        https://www.geeksforgeeks.org/advance-java/spring-boot-handling-background-tasks-with-spring-boot/
+
+        Today's demo
+        https://confluence.skatelescope.org/pages/viewpage.action?spaceKey=SRCSC&title=PI27+SRCNet+System+Demo
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=gardening
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+
+# -----------------------------------------------------
+# Link the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # TODO Move this to the schema project.
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+
+        rm -rf ./openapi/target
+        mkdir  ./openapi/target
+        ln -s  /trebula/target/Calycopis-broker-full.yaml \
+               ./openapi/target/Calycopis-broker-full.yaml
+
+        ls -al ./openapi/target
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Jupyter notebook for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "002-offerset-response.yaml"
+
+        #
+        # Get the first offer.
+        offerurl=$(
+            yq '
+              .offers[0].href
+              ' \
+              "002-offerset-response.yaml"
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "003-offered-00-response.yaml"
+
+        #
+        # Accept the offer.
+
+        cat > "004-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@004-accept-00-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "005-accept-00-response.json"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "006-status-00-response.yaml"
+
+
+# -----------------------------------------------------
+
+    Jupyter notebook is complicated to run.
+    Start with simpler Docker container task ?
+
+    Start with a well known CANFAR containerised notebook ?
+
+    1) Start with placeholder steps for a CANFAR session.
+
+        a) Prepare storage (mkdir)
+        b) Prepare data (SRCNet)
+        c) Prepare data (download)
+        d) Prepare image (download)
+        e) Execute session
+        f) Poll status
+
+    2) Figure out how to do these steps manually (curl).
+
+        a) Prepare storage (mkdir)
+        b) Prepare data (SRCNet)
+        c) Prepare data (download)
+        d) Prepare image (download)
+        e) Execute session
+        f) Poll status
+
+
+    Figure out how to do these steps programatically.
+    a) Manually staged token auth
+    b) Integrated token auth
+
+# -----------------------------------------------------
+
+    DockerContainerEntity
+
+        public void configure(final TestExecutionStepEntityFactory factory)
+
+            this.getPrepareList().addStep(
+                factory.create(
+                    this.getSession(),
+                    this,
+                    Duration.ofSeconds(10),
+                    Duration.ofSeconds(10),
+                    "Step 001"
+                    )
+                );
+
+
+
+    PodmanDockerContainerEntity
+
+        public void configure(final TestExecutionStepEntityFactory factory)
+            ....
+            ....
+
+
+    CanfarDockerContainerEntity
+
+        public void configure(final TestExecutionStepEntityFactory factory)
+
+            //
+            // Prepare storage (mkdir)
+
+            //
+            // Prepare data (SRCNet)
+
+            //
+            // Prepare data (download)
+
+            //
+            // Prepare image (download)
+
+            //
+            // Execute session
+
+
+
+
+    SkaoDataResourceValidator
+
+        private Long predictPrepareTime(final IvoaSkaoDataResource validated)
+            ....
+            ....
+
+
+    PlanningStep
+
+        At the moment, each Component has a separate list of PlanningSteps,
+        but that isn't the case.
+
+        Planning steps don't just apply to the PodmanDockerContainerEntity,
+        they should apply to the whole session because they are linked to each other.
+
+        Planning step for the data relies on planning step for the storage.
+        Planning step for the executable waits for all the data to be ready.
+
+        Accepting the session schedules ALL the planning steps for that session.
+
+
+        getPrepareList
+            INACTIVE(),  // Session hasn't been accepted yet.
+            WAITING(),   // Waiting for the right time
+            EXECUTING(), // Executing the step
+            COMPLETED(),
+            CANCELLED(),
+            FAILED();
+
+        getReleaseList
+            INACTIVE(),  // Session hasn't been accepted yet.
+            WAITING(),   // Waiting for the right time
+            EXECUTING(), // Executing the step
+            COMPLETED(),
+            CANCELLED(),
+            FAILED();
+
+
+
+
+# -----------------------------------------------------
+
+    pushd "$(mktemp --directory)"
+
+        cat > "012-001-offerset-request.yaml" << EOF
+name: example-012
+executable:
+  name: example-012-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+data:
+  - name: example-012-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@012-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | yq '.' \
+        | tee "012-002-offerset-response.yaml"
+
+        cat > "012-004-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        offerurl=$(
+            yq '
+              .offers[0].href
+              ' \
+              "012-002-offerset-response.yaml"
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@012-004-accept-00-request.json" \
+            --header 'Accept: application/json' \
+            "${offerurl}" \
+        | jq '.' \
+        | tee "012-005-accept-00-response.json"
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '.' \
+        | tee "012-006-status-00-response.yaml"
+
+
+

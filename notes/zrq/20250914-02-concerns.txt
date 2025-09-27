@@ -1,0 +1,143 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        A list of things that are worrying me at this stage.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Soo many parts to keep track of.
+
+    Separating the schema and services makes sense, but there are still alot of loose ends.
+
+    Planning:
+
+        Need to create a sequence diagram to explain things in detail.
+        Need to create a Miro board to explain things in detail.
+
+        Everything is interconnected.
+
+        Need help with implementing it, building on what is there and adding the details.
+        Not someone to take it over and start again.
+
+        Technical reviews of the plans, designs, ideas, and implementation.
+        What parts are good, what parts are bad - and why.
+
+        Why am I doing all this ?
+        Is it simpler to move the decsision about which platform to choose up to the top level decider.
+        but the top level decider won't be anble to handle local details
+        so we build the minimal implementation into the design
+        stuck in a local minimum and never get beyod that
+        ESCAPE didn't escape the minimum
+
+        Trying to do all of it myself is too much.
+        Ideally one person handles the politics while other people (plural) do the implementation
+
+        Susanna noticed that the sequence diagram was wrong,
+        but the format of the architecture meeting prevented further discussion.
+
+        I would object to the enveloping of ExecutionBroker as a plugin in the ExecutionAPI module,
+        but the format of the architecture meeting prevented further discussion.
+
+        Susanna noticed that the interactive session can be stalled if there aren't
+        enough resources, but rather than contributing to ExecutionBroker,
+        she is proposing an alternative interim solution
+
+        Need to modify the proposed Miro diagram to agree on the details, but that takes time.
+
+        History:
+            How many of the previous iterations have/haven't delivered a working demo ?
+
+
+    Schema project:
+
+        Schema project gets put on hold while we are working on the broker.
+        Which means it isn't ready to publish as a useable thing.
+
+        Need to move the service definition in the schema project to keep things together.
+        Need to create the 'services' directory.
+        Need to define more than one service.
+        Need to implement the `meta` block now.
+
+        Need to document the lifecyle of a workstep moving from Discovery, History, or Provenance
+        into Editng and then into Execution.
+
+        Decide on the naming convention for the generated artifacts.
+            Python
+                clientapi
+                fastapi
+            Java
+                clientapi
+                springboot
+
+        Need to create a build script to package the Python classes into an installable module
+            Generate the code - done.
+
+        Need to create a build script to package the Java classes into a Jar.
+            Simplest is probably to copy across our existing Maven POM.
+            Better to use the generated one, but it needs the right properties.
+
+        If we don't fix how the requested/offered/observed schedule components behave,
+        we will loose them alltogether.
+
+    Broker project:
+
+        Broker project gets put on hold while we are working on the schema.
+        Which means it isn't ready to publish as a useable thing.
+
+        Implement the CANFAR connectors
+
+        Improve the booking database queries
+            Limit the offers to the requested start range.
+            More overlap between the offers.
+            Migrate to an external PostgreSQL database.
+            Solve the performance issues.
+
+        Solve the 'now' problem - an offer that starts now, but is valid for 5min ... the user accepts 4 min after 'now'.
+            Adding a buffer to the timings and starting as soon as everything is ready.
+            Solution - make sure the start interval is longer than the offer expiry time.
+            If the offer expires in (now + 5min)
+                If this is a scheduled offer
+                    Make sure the start of the offer start interval is ( > max(preparetimes))
+                    Make sure the end of the offer start interval is (> expiryTime)
+
+
+        Add token, ownership, and permissions handling to everything.
+
+
+
+
+
+
+
+
+
+
+

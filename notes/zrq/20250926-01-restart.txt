@@ -1,0 +1,299 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        version=0.0.1-SNAPSHOT-20250925
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        ls -al "${target:?}"
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/Calycopis-broker.yaml" \
+            "${target}/Calycopis-broker-${version}.yaml"
+
+        ls -al "${target}"
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Link the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+
+        pushd openapi
+
+            rm -rf target
+
+            ln -s  /trebula/target .
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Jupyter notebook for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+--START--
+- uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+  name: "concurrent-test-001-offer-0"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-09-27T02:37:00Z"
+      available:
+        start: "2025-09-27T02:37:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "dceb40b7-3817-4f02-adbf-c11c7f5e1e4b"
+  name: "concurrent-test-001-offer-1"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-09-27T04:37:00Z"
+      available:
+        start: "2025-09-27T04:37:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "7a0c8c5a-eefa-4a4f-9427-e18791a4a8a2"
+  name: "concurrent-test-001-offer-2"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-09-27T06:37:00Z"
+      available:
+        start: "2025-09-27T06:37:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "6619b1a5-a6a6-4c4e-b105-34a2ecef300b"
+  name: "concurrent-test-001-offer-3"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-09-27T08:37:00Z"
+      available:
+        start: "2025-09-27T08:37:00Z/PT0S"
+        duration: "PT2H"
+--END--
+
+
+        #
+        # Accept the first offer.
+        offerurl=$(
+            yq '
+              .offers[0].href
+              ' \
+              "002-offerset-response.yaml"
+            )
+
+        cat > "004-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@004-accept-00-request.json" \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | tee "005-accept-00-response.yaml" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+
+--START--
+uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+name: "concurrent-test-001-offer-0"
+phase: "ACCEPTED"
+schedule:
+  offered:
+    preparing:
+      start: "2025-09-27T02:37:00Z"
+    available:
+      start: "2025-09-27T02:37:00Z/PT0S"
+      duration: "PT2H"
+--END--
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+
+--START--
+uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+name: "concurrent-test-001-offer-0"
+phase: "PREPARING"
+schedule:
+  offered:
+    preparing:
+      start: "2025-09-27T02:37:00Z"
+    available:
+      start: "2025-09-27T02:37:00Z/PT0S"
+      duration: "PT2H"
+--END--
+
+
+

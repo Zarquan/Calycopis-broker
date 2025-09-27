@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleInstant;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
 
 /**
  * 
@@ -72,10 +72,10 @@ implements AbstractStorageResourceValidator
                     );   
                 }
     
-            IvoaOfferedScheduleInstant preparing = offered.getPreparing();
+            IvoaOfferedScheduleDurationInstant preparing = offered.getPreparing();
             if (null == preparing)
                 {
-                preparing = new IvoaOfferedScheduleInstant();
+                preparing = new IvoaOfferedScheduleDurationInstant();
                 offered.setPreparing(
                     preparing
                     );
@@ -97,7 +97,9 @@ implements AbstractStorageResourceValidator
     
             // Saving this as a String sucks a bit, but we are using the generated bean class.
             // TODO If we create a new class for the validated object that wraps or extends the generated bean
-            // then we could save this as an number.
+
+    // TODO Use the extended bean
+            
             preparing.setDuration(
                 Duration.ofSeconds(
                     seconds

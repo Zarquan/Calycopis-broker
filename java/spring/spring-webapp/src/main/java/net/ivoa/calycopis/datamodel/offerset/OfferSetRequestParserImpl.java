@@ -331,59 +331,57 @@ public class OfferSetRequestParserImpl
                         }
                     }
                 
-                List<String> startStringList = requested.getStart();
-                if (startStringList != null)
+                String startString = requested.getStart();
+                if (startString != null)
                     {
-                    for (String startString : startStringList)
-                        {
-                        try {
-                            log.debug("Interval String [{}]", startString);
-                            Interval startinterval = Interval.parse(
-                                startString
-                                );
-                            log.debug("Interval value [{}]", startinterval);
-                            if (startinterval.startsBefore(prepareDoneInstant))
-                                {
-                                log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
-                                // TODO Add a message ..
-                                }
-                            else {
-                                context.addStartInterval(
-                                    startinterval
-                                    );
-                                }
-                            }
-                        catch (Exception ouch)
+                    try {
+                        log.debug("Interval String [{}]", startString);
+                        Interval startinterval = Interval.parse(
+                            startString
+                            );
+                        log.debug("Interval value [{}]", startinterval);
+                        if (startinterval.startsBefore(prepareDoneInstant))
                             {
-                            log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
-                            context.getOfferSetEntity().addWarning(
-                                "urn:input-syntax-fail",
-                                "Unable to parse interval [${string}][${message}]",
-                                Map.of(
-                                    "string",
-                                    startString,
-                                    "message",
-                                    ouch.getMessage()
-                                    )
-                                );
-                            success = false ;
-                            context.valid(false);
+                            log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
+                            // TODO Add a message ..
+                            // TODO Fail the request ..
                             }
+                        else {
+                            context.setStartInterval(
+                                startinterval
+                                );
+                            }
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
+                        context.getOfferSetEntity().addWarning(
+                            "urn:input-syntax-fail",
+                            "Unable to parse interval [${string}][${message}]",
+                            Map.of(
+                                "string",
+                                startString,
+                                "message",
+                                ouch.getMessage()
+                                )
+                            );
+                        success = false ;
+                        context.valid(false);
                         }
                     }
                 }
             }
 
-        if (context.getStartIntervals().isEmpty())
+        if (context.getStartInterval() == null)
             {
             // Default start is after the prepare time.
-            Interval defaultint = Interval.of(
+            Interval defaultinterval = Interval.of(
                 prepareDoneInstant,
                 DEFAULT_START_DURATION
                 );
-            log.debug("Interval list is empty, adding default [{}]", defaultint);
-            context.addStartInterval(
-                defaultint
+            log.debug("Interval list is empty, adding default [{}]", defaultinterval);
+            context.setStartInterval(
+                defaultinterval
                 );
             }
 
@@ -417,7 +415,7 @@ public class OfferSetRequestParserImpl
             // Generate some offers ..
             log.debug("---- ---- ---- ----");
             log.debug("Generating offers ....");
-            log.debug("Start intervals [{}]", context.getStartIntervals());
+            log.debug("Execution start [{}]", context.getStartInterval());
             log.debug("Execution duration [{}]", context.getExecutionDuration());
             
             log.debug("Min cores [{}]",  context.getTotalMinCores());
@@ -427,83 +425,75 @@ public class OfferSetRequestParserImpl
             log.debug("---- ---- ---- ----");
 
             //
-            // Populate our OfferSet ..
-            for (Interval startInterval : context.getStartIntervals())
+            // Check if the interval is possible.
+            // Is the interval start greater than now + context.totalPreparationTime
+            //
+
+            //
+            // Generate a list of offers for our criteria.
+            List<ComputeResourceOffer> computeOffers = computeOfferFactory.generate(
+                context.getStartInterval(),
+                context.getExecutionDuration(),
+                context.getTotalMinCores(),
+                context.getTotalMinMemory()
+                );
+            //
+            // Create an ExecutionSession for each offer. 
+            for (ComputeResourceOffer computeOffer : computeOffers)
                 {
-                //
-                // Check if the interval is possible.
-                // Is the interval start greater than now + context.totalPreparationTime
-                //
-                
-                
-                //
-                // Generate a list of available resources.
-                List<ComputeResourceOffer> computeOffers = computeOfferFactory.generate(
-                    startInterval,
-                    context.getExecutionDuration(),
-                    context.getTotalMinCores(),
-                    context.getTotalMinMemory()
+                log.debug("OfferBlock [{}]", computeOffer.getStartTime());
+                ExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
+                    context.getOfferSetEntity(),
+                    context,
+                    computeOffer
                     );
+                log.debug("ExecutionEntity [{}]", executionSessionEntity);
+                
                 //
-                // Create an ExecutionSession for each offer. 
-                for (ComputeResourceOffer computeOffer : computeOffers)
+                // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
+                executionSessionEntity.setExecutable(
+                    context.getExecutableResult().getBuilder().build(
+                        executionSessionEntity
+                        )
+                    );
+                
+                //
+                // Add our compute resources
+                for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
                     {
-                    log.debug("OfferBlock [{}]", computeOffer.getStartTime());
-                    ExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
-                        context.getOfferSetEntity(),
-                        context,
+                    result.getBuilder().build(
+                        executionSessionEntity,
                         computeOffer
                         );
-                    log.debug("ExecutionEntity [{}]", executionSessionEntity);
-
-                    
-                    
-                    //
-                    // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
-                    executionSessionEntity.setExecutable(
-                        context.getExecutableResult().getBuilder().build(
-                            executionSessionEntity
-                            )
-                        );
-                    
-                    //
-                    // Add our compute resources
-                    for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
-                        {
-                        result.getBuilder().build(
-                            executionSessionEntity,
-                            computeOffer
-                            );
-                        }
-                    //
-                    // Add our storage resources.
-                    for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
-                        {
-                        result.build(
-                            executionSessionEntity
-                            );
-                        }
-                    //
-                    // Add our data resources.
-                    for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
-                        {
-                        result.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        }
-                    //
-                    // Add our volume mounts.
-                    for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
-                        {
-                        result.getBuilder().build(
-                            executionSessionEntity
-                            );
-                        }
-                    
-                    //
-                    // Confirm we have at least one result.
-                    resultEnum = IvoaOfferSetResponse.ResultEnum.YES;
                     }
+                //
+                // Add our storage resources.
+                for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
+                    {
+                    result.build(
+                        executionSessionEntity
+                        );
+                    }
+                //
+                // Add our data resources.
+                for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
+                    {
+                    result.getBuilder().build(
+                        executionSessionEntity
+                        );
+                    }
+                //
+                // Add our volume mounts.
+                for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
+                    {
+                    result.getBuilder().build(
+                        executionSessionEntity
+                        );
+                    }
+                
+                //
+                // Confirm we have at least one result.
+                resultEnum = IvoaOfferSetResponse.ResultEnum.YES;
                 }
             }
         //

@@ -69,6 +69,15 @@ implements PlanningStep
         this.message = message;
         }
 
+    /**
+     * Protected constructor.
+     * 
+     */
+    protected TestExecutionStepEntity()
+        {
+        super();
+        }
+
     @Column(name = "message")
     private String message ;
     
