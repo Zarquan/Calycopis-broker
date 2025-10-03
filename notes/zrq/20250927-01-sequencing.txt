@@ -1,0 +1,133 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+    Resources:
+
+        https://plantuml.com/sequence-diagram
+        https://confluence.skatelescope.org/display/SRCSC/Execution+sequence+diagrams
+
+        https://confluence.skatelescope.org/pages/viewpage.action?pageId=343930834
+        https://confluence.skatelescope.org/pages/editpage.action?pageId=343930834
+
+
+# -----------------------------------------------------
+# Bring the schema and broker branches together.
+#[user@desktop]
+
+    branchname=sequencing
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Edit sequence diagrams in Confluence ...
+#
+
+    https://confluence.skatelescope.org/pages/viewpage.action?pageId=348955121
+    https://confluence.skatelescope.org/pages/editpage.action?pageId=348955121
+
+
+
+@startuml
+autonumber
+
+actor User
+participant "Science Gateway" as Gateway
+participant "Workstep Editor" as WorkstepEditor
+
+== Create workstep ==
+User -> Gateway: Create new workstep
+
+alt create empty workstep
+
+     Gateway -> WorkstepEditor: CreateRequest\n(Workstep{})
+
+else create from data
+
+      Gateway -> WorkstepEditor: CreateRequest\n(Workstep{data})
+
+else create from template
+
+    Gateway -> WorkstepEditor: CreateRequest\n(Workstep{executable, resources})
+
+else create from URL
+
+    Gateway -> WorkstepEditor: CreateRequest\n(origin)
+end
+
+WorkstepEditor -> Gateway: CreateResponse\n(Workstep{UUID, executable, resources})
+Gateway -> User: Created workstep
+
+== Edit workstep ==
+User -> Gateway: Edit workstep
+
+Gateway -> WorkstepEditor: UpdateRequest\n(UUID, UpdateRequest{path, value})
+
+WorkstepEditor -> Gateway: UpdateResponse\n(Workstep{UUID, executable, resources})
+Gateway -> User: Updated workstep
+
+== Submit batch workstep ==
+User -> Gateway: Submit workstep
+
+alt submit from URL
+
+    Gateway -> WorkstepExecution: Execute(URL)
+
+else submit Workstep
+
+    Gateway -> WorkstepExecution: Execute\n(Workstep{UUID, executable, resources})
+
+
+== Submit interactive workstep ==
+User -> Gateway: Submit workstep
+
+alt submit from URL
+
+    Gateway -> WorkstepExecution: Execute(URL)
+
+else submit Workstep
+
+    Gateway -> WorkstepExecution: Execute\n(Workstep{executable, resources})
+
+@enduml
+
+
+
+
+

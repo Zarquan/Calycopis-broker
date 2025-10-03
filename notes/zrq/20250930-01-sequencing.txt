@@ -1,0 +1,185 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Example of polling loop
+
+    Status Polling in Metadata Query, Asynchronous
+
+# -----------------------------------------------------
+
+    Interactive Session: General Method
+
+    Select offer needs to go to the broker(s)
+    Remove Session Manager
+    Add CANFAR Session Manager
+
+# -----------------------------------------------------
+
+    Interactive Session: Interactive interface start-up using ExecutionBroke
+
+    Select offer needs to go to broker A
+
+    Add PrepareData service
+    Reserve resources for session goes to PrepareData.
+
+    Session ready and Notify session details become Poll session satatus (loop)
+
+# -----------------------------------------------------
+
+@startuml
+autonumber
+
+actor User
+participant "Science Gateway" as Gateway
+participant "Workstep Editor" as WorkstepEditor
+participant "Workstep Execution" as WorkstepExecute
+participant "Execution Broker @ Site A" as BrokerA
+participant "Execution Broker @ Site B" as BrokerB
+participant "PrepareData @ Site A" as PrepareDataA
+participant "Cavern @ Site A" as CavernA
+participant "Harbor @ Site A" as HarborA
+participant "CANFAR @ Site A" as SkahaA
+
+== Create workstep ==
+note over Gateway, WorkstepEditor : Editor can be part of the Science Gateway or Workstep Execution
+User -> Gateway : Create new workstep
+alt Create empty workstep
+  Gateway -> WorkstepEditor ++ : Create from empty\n(Workstep{})
+else Create from data
+  Gateway -> WorkstepEditor : Create from data\n(Workstep{data})
+else Create from template
+  Gateway -> WorkstepEditor : Create from template\n(Workstep{executable, resources})
+else Create from Software Discovery (URL)
+  Gateway -> WorkstepEditor : Create from Software Discovery (URL)\n(URL->Workstep{executable, resources})
+else Create from user history
+  Gateway -> WorkstepEditor : Create from user history (URL)\n(URL->Workstep{executable, resources})
+else Create from data provenance
+  Gateway -> WorkstepEditor : Create from data provenance (URL)\n(URL->Workstep{executable, resources})
+end
+WorkstepEditor --> Gateway -- : New workstep\n(Workstep{UUID, executable, resources})
+Gateway --> User : New workstep
+
+ == Edit workstep ==
+note over Gateway, WorkstepEditor : Editor can be part of the Science Gateway or Workstep Execution
+loop Editing loop
+  User -> Gateway : Edit a workstep
+  alt Edit the executable
+    Gateway -> WorkstepEditor ++ : Set executable\n(UUID, {executable})
+  else Edit the data resources
+    Gateway -> WorkstepEditor : Edit data\n(UUID, {data})
+  else Edit the compute resources
+    Gateway -> WorkstepEditor : Set compute\n(UUID, {compute})
+  else Edit the storage resources
+    Gateway -> WorkstepEditor : Edit storage\n(UUID, {storage})
+  end   
+  WorkstepEditor --> Gateway -- : Workstep\n(Workstep{UUID, executable, resources})
+  Gateway --> User : Updated workstep
+end
+
+== Execute workstep ==
+User -> Gateway ++ : Execute workstep(UUID)
+Gateway -> WorkstepEditor ++ : Execute workstep(UUID)
+WorkstepEditor -> WorkstepExecute --++ : Execute workstep(Workstep{UUID, executable, resources})
+par Request offers
+  WorkstepExecute -> BrokerA ++ : Query resource availability + data locality
+  BrokerA --> WorkstepExecute -- : Offer (available: Yes, window=Now, data local)
+else
+  WorkstepExecute -> BrokerB ++ : Query resource availability + data locality
+  BrokerB --> WorkstepExecute -- : Offer (available: Yes, window=2h, data remote)
+end
+WorkstepExecute --> Gateway -- : Offerset\noffers[Workstep{UUID, executable, resources}]
+Gateway --> User -- : Display offers
+
+== Offer Selection ==
+User -> Gateway : Select BrokerA offer
+Gateway -> BrokerA ++ : Confirm selected offer
+
+== Prepare session ==
+par Prepare data (Rucio)
+  BrokerA -> PrepareDataA ++ : Prepare data for session
+  PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+  loop Status check
+    BrokerA -> PrepareDataA ++ : Query transfer status
+    PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+  end
+else Prepare data (Cavern)
+  BrokerA -> CavernA ++ : Pull data for session
+  CavernA --> BrokerA -- : Status (running, completed, failed)
+  loop Status check
+    BrokerA -> CavernA ++ : Query transfer status
+    CavernA --> BrokerA -- : Status (running, completed, failed)
+  end
+else Prepare code (Harbor)
+  BrokerA -> HarborA ++ : Pull container image
+  HarborA --> BrokerA -- : Status (running, completed, failed)
+  loop Status check
+    BrokerA -> HarborA ++ : Query transfer status
+    HarborA --> BrokerA -- : Status (running, completed, failed)
+  end
+end
+
+== Start session ==
+BrokerA -> SkahaA ++ : Start CANFAR session (Notebook / CARTA / CLI)
+SkahaA --> BrokerA -- : Session URL / credentials
+deactivate BrokerA
+
+== Session Status ==
+loop Status polling
+  Gateway -> BrokerA ++ : Query workstep status
+  BrokerA --> Gateway -- : Status (preparing, available, completed, failed)
+end
+
+== Session ready ==
+BrokerA --> Gateway : Session ready
+Gateway --> User : Provide access link to session
+
+@enduml
+
+# -----------------------------------------------------
+
+
+https://miro.com/app/board/uXjVJLfnTM8=/?moveToWidget=3458764641562600147&cot=10
+
+https://confluence.skatelescope.org/display/SRCSC/SRCNet+Sequence+Diagrams#InteractiveDetail
+
+
+
+
+
+
+
+
+
+

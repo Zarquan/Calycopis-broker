@@ -50,10 +50,8 @@
         ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
         bash
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -75,10 +73,8 @@
 
         ls -al "${target}"
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -182,44 +178,42 @@ EOF
             ]
             '
 
---START--
-- uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
-  name: "concurrent-test-001-offer-0"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-09-27T02:37:00Z"
-      available:
-        start: "2025-09-27T02:37:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "dceb40b7-3817-4f02-adbf-c11c7f5e1e4b"
-  name: "concurrent-test-001-offer-1"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-09-27T04:37:00Z"
-      available:
-        start: "2025-09-27T04:37:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "7a0c8c5a-eefa-4a4f-9427-e18791a4a8a2"
-  name: "concurrent-test-001-offer-2"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-09-27T06:37:00Z"
-      available:
-        start: "2025-09-27T06:37:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "6619b1a5-a6a6-4c4e-b105-34a2ecef300b"
-  name: "concurrent-test-001-offer-3"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-09-27T08:37:00Z"
-      available:
-        start: "2025-09-27T08:37:00Z/PT0S"
-        duration: "PT2H"
---END--
+    >   - uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+    >     name: "concurrent-test-001-offer-0"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-09-27T02:37:00Z"
+    >         available:
+    >           start: "2025-09-27T02:37:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "dceb40b7-3817-4f02-adbf-c11c7f5e1e4b"
+    >     name: "concurrent-test-001-offer-1"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-09-27T04:37:00Z"
+    >         available:
+    >           start: "2025-09-27T04:37:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "7a0c8c5a-eefa-4a4f-9427-e18791a4a8a2"
+    >     name: "concurrent-test-001-offer-2"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-09-27T06:37:00Z"
+    >         available:
+    >           start: "2025-09-27T06:37:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "6619b1a5-a6a6-4c4e-b105-34a2ecef300b"
+    >     name: "concurrent-test-001-offer-3"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-09-27T08:37:00Z"
+    >         available:
+    >           start: "2025-09-27T08:37:00Z/PT0S"
+    >           duration: "PT2H"
 
 
         #
@@ -256,18 +250,16 @@ EOF
             "schedule": .schedule
             }'
 
---START--
-uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
-name: "concurrent-test-001-offer-0"
-phase: "ACCEPTED"
-schedule:
-  offered:
-    preparing:
-      start: "2025-09-27T02:37:00Z"
-    available:
-      start: "2025-09-27T02:37:00Z/PT0S"
-      duration: "PT2H"
---END--
+    >   uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+    >   name: "concurrent-test-001-offer-0"
+    >   phase: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       preparing:
+    >         start: "2025-09-27T02:37:00Z"
+    >       available:
+    >         start: "2025-09-27T02:37:00Z/PT0S"
+    >         duration: "PT2H"
 
 
         curl \
@@ -282,18 +274,16 @@ schedule:
             "schedule": .schedule
             }'
 
---START--
-uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
-name: "concurrent-test-001-offer-0"
-phase: "PREPARING"
-schedule:
-  offered:
-    preparing:
-      start: "2025-09-27T02:37:00Z"
-    available:
-      start: "2025-09-27T02:37:00Z/PT0S"
-      duration: "PT2H"
---END--
+    >   uuid: "c25d86ac-210b-4cae-b996-b0468e035038"
+    >   name: "concurrent-test-001-offer-0"
+    >   phase: "PREPARING"
+    >   schedule:
+    >     offered:
+    >       preparing:
+    >         start: "2025-09-27T02:37:00Z"
+    >       available:
+    >         start: "2025-09-27T02:37:00Z/PT0S"
+    >         duration: "PT2H"
 
 
 
