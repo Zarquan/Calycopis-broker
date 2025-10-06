@@ -320,11 +320,11 @@ public class ComponentEntity
      * A SequenceList of PlanningSteps. 
      * 
      */
-    public abstract class PlanningStepListImpl
+    public abstract class PlanningStepSequenceImpl
     implements PlanningStepSequence
         {
         
-        public PlanningStepListImpl()
+        public PlanningStepSequenceImpl()
             {
             super();
             }
@@ -427,9 +427,9 @@ public class ComponentEntity
     @OneToOne(fetch = FetchType.LAZY)
     private AbstractPlanningStepEntity prepareLast;
         
-    public PlanningStepListImpl getPrepareList()
+    public PlanningStepSequenceImpl getPrepareList()
         {
-        return new PlanningStepListImpl()
+        return new PlanningStepSequenceImpl()
             {
             @Override
             public AbstractPlanningStepEntity getFirst()
@@ -465,9 +465,9 @@ public class ComponentEntity
     @OneToOne(fetch = FetchType.LAZY)
     private AbstractPlanningStepEntity releaseLast;
     
-    public PlanningStepListImpl getReleaseList()
+    public PlanningStepSequenceImpl getReleaseList()
         {
-        return new PlanningStepListImpl()
+        return new PlanningStepSequenceImpl()
             {
             @Override
             public AbstractPlanningStepEntity getFirst()
