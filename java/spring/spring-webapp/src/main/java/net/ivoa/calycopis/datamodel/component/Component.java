@@ -62,6 +62,7 @@ public interface Component
 
     /**
      * Get a list of messages for this Component.
+     * TODO Split this into a separate MessageList interface.
      *
      */
     public List<MessageEntity> getMessages();

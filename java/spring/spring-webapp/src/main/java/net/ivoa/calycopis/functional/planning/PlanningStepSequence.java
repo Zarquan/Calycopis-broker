@@ -29,11 +29,6 @@ package net.ivoa.calycopis.functional.planning;
  */
 public interface PlanningStepSequence
     {
-    /**
-     * Add a step to the sequence.
-     *
-    public void addStep(final PlanningStep step); 
-     */
     
     /**
      * Get the first element in the list.

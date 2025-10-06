@@ -29,16 +29,11 @@ import java.time.Instant;
 import org.threeten.extra.Interval;
 
 /**
- * 
+ *
  */
 public interface ScheduledComponent
 extends Component
     {
-
-    /**
-     *
-     */
-    public long getPrepareStartInstantSeconds();
 
     /**
      *
@@ -48,7 +43,7 @@ extends Component
     /**
      *
      */
-    public long getPrepareDurationSeconds();
+    public long getPrepareStartInstantSeconds();
 
     /**
      *
@@ -58,17 +53,7 @@ extends Component
     /**
      *
      */
-    public long getAvailableStartInstantSeconds();
-
-    /**
-     *
-     */
-    public long getAvailableStartDurationSeconds();
-
-    /**
-    *
-    */
-   public Duration getAvailableStartDuration();
+    public long getPrepareDurationSeconds();
 
     /**
      *
@@ -78,7 +63,22 @@ extends Component
     /**
      *
      */
-    public long getAvailableDurationSeconds();
+    public Instant getAvailableStartInstant();
+
+    /**
+     *
+     */
+    public long getAvailableStartInstantSeconds();
+
+    /**
+     *
+     */
+    public Duration getAvailableStartDuration();
+
+    /**
+     *
+     */
+    public long getAvailableStartDurationSeconds();
 
     /**
      *
@@ -88,12 +88,7 @@ extends Component
     /**
      *
      */
-    public Instant getAvailableStartInstant();
-
-    /**
-     *
-     */
-    public long getReleaseStartInstantSeconds();
+    public long getAvailableDurationSeconds();
 
     /**
      *
@@ -103,11 +98,17 @@ extends Component
     /**
      *
      */
-    public long getReleaseDurationSeconds();
+    public long getReleaseStartInstantSeconds();
 
     /**
      *
      */
     public Duration getReleaseDuration();
 
+    /**
+     *
+     */
+    public long getReleaseDurationSeconds();
+
     }
+

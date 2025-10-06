@@ -1,0 +1,383 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=gardening
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        version=0.0.1-SNAPSHOT-20251003
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/Calycopis-broker.yaml" \
+            "${target}/Calycopis-broker-${version}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Link the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            ln -s  /trebula/target .
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Jupyter notebook for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+--START--
+- uuid: "3f13b1a3-2d07-45cd-bd64-c663c7b04f5a"
+  name: "concurrent-test-001-offer-0"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-03T15:14:00Z"
+      available:
+        start: "2025-10-03T15:14:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "20aa50e3-5b6b-4c27-ae1e-575564718bf9"
+  name: "concurrent-test-001-offer-1"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-03T17:14:00Z"
+      available:
+        start: "2025-10-03T17:14:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "df9a9892-55d6-46b6-81bb-695a15c73ac9"
+  name: "concurrent-test-001-offer-2"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-03T19:14:00Z"
+      available:
+        start: "2025-10-03T19:14:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "ce6b41f2-0e4a-4c9f-9114-819704216510"
+  name: "concurrent-test-001-offer-3"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-03T21:14:00Z"
+      available:
+        start: "2025-10-03T21:14:00Z/PT0S"
+        duration: "PT2H"
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+
+    OK, that works ...
+    what now ?
+
+    Accepting a session rejects the others and starts the preparing chain.
+
+    The scheduling figures are attached to ScheduledComponent
+
+    ScheduledComponent
+
+        getPrepareStartInstant
+        getPrepareStartInstantSeconds
+
+        getPrepareStartDuration
+        getPrepareStartDurationSeconds
+
+        getAvailableStartInterval()
+        getAvailableStartInstant()
+        getAvailableStartInstantSeconds()
+        getAvailableStartDuration()
+        getAvailableStartDurationSeconds()
+        getAvailableDuration()
+        getAvailableDurationSeconds()
+
+        getReleaseStartInstant()
+        getReleaseStartInstantSeconds()
+        getReleaseDuration()
+        getReleaseDurationSeconds()
+
+
+    Planning steps are attached to Session and Component
+
+        AbstractPlanningStepEntity
+            ExecutionSessionEntity
+            ComponentEntity
+
+    ExecutionSession is a ComponentEntity
+
+    ComponentEntity has PlanningStepSequence (PlanningStepListImpl)
+
+    A Component may have a List of planning steps.
+    An ExecutionSession is a Component, so it too may have a List of planning steps.
+
+    PlanningStep
+        Duration getStartOffset()  // relative to the Session execution
+        Instant  getStartInstant() // session.start + this.offset
+
+    PodmanDockerContainerEntity
+        configure()
+            session.prepare
+                30 sec offset,
+                30 sec duration,
+                "Download image"
+
+            session.prepare
+                30 sec offset,
+                30 sec duration,
+                "Verify image"
+
+            session.release
+                10 sec offset,
+                10 sec duration,
+                "Release image"
+
+    At the moment these are added to the Session prepare and release lists.
+    Which means they are all executed in sequence.
+    Which isn't what we want.
+    We want to execute the storage, then data in sequence.
+    The executable can be done in parallel.
+
+    Session has a prepare list.
+    Session wants concurrent execution <StorageDataSet>s and <Executable>
+    StorageDataSet wants sequential execution of storage and then all the data allocated to that storage.
+
+    Session has
+        PrepareSessionSet
+        isa ConcurrentStepSet
+            contains
+                PrepareExecutableStep
+                PrepareStorageConcurrent
+
+        PrepareStorageConcurrent
+        isa ConcurrentStepSet
+            contains
+                PrepareStorageSequence
+                PrepareStorageSequence
+                ....
+
+        PrepareStorageSequence
+        isa SequentialStepSet
+                PrepareStorageStep
+                PrepareDataConcurrent
+
+        PrepareDataConcurrent
+        isa ConcurrentStepSet
+                PrepareDataStep
+                PrepareDataStep
+                ....
+
+        ConcurrentPlanningStepSet
+        isa PlanningStepSet
+
+            activate() // Activate all the steps
+            execute()  // NoP
+
+        SequentialPlanningStepSet
+        isa PlanningStepSet
+
+            PlanningStep first()
+            PlanningStep last()
+            activate() // Start a Thread to iterate each step.
+            execute()  // NoP
+
+        PlanningStepSet
+        isa PlanningStep
+
+            addStep(..)
+
+        PlanningStep
+            getNext()
+            getPrev()
+            stepDuration()
+            startOffset()
+            startInstant()
+            schedule()
+            activate() // NoP
+            execute()  // Do the actual thing
+
+
+
+
+
+
+
+
+

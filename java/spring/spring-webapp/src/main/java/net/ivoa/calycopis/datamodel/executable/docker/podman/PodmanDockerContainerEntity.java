@@ -72,7 +72,7 @@ public class PodmanDockerContainerEntity
 
     /**
      * Configure the prepare and release steps.
-     * TODO This should be in a base class.
+     * 
      */
     public void configure(final TestExecutionStepEntityFactory factory)
         {
@@ -90,7 +90,7 @@ public class PodmanDockerContainerEntity
                 )
             );
         //
-        // This just check the checksum ?
+        // This just checks the checksum ?
         this.getSession().getPrepareList().addStep(
             factory.create(
                 this.getSession(),
@@ -110,6 +110,5 @@ public class PodmanDockerContainerEntity
                 "Release image"
                 )
             );
-
         }
     }
