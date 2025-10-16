@@ -21,15 +21,34 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+public class PodmanJupyterNotebookValidatorImpl
+extends JupyterNotebookValidatorImpl
+    implements PodmanJupyterNotebookValidator
     {
 
+    public PodmanJupyterNotebookValidatorImpl(Platform platform)
+        {
+        super(platform);
+        }
+
+    /*
+     * TODO This will be platform dependent.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    @Override
+    protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
     }

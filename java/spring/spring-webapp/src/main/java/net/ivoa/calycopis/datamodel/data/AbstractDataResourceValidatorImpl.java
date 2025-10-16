@@ -23,20 +23,15 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
-import java.time.Duration;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.schedule.ExtendedScheduleDurationInstantImpl;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -219,85 +214,5 @@ implements AbstractDataResourceValidator
                 }
             }
         return storageResult;
-        }
-
-    /**
-     * 
-     */
-    public boolean setPrepareDuration(
-        final OfferSetRequestParserContext context,
-        final IvoaAbstractDataResource validated,
-        final Long seconds
-        ){
-        log.debug("setPrepareDuration [{}]", seconds);
-        if (null != seconds)
-            {
-            IvoaComponentSchedule schedule = validated.getSchedule();
-            if (null == schedule)
-                {
-                schedule = new IvoaComponentSchedule(); 
-                validated.setSchedule(
-                    schedule
-                    );
-                }
-    
-            IvoaOfferedScheduleBlock offered = schedule.getOffered();
-            if (null == offered)
-                {
-                offered = new IvoaOfferedScheduleBlock ();
-                schedule.setOffered(
-                    offered
-                    );   
-                }
-
-            //
-            // Nasty class cast to step up from the generated object.
-            log.debug("Creating the prepare schedule.");
-            IvoaOfferedScheduleDurationInstant basic = offered.getPreparing();
-
-            if ((basic != null) && ((basic instanceof ExtendedScheduleDurationInstantImpl) == false))
-                {
-                log.error("Not the class we expected [{}]", basic.getClass().getSimpleName());
-                }
-            else {
-                ExtendedScheduleDurationInstantImpl preparing = (ExtendedScheduleDurationInstantImpl) offered.getPreparing();
-                if (null == preparing)
-                    {
-                    preparing = new ExtendedScheduleDurationInstantImpl();
-                    offered.setPreparing(
-                        preparing
-                        );
-                    }
-                String start = preparing.getStart();
-                if (null != start)
-                    {
-                    log.error("Existing preparing start [{}]", start);
-                    return false ;
-                    }
-        
-                if (null != preparing.getDuration())
-                    {
-                    log.error("Existing preparing duration [{}]", preparing.getDuration());
-                    return false ;
-                    }
-    
-                Duration dataDuration = Duration.ofSeconds(
-                    seconds
-                    );
-                preparing.setDurationObject(
-                    dataDuration
-                    );
-                // TODO Need to add in the storage preparation for this data.
-                context.addPreparationDuration(
-                    dataDuration
-                    );
-                }
-
-            return true ;
-            }
-        else {
-            log.error("Null prepare duration");
-            return false ;
-            }
         }
     }

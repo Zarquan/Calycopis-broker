@@ -1,0 +1,297 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        refactor the scheduling mess ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Why do we need the PlanningSteps !?
+
+    There is a hierarchy of components within a Session.
+
+    Executable
+    StorageResources
+    DataResources
+    ComputeResources
+    Volume mounts
+
+    DataResources are assigned to a StorageResource.
+    StorageResource contains DataResources.
+    StorageResource needs to be prepared before the DataResources it contains.
+
+    ComputeResources have volume mounts.
+    StorageResources are mounted as volumes in ComputeResources.
+
+    Session.prepare()
+
+        foreach StorageResources
+
+            StorageResource.prepare
+
+            foreach StorageResource.dataResources
+
+                DataResource.prepare
+
+                // Specific to SRCnet deployment
+                if (dataResource instanceof SKaoDataResource)
+                    // A single data resource might be mounted more than once ..
+                    foreach dataResource.volumes
+                        platform.preparedata(resource, volume)
+
+        ComputeResource.prepare
+
+            // CANFAR deployment - nop
+
+            // Podman deployment - create volumes
+            foreach ComputeResource.volumes
+                Volume.prepare
+
+# -----------------------------------------------------
+
+    During validation we calculate a single value for the prepare duration.
+
+    AbstractDataResourceValidatorImpl
+        public boolean setPrepareDuration(
+            Context context,
+            IvoaAbstractDataResource validated,
+            Long seconds
+            )
+
+            // Creates a new ExtendedScheduleDurationInstantImpl
+            // adds it to the validated object
+            // validated.getSchedule().getOffered().setPreparing(...)
+
+    Need to do the same for the other data types,
+        AbstractExecutableValidatorImpl <-- need to create this one
+        AbstractStorageResourceValidatorImpl
+        AbstractComputeResourceValidatorImpl <-- need to create this one
+
+    We can do some in a base class, but limited because the
+    generated classes don't share a base class.
+        IvoaAbstractComputeResource
+        IvoaAbstractDataResource
+        IvoaAbstractExecutable
+        IvoaAbstractStorageResource
+
+    but they all have
+        IvoaComponentSchedule validated.getSchedule()
+    so the base class could handle that
+
+# -----------------------------------------------------
+
+    Check the prepare schedule ...
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=content-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Docker container for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+computer:
+  name: example-005-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
+  volumes:
+    - "Calibration data"
+volumes:
+  - name: "Calibration data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /calibration/
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - example-005-data-01
+data:
+- name: example-005-data-01
+  type: https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0
+  location: https://example.org/data/data-005.vot
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+--START--
+- uuid: "e01f4d44-cda4-4417-b223-6840d9b6eabd"
+  name: "content-test-001-offer-0"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-16T14:49:55Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-16T14:50:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "ffeee22f-5aa5-48b0-9ef6-ff771a3593b7"
+  name: "content-test-001-offer-1"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-16T16:49:55Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-16T16:50:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "53df2391-6761-4543-85af-62337c91c493"
+  name: "content-test-001-offer-2"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-16T18:49:55Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-16T18:50:00Z/PT0S"
+        duration: "PT2H"
+- uuid: "1830a54f-cb02-45df-97b3-392324bd4569"
+  name: "content-test-001-offer-3"
+  schedule:
+    offered:
+      preparing:
+        start: "2025-10-16T20:49:55Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-16T20:50:00Z/PT0S"
+        duration: "PT2H"
+--END--
+
+    offerurl=$(
+        yq '
+            .offers[0].href
+            ' \
+        "002-offerset-response.yaml"
+        )
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "${offerurl}" \
+    | yq '.'
+
+--START--
+uuid: "e01f4d44-cda4-4417-b223-6840d9b6eabd"
+name: "content-test-001-offer-0"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+created: "2025-10-16T14:49:41.701087Z"
+href: "http://127.0.0.1:8082/sessions/e01f4d44-cda4-4417-b223-6840d9b6eabd"
+phase: "OFFERED"
+expires: "2025-10-16T14:54:41.417764Z"
+schedule:
+  offered:
+    preparing:
+      start: "2025-10-16T14:49:55Z"
+      duration: "PT5S"
+    available:
+      start: "2025-10-16T14:50:00Z/PT0S"
+      duration: "PT2H"
+executable:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+  uuid: "225f0c93-6a5e-4d73-a10c-b60a0b380cef"
+  name: "content-test-001-executable"
+  created: "2025-10-16T14:49:41.727136Z"
+  schedule:
+    offered:
+      preparing:
+        duration: "PT5S"
+  privileged: false
+computer:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+  uuid: "ff2c359a-37d9-4dec-bd60-7f93bc9b3384"
+  name: "example-005-computer"
+  cores:
+    min: 2
+    max: 2
+  memory:
+    min: 2
+    max: 2
+storage:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "7be75b71-5a70-45d1-a7cc-b4be758041c4"
+    name: "Storage for [example-005-data-01]"
+    created: "2025-10-16T14:49:41.789616Z"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT5S"
+data:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0"
+    uuid: "329f1c29-b246-47c9-8753-3098278dcd49"
+    name: "example-005-data-01"
+    created: "2025-10-16T14:49:41.799462Z"
+    schedule:
+      offered:
+        preparing:
+          duration: "PT5S"
+    storage: "7be75b71-5a70-45d1-a7cc-b4be758041c4"
+    location: "https://example.org/data/data-005.vot"
+--END--
+
+    #
+    # Missing the volumes in the output .. ?
+    # Leave that for later.
+    #
+
+    #
+    # Everything has an offered and observed schedule.
+    # Can we remove the observed schedule, making the session schedule the same as the requested schedule.
+    # Not yet ...
+    #
+
+

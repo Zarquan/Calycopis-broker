@@ -39,6 +39,7 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
@@ -139,21 +140,30 @@ implements SkaoDataResourceValidator
                 )
             );
         
+        //
+        // Validate the IvoaIvoaDataResourceBlock
         success &= validate(
             requested.getIvoa(),
             validated,
             context
             );
 
+        //
+        // Validate the IvoaSkaoDataResourceBlock
         success &= validate(
             requested.getSkao(),
             validated,
             context
             );
 
+        //
+        // Calculate the preparation time.
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
         success &= setPrepareDuration(
             context,
-            validated,
+            validated.getSchedule(),
             this.predictPrepareTime(
                 validated
                 )

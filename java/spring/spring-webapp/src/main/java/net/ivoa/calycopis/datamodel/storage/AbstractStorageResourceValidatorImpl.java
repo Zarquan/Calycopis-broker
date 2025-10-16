@@ -23,94 +23,20 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
-import java.time.Duration;
-
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 
 /**
  * 
  */
 @Slf4j
 public abstract class AbstractStorageResourceValidatorImpl
+extends AbstractValidatorImpl
 implements AbstractStorageResourceValidator
     {
 
     public AbstractStorageResourceValidatorImpl()
         {
         super();
-        }
-
-    /**
-     * 
-     *
-     */
-    public boolean setPrepareDuration(
-        final IvoaAbstractStorageResource validated,
-        final Long seconds
-        ){
-        if (null != seconds)
-            {
-            IvoaComponentSchedule schedule = validated.getSchedule();
-            if (null == schedule)
-                {
-                schedule = new IvoaComponentSchedule(); 
-                validated.setSchedule(
-                    schedule
-                    );
-                }
-            
-            IvoaOfferedScheduleBlock offered = schedule.getOffered();
-            if (null == offered)
-                {
-                offered = new IvoaOfferedScheduleBlock ();
-                schedule.setOffered(
-                    offered
-                    );   
-                }
-    
-            IvoaOfferedScheduleDurationInstant preparing = offered.getPreparing();
-            if (null == preparing)
-                {
-                preparing = new IvoaOfferedScheduleDurationInstant();
-                offered.setPreparing(
-                    preparing
-                    );
-                }
-    
-            String start = preparing.getStart();
-            if (null != start)
-                {
-                log.error("Existing preparing start [{}]", start);
-                return false ;
-                }
-    
-            String duration = preparing.getDuration();
-            if (null != duration)
-                {
-                log.error("Existing preparing duration [{}]", duration);
-                return false ;
-                }
-    
-            // Saving this as a String sucks a bit, but we are using the generated bean class.
-            // TODO If we create a new class for the validated object that wraps or extends the generated bean
-
-    // TODO Use the extended bean
-            
-            preparing.setDuration(
-                Duration.ofSeconds(
-                    seconds
-                    ).toString()
-                );
-            
-            return true ;
-            }
-        else {
-            log.error("Null prepare duration");
-            return false;
-            }
         }
     }

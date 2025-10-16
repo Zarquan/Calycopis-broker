@@ -31,6 +31,7 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
@@ -114,14 +115,6 @@ implements AmazonS3DataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
 
-        success &= setPrepareDuration(
-            context,
-            validated,
-            this.predictPrepareTime(
-                validated
-                )
-            );
-        
         String name = trim(
             requested.getName()
             );
@@ -175,7 +168,20 @@ implements AmazonS3DataResourceValidator
         validated.setTemplate(template);
         validated.setBucket(bucket);
         validated.setObject(object);
-        
+
+        //
+        // Calculate the preparation time.
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+
         //
         // Everything is good, so accept the request.
         // TODO Need to add a reference to the builder.

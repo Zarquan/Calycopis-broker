@@ -21,15 +21,34 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
+import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+public class PodmanDockerContainerValidatorImpl
+extends DockerContainerValidatorImpl
+implements PodmanDockerContainerValidator
     {
 
+    public PodmanDockerContainerValidatorImpl(PodmanPlatform platform)
+        {
+        super(platform);
+        }
+
+
+    /*
+     * TODO This will be platform dependent.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    @Override
+    protected Long predictPrepareTime(final IvoaDockerContainer validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
     }

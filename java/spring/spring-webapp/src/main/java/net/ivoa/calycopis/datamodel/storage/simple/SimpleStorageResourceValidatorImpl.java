@@ -29,6 +29,8 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -95,13 +97,20 @@ implements SimpleStorageResourceValidator
             );
 
         //
-        // Check available size.
+        // TODO Check available size.
         //
 
         validated.setName(requested.getName());
+
         
+        //
+        // Calculate the preparation time.
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
         success &= setPrepareDuration(
-            validated,
+            context,
+            validated.getSchedule(),
             this.predictPrepareTime(
                 validated
                 )
@@ -146,14 +155,12 @@ implements SimpleStorageResourceValidator
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-
     /*
      * TODO This will be platform dependent.
-     * Different types of storage will have different preparation times.
      * 
      */
-    private Long predictPrepareTime(final IvoaAbstractStorageResource validated)
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    protected Long predictPrepareTime(final IvoaSimpleStorageResource resource)
         {
         return DEFAULT_PREPARE_TIME;
         }

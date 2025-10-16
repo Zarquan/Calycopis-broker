@@ -21,15 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidator;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+public interface PodmanJupyterNotebookValidator
+extends JupyterNotebookValidator
     {
 
     }

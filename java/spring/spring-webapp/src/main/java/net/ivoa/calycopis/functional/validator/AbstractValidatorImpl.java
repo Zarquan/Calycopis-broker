@@ -22,16 +22,22 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.schedule.ExtendedScheduleDurationInstantImpl;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
 
 /**
  * Base class for Validatior implementations.
  * Provides a set of tools.
  *  
  */
+@Slf4j
 public class AbstractValidatorImpl
     {
 
@@ -135,5 +141,59 @@ public class AbstractValidatorImpl
         return success ;
         }
 
-    
+    /**
+     * 
+     */
+    public boolean setPrepareDuration(
+        final OfferSetRequestParserContext context,
+        final IvoaComponentSchedule schedule ,
+        final Long seconds
+        ){
+        log.debug("setPrepareDuration [{}][{}]", this.getClass().getSimpleName());
+
+        if (null == seconds)
+            {
+            log.error("Null prepare duration");
+            return false ;
+            }
+        else {
+            log.debug("Checking the offered schedule.");
+            if (schedule.getOffered() != null)
+                {
+                log.error("Offered schedule already set [{}]", schedule.getOffered());
+                return false ;
+                }
+            log.debug("Creating the offered schedule.");
+            IvoaOfferedScheduleBlock offered = new IvoaOfferedScheduleBlock ();
+            schedule.setOffered(
+                offered
+                );   
+            
+            log.debug("Checking the prepare schedule.");
+            if (offered.getPreparing() != null)
+                {
+                log.error("Prepare schedule already set [{}]", offered.getPreparing().getDuration());
+                return false ;
+                }
+            
+            log.debug("Creating the prepare schedule.");
+            ExtendedScheduleDurationInstantImpl preparing = new ExtendedScheduleDurationInstantImpl();
+            offered.setPreparing(
+                preparing
+                );
+
+            Duration duration = Duration.ofSeconds(
+                seconds
+                );
+            preparing.setDurationObject(
+                duration
+                );
+            // TODO Need to add in the storage preparation for this data.
+            context.addPreparationDuration(
+                duration
+                );
+
+            return true ;
+            }
+        }
     }

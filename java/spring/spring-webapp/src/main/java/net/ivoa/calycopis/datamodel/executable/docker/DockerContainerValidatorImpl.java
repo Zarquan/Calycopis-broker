@@ -31,12 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
@@ -51,8 +53,8 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
  *
  */
 @Slf4j
-public class DockerContainerValidatorImpl
-extends AbstractValidatorImpl
+public abstract class DockerContainerValidatorImpl
+extends AbstractExecutableValidatorImpl
 implements DockerContainerValidator
     {
 
@@ -162,6 +164,19 @@ implements DockerContainerValidator
             context
             );
 
+        //
+        // Calculate the preparation time.
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+        
         //
         // Everything is good, add our result to the context.
         if (success)
@@ -655,5 +670,10 @@ implements DockerContainerValidator
             }
         return success;
         }
-    }
 
+    /*
+     * Platform dependent prepare time.
+     * 
+     */
+    protected abstract Long predictPrepareTime(final IvoaDockerContainer validated);
+    }

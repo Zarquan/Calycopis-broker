@@ -33,6 +33,7 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
@@ -40,7 +41,7 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
  * 
  */
 @Slf4j
-public class JupyterNotebookValidatorImpl
+public abstract class JupyterNotebookValidatorImpl
 extends AbstractValidatorImpl
 implements JupyterNotebookValidator
     {
@@ -104,6 +105,19 @@ implements JupyterNotebookValidator
             requested.getLocation(),
             validated,
             context
+            );
+
+        //
+        // Calculate the preparation time.
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
             );
         
         //
@@ -232,4 +246,12 @@ implements JupyterNotebookValidator
             }
         return success;
         }
+
+    /*
+     * Platform dependent prepare time.
+     * 
+     */
+    protected abstract Long predictPrepareTime(final IvoaJupyterNotebook requested);
+
     }
+

@@ -21,15 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidator;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+public interface PodmanDockerContainerValidator
+extends DockerContainerValidator
     {
 
     }

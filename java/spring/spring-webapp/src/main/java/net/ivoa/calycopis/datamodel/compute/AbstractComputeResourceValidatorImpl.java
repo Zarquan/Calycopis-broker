@@ -21,15 +21,22 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.compute;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+@Slf4j
+public abstract class AbstractComputeResourceValidatorImpl
+extends AbstractValidatorImpl
+implements AbstractComputeResourceValidator
     {
 
+    public AbstractComputeResourceValidatorImpl()
+        {
+        super();
+        }
     }

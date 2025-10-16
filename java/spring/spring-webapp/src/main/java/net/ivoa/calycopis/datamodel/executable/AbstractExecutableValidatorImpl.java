@@ -21,15 +21,21 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 
 /**
  * 
  */
-public interface SimpleComputeResourceValidator
-extends AbstractComputeResourceValidator
+public abstract class AbstractExecutableValidatorImpl
+extends AbstractValidatorImpl
+implements AbstractExecutableValidator
     {
+
+    public AbstractExecutableValidatorImpl()
+        {
+        super();
+        }
 
     }
