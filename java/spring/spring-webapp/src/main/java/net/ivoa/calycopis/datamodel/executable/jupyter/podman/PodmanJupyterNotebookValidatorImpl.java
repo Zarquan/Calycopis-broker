@@ -45,7 +45,7 @@ extends JupyterNotebookValidatorImpl
      * TODO This will be platform dependent.
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    public static final Long DEFAULT_PREPARE_TIME = 45L;
     @Override
     protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
         {

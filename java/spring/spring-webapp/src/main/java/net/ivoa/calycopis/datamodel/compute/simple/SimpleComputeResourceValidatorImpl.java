@@ -343,12 +343,9 @@ implements SimpleComputeResourceValidator
 
     /*
      * TODO This will be platform dependent.
-     * Different PrepareData implementations will have different preparation times.
-     * Some will just symlink the Rucio data, others will have an additional copy operation.
-     * Alternatively we could offload all of this to the local PrepareData service ? 
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    public static final Long DEFAULT_PREPARE_TIME = 15L;
 
     private Long predictPrepareTime(final IvoaSimpleComputeResource validated)
         {

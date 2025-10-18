@@ -25,13 +25,13 @@ package net.ivoa.calycopis.datamodel.schedule;
 
 import java.time.Duration;
 
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 
 /**
  * 
  */
 public class ExtendedScheduleDurationInstantImpl
-    extends IvoaOfferedScheduleDurationInstant
+    extends IvoaScheduleDurationInstant
     implements ExtendedScheduleDurationInstant
     {
 

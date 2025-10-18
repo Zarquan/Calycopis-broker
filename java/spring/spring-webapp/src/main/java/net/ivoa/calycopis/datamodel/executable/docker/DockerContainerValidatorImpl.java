@@ -676,4 +676,5 @@ implements DockerContainerValidator
      * 
      */
     protected abstract Long predictPrepareTime(final IvoaDockerContainer validated);
+    
     }

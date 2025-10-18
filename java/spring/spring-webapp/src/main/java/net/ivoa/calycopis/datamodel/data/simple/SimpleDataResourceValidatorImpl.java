@@ -187,7 +187,6 @@ implements SimpleDataResourceValidator
 
     /*
      * TODO This will be platform dependent.
-     * Different types of storage will have different preparation times.
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
