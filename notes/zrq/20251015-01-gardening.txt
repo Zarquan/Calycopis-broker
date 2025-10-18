@@ -93,7 +93,7 @@
 
         /isobeon/schema-processor.py \
             "${source}/Calycopis-broker.yaml" \
-            "${target}/Calycopis-broker-${version}.yaml"
+            "${target}/Calycopis-broker-${newversion}.yaml"
 
         ls -al "${target}"
 
@@ -128,7 +128,7 @@
 # Update the version in the Maven POM.
 #[root@developer-tools]
 
-    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+    # newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
 
     # TODO This moves to the schema project.
     pushd /calycopis/java/spring/spring-openapi
