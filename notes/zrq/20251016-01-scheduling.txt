@@ -211,6 +211,7 @@ EOF
         duration: "PT2H"
 --END--
 
+
     offerurl=$(
         yq '
             .offers[0].href
@@ -291,7 +292,7 @@ data:
     #
     # Everything has an offered and observed schedule.
     # Can we remove the observed schedule, making the session schedule the same as the requested schedule.
-    # Not yet ...
+    # Not yet, but flag that as a TODO.
     #
 
 
