@@ -31,7 +31,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 
 /**
  * 
@@ -44,7 +48,7 @@ import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractComputeResourceEntity
-extends ComponentEntity
+extends ScheduledComponentEntity
 implements AbstractComputeResource
     {
     /**
@@ -61,9 +65,12 @@ implements AbstractComputeResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractComputeResourceEntity(final ExecutionSessionEntity session, final String name)
+    protected AbstractComputeResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
         {
-        super(name);
+        super(
+            schedule,
+            name
+            );
         this.session = session;
         session.setComputeResource(
             this
@@ -79,4 +86,26 @@ implements AbstractComputeResource
         {
         return this.session;
         }
+
+    
+    protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
+        {
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
+            );
+        return bean;
+        }
+    
     }

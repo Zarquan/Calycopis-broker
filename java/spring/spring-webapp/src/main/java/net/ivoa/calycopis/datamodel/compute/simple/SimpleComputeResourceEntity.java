@@ -31,6 +31,7 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
@@ -71,6 +72,7 @@ public class SimpleComputeResourceEntity
         ){
         super(
             session,
+            template.getSchedule(),
             template.getName()
             );
 
@@ -201,21 +203,17 @@ public class SimpleComputeResourceEntity
      */
     
     @Override
-    public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
+    public IvoaSimpleComputeResource getIvoaBean(final String baseurl)
         {
-        IvoaSimpleComputeResource bean = new IvoaSimpleComputeResource (
-            SimpleComputeResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaSimpleComputeResource(SimpleComputeResource.TYPE_DISCRIMINATOR)
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-
+        }
+        
+    protected IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
+        {
+        super.fillBean(bean);
+        
         IvoaSimpleComputeCores coresbean = new IvoaSimpleComputeCores();
         coresbean.setMin(minofferedcores);
         coresbean.setMax(maxofferedcores);
