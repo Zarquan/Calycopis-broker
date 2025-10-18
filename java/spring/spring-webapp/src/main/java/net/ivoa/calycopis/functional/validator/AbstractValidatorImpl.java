@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.schedule.ExtendedScheduleDurationInstantImpl;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
 
 /**
  * Base class for Validatior implementations.
@@ -157,28 +156,16 @@ public class AbstractValidatorImpl
             return false ;
             }
         else {
-            log.debug("Checking the offered schedule.");
-            if (schedule.getOffered() != null)
-                {
-                log.error("Offered schedule already set [{}]", schedule.getOffered());
-                return false ;
-                }
-            log.debug("Creating the offered schedule.");
-            IvoaOfferedScheduleBlock offered = new IvoaOfferedScheduleBlock ();
-            schedule.setOffered(
-                offered
-                );   
-            
             log.debug("Checking the prepare schedule.");
-            if (offered.getPreparing() != null)
+            if (schedule.getPreparing() != null)
                 {
-                log.error("Prepare schedule already set [{}]", offered.getPreparing().getDuration());
+                log.error("Prepare schedule already set [{}]", schedule.getPreparing().getDuration());
                 return false ;
                 }
             
             log.debug("Creating the prepare schedule.");
             ExtendedScheduleDurationInstantImpl preparing = new ExtendedScheduleDurationInstantImpl();
-            offered.setPreparing(
+            schedule.setPreparing(
                 preparing
                 );
 
