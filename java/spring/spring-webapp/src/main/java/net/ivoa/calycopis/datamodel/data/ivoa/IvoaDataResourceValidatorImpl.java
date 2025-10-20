@@ -146,11 +146,11 @@ implements IvoaDataResourceValidator
             );
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder.
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -163,13 +163,28 @@ implements IvoaDataResourceValidator
                         );
                     }
                 };
-
+            //
+            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
+                ) {
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
             return dataResult ;
@@ -239,7 +254,7 @@ implements IvoaDataResourceValidator
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
-
+    @Deprecated
     private Long predictPrepareTime(final IvoaIvoaDataResource validated)
         {
         log.debug("predictPrepareTime()");

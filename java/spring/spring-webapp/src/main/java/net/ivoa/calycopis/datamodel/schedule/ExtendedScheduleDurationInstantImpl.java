@@ -30,6 +30,7 @@ import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 /**
  * 
  */
+@Deprecated // Moved to Validator.Result
 public class ExtendedScheduleDurationInstantImpl
     extends IvoaScheduleDurationInstant
     implements ExtendedScheduleDurationInstant
@@ -45,12 +46,14 @@ public class ExtendedScheduleDurationInstantImpl
 
     private Duration duration;  
     @Override
+    @Deprecated    
     public Duration getDurationObject()
         {
         return this.duration;
         }
 
     @Override
+    @Deprecated    
     public void setDurationObject(final Duration duration)
         {
         this.duration = duration;

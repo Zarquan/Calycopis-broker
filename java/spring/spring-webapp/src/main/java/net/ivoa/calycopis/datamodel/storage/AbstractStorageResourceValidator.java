@@ -23,6 +23,11 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -72,6 +77,18 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          *
          */
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
+
+        /**
+         * Add a data resource validation result.
+         * 
+         */
+        public void addDataResourceResult(final AbstractDataResourceValidator.Result result);
+        
+        /**
+         * Get a List of the validated data resources associated with this storage resource.
+         * 
+         */
+        public List<AbstractDataResourceValidator.Result> getDataResourceResults();
         
         }
     
@@ -79,6 +96,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * Simple Bean implementation of a StorageResourceValidator result.
      * 
      */
+    @Slf4j
     public static class ResultBean
     extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     implements Result
@@ -127,7 +145,66 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
                 );
             return this.entity;
             }
+        
+        private List<AbstractDataResourceValidator.Result> dataResourceResults = new ArrayList<AbstractDataResourceValidator.Result>();
+        @Override
+        public void addDataResourceResult(AbstractDataResourceValidator.Result result)
+            {
+            this.dataResourceResults.add(
+                result
+                );
+            }
+        @Override
+        public List<AbstractDataResourceValidator.Result> getDataResourceResults()
+            {
+            return this.dataResourceResults;
+            }
 
+        @Override
+        public Long getTotalPreparationTime()
+            {
+            log.debug("AbstractStorageResourceValidator.getTotalPrepareTime() [{}]", this.getIdent());
+            
+            Long maxDataPrepareTime = 0L;
+            for (AbstractDataResourceValidator.Result dataResult : this.getDataResourceResults())
+                {
+                Long dataPrepareTime = dataResult.getPreparationTime();
+                log.debug("Data prepare time [{}][{}]", dataResult.getIdent(), dataPrepareTime);
+                if ((dataPrepareTime != null) && (dataPrepareTime > maxDataPrepareTime))
+                    {
+                    maxDataPrepareTime = dataPrepareTime;
+                    }
+                }
+            return this.getPreparationTime() + maxDataPrepareTime;
+            }
+        
+        @Override
+        public String getIdent()
+            {
+            if (this.getEntity() != null)
+                {
+                if (this.getEntity().getUuid() != null)
+                    {
+                    return this.getEntity().getUuid().toString();
+                    }
+                else if (this.getEntity().getName() != null)
+                    {
+                    return this.getEntity().getName();
+                    }
+                }
+            if (this.getObject() != null)
+                {
+                if (this.getObject().getUuid() != null)
+                    {
+                    return this.getObject().getUuid().toString();
+                    }
+                else if (this.getObject().getName() != null)
+                    {
+                    return this.getObject().getName();
+                    }
+                }
+            return "unknown";
+            }
         }
     
     @Override

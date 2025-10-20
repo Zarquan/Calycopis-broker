@@ -493,10 +493,9 @@ extends AbstractValidatorImpl
         return volumeValidatorResultMap.get(key);
         }
     
-    /**
+    /*
      * A Map linking DataValidator results to StorageValidator results.
-     * 
-     */
+     *
     private Map<String, AbstractStorageResourceValidator.Result> dataStorageMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
 
     @Override
@@ -546,7 +545,7 @@ extends AbstractValidatorImpl
                 )
             );
         }
-
+    
     @Override
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
         {
@@ -558,6 +557,8 @@ extends AbstractValidatorImpl
                 )
             );
         }
+     * 
+     */
     
     /**
      * The requested start Interval.
@@ -639,24 +640,52 @@ extends AbstractValidatorImpl
         this.totalMaxMemory += delta;
         }
 
-    private Duration maxPreparationDuration = Duration.ZERO;
-    
     @Override
-    public void addPreparationDuration(final Duration duration)
+    public Long getTotalPrepareTime()
         {
-        log.debug("Adding prep duration [{}]", duration);
-        if (null != duration)
+        log.debug("OfferSetRequestParserContextImpl.getTotalPrepareTime()");
+        //
+        // Time needed to fetch the container image.
+        Long executablePrepareTime = this.executable.getTotalPreparationTime();
+        log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
+        //
+        // Time needed to create the storage space and stage the data.
+        Long maxStoragePrepareTime = 0L ;
+        for (AbstractStorageResourceValidator.Result storageResult : this.getStorageValidatorResults())
             {
-            if (duration.compareTo(this.maxPreparationDuration) > 0)
+            Long storagePrepareTime = storageResult.getTotalPreparationTime();
+            log.debug("Storage prepare time [{}][{}]", storageResult.getIdent(), storagePrepareTime);
+            if (storagePrepareTime > maxStoragePrepareTime)
                 {
-                this.maxPreparationDuration = duration;
+                maxStoragePrepareTime = storagePrepareTime;
                 }
             }
-        }
+        
+        //
+        // Time needed to allocate the compute resources and mount the volumes.
+        Long maxComputePrepareTime = 0L ;
+        for (AbstractComputeResourceValidator.Result computeResult : this.getComputeValidatorResults())
+            {
+            Long computePrepareTime = computeResult.getTotalPreparationTime();
+            log.debug("Compute prepare time [{}][{}]", computeResult.getIdent(), computePrepareTime);
+            if (computePrepareTime > maxComputePrepareTime)
+                {
+                maxComputePrepareTime = computePrepareTime;
+                }
+            }
+        
+        //
+        // Assuming staging can happen in parallel.
+        Long totalStagingTime = (executablePrepareTime > maxStoragePrepareTime) ? executablePrepareTime : maxStoragePrepareTime ;
+        //
+        // Total prepare time is staging time plus compute prepare time.
+        Long totalPrepareTime = totalStagingTime + maxComputePrepareTime ;
 
-    @Override
-    public Duration getMaxPreparationDuration()
-        {
-        return maxPreparationDuration ;
+        log.debug("Executable prepare time [{}]", executablePrepareTime);
+        log.debug("Max compute prepare time [{}]", maxComputePrepareTime);
+        log.debug("Max storage prepare time [{}]", maxStoragePrepareTime);
+        log.debug("Total prepare time [{}]", totalPrepareTime);
+
+        return totalPrepareTime ;
         }
     }

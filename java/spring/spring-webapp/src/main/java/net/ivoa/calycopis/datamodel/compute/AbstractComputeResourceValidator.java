@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -99,6 +100,51 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         public EntityBuilder getBuilder()
             {
             return this.builder;
+            }
+
+        // TODO Move this to the base class.
+        private AbstractComputeResourceEntity entity;
+        public AbstractComputeResourceEntity getEntity()
+            {
+            return this.entity;
+            }
+
+        // TODO Move this to the base class.
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
+            {
+            this.entity = this.builder.build(
+                session,
+                offer
+                );
+            return this.entity;
+            }
+        
+        // TODO Move this to the base class.
+        public String getIdent()
+            {
+            if (this.getEntity() != null)
+                {
+                if (this.getEntity().getUuid() != null)
+                    {
+                    return this.getEntity().getUuid().toString();
+                    }
+                else if (this.getEntity().getName() != null)
+                    {
+                    return this.getEntity().getName();
+                    }
+                }
+            if (this.getObject() != null)
+                {
+                if (this.getObject().getUuid() != null)
+                    {
+                    return this.getObject().getUuid().toString();
+                    }
+                else if (this.getObject().getName() != null)
+                    {
+                    return this.getObject().getName();
+                    }
+                }
+            return "unknown";
             }
         }
     }

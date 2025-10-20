@@ -5,6 +5,7 @@ package net.ivoa.calycopis.datamodel.offerset;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -276,7 +277,7 @@ public class OfferSetRequestParserImpl
      * Sometime in the next 2 hours.
      *
      */
-    public static final Duration DEFAULT_START_DURATION = Duration.ofHours(2);
+    public static final Duration DEFAULT_START_INTERVAL_DURATION = Duration.ofHours(2);
 
     /**
      * Validate the requested Schedule.
@@ -288,13 +289,14 @@ public class OfferSetRequestParserImpl
 
         log.debug("validate(IvoaRequestedScheduleBlock)");
 
-        Duration prepareDuration = context.getMaxPreparationDuration();
-        Instant prepareDoneInstant = Instant.now().plus(
-            prepareDuration
+        Long totalPrepareTime = context.getTotalPrepareTime();
+
+        Instant earliestStartTime = Instant.now().plusSeconds(
+            totalPrepareTime 
             );
         
-        log.debug("Prepare duration [{}]", prepareDuration);
-        log.debug("Prepare done [{}]", prepareDoneInstant);
+        log.debug("Total prepare time [{}]", totalPrepareTime);
+        log.debug("Earliest start time [{}]", earliestStartTime);
 
         if (schedule != null)
             {
@@ -340,9 +342,9 @@ public class OfferSetRequestParserImpl
                             startString
                             );
                         log.debug("Interval value [{}]", startinterval);
-                        if (startinterval.startsBefore(prepareDoneInstant))
+                        if (startinterval.startsBefore(earliestStartTime))
                             {
-                            log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
+                            log.warn("Start interval starts before earliest start time [{}][{}]", startinterval.getStart(), earliestStartTime);
                             // TODO Add a message ..
                             // TODO Fail the request ..
                             }
@@ -374,14 +376,13 @@ public class OfferSetRequestParserImpl
 
         if (context.getStartInterval() == null)
             {
-            // Default start is after the prepare time.
-            Interval defaultinterval = Interval.of(
-                prepareDoneInstant,
-                DEFAULT_START_DURATION
+            Interval defaultStartInterval = Interval.of(
+                earliestStartTime,
+                DEFAULT_START_INTERVAL_DURATION
                 );
-            log.debug("Interval list is empty, adding default [{}]", defaultinterval);
+            log.debug("Null start interval, using default [{}]", defaultStartInterval);
             context.setStartInterval(
-                defaultinterval
+                defaultStartInterval
                 );
             }
 
@@ -403,6 +404,9 @@ public class OfferSetRequestParserImpl
         {
         log.debug("build(OfferSetRequestParserState)");
 
+        
+        
+        
         //
         // Start with NO, and set to YES when we have at least one offer.
         IvoaOfferSetResponse.ResultEnum resultEnum = IvoaOfferSetResponse.ResultEnum.NO;
@@ -424,6 +428,12 @@ public class OfferSetRequestParserImpl
             log.debug("Max memory [{}]", context.getTotalMaxMemory());
             log.debug("---- ---- ---- ----");
 
+            //
+            // Calculate the preparation time.
+            
+            
+            
+            
             //
             // Check if the interval is possible.
             // Is the interval start greater than now + context.totalPreparationTime

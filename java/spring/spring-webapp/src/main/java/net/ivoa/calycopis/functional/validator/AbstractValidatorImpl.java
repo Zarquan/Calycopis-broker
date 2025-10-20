@@ -143,12 +143,13 @@ public class AbstractValidatorImpl
     /**
      * 
      */
+    @Deprecated 
     public boolean setPrepareDuration(
         final OfferSetRequestParserContext context,
         final IvoaComponentSchedule schedule ,
         final Long seconds
         ){
-        log.debug("setPrepareDuration [{}][{}]", this.getClass().getSimpleName());
+        log.debug("setPrepareDuration [{}]", this.getClass().getSimpleName());
 
         if (null == seconds)
             {
@@ -175,11 +176,6 @@ public class AbstractValidatorImpl
             preparing.setDurationObject(
                 duration
                 );
-            // TODO Need to add in the storage preparation for this data.
-            context.addPreparationDuration(
-                duration
-                );
-
             return true ;
             }
         }

@@ -116,10 +116,14 @@ implements AbstractDataResourceValidator
                                 storageResource 
                                 )
                             );
+                        /*
+                         * 
                         context.addDataStorageResult(
                             validated,
                             storageResult
                             );
+                         * 
+                         */
                         }
                     else {
                         log.error("Storage result has null object [{}]", storageResult);
@@ -190,10 +194,14 @@ implements AbstractDataResourceValidator
                             storageResult.getObject()
                             )
                         );
+                    /*
+                     * 
                     context.addDataStorageResult(
                         validated,
                         storageResult
                         );
+                     * 
+                     */
                     }
                 else {
                     log.error("Storage result has null object [{}]", storageResult);

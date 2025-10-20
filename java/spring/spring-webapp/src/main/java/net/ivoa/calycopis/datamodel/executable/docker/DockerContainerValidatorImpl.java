@@ -178,9 +178,11 @@ implements DockerContainerValidator
             );
         
         //
-        // Everything is good, add our result to the context.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder.
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -192,16 +194,23 @@ implements DockerContainerValidator
                         );
                     }
                 };
+            //
+            // Create a new validator Result.
             AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
-            /*
-            context.getValidatedOfferSetRequest().setExecutable(
-                validated
-                );
-             */
+                ) {
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
+                        validated
+                        );
+                    }
+                };
+            //
+            // Add our Result to our context
             context.setExecutableResult(
                 result
                 );
@@ -675,6 +684,7 @@ implements DockerContainerValidator
      * Platform dependent prepare time.
      * 
      */
+    @Deprecated
     protected abstract Long predictPrepareTime(final IvoaDockerContainer validated);
     
     }

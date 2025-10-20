@@ -28,6 +28,7 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 
 /**
+ * Public interface for VolumeMount validators and results.
  *
  */
 public interface AbstractVolumeMountValidator
@@ -53,7 +54,6 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
         {
-        // TODO A list of the volume mounts ...
         /**
          * Create a builder with the validation result.
          *

@@ -64,6 +64,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
 
     /**
      * Simple Bean implementation of a DataResourceValidator result.
+     * TODO Move this to AbstractDataResourceValidatorImpl, and include a factory method that can be inherited.
      * 
      */
     public static class ResultBean
@@ -99,6 +100,50 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         public EntityBuilder getBuilder()
             {
             return this.builder;
+            }
+
+        // TODO Move this to the base class.
+        private AbstractDataResourceEntity entity;
+        public AbstractDataResourceEntity getEntity()
+            {
+            return this.entity;
+            }
+
+        // TODO Move this to the base class.
+        public AbstractDataResourceEntity build(final ExecutionSessionEntity session)
+            {
+            this.entity = this.builder.build(
+                session
+                );
+            return this.entity;
+            }
+
+        // TODO Move this to the base class.
+        public String getIdent()
+            {
+            if (this.getEntity() != null)
+                {
+                if (this.getEntity().getUuid() != null)
+                    {
+                    return this.getEntity().getUuid().toString();
+                    }
+                else if (this.getEntity().getName() != null)
+                    {
+                    return this.getEntity().getName();
+                    }
+                }
+            if (this.getObject() != null)
+                {
+                if (this.getObject().getUuid() != null)
+                    {
+                    return this.getObject().getUuid().toString();
+                    }
+                else if (this.getObject().getName() != null)
+                    {
+                    return this.getObject().getName();
+                    }
+                }
+            return "unknown";
             }
         }
     }

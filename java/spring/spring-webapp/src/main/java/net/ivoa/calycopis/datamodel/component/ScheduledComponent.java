@@ -109,6 +109,6 @@ extends Component
      *
      */
     public long getReleaseDurationSeconds();
-
+    
     }
 

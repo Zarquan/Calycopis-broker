@@ -132,6 +132,7 @@ implements SimpleDataResourceValidator
 
         //
         // Calculate the preparation time.
+        // TODO Move this to after we have validated everything.
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -144,13 +145,13 @@ implements SimpleDataResourceValidator
             );
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
             EntityBuilder builder = new EntityBuilder()
                 {
+                //
+                // Create a new EntityBuilder.
                 @Override
                 public SimpleDataResourceEntity build(final ExecutionSessionEntity session)
                     {
@@ -161,18 +162,30 @@ implements SimpleDataResourceValidator
                         );
                     }
                 }; 
-            
+            //
+            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
+                ) {
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
             //
-            // Save the DataResource in the state.
+            // Add our Result to our context.
             context.addDataValidatorResult(
                 dataResult
                 );
-
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
+                dataResult
+                );
             return dataResult ;
             }
         //
@@ -190,6 +203,7 @@ implements SimpleDataResourceValidator
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
+    @Deprecated
     protected Long predictPrepareTime(final IvoaAbstractDataResource validated)
         {
         return DEFAULT_PREPARE_TIME;

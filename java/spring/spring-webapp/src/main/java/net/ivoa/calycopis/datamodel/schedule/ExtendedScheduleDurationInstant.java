@@ -28,6 +28,7 @@ import java.time.Duration;
 /**
  * 
  */
+@Deprecated // Moved to Validator.Result
 public interface ExtendedScheduleDurationInstant
     {
 

@@ -288,10 +288,11 @@ implements SimpleComputeResourceValidator
             );
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -304,18 +305,28 @@ implements SimpleComputeResourceValidator
                         );
                     }
                 }; 
-            
+            //
+            // Create a new validator Result.
             AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
+                ){
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addComputeValidatorResult(
                 result
                 );
             //
             // Update the running totals in our context.
-            // TODO Do we move these to ComputeResourceValidator.Result ?
+            // TODO Move these to ComputeResourceValidator.Result.
             context.addMinCores(
                 mincores
                 );
@@ -341,15 +352,11 @@ implements SimpleComputeResourceValidator
             }
         }
 
-    /*
-     * TODO This will be platform dependent.
-     * 
-     */
     public static final Long DEFAULT_PREPARE_TIME = 15L;
-
+    @Deprecated
     private Long predictPrepareTime(final IvoaSimpleComputeResource validated)
         {
-        log.debug("predictPrepareTime()");
+        log.debug("Predicting prepare time [{}]", validated.getUuid());
         return DEFAULT_PREPARE_TIME;
         }
     }

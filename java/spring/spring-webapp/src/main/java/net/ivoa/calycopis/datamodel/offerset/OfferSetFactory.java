@@ -38,6 +38,11 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 public interface OfferSetFactory
     extends FactoryBase
     {
+    /**
+     * The default expiry time for offers.
+     *
+     */
+    public static final Long DEFAULT_EXPIRY_TIME_SECONDS = 5 * 60L ;
 
     /**
      * Select an OfferSet based on its identifier.

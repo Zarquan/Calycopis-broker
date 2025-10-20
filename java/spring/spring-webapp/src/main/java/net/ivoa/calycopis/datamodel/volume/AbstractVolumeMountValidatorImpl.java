@@ -21,34 +21,33 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
+package net.ivoa.calycopis.datamodel.volume;
 
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
-import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
  */
-public class PodmanJupyterNotebookValidatorImpl
-extends JupyterNotebookValidatorImpl
-    implements PodmanJupyterNotebookValidator
+@Slf4j
+public abstract class AbstractVolumeMountValidatorImpl
+extends AbstractValidatorImpl
+implements AbstractVolumeMountValidator
     {
 
-    public PodmanJupyterNotebookValidatorImpl(Platform platform)
-        {
-        super(platform);
-        }
-
-    /*
-     * TODO This will be platform dependent.
+    /**
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 45L;
+    public AbstractVolumeMountValidatorImpl()
+        {
+        super();
+        }
+
+    public static final Long DEFAULT_PREPARE_TIME = 6L;
+
     @Deprecated
-    @Override
-    protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
+    protected Long predictPrepareTime(final IvoaAbstractStorageResource validated)
         {
         return DEFAULT_PREPARE_TIME;
         }

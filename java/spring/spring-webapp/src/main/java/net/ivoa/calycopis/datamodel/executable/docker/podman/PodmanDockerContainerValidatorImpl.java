@@ -46,6 +46,7 @@ implements PodmanDockerContainerValidator
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 35L;
+    @Deprecated
     @Override
     protected Long predictPrepareTime(final IvoaDockerContainer validated)
         {

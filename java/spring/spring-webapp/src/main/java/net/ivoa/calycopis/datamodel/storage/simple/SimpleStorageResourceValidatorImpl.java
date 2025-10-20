@@ -30,7 +30,6 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -117,10 +116,11 @@ implements SimpleStorageResourceValidator
             );
         
         //
-        // Everything is good.
-        // Create our result and add it to our context.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder.
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -132,17 +132,25 @@ implements SimpleStorageResourceValidator
                         );
                     }
                 }; 
-            
+            //
+            // Create a new validator Result.
             AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
-
+                ){
+                @Override
+                public Long getPreparationTime()    
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addStorageValidatorResult(
                 storageResult 
                 );
-
             return storageResult;
             }
         //
@@ -153,15 +161,5 @@ implements SimpleStorageResourceValidator
                 Validator.ResultEnum.FAILED
                 );
             }
-        }
-
-    /*
-     * TODO This will be platform dependent.
-     * 
-     */
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-    protected Long predictPrepareTime(final IvoaSimpleStorageResource resource)
-        {
-        return DEFAULT_PREPARE_TIME;
         }
     }

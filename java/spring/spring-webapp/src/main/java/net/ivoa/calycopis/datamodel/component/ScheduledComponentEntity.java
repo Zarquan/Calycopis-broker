@@ -47,7 +47,7 @@ import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class ScheduledComponentEntity
+public abstract class ScheduledComponentEntity
 extends ComponentEntity
 implements ScheduledComponent
     {
@@ -101,7 +101,7 @@ implements ScheduledComponent
                 }
             }
         }
-
+    
     @Column(name = "prepare_start_instant_seconds")
     protected long prepareStartInstantSeconds;
     @Override
@@ -344,4 +344,7 @@ implements ScheduledComponent
             return null ;
             }
         }
+
+    
+    
     }

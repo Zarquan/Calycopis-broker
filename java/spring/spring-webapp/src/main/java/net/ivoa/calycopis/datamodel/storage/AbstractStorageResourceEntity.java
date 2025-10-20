@@ -35,6 +35,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
@@ -45,6 +46,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 /**
  * 
  */
+@Slf4j
 @Entity
 @Table(
     name = "abstractstorageresources"

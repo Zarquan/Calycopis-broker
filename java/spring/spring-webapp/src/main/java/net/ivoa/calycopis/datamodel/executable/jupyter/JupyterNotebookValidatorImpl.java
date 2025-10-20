@@ -121,9 +121,11 @@ implements JupyterNotebookValidator
             );
         
         //
-        // Everything is good, add our result to the context.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder.
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -135,17 +137,23 @@ implements JupyterNotebookValidator
                         );
                     }
                 }; 
-
+            //
+            // Create a new validator Result.
             AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
-            /*
-            context.getValidatedOfferSetRequest().setExecutable(
-                validated
-                );
-             */
+                ){
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
+                        validated
+                        );
+                    }
+                };
+            //
+            // Add our Result to our context
             context.setExecutableResult(
                 result
                 );
@@ -251,6 +259,7 @@ implements JupyterNotebookValidator
      * Platform dependent prepare time.
      * 
      */
+    @Deprecated
     protected abstract Long predictPrepareTime(final IvoaJupyterNotebook requested);
 
     }

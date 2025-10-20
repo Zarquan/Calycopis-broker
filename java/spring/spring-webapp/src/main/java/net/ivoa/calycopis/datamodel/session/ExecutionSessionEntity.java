@@ -116,7 +116,7 @@ public class ExecutionSessionEntity
         this.expires = offerset.getExpires();
         this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
         this.availableDurationSeconds     = offerblock.getDuration().toSeconds();
-        this.prepareDurationSeconds       = context.getMaxPreparationDuration().toSeconds();
+        this.prepareDurationSeconds       = context.getTotalPrepareTime();
         this.prepareStartInstantSeconds   = this.availableStartInstantSeconds - this.prepareDurationSeconds;
         }
 

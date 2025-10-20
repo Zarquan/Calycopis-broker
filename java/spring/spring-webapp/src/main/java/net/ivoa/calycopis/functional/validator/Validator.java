@@ -50,6 +50,12 @@ public interface Validator<ObjectType, EntityType>
     public static interface Result<ObjectType, EntityType>
         {
         /**
+         * Get the object identifier.
+         * 
+         */
+        public String getIdent();
+
+        /**
          * Get the validation result enum.
          * 
          */
@@ -61,6 +67,18 @@ public interface Validator<ObjectType, EntityType>
          */
         public ObjectType getObject();
 
+        /**
+         * Get the preparation time for this resource.
+         *  
+         */
+        public Long getPreparationTime();
+
+        /**
+         * Get the total preparation time for this resource.
+         *  
+         */
+        public Long getTotalPreparationTime();
+        
         }
 
     /**
@@ -93,6 +111,24 @@ public interface Validator<ObjectType, EntityType>
         public ObjectType getObject()
             {
             return this.object;
+            }
+
+        @Override
+        public Long getPreparationTime()
+            {
+            return 0L;
+            }
+
+        @Override
+        public Long getTotalPreparationTime()
+            {
+            return this.getPreparationTime();
+            }
+
+        @Override
+        public String getIdent()
+            {
+            return "unknown";
             }
         }
 

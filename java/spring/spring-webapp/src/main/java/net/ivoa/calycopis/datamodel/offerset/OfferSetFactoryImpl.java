@@ -46,11 +46,6 @@ public class OfferSetFactoryImpl
     extends FactoryBaseImpl
     implements OfferSetFactory
     {
-    /**
-     * The default expiry time for offers, in seconds.
-     *
-     */
-    public static final int DEFAULT_EXPIRY_TIME_SECONDS = 5 * 60 ;
 
     private final OfferSetRequestParser offersetRequestParser;
     

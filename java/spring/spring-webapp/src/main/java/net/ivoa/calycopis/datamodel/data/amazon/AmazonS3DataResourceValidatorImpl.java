@@ -183,10 +183,11 @@ implements AmazonS3DataResourceValidator
             );
 
         //
-        // Everything is good, so accept the request.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder.
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -199,16 +200,28 @@ implements AmazonS3DataResourceValidator
                         );
                     }
                 }; 
-            
+            //
+            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
-
+                ){
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
             //
-            // Save the DataResource in the state.
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
 
@@ -229,7 +242,7 @@ implements AmazonS3DataResourceValidator
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
-
+    @Deprecated
     private Long predictPrepareTime(final IvoaS3DataResource validated)
         {
         log.debug("predictPrepareTime()");

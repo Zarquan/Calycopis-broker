@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -99,6 +100,50 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
         public EntityBuilder getBuilder()
             {
             return this.builder;
+            }
+
+        // TODO Move this to the base class.
+        private AbstractExecutableEntity entity;
+        public AbstractExecutableEntity getEntity()
+            {
+            return this.entity;
+            }
+
+        // TODO Move this to the base class.
+        public AbstractExecutableEntity build(final ExecutionSessionEntity session)
+            {
+            this.entity = this.builder.build(
+                session
+                );
+            return this.entity;
+            }
+
+        // TODO Move this to the base class.
+        public String getIdent()
+            {
+            if (this.getEntity() != null)
+                {
+                if (this.getEntity().getUuid() != null)
+                    {
+                    return this.getEntity().getUuid().toString();
+                    }
+                else if (this.getEntity().getName() != null)
+                    {
+                    return this.getEntity().getName();
+                    }
+                }
+            if (this.getObject() != null)
+                {
+                if (this.getObject().getUuid() != null)
+                    {
+                    return this.getObject().getUuid().toString();
+                    }
+                else if (this.getObject().getName() != null)
+                    {
+                    return this.getObject().getName();
+                    }
+                }
+            return "unknown";
             }
         }
     }

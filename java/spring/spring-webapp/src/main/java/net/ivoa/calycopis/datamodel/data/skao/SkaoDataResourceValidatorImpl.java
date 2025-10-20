@@ -170,11 +170,11 @@ implements SkaoDataResourceValidator
             );
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
+            //
+            // Create a new EntityBuilder
             EntityBuilder builder = new EntityBuilder()
                 {
                 @Override
@@ -187,13 +187,29 @@ implements SkaoDataResourceValidator
                         );
                     }
                 };
-
+            //
+            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated,
                 builder
-                );
+                ){
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
+                        validated
+                        );
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
             return dataResult ;
