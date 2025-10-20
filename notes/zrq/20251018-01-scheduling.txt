@@ -1,0 +1,104 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Refactor the scheduling
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Data assigned to Storage
+    Storage needs to prepare before Data is prepared.
+
+    Storage
+
+        calculateTotalPrepareDuration()
+            {
+            Duration maxDataPrepareDuration = ZERO
+            foreach Data
+
+                if Data.prepareDuration > maxDataPrepareDuration
+                    maxDataPrepareDuration = Data.prepareDuration
+
+            this.totalPrepareDuration = this.prepareDuration + maxDataPrepareDuration + PADDING_DURATION
+            return this.totalPrepareDuration
+            }
+
+        calculatePrepareStartInstant()
+            {
+            if (EARLY_PREPARE_FLAG)
+                {
+                this.setPrepareStartInstant = session.prepareStartInstant
+                }
+            else {
+                this.setPrepareStartInstant = session.availableStartInstant - this.totalPrepareDuration
+                }
+            return this.prepareStartInstant
+            }
+
+    Session
+
+        Duration calculateTotalPrepareDuration()
+            {
+            Duration maxStoragePrepareDuration = ZERO
+            foreach Storage
+                {
+                Duration storagePrepareDuration = storage.calculateTotalPrepareDuration()
+
+                if (storagePrepareDuration > maxDataPrepareDuration) {
+                    maxStoragePrepareDuration = storagePrepareDuration
+                    }
+                }
+
+            this.totalPrepareDuration = this.prepareDuration + maxStoragePrepareDuration + PADDING_DURATION
+            return this.totalPrepareDuration
+            }
+
+        calculatePrepareStartInstant()
+            {
+            Instant minPrepareStartInstant = offerset.expiry
+
+            calculateTotalPrepareDuration()
+
+            this.prepareStartInstant = this.availableStartInstant - this.totalPrepareDuration
+
+            foreach Storage
+                Instant storagePrepareStartInstant = storage.calculatePrepareStartInstant()
+                if (storagePrepareStartInstant <= minPrepareStartInstant)
+                    {
+                    // Fail, not enough time to prepare
+                    }
+
+            if (this.prepareStartInstant < minPrepareStartInstant)
+                {
+                // Fail, not enough time to prepare
+                }
+            }
+
+

@@ -25,7 +25,7 @@
 
     Target:
 
-        refactor the scheduling mess ...
+        Refactor the scheduling mess ...
 
     Result:
 
