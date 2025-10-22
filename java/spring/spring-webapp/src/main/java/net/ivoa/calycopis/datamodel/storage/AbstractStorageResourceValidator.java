@@ -42,6 +42,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
     /**
      * Public interface for an entity builder.
+     * TODO Move this to Validator base class.
      * 
      */
     public static interface EntityBuilder
@@ -63,17 +64,19 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         /**
          * Create a builder with the validation result.
          * 
-         */
         public EntityBuilder getBuilder();
+         */
 
         /**
          * Get the corresponding entity.
+         * TODO Move this to Validator base class.
          * 
          */
         public AbstractStorageResourceEntity getEntity();
 
         /**
          * Build an entity based on our validation result. 
+         * TODO Move this to Validator base class.
          *
          */
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
@@ -126,18 +129,21 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
             this.builder = builder;
             }
 
+        // TODO Move this to Validator base class.
         private EntityBuilder builder ;
         public EntityBuilder getBuilder()
             {
             return this.builder;
             }
         
+        // TODO Move this to Validator base class.
         private AbstractStorageResourceEntity entity;
         public AbstractStorageResourceEntity getEntity()
             {
             return this.entity;
             }
 
+        // TODO Move this to Validator base class.
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session)
             {
             this.entity = this.builder.build(

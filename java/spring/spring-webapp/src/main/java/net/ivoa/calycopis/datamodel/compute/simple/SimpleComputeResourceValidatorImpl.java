@@ -276,6 +276,8 @@ implements SimpleComputeResourceValidator
              */
             }
 
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -286,6 +288,8 @@ implements SimpleComputeResourceValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.

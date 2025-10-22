@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -55,7 +54,6 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
         {
-        // A list of the compute resources this executable is deployed on ?.
         /**
          * Create a builder with the validation result.
          * 

@@ -357,9 +357,20 @@ public interface OfferSetRequestParserContext
     public void addMaxMemory(long delta);
 
     /**
+     * Calculate the staging and preparing totals.
+     */
+    public Long calculateTotalPrepareTime();
+
+    /**
+     * Get the total staging time.
+     * 
+     */
+    public Long getTotalStagingTime();
+
+    /**
      * Get the total preparation time.
      * 
      */
     public Long getTotalPrepareTime();
-
+    
     }

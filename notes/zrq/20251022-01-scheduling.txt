@@ -1,0 +1,85 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Refactor the scheduling
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    At the moment we use the IvoaBeans to create our Entities.
+    Including creating the ScheduledComponentEntity from an IvoaComponentSchedule.
+    Problem is that the IvoaComponentSchedule has String values that we have to parse,
+    and the IvoaComponentSchedule comes from the remplate, so it doesn't have the
+    individual schedule for this instance.
+
+    The Validator.Result will have getPreparationTime() and getTotalPreparationTime() for each resource.
+
+    So can we pass the Result into the Builder ?
+
+    At the moment it is the other way around.
+    The Result contains a Builder.
+    and the Result implements getPreparationTime
+    so really, we want to move getPreparationTime into the Builder
+    so that is can use the prepare time to build the entity
+
+
+
+
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            $(
+            yq '.offers[0].href' "002-offerset-response.yaml"
+            ) \
+        | yq '.'
+
+
+
+

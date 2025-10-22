@@ -238,6 +238,10 @@ public class OfferSetRequestParserImpl
             }
         
         //
+        // Calculate the preparation time.
+        context.calculateTotalPrepareTime();
+        
+        //
         // Validate the schedule.
         validate(
             offersetRequest.getSchedule(),
@@ -289,15 +293,15 @@ public class OfferSetRequestParserImpl
 
         log.debug("validate(IvoaRequestedScheduleBlock)");
 
-        Long totalPrepareTime = context.getTotalPrepareTime();
-
+        //
+        // Calculate the earliest start time.
         Instant earliestStartTime = Instant.now().plusSeconds(
-            totalPrepareTime 
+            context.getTotalPrepareTime()
             );
         
-        log.debug("Total prepare time [{}]", totalPrepareTime);
+        log.debug("Total prepare time [{}]",  context.getTotalPrepareTime());
         log.debug("Earliest start time [{}]", earliestStartTime);
-
+        
         if (schedule != null)
             {
             IvoaRequestedScheduleItem requested = schedule.getRequested();
@@ -341,6 +345,7 @@ public class OfferSetRequestParserImpl
                         Interval startinterval = Interval.parse(
                             startString
                             );
+
                         log.debug("Interval value [{}]", startinterval);
                         if (startinterval.startsBefore(earliestStartTime))
                             {
@@ -427,17 +432,6 @@ public class OfferSetRequestParserImpl
             log.debug("Min memory [{}]", context.getTotalMinMemory());
             log.debug("Max memory [{}]", context.getTotalMaxMemory());
             log.debug("---- ---- ---- ----");
-
-            //
-            // Calculate the preparation time.
-            
-            
-            
-            
-            //
-            // Check if the interval is possible.
-            // Is the interval start greater than now + context.totalPreparationTime
-            //
 
             //
             // Generate a list of offers for our criteria.

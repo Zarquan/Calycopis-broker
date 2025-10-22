@@ -28,8 +28,8 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.schedule.ExtendedScheduleDurationInstantImpl;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 
 /**
  * Base class for Validatior implementations.
@@ -165,16 +165,15 @@ public class AbstractValidatorImpl
                 }
             
             log.debug("Creating the prepare schedule.");
-            ExtendedScheduleDurationInstantImpl preparing = new ExtendedScheduleDurationInstantImpl();
+            IvoaScheduleDurationInstant preparing = new IvoaScheduleDurationInstant(); 
             schedule.setPreparing(
                 preparing
                 );
-
             Duration duration = Duration.ofSeconds(
                 seconds
                 );
-            preparing.setDurationObject(
-                duration
+            preparing.setDuration(
+                duration.toString()
                 );
             return true ;
             }

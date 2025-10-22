@@ -104,6 +104,8 @@ implements SimpleStorageResourceValidator
         
         //
         // Calculate the preparation time.
+        /*
+         *
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -114,6 +116,8 @@ implements SimpleStorageResourceValidator
                 validated
                 )
             );
+         *
+         */
         
         //
         // Everything is good, create our Result.

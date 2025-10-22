@@ -158,6 +158,8 @@ implements SkaoDataResourceValidator
 
         //
         // Calculate the preparation time.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -168,6 +170,8 @@ implements SkaoDataResourceValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.

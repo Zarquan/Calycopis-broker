@@ -640,9 +640,27 @@ extends AbstractValidatorImpl
         this.totalMaxMemory += delta;
         }
 
+    private long totalStagingTime;
+    @Override
+    public Long getTotalStagingTime()
+        {
+        return totalStagingTime;
+        }
+
+    private long totalPrepareTime;
     @Override
     public Long getTotalPrepareTime()
         {
+        return totalPrepareTime;
+        }
+    
+    @Override
+    public Long calculateTotalPrepareTime()
+        {
+        // TODO Split this into the method to calculate and the method to get the value.
+        // The calculation method should only be called once, after all of the request has been validated.
+        // Then the get method should just return the stored value.
+        
         log.debug("OfferSetRequestParserContextImpl.getTotalPrepareTime()");
         //
         // Time needed to fetch the container image.
@@ -676,16 +694,17 @@ extends AbstractValidatorImpl
         
         //
         // Assuming staging can happen in parallel.
-        Long totalStagingTime = (executablePrepareTime > maxStoragePrepareTime) ? executablePrepareTime : maxStoragePrepareTime ;
+        this.totalStagingTime = (executablePrepareTime > maxStoragePrepareTime) ? executablePrepareTime : maxStoragePrepareTime ;
         //
         // Total prepare time is staging time plus compute prepare time.
-        Long totalPrepareTime = totalStagingTime + maxComputePrepareTime ;
+        this.totalPrepareTime = this.totalStagingTime + maxComputePrepareTime ;
 
-        log.debug("Executable prepare time [{}]", executablePrepareTime);
+        log.debug("Executable prepare time [{}]",  executablePrepareTime);
         log.debug("Max compute prepare time [{}]", maxComputePrepareTime);
         log.debug("Max storage prepare time [{}]", maxStoragePrepareTime);
-        log.debug("Total prepare time [{}]", totalPrepareTime);
+        log.debug("Total staging time [{}]", this.totalStagingTime);
+        log.debug("Total prepare time [{}]", this.totalPrepareTime);
 
-        return totalPrepareTime ;
+        return this.totalPrepareTime ;
         }
     }

@@ -133,6 +133,8 @@ implements SimpleDataResourceValidator
         //
         // Calculate the preparation time.
         // TODO Move this to after we have validated everything.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -143,6 +145,8 @@ implements SimpleDataResourceValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.

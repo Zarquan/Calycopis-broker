@@ -166,6 +166,8 @@ implements DockerContainerValidator
 
         //
         // Calculate the preparation time.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -176,6 +178,8 @@ implements DockerContainerValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.

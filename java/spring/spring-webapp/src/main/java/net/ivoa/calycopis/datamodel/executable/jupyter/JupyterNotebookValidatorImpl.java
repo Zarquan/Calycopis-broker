@@ -109,6 +109,8 @@ implements JupyterNotebookValidator
 
         //
         // Calculate the preparation time.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -119,6 +121,8 @@ implements JupyterNotebookValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.

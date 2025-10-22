@@ -171,6 +171,8 @@ implements AmazonS3DataResourceValidator
 
         //
         // Calculate the preparation time.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -181,6 +183,8 @@ implements AmazonS3DataResourceValidator
                 validated
                 )
             );
+         * 
+         */
 
         //
         // Everything is good, create our Result.

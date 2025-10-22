@@ -134,6 +134,8 @@ implements IvoaDataResourceValidator
 
         //
         // Calculate the preparation time.
+        /*
+         * 
         validated.setSchedule(
             new IvoaComponentSchedule()
             );
@@ -144,6 +146,8 @@ implements IvoaDataResourceValidator
                 validated
                 )
             );
+         * 
+         */
         
         //
         // Everything is good, create our Result.
