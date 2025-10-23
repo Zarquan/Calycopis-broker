@@ -456,7 +456,7 @@ public class OfferSetRequestParserImpl
                 //
                 // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
                 executionSessionEntity.setExecutable(
-                    context.getExecutableResult().getBuilder().build(
+                    context.getExecutableResult().build(
                         executionSessionEntity
                         )
                     );
@@ -465,7 +465,7 @@ public class OfferSetRequestParserImpl
                 // Add our compute resources
                 for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity,
                         computeOffer
                         );
@@ -482,7 +482,7 @@ public class OfferSetRequestParserImpl
                 // Add our data resources.
                 for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity
                         );
                     }
@@ -490,7 +490,7 @@ public class OfferSetRequestParserImpl
                 // Add our volume mounts.
                 for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity
                         );
                     }

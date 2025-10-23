@@ -34,18 +34,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 public interface AbstractExecutableValidator
 extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
-    /**
-     * Public interface for an entity builder.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on a validation result. 
-         *
-         */
-        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
-        }
     
     /**
      * Public interface for a validator result.
@@ -55,10 +43,10 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
         {
         /**
-         * Create a builder with the validation result.
-         * 
+         * Build an entity based on a validation result. 
+         *
          */
-        public EntityBuilder getBuilder();
+        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
         }
 
     /**
@@ -84,64 +72,19 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractExecutable object,
-            final EntityBuilder builder
+            final IvoaAbstractExecutable object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
 
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractExecutableEntity build(ExecutionSessionEntity session)
             {
-            return this.builder;
-            }
-
-        // TODO Move this to the base class.
-        private AbstractExecutableEntity entity;
-        public AbstractExecutableEntity getEntity()
-            {
-            return this.entity;
-            }
-
-        // TODO Move this to the base class.
-        public AbstractExecutableEntity build(final ExecutionSessionEntity session)
-            {
-            this.entity = this.builder.build(
-                session
-                );
-            return this.entity;
-            }
-
-        // TODO Move this to the base class.
-        public String getIdent()
-            {
-            if (this.getEntity() != null)
-                {
-                if (this.getEntity().getUuid() != null)
-                    {
-                    return this.getEntity().getUuid().toString();
-                    }
-                else if (this.getEntity().getName() != null)
-                    {
-                    return this.getEntity().getName();
-                    }
-                }
-            if (this.getObject() != null)
-                {
-                if (this.getObject().getUuid() != null)
-                    {
-                    return this.getObject().getUuid().toString();
-                    }
-                else if (this.getObject().getName() != null)
-                    {
-                    return this.getObject().getName();
-                    }
-                }
-            return "unknown";
+            return null;
             }
         }
     }

@@ -22,13 +22,14 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * Public interface for a ValidatorFactory.
  * 
  */
-public interface ValidatorFactory<ObjectType, EntityType>
+public interface ValidatorFactory<ObjectType, EntityType extends ComponentEntity>
     extends FactoryBase, Validator<ObjectType, EntityType>
     {
 

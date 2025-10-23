@@ -115,9 +115,11 @@ implements SimpleVolumeMountValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder.
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public SimpleVolumeMountEntity build(final ExecutionSessionEntity session)
                     {
@@ -126,14 +128,7 @@ implements SimpleVolumeMountValidator
                         validated
                         );
                     }
-                };
-            //
-            // Create a new validator Result.
-            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ){
+
                 @Override
                 public Long getPreparationTime()    
                     {

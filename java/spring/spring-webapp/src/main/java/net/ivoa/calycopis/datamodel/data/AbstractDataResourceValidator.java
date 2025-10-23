@@ -35,31 +35,18 @@ public interface AbstractDataResourceValidator
 extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
     /**
-     * Public interface for an entity builder.
+     * Public interface for a validator result.
      * 
      */
-    public static interface EntityBuilder
+    public interface Result
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
+        // TODO Keep references to the storage resource for this data.
         /**
          * Build an entity based on a validation result. 
          *
          */
         public AbstractDataResourceEntity build(final ExecutionSessionEntity session);
-        }
-
-    /**
-     * Public interface for a validator result.
-     * 
-     */
-    public static interface Result
-    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
-        {
-        // TODO A reference to the storage resource for this data.
-        /**
-         * Create a builder with the validation result.
-         * 
-         */
-        public EntityBuilder getBuilder();
         }
 
     /**
@@ -86,64 +73,19 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractDataResource object,
-            final EntityBuilder builder
+            final IvoaAbstractDataResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
 
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractDataResourceEntity build(ExecutionSessionEntity session)
             {
-            return this.builder;
-            }
-
-        // TODO Move this to the base class.
-        private AbstractDataResourceEntity entity;
-        public AbstractDataResourceEntity getEntity()
-            {
-            return this.entity;
-            }
-
-        // TODO Move this to the base class.
-        public AbstractDataResourceEntity build(final ExecutionSessionEntity session)
-            {
-            this.entity = this.builder.build(
-                session
-                );
-            return this.entity;
-            }
-
-        // TODO Move this to the base class.
-        public String getIdent()
-            {
-            if (this.getEntity() != null)
-                {
-                if (this.getEntity().getUuid() != null)
-                    {
-                    return this.getEntity().getUuid().toString();
-                    }
-                else if (this.getEntity().getName() != null)
-                    {
-                    return this.getEntity().getName();
-                    }
-                }
-            if (this.getObject() != null)
-                {
-                if (this.getObject().getUuid() != null)
-                    {
-                    return this.getObject().getUuid().toString();
-                    }
-                else if (this.getObject().getName() != null)
-                    {
-                    return this.getObject().getName();
-                    }
-                }
-            return "unknown";
+            return null;
             }
         }
     }

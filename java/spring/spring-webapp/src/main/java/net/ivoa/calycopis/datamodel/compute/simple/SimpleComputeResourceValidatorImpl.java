@@ -276,46 +276,27 @@ implements SimpleComputeResourceValidator
              */
             }
 
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-        
         //
         // Everything is good, create our Result.
         if (success)
             {
             //
-            // Create a new EntityBuilder
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
-                public SimpleComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
+                public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)                
                     {
-                    return entityFactory.create(
+                    this.entity = entityFactory.create(
                         session,
                         validated,
                         offer
                         );
+                    return this.entity;
                     }
-                }; 
-            //
-            // Create a new validator Result.
-            AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ){
+
                 @Override
                 public Long getPreparationTime()
                     {

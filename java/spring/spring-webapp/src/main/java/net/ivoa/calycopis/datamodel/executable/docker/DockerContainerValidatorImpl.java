@@ -186,9 +186,11 @@ implements DockerContainerValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder.
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ) {
                 @Override
                 public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
@@ -197,14 +199,7 @@ implements DockerContainerValidator
                         validated
                         );
                     }
-                };
-            //
-            // Create a new validator Result.
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ) {
+
                 @Override
                 public Long getPreparationTime()
                     {

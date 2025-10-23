@@ -191,9 +191,11 @@ implements AmazonS3DataResourceValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder.
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public AmazonS3DataResourceEntity build(final ExecutionSessionEntity session)
                     {
@@ -203,14 +205,7 @@ implements AmazonS3DataResourceValidator
                         validated
                         );
                     }
-                }; 
-            //
-            // Create a new validator Result.
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ){
+
                 @Override
                 public Long getPreparationTime()
                     {

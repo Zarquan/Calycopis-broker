@@ -25,6 +25,7 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -124,25 +125,21 @@ implements SimpleStorageResourceValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder.
-            EntityBuilder builder = new EntityBuilder()
-                {
-                @Override
-                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        validated
-                        );
-                    }
-                }; 
-            //
             // Create a new validator Result.
             AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
+                validated
                 ){
+                @Override
+                public AbstractStorageResourceEntity build(ExecutionSessionEntity session)
+                    {
+                    entity = entityFactory.create(
+                        session,
+                        validated
+                        );
+                    return entity;
+                    }
+
                 @Override
                 public Long getPreparationTime()    
                     {

@@ -22,13 +22,14 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 
 /**
  * Public interface for a Validator.
  *  
  */
-public interface Validator<ObjectType, EntityType>
+public interface Validator<ObjectType, EntityType extends ComponentEntity>
     {
     /**
      * Result enum for the validation process.
@@ -66,6 +67,12 @@ public interface Validator<ObjectType, EntityType>
          * 
          */
         public ObjectType getObject();
+        
+        /**
+         * Get the corresponding Entity.
+         * 
+         */
+        public EntityType getEntity();
 
         /**
          * Get the preparation time for this resource.
@@ -82,10 +89,19 @@ public interface Validator<ObjectType, EntityType>
         }
 
     /**
+     * Validate a component.
+     *
+     */
+    public Validator.Result<ObjectType, EntityType> validate(
+        final ObjectType requested,
+        final OfferSetRequestParserContext context
+        );
+    
+    /**
      * Simple bean implementation of Result.
      *  
      */
-    public static class ResultBean<ObjectType, EntityType>
+    public static class ResultBean<ObjectType, EntityType extends ComponentEntity>
     implements Result<ObjectType, EntityType>
         {
         public ResultBean(final ResultEnum result)
@@ -93,7 +109,7 @@ public interface Validator<ObjectType, EntityType>
             this(result, null);
             }
 
-        public ResultBean(final ResultEnum result, ObjectType object)
+        public ResultBean(final ResultEnum result, final ObjectType object)
             {
             this.result = result;
             this.object = object;
@@ -112,7 +128,14 @@ public interface Validator<ObjectType, EntityType>
             {
             return this.object;
             }
-
+        
+        protected EntityType entity;
+        @Override
+        public EntityType getEntity()
+            {
+            return this.entity;
+            }
+        
         @Override
         public Long getPreparationTime()
             {
@@ -128,16 +151,33 @@ public interface Validator<ObjectType, EntityType>
         @Override
         public String getIdent()
             {
+            if (this.getEntity() != null)
+                {
+                if (this.getEntity().getUuid() != null)
+                    {
+                    return this.getEntity().getUuid().toString();
+                    }
+                else if (this.getEntity().getName() != null)
+                    {
+                    return this.getEntity().getName();
+                    }
+                }
+            /*
+             * 
+            if (this.getObject() != null)
+                {
+                if (this.getObject().getUuid() != null)
+                    {
+                    return this.getObject().getUuid().toString();
+                    }
+                else if (this.getObject().getName() != null)
+                    {
+                    return this.getObject().getName();
+                    }
+                }
+             * 
+             */
             return "unknown";
             }
         }
-
-    /**
-     * Validate a component.
-     *
-     */
-    public Validator.Result<ObjectType, EntityType> validate(
-        final ObjectType requested,
-        final OfferSetRequestParserContext context
-        );
     }

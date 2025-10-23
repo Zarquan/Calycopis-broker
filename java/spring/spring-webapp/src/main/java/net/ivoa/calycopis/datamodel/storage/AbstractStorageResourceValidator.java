@@ -41,45 +41,12 @@ public interface AbstractStorageResourceValidator
 extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
     /**
-     * Public interface for an entity builder.
-     * TODO Move this to Validator base class.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on our validation result. 
-         *
-         */
-        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
-        }
-
-    /**
      * Public interface for a validator result.
      * 
      */
-    public static interface Result
+    public interface Result
     extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
         {
-        /**
-         * Create a builder with the validation result.
-         * 
-        public EntityBuilder getBuilder();
-         */
-
-        /**
-         * Get the corresponding entity.
-         * TODO Move this to Validator base class.
-         * 
-         */
-        public AbstractStorageResourceEntity getEntity();
-
-        /**
-         * Build an entity based on our validation result. 
-         * TODO Move this to Validator base class.
-         *
-         */
-        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
 
         /**
          * Add a data resource validation result.
@@ -92,11 +59,26 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * 
          */
         public List<AbstractDataResourceValidator.Result> getDataResourceResults();
-        
+
+        /**
+         * Build an entity based on our validation result.
+         * 
+         */
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
+
         }
+
+    /**
+     * Validate a component.
+     *
+     */
+    public Result validate(
+        final IvoaAbstractStorageResource requested,
+        final OfferSetRequestParserContext context
+        );
     
     /**
-     * Simple Bean implementation of a StorageResourceValidator result.
+     * Bean implementation of a StorageResourceValidator result.
      * 
      */
     @Slf4j
@@ -119,37 +101,12 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractStorageResource object,
-            final EntityBuilder builder
+            final IvoaAbstractStorageResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
-            }
-
-        // TODO Move this to Validator base class.
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
-            {
-            return this.builder;
-            }
-        
-        // TODO Move this to Validator base class.
-        private AbstractStorageResourceEntity entity;
-        public AbstractStorageResourceEntity getEntity()
-            {
-            return this.entity;
-            }
-
-        // TODO Move this to Validator base class.
-        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session)
-            {
-            this.entity = this.builder.build(
-                session
-                );
-            return this.entity;
             }
         
         private List<AbstractDataResourceValidator.Result> dataResourceResults = new ArrayList<AbstractDataResourceValidator.Result>();
@@ -185,37 +142,10 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
             }
         
         @Override
-        public String getIdent()
+        // Here because we need to create Results with just a status and no entity.
+        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session)
             {
-            if (this.getEntity() != null)
-                {
-                if (this.getEntity().getUuid() != null)
-                    {
-                    return this.getEntity().getUuid().toString();
-                    }
-                else if (this.getEntity().getName() != null)
-                    {
-                    return this.getEntity().getName();
-                    }
-                }
-            if (this.getObject() != null)
-                {
-                if (this.getObject().getUuid() != null)
-                    {
-                    return this.getObject().getUuid().toString();
-                    }
-                else if (this.getObject().getName() != null)
-                    {
-                    return this.getObject().getName();
-                    }
-                }
-            return "unknown";
+            return null ;
             }
-        }
-    
-    @Override
-    public Result validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserContext context
-        );
+        }   
     }

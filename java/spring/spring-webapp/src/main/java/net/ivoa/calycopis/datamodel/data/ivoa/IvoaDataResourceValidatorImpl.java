@@ -154,9 +154,11 @@ implements IvoaDataResourceValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder.
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public IvoaDataResourceEntity build(final ExecutionSessionEntity session)
                     {
@@ -166,14 +168,7 @@ implements IvoaDataResourceValidator
                         validated
                         );
                     }
-                };
-            //
-            // Create a new validator Result.
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ) {
+
                 @Override
                 public Long getPreparationTime()
                     {

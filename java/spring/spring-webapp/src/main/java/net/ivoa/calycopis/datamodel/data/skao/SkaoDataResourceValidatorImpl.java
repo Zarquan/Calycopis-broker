@@ -178,9 +178,11 @@ implements SkaoDataResourceValidator
         if (success)
             {
             //
-            // Create a new EntityBuilder
-            EntityBuilder builder = new EntityBuilder()
-                {
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public SkaoDataResourceEntity build(final ExecutionSessionEntity session)
                     {
@@ -190,14 +192,7 @@ implements SkaoDataResourceValidator
                         validated
                         );
                     }
-                };
-            //
-            // Create a new validator Result.
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ){
+
                 @Override
                 public Long getPreparationTime()
                     {

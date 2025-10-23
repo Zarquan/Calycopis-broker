@@ -152,10 +152,12 @@ implements SimpleDataResourceValidator
         // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
-                //
-                // Create a new EntityBuilder.
+            //
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public SimpleDataResourceEntity build(final ExecutionSessionEntity session)
                     {
@@ -165,14 +167,7 @@ implements SimpleDataResourceValidator
                         validated
                         );
                     }
-                }; 
-            //
-            // Create a new validator Result.
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                ) {
+
                 @Override
                 public Long getPreparationTime()
                     {

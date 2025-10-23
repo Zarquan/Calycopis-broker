@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -35,18 +34,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 public interface AbstractComputeResourceValidator
 extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
-    /**
-     * Public interface for an entity builder.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on a validation result. 
-         *
-         */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
-        }
    
     /**
      * Public interface for a validator result.
@@ -55,12 +42,12 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
         {
-        // TODO A list of the volume mounts ...
         /**
-         * Create a builder with the validation result.
+         * Build an entity based on our validation result.
          * 
          */
-        public EntityBuilder getBuilder();
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
+
         }
 
     /**
@@ -86,65 +73,19 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractComputeResource object,
-            final EntityBuilder builder
+            final IvoaAbstractComputeResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
-            }
-        
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
-            {
-            return this.builder;
             }
 
-        // TODO Move this to the base class.
-        private AbstractComputeResourceEntity entity;
-        public AbstractComputeResourceEntity getEntity()
-            {
-            return this.entity;
-            }
-
-        // TODO Move this to the base class.
+        @Override
+        // Here because we need to create Results with just a status and no entity
         public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
             {
-            this.entity = this.builder.build(
-                session,
-                offer
-                );
-            return this.entity;
-            }
-        
-        // TODO Move this to the base class.
-        public String getIdent()
-            {
-            if (this.getEntity() != null)
-                {
-                if (this.getEntity().getUuid() != null)
-                    {
-                    return this.getEntity().getUuid().toString();
-                    }
-                else if (this.getEntity().getName() != null)
-                    {
-                    return this.getEntity().getName();
-                    }
-                }
-            if (this.getObject() != null)
-                {
-                if (this.getObject().getUuid() != null)
-                    {
-                    return this.getObject().getUuid().toString();
-                    }
-                else if (this.getObject().getName() != null)
-                    {
-                    return this.getObject().getName();
-                    }
-                }
-            return "unknown";
+            return null;
             }
         }
     }
