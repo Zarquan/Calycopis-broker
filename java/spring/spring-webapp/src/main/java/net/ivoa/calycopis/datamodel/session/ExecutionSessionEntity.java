@@ -272,7 +272,7 @@ public class ExecutionSessionEntity
             this.makeScheduleBean()
             );
 
-        bean.setComputer(
+        bean.setCompute(
             this.getComputeResource().getIvoaBean(
                 baseurl
                 )

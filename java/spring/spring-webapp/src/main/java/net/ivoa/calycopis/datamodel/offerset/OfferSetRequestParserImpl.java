@@ -185,10 +185,10 @@ public class OfferSetRequestParserImpl
         //
         // Validate the requested compute resources.
         log.debug("Validating the requested compute resources");
-        if (offersetRequest.getComputer() != null)
+        if (offersetRequest.getCompute() != null)
             {
             computeValidators.validate(
-                offersetRequest.getComputer(),
+                offersetRequest.getCompute(),
                 context
                 );            
             // TODO Check the result ?
