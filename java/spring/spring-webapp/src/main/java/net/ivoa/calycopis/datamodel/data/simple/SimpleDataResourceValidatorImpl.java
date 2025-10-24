@@ -31,7 +31,6 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
@@ -164,7 +163,7 @@ implements SimpleDataResourceValidator
                     return entityFactory.create(
                         session,
                         storage.getEntity(),
-                        validated
+                        this
                         );
                     }
 

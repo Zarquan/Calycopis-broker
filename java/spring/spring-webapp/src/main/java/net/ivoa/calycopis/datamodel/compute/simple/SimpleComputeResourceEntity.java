@@ -62,33 +62,52 @@ public class SimpleComputeResourceEntity
         }
 
     /**
+     * Protected constructor with session, validation result, and offer.
+     *
+     */
+    public SimpleComputeResourceEntity(
+        final ExecutionSessionEntity session,
+        final SimpleComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer
+        ){
+        this(
+            session,
+            result,
+            offer,
+            (IvoaSimpleComputeResource) result.getObject()
+            );
+        }
+    
+    /**
      * Protected constructor with session, template and offer.
      *
      */
     public SimpleComputeResourceEntity(
         final ExecutionSessionEntity session,
-        final IvoaSimpleComputeResource template,
-        final ComputeResourceOffer offer
+        final SimpleComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer,
+        final IvoaSimpleComputeResource validated
         ){
         super(
             session,
-            template.getSchedule(),
-            template.getName()
+            result,
+            offer,
+            validated.getName()
             );
-
-        if (template.getCores() != null)
+        
+        if (validated.getCores() != null)
             {
-            this.minrequestedcores = template.getCores().getMin();
-            this.maxrequestedcores = template.getCores().getMax();
+            this.minrequestedcores = validated.getCores().getMin();
+            this.maxrequestedcores = validated.getCores().getMax();
             }
 
         this.minofferedcores   = offer.getCores();
         this.maxofferedcores   = offer.getCores();
 
-        if (template.getMemory() != null)
+        if (validated.getMemory() != null)
             {
-            this.minrequestedmemory = template.getMemory().getMin();
-            this.maxrequestedmemory = template.getMemory().getMax();
+            this.minrequestedmemory = validated.getMemory().getMin();
+            this.maxrequestedmemory = validated.getMemory().getMax();
             }
 
         this.minofferedmemory = offer.getMemory();
@@ -110,10 +129,6 @@ public class SimpleComputeResourceEntity
          */
         }
 
-    // Does this also have a start and end time ?
-    // Does this also go through a similar set of state changes as the parent execution ?
-    // YES
-    
     @Column(name="minrequestedcores")
     private Long minrequestedcores;
     @Override

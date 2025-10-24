@@ -28,6 +28,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
@@ -57,17 +58,37 @@ public class SimpleStorageResourceEntity
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor with parent and validator result.
      *
      */
-    public SimpleStorageResourceEntity(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template)
-        {
+    protected SimpleStorageResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceValidator.Result result
+        ){
+        this(
+            session,
+            result,
+            (IvoaSimpleStorageResource)result.getObject()
+            );
+        }
+    
+    /**
+     * Protected constructor with parent and validator result.
+     *
+     */
+    protected SimpleStorageResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceValidator.Result result,
+        final IvoaSimpleStorageResource template
+        ){
         super(
             session,
-            template.getSchedule(),
+            result,
             template.getName()
             );
-        // TODO Add the fields ...
+
+        // TODO Add the storage fields ...
+        
         }
     
     @Override

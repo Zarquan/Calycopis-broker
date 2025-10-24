@@ -30,10 +30,10 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * 
@@ -62,11 +62,13 @@ public class PodmanDockerContainerEntity
     /**
      *
      */
-    public PodmanDockerContainerEntity(final ExecutionSessionEntity session, final IvoaDockerContainer template)
-        {
+    public PodmanDockerContainerEntity(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        ){
         super(
             session,
-            template
+            result
             );
         }
 

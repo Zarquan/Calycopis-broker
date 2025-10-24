@@ -33,7 +33,6 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
@@ -139,7 +138,7 @@ implements JupyterNotebookValidator
                     {
                     return platform.getJupyterNotebookEntityFactory().create(
                         session,
-                        validated
+                        this
                         );
                     }
 

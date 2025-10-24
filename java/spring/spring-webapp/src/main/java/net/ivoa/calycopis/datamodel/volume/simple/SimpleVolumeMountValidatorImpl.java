@@ -125,7 +125,7 @@ implements SimpleVolumeMountValidator
                     {
                     return entityFactory.create(
                         session,
-                        validated
+                        this
                         );
                     }
 

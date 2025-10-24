@@ -45,6 +45,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -81,26 +82,38 @@ public class DockerContainerEntity
 
     protected DockerContainerEntity(
         final ExecutionSessionEntity session,
-        final IvoaDockerContainer template
+        final AbstractExecutableValidator.Result result
+        ){
+        this(
+            session,
+            result,
+            (IvoaDockerContainer) result.getObject()
+            );
+        }
+    
+    protected DockerContainerEntity(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result,
+        final IvoaDockerContainer validated
         ){
         super(
             session,
-            template.getSchedule(),
-            template.getName()
+            result,
+            validated.getName()
             );
 
-        this.privileged = template.getPrivileged();
-        this.entrypoint = template.getEntrypoint();        
+        this.privileged = validated.getPrivileged();
+        this.entrypoint = validated.getEntrypoint();        
 
         this.image = new ImageImpl(
-            template.getImage()
+            validated.getImage()
             );
         this.environment = new HashMap<String, String>();
         this.environment.putAll(
-            template.getEnvironment()
+            validated.getEnvironment()
             );
         
-        IvoaDockerNetworkSpec ivoaNetwork = template.getNetwork() ; 
+        IvoaDockerNetworkSpec ivoaNetwork = validated.getNetwork() ; 
         if (ivoaNetwork != null)
             {
             for (IvoaDockerNetworkPort port : ivoaNetwork.getPorts())

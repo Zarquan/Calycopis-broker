@@ -31,6 +31,7 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
@@ -61,15 +62,33 @@ public class SimpleVolumeMountEntity
         }
 
     /**
-     * Protected constructor with parent.
+     * Protected constructor with parent and validator result.
      *
      */
-    public SimpleVolumeMountEntity(final ExecutionSessionEntity session, final IvoaSimpleVolumeMount template)
-        {
+    public SimpleVolumeMountEntity(
+        final ExecutionSessionEntity session,
+        final AbstractVolumeMountValidator.Result result
+        ){
+        this(
+            session,
+            result,
+            (IvoaSimpleVolumeMount)result.getObject()
+            );
+        }
+    /**
+     * Protected constructor with parent and validator result.
+     *
+     */
+    public SimpleVolumeMountEntity(
+        final ExecutionSessionEntity session,
+        final AbstractVolumeMountValidator.Result result,
+        final IvoaSimpleVolumeMount validated
+        ){
         super(
             session,
-            template.getName()
+            validated.getName()
             );
+        
         // TODO Add the fields ...
         }
 

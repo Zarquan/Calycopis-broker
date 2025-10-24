@@ -33,6 +33,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
@@ -71,15 +72,36 @@ public class SkaoDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SkaoDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSkaoDataResource template)
-        {
+    public SkaoDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
+        this(
+            session,
+            storage,
+            result,
+            (IvoaSkaoDataResource) result.getObject()
+            );
+        }
+        
+    /**
+     * Protected constructor with parent.
+     *
+     */
+    public SkaoDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result,
+        final IvoaSkaoDataResource validated
+        ){
         super(
             session,
             storage,
-            template
+            result
             );
 
-        IvoaSkaoDataResourceBlock block = template.getSkao();
+        IvoaSkaoDataResourceBlock block = validated.getSkao();
         if (null != block)
             {
             this.namespace  = block.getNamespace();

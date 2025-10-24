@@ -27,8 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
 /**
  * A SimpleVolumeMount Factory.
@@ -48,7 +48,10 @@ public interface SimpleVolumeMountEntityFactory
      * Create a new SimpleVolumeMountEntity based on a template.
      *
      */
-    public SimpleVolumeMountEntity create(final ExecutionSessionEntity session, final IvoaSimpleVolumeMount template);
+    public SimpleVolumeMountEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractVolumeMountValidator.Result result
+        );
 
     }
 

@@ -1,0 +1,459 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            $(
+            yq '.offers[0].href' "002-offerset-response.yaml"
+            ) \
+        | yq '.'
+
+
+    >   uuid: "e64ab62e-dbc1-44f2-aa25-3928b7d580f0"
+    >   name: "concurrent-test-001-offer-0"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    >   href: "http://127.0.0.1:8082/sessions/e64ab62e-dbc1-44f2-aa25-3928b7d580f0"
+    >   phase: "OFFERED"
+    >   created: "2025-10-24T 02:15:38.76505Z"
+    >   expires: "2025-10-24T 02:20:38.436662Z"
+    >   schedule:
+    >     preparing:
+    >       start: "2025-10-24T 02:15:50Z"
+    >       duration: "PT2M10S"
+    >     available:
+    >       start: "2025-10-24T 02:18:00Z/PT0S"
+    >       duration: "PT2H"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >     uuid: "028cee26-1011-40c0-881d-d3765ef990ff"
+    >     name: "concurrent-test-001-executable"
+    >     created: "2025-10-24T02:15:38.779686Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-24T 02:15:50Z"
+    >         duration: "PT35S"
+    >       available:
+    >         start: "2025-10-24T 02:16:25Z/PT0S"
+    >     privileged: false
+    >   computer:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+    >     uuid: "ef4a77b1-a4be-4bf0-bf15-a9be896aca4e"
+    >     name: "example-005-computer"
+    >     created: "2025-10-24T02:15:38.832082Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-24T 02:18:00Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2025-10-24T 02:18:15Z/PT0S"
+    >         duration: "PT1H59M45S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   storage:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "d1917e5d-de8a-45da-99ad-ce3b3fc913d5"
+    >       name: "Storage for [example-data-01]"
+    >       created: "2025-10-24T02:15:38.845102Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T02:15:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "42a61ed1-abfd-481d-8423-a4bdc9a7e5d1"
+    >       name: "Storage for [example-data-02]"
+    >       created: "2025-10-24T02:15:38.854055Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T02:15:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "6fda3321-7368-46f8-b505-e144df71b939"
+    >       name: "Storage for [example-data-03]"
+    >       created: "2025-10-24T02:15:38.862049Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T02:15:55Z/PT0S"
+    >   data:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "2fac9d57-20f7-42c0-9486-5c3c26f8ecb9"
+    >       name: "example-data-01"
+    >       created: "2025-10-24T02:15:38.868322Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:55Z"
+    >           duration: "PT1M"
+    >         available:
+    >           start: "2025-10-24T02:16:55Z/PT0S"
+    >       storage: "d1917e5d-de8a-45da-99ad-ce3b3fc913d5"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-082506"
+    >         datasize: 27487790694400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "AUSRC_STORM"
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "a62a38d8-dd22-4c9a-bc5c-5df18c33fb18"
+    >       name: "example-data-02"
+    >       created: "2025-10-24T02:15:38.878209Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:55Z"
+    >           duration: "PT1M50S"
+    >         available:
+    >           start: "2025-10-24T02:17:45Z/PT0S"
+    >       storage: "42a61ed1-abfd-481d-8423-a4bdc9a7e5d1"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-094501"
+    >         datasize: 26843545600
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "b6fde807-fa1b-4baa-98bb-152f3772a336"
+    >       name: "example-data-03"
+    >       created: "2025-10-24T02:15:38.888011Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T02:15:55Z"
+    >           duration: "PT1M4S"
+    >         available:
+    >           start: "2025-10-24T02:16:59Z/PT0S"
+    >       storage: "6fda3321-7368-46f8-b505-e144df71b939"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-123401"
+    >         datasize: 26214400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "SPSRC_STORM"
+
+
+
+    Why are 2 replicas slower that 1 replica ?
+
+    >     replicas:
+    >       - rsename: "AUSRC_STORM"
+    >       - rsename: "JPSRC_STORM"
+    >       - rsename: "SPSRC_STORM"
+    >     ....
+    >     preparing:
+    >       start: "2025-10-24T02:15:55Z"
+    >       duration: "PT1M"
+
+    >     replicas:
+    >       - rsename: "JPSRC_STORM"
+    >       - rsename: "SPSRC_STORM"
+    >     ....
+    >     preparing:
+    >       start: "2025-10-24T02:15:55Z"
+    >       duration: "PT1M50S"
+
+    >     replicas:
+    >       - rsename: "SPSRC_STORM"
+    >     ....
+    >     preparing:
+    >       start: "2025-10-24T02:15:55Z"
+    >       duration: "PT1M4S"
+
+
+    Data should be stored on the same shared storage.
+
+    Computer should be called compute
+
+    Compute should prepare after data has completed but before session is available.
+
+    Code changes to compute timing ...
+
+
+    >   uuid: "5e550eba-08b3-4223-80d9-04c6d480bd28"
+    >   name: "concurrent-test-001-offer-0"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    >   created: "2025-10-24T03:01:17.275766Z"
+    >   href: "http://127.0.0.1:8082/sessions/5e550eba-08b3-4223-80d9-04c6d480bd28"
+    >   phase: "OFFERED"
+    >   expires: "2025-10-24T03:06:16.955394Z"
+    >   schedule:
+    >     preparing:
+    >       start: "2025-10-24T03:01:50Z"
+    >       duration: "PT2M10S"
+    >     available:
+    >       start: "2025-10-24T03:04:00Z/PT0S"
+    >       duration: "PT2H"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >     uuid: "befd54aa-4feb-4bcf-8c27-94db52c954ed"
+    >     name: "concurrent-test-001-executable"
+    >     created: "2025-10-24T03:01:17.290697Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-24T03:01:50Z"
+    >         duration: "PT35S"
+    >       available:
+    >         start: "2025-10-24T03:02:25Z/PT0S"
+    >     privileged: false
+    >   computer:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0"
+    >     uuid: "4c65cbc7-f9ff-4a41-a260-2f1105220204"
+    >     name: "example-005-computer"
+    >     created: "2025-10-24T03:01:17.339177Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-24T03:03:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2025-10-24T03:04:00Z/PT0S"
+    >         duration: "PT2H"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   storage:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "60f53557-6093-43ff-9f81-99a88fd6f170"
+    >       name: "Storage for [example-data-01]"
+    >       created: "2025-10-24T03:01:17.349534Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "2c36d6d4-d229-4f41-a63b-5c1b88b4961f"
+    >       name: "Storage for [example-data-02]"
+    >       created: "2025-10-24T03:01:17.356446Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "572688db-03d6-4b70-be5a-518bbb32804e"
+    >       name: "Storage for [example-data-03]"
+    >       created: "2025-10-24T03:01:17.362515Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >   data:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "3d5dc37d-bb3b-4f0a-9c25-f38c9ff03542"
+    >       name: "example-data-01"
+    >       created: "2025-10-24T03:01:17.367447Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M"
+    >         available:
+    >           start: "2025-10-24T03:02:55Z/PT0S"
+    >       storage: "60f53557-6093-43ff-9f81-99a88fd6f170"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-082506"
+    >         datasize: 27487790694400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "AUSRC_STORM"
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "c82f4d62-e879-4f21-a960-e67cb3942f01"
+    >       name: "example-data-02"
+    >       created: "2025-10-24T03:01:17.37593Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M50S"
+    >         available:
+    >           start: "2025-10-24T03:03:45Z/PT0S"
+    >       storage: "2c36d6d4-d229-4f41-a63b-5c1b88b4961f"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-094501"
+    >         datasize: 26843545600
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "7a83197d-0a4a-4004-adcf-6bb670697b77"
+    >       name: "example-data-03"
+    >       created: "2025-10-24T03:01:17.385064Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M4S"
+    >         available:
+    >           start: "2025-10-24T03:02:59Z/PT0S"
+    >       storage: "572688db-03d6-4b70-be5a-518bbb32804e"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-123401"
+    >         datasize: 26214400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "SPSRC_STORM"
+
+
+    >   schedule:
+    >     preparing:
+    >       start: "2025-10-24T03:01:50Z"
+    >       duration: "PT2M10S"
+    >     available:
+    >       start: "2025-10-24T03:04:00Z/PT0S"
+    >       duration: "PT2H"
+    >   
+    >   computer:
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-24T03:03:45Z" <-- this matches when the last data becomes available
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2025-10-24T03:04:00Z/PT0S" <-- this matches the session becomes available
+    >         duration: "PT2H"
+    >   
+    >   storage:
+    >       name: "Storage for [example-data-01]"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >   
+    >   storage:
+    >       name: "Storage for [example-data-02]"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >   
+    >   storage:
+    >       name: "Storage for [example-data-03]"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-24T03:01:55Z/PT0S"
+    >   
+    >   data:
+    >       name: "example-data-01"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M"
+    >         available:
+    >           start: "2025-10-24T03:02:55Z/PT0S"
+    >       skao:
+    >         replicas:
+    >           - rsename: "AUSRC_STORM"
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >   
+    >   data:
+    >       name: "example-data-02"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M50S"                 <-- why is this the slowest ?
+    >         available:
+    >           start: "2025-10-24T03:03:45Z/PT0S" <-- why is this the last ?
+    >       skao:
+    >         replicas:
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >   data:
+    >       name: "example-data-03"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-24T03:01:55Z"
+    >           duration: "PT1M4S"
+    >         available:
+    >           start: "2025-10-24T03:02:59Z/PT0S"
+    >       skao:
+    >         replicas:
+    >           - rsename: "SPSRC_STORM"
+
+

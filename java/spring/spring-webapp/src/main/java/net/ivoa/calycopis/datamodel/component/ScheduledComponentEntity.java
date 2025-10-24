@@ -62,6 +62,16 @@ implements ScheduledComponent
     /**
      * 
      */
+    public ScheduledComponentEntity(final String name)
+        {
+        this(
+            (IvoaComponentSchedule)null,
+            name
+            );
+        }
+    /**
+     * 
+     */
     public ScheduledComponentEntity(final IvoaComponentSchedule schedule, final String name)
         {
         super(

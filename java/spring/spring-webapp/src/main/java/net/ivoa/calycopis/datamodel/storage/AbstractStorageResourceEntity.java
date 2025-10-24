@@ -40,7 +40,6 @@ import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -72,16 +71,31 @@ implements AbstractStorageResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractStorageResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
-        {
+    protected AbstractStorageResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceValidator.Result result,
+        final String name
+        ){
         super(
-            schedule,
             name
             );
+
         this.session = session;
         session.addStorageResource(
             this
             );
+
+        //
+        // Start preparing when the session starts preparing.
+        this.prepareDurationSeconds     = result.getPreparationTime();
+        this.prepareStartInstantSeconds = session.getPrepareStartInstantSeconds();
+
+        //
+        // Available as soon as the preparation is done.
+        this.availableDurationSeconds      = 0L;
+        this.availableStartDurationSeconds = 0L;
+        this.availableStartInstantSeconds  = this.prepareStartInstantSeconds + this.prepareDurationSeconds;
+        
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)

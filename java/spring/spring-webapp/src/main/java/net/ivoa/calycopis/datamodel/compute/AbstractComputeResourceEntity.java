@@ -30,12 +30,10 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
 
 /**
  * 
@@ -65,16 +63,34 @@ implements AbstractComputeResource
      * Automatically adds this resource to the parent ExecutionSessionEntity.
      * 
      */
-    protected AbstractComputeResourceEntity(final ExecutionSessionEntity session, final IvoaComponentSchedule schedule, final String name)
-        {
+    protected AbstractComputeResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer,
+        final String name
+        ){
         super(
-            schedule,
             name
             );
+
         this.session = session;
         session.setComputeResource(
             this
             );
+        
+        //
+        // Start preparing before the offer is available.
+        // TODO Add available time and preparation time to the offer.
+        this.prepareDurationSeconds     = result.getPreparationTime();
+        this.prepareStartInstantSeconds = offer.getStartTime().getEpochSecond() - result.getPreparationTime(); 
+
+        //
+        // Available as soon as the preparation is done.
+        // TODO Add available time and preparation time to the offer.
+        this.availableDurationSeconds      = offer.getDuration().getSeconds();
+        this.availableStartDurationSeconds = 0L;
+        this.availableStartInstantSeconds  = offer.getStartTime().getEpochSecond();
+
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)

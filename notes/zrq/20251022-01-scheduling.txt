@@ -49,10 +49,13 @@
     so really, we want to move getPreparationTime into the Builder
     so that is can use the prepare time to build the entity
 
+# -----------------------------------------------------
 
+    Refactored the validator classes, removing the Builder interface.
+    The build(...) method is now part of the Result,
+    giving it access to the schedule timing data.
 
-
-
+# -----------------------------------------------------
 
         curl \
             --silent \

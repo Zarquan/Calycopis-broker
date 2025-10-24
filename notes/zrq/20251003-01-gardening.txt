@@ -202,44 +202,42 @@ EOF
             ]
             '
 
---START--
-- uuid: "3f13b1a3-2d07-45cd-bd64-c663c7b04f5a"
-  name: "concurrent-test-001-offer-0"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-10-03T15:14:00Z"
-      available:
-        start: "2025-10-03T15:14:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "20aa50e3-5b6b-4c27-ae1e-575564718bf9"
-  name: "concurrent-test-001-offer-1"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-10-03T17:14:00Z"
-      available:
-        start: "2025-10-03T17:14:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "df9a9892-55d6-46b6-81bb-695a15c73ac9"
-  name: "concurrent-test-001-offer-2"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-10-03T19:14:00Z"
-      available:
-        start: "2025-10-03T19:14:00Z/PT0S"
-        duration: "PT2H"
-- uuid: "ce6b41f2-0e4a-4c9f-9114-819704216510"
-  name: "concurrent-test-001-offer-3"
-  schedule:
-    offered:
-      preparing:
-        start: "2025-10-03T21:14:00Z"
-      available:
-        start: "2025-10-03T21:14:00Z/PT0S"
-        duration: "PT2H"
---END--
+    >   - uuid: "3f13b1a3-2d07-45cd-bd64-c663c7b04f5a"
+    >     name: "concurrent-test-001-offer-0"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-03T15:14:00Z"
+    >         available:
+    >           start: "2025-10-03T15:14:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "20aa50e3-5b6b-4c27-ae1e-575564718bf9"
+    >     name: "concurrent-test-001-offer-1"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-03T17:14:00Z"
+    >         available:
+    >           start: "2025-10-03T17:14:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "df9a9892-55d6-46b6-81bb-695a15c73ac9"
+    >     name: "concurrent-test-001-offer-2"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-03T19:14:00Z"
+    >         available:
+    >           start: "2025-10-03T19:14:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "ce6b41f2-0e4a-4c9f-9114-819704216510"
+    >     name: "concurrent-test-001-offer-3"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-03T21:14:00Z"
+    >         available:
+    >           start: "2025-10-03T21:14:00Z/PT0S"
+    >           duration: "PT2H"
 
 
 # -----------------------------------------------------
