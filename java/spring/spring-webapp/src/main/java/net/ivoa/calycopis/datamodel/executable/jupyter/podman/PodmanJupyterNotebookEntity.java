@@ -28,9 +28,9 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
@@ -59,11 +59,13 @@ implements PodmanJupyterNotebook
     /**
      *
      */
-    public PodmanJupyterNotebookEntity(final ExecutionSessionEntity session, final IvoaJupyterNotebook template)
-        {
+    public PodmanJupyterNotebookEntity(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        ){
         super(
             session,
-            template
+            result
             );
         }
 

@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.data.simple;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -57,15 +58,36 @@ public class SimpleDataResourceEntity
      * Protected constructor with parent.
      *
      */
-    public SimpleDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template)
-        {
+    public SimpleDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
+        this(
+            session,
+            storage,
+            result,
+            (IvoaSimpleDataResource) result.getObject()
+            );
+        }
+    
+    /**
+     * Protected constructor with parent.
+     *
+     */
+    public SimpleDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result,
+        final IvoaSimpleDataResource validated
+        ){
         super(
             session,
             storage,
-            template.getSchedule(),
-            template.getName()
+            result,
+            validated.getName()
             );
-        this.location = template.getLocation();
+        this.location = validated.getLocation();
         }
 
     private String location;

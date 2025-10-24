@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.data.amazon;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -54,21 +55,43 @@ public class AmazonS3DataResourceEntity
         }
 
     /**
+     * Protected constructor with parent, storage, and validation Result.
+     *
+     */
+    public AmazonS3DataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
+        this(
+            session,
+            storage,
+            result,
+            (IvoaS3DataResource) result.getObject()
+            );
+        }
+    
+    /**
      * Protected constructor with parent and template.
      *
      */
-    public AmazonS3DataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaS3DataResource template)
-        {
+    public AmazonS3DataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result,
+        final IvoaS3DataResource validated
+        ){
         super(
             session,
             storage,
-            template.getSchedule(),
-            template.getName()
+            result,
+            validated.getName()
             );
-        this.endpoint = template.getEndpoint();
-        this.template = template.getTemplate();
-        this.bucket   = template.getBucket();
-        this.object   = template.getObject();
+        this.endpoint = validated.getEndpoint();
+        this.template = validated.getTemplate();
+        this.bucket   = validated.getBucket();
+        this.object   = validated.getObject();
+
         }
 
     private String endpoint;

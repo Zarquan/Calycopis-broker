@@ -122,15 +122,9 @@ implements IvoaDataResourceValidator
                 requested.getName()
                 )
             );
-
-        success &= setPrepareDuration(
-            context,
-            validated,
-            this.predictPrepareTime(
-                validated
-                )
-            );
         
+        //
+        // Validate the IvoaIvoaDataResourceBlock.
         success &= validate(
             requested.getIvoa(),
             validated,
@@ -138,30 +132,57 @@ implements IvoaDataResourceValidator
             );
 
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Calculate the preparation time.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+         * 
+         */
+        
+        //
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public IvoaDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
                         storage.getEntity(),
-                        validated
+                        this
                         );
                     }
-                };
 
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
             return dataResult ;
@@ -228,13 +249,10 @@ implements IvoaDataResourceValidator
     
     /*
      * TODO This will be platform dependent.
-     * Different PrepareData implementations will have different preparation times.
-     * Some will just symlink the Rucio data, others will have an additional copy operation.
-     * Alternatively we could offload all of this to the local PrepareData service ? 
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
-
+    @Deprecated
     private Long predictPrepareTime(final IvoaIvoaDataResource validated)
         {
         log.debug("predictPrepareTime()");

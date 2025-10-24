@@ -114,10 +114,15 @@ public class ExecutionSessionEntity
             this
             );
         this.expires = offerset.getExpires();
+
+        // TODO factor in the compute prepare time.
+        // OfferBlock needs to have separate prepare and available times.
         this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
         this.availableDurationSeconds     = offerblock.getDuration().toSeconds();
-        this.prepareDurationSeconds       = context.getMaxPreparationDuration().toSeconds();
+
+        this.prepareDurationSeconds       = context.getTotalPrepareTime();
         this.prepareStartInstantSeconds   = this.availableStartInstantSeconds - this.prepareDurationSeconds;
+
         }
 
     @Column(name = "phase")
@@ -267,7 +272,7 @@ public class ExecutionSessionEntity
             this.makeScheduleBean()
             );
 
-        bean.setComputer(
+        bean.setCompute(
             this.getComputeResource().getIvoaBean(
                 baseurl
                 )

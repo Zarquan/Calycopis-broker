@@ -114,14 +114,6 @@ implements AmazonS3DataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
 
-        success &= setPrepareDuration(
-            context,
-            validated,
-            this.predictPrepareTime(
-                validated
-                )
-            );
-        
         String name = trim(
             requested.getName()
             );
@@ -175,34 +167,59 @@ implements AmazonS3DataResourceValidator
         validated.setTemplate(template);
         validated.setBucket(bucket);
         validated.setObject(object);
-        
+
         //
-        // Everything is good, so accept the request.
-        // TODO Need to add a reference to the builder.
+        // Calculate the preparation time.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+         * 
+         */
+
+        //
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public AmazonS3DataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
                         storage.getEntity(),
-                        validated
+                        this
                         );
                     }
-                }; 
-            
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
 
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
             //
-            // Save the DataResource in the state.
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
 
@@ -220,13 +237,10 @@ implements AmazonS3DataResourceValidator
 
     /*
      * TODO This will be platform dependent.
-     * Different PrepareData implementations will have different preparation times.
-     * Some will just symlink the Rucio data, others will have an additional copy operation.
-     * Alternatively we could offload all of this to the local PrepareData service ? 
      * 
      */
     public static final Long DEFAULT_PREPARE_TIME = 5L;
-
+    @Deprecated
     private Long predictPrepareTime(final IvoaS3DataResource validated)
         {
         log.debug("predictPrepareTime()");

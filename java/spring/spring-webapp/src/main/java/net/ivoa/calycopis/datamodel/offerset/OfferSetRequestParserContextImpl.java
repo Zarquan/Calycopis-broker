@@ -493,10 +493,9 @@ extends AbstractValidatorImpl
         return volumeValidatorResultMap.get(key);
         }
     
-    /**
+    /*
      * A Map linking DataValidator results to StorageValidator results.
-     * 
-     */
+     *
     private Map<String, AbstractStorageResourceValidator.Result> dataStorageMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
 
     @Override
@@ -546,7 +545,7 @@ extends AbstractValidatorImpl
                 )
             );
         }
-
+    
     @Override
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
         {
@@ -558,6 +557,8 @@ extends AbstractValidatorImpl
                 )
             );
         }
+     * 
+     */
     
     /**
      * The requested start Interval.
@@ -639,24 +640,71 @@ extends AbstractValidatorImpl
         this.totalMaxMemory += delta;
         }
 
-    private Duration maxPreparationDuration = Duration.ZERO;
-    
+    private long totalStagingTime;
     @Override
-    public void addPreparationDuration(final Duration duration)
+    public Long getTotalStagingTime()
         {
-        log.debug("Adding prep duration [{}]", duration);
-        if (null != duration)
-            {
-            if (duration.compareTo(this.maxPreparationDuration) > 0)
-                {
-                this.maxPreparationDuration = duration;
-                }
-            }
+        return totalStagingTime;
         }
 
+    private long totalPrepareTime;
     @Override
-    public Duration getMaxPreparationDuration()
+    public Long getTotalPrepareTime()
         {
-        return maxPreparationDuration ;
+        return totalPrepareTime;
+        }
+    
+    @Override
+    public Long calculateTotalPrepareTime()
+        {
+        // TODO Split this into the method to calculate and the method to get the value.
+        // The calculation method should only be called once, after all of the request has been validated.
+        // Then the get method should just return the stored value.
+        
+        log.debug("OfferSetRequestParserContextImpl.getTotalPrepareTime()");
+        //
+        // Time needed to fetch the container image.
+        Long executablePrepareTime = this.executable.getTotalPreparationTime();
+        log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
+        //
+        // Time needed to create the storage space and stage the data.
+        Long maxStoragePrepareTime = 0L ;
+        for (AbstractStorageResourceValidator.Result storageResult : this.getStorageValidatorResults())
+            {
+            Long storagePrepareTime = storageResult.getTotalPreparationTime();
+            log.debug("Storage prepare time [{}][{}]", storageResult.getIdent(), storagePrepareTime);
+            if (storagePrepareTime > maxStoragePrepareTime)
+                {
+                maxStoragePrepareTime = storagePrepareTime;
+                }
+            }
+        
+        //
+        // Time needed to allocate the compute resources and mount the volumes.
+        Long maxComputePrepareTime = 0L ;
+        for (AbstractComputeResourceValidator.Result computeResult : this.getComputeValidatorResults())
+            {
+            Long computePrepareTime = computeResult.getTotalPreparationTime();
+            log.debug("Compute prepare time [{}][{}]", computeResult.getIdent(), computePrepareTime);
+            if (computePrepareTime > maxComputePrepareTime)
+                {
+                maxComputePrepareTime = computePrepareTime;
+                }
+            }
+        
+        //
+        // Assuming staging can happen in parallel.
+        this.totalStagingTime = (executablePrepareTime > maxStoragePrepareTime) ? executablePrepareTime : maxStoragePrepareTime ;
+        //
+        // Total prepare time is staging time plus compute prepare time.
+        this.totalPrepareTime = this.totalStagingTime + maxComputePrepareTime ;
+
+        log.debug("Executable prepare time [{}]",  executablePrepareTime);
+        log.debug("Max compute prepare time [{}]", maxComputePrepareTime);
+        log.debug("Max storage prepare time [{}]", maxStoragePrepareTime);
+        log.debug("Total staging time [{}]", this.totalStagingTime);
+        log.debug("Total prepare time [{}]", this.totalPrepareTime);
+
+        return this.totalPrepareTime ;
         }
     }

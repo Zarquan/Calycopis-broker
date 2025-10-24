@@ -31,10 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
-import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -51,8 +51,8 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
  *
  */
 @Slf4j
-public class DockerContainerValidatorImpl
-extends AbstractValidatorImpl
+public abstract class DockerContainerValidatorImpl
+extends AbstractExecutableValidatorImpl
 implements DockerContainerValidator
     {
 
@@ -163,30 +163,51 @@ implements DockerContainerValidator
             );
 
         //
-        // Everything is good, add our result to the context.
+        // Calculate the preparation time.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+         * 
+         */
+        
+        //
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ) {
                 @Override
                 public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
                     return platform.getDockerContainerEntityFactory().create(
                         session,
+                        this
+                        );
+                    }
+
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
                         validated
                         );
                     }
                 };
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
-            /*
-            context.getValidatedOfferSetRequest().setExecutable(
-                validated
-                );
-             */
+            //
+            // Add our Result to our context
             context.setExecutableResult(
                 result
                 );
@@ -655,5 +676,12 @@ implements DockerContainerValidator
             }
         return success;
         }
-    }
 
+    /*
+     * Platform dependent prepare time.
+     * 
+     */
+    @Deprecated
+    protected abstract Long predictPrepareTime(final IvoaDockerContainer validated);
+    
+    }

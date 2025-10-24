@@ -139,51 +139,75 @@ implements SkaoDataResourceValidator
                 )
             );
         
+        //
+        // Validate the IvoaIvoaDataResourceBlock
         success &= validate(
             requested.getIvoa(),
             validated,
             context
             );
 
+        //
+        // Validate the IvoaSkaoDataResourceBlock
         success &= validate(
             requested.getSkao(),
             validated,
             context
             );
 
+        //
+        // Calculate the preparation time.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
         success &= setPrepareDuration(
             context,
-            validated,
+            validated.getSchedule(),
             this.predictPrepareTime(
                 validated
                 )
             );
+         * 
+         */
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public SkaoDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
                         storage.getEntity(),
+                        this
+                        );
+                    }
+
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
                         validated
                         );
                     }
                 };
-
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
+            //
+            // Add our Result to our context.
             context.addDataValidatorResult(
+                dataResult
+                );
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
                 dataResult
                 );
             return dataResult ;

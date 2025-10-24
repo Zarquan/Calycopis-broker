@@ -26,10 +26,10 @@ package net.ivoa.calycopis.datamodel.data.ivoa;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 
 /**
  * An IvoaDataResource Factory.
@@ -49,7 +49,11 @@ public interface IvoaDataResourceEntityFactory
      * Create a new IvoaDataResource based on a template.
      *
      */
-    public IvoaDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template);
+    public IvoaDataResourceEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        );
 
     }
 

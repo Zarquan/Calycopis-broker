@@ -35,11 +35,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaObservedScheduleItem;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInterval;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
 
 /**
  * 
@@ -50,7 +47,7 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInterval;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class ScheduledComponentEntity
+public abstract class ScheduledComponentEntity
 extends ComponentEntity
 implements ScheduledComponent
     {
@@ -65,6 +62,16 @@ implements ScheduledComponent
     /**
      * 
      */
+    public ScheduledComponentEntity(final String name)
+        {
+        this(
+            (IvoaComponentSchedule)null,
+            name
+            );
+        }
+    /**
+     * 
+     */
     public ScheduledComponentEntity(final IvoaComponentSchedule schedule, final String name)
         {
         super(
@@ -72,43 +79,39 @@ implements ScheduledComponent
             );
         if (schedule != null)
             {
-            IvoaOfferedScheduleBlock offered = schedule.getOffered();
-            if (null != offered)
+            IvoaScheduleDurationInstant preparing = schedule.getPreparing();
+            if (null != preparing)
                 {
-                IvoaOfferedScheduleDurationInstant preparing = offered.getPreparing();
-                if (null != preparing)
+                String startInstantString = preparing.getStart();
+                if (null != startInstantString)
                     {
-                    String startInstantString = preparing.getStart();
-                    if (null != startInstantString)
-                        {
-                        try {
-                            this.prepareStartInstantSeconds = Instant.parse(
-                                startInstantString
-                                ).getEpochSecond();
-                            }
-                        catch (Exception ouch)
-                            {
-                            log.warn("Exception parsing prepare start instant [{}][{}]", startInstantString, ouch.getMessage());
-                            }
+                    try {
+                        this.prepareStartInstantSeconds = Instant.parse(
+                            startInstantString
+                            ).getEpochSecond();
                         }
-                    String durationString = preparing.getDuration();
-                    if (null != durationString)
+                    catch (Exception ouch)
                         {
-                        try {
-                            this.prepareDurationSeconds = Duration.parse(
-                                durationString
-                                ).getSeconds();
-                            }
-                        catch (Exception ouch)
-                            {
-                            log.warn("Exception parsing prepare duration [{}][{}]", durationString, ouch.getMessage());
-                            }
+                        log.warn("Exception parsing prepare start instant [{}][{}]", startInstantString, ouch.getMessage());
+                        }
+                    }
+                String durationString = preparing.getDuration();
+                if (null != durationString)
+                    {
+                    try {
+                        this.prepareDurationSeconds = Duration.parse(
+                            durationString
+                            ).getSeconds();
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.warn("Exception parsing prepare duration [{}][{}]", durationString, ouch.getMessage());
                         }
                     }
                 }
             }
         }
-
+    
     @Column(name = "prepare_start_instant_seconds")
     protected long prepareStartInstantSeconds;
     @Override
@@ -221,10 +224,10 @@ implements ScheduledComponent
             );
         }
 
-    public IvoaOfferedScheduleDurationInstant makeOfferedPreparingBean()
+    public IvoaScheduleDurationInstant makePreparingBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleDurationInstant bean = new IvoaOfferedScheduleDurationInstant(); 
+        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
         if (getPrepareStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -248,10 +251,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaOfferedScheduleDurationInterval makeOfferedAvailableBean()
+    public IvoaScheduleDurationInterval makeAvailableBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleDurationInterval bean = new IvoaOfferedScheduleDurationInterval();
+        IvoaScheduleDurationInterval bean = new IvoaScheduleDurationInterval();
         if (getAvailableStartInstantSeconds() > 0)
             {
             StringBuffer buffer = new StringBuffer();
@@ -285,10 +288,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaOfferedScheduleDurationInstant makeOfferedReleasingBean()
+    public IvoaScheduleDurationInstant makeReleasingBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleDurationInstant bean = new IvoaOfferedScheduleDurationInstant(); 
+        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
         if (getReleaseStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -312,12 +315,12 @@ implements ScheduledComponent
             }
         }
     
-    public IvoaOfferedScheduleBlock makeOfferedScheduleBean()
+    public IvoaComponentSchedule makeScheduleBean()
         {
         boolean valid = false;
-        IvoaOfferedScheduleBlock bean = new IvoaOfferedScheduleBlock(); 
+        IvoaComponentSchedule bean = new IvoaComponentSchedule(); 
 
-        IvoaOfferedScheduleDurationInstant preparing = this.makeOfferedPreparingBean();
+        IvoaScheduleDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)
             {
             bean.setPreparing(
@@ -326,7 +329,7 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaOfferedScheduleDurationInterval available = this.makeOfferedAvailableBean();
+        IvoaScheduleDurationInterval available = this.makeAvailableBean();
         if (null != available)
             {
             bean.setAvailable(
@@ -335,11 +338,11 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaOfferedScheduleDurationInstant releasing = this.makeOfferedReleasingBean(); 
+        IvoaScheduleDurationInstant releasing = this.makeReleasingBean(); 
         if (releasing != null)
             {
             bean.setReleasing(
-                this.makeOfferedReleasingBean()
+                this.makeReleasingBean()
                 );
             valid = true ;
             }
@@ -352,51 +355,6 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaObservedScheduleItem makeObservedPreparingBean()
-        {
-        IvoaObservedScheduleItem bean = new IvoaObservedScheduleItem();
-        return bean;
-        }
-
-    public IvoaObservedScheduleItem makeObservedAvailableBean()
-        {
-        IvoaObservedScheduleItem bean = new IvoaObservedScheduleItem(); 
-        return bean;
-        }
-
-    public IvoaObservedScheduleItem makeObservedReleasingBean()
-        {
-        IvoaObservedScheduleItem bean = new IvoaObservedScheduleItem(); 
-        return bean;
-        }
     
-    public IvoaObservedScheduleBlock makeObservedScheduleBean()
-        {
-        IvoaObservedScheduleBlock bean = new IvoaObservedScheduleBlock(); 
-        bean.setPreparing(
-            this.makeObservedPreparingBean()
-            );
-        bean.setAvailable(
-            this.makeObservedAvailableBean()
-            );
-        bean.setReleasing(
-            this.makeObservedReleasingBean()
-            );
-        return bean;
-        }
     
-    public IvoaComponentSchedule makeScheduleBean()
-        {
-        IvoaComponentSchedule bean = new IvoaComponentSchedule(); 
-        bean.setOffered(
-            this.makeOfferedScheduleBean()
-            );
-        /*
-         * Don't include this if it is empty.
-        bean.setObserved(
-            this.makeObservedScheduleBean()
-            );
-         */
-        return bean;
-        }
     }

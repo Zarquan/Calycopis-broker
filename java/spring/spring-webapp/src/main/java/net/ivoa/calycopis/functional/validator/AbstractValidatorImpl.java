@@ -22,16 +22,21 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 
 /**
  * Base class for Validatior implementations.
  * Provides a set of tools.
  *  
  */
+@Slf4j
 public class AbstractValidatorImpl
     {
 
@@ -135,5 +140,42 @@ public class AbstractValidatorImpl
         return success ;
         }
 
-    
+    /**
+     * 
+     */
+    @Deprecated 
+    public boolean setPrepareDuration(
+        final OfferSetRequestParserContext context,
+        final IvoaComponentSchedule schedule ,
+        final Long seconds
+        ){
+        log.debug("setPrepareDuration [{}]", this.getClass().getSimpleName());
+
+        if (null == seconds)
+            {
+            log.error("Null prepare duration");
+            return false ;
+            }
+        else {
+            log.debug("Checking the prepare schedule.");
+            if (schedule.getPreparing() != null)
+                {
+                log.error("Prepare schedule already set [{}]", schedule.getPreparing().getDuration());
+                return false ;
+                }
+            
+            log.debug("Creating the prepare schedule.");
+            IvoaScheduleDurationInstant preparing = new IvoaScheduleDurationInstant(); 
+            schedule.setPreparing(
+                preparing
+                );
+            Duration duration = Duration.ofSeconds(
+                seconds
+                );
+            preparing.setDuration(
+                duration.toString()
+                );
+            return true ;
+            }
+        }
     }

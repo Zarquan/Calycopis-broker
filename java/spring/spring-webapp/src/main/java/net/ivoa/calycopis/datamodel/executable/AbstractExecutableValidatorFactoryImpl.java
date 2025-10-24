@@ -25,8 +25,8 @@ package net.ivoa.calycopis.datamodel.executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
+import net.ivoa.calycopis.datamodel.executable.docker.podman.PodmanDockerContainerValidatorImpl;
+import net.ivoa.calycopis.datamodel.executable.jupyter.podman.PodmanJupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
@@ -44,6 +44,7 @@ public class AbstractExecutableValidatorFactoryImpl
     /**
      * Public constructor, creates hard coded list of validators.
      * TODO Make this configurable. 
+     * TODO Make the platform abstract. 
      * 
      */
     @Autowired
@@ -53,12 +54,12 @@ public class AbstractExecutableValidatorFactoryImpl
         ){
         super();
         this.validators.add(
-            new JupyterNotebookValidatorImpl(
+            new PodmanJupyterNotebookValidatorImpl(
                 platform
                 )
             );
         this.validators.add(
-            new DockerContainerValidatorImpl(
+            new PodmanDockerContainerValidatorImpl(
                 platform
                 )
             );

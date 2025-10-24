@@ -25,9 +25,9 @@ package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
  * 
@@ -45,6 +45,9 @@ extends JupyterNotebookEntityFactory
      * Create a new Entity based on a template.
      *
      */
-    public PodmanJupyterNotebookEntity create(final ExecutionSessionEntity session, final IvoaJupyterNotebook template);
+    public PodmanJupyterNotebookEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        );
 
     }

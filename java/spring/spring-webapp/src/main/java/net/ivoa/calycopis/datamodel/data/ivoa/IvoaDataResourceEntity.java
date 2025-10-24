@@ -31,6 +31,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -61,21 +62,42 @@ public class IvoaDataResourceEntity
         {
         super();
         }
-    
+
     /**
      * Protected constructor with parent.
      *
      */
-    public IvoaDataResourceEntity(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaIvoaDataResource template)
-        {
+    public IvoaDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
+        this(
+            session,
+            storage,
+            result,
+            (IvoaIvoaDataResource) result.getObject()
+            );
+        }
+
+    /**
+     * Protected constructor with parent.
+     *
+     */
+    public IvoaDataResourceEntity(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result,
+        final IvoaIvoaDataResource validated
+        ){
         super(
             session,
             storage,
-            template.getSchedule(),
-            template.getName()
+            result,
+            validated.getName()
             );
 
-        IvoaIvoaDataResourceBlock ivoa = template.getIvoa();
+        IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();
         if (null != ivoa)
             {
             this.ivoid = ivoa.getIvoid();

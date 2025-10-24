@@ -34,18 +34,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 public interface AbstractComputeResourceValidator
 extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
-    /**
-     * Public interface for an entity builder.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on a validation result. 
-         *
-         */
-        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
-        }
    
     /**
      * Public interface for a validator result.
@@ -54,12 +42,12 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> 
         {
-        // TODO A list of the volume mounts ...
         /**
-         * Create a builder with the validation result.
+         * Build an entity based on our validation result.
          * 
          */
-        public EntityBuilder getBuilder();
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer);
+
         }
 
     /**
@@ -85,20 +73,19 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractComputeResource object,
-            final EntityBuilder builder
+            final IvoaAbstractComputeResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
-        
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)
             {
-            return this.builder;
+            return null;
             }
         }
     }

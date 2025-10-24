@@ -35,11 +35,13 @@ public interface AbstractDataResourceValidator
 extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
     /**
-     * Public interface for an entity builder.
+     * Public interface for a validator result.
      * 
      */
-    public static interface EntityBuilder
+    public interface Result
+    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
         {
+        // TODO Keep references to the storage resource for this data.
         /**
          * Build an entity based on a validation result. 
          *
@@ -48,22 +50,8 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
         }
 
     /**
-     * Public interface for a validator result.
-     * 
-     */
-    public static interface Result
-    extends Validator.Result<IvoaAbstractDataResource, AbstractDataResourceEntity> 
-        {
-        // TODO A reference to the storage resource for this data.
-        /**
-         * Create a builder with the validation result.
-         * 
-         */
-        public EntityBuilder getBuilder();
-        }
-
-    /**
      * Simple Bean implementation of a DataResourceValidator result.
+     * TODO Move this to AbstractDataResourceValidatorImpl, and include a factory method that can be inherited.
      * 
      */
     public static class ResultBean
@@ -85,20 +73,19 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractDataResource object,
-            final EntityBuilder builder
+            final IvoaAbstractDataResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
 
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractDataResourceEntity build(ExecutionSessionEntity session)
             {
-            return this.builder;
+            return null;
             }
         }
     }

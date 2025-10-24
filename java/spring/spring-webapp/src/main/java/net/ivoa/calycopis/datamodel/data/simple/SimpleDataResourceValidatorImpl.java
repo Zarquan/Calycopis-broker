@@ -116,14 +116,6 @@ implements SimpleDataResourceValidator
             trim(requested.getName())
             );
 
-        success &= setPrepareDuration(
-            context,
-            validated,
-            this.predictPrepareTime(
-                validated
-                )
-            );
-        
         String location = trim(
             requested.getLocation()
             );
@@ -136,37 +128,62 @@ implements SimpleDataResourceValidator
                 );
             success = false ;
             }
+
+        //
+        // Calculate the preparation time.
+        // TODO Move this to after we have validated everything.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+         * 
+         */
         
         //
-        // Everything is good.
-        // Create our result and add it to our state.
-        // TODO Need to add a reference to the builder.
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public SimpleDataResourceEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,
                         storage.getEntity(),
-                        validated
+                        this
                         );
                     }
-                }; 
-            
-            AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
+
+                @Override
+                public Long getPreparationTime()
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
             //
-            // Save the DataResource in the state.
+            // Add our Result to our context.
             context.addDataValidatorResult(
                 dataResult
                 );
-
+            //
+            // Add the DataResource to the StorageResource.
+            storage.addDataResourceResult(
+                dataResult
+                );
             return dataResult ;
             }
         //
@@ -179,16 +196,14 @@ implements SimpleDataResourceValidator
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-
     /*
      * TODO This will be platform dependent.
-     * Different types of storage will have different preparation times.
      * 
      */
-    private Long predictPrepareTime(final IvoaAbstractDataResource validated)
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    @Deprecated
+    protected Long predictPrepareTime(final IvoaAbstractDataResource validated)
         {
         return DEFAULT_PREPARE_TIME;
         }
-    
     }

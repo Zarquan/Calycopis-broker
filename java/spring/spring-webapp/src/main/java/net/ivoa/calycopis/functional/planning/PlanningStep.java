@@ -27,7 +27,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 

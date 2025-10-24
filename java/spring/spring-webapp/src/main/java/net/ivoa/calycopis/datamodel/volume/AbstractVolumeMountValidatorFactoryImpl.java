@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory;
-import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 
@@ -53,7 +53,7 @@ public class AbstractVolumeMountValidatorFactoryImpl
         {
         super();
         this.validators.add(
-            new SimpleVolumeMountValidator(
+            new SimpleVolumeMountValidatorImpl(
                 simpleVolumeMountEntityFactory
                 )
             );

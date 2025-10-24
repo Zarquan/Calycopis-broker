@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -14,7 +15,7 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  * Base class for validator factories.
  * 
  */
-public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType>
+public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends ComponentEntity>
     extends FactoryBaseImpl
     implements Validator<ObjectType, EntityType>
     {

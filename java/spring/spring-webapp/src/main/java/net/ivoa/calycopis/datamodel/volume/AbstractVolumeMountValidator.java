@@ -28,23 +28,12 @@ import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 
 /**
+ * Public interface for VolumeMount validators and results.
  *
  */
 public interface AbstractVolumeMountValidator
 extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
     {
-    /**
-     * Public interface for an entity builder.
-     *
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on a validation result.
-         *
-         */
-        public AbstractVolumeMountEntity build(final ExecutionSessionEntity session);
-        }
 
     /**
      * Public interface for a validator result.
@@ -53,12 +42,11 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
         {
-        // TODO A list of the volume mounts ...
         /**
-         * Create a builder with the validation result.
+         * Build an entity based on a validation result.
          *
          */
-        public EntityBuilder getBuilder();
+        public AbstractVolumeMountEntity build(final ExecutionSessionEntity session);
         }
 
     /**
@@ -84,20 +72,19 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractVolumeMount object,
-            final EntityBuilder builder
+            final IvoaAbstractVolumeMount object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
 
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractVolumeMountEntity build(ExecutionSessionEntity session)
             {
-            return this.builder;
+            return null;
             }
         }
     }

@@ -206,31 +206,28 @@ public interface OfferSetRequestParserContext
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
 
-    /**
+    /*
      * Add a DataValidatorResult and StorageValidatorResult pair.
-     * 
-     */
     public void addDataStorageResult(final IvoaAbstractDataResource dataResource, final AbstractStorageResourceValidator.Result storageResult);
+     */
     
-    /**
+    /*
      * Add a DataValidatorResult and StorageValidatorResult pair.
-     * 
-     */
+    @Deprecated
     public void addDataStorageResult(final AbstractDataResourceValidator.Result dataResult, final AbstractStorageResourceValidator.Result storageResult);
-
-    /**
-     * Find a StorageValidator result for a DataValidator result.
-     * 
      */
+
+    /*
+     * Find a StorageValidator result for a DataValidator result.
     @Deprecated
     public AbstractStorageResourceValidator.Result findDataStorageResult(final AbstractDataResourceValidator.Result dataResult);
-
-    /**
-     * Find a StorageValidator result for a IvoaAbstractDataResource.
-     * 
      */
+
+    /*
+     * Find a StorageValidator result for a IvoaAbstractDataResource.
     @Deprecated
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
+     */
 
     /**
      * List the VolumeValidatorResults.
@@ -360,15 +357,20 @@ public interface OfferSetRequestParserContext
     public void addMaxMemory(long delta);
 
     /**
-     * Add the preparation time for a DataResource and StorageResource.
-     * 
+     * Calculate the staging and preparing totals.
      */
-    public void addPreparationDuration(final Duration duration);
-    
-    /**
-     * Get the maximum preparation time.
-     * 
-     */
-    public Duration getMaxPreparationDuration();
+    public Long calculateTotalPrepareTime();
 
+    /**
+     * Get the total staging time.
+     * 
+     */
+    public Long getTotalStagingTime();
+
+    /**
+     * Get the total preparation time.
+     * 
+     */
+    public Long getTotalPrepareTime();
+    
     }

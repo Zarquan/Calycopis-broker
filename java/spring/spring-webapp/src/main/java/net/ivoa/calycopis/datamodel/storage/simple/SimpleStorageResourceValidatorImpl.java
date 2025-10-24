@@ -25,6 +25,7 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -95,45 +96,61 @@ implements SimpleStorageResourceValidator
             );
 
         //
-        // Check available size.
+        // TODO Check available size.
         //
 
         validated.setName(requested.getName());
+
         
+        //
+        // Calculate the preparation time.
+        /*
+         *
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
         success &= setPrepareDuration(
-            validated,
+            context,
+            validated.getSchedule(),
             this.predictPrepareTime(
                 validated
                 )
             );
+         *
+         */
         
         //
-        // Everything is good.
-        // Create our result and add it to our context.
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
-                @Override
-                public SimpleStorageResourceEntity build(final ExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        validated
-                        );
-                    }
-                }; 
-            
+            //
+            // Create a new validator Result.
             AbstractStorageResourceValidator.Result storageResult = new AbstractStorageResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
+                validated
+                ){
+                @Override
+                public AbstractStorageResourceEntity build(ExecutionSessionEntity session)
+                    {
+                    entity = entityFactory.create(
+                        session,
+                        this
+                        );
+                    return entity;
+                    }
 
+                @Override
+                public Long getPreparationTime()    
+                    {
+                    // TODO This will be platform dependent.
+                    return DEFAULT_PREPARE_TIME;
+                    }
+                };
+            //
+            // Add our Result to our context.
             context.addStorageValidatorResult(
                 storageResult 
                 );
-
             return storageResult;
             }
         //
@@ -144,17 +161,5 @@ implements SimpleStorageResourceValidator
                 Validator.ResultEnum.FAILED
                 );
             }
-        }
-
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-
-    /*
-     * TODO This will be platform dependent.
-     * Different types of storage will have different preparation times.
-     * 
-     */
-    private Long predictPrepareTime(final IvoaAbstractStorageResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
         }
     }

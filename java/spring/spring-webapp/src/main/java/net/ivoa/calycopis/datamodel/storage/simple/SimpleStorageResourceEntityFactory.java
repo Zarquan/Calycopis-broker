@@ -27,8 +27,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
  * A SimpleStorageResource Factory.
@@ -48,7 +48,10 @@ public interface SimpleStorageResourceEntityFactory
      * Create a new SimpleStorageResourceEntity based on a template.
      *
      */
-    public SimpleStorageResourceEntity create(final ExecutionSessionEntity session, final IvoaSimpleStorageResource template);
+    public SimpleStorageResourceEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceValidator.Result result
+        );
 
     }
 

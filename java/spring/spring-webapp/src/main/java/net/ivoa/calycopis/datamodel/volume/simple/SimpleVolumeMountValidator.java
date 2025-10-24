@@ -20,132 +20,16 @@
  *
  *
  */
+
 package net.ivoa.calycopis.datamodel.volume.simple;
 
-import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 
 /**
- * A Validator implementation to handle simple storage resources.
- *
+ * 
  */
-@Slf4j
-public class SimpleVolumeMountValidator
-extends AbstractValidatorImpl
-implements AbstractVolumeMountValidator
+public interface SimpleVolumeMountValidator
+extends AbstractVolumeMountValidator
     {
-    /**
-     * Factory for creating Entities.
-     *
-     */
-    final SimpleVolumeMountEntityFactory entityFactory;
 
-    /**
-     * Public constructor.
-     *
-     */
-    public SimpleVolumeMountValidator(
-        final SimpleVolumeMountEntityFactory entityFactory
-        ){
-        super();
-        this.entityFactory = entityFactory ;
-        }
-
-    @Override
-    public AbstractVolumeMountValidator.Result validate(
-        final IvoaAbstractVolumeMount requested,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validate(IvoaAbstractVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-        switch(requested)
-            {
-            case IvoaSimpleVolumeMount simple:
-                return validate(
-                        simple,
-                        context
-                        );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
-                    );
-            }
-        }
-
-    /**
-     * Validate an IvoaSimpleVolumeMount.
-     *
-     */
-    public AbstractVolumeMountValidator.Result validate(
-        final IvoaSimpleVolumeMount requested,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validate(IvoaSimpleVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
-
-        boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount(
-            SimpleVolumeMount.TYPE_DISCRIMINATOR
-            );
-        validated.setName(
-            requested.getName()
-            );
-        validated.setPath(
-            requested.getPath()
-            );
-        validated.setMode(
-            requested.getMode()
-            );
-        validated.setCardinality(
-            requested.getCardinality()
-            );
-        //
-        // TODO Check the list of data resources.
-        //
-        
-        
-        //
-        // Everything is good.
-        // Create our result and add it to our context.
-        if (success)
-            {
-            EntityBuilder builder = new EntityBuilder()
-                {
-                @Override
-                public SimpleVolumeMountEntity build(final ExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        validated
-                        );
-                    }
-                };
-
-            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
-
-            context.addVolumeValidatorResult(
-                volumeResult
-                );
-
-            return volumeResult;
-            }
-        //
-        // Something wasn't right, fail the validation.
-        else {
-            context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
-            }
-        }
     }

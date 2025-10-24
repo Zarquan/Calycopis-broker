@@ -40,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
  * 
  */
 @Slf4j
-public class JupyterNotebookValidatorImpl
+public abstract class JupyterNotebookValidatorImpl
 extends AbstractValidatorImpl
 implements JupyterNotebookValidator
     {
@@ -105,33 +105,53 @@ implements JupyterNotebookValidator
             validated,
             context
             );
+
+        //
+        // Calculate the preparation time.
+        /*
+         * 
+        validated.setSchedule(
+            new IvoaComponentSchedule()
+            );
+        success &= setPrepareDuration(
+            context,
+            validated.getSchedule(),
+            this.predictPrepareTime(
+                validated
+                )
+            );
+         * 
+         */
         
         //
-        // Everything is good, add our result to the context.
+        // Everything is good, create our Result.
         if (success)
             {
-            EntityBuilder builder = new EntityBuilder()
-                {
+            //
+            // Create a new validator Result.
+            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
+                Validator.ResultEnum.ACCEPTED,
+                validated
+                ){
                 @Override
                 public AbstractExecutableEntity build(final ExecutionSessionEntity session)
                     {
                     return platform.getJupyterNotebookEntityFactory().create(
                         session,
+                        this
+                        );
+                    }
+
+                @Override
+                public Long getPreparationTime()
+                    {
+                    return predictPrepareTime(
                         validated
                         );
                     }
-                }; 
-
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated,
-                builder
-                );
-            /*
-            context.getValidatedOfferSetRequest().setExecutable(
-                validated
-                );
-             */
+                };
+            //
+            // Add our Result to our context
             context.setExecutableResult(
                 result
                 );
@@ -232,4 +252,13 @@ implements JupyterNotebookValidator
             }
         return success;
         }
+
+    /*
+     * Platform dependent prepare time.
+     * 
+     */
+    @Deprecated
+    protected abstract Long predictPrepareTime(final IvoaJupyterNotebook requested);
+
     }
+

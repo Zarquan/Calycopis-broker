@@ -21,43 +21,21 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.schedule;
+package net.ivoa.calycopis.datamodel.executable;
 
-import java.time.Duration;
-
-import net.ivoa.calycopis.openapi.model.IvoaOfferedScheduleDurationInstant;
+import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 
 /**
  * 
  */
-public class ExtendedScheduleDurationInstantImpl
-    extends IvoaOfferedScheduleDurationInstant
-    implements ExtendedScheduleDurationInstant
+public abstract class AbstractExecutableValidatorImpl
+extends AbstractValidatorImpl
+implements AbstractExecutableValidator
     {
 
-    /**
-     * 
-     */
-    public ExtendedScheduleDurationInstantImpl()
+    public AbstractExecutableValidatorImpl()
         {
         super();
         }
 
-    private Duration duration;  
-    @Override
-    public Duration getDurationObject()
-        {
-        return this.duration;
-        }
-
-    @Override
-    public void setDurationObject(final Duration duration)
-        {
-        this.duration = duration;
-        this.setDuration(
-            duration.toString()
-            );
-        }
-    
-    
     }

@@ -26,10 +26,10 @@ package net.ivoa.calycopis.datamodel.data.simple;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
  * A SimpleDataResource Factory.
@@ -49,7 +49,11 @@ public interface SimpleDataResourceEntityFactory
      * Create a new SimpleDataResource based on a template.
      *
      */
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template);
+    public SimpleDataResourceEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        );
 
     }
 

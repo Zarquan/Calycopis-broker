@@ -25,9 +25,9 @@ package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  * 
@@ -45,6 +45,9 @@ extends DockerContainerEntityFactory
      * Create a new DockerContainerEntity based on a template.
      *
      */
-    public PodmanDockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template);
+    public PodmanDockerContainerEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        );
 
     }

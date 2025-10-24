@@ -28,6 +28,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
@@ -53,14 +54,27 @@ public class JupyterNotebookEntity
         super();
         }
 
-    protected JupyterNotebookEntity(final ExecutionSessionEntity session, final IvoaJupyterNotebook template)
-        {
+    protected JupyterNotebookEntity(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        ){
+        this(   
+            session,
+            result,
+            (IvoaJupyterNotebook) result.getObject()
+            );
+        }
+    protected JupyterNotebookEntity(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result,
+        final IvoaJupyterNotebook validated
+        ){
         super(
             session,
-            template.getSchedule(),
-            template.getName()
+            result,
+            validated.getName()
             );
-        this.location = template.getLocation();
+        this.location = validated.getLocation();
         }
 
     private String location;

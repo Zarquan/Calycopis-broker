@@ -1,0 +1,387 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=gardening
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/Calycopis-broker.yaml" \
+            "${target}/Calycopis-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    # newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Jupyter notebook for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0
+  location: https://www.example.org/${examplename}.ipynb
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+    >   - uuid: "c78d6990-a55f-4d35-972c-54e197c3583f"
+    >     name: "concurrent-test-001-offer-0"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-15T16:00:00Z"
+    >         available:
+    >           start: "2025-10-15T16:00:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "cba99cdc-99f5-481f-b3ab-bab1d3c85308"
+    >     name: "concurrent-test-001-offer-1"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-15T18:00:00Z"
+    >         available:
+    >           start: "2025-10-15T18:00:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "40d961c7-b971-491c-a5bf-6c69a20381fd"
+    >     name: "concurrent-test-001-offer-2"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-15T20:00:00Z"
+    >         available:
+    >           start: "2025-10-15T20:00:00Z/PT0S"
+    >           duration: "PT2H"
+    >   - uuid: "83d41dab-c84a-47a8-9cbd-5d8f0d93df6b"
+    >     name: "concurrent-test-001-offer-3"
+    >     schedule:
+    >       offered:
+    >         preparing:
+    >           start: "2025-10-15T22:00:00Z"
+    >         available:
+    >           start: "2025-10-15T22:00:00Z/PT0S"
+    >           duration: "PT2H"
+
+
+    #
+    # Accept the first offer
+    #
+
+    offerurl=$(
+        yq '
+            .offers[0].href
+            ' \
+        "002-offerset-response.yaml"
+        )
+
+    cat > "003-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@003-accept-00-request.json" \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+
+
+    >   uuid: "c78d6990-a55f-4d35-972c-54e197c3583f"
+    >   name: "concurrent-test-001-offer-0"
+    >   phase: "ACCEPTED"
+    >   schedule:
+    >     offered:
+    >       preparing:
+    >         start: "2025-10-15T16:00:00Z"
+    >       available:
+    >         start: "2025-10-15T16:00:00Z/PT0S"
+    >         duration: "PT2H"
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${offerurl}" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+
+    >   uuid: "c78d6990-a55f-4d35-972c-54e197c3583f"
+    >   name: "concurrent-test-001-offer-0"
+    >   phase: "PREPARING"
+    >   schedule:
+    >     offered:
+    >       preparing:
+    >         start: "2025-10-15T16:00:00Z"
+    >       available:
+    >         start: "2025-10-15T16:00:00Z/PT0S"
+    >         duration: "PT2H"
+
+
+
+    #
+    # TODO - things to think about.
+    #
+    # Are sessions and offers the same ?
+    # Currently offers and sessions are both accesed via the same /sessions endpoint.
+    # Alternative is to use separate endpoints.
+    # Offers start out at /offers/{uuid}
+    # Then when they are accepted they become visible on /sesisons/{uuid}
+    # Needs a filter on the /sesisons endpoint, so that it only show accepted offers.
+    # Needs a redirect when the client accepts an offer - which breaks the update pattern
+    #
+    # How do updates work ?
+    # Currently we POST an update request to the /sesisons/{uuid} endpoint.
+    # No redirect and no error handling.
+    # Alternative is to POST to the /sesisons/{uuid}/update endpoint, which returns an update response.
+    #
+    # How does state change work ?
+    # Currently we POST an phase=ACCEPTED update request to the /sesisons/{uuid} endpoint.
+    # Nothing special about setting the phase.
+    #
+    # The SRCNet sequence diagrams have a special action for accepting an offer.
+    # The SRCNet sequence diagrams treat offers and sessions as different things.
+    # Atlernative is to POST a value to /offers/{uuid}/phase
+    # This is more like UWS.
+    # OK to do this for the phase, but don't want to do this for all the properties.
+    #
+    #
+    # Offers are visible at /offers/{uuid}
+    # Active sessions are visible at /sessions/{uuid}
+    #
+    # Offer values show the state that was offered.
+    # Session values show what the state actually is.
+    # Is there a difference ?
+    #
+    # If we have different endpoints for offers and sessions, then we need a redirect whet the offer is accepted.
+    # We need to have a redirect because we don't want the client to 'just know' where to go.
+    # Linked data - URLs are included in the things.
+    # No special endpoints.
+    # Phase transition from OFFERED to ACCEPTED is also acompanied by a URL redirect from /offers/{uuid} to /sessions/{uuid}.
+    #
+
+
+
+
+

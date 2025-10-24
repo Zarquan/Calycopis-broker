@@ -27,10 +27,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
@@ -39,6 +39,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
  * A Simple compute resource.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "simplecomputeresources"
@@ -61,32 +62,52 @@ public class SimpleComputeResourceEntity
         }
 
     /**
+     * Protected constructor with session, validation result, and offer.
+     *
+     */
+    public SimpleComputeResourceEntity(
+        final ExecutionSessionEntity session,
+        final SimpleComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer
+        ){
+        this(
+            session,
+            result,
+            offer,
+            (IvoaSimpleComputeResource) result.getObject()
+            );
+        }
+    
+    /**
      * Protected constructor with session, template and offer.
      *
      */
     public SimpleComputeResourceEntity(
         final ExecutionSessionEntity session,
-        final IvoaSimpleComputeResource template,
-        final ComputeResourceOffer offer
+        final SimpleComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer,
+        final IvoaSimpleComputeResource validated
         ){
         super(
             session,
-            template.getName()
+            result,
+            offer,
+            validated.getName()
             );
-
-        if (template.getCores() != null)
+        
+        if (validated.getCores() != null)
             {
-            this.minrequestedcores = template.getCores().getMin();
-            this.maxrequestedcores = template.getCores().getMax();
+            this.minrequestedcores = validated.getCores().getMin();
+            this.maxrequestedcores = validated.getCores().getMax();
             }
 
         this.minofferedcores   = offer.getCores();
         this.maxofferedcores   = offer.getCores();
 
-        if (template.getMemory() != null)
+        if (validated.getMemory() != null)
             {
-            this.minrequestedmemory = template.getMemory().getMin();
-            this.maxrequestedmemory = template.getMemory().getMax();
+            this.minrequestedmemory = validated.getMemory().getMin();
+            this.maxrequestedmemory = validated.getMemory().getMax();
             }
 
         this.minofferedmemory = offer.getMemory();
@@ -108,10 +129,6 @@ public class SimpleComputeResourceEntity
          */
         }
 
-    // Does this also have a start and end time ?
-    // Does this also go through a similar set of state changes as the parent execution ?
-    // YES
-    
     @Column(name="minrequestedcores")
     private Long minrequestedcores;
     @Override
@@ -201,21 +218,17 @@ public class SimpleComputeResourceEntity
      */
     
     @Override
-    public IvoaAbstractComputeResource getIvoaBean(final String baseurl)
+    public IvoaSimpleComputeResource getIvoaBean(final String baseurl)
         {
-        IvoaSimpleComputeResource bean = new IvoaSimpleComputeResource (
-            SimpleComputeResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaSimpleComputeResource(SimpleComputeResource.TYPE_DISCRIMINATOR)
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-
+        }
+        
+    protected IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
+        {
+        super.fillBean(bean);
+        
         IvoaSimpleComputeCores coresbean = new IvoaSimpleComputeCores();
         coresbean.setMin(minofferedcores);
         coresbean.setMax(maxofferedcores);

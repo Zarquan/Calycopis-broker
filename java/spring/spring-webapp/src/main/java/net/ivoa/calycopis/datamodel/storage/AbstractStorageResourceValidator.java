@@ -23,6 +23,11 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -36,49 +41,47 @@ public interface AbstractStorageResourceValidator
 extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     {
     /**
-     * Public interface for an entity builder.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on our validation result. 
-         *
-         */
-        public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
-        }
-
-    /**
      * Public interface for a validator result.
      * 
      */
-    public static interface Result
+    public interface Result
     extends Validator.Result<IvoaAbstractStorageResource, AbstractStorageResourceEntity> 
         {
-        /**
-         * Create a builder with the validation result.
-         * 
-         */
-        public EntityBuilder getBuilder();
 
         /**
-         * Get the corresponding entity.
+         * Add a data resource validation result.
          * 
          */
-        public AbstractStorageResourceEntity getEntity();
+        public void addDataResourceResult(final AbstractDataResourceValidator.Result result);
+        
+        /**
+         * Get a List of the validated data resources associated with this storage resource.
+         * 
+         */
+        public List<AbstractDataResourceValidator.Result> getDataResourceResults();
 
         /**
-         * Build an entity based on our validation result. 
-         *
+         * Build an entity based on our validation result.
+         * 
          */
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session);
-        
+
         }
+
+    /**
+     * Validate a component.
+     *
+     */
+    public Result validate(
+        final IvoaAbstractStorageResource requested,
+        final OfferSetRequestParserContext context
+        );
     
     /**
-     * Simple Bean implementation of a StorageResourceValidator result.
+     * Bean implementation of a StorageResourceValidator result.
      * 
      */
+    @Slf4j
     public static class ResultBean
     extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     implements Result
@@ -98,41 +101,51 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractStorageResource object,
-            final EntityBuilder builder
+            final IvoaAbstractStorageResource object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
-            }
-
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
-            {
-            return this.builder;
             }
         
-        private AbstractStorageResourceEntity entity;
-        public AbstractStorageResourceEntity getEntity()
+        private List<AbstractDataResourceValidator.Result> dataResourceResults = new ArrayList<AbstractDataResourceValidator.Result>();
+        @Override
+        public void addDataResourceResult(AbstractDataResourceValidator.Result result)
             {
-            return this.entity;
+            this.dataResourceResults.add(
+                result
+                );
+            }
+        @Override
+        public List<AbstractDataResourceValidator.Result> getDataResourceResults()
+            {
+            return this.dataResourceResults;
             }
 
+        @Override
+        public Long getTotalPreparationTime()
+            {
+            log.debug("AbstractStorageResourceValidator.getTotalPrepareTime() [{}]", this.getIdent());
+            
+            Long maxDataPrepareTime = 0L;
+            for (AbstractDataResourceValidator.Result dataResult : this.getDataResourceResults())
+                {
+                Long dataPrepareTime = dataResult.getPreparationTime();
+                log.debug("Data prepare time [{}][{}]", dataResult.getIdent(), dataPrepareTime);
+                if ((dataPrepareTime != null) && (dataPrepareTime > maxDataPrepareTime))
+                    {
+                    maxDataPrepareTime = dataPrepareTime;
+                    }
+                }
+            return this.getPreparationTime() + maxDataPrepareTime;
+            }
+        
+        @Override
+        // Here because we need to create Results with just a status and no entity.
         public AbstractStorageResourceEntity build(final ExecutionSessionEntity session)
             {
-            this.entity = this.builder.build(
-                session
-                );
-            return this.entity;
+            return null ;
             }
-
-        }
-    
-    @Override
-    public Result validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserContext context
-        );
+        }   
     }

@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidator;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -53,7 +53,7 @@ public class AbstractComputeResourceValidatorFactoryImpl
         {
         super();
         this.validators.add(
-            new SimpleComputeResourceValidator(
+            new SimpleComputeResourceValidatorImpl(
                 simpleComputeEntityFactory
                 )
             );

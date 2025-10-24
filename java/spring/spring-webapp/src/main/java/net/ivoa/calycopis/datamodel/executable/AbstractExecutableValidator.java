@@ -34,18 +34,6 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 public interface AbstractExecutableValidator
 extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     {
-    /**
-     * Public interface for an entity builder.
-     * 
-     */
-    public static interface EntityBuilder
-        {
-        /**
-         * Build an entity based on a validation result. 
-         *
-         */
-        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
-        }
     
     /**
      * Public interface for a validator result.
@@ -54,12 +42,11 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
     public static interface Result
     extends Validator.Result<IvoaAbstractExecutable, AbstractExecutableEntity> 
         {
-        // A list of the compute resources this executable is deployed on ?.
         /**
-         * Create a builder with the validation result.
-         * 
+         * Build an entity based on a validation result. 
+         *
          */
-        public EntityBuilder getBuilder();
+        public AbstractExecutableEntity build(final ExecutionSessionEntity session);
         }
 
     /**
@@ -85,20 +72,19 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          */
         public ResultBean(
             final ResultEnum result,
-            final IvoaAbstractExecutable object,
-            final EntityBuilder builder
+            final IvoaAbstractExecutable object
             ){
             super(
                 result,
                 object
                 );
-            this.builder = builder;
             }
 
-        private EntityBuilder builder ;
-        public EntityBuilder getBuilder()
+        @Override
+        // Here because we need to create Results with just a status and no entity
+        public AbstractExecutableEntity build(ExecutionSessionEntity session)
             {
-            return this.builder;
+            return null;
             }
         }
     }

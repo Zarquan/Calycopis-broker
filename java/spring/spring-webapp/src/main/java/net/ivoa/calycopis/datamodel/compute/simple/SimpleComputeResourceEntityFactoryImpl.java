@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
 
 /**
  * A SimpleComputeResource Factory implementation.
@@ -66,13 +65,13 @@ public class SimpleComputeResourceEntityFactoryImpl
     @Override
     public SimpleComputeResourceEntity create(
         final ExecutionSessionEntity session,
-        final IvoaSimpleComputeResource template,
+        final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
         return this.repository.save(
             new SimpleComputeResourceEntity(
                 session,
-                template,
+                result,
                 offer
                 )
             );

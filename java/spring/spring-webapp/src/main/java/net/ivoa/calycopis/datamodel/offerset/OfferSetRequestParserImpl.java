@@ -28,7 +28,6 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
@@ -186,10 +185,10 @@ public class OfferSetRequestParserImpl
         //
         // Validate the requested compute resources.
         log.debug("Validating the requested compute resources");
-        if (offersetRequest.getComputer() != null)
+        if (offersetRequest.getCompute() != null)
             {
             computeValidators.validate(
-                offersetRequest.getComputer(),
+                offersetRequest.getCompute(),
                 context
                 );            
             // TODO Check the result ?
@@ -237,6 +236,10 @@ public class OfferSetRequestParserImpl
             }
         
         //
+        // Calculate the preparation time.
+        context.calculateTotalPrepareTime();
+        
+        //
         // Validate the schedule.
         validate(
             offersetRequest.getSchedule(),
@@ -276,7 +279,7 @@ public class OfferSetRequestParserImpl
      * Sometime in the next 2 hours.
      *
      */
-    public static final Duration DEFAULT_START_DURATION = Duration.ofHours(2);
+    public static final Duration DEFAULT_START_INTERVAL_DURATION = Duration.ofHours(2);
 
     /**
      * Validate the requested Schedule.
@@ -288,14 +291,15 @@ public class OfferSetRequestParserImpl
 
         log.debug("validate(IvoaRequestedScheduleBlock)");
 
-        Duration prepareDuration = context.getMaxPreparationDuration();
-        Instant prepareDoneInstant = Instant.now().plus(
-            prepareDuration
+        //
+        // Calculate the earliest start time.
+        Instant earliestStartTime = Instant.now().plusSeconds(
+            context.getTotalPrepareTime()
             );
         
-        log.debug("Prepare duration [{}]", prepareDuration);
-        log.debug("Prepare done [{}]", prepareDoneInstant);
-
+        log.debug("Total prepare time [{}]",  context.getTotalPrepareTime());
+        log.debug("Earliest start time [{}]", earliestStartTime);
+        
         if (schedule != null)
             {
             IvoaRequestedScheduleItem requested = schedule.getRequested();
@@ -339,10 +343,11 @@ public class OfferSetRequestParserImpl
                         Interval startinterval = Interval.parse(
                             startString
                             );
+
                         log.debug("Interval value [{}]", startinterval);
-                        if (startinterval.startsBefore(prepareDoneInstant))
+                        if (startinterval.startsBefore(earliestStartTime))
                             {
-                            log.warn("Start interval starts before preparation time [{}][{}]", startinterval.getStart(), prepareDoneInstant);
+                            log.warn("Start interval starts before earliest start time [{}][{}]", startinterval.getStart(), earliestStartTime);
                             // TODO Add a message ..
                             // TODO Fail the request ..
                             }
@@ -374,14 +379,13 @@ public class OfferSetRequestParserImpl
 
         if (context.getStartInterval() == null)
             {
-            // Default start is after the prepare time.
-            Interval defaultinterval = Interval.of(
-                prepareDoneInstant,
-                DEFAULT_START_DURATION
+            Interval defaultStartInterval = Interval.of(
+                earliestStartTime,
+                DEFAULT_START_INTERVAL_DURATION
                 );
-            log.debug("Interval list is empty, adding default [{}]", defaultinterval);
+            log.debug("Null start interval, using default [{}]", defaultStartInterval);
             context.setStartInterval(
-                defaultinterval
+                defaultStartInterval
                 );
             }
 
@@ -403,6 +407,9 @@ public class OfferSetRequestParserImpl
         {
         log.debug("build(OfferSetRequestParserState)");
 
+        
+        
+        
         //
         // Start with NO, and set to YES when we have at least one offer.
         IvoaOfferSetResponse.ResultEnum resultEnum = IvoaOfferSetResponse.ResultEnum.NO;
@@ -423,11 +430,6 @@ public class OfferSetRequestParserImpl
             log.debug("Min memory [{}]", context.getTotalMinMemory());
             log.debug("Max memory [{}]", context.getTotalMaxMemory());
             log.debug("---- ---- ---- ----");
-
-            //
-            // Check if the interval is possible.
-            // Is the interval start greater than now + context.totalPreparationTime
-            //
 
             //
             // Generate a list of offers for our criteria.
@@ -452,7 +454,7 @@ public class OfferSetRequestParserImpl
                 //
                 // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
                 executionSessionEntity.setExecutable(
-                    context.getExecutableResult().getBuilder().build(
+                    context.getExecutableResult().build(
                         executionSessionEntity
                         )
                     );
@@ -461,7 +463,7 @@ public class OfferSetRequestParserImpl
                 // Add our compute resources
                 for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity,
                         computeOffer
                         );
@@ -478,7 +480,7 @@ public class OfferSetRequestParserImpl
                 // Add our data resources.
                 for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity
                         );
                     }
@@ -486,7 +488,7 @@ public class OfferSetRequestParserImpl
                 // Add our volume mounts.
                 for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
                     {
-                    result.getBuilder().build(
+                    result.build(
                         executionSessionEntity
                         );
                     }

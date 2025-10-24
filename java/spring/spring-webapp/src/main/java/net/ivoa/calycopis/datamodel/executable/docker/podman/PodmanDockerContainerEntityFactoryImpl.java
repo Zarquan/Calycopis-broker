@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 
 /**
  *
@@ -55,17 +55,19 @@ public class PodmanDockerContainerEntityFactoryImpl
         }
 
     @Override
-    public PodmanDockerContainerEntity create(final ExecutionSessionEntity session, final IvoaDockerContainer template)
-        {
-        PodmanDockerContainerEntity result = this.repository.save(
+    public PodmanDockerContainerEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        ){
+        PodmanDockerContainerEntity entity = this.repository.save(
             new PodmanDockerContainerEntity(
                 session,
-                template
+                result
                 )
             );
-        result.configure(factory);
-        result.schedule();
+        entity.configure(factory);
+        entity.schedule();
 
-        return result ;
+        return entity ;
         }
     }

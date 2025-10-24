@@ -21,18 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.schedule;
+package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
-import java.time.Duration;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidator;
 
 /**
  * 
  */
-public interface ExtendedScheduleDurationInstant
+public interface PodmanJupyterNotebookValidator
+extends JupyterNotebookValidator
     {
-
-    public Duration getDurationObject();
-
-    public void setDurationObject(final Duration duration);
 
     }

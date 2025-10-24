@@ -31,9 +31,9 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
  * A SimpleDataResource Factory implementation.
@@ -66,13 +66,16 @@ public class SimpleDataResourceEntityFactoryImpl
         }
 
     @Override
-    public SimpleDataResourceEntity create(final ExecutionSessionEntity session, final AbstractStorageResourceEntity storage, final IvoaSimpleDataResource template)
-        {
+    public SimpleDataResourceEntity create(
+        final ExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
         return this.entityRepository.save(
             new SimpleDataResourceEntity(
                 session,
                 storage,
-                template
+                result
                 )
             );
         }
