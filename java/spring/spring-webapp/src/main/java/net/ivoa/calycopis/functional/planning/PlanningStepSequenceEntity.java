@@ -50,6 +50,11 @@ extends AbstractPlanningStepEntity
 implements PlanningStep, PlanningStepSequence
     {
 
+    public PlanningStepSequenceEntity()
+        {
+        super();
+        }
+    
     public PlanningStepSequenceEntity(final ExecutionSessionEntity session, final ComponentEntity component)
         {
         super(
