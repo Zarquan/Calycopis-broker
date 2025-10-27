@@ -39,6 +39,8 @@
     At the moment only ExecutionSessionResponse, and OfferSetResponse, have a href.
     Combine this with the moving uuid etc to the info/meta block.
 
+# -----------------------------------------------------
+
     At the moment, only ExecutionSessionResponse has an ExecutionSessionPhase.
 
         ExecutionSessionResponse
@@ -83,6 +85,9 @@
             - FAILED
             - CANCELLED
 
+# -----------------------------------------------------
+
+    TODO Session access list
     Move ExecutableAccessList from AbstractExecutable to the whole ExecutionSession.
 
 # -----------------------------------------------------
