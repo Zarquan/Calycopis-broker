@@ -1,0 +1,152 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Schema changes ..
+
+    At some stage, everything should be an AccessibleComponent (have a href).
+    At the moment only ExecutionSessionResponse, and OfferSetResponse, have a href.
+    Combine this with the moving uuid etc to the info/meta block.
+
+# -----------------------------------------------------
+
+    At the moment, only ExecutionSessionResponse has an ExecutionSessionPhase.
+
+        ExecutionSessionResponse
+        ExecutionSessionPhase:
+          ....
+          enum:
+            - PROPOSED
+            - OFFERED
+            - ACCEPTED
+            - REJECTED
+            - EXPIRED
+
+            - WAITING
+            - PREPARING
+            - READY
+            - RUNNING
+            - RELEASING
+
+            - COMPLETED
+            - FAILED
+            - CANCELLED
+
+
+    The other components also need to have a phase.
+
+        AbstractComputeResource
+        AbstractDataResource
+        AbstractExecutable
+        AbstractStorageResource
+
+        ExecutionComponentPhase:
+          ....
+          enum:
+            - INACTIVE
+
+            - WAITING
+            - PREPARING
+            - AVAILABLE
+            - RELEASING
+
+            - COMPLETED
+            - FAILED
+            - CANCELLED
+
+# -----------------------------------------------------
+
+    TODO Session access list
+    Move ExecutableAccessList from AbstractExecutable to the whole ExecutionSession.
+
+# -----------------------------------------------------
+
+    When an offer is accepted, kick off a Therad for each ExecutionComponent.
+    Thread sleeps until the component's start time and then executes.
+    Executing Thread polls the thing it connects to and updates the ExecutionComponentPhase.
+
+    Start all the storage resources immediatley.
+    Start the executable immediatley.
+
+    The data resources wait until their start time.
+    Data resources check their storage resource is ready.
+    If storage is not AVAILABLE fail (we can make this more lenient later)
+
+    ComputeResource waits until its start time.
+    ComputeResource checks everything is ready before it starts.
+    If anything is not AVAILABLE fail (we can make this more lenient later)
+    CANFAR ComputeResource starts as a call to Skaha with executable name.
+    ComputeResource = Skaha session.
+    ComputeResource polls the Skaha session status.
+
+    ** Need a background Thread to keep our token refreshed **
+
+    Stopping (deleting) a session in CANFAR goes through
+      "status": "Running",
+      "status": "Terminating",
+
+    and then we get a 404 error
+
+        < HTTP/1.1 404 Not Found
+        < content-length: 27
+        < content-type: text/plain
+        < date: Mon, 27 Oct 2025 02:56:08 GMT
+        < server: OpenCADC/cadc-rest
+        < x-vo-authenticated: zarquan
+        <
+        session o7etqj12 not found
+
+    If we have a Jupyter notebook open at the time, it will start to fail;
+    when the JavaScript components can't find their resources.
+
+# -----------------------------------------------------
+
+    We can start with Threads for each component.
+    Thread waits for their start time, then runs the prepare step.
+    Prepare step checks the things we depend on are AVAILABLE, fail if they are not (*).
+    Prepare step sits in a wait loop until ready (simulating polling of the resource).
+    If we go over the prepare time we cancel.
+
+    (*) first implementation is fail early
+    Later we can include buffers to make this less of a problem.
+    Later we can make the timing more flexible, using intervals rather than instants.
+
+
+
+
+
+
+
+
+

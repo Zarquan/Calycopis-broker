@@ -1,0 +1,466 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Collecting endpoints for CANFAR services.
+
+    Using the registry resource-caps list to find skaha services ..
+    https://spsrc27.iaa.csic.es/reg/resource-caps
+
+    Skaha service that work ...
+    https://canfar.srcnet.skao.int/skaha/capabilities
+    https://canfar.itsrc.ext.cineca.it/skaha/capabilities
+    https://dev.canfar.espsrc.iaa.csic.es/skaha/capabilities
+
+    Science portal service sthat work ...
+    https://canfar.srcnet.skao.int/science-portal/
+    https://canfar.itsrc.ext.cineca.it/science-portal/
+    https://dev.canfar.espsrc.iaa.csic.es/science-portal/
+
+# -----------------------------------------------------
+
+    Is this the 'main' Science Portal ?
+    https://canfar.srcnet.skao.int/science-portal/
+
+    Try using 'images.canfar.net/skaha/base-notebook:latest'
+
+    Ends up downloading the image .. takes a while.
+
+# -----------------------------------------------------
+
+    host images.canfar.net
+    >   images.canfar.net is an alias for keel-prod-ingress.cloud.computecanada.ca.
+    >   keel-prod-ingress.cloud.computecanada.ca is an alias for 206-12-94-77.cloud.computecanada.ca.
+    >   206-12-94-77.cloud.computecanada.ca has address 206.12.94.77
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a container to run some Python code.
+#[user@laptop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name canfar-connector \
+        python:3.9 \
+        bash
+
+        ....
+        ....
+
+        pip install \
+            --upgrade \
+            pip
+
+        pip install \
+            --upgrade \
+            requests
+
+        pip install \
+            --upgrade \
+            vos
+
+        apt-get update
+        apt-get install oidc-agent
+
+        oidc-agent
+
+    >   OIDC_SOCK=/tmp/oidc-Haqdf0/oidc-agent.1; export OIDC_SOCK;
+    >   OIDCD_PID=1036; export OIDCD_PID;
+    >   echo Agent pid $OIDCD_PID
+
+
+        eval $(oidc-agent)
+
+    >   Agent pid 1040
+
+
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+    >   ....
+    >   ....
+    >   oidc-gen[1042]: entire read failed in function readFILE
+    >   oidc-gen[1042]: unknown type 2
+    >   Error: Unknown cJSON Type
+    >   Only saving the account configuration. You might want to save the following content to another location.
+    >   
+    >   {
+    >   	"client_id":	"2d7845e6-7c2b-4651-93ef-5ebb5a9cef99",
+    >   	"client_secret":	"fAyRponxIq9YRmE_xMRBcSI3RKmU3o0tkrXOjNVwY7pyypBONnVRkTaCGPVAhFtnbxsr3LJHPYuChHSMgMaTNA",
+    >   	"client_name":	"oidc-agent:example-client-c23cf9c8114e",
+    >   	"redirect_uris":	["edu.kit.data.oidc-agent:/redirect", "http://localhost:8080", "http://localhost:17387", "http://localhost:4242"],
+    >   	"grant_types":	["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"],
+    >   	"response_types":	["token"],
+    >   	"token_endpoint_auth_method":	"client_secret_basic",
+    >   	"scope":	"entitlements address openid profile eduperson_entitlement wlcg storage.create:/ phone offline_access eduperson_scoped_affiliation eduperson_assurance aarc email wlcg.groups",
+    >   	"reuse_refresh_token":	true,
+    >   	"dynamically_registered":	true,
+    >   	"clear_access_tokens_on_refresh":	true,
+    >   	"require_auth_time":	false,
+    >   	"registration_access_token":	"eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL3NrYS1pYW0uc3RmYy5hYy51ay8iLCJhdWQiOiIyZDc4NDVlNi03YzJiLTQ2NTEtOTNlZi01ZWJiNWE5Y2VmOTkiLCJpYXQiOjE3NjE1MDQwMTAsImp0aSI6ImVjNTI4NDFlLTYwMGYtNDJiOC1hZTgyLWM2ZTMwOGE1YzRmYyJ9.a0dtSrMAvUPD3_3Bw56n8Ue5z1Ez8YPpLrnCTHqmhtAU_BHWBJ42L9corDvGllBKgvJLCZMc4OuZFwSHCe8_o8Tn_RgmXsXTYT1XlR-gnHb8r4Z4v_pRQcTW9f0jnjU059Rwc1kOlUV2AN9mKJjRLb1Krm1w11KPCcouhCRdai55hj2Oc8g4ks-LEfpqxKueoNGWCELsARxV7qDJ6IjinELxCrM3tCseicckaHSi2vCxZ7xpedrgFa7EUOxjnylTMHa4VeiJr_vrfAxnsunmprLV0BuGVQDvAZQWCc0raiFtEIHSMNCQuZ3B8on-7VhSw4QLUrWqr9eC7dgQyoEsRA",
+    >   	"registration_client_uri":	"https://ska-iam.stfc.ac.uk/iam/api/client-registration/2d7845e6-7c2b-4651-93ef-5ebb5a9cef99",
+    >   	"created_at":	1761504010362,
+    >   	"active":	true,
+    >   	"name":	"example-client",
+    >   	"issuer_url":	"https://ska-iam.stfc.ac.uk/",
+    >   	"device_authorization_endpoint":	"",
+    >   	"refresh_token":	"",
+    >   	"cert_path":	"/etc/ssl/certs/ca-certificates.crt",
+    >   	"audience":	""
+    >   }
+    >   
+    >   Enter encryption password for account configuration 'example-client':
+    >   1841
+    >   Confirm encryption Password:
+    >   1841
+    >   Everything setup correctly!
+
+
+        oidc-token example-client
+
+    >   eyJraWQi........gq5GXodg
+
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+
+        #
+        # Query the IAM service
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://ska-iam.stfc.ac.uk/userinfo" \
+        | jq '.'
+
+    >   {
+    >     "sub": "1cfce42c-6113-4efb-bf44-193ddb4815aa",
+    >     "email_verified": true,
+    >     "updated_at": 1757324936,
+    >     "scope": [
+    >       "entitlements",
+    >       "address",
+    >       "openid",
+    >       "profile",
+    >       "eduperson_entitlement",
+    >       "wlcg",
+    >       "storage.create:/",
+    >       "phone",
+    >       "offline_access",
+    >       "eduperson_scoped_affiliation",
+    >       "eduperson_assurance",
+    >       "aarc",
+    >       "email",
+    >       "wlcg.groups"
+    >     ],
+    >     "name": "Dave Morris",
+    >     "groups": [
+    >       "prototyping-groups/mini-src",
+    >       "services/site-capabilities-api/roles/viewer",
+    >       "data/namespaces/testing",
+    >       "services/rucio",
+    >       "services/data-management-api",
+    >       "services/rucio/roles",
+    >       "roles/prod/user",
+    >       "services/rucio/roles/user",
+    >       "services/site-capabilities-api",
+    >       "prototyping-groups/coral",
+    >       "prototyping-groups/mini-src/data-ops",
+    >       "services/site-capabilities-api/roles",
+    >       "services/data-management-api/roles/developer",
+    >       "roles",
+    >       "services/data-management-api/roles",
+    >       "prototyping-groups",
+    >       "roles/prod",
+    >       "services/gateway-backend-api",
+    >       "services",
+    >       "data/namespaces",
+    >       "data/namespaces/testing/owner",
+    >       "prototyping-groups/mini-src/platform-users",
+    >       "prototyping-groups/mini-src/data-ops/spain",
+    >       "data"
+    >     ],
+    >     "preferred_username": "zarquan",
+    >     "organisation_name": "SKA IAM Prototype",
+    >     "given_name": "Dave",
+    >     "external_authn": {
+    >       "acr": "https://refeds.org/profile/mfa"
+    >     },
+    >     "family_name": "Morris",
+    >     "email": "dave.morris@manchester.ac.uk"
+    >   }
+
+
+        #
+        # List the current sessions.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://canfar.srcnet.skao.int/skaha/v0/session" \
+        | jq '.'
+
+    >   [
+    >     {
+    >       "id": "m1e3f30e",
+    >       "userid": "zarquan",
+    >       "runAsUID": "10020",
+    >       "runAsGID": "10020",
+    >       "supplementalGroups": [
+    >         900005,
+    >         900040,
+    >         900025,
+    >         900017,
+    >         900021,
+    >         900022,
+    >         900046,
+    >         900036,
+    >         900047,
+    >         900004,
+    >         900041,
+    >         900012,
+    >         900001,
+    >         900020,
+    >         900045,
+    >         900018,
+    >         900024,
+    >         900009,
+    >         900000,
+    >         900061,
+    >         900010,
+    >         900062,
+    >         900063,
+    >         900011
+    >       ],
+    >       "appid": "<none>",
+    >       "image": "images.canfar.net/skaha/base-notebook:latest",
+    >       "type": "notebook",
+    >       "status": "Running",
+    >       "name": "notebook1",
+    >       "startTime": "2025-10-26T17:49:17Z",
+    >       "expiryTime": "2025-10-30T17:49:17Z",
+    >       "connectURL": "https://canfar.srcnet.skao.int/session/notebook/m1e3f30e/lab/tree/cavern/home/zarquan?token=m1e3f30e",
+    >       "requestedRAM": "8G",
+    >       "requestedCPUCores": "2",
+    >       "requestedGPUCores": "<none>",
+    >       "ramInUse": "<none>",
+    >       "gpuRAMInUse": "<none>",
+    >       "cpuCoresInUse": "<none>",
+    >       "gpuUtilization": "<none>"
+    >     }
+    >   ]
+
+
+        #
+        # Start a new notebook session.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "image=images.canfar.net/skaha/base-notebook:latest" \
+            --data "name=test-notebook" \
+            "https://canfar.srcnet.skao.int/skaha/v0/session"
+
+
+    >   xwwef2i2
+
+        sessionid=xwwef2i2
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://canfar.srcnet.skao.int/skaha/v0/session/${sessionid}" \
+        | jq '.'
+
+    >   {
+    >     "id": "xwwef2i2",
+    >     "userid": "zarquan",
+    >     "runAsUID": "10020",
+    >     "runAsGID": "10020",
+    >     "supplementalGroups": [
+    >       900009,
+    >       900020,
+    >       900041,
+    >       900018,
+    >       900022,
+    >       900036,
+    >       900047,
+    >       900024,
+    >       900000,
+    >       900012,
+    >       900005,
+    >       900017,
+    >       900004,
+    >       900021,
+    >       900046,
+    >       900040,
+    >       900025,
+    >       900061,
+    >       900001,
+    >       900010,
+    >       900062,
+    >       900063,
+    >       900011,
+    >       900045
+    >     ],
+    >     "appid": "<none>",
+    >     "image": "images.canfar.net/skaha/base-notebook:latest",
+    >     "type": "headless",
+    >     "status": "Succeeded",
+    >     "name": "test-notebook",
+    >     "startTime": "2025-10-26T18:53:17Z",
+    >     "expiryTime": "2025-11-09T18:53:17Z",
+    >     "connectURL": "not-applicable",
+    >     "requestedRAM": "2G",
+    >     "requestedCPUCores": "2",
+    >     "requestedGPUCores": "<none>",
+    >     "ramInUse": "<none>",
+    >     "gpuRAMInUse": "<none>",
+    >     "cpuCoresInUse": "<none>",
+    >     "gpuUtilization": "<none>"
+    >   }
+
+    Is this because we didn't specify 'notebook' as the type ?
+
+    "type": "headless",
+    ....
+    "connectURL": "not-applicable",
+
+
+    It doesn't show up in the Science Portal sessions for our account.
+
+
+
+
+        #
+        # Start a new notebook session.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "type=notebook" \
+            --data "image=images.canfar.net/skaha/base-notebook:latest" \
+            --data "name=test-notebook-2" \
+            "https://canfar.srcnet.skao.int/skaha/v0/session"
+
+    >   o7etqj12
+
+
+        sessionid=o7etqj12
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://canfar.srcnet.skao.int/skaha/v0/session/${sessionid}" \
+        | jq '.'
+
+    >   {
+    >     "id": "o7etqj12",
+    >     "userid": "zarquan",
+    >     "runAsUID": "10020",
+    >     "runAsGID": "10020",
+    >     "supplementalGroups": [
+    >       900061,
+    >       900021,
+    >       900040,
+    >       900036,
+    >       900024,
+    >       900012,
+    >       900025,
+    >       900001,
+    >       900017,
+    >       900009,
+    >       900000,
+    >       900018,
+    >       900005,
+    >       900022,
+    >       900047,
+    >       900020,
+    >       900041,
+    >       900010,
+    >       900004,
+    >       900062,
+    >       900063,
+    >       900011,
+    >       900045,
+    >       900046
+    >     ],
+    >     "appid": "<none>",
+    >     "image": "images.canfar.net/skaha/base-notebook:latest",
+    >     "type": "notebook",
+    >     "status": "Running",
+    >     "name": "test-notebook-2",
+    >     "startTime": "2025-10-26T19:01:23Z",
+    >     "expiryTime": "2025-10-30T19:01:23Z",
+    >     "connectURL": "https://canfar.srcnet.skao.int/session/notebook/o7etqj12/lab/tree/cavern/home/zarquan?token=o7etqj12",
+    >     "requestedRAM": "2G",
+    >     "requestedCPUCores": "2",
+    >     "requestedGPUCores": "<none>",
+    >     "ramInUse": "<none>",
+    >     "gpuRAMInUse": "<none>",
+    >     "cpuCoresInUse": "<none>",
+    >     "gpuUtilization": "<none>"
+    >   }
+
+    #
+    # Looking good ..
+
+    "type": "notebook",
+    ....
+    "connectURL": "https://canfar.srcnet.skao.int/session/notebook/o7etqj12/lab/tree/cavern/home/zarquan?token=o7etqj12",
+
+
+    #
+    # Open in Firefox and we get re-directed to notebook session looking at our 'home' directlry in Cavern.
+    https://canfar.srcnet.skao.int/session/notebook/o7etqj12/lab/workspaces/auto-V/tree/cavern/home/zarquan
+
+
+    #
+    # Interesting - I created a notebook session via the UI before starting the command line tests.
+    # Both notebook sessions show up in the UI session list, but not the headless session.
+    #
+    # What happens if we run the base-notebook in a headless session ?
+    # Does it complete immediatley, or stall waiting for a connection ?
+    #
+
