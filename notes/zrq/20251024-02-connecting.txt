@@ -1,0 +1,316 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Test code for connecting to the CANFAR services.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=connecting
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+
+
+
+
+
+# -----------------------------------------------------
+# Launch a container to run some Python code.
+#[user@laptop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name canfar-connector \
+        python:3.9 \
+        bash
+
+        ....
+        ....
+
+        pip install \
+            --upgrade \
+            pip
+
+        pip install \
+            --upgrade \
+            requests
+
+        pip install \
+            --upgrade \
+            vos
+
+        apt-get update
+        apt-get install oidc-agent
+
+        oidc-agent
+
+    >   OIDC_SOCK=/tmp/oidc-lNmZFZ/oidc-agent.1; export OIDC_SOCK;
+    >   OIDCD_PID=1043; export OIDCD_PID;
+    >   echo Agent pid $OIDCD_PID
+
+
+        eval $(oidc-agent)
+
+    >   Agent pid 1047
+
+
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+    >   Registering Client ...
+    >   Generating account configuration ...
+    >   accepted
+    >   
+    >   Using a browser on any device, visit:
+    >   https://ska-iam.stfc.ac.uk/device
+    >   
+    >   And enter the code: E0TKOX
+    >   ....
+    >   ....
+    >   oidc-gen[1049]: entire read failed in function readFILE
+    >   oidc-gen[1049]: unknown type 2
+    >   Error: Unknown cJSON Type
+    >   Only saving the account configuration. You might want to save the following content to another location.
+    >   
+    >   {
+    >   	"client_id":	"d7d2ce82-5b0e-4890-9bde-7d45c8985829",
+    >   	"client_secret":	"MbU5TvcURLEESu1mP3LzMi7I6uuW2Xf3FoHj5klKEDgXzKNDEn3do3ixoW0d1ojCgk099NavbjZ1ujiRT5JHWw",
+    >   	"client_name":	"oidc-agent:example-client-559497229de9",
+    >   	"redirect_uris":	["edu.kit.data.oidc-agent:/redirect", "http://localhost:8080", "http://localhost:16131", "http://localhost:4242"],
+    >   	"grant_types":	["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"],
+    >   	"response_types":	["token"],
+    >   	"token_endpoint_auth_method":	"client_secret_basic",
+    >   	"scope":	"entitlements address openid profile eduperson_entitlement wlcg storage.create:/ phone offline_access eduperson_scoped_affiliation eduperson_assurance aarc email wlcg.groups",
+    >   	"reuse_refresh_token":	true,
+    >   	"dynamically_registered":	true,
+    >   	"clear_access_tokens_on_refresh":	true,
+    >   	"require_auth_time":	false,
+    >   	"registration_access_token":	"eyJraWQiOiJyc2ExIiwiYWxnIjoiUlMyNTYifQ.eyJpc3MiOiJodHRwczovL3NrYS1pYW0uc3RmYy5hYy51ay8iLCJhdWQiOiJkN2QyY2U4Mi01YjBlLTQ4OTAtOWJkZS03ZDQ1Yzg5ODU4MjkiLCJpYXQiOjE3NjEzMjMzNTAsImp0aSI6IjBiZGU3YTMxLTFiNzEtNGRlMy04OGVhLTFjNjU0ZWEyNmI1ZSJ9.BVdiv_11jx7JBpDd5phBjICeRuV5RrFdrF_5JWwp5hRneU-OF9b80okWIrorHecJaFs6DxkA2syE7UNH1wW9omjmYPzNQ8rOJR9-hRQTVZmivkbVsRSRtua4CL23VReIf-lEqcM5KmEXfEbwH4HdAT55IepT-SIkbfKV5HoLbhAvwGMFG_xTW_iX-68zywOPRX9j8U_G4db4-3wRRVIkBTXDiiwXWvaqaLUDbtfQT6UxlIGx1qNsxsDsz279FCHNjWVOBvTC4v4OzSxvcqa-P1LZJiMWsczrKI28oF3LDDzB7vl4qTBKL71MGWsXDDOfWA9rZ1dZBiQZex51AbsZ4Q",
+    >   	"registration_client_uri":	"https://ska-iam.stfc.ac.uk/iam/api/client-registration/d7d2ce82-5b0e-4890-9bde-7d45c8985829",
+    >   	"created_at":	1761323350135,
+    >   	"active":	true,
+    >   	"name":	"example-client",
+    >   	"issuer_url":	"https://ska-iam.stfc.ac.uk/",
+    >   	"device_authorization_endpoint":	"",
+    >   	"refresh_token":	"",
+    >   	"cert_path":	"/etc/ssl/certs/ca-certificates.crt",
+    >   	"audience":	""
+    >   }
+    >   
+    >   Enter encryption password for account configuration 'example-client':
+    >   ........
+    >   Confirm encryption Password:
+    >   ........
+    >   Everything setup correctly!
+
+
+        oidc-token example-client
+
+    >   eyJraWQi........snOhslQg
+
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+
+        #
+        # Query the IAM service
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://ska-iam.stfc.ac.uk/userinfo" \
+        | jq '.'
+
+    >   {
+    >     "sub": "1cfce42c-6113-4efb-bf44-193ddb4815aa",
+    >     "email_verified": true,
+    >     "updated_at": 1757324936,
+    >     "scope": [
+    >       "entitlements",
+    >       "address",
+    >       "openid",
+    >       "profile",
+    >       "eduperson_entitlement",
+    >       "wlcg",
+    >       "storage.create:/",
+    >       "phone",
+    >       "offline_access",
+    >       "eduperson_scoped_affiliation",
+    >       "eduperson_assurance",
+    >       "aarc",
+    >       "email",
+    >       "wlcg.groups"
+    >     ],
+    >     "name": "Dave Morris",
+    >     "groups": [
+    >       "prototyping-groups/mini-src",
+    >       "services/site-capabilities-api/roles/viewer",
+    >       "data/namespaces/testing",
+    >       "services/rucio",
+    >       "services/data-management-api",
+    >       "services/rucio/roles",
+    >       "roles/prod/user",
+    >       "services/rucio/roles/user",
+    >       "services/site-capabilities-api",
+    >       "prototyping-groups/coral",
+    >       "prototyping-groups/mini-src/data-ops",
+    >       "services/site-capabilities-api/roles",
+    >       "services/data-management-api/roles/developer",
+    >       "roles",
+    >       "services/data-management-api/roles",
+    >       "prototyping-groups",
+    >       "roles/prod",
+    >       "services/gateway-backend-api",
+    >       "services",
+    >       "data/namespaces",
+    >       "data/namespaces/testing/owner",
+    >       "prototyping-groups/mini-src/platform-users",
+    >       "prototyping-groups/mini-src/data-ops/spain",
+    >       "data"
+    >     ],
+    >     "preferred_username": "zarquan",
+    >     "organisation_name": "SKA IAM Prototype",
+    >     "given_name": "Dave",
+    >     "external_authn": {
+    >       "acr": "https://refeds.org/profile/mfa"
+    >     },
+    >     "family_name": "Morris",
+    >     "email": "dave.morris@manchester.ac.uk"
+    >   }
+
+
+        #
+        # List the current sessions.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://canfar.espsrc.iaa.csic.es/skaha/v0/session" \
+        | jq '.'
+
+    >   []
+
+
+        #
+        # Start a new notebook session.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=1" \
+            --data "cores=1" \
+            --data "image=canfar.espsrc.iaa.csic.es/science-portal/mcmc-notebook:v1.1" \
+            --data "name=test-notebook" \
+            "https://canfar.espsrc.iaa.csic.es/skaha/v0/session"
+
+    >   session image 'canfar.espsrc.iaa.csic.es/science-portal/mcmc-notebook:v1.1' must come from one of [spsrc26.iaa.csic.es]
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=1" \
+            --data "cores=1" \
+            --data "image=spsrc26.iaa.csic.es/science-portal/mcmc-notebook:v1.1" \
+            --data "name=test-notebook" \
+            "https://canfar.espsrc.iaa.csic.es/skaha/v0/session"
+
+    >   image/type mismatch: spsrc26.iaa.csic.es/science-portal/mcmc-notebook:v1.1/headless
+
+
+NOTWORKING YET
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=1" \
+            --data "cores=1" \
+            --data "image=spsrc26.iaa.csic.es/science-portal/datalifetest:0.1" \
+            --data "name=test-notebook" \
+            "https://canfar.espsrc.iaa.csic.es/skaha/v0/session"
+
+
+
+    >   ....
+    >   ....
+
+NOTWORKING YET
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://spsrc25.iaa.csic.es/skaha/v0/session/${sessionid}" \
+        | jq '.'
+
+    >   ....
+    >   ....
+
+
+
+    #
+    # Add the notebook name to our connection URL.
+
+    sessionid=lbseitep
+    notename=Albert.ipynb
+
+
+NOTWORKING YET
+    firefox \
+        --new-window \
+        "https://spsrc25.iaa.csic.es/session/notebook/${sessionid}/lab/tree/arc/home/zarquan/${notename}?token=${sessionid}" \
+        &
+
+
+    #
+    # One notebook container does work, but it doesn't have the notebook.
+    # Launching the datalifetest 'notebook' from the Science Platform UI
+    # https://canfar.espsrc.iaa.csic.es/session/notebook/is494kcn/lab/tree/arc/home/zarquan
+    # Expects to find the notebook in /lab/tree/arc/home/zarquan
+    #
+
+
+
+
