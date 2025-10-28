@@ -63,18 +63,301 @@
         AbstractExecutable
         AbstractStorageResource
 
-        ExecutionComponentPhase:
-          ....
+        ComponentPhase:
+          description: >-
+            Status code for components.
+          type: string
+          title: ComponentPhase
           enum:
-            - INACTIVE
+                - INACTIVE
+                - WAITING
+                - PREPARING
+                - AVAILABLE
+                - RELEASING
+                - COMPLETED
+                - FAILED
+                - CANCELLED
 
-            - WAITING
-            - PREPARING
-            - AVAILABLE
-            - RELEASING
+        LifecycleComponent:
+          description: >-
+            A component with a lifecycle phase.
+          type: object
+          title: LifecycleComponent
+          properties:
+            schedule:
+              description: >-
+                The component phase.
+              xml:
+                name: phase
+              $ref: 'ComponentPhase'
 
-            - COMPLETED
-            - FAILED
-            - CANCELLED
 
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=component-phase
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/Calycopis-broker.yaml" \
+            "${target}/Calycopis-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    # newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Docker container for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+compute:
+  name: example-005-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - name: "Input data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+      - example-data-03
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-123401"
+      datasize:   26214400
+      replicas:
+        - rsename: "SPSRC_STORM"
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+    >   ....
+    >   ....
+
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            $(
+            yq '.offers[0].href' "002-offerset-response.yaml"
+            ) \
+        | yq '.'
+
+    >   ....
+    >   ....
+
+
+
+    #
+    # Accept the offer ..
+    # Check the phase progression ...
+    #
 

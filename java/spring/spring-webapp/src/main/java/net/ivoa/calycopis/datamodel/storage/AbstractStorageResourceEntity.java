@@ -36,7 +36,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -54,7 +54,7 @@ import net.ivoa.calycopis.util.ListWrapper;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractStorageResourceEntity
-extends ScheduledComponentEntity
+extends LifecycleComponentEntity
 implements AbstractStorageResource
     {
     /**

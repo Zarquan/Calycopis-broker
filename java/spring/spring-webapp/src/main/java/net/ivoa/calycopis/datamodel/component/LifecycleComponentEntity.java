@@ -30,11 +30,14 @@ import org.threeten.extra.Interval;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
 
@@ -43,18 +46,18 @@ import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
  */
 @Slf4j
 @Entity
-@Table(name = "scheduledcomponents")
+@Table(name = "lifecyclecomponents")
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class ScheduledComponentEntity
+public abstract class LifecycleComponentEntity
 extends ComponentEntity
-implements ScheduledComponent
+implements LifecycleComponent
     {
     /**
      * 
      */
-    public ScheduledComponentEntity()
+    public LifecycleComponentEntity()
         {
         super();
         }
@@ -62,17 +65,18 @@ implements ScheduledComponent
     /**
      * 
      */
-    public ScheduledComponentEntity(final String name)
+    public LifecycleComponentEntity(final String name)
         {
         this(
-            (IvoaComponentSchedule)null,
+            (IvoaLifecycleSchedule)null,
             name
             );
         }
+
     /**
      * 
      */
-    public ScheduledComponentEntity(final IvoaComponentSchedule schedule, final String name)
+    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final String name)
         {
         super(
             name
@@ -110,6 +114,21 @@ implements ScheduledComponent
                     }
                 }
             }
+        }
+
+    @Column(name = "phase")
+    @Enumerated(EnumType.STRING)
+    private IvoaLifecyclePhase phase;
+    @Override
+    public IvoaLifecyclePhase getPhase()
+        {
+        return this.phase;
+        }
+    @Override
+    public void setPhase(final IvoaLifecyclePhase newphase)
+        {
+        // TODO This is where we need to have the phase transition checking.
+        this.phase = newphase;
         }
     
     @Column(name = "prepare_start_instant_seconds")
@@ -315,10 +334,10 @@ implements ScheduledComponent
             }
         }
     
-    public IvoaComponentSchedule makeScheduleBean()
+    public IvoaLifecycleSchedule makeScheduleBean()
         {
         boolean valid = false;
-        IvoaComponentSchedule bean = new IvoaComponentSchedule(); 
+        IvoaLifecycleSchedule bean = new IvoaLifecycleSchedule(); 
 
         IvoaScheduleDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)

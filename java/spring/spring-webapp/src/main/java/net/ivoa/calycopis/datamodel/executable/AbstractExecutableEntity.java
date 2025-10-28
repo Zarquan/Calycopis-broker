@@ -10,7 +10,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
@@ -25,7 +25,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractExecutableEntity
-extends ScheduledComponentEntity
+extends LifecycleComponentEntity
     implements AbstractExecutable
     {
     /**

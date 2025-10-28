@@ -30,8 +30,9 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.ScheduledComponentEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
@@ -46,7 +47,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractComputeResourceEntity
-extends ScheduledComponentEntity
+extends LifecycleComponentEntity
 implements AbstractComputeResource
     {
     /**

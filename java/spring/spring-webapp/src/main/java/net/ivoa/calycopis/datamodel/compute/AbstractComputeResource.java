@@ -26,7 +26,7 @@ package net.ivoa.calycopis.datamodel.compute;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.component.Component;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
@@ -40,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
     strategy = InheritanceType.JOINED
     )
 public interface AbstractComputeResource
-    extends Component
+    extends LifecycleComponent
     {
     /**
      * Get the parent ExecutionSession.  

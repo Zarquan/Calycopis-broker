@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
-import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -32,7 +32,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
  * 
  */
 public interface AbstractDataResource
-    extends ScheduledComponent
+    extends LifecycleComponent
     {
     /**
      * Get the parent ExecutionSession.  

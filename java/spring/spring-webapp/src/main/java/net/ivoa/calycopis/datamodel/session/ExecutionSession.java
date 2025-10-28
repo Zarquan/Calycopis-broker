@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.session;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
