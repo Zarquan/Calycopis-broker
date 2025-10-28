@@ -277,7 +277,7 @@ schedule:
     duration: PT1H
 compute:
   name: example-005-computer
-  type: https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
   volumes:
     - "Input data"
 volumes:
@@ -320,6 +320,7 @@ data:
         - rsename: "SPSRC_STORM"
 EOF
 
+
         curl \
             --silent \
             --show-error \
@@ -337,8 +338,44 @@ EOF
             ]
             '
 
-    >   ....
-    >   ....
+--START--
+- uuid: "c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+  name: "concurrent-test-001-offer-0"
+  schedule:
+    preparing:
+      start: "2025-10-28T09:35:50Z"
+      duration: "PT2M10S"
+    available:
+      start: "2025-10-28T09:38:00Z/PT0S"
+      duration: "PT2H"
+- uuid: "63aef18c-d4ec-4c99-ab4c-1af1091b1ea3"
+  name: "concurrent-test-001-offer-1"
+  schedule:
+    preparing:
+      start: "2025-10-28T11:35:50Z"
+      duration: "PT2M10S"
+    available:
+      start: "2025-10-28T11:38:00Z/PT0S"
+      duration: "PT2H"
+- uuid: "705e3431-cefb-470f-8290-0ae1ad0c9780"
+  name: "concurrent-test-001-offer-2"
+  schedule:
+    preparing:
+      start: "2025-10-28T13:35:50Z"
+      duration: "PT2M10S"
+    available:
+      start: "2025-10-28T13:38:00Z/PT0S"
+      duration: "PT2H"
+- uuid: "bf07f777-31e3-49ca-b272-84bfd4790b8f"
+  name: "concurrent-test-001-offer-3"
+  schedule:
+    preparing:
+      start: "2025-10-28T15:35:50Z"
+      duration: "PT2M10S"
+    available:
+      start: "2025-10-28T15:38:00Z/PT0S"
+      duration: "PT2H"
+--END--
 
 
 
@@ -351,8 +388,144 @@ EOF
             ) \
         | yq '.'
 
-    >   ....
-    >   ....
+--START--
+uuid: "c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+name: "concurrent-test-001-offer-0"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+created: "2025-10-28T09:35:01.738859Z"
+href: "http://127.0.0.1:8082/sessions/c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+executable:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+  uuid: "4c778d56-1cf5-4a23-ab3a-d7ee865a6166"
+  name: "concurrent-test-001-executable"
+  created: "2025-10-28T09:35:01.755554Z"
+  schedule:
+    preparing:
+      start: "2025-10-28T09:35:50Z"
+      duration: "PT35S"
+    available:
+      start: "2025-10-28T09:36:25Z/PT0S"
+  privileged: false
+compute:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+  uuid: "98cf7423-491e-48a7-81de-c885eecd5a5a"
+  name: "example-005-computer"
+  created: "2025-10-28T09:35:01.774584Z"
+  schedule:
+    preparing:
+      start: "2025-10-28T09:37:45Z"
+      duration: "PT15S"
+    available:
+      start: "2025-10-28T09:38:00Z/PT0S"
+      duration: "PT2H"
+  cores:
+    min: 2
+    max: 2
+  memory:
+    min: 2
+    max: 2
+storage:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "f7aa38fa-88d9-46eb-8b84-d2938c76f941"
+    name: "Storage for [example-data-01]"
+    created: "2025-10-28T09:35:01.783043Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:50Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-28T09:35:55Z/PT0S"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "64c1f8bc-2434-441a-984a-510b8028fb7a"
+    name: "Storage for [example-data-02]"
+    created: "2025-10-28T09:35:01.789348Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:50Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-28T09:35:55Z/PT0S"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "9454825e-4927-431c-833f-cb5ff4b7e3ca"
+    name: "Storage for [example-data-03]"
+    created: "2025-10-28T09:35:01.791254Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:50Z"
+        duration: "PT5S"
+      available:
+        start: "2025-10-28T09:35:55Z/PT0S"
+data:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    uuid: "f9b21a4a-bc52-4d6b-be07-9be1d5e1cb3f"
+    name: "example-data-01"
+    created: "2025-10-28T09:35:01.794662Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:55Z"
+        duration: "PT1M"
+      available:
+        start: "2025-10-28T09:36:55Z/PT0S"
+    storage: "f7aa38fa-88d9-46eb-8b84-d2938c76f941"
+    ivoa: {}
+    skao:
+      namespace: "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize: 27487790694400
+      checksum: {}
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    uuid: "183b9320-0e3e-4606-99f7-cdd76622e111"
+    name: "example-data-02"
+    created: "2025-10-28T09:35:01.803894Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:55Z"
+        duration: "PT1M50S"
+      available:
+        start: "2025-10-28T09:37:45Z/PT0S"
+    storage: "64c1f8bc-2434-441a-984a-510b8028fb7a"
+    ivoa: {}
+    skao:
+      namespace: "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize: 26843545600
+      checksum: {}
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    uuid: "19911d2a-2d21-426a-b55a-cf96a2b7479c"
+    name: "example-data-03"
+    created: "2025-10-28T09:35:01.807052Z"
+    schedule:
+      preparing:
+        start: "2025-10-28T09:35:55Z"
+        duration: "PT1M4S"
+      available:
+        start: "2025-10-28T09:36:59Z/PT0S"
+    storage: "9454825e-4927-431c-833f-cb5ff4b7e3ca"
+    ivoa: {}
+    skao:
+      namespace: "testing"
+      objectname: "zrq-test-20250509-123401"
+      datasize: 26214400
+      checksum: {}
+      replicas:
+        - rsename: "SPSRC_STORM"
+phase: "OFFERED"
+schedule:
+  preparing:
+    start: "2025-10-28T09:35:50Z"
+    duration: "PT2M10S"
+  available:
+    start: "2025-10-28T09:38:00Z/PT0S"
+    duration: "PT2H"
+expires: "2025-10-28T09:40:01.344659Z"
+--END--
 
 
 
