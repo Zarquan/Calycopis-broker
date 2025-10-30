@@ -45,13 +45,15 @@ extends FactoryBaseImpl
 implements SessionEntityUpdateHandler
     {
 
-    private final SessionEntityRepository repository;
+    private final SessionEntityRepository sessionRepository;
+    private final AsyncSessionHandler asyncHandler;
 
     @Autowired
-    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository)
+    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
         {
         super();
-        this.repository = repository;
+        this.sessionRepository = repository;
+        this.asyncHandler = asyncHandler ;
         }
 
     @Override
@@ -62,11 +64,12 @@ implements SessionEntityUpdateHandler
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<SessionEntity> result = this.repository.findById(
+        Optional<SessionEntity> result = this.sessionRepository.findById(
             uuid
             );
         if (result.isEmpty())
             {
+            log.warn("Session not found [{}]", uuid);
             return result ;
             }
         else {
@@ -76,7 +79,7 @@ implements SessionEntityUpdateHandler
                 );  
             // Do we need this ?
             // The Sessions set to REJECTED are saved in the database too.
-            entity = this.repository.save(
+            entity = this.sessionRepository.save(
                 entity
                 );
             return Optional.of(
@@ -98,11 +101,13 @@ implements SessionEntityUpdateHandler
                     entity,
                     valueupdate
                     );
+                break ;
 
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Unknown update class [{}]", update.getClass().getName());
+                break ;
             }
         return entity ;
         }
@@ -127,13 +132,14 @@ implements SessionEntityUpdateHandler
                     }
                 catch (IllegalArgumentException ouch)
                     {
-                    log.debug("Invalid phase value [{}]", update.getValue());
+                    log.warn("Invalid update value [{}]", update.getValue());
                     }
-
+                break ;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Unknown phase path [{}]", update.getPath());
+                break ;
             }
         return entity ;
         }
@@ -147,22 +153,27 @@ implements SessionEntityUpdateHandler
                 entity = accept(
                     entity
                     );
+                break ;
             case REJECTED:
                 entity = reject(
                     entity
                     );
+                break ;
             case CANCELLED:
                 entity = cancel(
                     entity
                     );
+                break ;
             case FAILED:
                 entity = fail(
                     entity
                     );
+                break ;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
-                log.warn("Invalid update phase [{}]", newphase);
+                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
+                break ;
             }
         return entity ;
         }
@@ -185,10 +196,17 @@ implements SessionEntityUpdateHandler
                         reject(sibling);
                         }
                     }
+                log.debug("Calling async handler for accepted session [{}]", entity.getUuid());
+                asyncHandler.process(
+                    entity.getUuid()
+                    );
+                log.debug("Back from async handler for accepted session [{}]", entity.getUuid());
+                break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.ACCEPTED);
+                break;
             }
         return entity ;
         }
@@ -202,10 +220,12 @@ implements SessionEntityUpdateHandler
                 entity.setPhase(
                     IvoaExecutionSessionPhase.REJECTED
                     );
+                break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.REJECTED);
+                break;
             }
         return entity ;
         }
@@ -225,10 +245,12 @@ implements SessionEntityUpdateHandler
                 entity.setPhase(
                     IvoaExecutionSessionPhase.CANCELLED
                     );
+                break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.CANCELLED);
+                break;
             }
         return entity ;
         }
@@ -251,10 +273,12 @@ implements SessionEntityUpdateHandler
                 entity.setPhase(
                     IvoaExecutionSessionPhase.FAILED
                     );
+                break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
                 log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.FAILED);
+                break;
             }
         return entity ;
         }

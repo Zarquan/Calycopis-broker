@@ -58,7 +58,7 @@ public class ScheduledTaskService
         this.other = other ;
         }
 
-    @Scheduled(fixedRate = 20000)
+    //@Scheduled(fixedRate = 20000)
     public void performScheduledTask()
         {
         log.debug("Looking for ACCEPTED offers");
