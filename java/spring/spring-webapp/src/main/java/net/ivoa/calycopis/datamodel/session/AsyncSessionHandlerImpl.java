@@ -62,20 +62,21 @@ implements AsyncSessionHandler
     @Async("TaskExecutor-21")
     public void process(final UUID uuid)
         {
-        log.debug("process(UUID) [{}]", uuid);
+        log.debug("Session process(UUID) [{}]", uuid);
 
+        log.debug("Begin preparing [{}]", uuid);
         setPreparing(
             uuid
             );
 
         //
         // Wait for 30 seconds to simulate preparation work.
-        for (int i = 0 ; i < 30 ; i++)
+        for (int i = 0 ; i < 60 ; i++)
             {
             try {
-                log.debug("Sleeping [{}]", uuid);
+                log.debug("Session preparing - sleep [{}]", uuid);
                 Thread.sleep(1000);
-                log.debug("Awake [{}]", uuid);
+                log.debug("Session preparing - awake [{}]", uuid);
                 }
             catch (Exception ouch)
                 {
@@ -83,6 +84,7 @@ implements AsyncSessionHandler
                 }
             }
         
+        log.debug("Done preparing [{}]", uuid);
         setReady(
             uuid
             );
@@ -105,7 +107,7 @@ implements AsyncSessionHandler
                 }
             else {
                 SessionEntity entity = found.get();
-                log.error("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
+                log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
                 switch (entity.getPhase())
                     {
                     case OFFERED:
@@ -153,7 +155,7 @@ implements AsyncSessionHandler
             }
         else {
             SessionEntity entity = found.get();
-            log.error("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
+            log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
             switch (entity.getPhase())
                 {
                 case PREPARING:
