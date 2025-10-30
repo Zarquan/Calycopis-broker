@@ -39,7 +39,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
  * Public interface for an execution session.
  *
  */
-public interface ExecutionSession
+public interface Session
     extends ScheduledComponent
     {
     /**

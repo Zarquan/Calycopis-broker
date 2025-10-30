@@ -29,7 +29,7 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -286,7 +286,7 @@ implements SimpleComputeResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractComputeResourceEntity build(final ExecutionSessionEntity session, final ComputeResourceOffer offer)                
+                public AbstractComputeResourceEntity build(final SessionEntity session, final ComputeResourceOffer offer)                
                     {
                     this.entity = entityFactory.create(
                         session,

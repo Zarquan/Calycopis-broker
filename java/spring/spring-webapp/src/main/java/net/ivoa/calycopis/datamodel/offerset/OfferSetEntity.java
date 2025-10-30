@@ -35,7 +35,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
 @Slf4j
@@ -101,15 +101,15 @@ extends ComponentEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<ExecutionSessionEntity> executions = new ArrayList<ExecutionSessionEntity>();
+    List<SessionEntity> executions = new ArrayList<SessionEntity>();
 
     @Override
-    public List<ExecutionSessionEntity> getOffers()
+    public List<SessionEntity> getOffers()
         {
         return executions ;
         }
  
-    public void addExecutionSession(final ExecutionSessionEntity execution)
+    public void addExecutionSession(final SessionEntity execution)
         {
         executions.add(execution);
         }

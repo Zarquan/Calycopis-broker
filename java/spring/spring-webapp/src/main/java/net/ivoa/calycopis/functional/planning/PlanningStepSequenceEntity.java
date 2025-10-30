@@ -34,7 +34,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 
 /**
  * 
@@ -55,7 +55,7 @@ implements PlanningStep, PlanningStepSequence
         super();
         }
     
-    public PlanningStepSequenceEntity(final ExecutionSessionEntity session, final ComponentEntity component)
+    public PlanningStepSequenceEntity(final SessionEntity session, final ComponentEntity component)
         {
         super(
             session,

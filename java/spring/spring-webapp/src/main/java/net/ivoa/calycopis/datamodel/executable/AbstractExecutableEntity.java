@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
@@ -42,7 +42,7 @@ extends LifecycleComponentEntity
      * 
      */
     protected AbstractExecutableEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractExecutableValidator.Result result,
         final String name
         ){
@@ -70,10 +70,10 @@ extends LifecycleComponentEntity
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private SessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getSession()
+    public SessionEntity getSession()
         {
         return this.session;
         }

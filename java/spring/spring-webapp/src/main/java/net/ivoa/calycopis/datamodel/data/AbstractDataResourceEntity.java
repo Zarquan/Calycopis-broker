@@ -31,7 +31,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -61,10 +61,10 @@ implements AbstractDataResource
 
     /**
      * Protected constructor.
-     * Automatically adds this resource to the parent ExecutionSessionEntity.
+     * Automatically adds this resource to the parent SessionEntity.
      * 
      */
-    protected AbstractDataResourceEntity(final ExecutionSessionEntity session,
+    protected AbstractDataResourceEntity(final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final String name
@@ -97,10 +97,10 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private SessionEntity session;
     
     @Override
-    public ExecutionSessionEntity getSession()
+    public SessionEntity getSession()
         {
         return this.session ;
         }

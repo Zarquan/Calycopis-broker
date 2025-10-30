@@ -31,15 +31,15 @@ import org.springframework.stereotype.Repository;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * JpaRepository for ExecutionSessionEntity.
+ * JpaRepository for SessionEntity.
  *
  */
 @Repository
-public interface ExecutionSessionEntityRepository
-    extends JpaRepository<ExecutionSessionEntity, UUID>
+public interface SessionEntityRepository
+    extends JpaRepository<SessionEntity, UUID>
     {
     
-    List<ExecutionSessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
+    List<SessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
     
     }
 

@@ -45,22 +45,22 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  */
 @Slf4j
 @Component
-public class ExecutionSessionEntityFactoryImpl
+public class SessionEntityFactoryImpl
     extends FactoryBaseImpl
-    implements ExecutionSessionEntityFactory
+    implements SessionEntityFactory
     {
 
-    private final ExecutionSessionEntityRepository repository;
+    private final SessionEntityRepository repository;
 
     @Autowired
-    public ExecutionSessionEntityFactoryImpl(final ExecutionSessionEntityRepository repository)
+    public SessionEntityFactoryImpl(final SessionEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionSessionEntity> select(UUID uuid)
+    public Optional<SessionEntity> select(UUID uuid)
         {
         return this.repository.findById(
             uuid
@@ -68,10 +68,10 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
+    public SessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
         {
         return this.repository.save(
-            new ExecutionSessionEntity(
+            new SessionEntity(
                 parent,
                 context,
                 offer
@@ -80,14 +80,14 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    // TODO return an UpdateContext, with entity, result and messages.
-    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    // TODO return an UpdateResult, with entity, result and messages.
+    public Optional<SessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<ExecutionSessionEntity> result = this.repository.findById(
+        Optional<SessionEntity> result = this.repository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -95,7 +95,7 @@ public class ExecutionSessionEntityFactoryImpl
             return result ;
             }
         else {
-            ExecutionSessionEntity entity = update(
+            SessionEntity entity = update(
                 result.get(),
                 update
                 );  
@@ -109,7 +109,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
-    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaAbstractUpdate update)
+    protected SessionEntity update(final SessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -132,7 +132,7 @@ public class ExecutionSessionEntityFactoryImpl
 
     // TODO Pass in an UpdateContext, with entity, result and messages.
     // TODO Move the phase change checking into the entity.
-    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
+    protected SessionEntity update(final SessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, ValueUpdate)");
         log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
@@ -155,6 +155,8 @@ public class ExecutionSessionEntityFactoryImpl
                 // If this is a change.
                 if (newphase != oldphase)
                     {
+                    // TODO This becomes a big matrix of state transitions.
+                    // How do we split this into smaller chunks ?
                     switch(oldphase)
                         {
                         case OFFERED :
@@ -168,8 +170,9 @@ public class ExecutionSessionEntityFactoryImpl
                                         );
                                     //
                                     // REJECT the other Sessions in the offer.
-                                    for (ExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
+                                    for (SessionEntity sibling : entity.getOfferSet().getOffers())
                                         {
+                                        // TODO compare by UUID not by reference.
                                         if (sibling != entity)
                                             {
                                             sibling.setPhase(
@@ -206,7 +209,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase)
+    public List<SessionEntity> select(final IvoaExecutionSessionPhase phase)
         {
         return repository.findByPhase(
             phase
@@ -214,7 +217,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity save(final ExecutionSessionEntity entity)
+    public SessionEntity save(final SessionEntity entity)
         {
         return repository.save(
             entity

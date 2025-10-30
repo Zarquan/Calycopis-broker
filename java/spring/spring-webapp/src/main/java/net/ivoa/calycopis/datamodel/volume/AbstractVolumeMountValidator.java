@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 
@@ -46,7 +46,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
          * Build an entity based on a validation result.
          *
          */
-        public AbstractVolumeMountEntity build(final ExecutionSessionEntity session);
+        public AbstractVolumeMountEntity build(final SessionEntity session);
         }
 
     /**
@@ -82,7 +82,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractVolumeMountEntity build(ExecutionSessionEntity session)
+        public AbstractVolumeMountEntity build(SessionEntity session)
             {
             return null;
             }

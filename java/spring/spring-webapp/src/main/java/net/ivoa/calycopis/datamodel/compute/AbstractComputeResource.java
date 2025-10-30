@@ -27,7 +27,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 
 /**
@@ -43,10 +43,10 @@ public interface AbstractComputeResource
     extends LifecycleComponent
     {
     /**
-     * Get the parent ExecutionSession.  
+     * Get the parent Session.  
      *
      */
-    public ExecutionSessionEntity getSession();
+    public SessionEntity getSession();
 
     /**
      * Get an IVOA bean representation.

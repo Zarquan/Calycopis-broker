@@ -24,7 +24,7 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
@@ -130,7 +130,7 @@ implements SimpleStorageResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractStorageResourceEntity build(ExecutionSessionEntity session)
+                public AbstractStorageResourceEntity build(SessionEntity session)
                     {
                     entity = entityFactory.create(
                         session,

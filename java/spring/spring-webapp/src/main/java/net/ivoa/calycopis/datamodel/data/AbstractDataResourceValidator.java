@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 
@@ -46,7 +46,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
          * Build an entity based on a validation result. 
          *
          */
-        public AbstractDataResourceEntity build(final ExecutionSessionEntity session);
+        public AbstractDataResourceEntity build(final SessionEntity session);
         }
 
     /**
@@ -83,7 +83,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractDataResourceEntity build(ExecutionSessionEntity session)
+        public AbstractDataResourceEntity build(SessionEntity session)
             {
             return null;
             }
