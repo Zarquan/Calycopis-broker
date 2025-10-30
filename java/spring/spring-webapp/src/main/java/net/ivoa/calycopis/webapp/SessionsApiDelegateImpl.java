@@ -34,6 +34,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.SessionEntityUpdateHandler;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
@@ -44,23 +45,26 @@ public class SessionsApiDelegateImpl
     implements SessionsApiDelegate
     {
 
-    private final SessionEntityFactory factory ;
+    private final SessionEntityFactory sessionFactory ;
+    private final SessionEntityUpdateHandler updateHandler ;
 
     @Autowired
     public SessionsApiDelegateImpl(
         NativeWebRequest request,
-        SessionEntityFactory factory
+        SessionEntityFactory sessionFactory,
+        SessionEntityUpdateHandler updateHandler 
         )
         {
         super(request);
-        this.factory = factory ;
+        this.sessionFactory = sessionFactory ;
+        this.updateHandler = updateHandler ;
         }
 
     @Override
     public ResponseEntity<IvoaExecutionSessionResponse> executionSessionGet(
         final UUID uuid
         ) {
-        final Optional<SessionEntity> found = factory.select(
+        final Optional<SessionEntity> found = sessionFactory.select(
             uuid
             );
         if (found.isPresent())
@@ -84,7 +88,7 @@ public class SessionsApiDelegateImpl
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
-       final Optional<SessionEntity> found = factory.update(
+       final Optional<SessionEntity> found = updateHandler.update(
             uuid,
             request.getUpdate()
             );

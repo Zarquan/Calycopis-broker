@@ -60,12 +60,6 @@ public interface SessionEntityFactory
     public SessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
     /**
-     * Apply an Update request to an Execution.
-     *
-     */
-    public Optional<SessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
-
-    /**
      * Save a SessionEntity.
      *
      */

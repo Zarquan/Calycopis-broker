@@ -23,15 +23,24 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 
 /**
  * 
  */
-public interface SessionUpdateHandler
+public interface SessionEntityUpdateHandler
 extends FactoryBase
     {
 
+    /**
+     * Apply an Update request to an Session.
+     *
+     */
+    public Optional<SessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
     
     
     }
