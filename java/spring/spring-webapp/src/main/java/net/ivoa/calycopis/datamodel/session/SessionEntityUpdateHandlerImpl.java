@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.asynchronous.AsyncSessionHandler;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
@@ -47,15 +48,13 @@ implements SessionEntityUpdateHandler
 
     private final SessionEntityRepository sessionRepository;
     private final AsyncSessionHandler asyncHandler;
-    private final TestSessionHandler testHandler;
 
     @Autowired
-    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler, final TestSessionHandler testHandler)
+    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
         {
         super();
         this.sessionRepository = repository;
         this.asyncHandler = asyncHandler;
-        this.testHandler = testHandler;
         }
 
     @Override
@@ -199,17 +198,9 @@ implements SessionEntityUpdateHandler
                         }
                     }
                 log.debug("Calling async handler for accepted session [{}]", entity.getUuid());
-                if (true)
-                    {
-                    asyncHandler.process(
-                        entity.getUuid()
-                        );
-                    }
-                else {
-                    testHandler.process(
-                        entity
-                        );
-                    }
+                asyncHandler.process(
+                    entity.getUuid()
+                    );
                 log.debug("Back from async handler for accepted session [{}]", entity.getUuid());
                 break;
             default:

@@ -144,7 +144,6 @@ EOF
 
         #
         # Create a new offerset.
-
         curl \
             --silent \
             --show-error \
@@ -164,21 +163,13 @@ EOF
 
         #
         # Accept the first offer.
-
-        offerurl=$(
-            yq '
-                .offers[0].href
-                ' \
-            "002-offerset-response.yaml"
-            )
-
         curl \
             --silent \
             --show-error \
             --header 'Content-Type: application/json' \
             --data-binary "@003-accept-00-request.json" \
             --header 'Accept: application/yaml' \
-            "${offerurl}" \
+            "$(yq '.offers[0].href' '002-offerset-response.yaml')" \
         | tee "004-accept-00-response.yaml" \
         | yq '{
             "uuid": .uuid,

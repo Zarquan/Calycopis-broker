@@ -139,7 +139,6 @@ public class SessionEntity
         this.phase = newphase;
         }
     
-    
     @Column(name = "expires")
     private OffsetDateTime expires;
     @Override
