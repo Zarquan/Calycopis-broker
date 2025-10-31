@@ -29,13 +29,19 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * 
+ *
+ * TODO Refactor this to use EntityManager.refresh() and Version.
+ * https://www.baeldung.com/spring-data-jpa-refresh-fetch-entity-after-save
+ *  
  */
 @Slf4j
 @Service
@@ -45,6 +51,8 @@ implements AsyncSessionHandler
     {
 
     @Autowired
+    private final EntityManager entityManager;
+    @Autowired
     private final SessionEntityFactory sessionFactory;
     @Autowired
     private final SessionEntityRepository sessionRepository;
@@ -52,8 +60,12 @@ implements AsyncSessionHandler
     /**
      * 
      */
-    public AsyncSessionHandlerImpl(final SessionEntityFactory sessionFactory, final SessionEntityRepository sessionRepository)
-        {
+    public AsyncSessionHandlerImpl(
+        final EntityManager entityManager,
+        final SessionEntityFactory sessionFactory,
+        final SessionEntityRepository sessionRepository
+        ){
+        this.entityManager = entityManager;
         this.sessionFactory = sessionFactory;
         this.sessionRepository = sessionRepository;
         }
@@ -64,6 +76,10 @@ implements AsyncSessionHandler
         {
         log.debug("Session process(UUID) [{}]", uuid);
 
+        //
+        // Wait to begin preparing.
+        
+        
         log.debug("Begin preparing [{}]", uuid);
         setPreparing(
             uuid
@@ -71,6 +87,7 @@ implements AsyncSessionHandler
 
         //
         // Wait for 30 seconds to simulate preparation work.
+        
         for (int i = 0 ; i < 60 ; i++)
             {
             try {
@@ -91,6 +108,7 @@ implements AsyncSessionHandler
         
         }
         
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void setPreparing(final UUID uuid)
         {
         log.debug("setPreparing(UUID) [{}]", uuid);
@@ -98,80 +116,67 @@ implements AsyncSessionHandler
         for (int count = 0 ; (loop && (count < 10)); count++)
             {
             log.debug("preparing loop [{}]", uuid);
-            Optional<SessionEntity> found = sessionRepository.findById(
+            SessionEntity entity = sessionRepository.findById(
                 uuid
-                );
-            if (found.isEmpty())
-                {
-                log.error("Session not found [{}]", uuid);
-                }
-            else {
-                SessionEntity entity = found.get();
-                log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
-                switch (entity.getPhase())
-                    {
-                    case OFFERED:
-                        log.debug("Phase is still OFFERED [{}]", uuid);
-                        loop = true ;
-                        try {
-                            log.debug("Sleeping [{}]", uuid);
-                            Thread.sleep(100);
-                            log.debug("Awake [{}]", uuid);
-                            }
-                        catch (Exception ouch)
-                            {
-                            log.error("Exception during sleep", uuid, ouch.getMessage());
-                            }
-                        break;
-                    case ACCEPTED:
-                        log.debug("Phase is ACCEPTED [{}]", uuid);
-                        loop = false ;
-                        entity.setPhase(
-                            IvoaExecutionSessionPhase.PREPARING
-                            );
-                        entity = this.sessionRepository.save(
-                            entity
-                            );
-                        log.debug("Phase changed to PREPARING [{}]", uuid);
-                        break;
-                    default:
-                        loop = false ;
-                        log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.PREPARING);
-                        break;
-                    }
-                }
-            } 
-        }
-
-    public void setReady(final UUID uuid)
-        {
-        log.debug("setReady(UUID) [{}]", uuid);
-        Optional<SessionEntity> found = sessionRepository.findById(
-            uuid
-            );
-        if (found.isEmpty())
-            {
-            log.error("Session not found [{}]", uuid);
-            }
-        else {
-            SessionEntity entity = found.get();
+                ).orElseThrow();
             log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
             switch (entity.getPhase())
                 {
-                case PREPARING:
-                    log.debug("Phase is PREPARING [{}]", uuid);
+                case OFFERED:
+                    log.debug("Phase is still OFFERED [{}]", uuid);
+                    loop = true ;
+                    try {
+                        log.debug("Sleeping [{}]", uuid);
+                        Thread.sleep(100);
+                        log.debug("Awake [{}]", uuid);
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.error("Exception during sleep", uuid, ouch.getMessage());
+                        }
+                    break;
+                case ACCEPTED:
+                    log.debug("Phase is ACCEPTED [{}]", uuid);
+                    loop = false ;
                     entity.setPhase(
-                        IvoaExecutionSessionPhase.READY
+                        IvoaExecutionSessionPhase.PREPARING
                         );
                     entity = this.sessionRepository.save(
                         entity
                         );
-                    log.debug("Phase changed to READY [{}]", uuid);
+                    log.debug("Phase changed to PREPARING [{}]", uuid);
                     break;
                 default:
-                    log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.READY);
+                    loop = false ;
+                    log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.PREPARING);
                     break;
                 }
+            } 
+        }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setReady(final UUID uuid)
+        {
+        log.debug("setReady(UUID) [{}]", uuid);
+        SessionEntity entity = sessionRepository.findById(
+            uuid
+            ).orElseThrow();
+        log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
+        switch (entity.getPhase())
+            {
+            case PREPARING:
+                log.debug("Phase is PREPARING [{}]", uuid);
+                entity.setPhase(
+                    IvoaExecutionSessionPhase.READY
+                    );
+                entity = this.sessionRepository.save(
+                    entity
+                    );
+                log.debug("Phase changed to READY [{}]", uuid);
+                break;
+            default:
+                log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.READY);
+                break;
             }
         } 
     }

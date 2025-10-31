@@ -47,13 +47,15 @@ implements SessionEntityUpdateHandler
 
     private final SessionEntityRepository sessionRepository;
     private final AsyncSessionHandler asyncHandler;
+    private final TestSessionHandler testHandler;
 
     @Autowired
-    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
+    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler, final TestSessionHandler testHandler)
         {
         super();
         this.sessionRepository = repository;
-        this.asyncHandler = asyncHandler ;
+        this.asyncHandler = asyncHandler;
+        this.testHandler = testHandler;
         }
 
     @Override
@@ -197,9 +199,17 @@ implements SessionEntityUpdateHandler
                         }
                     }
                 log.debug("Calling async handler for accepted session [{}]", entity.getUuid());
-                asyncHandler.process(
-                    entity.getUuid()
-                    );
+                if (true)
+                    {
+                    asyncHandler.process(
+                        entity.getUuid()
+                        );
+                    }
+                else {
+                    testHandler.process(
+                        entity
+                        );
+                    }
                 log.debug("Back from async handler for accepted session [{}]", entity.getUuid());
                 break;
             default:
