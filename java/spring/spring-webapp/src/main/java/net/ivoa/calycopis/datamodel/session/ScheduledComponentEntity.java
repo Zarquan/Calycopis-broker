@@ -34,10 +34,10 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
 
 
 /**

@@ -109,7 +109,7 @@ implements AbstractStorageResource
         }
 
     @OneToMany(
-        mappedBy = "session",
+        mappedBy = "storage",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true

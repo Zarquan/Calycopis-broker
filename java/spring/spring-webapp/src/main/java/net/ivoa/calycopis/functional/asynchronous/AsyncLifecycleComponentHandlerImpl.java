@@ -27,10 +27,7 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,17 +42,15 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
  *  
  */
 @Slf4j
-@Service
-public class AsyncLifecycleComponentHandlerImpl
+public abstract class AsyncLifecycleComponentHandlerImpl<EntityType extends LifecycleComponentEntity>
 extends FactoryBaseImpl
-implements AsyncLifecycleComponentHandler
+implements AsyncLifecycleComponentHandler<EntityType>
     {
 
-    private final InnerLifecycleHandler inner;
+    private final InnerLifecycleHandler<EntityType> inner;
 
-    @Autowired
     AsyncLifecycleComponentHandlerImpl(
-        final InnerLifecycleHandler inner
+        final InnerLifecycleHandler<EntityType> inner
         ){
         this.inner = inner;
         }
@@ -66,29 +61,33 @@ implements AsyncLifecycleComponentHandler
         {
         log.debug("Executable process(UUID) [{}][{}]", uuid, counter);
 
-        log.debug("Before preparing [{}]", uuid);
         inner.prePreparing(
             uuid
             );
         
-        log.debug("Start preparing [{}]", uuid);
         inner.setPreparing(
             uuid
             );
 
-        log.debug("Do preparing [{}]", uuid);
         inner.doPreparing(
-            uuid
+            uuid,
+            counter
             );
         
-        log.debug("Done preparing [{}]", uuid);
         inner.setAvailable(
-            uuid
+            uuid,
+            counter
             );
+
+        inner.donePreparing(
+            uuid,
+            counter
+            );
+
         counter.decrementAndGet();
+        log.debug("Notifying all [{}][{}]", uuid, counter);
         synchronized (counter)
             {
-            log.debug("Notifying all [{}]", uuid);
             counter.notifyAll();
             }
         }
@@ -99,14 +98,12 @@ implements AsyncLifecycleComponentHandler
      *  
      */
     @Slf4j
-    @Component
-    static class InnerLifecycleHandler
+    static abstract class InnerLifecycleHandler<EntityType extends LifecycleComponentEntity>
         {
-        private final LifecycleComponentEntityRepository repository;
+        protected final LifecycleComponentEntityRepository<EntityType> repository;
         
-        @Autowired
         InnerLifecycleHandler(
-            final LifecycleComponentEntityRepository repository
+            final LifecycleComponentEntityRepository<EntityType> repository
             ){
             this.repository = repository;
             }
@@ -114,11 +111,9 @@ implements AsyncLifecycleComponentHandler
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void prePreparing(final UUID uuid)
             {
-            log.debug("prePreparing(UUID) [{}]", uuid);
             LifecycleComponentEntity entity = repository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Entity found [{}][{}][{}][{}]", entity.getUuid(), entity.getClass().getSimpleName(), entity.getName(),  entity.getPhase());
     
             Instant instant = entity.getPrepareStartInstant();
             long seconds = entity.getPrepareStartInstantSeconds();
@@ -126,23 +121,23 @@ implements AsyncLifecycleComponentHandler
     
             if (delta > 0)
                 {
-                log.debug("Prepare start is in the future [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta);
+                log.debug("[{}][{}][{}] prePrepare() start is in the future [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                 while (delta > 0)
                     {
                     try {
-                        log.debug("Sleeping [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta);
+                        log.debug("[{}][{}][{}] prePrepare() sleep [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                         Thread.sleep(delta * 500);
-                        log.debug("Awake [{}][{}][{}]", uuid, entity.getName(), instant);
+                        log.debug("[{}][{}][{}] prePrepare() awake [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                         }
                     catch (Exception ouch)
                         {
-                        log.error("Exception during sleep", uuid, ouch.getMessage());
+                        log.error("[{}][{}][{}] prePrepare() Exception during sleep [{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), ouch.getMessage());
                         }
                     delta = seconds - Instant.now().getEpochSecond();
                     }
                 }
             else {
-                log.debug("Prepare start is already past [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta );
+                log.debug("[{}][{}][{}] prePrepare() start is in the past [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta );
                 // Do we fail if it is too late ?
                 }
             }
@@ -150,89 +145,80 @@ implements AsyncLifecycleComponentHandler
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void setPreparing(final UUID uuid)
             {
-            log.debug("setPreparing(UUID) [{}]", uuid);
-            LifecycleComponentEntity entity = repository.findById(
+            EntityType entity = repository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Entity found [{}][{}][{}][{}]", entity.getUuid(), entity.getClass().getSimpleName(), entity.getName(),  entity.getPhase());
             switch (entity.getPhase())
                 {
                 case INACTIVE:
-                    log.debug("Phase is INACTIVE [{}][{}]", uuid, entity.getName());
                     entity.setPhase(
                         IvoaLifecyclePhase.PREPARING
                         );
                     entity = this.repository.save(
                         entity
                         );
-                    log.debug("Phase changed to PREPARING [{}][{}]", uuid, entity.getName());
+                    log.debug("[{}][{}][{}] setPreparing() phase changed [INACTIVE]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName());
                     break;
                 default:
-                    log.error("Invalid phase transition [{}][{}][{}][{}]", uuid, entity.getName(), entity.getPhase(), IvoaLifecyclePhase.PREPARING);
+                    log.error("[{}][{}][{}] setPreparing() invalid transition [{}]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
                     break;
                 }
             }
-    
+
         @Transactional(propagation = Propagation.REQUIRES_NEW)
-        void setAvailable(final UUID uuid)
+        void setAvailable(final UUID uuid, final AtomicInteger counter)
             {
-            log.debug("setReady(UUID) [{}]", uuid);
-            LifecycleComponentEntity entity = repository.findById(
+            EntityType entity = repository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Entity found [{}][{}][{}][{}]", entity.getUuid(), entity.getClass().getSimpleName(), entity.getName(),  entity.getPhase());
             switch (entity.getPhase())
                 {
                 case PREPARING:
-                    log.debug("Phase is PREPARING [{}][{}]", uuid, entity.getName());
                     entity.setPhase(
                         IvoaLifecyclePhase.AVAILABLE
                         );
                     entity = this.repository.save(
                         entity
                         );
-                    log.debug("Phase changed to READY [{}][{}]", uuid, entity.getName());
+                    log.debug("[{}][{}][{}] setAvailable() phase changed [PREPARING]->[AVAILABLE]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName());
                     break;
                 default:
-                    log.error("Invalid phase transition [{}][{}][{}][{}]", uuid, entity.getName(), entity.getPhase(), IvoaLifecyclePhase.AVAILABLE);
+                    log.error("[{}][{}][{}] setAvailable() invalid transition [{}]->[AVAILABLE]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
                     break;
                 }
             } 
-    
+
+        abstract void doPreparing(final UUID uuid, final AtomicInteger counter);
+
+        abstract void donePreparing(final UUID uuid, final AtomicInteger counter);
+
         //
-        // Placeholder that waits until the component is available.
-        @Transactional(propagation = Propagation.REQUIRES_NEW)
-        void doPreparing(final UUID uuid)
+        // Placeholder that waits until the data should be available.
+        void prepareWait(final LifecycleComponentEntity entity)
             {
-            log.debug("doPreparing(UUID) [{}]", uuid);
-            LifecycleComponentEntity entity = repository.findById(
-                uuid
-                ).orElseThrow();
-            log.debug("Entity found [{}][{}][{}][{}]", entity.getUuid(), entity.getClass().getSimpleName(), entity.getName(),  entity.getPhase());
-    
             Instant instant = entity.getAvailableStartInstant();
             long seconds = entity.getAvailableStartInstantSeconds();
             long delta = seconds - Instant.now().getEpochSecond();
     
             if (delta > 0)
                 {
-                log.debug("Available start is in the future [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta);
+                log.debug("[{}][{}][{}] prepareWait() start is in the future [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                 while (delta > 0)
                     {
                     try {
-                        log.debug("Sleeping [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta);
+                        log.debug("[{}][{}][{}] prepareWait() sleep [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                         Thread.sleep(delta * 500);
-                        log.debug("Awake [{}][{}][{}]", uuid, entity.getName(), instant);
+                        log.debug("[{}][{}][{}] prepareWait() awake [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                         }
                     catch (Exception ouch)
                         {
-                        log.error("Exception during sleep", uuid, ouch.getMessage());
+                        log.error("[{}][{}][{}] prepareWait() Exception during sleep [{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), ouch.getMessage());
                         }
                     delta = seconds - Instant.now().getEpochSecond();
                     }
                 }
             else {
-                log.debug("Available start is already past [{}][{}][{}][{}]", uuid, entity.getName(), instant, delta );
+                log.debug("[{}][{}][{}] prepareWait() start is in the past [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), instant, delta);
                 // Do we fail if it is too late ?
                 }
             }

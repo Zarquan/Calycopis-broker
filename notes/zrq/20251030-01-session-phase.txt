@@ -68,16 +68,14 @@
 # ...
 #[root@developer-tools]
 
-    examplename=concurrent-test-001
-
     pushd "$(mktemp --directory)"
 
         #
         # Docker container for 1HR.
         cat > "001-offerset-request.yaml" << EOF
-name: ${examplename}
+name: "phase change test"
 executable:
-  name: ${examplename}-executable
+  name: phase-change-executable
   type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
@@ -87,7 +85,7 @@ schedule:
   requested:
     duration: PT1H
 compute:
-  name: example-005-computer
+  name: phase-change-compute
   type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
   volumes:
     - "Input data"
@@ -179,4 +177,56 @@ EOF
             }'
 
 
+
+
+
+    testrequest()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml" \
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@003-accept-00-request.json" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].href' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+        }
+
+
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+
+
+SELECT * FROM
+    COMPONENTS
+JOIN LIFECYCLECOMPONENTS
+    ON COMPONENTS.UUID = LIFECYCLECOMPONENTS.UUID
+JOIN ABSTRACTDATARESOURCES
+    ON COMPONENTS.UUID = ABSTRACTDATARESOURCES.UUID
+JOIN SKAODATARESOURCES
+    ON COMPONENTS.UUID = SKAODATARESOURCES.UUID
+ORDER BY
+    ABSTRACTDATARESOURCES.SESSION,
+    COMPONENTS.NAME
 

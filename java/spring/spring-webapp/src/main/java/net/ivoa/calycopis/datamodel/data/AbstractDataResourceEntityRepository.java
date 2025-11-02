@@ -20,15 +20,15 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.data;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
 
 /**
- * JpaRepository for AbstractStorageResourceEntity.
+ * JpaRepository for AbstractDataResourceEntity.
  *
  */
-public interface AbstractStorageResourceEntityRepository
-extends LifecycleComponentEntityRepository<AbstractStorageResourceEntity>
+public interface AbstractDataResourceEntityRepository
+extends LifecycleComponentEntityRepository<AbstractDataResourceEntity>
     {
     }

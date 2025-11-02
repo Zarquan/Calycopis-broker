@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.ivoa.calycopis.datamodel.executable;
+package net.ivoa.calycopis.datamodel.compute;
 
 import org.springframework.stereotype.Repository;
 
@@ -12,8 +12,8 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository
  *
  */
 @Repository
-public interface AbstractExecutableEntityRepository
-extends LifecycleComponentEntityRepository<AbstractExecutableEntity>
+public interface AbstractComputeResourceEntityRepository
+extends LifecycleComponentEntityRepository<AbstractComputeResourceEntity>
     {
 
     }

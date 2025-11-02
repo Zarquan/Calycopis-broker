@@ -26,12 +26,13 @@ package net.ivoa.calycopis.functional.asynchronous;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
-public interface AsyncLifecycleComponentHandler
+public interface AsyncLifecycleComponentHandler<EntityType extends LifecycleComponentEntity>
 extends FactoryBase
     {
 

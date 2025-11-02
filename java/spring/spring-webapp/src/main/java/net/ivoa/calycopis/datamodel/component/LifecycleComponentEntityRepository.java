@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
  *
  */
 @Repository
-public interface LifecycleComponentEntityRepository
-    extends JpaRepository<LifecycleComponentEntity, UUID>
+public interface LifecycleComponentEntityRepository<EntityType extends LifecycleComponentEntity>
+    extends JpaRepository<EntityType, UUID>
     {
 
     }

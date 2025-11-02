@@ -30,11 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntityRepository;
@@ -47,7 +48,7 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  *  
  */
 @Slf4j
-@Service
+@Component
 public class AsyncSessionHandlerImpl
 extends FactoryBaseImpl
 implements AsyncSessionHandler
@@ -66,24 +67,20 @@ implements AsyncSessionHandler
     @Async("TaskExecutor-21")
     public void process(final UUID uuid)
         {
-        log.debug("Session process(UUID) [{}]", uuid);
+        log.debug("Processing session [{}]", uuid);
 
-        log.debug("Before preparing [{}]", uuid);
         inner.prePreparing(
             uuid
             );
         
-        log.debug("Start preparing [{}]", uuid);
         inner.setPreparing(
             uuid
             );
 
-        log.debug("Do preparing [{}]", uuid);
         inner.doPreparing(
             uuid
             );
 
-        log.debug("Done preparing [{}]", uuid);
         inner.setReady(
             uuid
             );
@@ -100,51 +97,55 @@ implements AsyncSessionHandler
     static class InnerSessionHandler
         {
 
-        private final SessionEntityRepository repository;
-
-        private final AsyncLifecycleComponentHandler lifecycler;
+        private final SessionEntityRepository sessionRepository;
+        private final AsyncComputeHandler computeHandler;
+        private final AsyncExecutableHandler executableHandler;
+        private final AsyncStorageResourceHandler storageHandler;
 
         @Autowired
         InnerSessionHandler(
-            final SessionEntityRepository repository,
-            final AsyncLifecycleComponentHandler lifecycler
+            final SessionEntityRepository sessionRepository,
+            final AsyncComputeHandler computeHandler,
+            final AsyncExecutableHandler executableHandler,
+            final AsyncStorageResourceHandler storageHandler
             ){
-            this.repository = repository;
-            this.lifecycler = lifecycler;
+            this.sessionRepository = sessionRepository;
+            this.computeHandler = computeHandler;
+            this.executableHandler = executableHandler;
+            this.storageHandler = storageHandler;
             }
         
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void prePreparing(final UUID uuid)
             {
-            log.debug("prePreparing(UUID) [{}]", uuid);
-            SessionEntity entity = repository.findById(
+            log.debug("Session [{}] prePreparing()", uuid);
+            SessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
     
-            Instant prepare = entity.getPrepareStartInstant();
-            long target = entity.getPrepareStartInstantSeconds();
+            Instant prepare = session.getPrepareStartInstant();
+            long target = session.getPrepareStartInstantSeconds();
             long delta = target - Instant.now().getEpochSecond();
     
             if (delta > 0)
                 {
-                log.debug("Prepare start is in the future [{}][{}][{}]", uuid, prepare, delta);
+                log.debug("Session [{}] prePreparing() start is in the future [{}][{}]", session.getUuid(), prepare, delta);
                 while (delta > 0)
                     {
                     try {
-                        log.debug("Sleeping [{}][{}][{}]", uuid, prepare, delta);
+                        log.debug("Session [{}] prePreparing() sleeping [{}][{}]", session.getUuid(), prepare, delta);
                         Thread.sleep(delta * 500);
-                        log.debug("Awake [{}][{}]", uuid, prepare);
+                        log.debug("Session [{}] prePreparing() awake [{}][{}]", session.getUuid(), prepare, delta);
                         }
                     catch (Exception ouch)
                         {
-                        log.error("Exception during sleep", uuid, ouch.getMessage());
+                        log.error("Session [{}] prePreparing() Exception during sleep", session.getUuid(), ouch.getMessage());
                         }
                     delta = target - Instant.now().getEpochSecond();
                     }
                 }
             else {
-                log.debug("Prepare start is already past [{}][{}][{}]", uuid, prepare, delta );
+                log.debug("Session [{}] prePreparing() start is already past [{}][{}]", session.getUuid(), prepare, delta);
                 // Do we fail if it is too late ?
                 }
             }
@@ -152,44 +153,42 @@ implements AsyncSessionHandler
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void setPreparing(final UUID uuid)
             {
-            log.debug("setPreparing(UUID) [{}]", uuid);
+            log.debug("Session [{}] setPreparing()", uuid);
             boolean loop = true;
             for (int count = 0 ; (loop && (count < 10)); count++)
                 {
-                log.debug("preparing loop [{}]", uuid);
-                SessionEntity entity = repository.findById(
+                SessionEntity session = sessionRepository.findById(
                     uuid
                     ).orElseThrow();
-                log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
-                switch (entity.getPhase())
+                switch (session.getPhase())
                     {
                     case OFFERED:
-                        log.debug("Phase is still OFFERED [{}]", uuid);
+                        log.debug("Session [{}] setPreparing() phase is still OFFERED", session.getUuid());
                         loop = true ;
                         try {
-                            log.debug("Sleeping [{}]", uuid);
+                            log.debug("Session [{}] setPreparing() sleep", session.getUuid());
                             Thread.sleep(10);
-                            log.debug("Awake [{}]", uuid);
+                            log.debug("Session [{}] setPreparing() awake", session.getUuid());
                             }
                         catch (Exception ouch)
                             {
-                            log.error("Exception during sleep", uuid, ouch.getMessage());
+                            log.error("Session [{}] Exception during setPreparing() sleep [{}]", session.getUuid(), ouch.getMessage());
                             }
                         break;
                     case ACCEPTED:
-                        log.debug("Phase is ACCEPTED [{}]", uuid);
+                        log.debug("Session [{}] setPreparing() phase is [ACCEPTED]", session.getUuid());
                         loop = false ;
-                        entity.setPhase(
+                        session.setPhase(
                             IvoaExecutionSessionPhase.PREPARING
                             );
-                        entity = this.repository.save(
-                            entity
+                        session = this.sessionRepository.save(
+                            session
                             );
-                        log.debug("Phase changed to PREPARING [{}]", uuid);
+                        log.debug("Session [{}] setPreparing() phase changed [ACCEPTED]->[PREPARING]", session.getUuid());
                         break;
                     default:
                         loop = false ;
-                        log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.PREPARING);
+                        log.error("Session [{}] setPreparing() invalid transition [{}]->[PREPARING]", session.getUuid(), session.getPhase());
                         break;
                     }
                 } 
@@ -197,80 +196,96 @@ implements AsyncSessionHandler
             // TODO What do we do if the state it still OFFERED ?
             // If it takes too long we need to fail the session.
             // We can use PrepareStartInstant as a time limit.
-            
+            log.debug("Session [{}] setPreparing() done", uuid);
             }
     
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void setReady(final UUID uuid)
             {
-            log.debug("setReady(UUID) [{}]", uuid);
-            SessionEntity entity = repository.findById(
+            log.debug("Session [{}] setReady()", uuid);
+            SessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Session found [{}][{}]", entity.getUuid(), entity.getPhase());
-            switch (entity.getPhase())
+            switch (session.getPhase())
                 {
                 case PREPARING:
-                    log.debug("Phase is PREPARING [{}]", uuid);
-                    entity.setPhase(
+                    session.setPhase(
                         IvoaExecutionSessionPhase.READY
                         );
-                    entity = this.repository.save(
-                        entity
+                    session = this.sessionRepository.save(
+                        session
                         );
-                    log.debug("Phase changed to READY [{}]", uuid);
+                    log.debug("Session [{}] setReady() phase changed [PREPARING]->[READY]", session.getUuid());
                     break;
                 default:
-                    log.error("Invalid phase transition [{}][{}][{}]", uuid, entity.getPhase(), IvoaExecutionSessionPhase.READY);
+                    log.error("Session [{}] setReady() invalid transition [{}]->[READY]", session.getUuid(), session.getPhase());
                     break;
                 }
+            log.debug("Session [{}] setReady() done", session.getUuid());
             } 
     
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void doPreparing(final UUID uuid)
             {
-            log.debug("doPreparing(UUID) [{}]", uuid);
-            SessionEntity session = repository.findById(
+            log.debug("Session [{}] doPreparing()", uuid);
+            SessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
-            log.debug("Session found [{}][{}]", session.getUuid(), session.getPhase());
             
             final AtomicInteger preparing = new AtomicInteger();
             
             AbstractExecutableEntity executable = session.getExecutable();
-            log.debug("Executable found [{}][{}]", executable.getUuid(), executable.getPhase());
-    
-            log.debug("Preparing executable [{}]", executable.getUuid());
             preparing.incrementAndGet();
-            lifecycler.prepare(executable.getUuid(), preparing);
-    
-            log.debug("Preparing session storage [{}]", session.getUuid());
-            for (AbstractStorageResource storage : session.getStorageResources())
+            log.debug("Session [{}] doPreparing() executable [{}][{}][{}]", session.getUuid(), executable.getName(), executable.getUuid(), preparing);
+            executableHandler.prepare(
+                executable.getUuid(),
+                preparing
+                );
+
+            //
+            // TODO compute should wait for the executable to be ready.
+            AbstractComputeResourceEntity compute = session.getComputeResource();
+            preparing.incrementAndGet();
+            log.debug("Session [{}] doPreparing() compute [{}][{}][{}]", session.getUuid(), compute.getName(), compute.getUuid(), preparing);
+            computeHandler.prepare(
+                compute.getUuid(),
+                preparing
+                );
+            
+            for (AbstractDataResource data : session.getDataResources())
                 {
-                log.debug("Preparing session storage [{}][{}]", session.getUuid(), storage.getUuid());
                 preparing.incrementAndGet();
-                lifecycler.prepare(storage.getUuid(), preparing);
+                log.debug("Session [{}] doPreparing() data [{}][{}][{}]", session.getUuid(), data.getName(), data.getUuid(), preparing);
                 }
             
-            log.debug("Checking count [{}][{}]", uuid, preparing);
+            for (AbstractStorageResource storage : session.getStorageResources())
+                {
+                preparing.incrementAndGet();
+                log.debug("Session [{}] doPreparing() storage [{}][{}][{}]", session.getUuid(), storage.getName(), storage.getUuid(), preparing);
+                storageHandler.prepare(
+                    storage.getUuid(),
+                    preparing
+                    );
+                }
+            
             while(preparing.get() > 0)
                 {
-                log.debug("Waiting for notify [{}][{}]", uuid, preparing);
                 try {
                     // TODO Adjust wait based on the expected duration.
                     // TODO Exit and fail if we are too late. 
+                    log.debug("Session [{}] waiting on counter [{}]", session.getUuid(), preparing);
                     synchronized (preparing)
                         {
                         preparing.wait(10000);
                         }
+                    log.debug("Session [{}] awake from wait [{}]", session.getUuid(), preparing);
                     }
                 catch (Exception ouch)
                     {
-                    log.error("Exception during sleep [{}][{}]", uuid, ouch.getMessage());
+                    log.error("Session [{}] Exception during wait [{}]", session.getUuid(), ouch.getMessage());
                     }
-                log.debug("Awake from notify [{}][{}]", uuid, preparing);
                 }
-            log.debug("Prepare done [{}]", session.getUuid());
+            log.debug("Session [{}] doPreparing() done", session.getUuid());
             }
         }
     }

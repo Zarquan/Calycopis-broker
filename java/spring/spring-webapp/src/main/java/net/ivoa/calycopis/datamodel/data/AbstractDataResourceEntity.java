@@ -64,7 +64,8 @@ implements AbstractDataResource
      * Automatically adds this resource to the parent SessionEntity.
      * 
      */
-    protected AbstractDataResourceEntity(final SessionEntity session,
+    protected AbstractDataResourceEntity(
+        final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final String name

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,15 +20,16 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.storage;
 
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
+package net.ivoa.calycopis.functional.asynchronous;
+
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 
 /**
- * JpaRepository for AbstractStorageResourceEntity.
- *
+ * 
  */
-public interface AbstractStorageResourceEntityRepository
-extends LifecycleComponentEntityRepository<AbstractStorageResourceEntity>
+public interface AsyncComputeHandler
+extends AsyncLifecycleComponentHandler<AbstractComputeResourceEntity>
     {
+
     }
