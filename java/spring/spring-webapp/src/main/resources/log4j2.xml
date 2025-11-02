@@ -23,19 +23,19 @@
     | Log4j configuration, based on Baeldung article and Log4j manual.
     | https://www.baeldung.com/java-logging-intro
     | https://logging.apache.org/log4j/2.x/manual/async.html
+    | https://logging.apache.org/log4j/2.x/manual/pattern-layout.html
     | https://medium.com/@bishalf98/log4j2-in-springboot3-095ab6f15763
     |
     +-->
 <Configuration status="INFO">
     <Appenders>
         <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p %c %m%n"/>
+            <PatternLayout pattern="%date{yyyy-MM-dd HH:mm:ss} %level{length=5} %thread %logger{1} %method() %message%n"/>
         </Console>
         <!-- Async Loggers will auto-flush in batches, so switch off immediateFlush. -->
         <RandomAccessFile name="RandomAccessFile" fileName="target/async.log" immediateFlush="false" append="false">
             <PatternLayout>
-                <Pattern>%d %p %c{1.} [%t] %m %ex%n</Pattern>
-                <!--Pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n</Pattern-->
+                <Pattern>%date{yyyy-MM-dd HH:mm:ss} %level{length=5} %thread %logger{1} %method() %message%n</Pattern>
             </PatternLayout>
         </RandomAccessFile>
     </Appenders>
