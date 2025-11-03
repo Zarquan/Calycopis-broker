@@ -84,7 +84,23 @@ implements AsyncSessionHandler
         inner.setReady(
             uuid
             );
+
+        inner.preRunning(
+            uuid
+            );
+
+        inner.setRunning(
+            uuid
+            );
         
+        inner.doRunning(
+            uuid
+            );
+        
+        inner.setCompleted(
+            uuid
+            );
+
         }
 
     /**
@@ -123,19 +139,19 @@ implements AsyncSessionHandler
                 uuid
                 ).orElseThrow();
     
-            Instant prepare = session.getPrepareStartInstant();
+            Instant instant = session.getPrepareStartInstant();
             long target = session.getPrepareStartInstantSeconds();
             long delta = target - Instant.now().getEpochSecond();
     
             if (delta > 0)
                 {
-                log.debug("Session [{}] prePreparing() start is in the future [{}][{}]", session.getUuid(), prepare, delta);
+                log.debug("Session [{}] prePreparing() start is in the future [{}][{}]", session.getUuid(), instant, delta);
                 while (delta > 0)
                     {
                     try {
-                        log.debug("Session [{}] prePreparing() sleeping [{}][{}]", session.getUuid(), prepare, delta);
+                        log.debug("Session [{}] prePreparing() sleeping [{}][{}]", session.getUuid(), instant, delta);
                         Thread.sleep(delta * 500);
-                        log.debug("Session [{}] prePreparing() awake [{}][{}]", session.getUuid(), prepare, delta);
+                        log.debug("Session [{}] prePreparing() awake [{}][{}]", session.getUuid(), instant, delta);
                         }
                     catch (Exception ouch)
                         {
@@ -145,7 +161,7 @@ implements AsyncSessionHandler
                     }
                 }
             else {
-                log.debug("Session [{}] prePreparing() start is already past [{}][{}]", session.getUuid(), prepare, delta);
+                log.debug("Session [{}] prePreparing() start is already past [{}][{}]", session.getUuid(), instant, delta);
                 // Do we fail if it is too late ?
                 }
             }
@@ -200,31 +216,6 @@ implements AsyncSessionHandler
             }
     
         @Transactional(propagation = Propagation.REQUIRES_NEW)
-        void setReady(final UUID uuid)
-            {
-            log.debug("Session [{}] setReady()", uuid);
-            SessionEntity session = sessionRepository.findById(
-                uuid
-                ).orElseThrow();
-            switch (session.getPhase())
-                {
-                case PREPARING:
-                    session.setPhase(
-                        IvoaExecutionSessionPhase.READY
-                        );
-                    session = this.sessionRepository.save(
-                        session
-                        );
-                    log.debug("Session [{}] setReady() phase changed [PREPARING]->[READY]", session.getUuid());
-                    break;
-                default:
-                    log.error("Session [{}] setReady() invalid transition [{}]->[READY]", session.getUuid(), session.getPhase());
-                    break;
-                }
-            log.debug("Session [{}] setReady() done", session.getUuid());
-            } 
-    
-        @Transactional(propagation = Propagation.REQUIRES_NEW)
         void doPreparing(final UUID uuid)
             {
             log.debug("Session [{}] doPreparing()", uuid);
@@ -244,6 +235,7 @@ implements AsyncSessionHandler
 
             //
             // TODO compute should wait for the executable to be ready.
+            // TODO compute should wait for storage and data to be ready.
             AbstractComputeResourceEntity compute = session.getComputeResource();
             preparing.incrementAndGet();
             log.debug("Session [{}] doPreparing() compute [{}][{}][{}]", session.getUuid(), compute.getName(), compute.getUuid(), preparing);
@@ -287,5 +279,152 @@ implements AsyncSessionHandler
                 }
             log.debug("Session [{}] doPreparing() done", session.getUuid());
             }
+
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        void setReady(final UUID uuid)
+            {
+            log.debug("Session [{}] setReady()", uuid);
+            SessionEntity session = sessionRepository.findById(
+                uuid
+                ).orElseThrow();
+            switch (session.getPhase())
+                {
+                case PREPARING:
+                    session.setPhase(
+                        IvoaExecutionSessionPhase.READY
+                        );
+                    session = this.sessionRepository.save(
+                        session
+                        );
+                    log.debug("Session [{}] setReady() phase changed [PREPARING]->[READY]", session.getUuid());
+                    break;
+                default:
+                    log.error("Session [{}] setReady() invalid transition [{}]->[READY]", session.getUuid(), session.getPhase());
+                    break;
+                }
+            log.debug("Session [{}] setReady() done", session.getUuid());
+            } 
+
+        
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        void preRunning(final UUID uuid)
+            {
+            log.debug("Session [{}] preRunning()", uuid);
+            SessionEntity session = sessionRepository.findById(
+                uuid
+                ).orElseThrow();
+    
+            Instant instant = session.getAvailableStartInstant();
+            long target = session.getAvailableStartInstantSeconds();
+            long delta = target - Instant.now().getEpochSecond();
+    
+            if (delta > 0)
+                {
+                log.debug("Session [{}] preRunning() start is in the future [{}][{}]", session.getUuid(), instant, delta);
+                while (delta > 0)
+                    {
+                    try {
+                        log.debug("Session [{}] preRunning() sleeping [{}][{}]", session.getUuid(), instant, delta);
+                        Thread.sleep(delta * 500);
+                        log.debug("Session [{}] preRunning() awake [{}][{}]", session.getUuid(), instant, delta);
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.error("Session [{}] preRunning() Exception during sleep", session.getUuid(), ouch.getMessage());
+                        }
+                    delta = target - Instant.now().getEpochSecond();
+                    }
+                }
+            else {
+                log.debug("Session [{}] preRunning() start is already past [{}][{}]", session.getUuid(), instant, delta);
+                // Do we fail if it is too late ?
+                // How late is too late ?
+                }
+            }
+        
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        void setRunning(final UUID uuid)
+            {
+            log.debug("Session [{}] setRunning()", uuid);
+            SessionEntity session = sessionRepository.findById(
+                uuid
+                ).orElseThrow();
+            switch (session.getPhase())
+                {
+                case READY:
+                    session.setPhase(
+                        IvoaExecutionSessionPhase.RUNNING
+                        );
+                    session = this.sessionRepository.save(
+                        session
+                        );
+                    log.debug("Session [{}] setRunning() phase changed [READY]->[RUNNING]", session.getUuid());
+                    break;
+                default:
+                    log.error("Session [{}] setRunning() invalid transition [{}]->[RUNNING]", session.getUuid(), session.getPhase());
+                    break;
+                }
+            log.debug("Session [{}] setRunning() done", session.getUuid());
+            }
+        
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        void doRunning(final UUID uuid)
+            {
+            log.debug("Session [{}] doRunning()", uuid);
+            SessionEntity session = sessionRepository.findById(
+                uuid
+                ).orElseThrow();
+    
+            Instant instant = session.getReleaseStartInstant();
+            long target = session.getReleaseStartInstantSeconds();
+            long delta = target - Instant.now().getEpochSecond();
+    
+            if (delta > 0)
+                {
+                log.debug("Session [{}] doRunning() end is in the future [{}][{}]", session.getUuid(), instant, delta);
+                while (delta > 0)
+                    {
+                    try {
+                        log.debug("Session [{}] doRunning() sleeping [{}][{}]", session.getUuid(), instant, delta);
+                        Thread.sleep(delta * 500);
+                        log.debug("Session [{}] doRunning() awake [{}][{}]", session.getUuid(), instant, delta);
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.error("Session [{}] doRunning() Exception during sleep", session.getUuid(), ouch.getMessage());
+                        }
+                    delta = target - Instant.now().getEpochSecond();
+                    }
+                }
+            else {
+                log.debug("Session [{}] doRunning() end is already past [{}][{}]", session.getUuid(), instant, delta);
+                }
+            }
+        
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        void setCompleted(final UUID uuid)
+            {
+            log.debug("Session [{}] setCompleted()", uuid);
+            SessionEntity session = sessionRepository.findById(
+                uuid
+                ).orElseThrow();
+            switch (session.getPhase())
+                {
+                case RUNNING:
+                    session.setPhase(
+                        IvoaExecutionSessionPhase.COMPLETED
+                        );
+                    session = this.sessionRepository.save(
+                        session
+                        );
+                    log.debug("Session [{}] setCompleted() phase changed [RUNNING]->[COMPLETED]", session.getUuid());
+                    break;
+                default:
+                    log.error("Session [{}] setCompleted() invalid transition [{}]->[COMPLETED]", session.getUuid(), session.getPhase());
+                    break;
+                }
+            log.debug("Session [{}] setCompleted() done", session.getUuid());
+            }
+        
         }
     }
