@@ -28,7 +28,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 
 /**
  * Public interface for an execution step. 
@@ -43,10 +43,10 @@ public interface PlanningStep
     public UUID getUuid();
     
     /**
-     * Get the ExecutionSession this step is linked to.  
+     * Get the Session this step is linked to.  
      *
      */
-    public ExecutionSessionEntity getSession();
+    public SessionEntity getSession();
 
     /**
      * Get the Component this step is linked to.  

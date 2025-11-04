@@ -19,8 +19,8 @@ import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
@@ -53,7 +53,7 @@ public class OfferSetRequestParserImpl
     private final ComputeResourceOfferFactory computeOfferFactory;
 
     // TODO Replace this with a builder ..
-    private final ExecutionSessionEntityFactory executionSessionFactory;
+    private final SessionEntityFactory executionSessionFactory;
 
     /**
      * Executable Validators.
@@ -93,7 +93,7 @@ public class OfferSetRequestParserImpl
         final AbstractDataResourceValidatorFactory dataValidators, 
         final AbstractVolumeMountValidatorFactory volumeValidators, 
         final AbstractComputeResourceValidatorFactory computeValidators,
-        final ExecutionSessionEntityFactory executionSessionFactory
+        final SessionEntityFactory executionSessionFactory
         ){
         super();
         this.computeOfferFactory  = offerBlockFactory ;
@@ -440,22 +440,22 @@ public class OfferSetRequestParserImpl
                 context.getTotalMinMemory()
                 );
             //
-            // Create an ExecutionSession for each offer. 
+            // Create an Session for each offer. 
             for (ComputeResourceOffer computeOffer : computeOffers)
                 {
                 log.debug("OfferBlock [{}]", computeOffer.getStartTime());
-                ExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
+                SessionEntity sessionEntity = executionSessionFactory.create(
                     context.getOfferSetEntity(),
                     context,
                     computeOffer
                     );
-                log.debug("ExecutionEntity [{}]", executionSessionEntity);
+                log.debug("ExecutionEntity [{}]", sessionEntity);
                 
                 //
-                // Build a new ExecutableEntity and add it to our ExecutionSessionEntity.
-                executionSessionEntity.setExecutable(
+                // Build a new ExecutableEntity and add it to our SessionEntity.
+                sessionEntity.setExecutable(
                     context.getExecutableResult().build(
-                        executionSessionEntity
+                        sessionEntity
                         )
                     );
                 
@@ -464,7 +464,7 @@ public class OfferSetRequestParserImpl
                 for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
                     {
                     result.build(
-                        executionSessionEntity,
+                        sessionEntity,
                         computeOffer
                         );
                     }
@@ -473,7 +473,7 @@ public class OfferSetRequestParserImpl
                 for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
                     {
                     result.build(
-                        executionSessionEntity
+                        sessionEntity
                         );
                     }
                 //
@@ -481,7 +481,7 @@ public class OfferSetRequestParserImpl
                 for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
                     {
                     result.build(
-                        executionSessionEntity
+                        sessionEntity
                         );
                     }
                 //
@@ -489,7 +489,7 @@ public class OfferSetRequestParserImpl
                 for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
                     {
                     result.build(
-                        executionSessionEntity
+                        sessionEntity
                         );
                     }
                 

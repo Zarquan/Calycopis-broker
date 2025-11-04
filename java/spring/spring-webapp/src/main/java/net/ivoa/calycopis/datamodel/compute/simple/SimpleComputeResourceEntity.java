@@ -29,7 +29,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
@@ -66,7 +66,7 @@ public class SimpleComputeResourceEntity
      *
      */
     public SimpleComputeResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
@@ -83,7 +83,7 @@ public class SimpleComputeResourceEntity
      *
      */
     public SimpleComputeResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
         final IvoaSimpleComputeResource validated

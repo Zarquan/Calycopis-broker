@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.component;
+package net.ivoa.calycopis.datamodel.session;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,9 +34,11 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
+import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
+
 
 /**
  * 
@@ -65,14 +67,14 @@ implements ScheduledComponent
     public ScheduledComponentEntity(final String name)
         {
         this(
-            (IvoaComponentSchedule)null,
+            (IvoaExecutionSessionSchedule)null,
             name
             );
         }
     /**
      * 
      */
-    public ScheduledComponentEntity(final IvoaComponentSchedule schedule, final String name)
+    public ScheduledComponentEntity(final IvoaExecutionSessionSchedule schedule, final String name)
         {
         super(
             name
@@ -315,10 +317,10 @@ implements ScheduledComponent
             }
         }
     
-    public IvoaComponentSchedule makeScheduleBean()
+    public IvoaExecutionSessionSchedule makeScheduleBean()
         {
         boolean valid = false;
-        IvoaComponentSchedule bean = new IvoaComponentSchedule(); 
+        IvoaExecutionSessionSchedule bean = new IvoaExecutionSessionSchedule(); 
 
         IvoaScheduleDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)

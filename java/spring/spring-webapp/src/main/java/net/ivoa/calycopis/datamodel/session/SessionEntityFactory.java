@@ -31,45 +31,38 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
  * An Execution Factory.
  *
  */
-public interface ExecutionSessionEntityFactory
+public interface SessionEntityFactory
     extends FactoryBase
     {
     /**
-     * Select an ExecutionSessionEntity based on UUID.
+     * Select an SessionEntity based on UUID.
      *
      */
-    public Optional<ExecutionSessionEntity> select(final UUID uuid);
+    public Optional<SessionEntity> select(final UUID uuid);
 
     /**
      * Select ExecutionSessionEntities based on phase.
      *
      */
-    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase);
+    public List<SessionEntity> select(final IvoaExecutionSessionPhase phase);
     
     /**
-     * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
+     * Create a new SessionEntity from a parser context and compute resource offer. 
      *
      */
-    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
+    public SessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
     /**
-     * Apply an Update request to an Execution.
+     * Save a SessionEntity.
      *
      */
-    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
-
-    /**
-     * Save a ExecutionSessionEntity.
-     *
-     */
-    public ExecutionSessionEntity save(final ExecutionSessionEntity entity);
+    public SessionEntity save(final SessionEntity entity);
     
     }
 

@@ -22,14 +22,11 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
-import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.openapi.model.IvoaComponentSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 
 /**
  * Base class for Validatior implementations.
@@ -142,7 +139,6 @@ public class AbstractValidatorImpl
 
     /**
      * 
-     */
     @Deprecated 
     public boolean setPrepareDuration(
         final OfferSetRequestParserContext context,
@@ -178,4 +174,5 @@ public class AbstractValidatorImpl
             return true ;
             }
         }
+     */
     }

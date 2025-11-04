@@ -25,20 +25,22 @@ package net.ivoa.calycopis.datamodel.storage;
 
 import java.util.List;
 
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSession;
+import net.ivoa.calycopis.datamodel.session.Session;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
  */
 public interface AbstractStorageResource
+extends LifecycleComponent
     {
     /**
-     * Get the parent ExecutionSession.  
+     * Get the parent Session.  
      *
      */
-    public ExecutionSession getSession();
+    public Session getSession();
 
     /**
      * Get a list of the data resources stored in this storage resource.

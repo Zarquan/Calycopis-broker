@@ -1,0 +1,232 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+
+    SessionsApiDelegateImpl
+    ResponseEntity<IvoaExecutionSessionResponse> executionSessionPost(
+        final UUID uuid,
+        final IvoaUpdateRequest request
+        )
+
+        @Autowired
+        SessionUpdateHandler
+        handler.update(uuid, request)
+
+
+    // This just moves the update code out of factory
+    // Because we don't want circular references
+
+        SessionUpdateHandler -> SessionFactory
+                             -> AsyncSessionHandler
+
+        AsyncSessionHandler  -> Sessionfactory
+                             -> AsyncStorageHandler
+                             -> AsyncExecutableHandler
+
+
+    SessionUpdateHandlerImpl
+    extends FactoryBaseImpl
+    implements SessionUpdateHandler
+
+        @Autowired
+        ExecutionSessionEntityFactory sessionFactory
+
+        // Update code from SessionFactory
+        Optional<ExecutionSessionEntity> update(
+            final UUID uuid,
+            final IvoaAbstractUpdate update
+            ){
+            found = this.repository.findById(
+                uuid
+                );
+            ExecutionSessionEntity entity = update(
+                found.get(),
+                update
+                );
+            entity = this.repository.save(
+                entity
+                );
+            return entity;
+            }
+
+        // Update code from SessionFactory
+        Optional<ExecutionSessionEntity> update(
+            final UUID uuid,
+            final ExecutionSessionEntity entity
+            ){
+
+            switch(oldphase)
+                {
+                case .... :
+                    switch(newphase)
+                        {
+                        }
+                    break;
+                ....
+                }
+            }
+
+    #
+    # Split the huge switch into separate methods.
+    SessionUpdateHandlerImpl
+    accept(final ExecutionSessionEntity entity)
+
+    SessionUpdateHandlerImpl
+    reject(final ExecutionSessionEntity entity)
+
+    SessionUpdateHandlerImpl
+    cancel(final ExecutionSessionEntity entity)
+
+    SessionUpdateHandlerImpl
+    fail(final ExecutionSessionEntity entity)
+
+    #
+    # Synchronous accept method
+    SessionUpdateHandlerImpl
+    accept(final ExecutionSessionEntity sessionEntity)
+
+        # Start the async processing via autowired async handler.
+
+        @Autowired
+        AsyncSessionHandler asyncSessionHandler
+
+        asyncSessionHandler.process(sessionEntity.getUuid())
+
+        # Update the status of this entity.
+        sessionEntity.setPhase(ACCEPTED)
+
+        return sessionEntity
+
+
+    #
+    # Async process method.
+    AsyncSessionHandlerImpl
+    @Async("AsyncSessionHandler-process")
+    process(final UUID uuid)
+
+        @Autowired
+        ExecutionSessionEntityFactory sessionFactory
+
+        @Autowired
+        AsyncAbstractExecutableHandler      executableHandler
+        AsyncAbstractComputeResourceHandler computeResourceHandler
+        AsyncAbstractStorageResourceHandler storageResourceHandler
+
+        // Update the Session phase to PREPARING.
+        // Leaving space for the previous Thread to complete first.
+        // Do this in a factory method to make the change atomic ?
+        sessionFactory.updatePhasePreparing(uuid, OFFERED, ACCEPTED, PREPARING)
+        boolean loop = false;
+        do {
+            loop = false;
+            sessionEntity = sessionFactory.select(uuid)
+            switch (sessionEntity.getPhase())
+                case OFFERED :
+                    race condition, wait ..
+                    loop = true
+                case ACCEPTED :
+                    sessionEntity.setPhase(
+                        IvoaExecutionSessionPhase.PREPARING
+                        );
+                    break;
+                default :
+                    error condition, fail
+                }
+            sessionEntity = factory.save(
+                sessionEntity
+                );
+            }
+        while (loop)
+
+        // Initialise our AtomicInteger.
+        AtomicInteger atomicInt = sessionEntity.getComponentCount()
+
+        // Start preparing the executable
+        executableHandler.prepare(
+            atomicInt,
+            sessionEntity.getExecutable().getUuid()
+            )
+
+        // Start preparing the storage
+        for (AbstractStorage storageEntity : sessionEntity.getStorage())
+            {
+            storageHandler.process(
+                atomicInt,
+                storageEntity.getUuid()
+                )
+            }
+
+                // Each storage prepares its data
+                @Autowired
+                AsyncAbstractDataHandler dataHandler
+                for (AbstractData dataEntity : storageEntity.getData())
+                    {
+                    dataHandler().process(
+                        atomicInt,
+                        dataEntity.getUuid()
+                        )
+                    }
+
+
+        // Wait for all our components to become ready.
+        while (atomicInt.get() > 0)
+            {
+            //  Check the time.
+            //  Fail if we are too late.
+            // Wait ..
+            }
+
+        // Mark the session as READY
+        // Update phase from PREPARING to READY
+        sessionFactory.updatePhase(uuid, PREPARING, READY)
+
+        // Wait until the session start time
+        //  Check the time.
+        //  Fail if we are too late.
+
+        // Start the Skaha session
+        // Loop
+        //  Poll the Skaha status.
+        //  Fail if the status is wrong.
+        //  Check the time.
+        //  Fail if we are too late.
+
+        // Update phase from READY to AVAILABLE
+        sessionFactory.updatePhase(uuid, READY, AVAILABLE)
+        // Update the primary access endpoint.
+
+
+

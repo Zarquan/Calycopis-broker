@@ -35,7 +35,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
@@ -73,7 +73,7 @@ public class SkaoDataResourceEntity
      *
      */
     public SkaoDataResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -90,7 +90,7 @@ public class SkaoDataResourceEntity
      *
      */
     public SkaoDataResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaSkaoDataResource validated

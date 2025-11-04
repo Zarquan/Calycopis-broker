@@ -26,12 +26,11 @@ package net.ivoa.calycopis.functional.asynchronous;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
@@ -44,25 +43,25 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 public class ScheduledTaskService
     {
 
-    private final ExecutionSessionEntityFactory factory ;
+    private final SessionEntityFactory factory ;
     private final AsyncTaskService other ;
     
     /**
      * 
      */
     @Autowired
-    public ScheduledTaskService(final ExecutionSessionEntityFactory factory, final AsyncTaskService other)
+    public ScheduledTaskService(final SessionEntityFactory factory, final AsyncTaskService other)
         {
         super();
         this.factory = factory;
         this.other = other ;
         }
 
-    @Scheduled(fixedRate = 20000)
+    //@Scheduled(fixedRate = 20000)
     public void performScheduledTask()
         {
         log.debug("Looking for ACCEPTED offers");
-        List<ExecutionSessionEntity> found = factory.select(
+        List<SessionEntity> found = factory.select(
             IvoaExecutionSessionPhase.ACCEPTED
             );
 
@@ -71,7 +70,7 @@ public class ScheduledTaskService
             log.debug("None found");
             }
         else {
-            for (ExecutionSessionEntity entity : found)
+            for (SessionEntity entity : found)
                 {
                 log.debug("Found [" + entity.getUuid() + "][" + entity.getPhase() + "]");
                 // This bypasses the phase checking in factory. 

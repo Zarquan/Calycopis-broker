@@ -46,7 +46,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -81,7 +81,7 @@ public class DockerContainerEntity
         }
 
     protected DockerContainerEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         this(
@@ -92,7 +92,7 @@ public class DockerContainerEntity
         }
     
     protected DockerContainerEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaDockerContainer validated
         ){

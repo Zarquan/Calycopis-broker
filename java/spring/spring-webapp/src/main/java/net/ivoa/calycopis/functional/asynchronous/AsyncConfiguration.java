@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +56,16 @@ public class AsyncConfiguration
     public Executor taskExecutor()
         {
         log.info("AsyncConfiguration checked");
-        return Executors.newWorkStealingPool();
+        //return Executors.newWorkStealingPool(); // Limited number of threads 
+        //return Executors.newVirtualThreadPerTaskExecutor(); // Database unavailable !
+        
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(50);
+        executor.setMaxPoolSize(100);
+        executor.setQueueCapacity(1000);
+        executor.setThreadNamePrefix("AsyncThread-");
+        executor.initialize();
+        return executor;
 
         /*
          * Assume we don't need this any more.

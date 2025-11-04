@@ -1,0 +1,936 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Test out connection to the Swedich CANFAR platform.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a container to run some Python code.
+#[user@laptop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name canfar-connector \
+        python:3.9 \
+        bash
+
+        ....
+        ....
+
+        pip install \
+            --upgrade \
+            pip
+
+        pip install \
+            --upgrade \
+            requests
+
+        pip install \
+            --upgrade \
+            vos
+
+        apt-get update
+        apt-get install oidc-agent
+
+        oidc-agent
+
+    >   OIDC_SOCK=/tmp/oidc-J80Uw7/oidc-agent.1; export OIDC_SOCK;
+    >   OIDCD_PID=1036; export OIDCD_PID;
+    >   echo Agent pid $OIDCD_PID
+
+
+        eval $(oidc-agent)
+
+    >   Agent pid 1040
+
+
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device example-client
+
+    >   Registering Client ...
+    >   Generating account configuration ...
+    >   accepted
+    >   
+    >   Using a browser on any device, visit:
+    >   https://ska-iam.stfc.ac.uk/device
+    >   
+    >   And enter the code: LROQKG
+    >   ....
+    >   ....
+    >   oidc-gen[1042]: entire read failed in function readFILE
+    >   oidc-gen[1042]: unknown type 2
+    >   Error: Unknown cJSON Type
+    >   Only saving the account configuration. You might want to save the following content to another location.
+    >   
+    >   {
+    >   	"client_id":	"d1ba22bd-6a65-4368-a3df-0b52345874dc",
+    >   	"client_secret":	"AJDW........Cs4E",
+    >   	"client_name":	"oidc-agent:example-client-362a460a10e0",
+    >   	"redirect_uris":	["edu.kit.data.oidc-agent:/redirect", "http://localhost:8080", "http://localhost:30065", "http://localhost:4242"],
+    >   	"grant_types":	["refresh_token", "urn:ietf:params:oauth:grant-type:device_code"],
+    >   	"response_types":	["token"],
+    >   	"token_endpoint_auth_method":	"client_secret_basic",
+    >   	"scope":	"entitlements address openid profile eduperson_entitlement wlcg storage.create:/ phone offline_access eduperson_scoped_affiliation eduperson_assurance aarc email wlcg.groups",
+    >   	"reuse_refresh_token":	true,
+    >   	"dynamically_registered":	true,
+    >   	"clear_access_tokens_on_refresh":	true,
+    >   	"require_auth_time":	false,
+    >   	"registration_access_token":	"eyJr........J_Iw",
+    >   	"registration_client_uri":	"https://ska-iam.stfc.ac.uk/iam/api/client-registration/d1ba........74dc",
+    >   	"created_at":	1761580962463,
+    >   	"active":	true,
+    >   	"name":	"example-client",
+    >   	"issuer_url":	"https://ska-iam.stfc.ac.uk/",
+    >   	"device_authorization_endpoint":	"",
+    >   	"refresh_token":	"",
+    >   	"cert_path":	"/etc/ssl/certs/ca-certificates.crt",
+    >   	"audience":	""
+    >   }
+    >   
+    >   Enter encryption password for account configuration 'example-client':
+    >   ........
+    >   Confirm encryption Password:
+    >   ........
+    >   Everything setup correctly!
+
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+        #
+        # Set the target CANFAR host name.
+        canfarhostname=services.swesrc.chalmers.se
+
+        #
+        # List the current sessions for this account.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | jq '.'
+
+    >   []
+
+
+        #
+        # Start a new notebook session.
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "type=notebook" \
+            --data "image=images.canfar.net/skaha/base-notebook:latest" \
+            --data "name=test-notebook" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | tee /tmp/canfar-session.txt
+
+
+    >   z6qbfleb
+
+        sessionid=$(
+            cat /tmp/canfar-session.txt
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}" \
+        | tee /tmp/canfar-${sessionid}.json \
+        | jq '.'
+
+    >   {
+    >     "id": "z6qbfleb",
+    >     "userid": "zarquan",
+    >     "runAsUID": "20021",
+    >     "runAsGID": "20021",
+    >     "supplementalGroups": [
+    >       990014,
+    >       990018,
+    >       ....
+    >       990008,
+    >       990001
+    >     ],
+    >     "appid": "<none>",
+    >     "image": "images.canfar.net/skaha/base-notebook:latest",
+    >     "type": "notebook",
+    >     "status": "Pending",
+    >     "name": "test-notebook",
+    >     "startTime": "2025-10-27T16:11:13Z",
+    >     "expiryTime": "2025-10-31T16:11:13Z",
+    >     "connectURL": "https://services.swesrc.chalmers.se/session/notebook/z6qbfleb/lab/tree/cavern/home/zarquan?token=z6qbfleb",
+    >     "requestedRAM": "2G",
+    >     "requestedCPUCores": "2",
+    >     "requestedGPUCores": "0",
+    >     "ramInUse": "<none>",
+    >     "gpuRAMInUse": "<none>",
+    >     "cpuCoresInUse": "<none>",
+    >     "gpuUtilization": "<none>"
+    >   }
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}" \
+        | tee /tmp/canfar-${sessionid}.json \
+        | jq '
+            {status: .status, connectURL: .connectURL}
+            ' /tmp/canfar-${sessionid}.json
+
+    >   {
+    >     "status": "Running",
+    >     "connectURL": "https://services.swesrc.chalmers.se/session/notebook/z6qbfleb/lab/tree/cavern/home/zarquan?token=z6qbfleb"
+    >   }
+
+    #
+    # Yay - works.
+    #
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=events"
+
+    >   TYPE     REASON      MESSAGE                                                                                                          FIRST-TIME             LAST-TIME
+    >   Normal   Scheduled   Successfully assigned skaha-workload/skaha-notebook-zarquan-z6qbfleb-dnl8r to swesrc-k8s-prod-md-0-4ppsd-wn9h5   <nil>                  <nil>
+    >   Normal   Pulling     Pulling image "images.canfar.net/skaha/base-notebook:latest"                                                     2025-10-27T16:15:21Z   2025-10-27T16:15:21Z
+    >   Normal   Pulled      Successfully pulled image "images.canfar.net/skaha/base-notebook:latest" in 1.233s (1.233s including waiting)    2025-10-27T16:15:22Z   2025-10-27T16:15:22Z
+    >   Normal   Created     Created container backup-original-passwd-groups                                                                  2025-10-27T16:15:22Z   2025-10-27T16:15:22Z
+    >   Normal   Started     Started container backup-original-passwd-groups                                                                  2025-10-27T16:15:22Z   2025-10-27T16:15:22Z
+    >   Normal   Pulled      Container image "images.opencadc.org/platform/dependencies/redis:7.4.2-alpine3.21" already present on machine    2025-10-27T16:15:23Z   2025-10-27T16:15:23Z
+    >   Normal   Created     Created container init-users-groups                                                                              2025-10-27T16:15:23Z   2025-10-27T16:15:23Z
+    >   Normal   Started     Started container init-users-groups                                                                              2025-10-27T16:15:23Z   2025-10-27T16:15:23Z
+    >   Normal   Pulled      Container image "images.canfar.net/skaha/base-notebook:latest" already present on machine                        2025-10-27T16:15:24Z   2025-10-27T16:15:24Z
+    >   Normal   Created     Created container skaha-notebook-zarquan-z6qbfleb                                                                2025-10-27T16:15:24Z   2025-10-27T16:15:24Z
+    >   Normal   Started     Started container skaha-notebook-zarquan-z6qbfleb                                                                2025-10-27T16:15:24Z   2025-10-27T16:15:24Z
+
+
+        #
+        # check on a session launched from the UI.
+        sessionid=zbjjb3r4
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=events"
+
+    >   Token has expired
+
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=events"
+
+    >   TYPE     REASON      MESSAGE                                                                                                          FIRST-TIME             LAST-TIME
+    >   Normal   Scheduled   Successfully assigned skaha-workload/skaha-notebook-zarquan-zbjjb3r4-zl5qx to swesrc-k8s-prod-md-0-4ppsd-wn9h5   <nil>                  <nil>
+    >   Normal   Pulling     Pulling image "images.canfar.net/skaha/base-notebook:latest"                                                     2025-10-27T16:54:17Z   2025-10-27T16:54:17Z
+    >   Normal   Pulled      Successfully pulled image "images.canfar.net/skaha/base-notebook:latest" in 1.137s (1.137s including waiting)    2025-10-27T16:54:18Z   2025-10-27T16:54:18Z
+    >   Normal   Created     Created container backup-original-passwd-groups                                                                  2025-10-27T16:54:18Z   2025-10-27T16:54:18Z
+    >   Normal   Started     Started container backup-original-passwd-groups                                                                  2025-10-27T16:54:18Z   2025-10-27T16:54:18Z
+    >   Normal   Pulled      Container image "images.opencadc.org/platform/dependencies/redis:7.4.2-alpine3.21" already present on machine    2025-10-27T16:54:18Z   2025-10-27T16:54:18Z
+    >   Normal   Created     Created container init-users-groups                                                                              2025-10-27T16:54:18Z   2025-10-27T16:54:18Z
+    >   Normal   Started     Started container init-users-groups                                                                              2025-10-27T16:54:19Z   2025-10-27T16:54:19Z
+    >   Normal   Pulled      Container image "images.canfar.net/skaha/base-notebook:latest" already present on machine                        2025-10-27T16:54:19Z   2025-10-27T16:54:19Z
+    >   Normal   Created     Created container skaha-notebook-zarquan-zbjjb3r4                                                                2025-10-27T16:54:19Z   2025-10-27T16:54:19Z
+    >   Normal   Started     Started container skaha-notebook-zarquan-zbjjb3r4                                                                2025-10-27T16:54:20Z   2025-10-27T16:54:20Z
+    >   root@362a460a10e0:/#
+
+    #
+    # It claims 1.137s to pull the image (from Canada ?)
+    # but the session took much longer to start
+    #
+
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # Set the target CANFAR host name.
+        canfarhostname=services.swesrc.chalmers.se
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+        #
+        # Start a new notebook session.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "type=notebook" \
+            --data "image=images.canfar.net/skaha/base-notebook:latest" \
+            --data "name=test-notebook" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | tee /tmp/canfar-session.txt
+        date
+
+    >   Mon Oct 27 18:33:22 UTC 2025
+    >   User zarquan has reached the maximum of 3 active sessions.
+    >   Mon Oct 27 18:33:25 UTC 2025
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # Deleted the sessions via the UI.
+        #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # List the current sessions for this account.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 18:36:03 UTC 2025
+    >   []
+    >   Mon Oct 27 18:36:04 UTC 2025
+
+
+        #
+        # Start a new notebook session.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "type=notebook" \
+            --data "image=images.canfar.net/skaha/base-notebook:latest" \
+            --data "name=test-notebook" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | tee /tmp/canfar-session.txt
+        date
+
+    >   Mon Oct 27 18:36:20 UTC 2025
+    >   kpalfqjp
+    >   Mon Oct 27 18:36:23 UTC 2025
+
+        sessionid=$(
+            cat /tmp/canfar-session.txt
+            )
+
+    getstatus() {
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}" \
+        | tee /tmp/canfar-${sessionid}.json \
+        | jq -r '.status'
+        date
+        }
+
+    >   Mon Oct 27 18:36:39 UTC 2025
+    >   Pending
+    >   Mon Oct 27 18:36:41 UTC 2025
+
+    >   Mon Oct 27 18:36:54 UTC 2025
+    >   Pending
+    >   Mon Oct 27 18:36:56 UTC 2025
+
+    >   Mon Oct 27 18:37:18 UTC 2025
+    >   Pending
+    >   Mon Oct 27 18:37:20 UTC 2025
+
+    >   Mon Oct 27 18:37:49 UTC 2025
+    >   Pending
+    >   Mon Oct 27 18:37:50 UTC 2025
+
+    >   Mon Oct 27 18:38:33 UTC 2025
+    >   Pending
+    >   Mon Oct 27 18:38:34 UTC 2025
+
+    >   Mon Oct 27 18:38:47 UTC 2025
+    >   Running
+    >   Mon Oct 27 18:38:49 UTC 2025
+
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}" \
+        | tee /tmp/canfar-${sessionid}.json \
+        | jq '
+            {status: .status, connectURL: .connectURL}
+            '
+        date
+
+    >   Mon Oct 27 18:39:52 UTC 2025
+    >   {
+    >     "status": "Running",
+    >     "connectURL": "https://services.swesrc.chalmers.se/session/notebook/kpalfqjp/lab/tree/cavern/home/zarquan?token=kpalfqjp"
+    >   }
+    >   Mon Oct 27 18:39:53 UTC 2025
+
+
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=events"
+        date
+
+    >   Mon Oct 27 18:40:40 UTC 2025
+    >   TYPE     REASON      MESSAGE                                                                                                          FIRST-TIME             LAST-TIME
+    >   Normal   Scheduled   Successfully assigned skaha-workload/skaha-notebook-zarquan-kpalfqjp-8jfz5 to swesrc-k8s-prod-md-0-4ppsd-wn9h5   <nil>                  <nil>
+    >   Normal   Pulling     Pulling image "images.canfar.net/skaha/base-notebook:latest"                                                     2025-10-27T18:38:42Z   2025-10-27T18:38:42Z
+    >   Normal   Pulled      Successfully pulled image "images.canfar.net/skaha/base-notebook:latest" in 1.178s (1.178s including waiting)    2025-10-27T18:38:43Z   2025-10-27T18:38:43Z
+    >   Normal   Created     Created container backup-original-passwd-groups                                                                  2025-10-27T18:38:43Z   2025-10-27T18:38:43Z
+    >   Normal   Started     Started container backup-original-passwd-groups                                                                  2025-10-27T18:38:43Z   2025-10-27T18:38:43Z
+    >   Normal   Pulled      Container image "images.opencadc.org/platform/dependencies/redis:7.4.2-alpine3.21" already present on machine    2025-10-27T18:38:43Z   2025-10-27T18:38:43Z
+    >   Normal   Created     Created container init-users-groups                                                                              2025-10-27T18:38:43Z   2025-10-27T18:38:43Z
+    >   Normal   Started     Started container init-users-groups                                                                              2025-10-27T18:38:44Z   2025-10-27T18:38:44Z
+    >   Normal   Pulled      Container image "images.canfar.net/skaha/base-notebook:latest" already present on machine                        2025-10-27T18:38:44Z   2025-10-27T18:38:44Z
+    >   Normal   Created     Created container skaha-notebook-zarquan-kpalfqjp                                                                2025-10-27T18:38:44Z   2025-10-27T18:38:44Z
+    >   Normal   Started     Started container skaha-notebook-zarquan-kpalfqjp                                                                2025-10-27T18:38:45Z   2025-10-27T18:38:45Z
+    >   Mon Oct 27 18:40:41 UTC 2025
+
+
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=logs"
+        date
+
+    >   Mon Oct 27 18:43:44 UTC 2025
+    >   [I 2025-10-27 18:38:48.609 ServerApp] ipyparallel | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.609 ServerApp] jupyter_archive | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.609 ServerApp] jupyter_lsp | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.610 ServerApp] jupyter_resource_usage | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.616 ServerApp] jupyter_server_mathjax | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.616 ServerApp] jupyter_server_proxy | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.621 ServerApp] jupyter_server_terminals | extension was successfully linked.
+    >   [W 2025-10-27 18:38:48.624 LabApp] 'base_url' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+    >   [W 2025-10-27 18:38:48.624 LabApp] 'notebook_dir' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+    >   [W 2025-10-27 18:38:48.624 LabApp] 'allow_origin' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab_code_formatter | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab_git | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab_h5web | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab_jupytext | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] jupyterlab_myst | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.628 ServerApp] nbdime | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.634 ServerApp] notebook | extension was successfully linked.
+    >   /opt/conda/lib/python3.11/site-packages/traitlets/traitlets.py:1897: DeprecationWarning: ServerApp.token config is deprecated in jupyter-server 2.0. Use IdentityProvider.token
+    >     return t.cast(Sentinel, self._get_trait_default_generator(names[0])(self))
+    >   [I 2025-10-27 18:38:48.642 ServerApp] notebook_shim | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.642 ServerApp] panel.io.jupyter_server_extension | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.642 ServerApp] voila.server_extension | extension was successfully linked.
+    >   [I 2025-10-27 18:38:48.663 ServerApp] notebook_shim | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.664 ServerApp] Loading IPython parallel extension
+    >   [I 2025-10-27 18:38:48.665 ServerApp] ipyparallel | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.665 ServerApp] jupyter_archive | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.668 ServerApp] jupyter_lsp | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.669 ServerApp] jupyter_resource_usage | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.669 ServerApp] jupyter_server_mathjax | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.690 ServerApp] jupyter_server_proxy | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.692 ServerApp] jupyter_server_terminals | extension was successfully loaded.
+    >   /opt/conda/lib/python3.11/site-packages/traitlets/traitlets.py:1897: DeprecationWarning: ServerApp.token config is deprecated in jupyter-server 2.0. Use IdentityProvider.token
+    >     return t.cast(Sentinel, self._get_trait_default_generator(names[0])(self))
+    >   [I 2025-10-27 18:38:48.697 LabApp] JupyterLab extension loaded from /opt/conda/lib/python3.11/site-packages/jupyterlab
+    >   [I 2025-10-27 18:38:48.697 LabApp] JupyterLab application directory is /opt/conda/share/jupyter/lab
+    >   [I 2025-10-27 18:38:48.698 LabApp] Extension Manager is 'pypi'.
+    >   [I 2025-10-27 18:38:48.713 ServerApp] jupyterlab | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.713 ServerApp] Registered jupyterlab_code_formatter server extension
+    >   [I 2025-10-27 18:38:48.713 ServerApp] jupyterlab_code_formatter | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.721 ServerApp] jupyterlab_git | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.761 ServerApp] Jupyterlab-h5web extension will serve HDF5 files from /
+    >   [I 2025-10-27 18:38:48.761 ServerApp] jupyterlab_h5web | extension was successfully loaded.
+    >   [W 2025-10-27 18:38:48.761 ServerApp] [Jupytext Server Extension] Async contents managers like AsyncLargeFileManager are not supported at the moment (https://github.com/mwouts/jupytext/issues/1020). We will derive a contents manager from LargeFileManager instead.
+    >   [I 2025-10-27 18:38:48.762 ServerApp] [Jupytext Server Extension] Deriving a JupytextContentsManager from LargeFileManager
+    >   [I 2025-10-27 18:38:48.763 ServerApp] jupyterlab_jupytext | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.774 ServerApp] jupyterlab_myst | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.833 ServerApp] nbdime | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.840 ServerApp] notebook | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.841 ServerApp] panel.io.jupyter_server_extension | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.846 ServerApp] voila.server_extension | extension was successfully loaded.
+    >   [I 2025-10-27 18:38:48.846 ServerApp] Serving notebooks from local directory: /
+    >   [I 2025-10-27 18:38:48.846 ServerApp] Jupyter Server 2.14.0 is running at:
+    >   [I 2025-10-27 18:38:48.846 ServerApp] http://test-notebook:8888/session/notebook/kpalfqjp/lab?token=...
+    >   [I 2025-10-27 18:38:48.846 ServerApp]     http://127.0.0.1:8888/session/notebook/kpalfqjp/lab?token=...
+    >   [I 2025-10-27 18:38:48.846 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+    >   [I 2025-10-27 18:38:49.485 ServerApp] Skipped non-installed server(s): bash-language-server, dockerfile-language-server-nodejs, javascript-typescript-langserver, jedi-language-server, julia-language-server, pyright, python-language-server, python-lsp-server, r-languageserver, sql-language-server, texlab, typescript-language-server, unified-language-server, vscode-css-languageserver-bin, vscode-html-languageserver-bin, vscode-json-languageserver-bin, yaml-language-server
+    >   /opt/conda/lib/python3.11/site-packages/traitlets/traitlets.py:1385: DeprecationWarning: Passing unrecognized arguments to super(KernelSpec).__init__(codemirror_mode='shell').
+    >   object.__init__() takes exactly one argument (the instance to initialize)
+    >   This is deprecated in traitlets 4.2.This error will be raised in a future release of traitlets.
+    >     warn(
+    >   /opt/conda/lib/python3.11/site-packages/traitlets/traitlets.py:1385: DeprecationWarning: Passing unrecognized arguments to super(KernelSpec).__init__(codemirror_mode='shell').
+    >   object.__init__() takes exactly one argument (the instance to initialize)
+    >   This is deprecated in traitlets 4.2.This error will be raised in a future release of traitlets.
+    >     warn(
+    >   [I 2025-10-27 18:40:22.384 LabApp] `sys_prefix` level settings are read-only, using `user` level for migration to `lockedExtensions`
+    >   [I 2025-10-27 18:40:22.447 LabApp] Build is up to date
+    >   /opt/conda/lib/python3.11/site-packages/traitlets/traitlets.py:1385: DeprecationWarning: Passing unrecognized arguments to super(KernelSpec).__init__(codemirror_mode='shell').
+    >   object.__init__() takes exactly one argument (the instance to initialize)
+    >   This is deprecated in traitlets 4.2.This error will be raised in a future release of traitlets.
+    >     warn(
+    >   Mon Oct 27 18:43:46 UTC 2025
+
+
+
+    Request to create new base notebook session.
+    Mon Oct 27 18:36:20 UTC 2025
+
+    Transition from Pending to Running.
+    Mon Oct 27 18:38:34 UTC 2025
+    Mon Oct 27 18:38:47 UTC 2025
+
+    Around 2min to start the session.
+    Long time to look at a whirlygig.
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # List the current sessions for this account.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 18:48:30 UTC 2025
+    >   [
+    >     {
+    >       "id": "kpalfqjp",
+    >       "userid": "zarquan",
+    >       "runAsUID": "20021",
+    >       "runAsGID": "20021",
+    >       "supplementalGroups": [
+    >         990018,
+    >         990001,
+    >         ....
+    >         ....
+    >         990010,
+    >         990006
+    >       ],
+    >       "appid": "<none>",
+    >       "image": "images.canfar.net/skaha/base-notebook:latest",
+    >       "type": "notebook",
+    >       "status": "Running",
+    >       "name": "test-notebook",
+    >       "startTime": "2025-10-27T18:36:22Z",
+    >       "expiryTime": "2025-10-31T18:36:22Z",
+    >       "connectURL": "https://services.swesrc.chalmers.se/session/notebook/kpalfqjp/lab/tree/cavern/home/zarquan?token=kpalfqjp",
+    >       "requestedRAM": "2G",
+    >       "requestedCPUCores": "2",
+    >       "requestedGPUCores": "0",
+    >       "ramInUse": "<none>",
+    >       "gpuRAMInUse": "<none>",
+    >       "cpuCoresInUse": "<none>",
+    >       "gpuUtilization": "<none>"
+    >     }
+    >   ]
+    >   Mon Oct 27 18:48:32 UTC 2025
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # List the repositories.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/repository" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 18:51:07 UTC 2025
+    >   [
+    >     "services.swesrc.chalmers.se",
+    >     "images.canfar.net"
+    >   ]
+    >   Mon Oct 27 18:51:08 UTC 2025
+
+
+        #
+        # List the images.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/image" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 18:52:01 UTC 2025
+    >   [
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/dppp:v5.0",
+    >       "types": [
+    >         "headless",
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:c9ea190f1ec864a17561fed572f53af34bd19488ebdb4e4cd1704e6f3e1d8be6"
+    >     },
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/astropy-python-casacore:latest",
+    >       "types": [
+    >         "notebook"
+    >       ],
+    >       "digest": "sha256:3cc1fcc4079e828a9a177f7d3ee61461592f0a5bf53043b7e2cc7d2e88997a40"
+    >     },
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/desktop-test:1.3",
+    >       "types": [
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:dd65fc7ce8b231f8f764eca51bfe8a58d9ec68e83cf25d45a5c865f5e883b8f0"
+    >     },
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/desktop-test:1.27",
+    >       "types": [
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:f39094c02c2c2f596852fe74b1ea78eaa5bc4631f17646f85206c7fae4cf501c"
+    >     },
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/desktop-test:1.26",
+    >       "types": [
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:9f9be1abaf5c136fc8201c1e79044968b28411fc27659f00e73d145226044b5d"
+    >     },
+    >     {
+    >       "id": "services.swesrc.chalmers.se/rwatson/wsclean:3.6-201025",
+    >       "types": [
+    >         "headless",
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:332db51a1e206a1e1806dda605a387a278cf88caca7fbbf3757627e2d9ade3f2"
+    >     },
+    >     ....
+    >     ....
+    >     ....
+    >     ....
+    >     ....
+    >     ....
+    >     {
+    >       "id": "images.canfar.net/uvickbos/find_moving:2.1",
+    >       "types": [
+    >         "headless",
+    >         "desktop-app",
+    >         "notebook"
+    >       ],
+    >       "digest": "sha256:1cfb00156d0173651259684b9e14f9f2333a9f6f95adf13e32e83471c913fd3a"
+    >     },
+    >     {
+    >       "id": "images.canfar.net/uvickbos/find_moving:2.0",
+    >       "types": [
+    >         "headless",
+    >         "desktop-app",
+    >         "notebook"
+    >       ],
+    >       "digest": "sha256:936e8798f9d4f2c6bc2e0fc410711bdf9add23c9cb5b5d515c5aedbf4c235aee"
+    >     },
+    >     {
+    >       "id": "images.canfar.net/uvickbos/find_moving:1.5",
+    >       "types": [
+    >         "desktop-app",
+    >         "notebook"
+    >       ],
+    >       "digest": "sha256:b50b03bc8532e5e5e9e54cd2e7176bcf9d95454be4ba8c86f5db68bab146c81b"
+    >     },
+    >     {
+    >       "id": "images.canfar.net/uvickbos/find_moving:0.6",
+    >       "types": [
+    >         "headless",
+    >         "desktop-app"
+    >       ],
+    >       "digest": "sha256:409ade65759e5fd3be1ceb9ee8e017957e43090bacb6aa736ea21899b8d6b26f"
+    >     }
+    >   ]
+
+    #
+    # Found a local base notebook
+    #
+
+    >     ....
+    >     {
+    >       "id": "services.swesrc.chalmers.se/skaha/base-notebook:latest",
+    >       "types": [
+    >         "notebook"
+    >       ],
+    >       "digest": "sha256:c7e8dbec40d1e74498919c0e2f629a8169c08e78fcb99b2c087646e3b4e75a1b"
+    >     },
+    >     ....
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+        #
+        # List the current sessions for this account.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 19:03:53 UTC 2025
+    >   [
+    >     {
+    >       "id": "kpalfqjp",
+    >       "userid": "zarquan",
+    >       "runAsUID": "20021",
+    >       "runAsGID": "20021",
+    >       "supplementalGroups": [
+    >         990018,
+    >         990001,
+    >         ....
+    >         ....
+    >         990010,
+    >         990006
+    >       ],
+    >       "appid": "<none>",
+    >       "image": "images.canfar.net/skaha/base-notebook:latest",
+    >       "type": "notebook",
+    >       "status": "Running",
+    >       "name": "test-notebook",
+    >       "startTime": "2025-10-27T18:36:22Z",
+    >       "expiryTime": "2025-10-31T18:36:22Z",
+    >       "connectURL": "https://services.swesrc.chalmers.se/session/notebook/kpalfqjp/lab/tree/cavern/home/zarquan?token=kpalfqjp",
+    >       "requestedRAM": "2G",
+    >       "requestedCPUCores": "2",
+    >       "requestedGPUCores": "0",
+    >       "ramInUse": "<none>",
+    >       "gpuRAMInUse": "<none>",
+    >       "cpuCoresInUse": "<none>",
+    >       "gpuUtilization": "<none>"
+    >     }
+    >   ]
+    >   Mon Oct 27 19:03:54 UTC 2025
+
+        #
+        # Delete the current notebook.
+
+        date
+        curl \
+            --silent \
+            --show-error \
+            --request "DELETE" \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}"
+        date
+
+    >   Mon Oct 27 19:04:50 UTC 2025
+    >   Mon Oct 27 19:04:52 UTC 2025
+
+
+        #
+        # List the current sessions for this account.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | jq '.'
+        date
+
+    >   Mon Oct 27 19:05:41 UTC 2025
+    >   []
+    >   Mon Oct 27 19:05:44 UTC 2025
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    imgsource=images.canfar.net/skaha/base-notebook:latest
+    imgsource=services.swesrc.chalmers.se/skaha/base-notebook:latest
+
+        #
+        # Create a new token.
+        export SKA_TOKEN=$(oidc-token example-client)
+
+        #
+        # Start a new notebook session, using the local image.
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            --data "ram=2" \
+            --data "cores=2" \
+            --data "type=notebook" \
+            --data "image=${imgsource:?}" \
+            --data "name=test-notebook" \
+            "https://${canfarhostname:?}/skaha/v0/session" \
+        | tee /tmp/canfar-session.txt
+        date
+
+    >   Mon Oct 27 19:08:29 UTC 2025
+    >   e8vgold3
+    >   Mon Oct 27 19:08:33 UTC 2025
+
+
+        sessionid=$(
+            cat /tmp/canfar-session.txt
+            )
+
+        getstatus() {
+            date
+            curl \
+                --silent \
+                --show-error \
+                --header "authorization: bearer $SKA_TOKEN" \
+                "https://${canfarhostname:?}/skaha/v0/session/${sessionid}" \
+            | tee /tmp/canfar-${sessionid}.json \
+            | jq -r '.status'
+            date
+            }
+
+    >   Mon Oct 27 19:08:51 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:08:53 UTC 2025
+
+    >   Mon Oct 27 19:09:03 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:09:05 UTC 2025
+
+    >   Mon Oct 27 19:09:13 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:09:15 UTC 2025
+
+    >   Mon Oct 27 19:09:24 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:09:25 UTC 2025
+
+    >   Mon Oct 27 19:09:34 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:09:36 UTC 2025
+
+    >   Mon Oct 27 19:09:50 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:09:52 UTC 2025
+
+    >   Mon Oct 27 19:09:59 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:10:01 UTC 2025
+
+    >   Mon Oct 27 19:10:09 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:10:11 UTC 2025
+
+    >   Mon Oct 27 19:10:19 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:10:20 UTC 2025
+
+    >   Mon Oct 27 19:10:28 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:10:29 UTC 2025
+
+    >   Mon Oct 27 19:10:50 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:10:52 UTC 2025
+
+    >   Mon Oct 27 19:10:59 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:11:00 UTC 2025
+
+    >   Mon Oct 27 19:11:08 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:11:10 UTC 2025
+
+    >   Mon Oct 27 19:11:19 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:11:20 UTC 2025
+
+    >   Mon Oct 27 19:11:32 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:11:33 UTC 2025
+
+
+        date
+        curl \
+            --silent \
+            --show-error \
+            --header "authorization: bearer $SKA_TOKEN" \
+            "https://${canfarhostname:?}/skaha/v0/session/${sessionid}?view=events"
+        date
+
+    >   Mon Oct 27 19:12:31 UTC 2025
+    >   TYPE     REASON      MESSAGE                                                                                                          FIRST-TIME   LAST-TIME
+    >   Normal   Scheduled   Successfully assigned skaha-workload/skaha-notebook-zarquan-e8vgold3-w58h9 to swesrc-k8s-prod-md-0-4ppsd-wn9h5   <nil>        <nil>
+    >   Mon Oct 27 19:12:32 UTC 2025
+
+    >   Mon Oct 27 19:14:03 UTC 2025
+    >   Pending
+    >   Mon Oct 27 19:14:05 UTC 2025
+
+    #
+    # Ran out of time, went to dinner.
+    #
+

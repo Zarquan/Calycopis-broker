@@ -22,15 +22,13 @@
  */
 package net.ivoa.calycopis.datamodel.storage;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
 
 /**
  * JpaRepository for AbstractStorageResourceEntity.
  *
  */
 public interface AbstractStorageResourceEntityRepository
-extends JpaRepository<AbstractStorageResourceEntity, UUID>
+extends LifecycleComponentEntityRepository<AbstractStorageResourceEntity>
     {
     }

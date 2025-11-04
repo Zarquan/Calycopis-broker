@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
@@ -69,7 +69,7 @@ public class SkaoDataResourceEntityFactoryImpl
 
     @Override
     public SkaoDataResourceEntity create(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){

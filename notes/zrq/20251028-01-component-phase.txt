@@ -1,0 +1,187 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # Session phase transition starts in ExecutionSessionEntityFactoryImpl
+
+    ExecutionSessionEntityFactoryImpl
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
+        {
+        log.debug("update(Entity, ValueUpdate)");
+        log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
+        log.debug("Update [{}][{}]", update.getPath(), update.getValue());
+        switch(update.getPath())
+            {
+            case "phase" :
+                IvoaExecutionSessionPhase oldphase = entity.getPhase();
+                IvoaExecutionSessionPhase newphase = oldphase;
+
+                    switch(oldphase)
+                        {
+                        case OFFERED :
+                            switch(newphase)
+                                {
+                                case ACCEPTED:
+
+    #
+    # Add a new method specifically for phase change
+
+    ExecutionSessionEntityFactoryImpl
+    protected ExecutionSessionEntity update(final ExecutionSessionEntity entity , final IvoaExecutionSessionPhase newphase)
+        {
+        log.debug("update(Entity, Phase)");
+        IvoaExecutionSessionPhase oldphase = entity.getPhase();
+        log.debug("Entity [{}][{}][{}]", entity.getUuid(), oldphase, newphase);
+
+
+    #
+    # Jumps to a phase change method on the Entity class ?
+    # Nope - keep it in the Factory
+
+    ExecutionSessionEntityFactoryImpl
+    protected void update(final ExecutionSessionEntity entity, final IvoaExecutionSessionPhase newphase)
+        {
+        log.debug("update(Entity, Phase)");
+        log.debug("Entity [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
+
+
+
+    #
+    # Split the huge switch into separate methods on the Entity class.
+    # Yes, but in the Factory not the Entity.
+    ExecutionSessionEntityFactoryImpl
+    accept(final ExecutionSessionEntity entity)
+
+    ExecutionSessionEntityFactoryImpl
+    reject(final ExecutionSessionEntity entity)
+
+    ExecutionSessionEntityFactoryImpl
+    cancel(final ExecutionSessionEntity entity)
+
+    ExecutionSessionEntityFactoryImpl
+    fail(final ExecutionSessionEntity entity)
+
+
+    #
+    # Accept method does some checks and then kicks off the async process.
+    ExecutionSessionEntityFactoryImpl
+    accept(final ExecutionSessionEntity sessionEntity)
+
+        #
+        # Start the async processing via autowired async handler.
+
+        @Autowired
+        AsyncSessionHandler sessionHandler
+
+        sessionHandler.accept(sessionEntity)
+
+
+    AsyncHandlerFactory
+
+        AsyncAbstractExecutableHandler      getExecutableHandler()
+        AsyncAbstractComputeResourceHandler getComputeResourceHandler()
+        AsyncAbstractStorageResourceHandler getStorageResourceHandler()
+        AsyncAbstractDataResourceHandler    getDataResourceHandler()
+
+
+    AsyncSessionHandlerImpl
+    @Async("AsyncSessionHandler-process")
+    process(final UUID uuid)
+
+        @Autowired
+        ExecutionSessionEntityFactory sessionFactory
+
+        @Autowired
+        AsyncHandlerFactory handlerFactory
+
+        // Update the Session phase.
+        // Copy code from AsyncTaskService
+        sessionEntity = sessionFactory.select(uuid)
+        sessionEntity.setPhase(
+            IvoaExecutionSessionPhase.PREPARING
+            );
+        sessionEntity = factory.save(
+            sessionEntity
+            );
+
+
+        // Start preparing the executable
+        handlerFactory.getExecutableHandler().process(
+            sessionEntity.getExecutable().getUuid()
+            )
+
+        // Start preparing the storage
+        for (AbstractStorage storageEntity : sessionEntity.getStorage())
+            {
+            handlerFactory.getStorageHandler().process(
+                storageEntity.getUuid()
+                )
+            }
+
+                // Each storage prepares its data
+                for (AbstractData dataEntity : storageEntity.getData())
+                    {
+                    handlerFactory.getDataHandler().process(
+                        dataEntity.getUuid()
+                        )
+                    }
+
+        // Wait until all of our components are AVAILABLE.
+        // Loop
+        //  AtomicInteger counting how many are AVAILABLE.
+        //  Check the time.
+        //  Fail if we are too late.
+
+        // Mark the session as READY
+        // Wait until the session start time
+        // Loop
+        //  Check the time.
+
+        // Start the Skaha session
+        // Loop
+        //  Pollinbg call to Skaha status.
+        //  Check the time.
+        //  Fail if we are too late.
+        //  Set the session to AVAILABLE.
+        //  Set the access endpoint.
+
+
+
+
+
+
+
+
+

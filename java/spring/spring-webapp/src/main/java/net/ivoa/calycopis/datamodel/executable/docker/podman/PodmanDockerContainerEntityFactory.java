@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 
 /**
  * 
@@ -46,7 +46,7 @@ extends DockerContainerEntityFactory
      *
      */
     public PodmanDockerContainerEntity create(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractExecutableValidator.Result result
         );
 

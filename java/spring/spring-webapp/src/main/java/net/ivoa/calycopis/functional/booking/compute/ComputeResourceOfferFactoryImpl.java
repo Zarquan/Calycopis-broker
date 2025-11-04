@@ -254,6 +254,8 @@ public class ComputeResourceOfferFactoryImpl
             maxduration = MAXIMUM_DURATION;
             }
       //--
+        // Need to change the query to concentrate on compute resource. 
+        // https://github.com/ivoa/Calycopis-broker/issues/291
         String query =
             """
             WITH ExecutionBlocks AS
@@ -261,7 +263,7 @@ public class ComputeResourceOfferFactoryImpl
                 SELECT
                     ExecutionSessions.phase AS BlockPhase,
                     ScheduledComponents.available_start_instant_seconds  / :blockstep AS BlockStart,
-                    ScheduledComponents.available_start_duration_seconds / :blockstep AS BlockLength,
+                    ScheduledComponents.available_duration_seconds / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM

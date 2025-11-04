@@ -36,9 +36,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.util.ListWrapper;
 
@@ -54,7 +54,7 @@ import net.ivoa.calycopis.util.ListWrapper;
     strategy = InheritanceType.JOINED
     )
 public abstract class AbstractStorageResourceEntity
-extends ScheduledComponentEntity
+extends LifecycleComponentEntity
 implements AbstractStorageResource
     {
     /**
@@ -68,11 +68,11 @@ implements AbstractStorageResource
 
     /**
      * Protected constructor.
-     * Automatically adds this resource to the parent ExecutionSessionEntity.
+     * Automatically adds this resource to the parent SessionEntity.
      * 
      */
     protected AbstractStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final String name
         ){
@@ -100,16 +100,16 @@ implements AbstractStorageResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private SessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getSession()
+    public SessionEntity getSession()
         {
         return this.session;
         }
 
     @OneToMany(
-        mappedBy = "session",
+        mappedBy = "storage",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
@@ -133,6 +133,9 @@ implements AbstractStorageResource
         {
         bean.setUuid(
             this.getUuid()
+            );
+        bean.setPhase(
+            this.getPhase()
             );
         bean.setName(
             this.getName()

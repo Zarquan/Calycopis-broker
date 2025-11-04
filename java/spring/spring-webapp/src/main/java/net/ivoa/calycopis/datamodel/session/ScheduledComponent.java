@@ -21,12 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.component;
+package net.ivoa.calycopis.datamodel.session;
 
 import java.time.Duration;
 import java.time.Instant;
 
 import org.threeten.extra.Interval;
+
+import net.ivoa.calycopis.datamodel.component.Component;
 
 /**
  *

@@ -63,18 +63,470 @@
         AbstractExecutable
         AbstractStorageResource
 
-        ExecutionComponentPhase:
-          ....
+        ComponentPhase:
+          description: >-
+            Status code for components.
+          type: string
+          title: ComponentPhase
           enum:
-            - INACTIVE
+                - INACTIVE
+                - WAITING
+                - PREPARING
+                - AVAILABLE
+                - RELEASING
+                - COMPLETED
+                - FAILED
+                - CANCELLED
 
-            - WAITING
-            - PREPARING
-            - AVAILABLE
-            - RELEASING
+        LifecycleComponent:
+          description: >-
+            A component with a lifecycle phase.
+          type: object
+          title: LifecycleComponent
+          properties:
+            schedule:
+              description: >-
+                The component phase.
+              xml:
+                name: phase
+              $ref: 'ComponentPhase'
 
-            - COMPLETED
-            - FAILED
-            - CANCELLED
 
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=component-phase
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/Calycopis-broker.yaml" \
+            "${target}/Calycopis-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    # newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    examplename=concurrent-test-001
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Docker container for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: ${examplename}
+executable:
+  name: ${examplename}-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+compute:
+  name: example-005-computer
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - name: "Input data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+      - example-data-03
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-123401"
+      datasize:   26214400
+      replicas:
+        - rsename: "SPSRC_STORM"
+EOF
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+    >   - uuid: "c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+    >     name: "concurrent-test-001-offer-0"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T09:35:50Z"
+    >         duration: "PT2M10S"
+    >       available:
+    >         start: "2025-10-28T09:38:00Z/PT0S"
+    >         duration: "PT2H"
+    >   - uuid: "63aef18c-d4ec-4c99-ab4c-1af1091b1ea3"
+    >     name: "concurrent-test-001-offer-1"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T11:35:50Z"
+    >         duration: "PT2M10S"
+    >       available:
+    >         start: "2025-10-28T11:38:00Z/PT0S"
+    >         duration: "PT2H"
+    >   - uuid: "705e3431-cefb-470f-8290-0ae1ad0c9780"
+    >     name: "concurrent-test-001-offer-2"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T13:35:50Z"
+    >         duration: "PT2M10S"
+    >       available:
+    >         start: "2025-10-28T13:38:00Z/PT0S"
+    >         duration: "PT2H"
+    >   - uuid: "bf07f777-31e3-49ca-b272-84bfd4790b8f"
+    >     name: "concurrent-test-001-offer-3"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T15:35:50Z"
+    >         duration: "PT2M10S"
+    >       available:
+    >         start: "2025-10-28T15:38:00Z/PT0S"
+    >         duration: "PT2H"
+
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            $(
+            yq '.offers[0].href' "002-offerset-response.yaml"
+            ) \
+        | yq '.'
+
+    >   uuid: "c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+    >   name: "concurrent-test-001-offer-0"
+    >   type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+    >   created: "2025-10-28T09:35:01.738859Z"
+    >   href: "http://127.0.0.1:8082/sessions/c7ab3be3-2309-4514-bb12-79a3d32b3ebe"
+    >   executable:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >     uuid: "4c778d56-1cf5-4a23-ab3a-d7ee865a6166"
+    >     name: "concurrent-test-001-executable"
+    >     created: "2025-10-28T09:35:01.755554Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T09:35:50Z"
+    >         duration: "PT35S"
+    >       available:
+    >         start: "2025-10-28T09:36:25Z/PT0S"
+    >     privileged: false
+    >   compute:
+    >     type: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >     uuid: "98cf7423-491e-48a7-81de-c885eecd5a5a"
+    >     name: "example-005-computer"
+    >     created: "2025-10-28T09:35:01.774584Z"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-10-28T09:37:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2025-10-28T09:38:00Z/PT0S"
+    >         duration: "PT2H"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   storage:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "f7aa38fa-88d9-46eb-8b84-d2938c76f941"
+    >       name: "Storage for [example-data-01]"
+    >       created: "2025-10-28T09:35:01.783043Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-28T09:35:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "64c1f8bc-2434-441a-984a-510b8028fb7a"
+    >       name: "Storage for [example-data-02]"
+    >       created: "2025-10-28T09:35:01.789348Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-28T09:35:55Z/PT0S"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >       uuid: "9454825e-4927-431c-833f-cb5ff4b7e3ca"
+    >       name: "Storage for [example-data-03]"
+    >       created: "2025-10-28T09:35:01.791254Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:50Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "2025-10-28T09:35:55Z/PT0S"
+    >   data:
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "f9b21a4a-bc52-4d6b-be07-9be1d5e1cb3f"
+    >       name: "example-data-01"
+    >       created: "2025-10-28T09:35:01.794662Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:55Z"
+    >           duration: "PT1M"
+    >         available:
+    >           start: "2025-10-28T09:36:55Z/PT0S"
+    >       storage: "f7aa38fa-88d9-46eb-8b84-d2938c76f941"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-082506"
+    >         datasize: 27487790694400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "AUSRC_STORM"
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "183b9320-0e3e-4606-99f7-cdd76622e111"
+    >       name: "example-data-02"
+    >       created: "2025-10-28T09:35:01.803894Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:55Z"
+    >           duration: "PT1M50S"
+    >         available:
+    >           start: "2025-10-28T09:37:45Z/PT0S"
+    >       storage: "64c1f8bc-2434-441a-984a-510b8028fb7a"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-094501"
+    >         datasize: 26843545600
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "JPSRC_STORM"
+    >           - rsename: "SPSRC_STORM"
+    >     - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >       uuid: "19911d2a-2d21-426a-b55a-cf96a2b7479c"
+    >       name: "example-data-03"
+    >       created: "2025-10-28T09:35:01.807052Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-10-28T09:35:55Z"
+    >           duration: "PT1M4S"
+    >         available:
+    >           start: "2025-10-28T09:36:59Z/PT0S"
+    >       storage: "9454825e-4927-431c-833f-cb5ff4b7e3ca"
+    >       ivoa: {}
+    >       skao:
+    >         namespace: "testing"
+    >         objectname: "zrq-test-20250509-123401"
+    >         datasize: 26214400
+    >         checksum: {}
+    >         replicas:
+    >           - rsename: "SPSRC_STORM"
+    >   phase: "OFFERED"
+    >   schedule:
+    >     preparing:
+    >       start: "2025-10-28T09:35:50Z"
+    >       duration: "PT2M10S"
+    >     available:
+    >       start: "2025-10-28T09:38:00Z/PT0S"
+    >       duration: "PT2H"
+    >   expires: "2025-10-28T09:40:01.344659Z"
+
+
+
+    #
+    # Accept the offer ..
+    # Check the phase progression ...
+    #
 

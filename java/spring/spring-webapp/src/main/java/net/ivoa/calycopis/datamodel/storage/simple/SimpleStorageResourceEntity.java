@@ -26,7 +26,7 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -62,7 +62,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceValidator.Result result
         ){
         this(
@@ -77,7 +77,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final SessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaSimpleStorageResource template
         ){

@@ -1,0 +1,255 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+        ....
+        ....
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# ...
+#[root@developer-tools]
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Docker container for 1HR.
+        cat > "001-offerset-request.yaml" << EOF
+name: "phase change test"
+executable:
+  name: phase-change-executable
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+compute:
+  name: phase-change-compute
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - name: "Input data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+      - example-data-03
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-03
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-123401"
+      datasize:   26214400
+      replicas:
+        - rsename: "SPSRC_STORM"
+EOF
+
+    cat > "003-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+
+        #
+        # Create a new offerset.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '[
+            .offers[] | {
+                "uuid": .uuid,
+                "name": .name,
+                "schedule": .schedule
+                }
+            ]
+            '
+
+        #
+        # Accept the first offer.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@003-accept-00-request.json" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].href' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+
+
+
+
+
+    testrequest()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml" \
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/json' \
+            --data-binary "@003-accept-00-request.json" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].href' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '{
+            "uuid": .uuid,
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+            }'
+        }
+
+
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+    testrequest
+
+
+
+SELECT * FROM
+    EXECUTIONSESSIONS
+JOIN SCHEDULEDCOMPONENTS
+    ON SCHEDULEDCOMPONENTS.UUID = EXECUTIONSESSIONS.UUID
+JOIN COMPONENTS
+    ON COMPONENTS.UUID = EXECUTIONSESSIONS.UUID
+ORDER BY
+    COMPONENTS.NAME
+
+SELECT * FROM
+    COMPONENTS
+JOIN LIFECYCLECOMPONENTS
+    ON COMPONENTS.UUID = LIFECYCLECOMPONENTS.UUID
+JOIN ABSTRACTDATARESOURCES
+    ON COMPONENTS.UUID = ABSTRACTDATARESOURCES.UUID
+JOIN SKAODATARESOURCES
+    ON COMPONENTS.UUID = SKAODATARESOURCES.UUID
+ORDER BY
+    ABSTRACTDATARESOURCES.SESSION,
+    COMPONENTS.NAME
+
+SELECT * FROM
+    COMPONENTS
+JOIN LIFECYCLECOMPONENTS
+    ON COMPONENTS.UUID = LIFECYCLECOMPONENTS.UUID
+JOIN ABSTRACTCOMPUTERESOURCES
+    ON COMPONENTS.UUID = ABSTRACTCOMPUTERESOURCES.UUID
+JOIN SIMPLECOMPUTERESOURCES
+    ON COMPONENTS.UUID = SIMPLECOMPUTERESOURCES.UUID
+ORDER BY
+    ABSTRACTCOMPUTERESOURCES.SESSION,
+    COMPONENTS.NAME
+
+

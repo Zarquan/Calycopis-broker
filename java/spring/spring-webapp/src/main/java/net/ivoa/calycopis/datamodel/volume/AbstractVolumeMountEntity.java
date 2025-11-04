@@ -31,7 +31,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 
 /**
  *
@@ -58,10 +58,10 @@ implements AbstractVolumeMount
 
     /**
      * Protected constructor.
-     * Automatically adds this resource to the parent ExecutionSessionEntity.
+     * Automatically adds this resource to the parent SessionEntity.
      *
      */
-    protected AbstractVolumeMountEntity(final ExecutionSessionEntity session, final String name)
+    protected AbstractVolumeMountEntity(final SessionEntity session, final String name)
         {
         super(name);
         this.session = session;
@@ -72,10 +72,10 @@ implements AbstractVolumeMount
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private SessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getSession()
+    public SessionEntity getSession()
         {
         return this.session;
         }

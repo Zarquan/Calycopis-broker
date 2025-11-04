@@ -40,7 +40,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.ScheduledComponentEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
@@ -64,9 +63,9 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 @DiscriminatorValue(
     value = "uri:execution-session"
     )
-public class ExecutionSessionEntity
+public class SessionEntity
     extends ScheduledComponentEntity
-    implements ExecutionSession
+    implements Session
     {
 
     @JoinColumn(name = "offerset", referencedColumnName = "uuid", nullable = false)
@@ -83,7 +82,7 @@ public class ExecutionSessionEntity
      * Protected constructor
      *
      */
-    protected ExecutionSessionEntity()
+    protected SessionEntity()
         {
         super();
         }
@@ -92,7 +91,7 @@ public class ExecutionSessionEntity
      * Protected constructor, used to create an example for the find method.
      *
      */
-    protected ExecutionSessionEntity(final IvoaExecutionSessionPhase phase)
+    protected SessionEntity(final IvoaExecutionSessionPhase phase)
         {
         super();
         this.phase = phase;
@@ -102,7 +101,7 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
+    public SessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
         super(
             null,
@@ -127,7 +126,7 @@ public class ExecutionSessionEntity
 
     @Column(name = "phase")
     @Enumerated(EnumType.STRING)
-    private IvoaExecutionSessionPhase phase;
+    private IvoaExecutionSessionPhase phase = IvoaExecutionSessionPhase.INITIAL;
     @Override
     public IvoaExecutionSessionPhase getPhase()
         {
@@ -139,7 +138,6 @@ public class ExecutionSessionEntity
         // TODO This is where we need to have the phase transition checking.
         this.phase = newphase;
         }
-    
     
     @Column(name = "expires")
     private OffsetDateTime expires;
@@ -253,12 +251,12 @@ public class ExecutionSessionEntity
         IvoaExecutionSessionResponse bean = new IvoaExecutionSessionResponse();
         bean.setUuid(this.getUuid());
         bean.setName(this.getName());
-        bean.setType(ExecutionSession.TYPE_DISCRIMINATOR);
+        bean.setType(Session.TYPE_DISCRIMINATOR);
         bean.setCreated(this.getCreated());
         bean.setExpires(this.getExpires());
         bean.setPhase(this.getPhase());
         bean.setHref(
-            baseurl + ExecutionSession.REQUEST_PATH + this.getUuid()
+            baseurl + Session.REQUEST_PATH + this.getUuid()
             );
         bean.setMessages(
             this.getMessageBeans()

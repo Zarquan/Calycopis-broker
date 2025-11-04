@@ -23,8 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
-import net.ivoa.calycopis.datamodel.component.ScheduledComponent;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 
@@ -32,14 +32,14 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
  * 
  */
 public interface AbstractDataResource
-    extends ScheduledComponent
+    extends LifecycleComponent
     {
     /**
-     * Get the parent ExecutionSession.  
+     * Get the parent Session.  
      * TODO Can we make this just the interface ?
      * 
      */
-    public ExecutionSessionEntity getSession();
+    public SessionEntity getSession();
 
     /**
      * Get the storage for this data.  
