@@ -150,14 +150,15 @@ implements AsyncLifecycleComponentHandler<EntityType>
                 ).orElseThrow();
             switch (entity.getPhase())
                 {
-                case INACTIVE:
+                case INITIAL:
+                case WAITING:
+                    log.debug("[{}][{}][{}] setPreparing() phase changed [{}]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
                     entity.setPhase(
                         IvoaLifecyclePhase.PREPARING
                         );
                     entity = this.repository.save(
                         entity
                         );
-                    log.debug("[{}][{}][{}] setPreparing() phase changed [INACTIVE]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName());
                     break;
                 default:
                     log.error("[{}][{}][{}] setPreparing() invalid transition [{}]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
@@ -174,13 +175,13 @@ implements AsyncLifecycleComponentHandler<EntityType>
             switch (entity.getPhase())
                 {
                 case PREPARING:
+                    log.debug("[{}][{}][{}] setAvailable() phase changed [{}]->[AVAILABLE]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
                     entity.setPhase(
                         IvoaLifecyclePhase.AVAILABLE
                         );
                     entity = this.repository.save(
                         entity
                         );
-                    log.debug("[{}][{}][{}] setAvailable() phase changed [PREPARING]->[AVAILABLE]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName());
                     break;
                 default:
                     log.error("[{}][{}][{}] setAvailable() invalid transition [{}]->[AVAILABLE]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());

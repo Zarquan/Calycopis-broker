@@ -126,7 +126,7 @@ public class SessionEntity
 
     @Column(name = "phase")
     @Enumerated(EnumType.STRING)
-    private IvoaExecutionSessionPhase phase;
+    private IvoaExecutionSessionPhase phase = IvoaExecutionSessionPhase.INITIAL;
     @Override
     public IvoaExecutionSessionPhase getPhase()
         {

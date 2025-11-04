@@ -236,12 +236,12 @@ implements SessionEntityUpdateHandler
         log.debug("cancel(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
             {
-            case PROPOSED:
+            case INITIAL:
             case OFFERED:
             case ACCEPTED:
             case WAITING:
             case PREPARING:
-            case READY:
+            case AVAILABLE:
             case RUNNING:
                 entity.setPhase(
                     IvoaExecutionSessionPhase.CANCELLED
@@ -262,12 +262,12 @@ implements SessionEntityUpdateHandler
         log.debug("fail(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
             {
-            case PROPOSED:
+            case INITIAL:
             case OFFERED:
             case ACCEPTED:
             case WAITING:
             case PREPARING:
-            case READY:
+            case AVAILABLE:
             case RUNNING:
             case RELEASING:
                 // If a sessions fails during releasing - has it actually failed ?

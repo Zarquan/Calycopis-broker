@@ -81,11 +81,11 @@ implements AsyncSessionHandler
             uuid
             );
 
-        inner.setReady(
+        inner.setAvailable(
             uuid
             );
 
-        inner.preRunning(
+        inner.doAvailable(
             uuid
             );
 
@@ -281,22 +281,22 @@ implements AsyncSessionHandler
             }
 
         @Transactional(propagation = Propagation.REQUIRES_NEW)
-        void setReady(final UUID uuid)
+        void setAvailable(final UUID uuid)
             {
-            log.debug("Session [{}] setReady()", uuid);
+            log.debug("Session [{}] setAvailable()", uuid);
             SessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
                 {
                 case PREPARING:
+                    log.debug("Session [{}] setReady() phase changed [{}]->[READY]", session.getUuid(), session.getPhase());
                     session.setPhase(
-                        IvoaExecutionSessionPhase.READY
+                        IvoaExecutionSessionPhase.AVAILABLE
                         );
                     session = this.sessionRepository.save(
                         session
                         );
-                    log.debug("Session [{}] setReady() phase changed [PREPARING]->[READY]", session.getUuid());
                     break;
                 default:
                     log.error("Session [{}] setReady() invalid transition [{}]->[READY]", session.getUuid(), session.getPhase());
@@ -305,11 +305,11 @@ implements AsyncSessionHandler
             log.debug("Session [{}] setReady() done", session.getUuid());
             } 
 
-        
+
         @Transactional(propagation = Propagation.REQUIRES_NEW)
-        void preRunning(final UUID uuid)
+        void doAvailable(final UUID uuid)
             {
-            log.debug("Session [{}] preRunning()", uuid);
+            log.debug("Session [{}] doAvailable()", uuid);
             SessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
@@ -320,23 +320,23 @@ implements AsyncSessionHandler
     
             if (delta > 0)
                 {
-                log.debug("Session [{}] preRunning() start is in the future [{}][{}]", session.getUuid(), instant, delta);
+                log.debug("Session [{}] doAvailable() start is in the future [{}][{}]", session.getUuid(), instant, delta);
                 while (delta > 0)
                     {
                     try {
-                        log.debug("Session [{}] preRunning() sleeping [{}][{}]", session.getUuid(), instant, delta);
+                        log.debug("Session [{}] doAvailable() sleeping [{}][{}]", session.getUuid(), instant, delta);
                         Thread.sleep(delta * 500);
-                        log.debug("Session [{}] preRunning() awake [{}][{}]", session.getUuid(), instant, delta);
+                        log.debug("Session [{}] doAvailable() awake [{}][{}]", session.getUuid(), instant, delta);
                         }
                     catch (Exception ouch)
                         {
-                        log.error("Session [{}] preRunning() Exception during sleep", session.getUuid(), ouch.getMessage());
+                        log.error("Session [{}] doAvailable() Exception during sleep", session.getUuid(), ouch.getMessage());
                         }
                     delta = target - Instant.now().getEpochSecond();
                     }
                 }
             else {
-                log.debug("Session [{}] preRunning() start is already past [{}][{}]", session.getUuid(), instant, delta);
+                log.debug("Session [{}] doAvailable() start is already past [{}][{}]", session.getUuid(), instant, delta);
                 // Do we fail if it is too late ?
                 // How late is too late ?
                 }
@@ -351,14 +351,14 @@ implements AsyncSessionHandler
                 ).orElseThrow();
             switch (session.getPhase())
                 {
-                case READY:
+                case AVAILABLE:
+                    log.debug("Session [{}] setRunning() phase changed [{}]->[RUNNING]", session.getUuid(), session.getPhase());
                     session.setPhase(
                         IvoaExecutionSessionPhase.RUNNING
                         );
                     session = this.sessionRepository.save(
                         session
                         );
-                    log.debug("Session [{}] setRunning() phase changed [READY]->[RUNNING]", session.getUuid());
                     break;
                 default:
                     log.error("Session [{}] setRunning() invalid transition [{}]->[RUNNING]", session.getUuid(), session.getPhase());
@@ -375,6 +375,7 @@ implements AsyncSessionHandler
                 uuid
                 ).orElseThrow();
     
+            // TODO ReleaseStart is not set.
             Instant instant = session.getReleaseStartInstant();
             long target = session.getReleaseStartInstantSeconds();
             long delta = target - Instant.now().getEpochSecond();

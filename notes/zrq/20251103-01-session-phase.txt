@@ -174,4 +174,12 @@ EOF
     testrequest
     testrequest
 
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].href' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+
 

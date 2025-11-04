@@ -118,7 +118,7 @@ implements LifecycleComponent
 
     @Column(name = "phase")
     @Enumerated(EnumType.STRING)
-    private IvoaLifecyclePhase phase = IvoaLifecyclePhase.INACTIVE;
+    private IvoaLifecyclePhase phase = IvoaLifecyclePhase.INITIAL;
     @Override
     public IvoaLifecyclePhase getPhase()
         {

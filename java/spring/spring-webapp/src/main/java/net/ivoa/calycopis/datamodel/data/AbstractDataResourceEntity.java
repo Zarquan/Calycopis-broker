@@ -124,6 +124,9 @@ implements AbstractDataResource
         bean.setUuid(
             this.getUuid()
             );
+        bean.setPhase(
+            this.getPhase()
+            );
         bean.setName(
             this.getName()
             );
