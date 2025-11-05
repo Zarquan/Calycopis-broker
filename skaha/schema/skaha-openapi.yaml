@@ -86,7 +86,7 @@ paths:
             headless)
           required: false
           schema:
-            type: string
+            $ref: 'SkahaSessionType'
         - name: status
           in: query
           description: Only show sessions with this status (Pending, Running, Terminating,
@@ -238,6 +238,16 @@ components:
 
   schemas:
 
+    SkahaSessionType:
+      description: >-
+        A list of Skaha session types.
+      type: string
+      enum:
+        - 'desktop'
+        - 'carta'
+        - 'notebook'
+        - 'headless'
+
     SkahaSessionObject:
       description: >-
         A Shaha session object.
@@ -274,10 +284,7 @@ components:
             ....
           type: string
         type:
-          description: >-
-            The session type.
-            One of [headless, desktop, notebook]
-          type: string
+          $ref: 'SkahaSessionType'
         status:
           description: >-
             ....
@@ -341,6 +348,8 @@ components:
       required:
         - image
       properties:
+        type:
+          $ref: 'SkahaSessionType'
         name:
           type: string
           description: >
@@ -367,17 +376,6 @@ components:
             value retruned from the /context endpoint.  The default value
             returned from /context will be used if this parameter is not
             provided.
-        type:
-          type: string
-          enum:
-            - notebook
-            - desktop
-            - carta
-            - contributed
-          description: >
-            For images that reside outside of the supported harbor registries,
-            the type parameter must be provided.  This requires additional
-            privileges.
         cmd:
           type: string
           description: >

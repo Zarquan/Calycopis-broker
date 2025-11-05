@@ -21,6 +21,7 @@ import net.ivoa.calycopis.skaha.client.ApiClient;
 import net.ivoa.calycopis.skaha.client.ApiException;
 import net.ivoa.calycopis.skaha.client.Configuration;
 import net.ivoa.calycopis.skaha.client.model.SkahaSkahaSessionObject;
+import net.ivoa.calycopis.skaha.client.model.SkahaSkahaSessionType;
 
 /**
  * API tests for SessionManagementApi
@@ -32,12 +33,14 @@ public class SessionManagementApiTest {
 
     private SessionManagementApi api ;
 
+    private String sessionID = "olf4wh93" ;
+    
     public void init()
     throws IOException
         {
         defaultClient = Configuration.getDefaultApiClient();
-        //defaultClient.setBasePath("https://services.swesrc.chalmers.se/skaha");
-        defaultClient.setBasePath("https://canfar.srcnet.skao.int/skaha");
+        defaultClient.setBasePath("https://services.swesrc.chalmers.se/skaha");
+        //defaultClient.setBasePath("https://canfar.srcnet.skao.int/skaha");
         
         BufferedReader tokenReader = new BufferedReader(
             new FileReader("target/auth-token")
@@ -57,13 +60,13 @@ public class SessionManagementApiTest {
      * @throws ApiException if the Api call fails
      */
     @Test
-    public void v1SessionGetTest()
+    public void listSessions()
         throws IOException, ApiException
         {
 
         this.init();
         
-        String type = null;
+        SkahaSkahaSessionType type = null;
         String status = null;
         String view = null;
 
@@ -71,7 +74,8 @@ public class SessionManagementApiTest {
             List<SkahaSkahaSessionObject> response = api.v0SessionGet(type, status, view);
             for (SkahaSkahaSessionObject object : response)
                 {
-                log.info("Object [{}] : ", object);
+                log.info("Session [{}][{}]", object.getId(), object.getStatus());
+                sessionID = object.getId();
                 }
             }
         catch (Exception ouch)
@@ -87,26 +91,26 @@ public class SessionManagementApiTest {
      * @throws ApiException if the Api call fails
      */
     @Test
-    public void v1SessionPostTest()
+    public void createSession()
         throws IOException, ApiException
         {
         this.init();
 
+        SkahaSkahaSessionType type = SkahaSkahaSessionType.NOTEBOOK; 
         String name = "test-session";
         String image = "images.canfar.net/skaha/base-notebook:latest";
         Integer cores = 2;
         Integer ram = 2;
-        String type = "notebook";
         String cmd = null;
         String args = null;
         String env = null;
         String xSkahaRegistryAuth = null;
 
         try {
-            String sessionid = api.v0SessionPost(image, name, cores, ram, type, cmd, args, env, xSkahaRegistryAuth);
-            sessionid = sessionid.strip();
-            log.info("SessionID  [{}] : ", sessionid);
-            SkahaSkahaSessionObject object= api.v0SessionSessionIDGet(sessionid, null);
+            sessionID = api.v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
+            sessionID = sessionID.strip();
+            log.info("SessionID  [{}] : ", sessionID);
+            SkahaSkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, null);
             log.info("SessionObj [{}] : ", object);
             }
         catch (Exception ouch)
@@ -122,16 +126,15 @@ public class SessionManagementApiTest {
      * @throws ApiException if the Api call fails
      */
     @Test
-    public void v1SessionSessionIDGetTest()
+    public void getSession()
         throws Exception
         {
         this.init();
-        String sessionID = "";
         String view = null;
 
         try {
             SkahaSkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, view);
-            log.info("Object [{}] : ", object);
+            log.info("Session [{}][{}]", object.getId(), object.getStatus());
             }
         catch (Exception ouch)
             {
@@ -147,7 +150,7 @@ public class SessionManagementApiTest {
 
         this.init();
         
-        String type = null;
+        SkahaSkahaSessionType type = null;
         String status = null;
         String view = null;
 

@@ -494,6 +494,8 @@ Everything setup correctly!
 
 
 
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
 
     java -jar "${generatorFullPath}" \
         generate \
@@ -507,8 +509,18 @@ Everything setup correctly!
         --model-package "net.ivoa.calycopis.skaha.client.model" \
         --model-name-prefix "Skaha"
 
+    cp /calycopis/java/spring/spring-webapp/mvnw \
+       "${target:?}/"
+
+    cp -r /calycopis/java/spring/spring-webapp/.mvn \
+       "${target:?}/"
+
     pushd "${target:?}"
+
+#        ./mvnw wrapper:wrapper
         ./mvnw clean install
+
     popd
 
+    oidc-token test-client > /calycopis/java/spring/spring-webapp/target/auth-token
 
