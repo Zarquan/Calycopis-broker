@@ -125,131 +125,134 @@ EOF
 
 
 
-    testrequest()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Content-Type: application/yaml' \
-            --data-binary "@/tmp/001-offerset-request.yaml" \
-            --header 'Accept: application/yaml' \
-            'http://127.0.0.1:8082/offersets' \
-        > "/tmp/002-offerset-response.yaml" \
+cat > /tmp/makerequest << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@/tmp/001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    > "/tmp/002-offerset-response.yaml" \
 
-        sleep 1
+    sleep 1
 
-        curl \
-            --silent \
-            --show-error \
-            --header 'Content-Type: application/json' \
-            --data-binary "@/tmp/003-accept-00-request.json" \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "/tmp/004-accept-00-response.yaml" \
-        | yq '{
-            "uuid": .uuid,
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/json' \
+        --data-binary "@/tmp/003-accept-00-request.json" \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "/tmp/004-accept-00-response.yaml" \
+    | yq '{
+        "uuid": .uuid,
+        "name": .name,
+        "phase": .phase,
+        "schedule": .schedule
+        }'
+EOF
+
+cat > /tmp/fullstatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '.'
+EOF
+
+cat > /tmp/partstatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
             "name": .name,
             "phase": .phase,
             "schedule": .schedule
-            }'
-        }
-
-    fullstatus()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '.'
-        }
-
-    partstatus()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '{
-            "session": {
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase,
+            "schedule": .executable.schedule
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase,
+            "schedule": .compute.schedule
+            },
+        "storage": [
+            .storage[] | {
                 "name": .name,
                 "phase": .phase,
                 "schedule": .schedule
-              },
-            "executable": {
-                "name": .executable.name,
-                "phase": .executable.phase,
-                "schedule": .executable.schedule
-                },
-            "compute": {
-                "name": .compute.name,
-                "phase": .compute.phase,
-                "schedule": .compute.schedule
-                },
-            "storage": [
-                .storage[] | {
-                    "name": .name,
-                    "phase": .phase,
-                    "schedule": .schedule
-                  }
-                ],
-            "data": [
-                .data[] | {
-                    "name": .name,
-                    "phase": .phase,
-                    "schedule": .schedule
-                  }
-                ]
-            }
-            '
-        }
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase,
+                "schedule": .schedule
+              }
+            ]
+        }'
+EOF
 
-    tinystatus()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '{
-            "session": {
+cat > /tmp/tinystatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
+            "name": .name,
+            "phase": .phase
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase
+            },
+        "storage": [
+            .storage[] | {
                 "name": .name,
                 "phase": .phase
-              },
-            "executable": {
-                "name": .executable.name,
-                "phase": .executable.phase
-                },
-            "compute": {
-                "name": .compute.name,
-                "phase": .compute.phase
-                },
-            "storage": [
-                .storage[] | {
-                    "name": .name,
-                    "phase": .phase
-                  }
-                ],
-            "data": [
-                .data[] | {
-                    "name": .name,
-                    "phase": .phase
-                  }
-                ]
-            }
-            '
-        }
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase
+              }
+            ]
+        }'
+EOF
+
+chmod a+x /tmp/makerequest
+chmod a+x /tmp/fullstatus
+chmod a+x /tmp/partstatus
+chmod a+x /tmp/tinystatus
 
 
-    testrequest
+    /tmp/makerequest
 
-    partstatus
+    echo
 
-    tinystatus
+    /tmp/partstatus
+
+    echo
+
+    watch /tmp/tinystatus
 
     #
     # For the demo;
