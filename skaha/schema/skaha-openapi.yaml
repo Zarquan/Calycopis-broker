@@ -1,0 +1,411 @@
+
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2024, Manchester University (http://www.manchester.ac.uk/)
+#
+#     This work is made available under the Creative Commons
+#     Attribution-ShareAlike 4.0 International licence.
+#
+#     For details of the licence terms see:
+#     https://creativecommons.org/licenses/by-sa/4.0/
+#   </meta:licence>
+# </meta:header>
+#
+# AIMetrics: [
+#     {
+#     "name": "ChatGPT",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
+
+openapi: 3.1.0
+
+info:
+  version: 1.0.3
+  title: skaha
+  description: >
+    This API allows authorized users to create and
+    interact with desktop (NoVNC), CARTA Visualization, and Jupyter Notebook
+    sessions in the skaha processing environment.  Desktop apps can also be
+    launched and attached to skaha desktop sessions through this
+    API.<br/><br/>Clients may authenticate to this service by:<br/>1.  Providing
+    a bearer token in the Authorization header.<br/>2.  Using a client
+    certificate.<br/>3.  Using a browser cookie from CADC Login.<br/><br/>The
+    main skaha github page with documentation and source code is
+    here:  https://github.com/opencadc/science-platform<br/><br/>Documentation
+    on using Skaha can be found
+    here:  https://www.opencadc.org/science-containers/
+  contact:
+    name: Dave Morris
+    url: https://github.com/Zarquan
+  license:
+    name: GNU Affero General Public License v3.0
+    identifier: AGPL-3.0
+
+servers:
+  - url: /skaha
+
+paths:
+  "/v0/session":
+    get:
+      description: >
+        List the sessions for the calling user, returned as a JSON
+        array.  Session attributes include:<br/><br/>Session ID<br/>User
+        ID<br/>Image<br/>Type<br/>Status<br/>Name<br/>StartTime<br/>Connect
+        URL<br/><br/>Valid types are 'desktop', 'carta', 'notebook', and
+        'headless'.
+      tags:
+        - Session Management
+      responses:
+        "200":
+          description: >-
+            Successful response
+          content:
+            application/json:
+              schema:
+                $ref: 'SkahaSessionList'
+        "401":
+          description: Not authenticated
+        "403":
+          description: Permission denied
+        "500":
+          description: Internal error
+        "503":
+          description: Service busy
+        default:
+          description: Unexpected error
+      parameters:
+        - name: type
+          in: query
+          description: Only show sessions of this type (desktop, notebook, carta, or
+            headless)
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Only show sessions with this status (Pending, Running, Terminating,
+            Succeeded, Error)
+          required: false
+          schema:
+            type: string
+        - name: view
+          in: query
+          description: Session list view level and stats.  If set to 'all', all users'
+            sessions are listed (with limited information), not just the calling
+            user's sessions. If set to 'stats', jobs and resources (cores and
+            ram) information is listed.
+          required: false
+          schema:
+            type: string
+    post:
+      description: >
+        Launch a new session.  Depending on the underlying image and system
+        state, sessions may take time for the system to download in
+        startup.  Normal initialization time to a running session is less than
+        10 seconds.  After a successful POST, the sessionID is returned in the
+        response body.
+      tags:
+        - Session Management
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              description: >-
+                The set of session create parameters.
+              $ref: 'SkahaSessionCreateParams'
+      responses:
+        "200":
+          description: >-
+            Successful response, session created.
+          content:
+            text/plain:
+              schema:
+                description: >-
+                  The ID of the new session (with a newline character at the end).
+                type: string
+        "400":
+          description: >-
+            Request failed, response body contains the reason.
+          content:
+            text/plain:
+              schema:
+                description: >-
+                  A text message describing the reason for the failure.
+                type: string
+
+        "401":
+          description: Not authenticated
+        "403":
+          description: Permission denied
+        "404":
+          description: If the image ID format is incorrect
+        "500":
+          description: Internal error
+        "503":
+          description: Service busy
+        default:
+          description: Unexpected error
+
+  "/v0/session/{sessionID}":
+    get:
+      description: >
+        Get the session identified by sessionID as a JSON object.
+      tags:
+        - Session Management
+      responses:
+        "200":
+          description: >-
+            Successful response
+          content:
+            application/json:
+              schema:
+                $ref: 'SkahaSessionObject'
+        "401":
+          description: Not authenticated
+        "403":
+          description: Permission denied
+        "404":
+          description: Not found
+        "500":
+          description: Internal error
+        "503":
+          description: Service busy
+        default:
+          description: Unexpected error
+      parameters:
+        - name: sessionID
+          in: path
+          description: The session to get, returned in application/json format.
+          required: true
+          schema:
+            type: string
+        - name: view
+          in: query
+          description: If set to 'events', return the scheduling event logs.  If set to
+            'logs', return the container logs in text/plain format.  Responses
+            are in text/plain format.
+          required: false
+          schema:
+            type: string
+    delete:
+      description: >
+        Delete the session identified by sessionID.
+      tags:
+        - Session Management
+      parameters:
+        - name: sessionID
+          in: path
+          description: The session to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+        "401":
+          description: Not authenticated
+        "403":
+          description: Permission denied
+        "500":
+          description: Internal error
+        "503":
+          description: Service busy
+        default:
+          description: Unexpected error
+
+# From the OpenAPI documentation.
+# https://swagger.io/docs/specification/v3_0/authentication/bearer-authentication/
+# 2) Apply the security globally to all operations
+security:
+  - bearerAuth: [] # use the same name as above
+
+components:
+
+  # From the OpenAPI documentation.
+  # https://swagger.io/docs/specification/v3_0/authentication/bearer-authentication/
+  # 1) Define the security scheme type (HTTP bearer)
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # optional, arbitrary value for documentation purposes
+
+  schemas:
+
+    SkahaSessionObject:
+      description: >-
+        A Shaha session object.
+      type: object
+      properties:
+        id:
+          description: >-
+            The session ID within Skaha.
+          type: string
+        userid:
+          description: >-
+            The user ID within Skaha.
+          type: string
+        runAsUID:
+          description: >-
+            ....
+          type: integer
+        runAsGID:
+          description: >-
+            ....
+          type: integer
+        supplementalGroups:
+          description: >-
+            ....
+          type: array
+          items:
+            type: integer
+        appid:
+          description: >-
+            ....
+          type: string
+        image:
+          description: >-
+            ....
+          type: string
+        type:
+          description: >-
+            The session type.
+            One of [headless, desktop, notebook]
+          type: string
+        status:
+          description: >-
+            ....
+          type: string
+        name:
+          description: >-
+            ....
+          type: string
+        startTime:
+          description: >-
+            ....
+          type: string
+        expiryTime:
+          description: >-
+            ....
+          type: string
+        connectURL:
+          description: >-
+            ....
+          type: string
+        requestedRAM:
+          description: >-
+            ....
+          type: string
+        requestedCPUCores:
+          description: >-
+            ....
+          type: string
+        requestedGPUCores:
+          description: >-
+            ....
+          type: string
+        ramInUse:
+          description: >-
+            ....
+          type: string
+        gpuRAMInUse:
+          description: >-
+            ....
+          type: string
+        cpuCoresInUse:
+          description: >-
+            ....
+          type: string
+        gpuUtilization:
+          description: >-
+            ....
+          type: string
+
+    SkahaSessionList:
+      description: >-
+        A list of Shaha session objects.
+      type: array
+      items:
+        $ref: 'SkahaSessionObject'
+
+    SkahaSessionCreateParams:
+      description: >-
+        The set of parameters for creating a Shaha session.
+      type: object
+      required:
+        - image
+      properties:
+        name:
+          type: string
+          description: >
+            The name for the session (for user informational purposes only).
+        image:
+          type: string
+          description: >
+            The docker image identifier.
+            See https://docs.docker.com/reference/cli/docker/image/tag/
+            ```
+            images.canfar.net/skaha/notebook-scipy:0.2
+            ```
+        cores:
+          type: integer
+          description: >
+            Request this many cores for the session.  This value must match a
+            value retruned from the /context endpoint.  The default value
+            returned from /context will be used if this parameter is not
+            provided.
+        ram:
+          type: integer
+          description: >
+            Request this much RAM (GB) for the session.  This value must match a
+            value retruned from the /context endpoint.  The default value
+            returned from /context will be used if this parameter is not
+            provided.
+        type:
+          type: string
+          enum:
+            - notebook
+            - desktop
+            - carta
+            - contributed
+          description: >
+            For images that reside outside of the supported harbor registries,
+            the type parameter must be provided.  This requires additional
+            privileges.
+        cmd:
+          type: string
+          description: >
+            Only applies to session type 'headless'. Override the image
+            entrypoint with this command.
+        args:
+          type: string
+          description: >
+            Only applies to session type 'headless'. Override the image CMD
+            params with these values. Multiple arguments are separated with a
+            space.
+        env:
+          type: string
+          description: >
+            Only applies to session type 'headless'. Add additional environment
+            to the container. Format is key=value. Multiple env parameters
+            supported.
+        x-skaha-registry-auth:
+          type: string
+          description: >
+            If the image is not in a supported harbor registry, the
+            x-registry-auth header must be provided.  This requires additional
+            privileges.  The value is a base64 encoded string from
+            "username:secret":
+
+            ```
+
+            $ echo -n "username:my-registry-secret" | base64 -i -
+
+            ```
+
