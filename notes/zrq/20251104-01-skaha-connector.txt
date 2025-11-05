@@ -31,232 +31,496 @@
 
         Work in progress ...
 
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=skaha-connector
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
 
 # -----------------------------------------------------
 
-    Add phase to the components - done
-    Change INACTIVE to PENDING
-    Change RUNNING to AVAILABLE or ACTIVE ?
+    In the future we will need to define new derived classes
+    in the schema for CanfarDockerContainer and CanfarComputeResource.
 
-    Set session end = available + duration
+        CanfarDockerContainer
+        CanfarDockerContainerEntity
+        CanfarDockerContainerFactory
+        CanfarDockerContainerFactoryImpl
 
-    Need to release the resources at the end ...
+        CanfarComputeResource
+        CanfarComputeResourceEntity
+        CanfarComputeResourceFactory
+        CanfarComputeResourceFactoryImpl
+
+    We need these because many of the containers require a CANFAR platform,
+    and use the Skaha endpoint to launch additional components from inside
+    the initial container.
+
+
 
 # -----------------------------------------------------
 
     In Canfar platform, the SkahaSession corresponds to ComputeResource.
 
-    Calculate the ComputeResource start time, duration and release time.
+    We need to set the ComputeResource start time, duration, and release time correctly.
 
-    Create new classes
+    SkahaConnector is a stateless connector.
+    Has an endpoint, but nothing more.
 
-    SkahaConnector
-    SkahaConnectorImpl
-    SkahaConnectorFactory
-    SkahaConnectorFactoryImpl
+        SkahaConnector
+            endpoint
 
-    SkahaSession
-    SkahaSessionEntity
-    SkahaSessionFactory
-    SkahaSessionFactoryImpl
+        SkahaConnectorImpl
+            constructor
+            SkahaConnectorImpl(URL endpoint)
+
+        SkahaConnectorFactory
+        SkahaConnectorFactoryImpl
+
+        SkahaSession
+            uuid: ...
+            skaha: {
+                "id": "z6qbfleb",
+                "userid": "zarquan",
+                "runAsUID": "20021",
+                "runAsGID": "20021",
+                "supplementalGroups": [
+                    990014,
+                    990018,
+                    ....
+                    990008,
+                    990001
+                ],
+            "appid": "<none>",
+            "image": "images.canfar.net/skaha/base-notebook:latest",
+            "type": "notebook",
+            "status": "Pending",
+            "name": "test-notebook",
+            "startTime": "2025-10-27T16:11:13Z",
+            "expiryTime": "2025-10-31T16:11:13Z",
+            "connectURL": "https://services.swesrc.chalmers.se/session/notebook/z6qbfleb/lab/tree/cavern/home/zarquan?token=z6qbfleb",
+            "requestedRAM": "2G",
+            "requestedCPUCores": "2",
+            "requestedGPUCores": "0",
+            "ramInUse": "<none>",
+            "gpuRAMInUse": "<none>",
+            "cpuCoresInUse": "<none>",
+            "gpuUtilization": "<none>"
+            }
+
+
+        SkahaSessionEntity
+
+            constructor
+            SkahaSessionEntity(SkahaSessionResponse response)
+            .. unpack the response bean
+            .. can we auto-generate this ?
+
+        SkahaSessionFactory
+            create(SkahaSessionResponse response)
+        SkahaSessionFactoryImpl
+            ....
 
 # -----------------------------------------------------
 
         #
-        # Docker container for 1HR.
-        cat > "/tmp/001-offerset-request.yaml" << EOF
-name: test request 001
-executable:
-  name: test executable 001
-  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
-  image:
-    locations:
-      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
-schedule:
-  requested:
-    duration: PT10M
-compute:
-  name: test compute 001
-  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
-  volumes:
-    - "Input data"
-volumes:
-  - name: "Input data"
-    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
-    path: /inputs/
-    mode: READONLY
-    cardinality: CONTAINER
-    resources:
-      - example-data-01
-      - example-data-02
-      - example-data-03
-data:
-  - name: example-data-01
-    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
-    skao:
-      namespace:  "testing"
-      objectname: "zrq-test-20250509-082506"
-      datasize:   27487790694400
-      replicas:
-        - rsename: "AUSRC_STORM"
-        - rsename: "JPSRC_STORM"
-        - rsename: "SPSRC_STORM"
-  - name: example-data-02
-    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
-    skao:
-      namespace:  "testing"
-      objectname: "zrq-test-20250509-094501"
-      datasize:   26843545600
-      replicas:
-        - rsename: "JPSRC_STORM"
-        - rsename: "SPSRC_STORM"
-EOF
+        # Can we get an OpenAPI schema from the endpoint ?
 
-    cat > "/tmp/003-accept-00-request.json" << EOF
-{
-"update": {
-    "type":  "uri:enum-value-update",
-    "path":  "phase",
-    "value": "ACCEPTED"
-    }
-}
-EOF
+        #
+        # Set the target CANFAR host name.
+        canfarhostname=services.swesrc.chalmers.se
 
 
-
-    testrequest()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Content-Type: application/yaml' \
-            --data-binary "@/tmp/001-offerset-request.yaml" \
-            --header 'Accept: application/yaml' \
-            'http://127.0.0.1:8082/offersets' \
-        > "/tmp/002-offerset-response.yaml" \
-
-        sleep 1
+        https://services.swesrc.chalmers.se/skaha
+        https://services.swesrc.chalmers.se/skaha/#
 
         curl \
             --silent \
             --show-error \
-            --header 'Content-Type: application/json' \
-            --data-binary "@/tmp/003-accept-00-request.json" \
             --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "/tmp/004-accept-00-response.yaml" \
-        | yq '{
-            "uuid": .uuid,
-            "name": .name,
-            "phase": .phase,
-            "schedule": .schedule
-            }'
-        }
+            "https://services.swesrc.chalmers.se/skaha/"
 
-    fullstatus()
-        {
         curl \
             --silent \
             --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '.'
-        }
+            --header 'Accept: application/json' \
+            "https://services.swesrc.chalmers.se/skaha/"
 
-    partstatus()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '{
-            "session": {
-                "name": .name,
-                "phase": .phase,
-                "schedule": .schedule
-              },
-            "executable": {
-                "name": .executable.name,
-                "phase": .executable.phase,
-                "schedule": .executable.schedule
-                },
-            "compute": {
-                "name": .compute.name,
-                "phase": .compute.phase,
-                "schedule": .compute.schedule
-                },
-            "storage": [
-                .storage[] | {
-                    "name": .name,
-                    "phase": .phase,
-                    "schedule": .schedule
-                  }
-                ],
-            "data": [
-                .data[] | {
-                    "name": .name,
-                    "phase": .phase,
-                    "schedule": .schedule
-                  }
-                ]
-            }
-            '
-        }
+        #
+        # Still returns the HTML/JavaScript swagger page.
+        #
 
-    tinystatus()
-        {
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
-        | tee "004-accept-00-response.yaml" \
-        | yq '{
-            "session": {
-                "name": .name,
-                "phase": .phase
-              },
-            "executable": {
-                "name": .executable.name,
-                "phase": .executable.phase
-                },
-            "compute": {
-                "name": .compute.name,
-                "phase": .compute.phase
-                },
-            "storage": [
-                .storage[] | {
-                    "name": .name,
-                    "phase": .phase
-                  }
-                ],
-            "data": [
-                .data[] | {
-                    "name": .name,
-                    "phase": .phase
-                  }
-                ]
-            }
-            '
-        }
+# -----------------------------------------------------
+
+    Found their OpenAPI specification in their source code.
+    https://github.com/opencadc/science-platform/blob/main/skaha/src/main/webapp/openapi.yaml
+
+    Just a text description of the responses.
+    https://github.com/opencadc/science-platform/blob/3678666bc40b29588ffef71fb2c778d7a9adc5f6/skaha/src/main/webapp/openapi.yaml#L182-L202
+
+      "/v1/session/{sessionID}":
+        get:
+          description: >
+            Get the session identified by sessionID as a JSON object.
+          tags:
+            - Session Management
+          responses:
+            "200":
+              description: Successful response
+            "401":
+              description: Not authenticated
+            "403":
+              description: Permission denied
+            "404":
+              description: Not found
+            "500":
+              description: Internal error
+            "503":
+              description: Service busy
+            default:
+              description: Unexpected error
+
+    It doesn't provide a schema for the objects.
+
+# -----------------------------------------------------
+
+    Can we create our own skaha OpenAPI schema and generate the classes from that ?
 
 
-    testrequest
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
 
-    partstatus
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
 
-    tinystatus
+# -----------------------------------------------------
+# Install the OpenAPI code generator.
+#[root@developer-tools]
+
+    generatorName=openapi-generator-cli
+    generatorVersion=7.14.0
+    generatorJarFile=${generatorName}-${generatorVersion}.jar
+    generatorPath=/opt/openapi-generator
+    generatorFullPath=${generatorPath}/${generatorJarFile}
 
     #
-    # For the demo;
-    # Reduce delay from ACCEPTED to PREPARING.
-    # CREATED is wrong - tried STARTING, but that is wrong.
-    # CREATED is wrong - resources start at WAITING ?
-    # Session jumps from PREPARING to COMPLETED because it has zero end time.
+    # Check if the generator is instralled.
+    if [ ! -d "${generatorPath}" ]
+    then
+        mkdir "${generatorPath}"
+    fi
+
+    if [ ! -e "${generatorFullPath}" ]
+    then
+
+        which wget &> /dev/null
+        if [ $? -ne 0 ]
+        then
+            dnf install -y \
+                wget
+        fi
+
+        wget https://repo1.maven.org/maven2/org/openapitools/${generatorName}/${generatorVersion}/${generatorJarFile} \
+             --output-document "${generatorFullPath}"
+    fi
 
 
+# -----------------------------------------------------
+# Generate a Java client.
+#[root@developer-tools]
+
+    source=/calycopis/skaha/schema/skaha-openapi.yaml
+    target=/calycopis/skaha/target/client/java
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name java \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --api-package "skaha.openapi.webapp" \
+        --model-package "skaha.openapi.model" \
+        --model-name-prefix "Skaha"
+
+
+# -----------------------------------------------------
+# Add the Maven wrapper script.
+#[root@developer-tools]
+
+    cp /calycopis/java/spring/spring-webapp/mvnw \
+       "${target:?}/"
+
+    cp -r /calycopis/java/spring/spring-webapp/.mvn \
+       "${target:?}/"
+
+    pushd "${target:?}"
+
+        ./mvnw -N wrapper:wrapper
+
+    popd
+
+# -----------------------------------------------------
+# Use Maven to build the generated project.
+#[root@developer-tools]
+
+    pushd "${target:?}"
+
+        ./mvnw clean install
+
+    popd
+
+--START--
+....
+....
+[INFO] --- install:3.1.2:install (default-install) @ openapi-java-client ---
+[INFO] Installing /calycopis/skaha/target/client/java/pom.xml to /root/.m2/repository/org/openapitools/openapi-java-client/1.0/openapi-java-client-1.0.pom
+[INFO] Installing /calycopis/skaha/target/client/java/target/openapi-java-client-1.0.jar to /root/.m2/repository/org/openapitools/openapi-java-client/1.0/openapi-java-client-1.0.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/openapi-java-client-1.0-tests.jar to /root/.m2/repository/org/openapitools/openapi-java-client/1.0/openapi-java-client-1.0-tests.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/openapi-java-client-1.0-javadoc.jar to /root/.m2/repository/org/openapitools/openapi-java-client/1.0/openapi-java-client-1.0-javadoc.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/openapi-java-client-1.0-sources.jar to /root/.m2/repository/org/openapitools/openapi-java-client/1.0/openapi-java-client-1.0-sources.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  27.126 s
+[INFO] Finished at: 2025-11-04T14:24:44Z
+[INFO] ------------------------------------------------------------------------
+--END--
+
+
+--START--
+....
+    <groupId>org.openapitools</groupId>
+    <artifactId>openapi-java-client</artifactId>
+    <packaging>jar</packaging>
+    <name>openapi-java-client</name>
+    <version>1.0</version>
+    <url>https://github.com/openapitools/openapi-generator</url>
+    <description>OpenAPI Java</description>
+....
+--END--
+
+
+# -----------------------------------------------------
+
+    #
+    # Add more details to the openapi schema.
+    # Copying the core API from the Skaha source code.
+    # https://github.com/opencadc/science-platform/blob/main/skaha/src/main/webapp/openapi.yaml
+    #
+
+# -----------------------------------------------------
+# Generate a Java client.
+#[root@developer-tools]
+
+    source=/calycopis/skaha/schema/skaha-openapi.yaml
+    target=/calycopis/skaha/target/client/java
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name java \
+        --input-spec  "${source}" \
+        --output      "${target}" \
+        --group-id    "net.ivoa.calycopis" \
+        --artifact-id "skaha-client" \
+        --artifact-version "0.1-SNAPSHOT" \
+        --api-package "net.ivoa.calycopis.skaha.client.api" \
+        --model-package "net.ivoa.calycopis.skaha.client.model" \
+        --model-name-prefix "Skaha"
+
+--START--
+....
+....
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/src/main/java/net/ivoa/calycopis/skaha/client/ProgressRequestBody.java
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/src/main/java/net/ivoa/calycopis/skaha/client/ProgressResponseBody.java
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/src/main/java/net/ivoa/calycopis/skaha/client/GzipRequestInterceptor.java
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/src/main/java/net/ivoa/calycopis/skaha/client/model/AbstractOpenApiSchema.java
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/.openapi-generator-ignore
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/.openapi-generator/VERSION
+[main] INFO  o.o.codegen.TemplateManager - writing file /calycopis/skaha/target/client/java/.openapi-generator/FILES
+############################################################################################
+# Thanks for using OpenAPI Generator.                                                      #
+# We appreciate your support! Please consider donation to help us maintain this project.   #
+# https://opencollective.com/openapi_generator/donate                                      #
+############################################################################################
+--END--
+
+
+# -----------------------------------------------------
+# Add the Maven wrapper.
+#[root@developer-tools]
+
+    cp /calycopis/java/spring/spring-webapp/mvnw \
+       "${target:?}/"
+
+    cp -r /calycopis/java/spring/spring-webapp/.mvn \
+       "${target:?}/"
+
+    pushd "${target:?}"
+
+        ./mvnw -N wrapper:wrapper
+
+    popd
+
+--START--
+....
+....
+[INFO] --- wrapper:3.3.4:wrapper (default-cli) @ skaha-client ---
+[INFO] Unpacked only-script type wrapper distribution org.apache.maven.wrapper:maven-wrapper-distribution:zip:only-script:3.3.4
+[INFO] Configuring .mvn/wrapper/maven-wrapper.properties to use Maven 3.9.9 and download from https://repo.maven.apache.org/maven2
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.304 s
+[INFO] Finished at: 2025-11-04T16:27:30Z
+[INFO] ------------------------------------------------------------------------
+--END--
+
+
+# -----------------------------------------------------
+# Build the generated code.
+#[root@developer-tools]
+
+    pushd "${target:?}"
+
+        ./mvnw clean install
+
+    popd
+
+--START--
+....
+....
+[INFO] --- install:3.1.2:install (default-install) @ skaha-client ---
+[INFO] Installing /calycopis/skaha/target/client/java/pom.xml to /root/.m2/repository/net/ivoa/calycopis/skaha-client/0.1-SNAPSHOT/skaha-client-0.1-SNAPSHOT.pom
+[INFO] Installing /calycopis/skaha/target/client/java/target/skaha-client-0.1-SNAPSHOT.jar to /root/.m2/repository/net/ivoa/calycopis/skaha-client/0.1-SNAPSHOT/skaha-client-0.1-SNAPSHOT.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/skaha-client-0.1-SNAPSHOT-tests.jar to /root/.m2/repository/net/ivoa/calycopis/skaha-client/0.1-SNAPSHOT/skaha-client-0.1-SNAPSHOT-tests.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/skaha-client-0.1-SNAPSHOT-javadoc.jar to /root/.m2/repository/net/ivoa/calycopis/skaha-client/0.1-SNAPSHOT/skaha-client-0.1-SNAPSHOT-javadoc.jar
+[INFO] Installing /calycopis/skaha/target/client/java/target/skaha-client-0.1-SNAPSHOT-sources.jar to /root/.m2/repository/net/ivoa/calycopis/skaha-client/0.1-SNAPSHOT/skaha-client-0.1-SNAPSHOT-sources.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.884 s
+[INFO] Finished at: 2025-11-04T16:04:28Z
+[INFO] ------------------------------------------------------------------------
+--END--
+
+
+# -----------------------------------------------------
+# Add out JUnti test ....
+#[root@developer-tools]
+
+    #
+    #
+    #
+
+
+
+# -----------------------------------------------------
+# Generate our auth token.
+#[root@developer-tools]
+
+        dnf install oidc-agent
+
+        oidc-agent
+
+--START--
+OIDC_SOCK=/tmp/oidc-nXGGRo/oidc-agent.1; export OIDC_SOCK;
+OIDCD_PID=2093; export OIDCD_PID;
+echo Agent pid $OIDCD_PID
+--END--
+
+
+        eval $(oidc-agent)
+
+--START--
+Agent pid 2097
+--END--
+
+        #
+        # Login using our IDP
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device test-client
+
+--START--
+Registering Client ...
+Generating account configuration ...
+....
+....
+Everything setup correctly!
+--END--
+
+        #
+        # Create a new token.
+        oidc-token test-client > /calycopis/java/spring/spring-webapp/target/auth-token
+
+        #
+        # Run our JUnit test ...
+        #
+
+
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name java \
+        --input-spec  "${source}" \
+        --output      "${target}" \
+        --group-id    "net.ivoa.calycopis" \
+        --artifact-id "skaha-client" \
+        --artifact-version "0.1-SNAPSHOT" \
+        --api-package "net.ivoa.calycopis.skaha.client.api" \
+        --model-package "net.ivoa.calycopis.skaha.client.model" \
+        --model-name-prefix "Skaha"
+
+    cp /calycopis/java/spring/spring-webapp/mvnw \
+       "${target:?}/"
+
+    cp -r /calycopis/java/spring/spring-webapp/.mvn \
+       "${target:?}/"
+
+    pushd "${target:?}"
+
+#        ./mvnw wrapper:wrapper
+        ./mvnw clean install
+
+    popd
+
+    oidc-token test-client > /calycopis/java/spring/spring-webapp/target/auth-token
 

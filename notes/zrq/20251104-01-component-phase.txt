@@ -1,0 +1,265 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Coordinating the preparation steps between the components.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+
+    Add phase to the components - done
+    Change INACTIVE to PENDING
+    Change RUNNING to AVAILABLE or ACTIVE ?
+
+    Set session end = available + duration
+
+    Need to release the resources at the end ...
+
+# -----------------------------------------------------
+
+    In Canfar platform, the SkahaSession corresponds to ComputeResource.
+
+    Calculate the ComputeResource start time, duration and release time.
+
+    Create new classes
+
+    SkahaConnector
+    SkahaConnectorImpl
+    SkahaConnectorFactory
+    SkahaConnectorFactoryImpl
+
+    SkahaSession
+    SkahaSessionEntity
+    SkahaSessionFactory
+    SkahaSessionFactoryImpl
+
+# -----------------------------------------------------
+
+        #
+        # Docker container for 1HR.
+        cat > "/tmp/001-offerset-request.yaml" << EOF
+name: test request 001
+executable:
+  name: test executable 001
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT10M
+compute:
+  name: test compute 001
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - name: "Input data"
+    type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+      - example-data-03
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+EOF
+
+    cat > "/tmp/003-accept-00-request.json" << EOF
+{
+"update": {
+    "type":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+
+
+cat > /tmp/makerequest << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@/tmp/001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    > "/tmp/002-offerset-response.yaml" \
+
+    sleep 1
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/json' \
+        --data-binary "@/tmp/003-accept-00-request.json" \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "/tmp/004-accept-00-response.yaml" \
+    | yq '{
+        "uuid": .uuid,
+        "name": .name,
+        "phase": .phase,
+        "schedule": .schedule
+        }'
+EOF
+
+cat > /tmp/fullstatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '.'
+EOF
+
+cat > /tmp/partstatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase,
+            "schedule": .executable.schedule
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase,
+            "schedule": .compute.schedule
+            },
+        "storage": [
+            .storage[] | {
+                "name": .name,
+                "phase": .phase,
+                "schedule": .schedule
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase,
+                "schedule": .schedule
+              }
+            ]
+        }'
+EOF
+
+cat > /tmp/tinystatus << 'EOF'
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
+            "name": .name,
+            "phase": .phase
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase
+            },
+        "storage": [
+            .storage[] | {
+                "name": .name,
+                "phase": .phase
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase
+              }
+            ]
+        }'
+EOF
+
+chmod a+x /tmp/makerequest
+chmod a+x /tmp/fullstatus
+chmod a+x /tmp/partstatus
+chmod a+x /tmp/tinystatus
+
+
+    /tmp/makerequest
+
+    echo
+
+    /tmp/partstatus
+
+    echo
+
+    watch /tmp/tinystatus
+
+    #
+    # For the demo;
+    # Reduce delay from ACCEPTED to PREPARING.
+    # CREATED is wrong - tried STARTING, but that is wrong.
+    # CREATED is wrong - resources start at WAITING ?
+    # Session jumps from PREPARING to COMPLETED because it has zero end time.
+
+
+

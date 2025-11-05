@@ -1,0 +1,256 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Develop a common data model and schema for describing Execution Steps.
+
+This feature addresses the Epic [SP-5701]
+[Define the SRCNet job schema, workflow schema]
+https://jira.skatelescope.org/browse/SP-5701
+
+The Execution Broker project has developed an extensible
+data model and schema for describing an Execution Step, including details
+of the executable itself, along with the compute, storage and data
+resources needed to execute it.
+
+The data model and schema have been moved into in a separate GitHub
+repository, with the intention of evolving them into a set of re-useable
+building blocks that can be used by all of the SRCNet components
+dealing with Execution Steps, including Science Portal, Software Discovery,
+Workstep Execution, Execution Broker, user history, and data provenance.
+
+See [SRCNet-ExecutionDataModel][https://github.com/Zarquan/jordanita/blob/main/presentations/20250909-SRCNet-ExecutionDataModel/20250909-SRCnet-ExecutionDataModel.pdf]
+for an overview.
+
+The sequence diagrams being developed for the [SRCNet architecture][https://confluence.skatelescope.org/pages/viewpage.action?pageId=343930834]
+show these services acting together as a pipeline, passing
+details of the Execution Step between them, adding and modifying the properties
+and passing them on to the next service.
+
+Using a common data model reduces the need for translating the message content
+as the Execution Step is passed between the services.
+It also means that components like the Science Gateway
+can develop a single UI component for accessing, managing and displaying
+Execution Steps wherever they are in the system.
+
+AC1 Transfer a copy of the data model and OpenAPI schema from its current
+home in the IVOA GitHub repository into the SRCNet GitLab repository.
+
+AC2 Continue the work to split the OpenAPI schema into separate
+building blocks that can be re-used to define multiple service interfaces.
+* Separate the server side metadata from the description of the Execution Step.
+  e.g. uuid, create date, owner etc.
+* Separate the execution status properties from the description of the Execution Step.
+  e.g. execution session status
+
+AC3 Continue the work developing the code generation
+scripts that can be used to generate the server and client side
+code from the schema and packaging them as Python modules
+that can be included in other components.
+
+AC4 (stretch) Integrate the code generation scripts into the SRCNet CI process,
+automatically generating and packaging the generated components
+on commit and merge triggers.
+
+# -----------------------------------------------------
+
+Work with CADC to combine the Execution Step data model with
+the proposed work on [Redefining Compute Resources in Skaha API]
+
+If the we can evolve the Execution Step data model so that
+is is compatible with the Skaha API and we can re-use some
+of the same components then it will make it easier for other
+components and services to use our services.
+
+It also means that components like the Science Gateway
+can develop a single UI component for accessing, managing and displaying
+Execution Steps wherever they are in the system.
+
+This may also have potential benefits in terms of interoperability
+with other (IVOA) projects.
+
+AC1 Working together to bring the two data models closer together.
+Identify the common parts that can be re-used between them.
+
+
+# -----------------------------------------------------
+
+Refactor the Execution Broker prototype to use an event driven architecture
+
+The recent work on the Execution Broker prototype has added the asynchronous
+handling mechanics needed to support for launching jobs in CANFAR.
+However the priority of the initial work was to define what the
+asynchronous mechanics needed to do, rather than finding the best way of
+implementing it.
+
+As a result, the current code is based on a simplistic Thread based
+architecture, which is not scaleable.
+Now that we know what we want it to do, we can refactor the
+design to use an event driven architecture that will be much
+more robust and scaleable.
+
+AC1 Refactor the code to produce the same behaviour ususing an event driven architecture
+
+# -----------------------------------------------------
+
+Refactor the Execution Broker prototype to use callbacks
+
+The recent work on the Execution Broker prototype has added the asynchronous
+handling mechanics needed to support for launching jobs in CANFAR.
+However the priority of the initial work was to define what the
+asynchronous mechanics needed to do, rather than finding the best way of
+implementing it.
+
+As a result, the current code is based on a simplistic Thread based
+architecture, which is not scaleable.
+
+Now that we know what we want it to do, we can refactor the
+design to move part of the processing to small ancilary worker services
+that perform specific tasks and communicate with the main service using callbacks.
+
+This in combination with the event driven aarchitecture will be much more robust and scaleable.
+
+AC1 Refactor the code to use ancilary worker services and callbacks.
+
+# -----------------------------------------------------
+
+Add a callback facility to the Skaha service.
+
+The recent work on the Execution Broker prototype has added the asynchronous
+handling mechanics needed to support for launching jobs in CANFAR.
+However the priority of the initial work was to define what the
+asynchronous mechanics needed to do, rather than finding the best way of
+implementing it.
+
+As a result, the current code is based on a simplistic polling mechanism
+to keep track of the state of sessions in Skaha.
+This architecture is very inefficient and not scaleable.
+
+If we can add a mechanism for registering callbacks on state change to the
+Skaha service then we can eliminate all of the polling calls,
+making the system much more effifient and scaleable.
+
+AC1 Add a mechanism to Skaha for registering a simple callback on state change
+
+AC2 Integrate this callback mechanism into the Execution Broker, and remove
+the state polling.
+
+# -----------------------------------------------------
+
+Add support for prepareData the Execution Broker prototype
+
+The recent work on the Execution Broker prototype has added the asynchronous
+handling mechanics needed to support for launching jobs in CANFAR.
+
+Due to time constraints the work to integrate the broker with the
+local prepareData service was not implemented.
+
+AC1 Add code to link the Execution Broker prototype with the local prepareData
+service enabling it to stage data from the DataLake.
+
+# -----------------------------------------------------
+
+Add a callback facility to the prepareData service.
+
+The easiest way to connect Execution Broker to a local prepareData service
+is to use a simle polling mechanism to monitor the progress of a data transfer.
+
+However, a polling based architecture is very inefficient and not scaleable.
+
+If we can add a mechanism for registering callbacks on state change to the
+prepareData service then we can eliminate all of the polling calls,
+making the system much more effifient and scaleable.
+
+AC1 Add a mechanism to prepareData for registering a simple callback on state change.
+
+AC2 Integrate this callback mechanism into the Execution Broker, and remove
+the state polling.
+
+
+# -----------------------------------------------------
+
+Add a duration the prepareData service.
+
+Does the prepareData service include a duration parameter which
+controls how long the local copy is kept.
+
+If not, then adding this will enable Execution Broker
+to synchronise the lifetime of the local copy
+wiht the lifetime of the execution step.
+
+# -----------------------------------------------------
+
+Add support for acessing Harbor images in the Execution Broker prototype
+
+The recent work on the Execution Broker prototype has added the asynchronous
+handling mechanics needed to support for launching jobs in CANFAR.
+
+However, the availability of the container image can have a significant
+impact on the preparation time for a CNFAR session.
+
+Adding code to integrate the Execution Broker with the local Harbor service
+will enable the Execution Broker to estimate the preparation time needed,
+and to stage a local copy of the image if required.
+
+AC1 Add code to integrate the Execution Broker prototype with the local Harbor
+service enabling it to check the availablility of a container image
+and create a local copy if required.
+
+
+# -----------------------------------------------------
+
+Extend Execution Broker to be able to estimate preparation time based on historical data.
+
+The current Execution Broker prototype is proof of concept only. It uses hard coded values
+to demonstrate how a real service would predict the preparation time for an execution step.
+
+This work would develop the mechanism needed to collect sufficient historical data about how
+long preparation steps take to enable the Execution Broker to estimate how long a similar step
+would take in the future.
+
+AC1 Collect historical data about how long each preparation step takes.
+AC2 Develop an algorithm for using that data to estimate how long a new step would take.
+AC3 Add additional parameters to the data collection to improve the accuracy of the estimates.
+
+
+
+
+
+
+
+
+
+
+
+

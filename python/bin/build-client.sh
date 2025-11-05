@@ -71,7 +71,7 @@
 
     #
     # Generate our FastAPI service classes.
-    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/fastapi.md
 
     source=/trebula/target/Calycopis-broker-full.yaml
     target=/calycopis/python/broker/fastapi
@@ -89,7 +89,7 @@
 
     #
     # Generate our Java client classes.
-    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/java.md
 
     source=/trebula/target/Calycopis-broker-full.yaml
     target=/calycopis/java/broker/client
@@ -106,10 +106,9 @@
         --model-package "net.ivoa.calycopis.openapi.model" \
         --model-name-prefix "Ivoa"
 
-
     #
     # Generate our Spring service classes.
-    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+    # https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/spring.md
 
     source=/trebula/target/Calycopis-broker-full.yaml
     target=/calycopis/java/broker/spring

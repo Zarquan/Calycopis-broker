@@ -52,12 +52,21 @@
 	</properties>
 	<dependencies>
         <!--+
-            | Include our generated classes.
+            | Include our generated broker classes.
             +-->
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
             <artifactId>calycopis-openapi</artifactId>
         	<version>${project.version}</version>
+        </dependency>
+
+        <!--+
+            | Include our generated Skaha client.
+            +-->
+        <dependency>
+            <groupId>net.ivoa.calycopis</groupId>
+            <artifactId>skaha-client</artifactId>
+        	<version>0.1-SNAPSHOT</version>
         </dependency>
         <!--+
             | GitHub UUID generator.
@@ -92,7 +101,7 @@
         <!--+
             | Add slf4j and log4j logging.
             | https://www.baeldung.com/java-logging-intro
-            | Versions are managed by SpringBoot 
+            | Versions are managed by SpringBoot
             +-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -186,7 +195,7 @@
 
         <!--+
             | Jackson annotations.
-            | Versions are managed by SpringBoot 
+            | Versions are managed by SpringBoot
             +-->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
