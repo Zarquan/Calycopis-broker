@@ -20,8 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.skaha.client.ApiClient;
 import net.ivoa.calycopis.skaha.client.ApiException;
 import net.ivoa.calycopis.skaha.client.Configuration;
-import net.ivoa.calycopis.skaha.client.model.SkahaSkahaSessionObject;
-import net.ivoa.calycopis.skaha.client.model.SkahaSkahaSessionType;
+import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
+import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
 
 /**
  * API tests for SessionManagementApi
@@ -66,13 +66,13 @@ public class SessionManagementApiTest {
 
         this.init();
         
-        SkahaSkahaSessionType type = null;
+        SkahaSessionType type = null;
         String status = null;
         String view = null;
 
         try {
-            List<SkahaSkahaSessionObject> response = api.v0SessionGet(type, status, view);
-            for (SkahaSkahaSessionObject object : response)
+            List<SkahaSessionObject> response = api.v0SessionGet(type, status, view);
+            for (SkahaSessionObject object : response)
                 {
                 log.info("Session [{}][{}]", object.getId(), object.getStatus());
                 sessionID = object.getId();
@@ -96,7 +96,7 @@ public class SessionManagementApiTest {
         {
         this.init();
 
-        SkahaSkahaSessionType type = SkahaSkahaSessionType.NOTEBOOK; 
+        SkahaSessionType type = SkahaSessionType.NOTEBOOK; 
         String name = "test-session";
         String image = "images.canfar.net/skaha/base-notebook:latest";
         Integer cores = 2;
@@ -110,7 +110,7 @@ public class SessionManagementApiTest {
             sessionID = api.v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
             sessionID = sessionID.strip();
             log.info("SessionID  [{}] : ", sessionID);
-            SkahaSkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, null);
+            SkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, null);
             log.info("SessionObj [{}] : ", object);
             }
         catch (Exception ouch)
@@ -133,7 +133,7 @@ public class SessionManagementApiTest {
         String view = null;
 
         try {
-            SkahaSkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, view);
+            SkahaSessionObject object= api.v0SessionSessionIDGet(sessionID, view);
             log.info("Session [{}][{}]", object.getId(), object.getStatus());
             }
         catch (Exception ouch)
@@ -150,13 +150,13 @@ public class SessionManagementApiTest {
 
         this.init();
         
-        SkahaSkahaSessionType type = null;
+        SkahaSessionType type = null;
         String status = null;
         String view = null;
 
         try {
-            List<SkahaSkahaSessionObject> response = api.v0SessionGet(type, status, view);
-            for (SkahaSkahaSessionObject object : response)
+            List<SkahaSessionObject> response = api.v0SessionGet(type, status, view);
+            for (SkahaSessionObject object : response)
                 {
                 log.info("Deleting session [{}] : ", object.getId());
                 api.v0SessionSessionIDDelete(object.getId());

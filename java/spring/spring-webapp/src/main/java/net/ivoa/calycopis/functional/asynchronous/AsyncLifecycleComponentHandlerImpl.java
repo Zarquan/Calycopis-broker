@@ -150,7 +150,7 @@ implements AsyncLifecycleComponentHandler<EntityType>
                 ).orElseThrow();
             switch (entity.getPhase())
                 {
-                case INITIAL:
+                case INITIALIZING:
                 case WAITING:
                     log.debug("[{}][{}][{}] setPreparing() phase changed [{}]->[PREPARING]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase());
                     entity.setPhase(
@@ -194,7 +194,7 @@ implements AsyncLifecycleComponentHandler<EntityType>
         abstract void donePreparing(final UUID uuid, final AtomicInteger counter);
 
         //
-        // Placeholder that waits until the data should be available.
+        // Placeholder that waits until the component should be available.
         void prepareWait(final LifecycleComponentEntity entity)
             {
             Instant instant = entity.getAvailableStartInstant();

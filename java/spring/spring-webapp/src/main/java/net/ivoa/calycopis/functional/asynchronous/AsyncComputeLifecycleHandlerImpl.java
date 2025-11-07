@@ -23,6 +23,9 @@
 
 package net.ivoa.calycopis.functional.asynchronous;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,15 +37,27 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityRepository;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityRepository;
+import net.ivoa.calycopis.skaha.client.ApiClient;
+import net.ivoa.calycopis.skaha.client.ApiException;
+import net.ivoa.calycopis.skaha.client.Configuration;
+import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
+import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
+import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
 
 /**
  * 
  */
+@Slf4j
 @Component
 public class AsyncComputeLifecycleHandlerImpl
-extends AsyncLifecycleComponentHandlerImpl<AbstractComputeResourceEntity>
+extends AsyncLifecycleComponentHandlerImpl<SimpleComputeResourceEntity>
 implements AsyncComputeHandler
     {
+    
+    //public static final String SKAHA_ENDPOINT = "https://services.swesrc.chalmers.se/";
+    public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
 
     @Autowired
     AsyncComputeLifecycleHandlerImpl(
@@ -54,12 +69,38 @@ implements AsyncComputeHandler
     @Slf4j
     @Component
     static class InnerLifecycleHandler
-    extends AsyncLifecycleComponentHandlerImpl.InnerLifecycleHandler<AbstractComputeResourceEntity>
+    extends AsyncLifecycleComponentHandlerImpl.InnerLifecycleHandler<SimpleComputeResourceEntity>
         {
+        private ApiClient skahaApiClient ;
+
+        public SessionManagementApi init()
+            {
+            skahaApiClient = Configuration.getDefaultApiClient();
+            skahaApiClient.setBasePath(SKAHA_ENDPOINT  + "skaha");
+
+            // Load our auth token from file - really hacky.
+            try {
+                BufferedReader tokenReader = new BufferedReader(
+                    new FileReader("/tmp/skaha-auth-token")
+                    );
+                skahaApiClient.setBearerToken(
+                    tokenReader.readLine()
+                    );
+                tokenReader.close();
+                }
+            catch (Exception ouch)
+                {
+                log.error("Exception loading token [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
+                }
+            
+            return new SessionManagementApi(
+                skahaApiClient
+                );
+            }
 
         @Autowired
         InnerLifecycleHandler(
-            final AbstractComputeResourceEntityRepository repository
+            final SimpleComputeResourceEntityRepository repository
             ){
             super(repository);
             }
@@ -68,15 +109,76 @@ implements AsyncComputeHandler
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         void doPreparing(final UUID uuid, final AtomicInteger counter)
             {
-            AbstractComputeResourceEntity entity = this.repository.findById(
+            SimpleComputeResourceEntity entity = this.repository.findById(
                 uuid
                 ).orElseThrow();
             log.debug("[{}][{}][{}] doPreparing() [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase(), counter);
 
-            //
-            // Wait until the resource is available ...
-            prepareWait(entity);
+            SessionManagementApi skahaSessionManager = init();
             
+            SkahaSessionType type = SkahaSessionType.NOTEBOOK; 
+            String name = entity.getSession().getName();
+            String image = "images.canfar.net/skaha/base-notebook:latest";
+            Integer cores = entity.getMinOfferedCores().intValue();
+            Integer ram = entity.getMinOfferedMemory().intValue();
+            String cmd = null;
+            String args = null;
+            String env = null;
+            String xSkahaRegistryAuth = null;
+
+            String sessionID = null ;
+            try {
+                sessionID = skahaSessionManager .v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
+                sessionID = sessionID.strip();
+                log.info("SessionID [{}] : ", sessionID);
+                }
+            catch (Exception ouch)
+                {
+                log.error("Exception [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
+                }
+
+            boolean loop = true ;
+            for (int count = 0 ; ((loop == true) && (count < 1000)) ; count++)
+                {
+                try {
+                    SkahaSessionObject sessionObject = skahaSessionManager .v0SessionSessionIDGet(sessionID, null);
+                    String sessionStatus = sessionObject.getStatus();
+                    log.info("[{}][{}][{}] Skaha session status [{}][{}] ", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionID, sessionStatus);
+                    switch(sessionStatus)
+                        {
+                        case "Running":
+                            log.info("[{}][{}][{}] Skaha session is ready", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName());
+                            log.info("[{}][{}][{}] Access location [{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionObject.getConnectURL());
+                            loop = false ;
+
+                            entity.getSession().addConnector(
+                                "urn:jupyter-notebook",
+                                "HTTPS",
+                                sessionObject.getConnectURL()
+                                );                            
+
+                            entity.getSession().addConnector(
+                                "skaha:science-portal",
+                                "HTTPS",
+                                SKAHA_ENDPOINT + "science-portal/"
+                                );                            
+                            
+                            break ;
+
+                        case "Pending":
+                        default : 
+                            loop = true ;
+                            log.debug("[{}][{}][{}] skaha polling sleep [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionID, sessionStatus);
+                            Thread.sleep(1000);
+                            log.debug("[{}][{}][{}] skaha polling awake [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionID, sessionStatus);
+                            break ;
+                        }
+                    }
+                catch (Exception ouch)
+                    {
+                    log.error("Exception while polling Skaha session state [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
+                    }
+                }
             }
 
         @Override

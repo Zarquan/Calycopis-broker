@@ -227,6 +227,25 @@ public interface Session
      *
      */
     public List<AbstractVolumeMountEntity> getVolumeMounts();
+
+    /**
+     * Get a list of the connectors.
+     *
+     */
+    public List<SessionConnectorEntity> getConnectors();
+
+    /**
+     * Add a new connector.
+     *
+     */
+    public void addConnector(final SessionConnectorEntity connector);
+
+    /**
+     * Add a new connector.
+     *
+     */
+    public void addConnector(final String type, final String protocol, String location);
+    
     
     /**
      * Get an Ivoa bean representation.

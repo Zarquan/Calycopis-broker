@@ -40,8 +40,6 @@ TODO
     * Set session end = available + duration
     * Need to release the resources at the end ...
 
-
-
 # -----------------------------------------------------
 # Create a new branch.
 #[user@desktop]
@@ -150,8 +148,10 @@ HTTP response 200  [https://repo1.maven.org/maven2/org/openapitools/openapi-gene
         --artifact-id "skaha-client" \
         --artifact-version "0.1-SNAPSHOT" \
         --api-package "net.ivoa.calycopis.skaha.client.api" \
-        --model-package "net.ivoa.calycopis.skaha.client.model" \
-        --model-name-prefix "Skaha"
+        --model-package "net.ivoa.calycopis.skaha.client.model"
+
+      # --api-name-suffix  "Skaha" \
+      # --model-name-prefix "Skaha"
 
 --START--
 ....
@@ -382,7 +382,7 @@ Agent pid 911
 --END--
 
         # Login using our IDP
-        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device test-client
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device tester
 
 --START--
 Registering Client ...
@@ -404,19 +404,19 @@ Everything setup correctly!
         #
         # Docker container for 1HR.
         cat > "/tmp/001-offerset-request.yaml" << EOF
-name: test request 001
+name: notebook-test
 executable:
   name: test executable 001
   type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
   image:
     locations:
-      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
-    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+      - "images.canfar.net/skaha/base-notebook:latest"
+    digest: "0000"
 schedule:
   requested:
     duration: PT10M
 compute:
-  name: test compute 001
+  name: test compute
   type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
   volumes:
     - "Input data"
@@ -560,7 +560,13 @@ cat > /tmp/tinystatus << 'EOF'
     | yq '{
         "session": {
             "name": .name,
-            "phase": .phase
+            "phase": .phase,
+            "connectors": [
+                .connectors[] | {
+                    "type": .type,
+                    "location": .location
+                    }
+                ]
           },
         "executable": {
             "name": .executable.name,
@@ -591,7 +597,7 @@ chmod a+x /tmp/partstatus
 chmod a+x /tmp/tinystatus
 
 
-    /tmp/makerequest
+/tmp/makerequest
 
 --START--
 -------- -------- -------- --------
@@ -659,6 +665,171 @@ data:
     # For the demo;
     # Reduce delay from ACCEPTED to PREPARING.
     # Session jumps from PREPARING to COMPLETED because it has zero end time.
+
+    # On the CANFAR platform, Session lifetime is linked to the compute resource.
+
+    # TODO Change INITIAL to INITIALIZING
+
+    /tmp/makerequest
+    watch -d /tmp/tinystatus
+
+
+    /tmp/fullstatus
+
+--START--
+uuid: "e5685635-b01d-45c7-9d19-c68050372494"
+name: "test request 001-offer-0"
+type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+created: "2025-11-06T00:27:25.265416Z"
+href: "http://127.0.0.1:8082/sessions/e5685635-b01d-45c7-9d19-c68050372494"
+executable:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+  uuid: "7c5e94a8-16f0-4796-a62b-60bda0f9502c"
+  name: "test executable 001"
+  created: "2025-11-06T00:27:25.273022Z"
+  phase: "AVAILABLE"
+  schedule:
+    preparing:
+      start: "2025-11-06T00:27:50Z"
+      duration: "PT35S"
+    available:
+      start: "2025-11-06T00:28:25Z/PT0S"
+  privileged: false
+compute:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+  uuid: "2c015861-007b-4c72-8b3c-4a11c8464eed"
+  name: "test compute 001"
+  created: "2025-11-06T00:27:25.290612Z"
+  phase: "INITIAL"
+  schedule:
+    preparing:
+      start: "2025-11-06T00:29:45Z"
+      duration: "PT15S"
+    available:
+      start: "2025-11-06T00:30:00Z/PT0S"
+      duration: "PT20M"
+  cores:
+    min: 2
+    max: 2
+  memory:
+    min: 2
+    max: 2
+storage:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "90277f9e-718f-47d9-a868-be234dc76a3f"
+    name: "Storage for [example-data-01]"
+    created: "2025-11-06T00:27:25.297179Z"
+    phase: "AVAILABLE"
+    schedule:
+      preparing:
+        start: "2025-11-06T00:27:50Z"
+        duration: "PT5S"
+      available:
+        start: "2025-11-06T00:27:55Z/PT0S"
+    data:
+      - "9db2053c-72c2-47c0-8a43-07d25cbc127f"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "030af6bb-74da-49ae-a687-e504f80b984f"
+    name: "Storage for [example-data-02]"
+    created: "2025-11-06T00:27:25.303554Z"
+    phase: "AVAILABLE"
+    schedule:
+      preparing:
+        start: "2025-11-06T00:27:50Z"
+        duration: "PT5S"
+      available:
+        start: "2025-11-06T00:27:55Z/PT0S"
+    data:
+      - "b66a6523-903e-41ad-9d6a-b14f56902bc5"
+data:
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    uuid: "9db2053c-72c2-47c0-8a43-07d25cbc127f"
+    name: "example-data-01"
+    created: "2025-11-06T00:27:25.305682Z"
+    phase: "PREPARING"
+    schedule:
+      preparing:
+        start: "2025-11-06T00:27:55Z"
+        duration: "PT1M"
+      available:
+        start: "2025-11-06T00:28:55Z/PT0S"
+    storage: "90277f9e-718f-47d9-a868-be234dc76a3f"
+    ivoa: {}
+    skao:
+      namespace: "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize: 27487790694400
+      checksum: {}
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    uuid: "b66a6523-903e-41ad-9d6a-b14f56902bc5"
+    name: "example-data-02"
+    created: "2025-11-06T00:27:25.314908Z"
+    phase: "PREPARING"
+    schedule:
+      preparing:
+        start: "2025-11-06T00:27:55Z"
+        duration: "PT1M50S"
+      available:
+        start: "2025-11-06T00:29:45Z/PT0S"
+    storage: "030af6bb-74da-49ae-a687-e504f80b984f"
+    ivoa: {}
+    skao:
+      namespace: "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize: 26843545600
+      checksum: {}
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+phase: "PREPARING"
+schedule:
+  preparing:
+    start: "2025-11-06T00:27:50Z"
+    duration: "PT2M10S"
+  available:
+    start: "2025-11-06T00:30:00Z/PT0S"
+    duration: "PT20M"
+expires: "2025-11-06T00:32:25.077967Z"
+--END--
+
+
+# -----------------------------------------------------
+
+    compute has available duration
+    session has available duration
+
+    executable needs available duration
+    storage    needs available duration
+    data       needs available duration
+    DONE
+
+    lifecycle component
+    move to releasing after (available start + available duration)
+    move to completed after (releasing start + releasing duration) <-- in the real system this should not be time driven
+    DONE
+
+# -----------------------------------------------------
+
+    TODO
+    Session preparing should start earlier.
+    Avoid the gap caused by offerblock rounding.
+
+# -----------------------------------------------------
+
+    TODO
+    Connect the Skaha client
+    Launch SkahaSession when compute preparing
+    Delete SkahaSession when compute releasing
+
+
+
+/tmp/makerequest
+watch -d /tmp/tinystatus
+
 
 
 

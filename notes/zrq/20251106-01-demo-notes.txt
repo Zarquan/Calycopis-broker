@@ -1,0 +1,338 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+This is the request that we are sending to the broker
+
+name: notebook-test
+executable:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "images.canfar.net/skaha/base-notebook:latest"
+    digest: "0000"
+schedule:
+  requested:
+    duration: PT10M
+compute:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - name: "Input data"
+      type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+      path: /inputs/
+      mode: READONLY
+      resources:
+        - example-data-01
+        - example-data-02
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+
+
+We can split it into parts, first the executable thing we want to run.
+In this case an instance of the base-notebook container image.
+
+executable:
+  name: test executable 001
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "images.canfar.net/skaha/base-notebook:latest"
+    digest: "0000"
+
+How long we want it for
+
+schedule:
+  requested:
+    duration: PT10M
+
+The compute resource we want, and volume mounts for our data
+
+compute:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - type: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+      path: /inputs/
+      mode: READONLY
+      resources:
+        - example-data-01
+        - example-data-02
+
+and finally, two data resources from the SRCnet data lake
+
+data:
+  - name: example-data-01
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+  - name: example-data-02
+    type: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+
+
+The service is responding with four offers
+
+result: "YES"
+uuid: "e60e04cf-636a-46d4-addd-1def6dfc05c3"
+href: "http://127.0.0.1:8082/offersets/e60e04cf-636a-46d4-addd-1def6dfc05c3"
+....
+....
+offers:
+- uuid: "6f322859-d4fa-4e33-91c1-81a3633aa876"
+  name: "notebook-test-offer-0"
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+  href: "http://127.0.0.1:8082/sessions/6f322859-d4fa-4e33-91c1-81a3633aa876"
+  phase: "OFFERED"
+  ....
+  ....
+
+- uuid: "5607f5f2-25c7-4ed5-b2fb-896f8c5851be"
+  name: "notebook-test-offer-1"
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+  href: "http://127.0.0.1:8082/sessions/5607f5f2-25c7-4ed5-b2fb-896f8c5851be"
+  phase: "OFFERED"
+  ....
+  ....
+
+- uuid: "1af1cd61-177c-485e-9f98-483fc9309700"
+  name: "notebook-test-offer-2"
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0"
+  href: "http://127.0.0.1:8082/sessions/1af1cd61-177c-485e-9f98-483fc9309700"
+  phase: "OFFERED"
+  ....
+  ....
+
+each offer includes details of the compute resources that are on offer
+
+compute:
+  type: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+  uuid: "be6d7eab-5a30-468a-89a8-89e1cdfb9f39"
+  cores:
+    min: 2
+    max: 2
+  memory:
+    min: 2
+    max: 2
+
+and details of the storage it will use
+
+storage:
+
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "5a5b42da-a10a-4da9-ab93-f39ac2c1b234"
+    name: "Storage for [example-data-01]"
+    data:
+      - "aeafe3ee-e25d-40f1-bf38-10a1b3ad8a60"
+
+  - type: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    uuid: "4bd58df3-0be1-4669-b125-1e6892db6c98"
+    name: "Storage for [example-data-02]"
+    data:
+      - "d32212d0-55a6-45fa-8169-75bcb4608874"
+
+details of where the data is
+
+data:
+- type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+  uuid: "aeafe3ee-e25d-40f1-bf38-10a1b3ad8a60"
+  name: "example-data-01"
+  storage: "5a5b42da-a10a-4da9-ab93-f39ac2c1b234"
+  skao:
+    namespace: "testing"
+    objectname: "zrq-test-20250509-082506"
+    datasize: 27487790694400
+    replicas:
+    - rsename: "AUSRC_STORM"
+    - rsename: "JPSRC_STORM"
+    - rsename: "SPSRC_STORM"
+- type: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+  uuid: "d32212d0-55a6-45fa-8169-75bcb4608874"
+  name: "example-data-02"
+  storage: "4bd58df3-0be1-4669-b125-1e6892db6c98"
+  skao:
+    namespace: "testing"
+    objectname: "zrq-test-20250509-094501"
+    datasize: 26843545600
+    replicas:
+    - rsename: "JPSRC_STORM"
+    - rsename: "SPSRC_STORM"
+
+and because this is an interactive task, each offer includes deails of when it will be available
+
+schedule:
+  preparing:
+    start: "2025-11-06T11:09:50Z"
+    duration: "PT2M10S"
+  available:
+    start: "2025-11-06T11:12:00Z/PT0S"
+    duration: "PT20M"
+  releasing:
+    start: "2025-11-06T11:32:05Z"
+    duration: "PT10S"
+
+Our test script is ignoring the details and just accepting the first offer in the list.
+This is safe to do because by definition, all offers MUST meet the minimum criteria in the request.
+So we we can pick any of the offers in the response knowing that it will meet our criteria.
+
+Our test script accepts the first offer and then uses 'watch' to poll the session status.
+The response to the status query includes the same details of the session,
+executable, compute, storage and data resources, but our test script is filtering out the parts
+we are interested in.
+
+session:
+  name: "notebook-test-offer-0"
+  phase: "PREPARING"
+  connectors: []
+executable:
+  name: "test executable 001"
+  phase: "INITIALIZING"
+compute:
+  name: "test compute"
+  phase: "INITIALIZING"
+storage:
+  - name: "Storage for [example-data-01]"
+    phase: "INITIALIZING"
+  - name: "Storage for [example-data-02]"
+    phase: "INITIALIZING"
+data:
+  - name: "example-data-01"
+    phase: "INITIALIZING"
+  - name: "example-data-02"
+    phase: "INITIALIZING"
+
+At the end of the execution, the session status contains all of the details
+about what happened, including details of the session,
+executable, compute, storage and data resources.
+
+We can keep this record in the Exection Broker history, and use the
+information to make better estimates for how long similar tasks
+will take to execute.
+
+We can also attach a copy of this record to the provenance of the data products that are generated by this execution.
+
+The historical session status contains all the information needed to repeat the same execution step in the future.
+
+We can extract the historical record from the provenance of a data product and use it to apply the same processing step to a new data product.
+
+Or we can use it to apply re-process the data using the same algorithm with slightly different parameters.
+
+If we keep a copy of the historical record in the user's history, then they can
+bring up the details for an execution they performed last week, adjust the
+parameters and submit it to the the Execution API as a new task.
+
+Finally, if we go back to the original request we used to run this example,
+this is esentially a template describing what resources are needed to run this executable.
+
+This is a good template to use for the technical information
+returned by the software discovery service.
+
+The user searches the discovery service using science terms describing what the
+software does, what types of data it can process etc.
+and the discovery service returns a set of links to
+pointing to one or more of these execution templates
+describing how to run the software.
+
+The user can select the template they want, add the data and adjust the parameters
+and send it to the Execution API to execute it.
+
+The same data model used across Software Discovery, Execution API, Execution Broker,
+user history, execution history and data provenance.
+
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=353352946#BacklogideasPI29Coralteam-DevelopacommondatamodelandschemafordescribingExecutionSteps.
+https://jira.skatelescope.org/browse/SP-5701
+
+If we can work with CADC to adapt the data model so that parts of it can be used by CANFAR as well,
+then that means more interoperability and simpler interfaces for the other services
+like Science Portal.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# -----------------------------------------------------
+
+If we go back to the session offer and status for a moment.
+In this example we are executing the task on an interactive platform, so the broker is including scheduling information in the offer.
+
+      schedule:
+        preparing:
+          start: "2025-11-06T11:09:50Z"
+          duration: "PT2M10S"
+        available:
+          start: "2025-11-06T11:12:00Z/PT0S"
+          duration: "PT20M"
+        releasing:
+          start: "2025-11-06T11:32:05Z"
+          duration: "PT10S"
+
+If we are executing a non-interactive job on a batch processing platform like Slurm or Panda,
+then the scheduling information does not apply.
+
+If the user has specifically requested a specific start interval,
+then a batch processing platform would not be able to meet the criteria,
+so it would not make an offer.
+
+But if the user has not specified a specific start interval
+then the broker can simply make an offer with no scheduling information.
+
+All of the rest of the details about the executable, and the compute, storage, and data resources
+required to execute the job are all equally relevant for both interactive and non-interactive jobs.
+
+

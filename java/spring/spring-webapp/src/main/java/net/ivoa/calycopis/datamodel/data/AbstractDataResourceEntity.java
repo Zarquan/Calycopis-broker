@@ -94,6 +94,12 @@ implements AbstractDataResource
         this.availableStartDurationSeconds = 0L;
         this.availableStartInstantSeconds  = this.prepareStartInstantSeconds + this.prepareDurationSeconds;
         
+        //
+        // Hard coded 10s release duration.
+        // Start releasing as soon as availability ends.
+        this.releaseDurationSeconds = 10L ; 
+        this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds ;         
+        
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
