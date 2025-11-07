@@ -44,7 +44,6 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerInternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
 import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
-import net.ivoa.calycopis.openapi.model.IvoaExecutableAccessMethod;
 
 /**
  * A validator implementation to handle DockerContainers.
@@ -112,15 +111,6 @@ implements DockerContainerValidator
 
         // Created
         // Messages
-        
-        //
-        // Validate the executable access methods.
-        // TODO Move this to a base class
-        success &= validateAccess(
-            requested.getAccess(),
-            validated,
-            context
-            );
         
         //
         // Validate the image locations.
@@ -266,7 +256,6 @@ implements DockerContainerValidator
     /**
      * Validate the executable access methods.
      *
-     */
     public boolean validateAccess(
         final List<IvoaExecutableAccessMethod> requested,
         final IvoaDockerContainer validated,
@@ -287,6 +276,7 @@ implements DockerContainerValidator
             }
         return success;
         }
+     */
 
     /**
      * Validate the container image location.

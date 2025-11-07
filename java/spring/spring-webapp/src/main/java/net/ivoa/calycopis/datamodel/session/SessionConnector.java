@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,19 +20,22 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.compute.simple;
 
-import java.util.UUID;
+package net.ivoa.calycopis.datamodel.session;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
+import java.util.List;
 
 /**
- * JpaRepository for SimpleComputeResourceEntity.
- *
+ * 
  */
-public interface SimpleComputeResourceEntityRepository
-extends LifecycleComponentEntityRepository<SimpleComputeResourceEntity>
+public interface SessionConnector
     {
+    public String getType();
+    
+    public String getStatus();
+
+    public String getProtocol();
+    
+    public String getLocation();
+
     }

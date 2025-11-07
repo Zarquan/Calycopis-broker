@@ -62,10 +62,16 @@ extends LifecycleComponentEntity
 
         //
         // Available as soon as the preparation is done.
-        this.availableDurationSeconds      = 0L;
         this.availableStartDurationSeconds = 0L;
         this.availableStartInstantSeconds  = this.prepareStartInstantSeconds + this.prepareDurationSeconds;
-        
+        this.availableDurationSeconds      = 0L;
+
+        //
+        // Hard coded 1s release duration.
+        // Start releasing as soon as session availability ends.
+        this.releaseDurationSeconds = 1L ; 
+        this.releaseStartInstantSeconds = session.getReleaseStartInstantSeconds();         
+
         }
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)

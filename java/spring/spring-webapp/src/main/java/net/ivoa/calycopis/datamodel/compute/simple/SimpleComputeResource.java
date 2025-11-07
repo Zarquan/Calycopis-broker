@@ -92,5 +92,12 @@ public interface SimpleComputeResource
     public List<SimpleComputeVolume> getVolumes();
      */
 
+    /**
+     * Skaha/CANFAR specific.
+     * The corresponding Skaha session ID.
+     * 
+     */
+    public String getSkahaSessionID();
+    
     }
 

@@ -241,5 +241,17 @@ public class SimpleComputeResourceEntity
         
         return bean;
         }
+
+    @Column(name="skahasessionid")
+    private String skahasessionid;
+    @Override
+    public String getSkahaSessionID()
+        {
+        return this.skahasessionid;
+        }
+    public void setSkahaSessionID(final String sessionid)
+        {
+        this.skahasessionid = sessionid ;
+        }
     }
 

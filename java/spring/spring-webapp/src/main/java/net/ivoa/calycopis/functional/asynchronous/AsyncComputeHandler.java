@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.functional.asynchronous;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 
 /**
  * 
  */
 public interface AsyncComputeHandler
-extends AsyncLifecycleComponentHandler<AbstractComputeResourceEntity>
+extends AsyncLifecycleComponentHandler<SimpleComputeResourceEntity>
     {
 
     }

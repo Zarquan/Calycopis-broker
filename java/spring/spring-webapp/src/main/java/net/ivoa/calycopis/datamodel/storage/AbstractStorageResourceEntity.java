@@ -95,7 +95,13 @@ implements AbstractStorageResource
         this.availableDurationSeconds      = 0L;
         this.availableStartDurationSeconds = 0L;
         this.availableStartInstantSeconds  = this.prepareStartInstantSeconds + this.prepareDurationSeconds;
-        
+
+        //
+        // Hard coded 10s release duration.
+        // Start releasing 10s after availability ends.
+        this.releaseDurationSeconds = 10L ; 
+        this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 10L ;         
+
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)

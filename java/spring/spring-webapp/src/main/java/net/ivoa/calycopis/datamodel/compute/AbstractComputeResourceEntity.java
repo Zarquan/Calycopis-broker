@@ -91,6 +91,12 @@ implements AbstractComputeResource
         this.availableStartDurationSeconds = 0L;
         this.availableStartInstantSeconds  = offer.getStartTime().getEpochSecond();
 
+        //
+        // Hard coded 10s release duration.
+        // Start releasing 5s after availability ends.
+        this.releaseDurationSeconds = 10L ; 
+        this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 5L ;         
+                
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
