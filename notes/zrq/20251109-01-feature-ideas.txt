@@ -1,0 +1,81 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Execution Broker review
+
+The Execution Broker project has evolved into several components covering
+multiple streams within SRCNet, not only Execution Broker itself, but
+part of the work also applies to Workstep Execution, Workstep
+Editing, Software Discovery, Science Portal, data provenance, and user
+history.
+It is past the point where a single person can handle all of the different
+roles involved with all of these components.
+The goal of this feature is to bring another person on board to share the
+knowledge about the project and help handle some of the tasks.
+
+The feature deliverable would be to produce a review of the project,
+including a technical analysis of the work done so
+far, and an assesment of the potential benefits, problems and issues
+going forward.
+
+
+The work would probably take around two weeks for two people
+(the reviewer and the reviewee) spread
+over two months. It would consist of a series of meetings with time in
+between to write the documentation needed to transfer the knowledge.
+
+The aim is for SRCNet to haveat least one other person who understands all
+the different aspects of the project. Increasing the bus number to more
+than one.
+
+If successful, the new person would be able to advise on how to proceed
+with further development and provide a much needed second pair of eyes to
+help solve problems.
+
+
+
+# -----------------------------------------------------
+
+
+AI Software Discovery
+Develop AI based services for Software Discovery in SRCNet.
+1 Use AI agents to scan all of the existing software registered in the CADC
+CANFAR software repository and extract as much descriptive text as possible
+2 Configure a LLM to injest the text and provide a natural language search
+engine for Software Discovery.
+3 Develope a Web service API to make the injector and search functionality
+available as services in SRCNet.
+
+
