@@ -219,3 +219,153 @@
         ....
 
 
+
+# -----------------------------------------------------
+# Because we can ....
+#[root@developer-tools]
+
+    #
+    # Install the Zig language tools
+    dnf install -y zig
+
+    #
+    # Build the code generator
+    git clone https://github.com/christianhelle/openapi2zig.git /opt/openapi2zig
+    pushd /opt/openapi2zig
+
+        zig build
+
+--START--
+zig build
+info: Generated version info: 0.1.1 (v0.1.1 - 4d0c630)
+install
+└─ install openapi2zig
+   └─ zig build-exe openapi2zig Debug native 14 errors
+src/generators/unified/model_generator.zig:13:40: error: missing struct field: items
+            .buffer = std.ArrayList(u8){},
+                      ~~~~~~~~~~~~~~~~~^~
+....
+....
+src/generators/unified/model_generator.zig:33:24: error: member function expected 1 argument(s), found 2
+        try self.buffer.appendSlice(self.allocator, "///////////////////////////////////////////\n");
+            ~~~~~~~~~~~^~~~~~~~~~~~
+....
+....
+error: the following command failed with 14 compilation errors:
+/usr/bin/zig build-exe -ODebug --dep openapi2zig -Mroot=/opt/openapi2zig/src/main.zig -ODebug -I /opt/openapi2zig/src -Mopenapi2zig=/opt/openapi2zig/src/lib.zig --cache-dir /opt/openapi2zig/.zig-cache --global-cache-dir /root/.cache/zig --name openapi2zig --zig-lib-dir /usr/lib/zig/ --listen=-
+Build Summary: 3/6 steps succeeded; 1 failed
+install transitive failure
+└─ install openapi2zig transitive failure
+   └─ zig build-exe openapi2zig Debug native 14 errors
+error: the following build command failed with exit code 1:
+/opt/openapi2zig/.zig-cache/o/473a61bd56fa4c72a8c3047e58ce47d8/build /usr/bin/zig /usr/lib/zig /opt/openapi2zig /opt/openapi2zig/.zig-cache /root/.cache/zig --seed 0x2fd05517 -Zfea4fee11fe8d4ce
+--END--
+
+
+# -----------------------------------------------------
+# Use their install script ....
+#[root@developer-tools]
+
+    #
+    # Use the install script.
+    chmod a+x install.sh
+    ./install.sh
+
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Try generating the Zig client ....
+#[root@developer-tools]
+
+    #
+    # Convert our schema to JSON
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/schema/target/Calycopis-broker-full.json
+
+    yq --output-format json '.' "${source}" > "${target}"
+
+
+    #
+    # Generate our code
+    source=/workspace/schema/target/Calycopis-broker-full.json
+    target=/workspace/zig/client
+
+    openapi2zig generate \
+        --input  "${source}" \
+        --output "${target}"
+
+--START--
+Detected OpenAPI version: v3.1
+Unsupported OpenAPI version: v3.1
+Error generating OpenAPI code: error.UnsupportedExtension
+error: UnsupportedExtension
+--END--
+
+
+    #
+    # Change our schema version to 3.0
+    source=/workspace/schema/target/Calycopis-broker-full.json
+    target=/workspace/schema/target/Calycopis-broker-3.0.json
+
+    yq '.openapi="3.0.0"' \
+        "${source}" \
+    | tee "${target}"
+
+
+
+    #
+    # Generate our code
+    source=/workspace/schema/target/Calycopis-broker-3.0.json
+    target=/workspace/zig/client
+
+    openapi2zig generate \
+        --input  "${source}" \
+        --output "${target}"
+
+--START--
+Detected OpenAPI version: v3.0
+Successfully parsed OpenAPI v3.0 document
+Models generated successfully and written to '/workspace/zig/client'.
+--END--
+
+
+    less "${target}"
+
+--START--
+///////////////////////////////////////////
+// Generated Zig structures from OpenAPI
+///////////////////////////////////////////
+
+pub const RucioDataResource = struct {
+};
+
+pub const DockerImageSpec = struct {
+    digest: ?[]const u8 = null,
+    locations: ?[]const u8 = null,
+    platform: ?[]const u8 = null,
+};
+
+pub const RequestedScheduleBlock = struct {
+    requested: ?[]const u8 = null,
+};
+
+pub const ScheduleDurationInstant = struct {
+    duration: ?[]const u8 = null,
+    start: ?[]const u8 = null,
+};
+....
+....
+--END--
+
+
+    #
+    # It generated _something_, but it doesn't look complete.
+    #
+
+
+
