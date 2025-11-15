@@ -219,6 +219,48 @@
         ....
 
 
+# -----------------------------------------------------
+# Try generating C client.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/c.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/c/client
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name c \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --api-package "net.ivoa.calycopis.openapi.webapp" \
+        --model-package "net.ivoa.calycopis.openapi.model" \
+        --model-name-prefix "Ivoa"
+
+--START--
+....
+....
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/object.c
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/object.h
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/any_type.h
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator-ignore
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator/VERSION
+[main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator/FILES
+################################################################################
+# Thanks for using OpenAPI Generator.                                          #
+# Please consider donation to help us maintain this project 🙏                 #
+# https://opencollective.com/openapi_generator/donate                          #
+#                                                                              #
+# This generator is contributed by Hemant Zope (https://github.com/zhemant)    #
+# and Niklas Werner (https://github.com/PowerOfCreation).                      #
+# Please support their work directly 🙏                                        #
+# > Hemant Zope - https://www.patreon.com/zhemant                              #
+# > Niklas Werner - https://paypal.me/wernerdevelopment                        #
+################################################################################
+--END--
+
 
 # -----------------------------------------------------
 # Because we can ....
