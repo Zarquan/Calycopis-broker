@@ -1,0 +1,114 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Ideas for IVOA presentations
+
+    OpenAPI - it works !
+
+        Review of last year's poster
+        Solved the problem with $ref links by creating pre-processor
+        Work in progress to split EB schema into re-usable building blocks
+
+    OpenAPI - it works !
+
+        Code generation is easy.
+        Writing OpenAPI is easy - nice clean syntax, low barrier to entry
+
+        Skaha client - writing Java client would be difficult
+        writing OpenAPI was easy, generating client was easy
+        Working Java client for Skaha in < 1/2 day.
+
+    Execution broker
+
+        Discussion of interactive/non-interactive
+        SRCNet are making the distinction, because historical, not technical.
+        EB can handle both equally well.
+        Link to the wiki page
+
+        If it doesn't fit your use case, propose changes ?
+
+        Call for people willing to review the work so far
+        and look at where to go next.
+
+# -----------------------------------------------------
+
+    Purls
+
+    Permanent URLs
+
+    Underneath, a simple redirect.
+
+    http://{permanent-address}/something/thing}
+    HTTP redirect to
+    http://{transient-address}/{something/thing}
+
+    Use case
+    OpenAPI schema
+    ...
+
+    XML schema
+    ...
+
+    Means we are not tied to commercial provider - GitHub
+    We can move our code to another repository, and update the redirect.
+
+    Options
+    The original Purl.org
+    Works, but is a bit flakey, and has had funding issues.
+
+
+    https://w3id.org/
+    Permanent Identifiers for the Web
+
+    Fork the git repo and add IVOA directory
+    https://github.com/perma-id/w3id.org
+
+
+    Or we roll our own
+    http://purl.ivoa.net/
+
+    We already have the technology to support it.
+    Just needs a web server with redirect support.
+    Go for it to see how it works.
+
+
+
+
+
+
+
+
+
+

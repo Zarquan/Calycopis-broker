@@ -1,0 +1,150 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@laptop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --name openapi-builder \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Process the broker schema.
+#[root@openapi-builder]
+
+    rm -rf /trebula/target
+    mkdir /trebula/target
+    mkdir /trebula/target/broker
+
+    source=/trebula/schema/Calycopis-broker.yaml
+    target=/trebula/target/broker/openapi-full.yaml
+
+    /isobeon/schema-processor.py \
+        "${source}" \
+        "${target}"
+
+
+# -----------------------------------------------------
+# Install the OpenAPI code generator.
+#[root@openapi-builder]
+
+    generatorName=openapi-generator-cli
+    generatorVersion=7.14.0
+    generatorJarFile=${generatorName}-${generatorVersion}.jar
+    generatorPath=/opt/openapi-generator
+    generatorFullPath=${generatorPath}/${generatorJarFile}
+
+    #
+    # Check if the generator is instralled.
+    if [ ! -d "${generatorPath}" ]
+    then
+        mkdir "${generatorPath}"
+    fi
+
+    if [ ! -e "${generatorFullPath}" ]
+    then
+
+        which wget &> /dev/null
+        if [ $? -ne 0 ]
+        then
+            dnf install -y \
+                wget
+        fi
+
+        wget https://repo1.maven.org/maven2/org/openapitools/${generatorName}/${generatorVersion}/${generatorJarFile} \
+             --output-document "${generatorFullPath}"
+    fi
+
+
+# -----------------------------------------------------
+# Generate our Python client classes.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+#[root@openapi-builder]
+
+    source=/trebula/target/broker/openapi-full.yaml
+    target=/trebula/target/broker/python/client
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    #
+    # Create our config file.
+    # https://openapi-generator.tech/docs/configuration/
+    # https://openapi-generator.tech/docs/usage/#generate
+    # https://openapi-generator.tech/docs/usage/#batch
+
+cat > /tmp/config.yaml << EOF
+generatorName: "python"
+inputSpec: "${source}"
+outputDir: "${target}"
+gitHost:   "github.com"
+gitUserId: "ivoa"
+gitRepoId: "Calycopis-broker"
+additionalProperties:
+    packageName: broker_client
+    packageVersion: "1.2.3"
+    packageUrl: "https://github.com/ivoa/Calycopis-schema"
+    projectName: "Calycopis-broker"
+    projectVersion: "1.2.4"
+    projectUrl: "https://github.com/ivoa/Calycopis-schema"
+    modelPackage: "model_package"
+    modelNamePrefix: "Ivoa"
+EOF
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name python \
+        --config "/tmp/config.yaml"
+
+OR
+
+    java -jar "${generatorFullPath}" \
+        batch \
+            /tmp/config.yaml
+
+

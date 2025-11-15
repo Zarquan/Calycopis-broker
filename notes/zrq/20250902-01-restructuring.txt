@@ -1,0 +1,331 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Restructuring the project to add generated classes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Two top level options.
+    We put all of the services into the schema project.
+
+    Calycopis-schema
+      |
+      +-- schema
+            |
+            +-- Calycopis-broker.yaml
+            +-- Calycopis-agregator.yaml
+            +-- Calycopis-templates.yaml
+            |
+            +-- components
+            |     |
+            |     +-- ...
+            |     +-- ...
+            |
+            +-- types
+                  |
+                  +-- ...
+                  +-- ...
+
+    +ve
+    Everything is in one place.
+    Easy to see how the services fit together.
+    Single set of build scripts.
+    Include the generated files as a project release with packages.
+
+    -ve
+    All the services are tightly linked to this one project.
+
+
+    Calycopis-schema
+      |
+      +-- bin
+      |     |
+      |     +-- build-all.sh
+      |     +-- build-python.sh
+      |     +-- build-python-client.sh
+      |     +-- build-python-fastapi.sh
+      |     +-- build-java.sh
+      |     +-- build-java-client.sh
+      |     +-- build-java-spring.sh
+      |
+      +-- schema
+      |     |
+      |     +-- Calycopis-broker.yaml
+      |     +-- Calycopis-agregator.yaml
+      |     +-- Calycopis-templates.yaml
+      |     |
+      |     +-- components
+      |     |     |
+      |     |     +-- ...
+      |     |     +-- ...
+      |     |
+      |     +-- types
+      |           |
+      |           +-- ...
+      |           +-- ...
+      |
+      +-- target
+            |
+            +-- broker
+            |     |
+            |     +-- python
+            |     |     |
+            |     |     +-- client
+            |     |     |     |
+            |     |     |     +-- ....
+            |     |     |     +-- ....
+            |     |     |
+            |     |     +-- server
+            |     |           |
+            |     |           +-- fastapi
+            |     |                 |
+            |     |                 +-- ....
+            |     |                 +-- ....
+            |     |
+            |     +-- java
+            |           |
+            |           +-- client
+            |           |     |
+            |           |     +-- ....
+            |           |     +-- ....
+            |           |
+            |           +-- server
+            |                 |
+            |                 +-- spring
+            |                       |
+            |                       +-- ....
+            |                       +-- ....
+            |
+            +-- aggregator
+                  |
+                  +-- python
+                  |     |
+                  |     +-- client
+                  |     |     |
+                  |     |     +-- ....
+                  |     |     +-- ....
+                  |     |
+                  |     +-- server
+                  |           |
+                  |           +-- fastapi
+                  |                 |
+                  |                 +-- ....
+                  |                 +-- ....
+                  |
+                  +-- java
+                        |
+                        +-- client
+                        |     |
+                        |     +-- ....
+                        |     +-- ....
+                        |
+                        +-- server
+                              |
+                              +-- spring
+                                    |
+                                    +-- ....
+                                    +-- ....
+
+
+# -----------------------------------------------------
+
+    We put the service APIs in separate projects for each service.
+    Only the shared components in the schema project.
+
+    Calycopis-schema
+      |
+      +-- schema
+            |
+            +-- components
+            |     |
+            |     +-- ...
+            |     +-- ...
+            |
+            +-- types
+                  |
+                  +-- ...
+                  +-- ...
+
+    Calycopis-broker
+      |
+      +-- schema
+      |     |
+      |     +-- openapi.yaml
+      |
+      +-- bin
+      |     |
+      |     +-- build-all.sh
+      |     +-- build-python.sh
+      |     +-- build-python-client.sh
+      |     +-- build-python-fastapi.sh
+      |     +-- build-java.sh
+      |     +-- build-java-client.sh
+      |     +-- build-java-spring.sh
+      |
+      +-- target
+            |
+            +-- python
+            |     |
+            |     +-- client
+            |     |     |
+            |     |     +-- ....
+            |     |     +-- ....
+            |     |
+            |     +-- server
+            |           |
+            |           +-- fastapi
+            |                |
+            |                 +-- ....
+            |                 +-- ....
+            |
+            +-- java
+                  |
+                  +-- client
+                  |     |
+                  |     +-- ....
+                  |     +-- ....
+                  |
+                  +-- server
+                        |
+                        +-- spring
+                              |
+                              +-- ....
+                              +-- ....
+
+
+# -----------------------------------------------------
+
+    Build process for the components is different ?
+    They all use the same Java generator.
+    The generated classes are very similar.
+    The packaging tools are different ?
+
+    Why is this such a problem ?
+    Because this will determine how thigs get published.
+
+    Is the licence different ?
+    Would the schema and the generated classes be Creative Commons
+    but the service implementation would be GPL ?
+
+# -----------------------------------------------------
+
+    What if we want to have additional endpoints in our service ?
+
+    We would create a custom openapi.yaml file and generate the client and server from that.
+    If we wanted our additional endpoints to share the codebase with the standard service ?
+
+# -----------------------------------------------------
+
+    Why are we doing this ?
+    because we want to abstract and share the model classes
+    Lego bricks
+
+    Current broker code base contains all three parts.
+    1) the schema
+    2) the generated Spring/Java beans
+    3) the service implementation
+
+    Where do we draw the split at the schema
+    1) the schema
+    ----
+    2) the generated Spring/Java beans
+    3) the service implementation
+
+    Or the generated classes
+    1) the schema
+    2) the generated Spring/Java beans
+    ----
+    3) the service implementation
+
+    We generate four things for each service
+    Python client
+    Python server
+    Java client
+    Java server
+
+    Plus the service implementation, which extends
+    the generated service stubs.
+
+# -----------------------------------------------------
+
+    Other people would use the packaged client classes.
+    Either the Java jar or the Python package.
+
+# -----------------------------------------------------
+
+    At the moment the top level components.yaml file has a lot of broker specific classes.
+
+    Need to split it up into generic components and the broker specific classes.
+
+    OfferSetRequest
+      WorkstepTemplate
+
+    /offers/{uuid}
+      OfferSetResponse
+        offers:
+          - SessionResponse
+          - SessionResponse
+
+    sessions/{uuid}
+      SessionResponse
+
+
+# -----------------------------------------------------
+
+    How to have client and server imports in the same codebase.
+
+    ServiceImpl
+      extends/implements
+        ServiceStubs
+
+      import ClientImpl
+      calls ClientImpl methods
+
+    ClientImpl
+      extends/implements
+        ClientBeans
+
+# -----------------------------------------------------
+
+    Our current Java build uses the Maven plugin in our Maven project to generate the classes.
+    It generates a Maven project, but we don't use it.
+
+    If our build container includes Maven then we can use the generated Maven project.
+
+
+
+
+# -----------------------------------------------------
+
+    How to package the Python classes ?
+
+
+

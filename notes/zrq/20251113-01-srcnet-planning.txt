@@ -1,0 +1,47 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+It might help to separate the act of finding software and trying to execute it.
+We can then see we have two separate things
+1) A Software Discovery service for finding software based on user friendly terms that describe what it does, what type of data it can handle etc.
+2) A data model for describing how to execute an instance of the software, with details of the executable, along with the compute, storage and data resources it needs.
+
+Development of the Discovery data model should be based on a use cases analysis that looks at how users want to search for software.
+For example the name of the software, the name of the author, citations from papers etc.
+
+The output results from discovery service point to one or more instances of the execution step data model that describe how to run the executable.
+
+
+
