@@ -219,6 +219,46 @@
         ....
 
 
+# -----------------------------------------------------
+# Try generating C client.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/c.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/c/client
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name c \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --api-package "net.ivoa.calycopis.openapi.webapp" \
+        --model-package "net.ivoa.calycopis.openapi.model" \
+        --model-name-prefix "Ivoa"
+
+    >   ....
+    >   ....
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/object.c
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/object.h
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/model/any_type.h
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator-ignore
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator/VERSION
+    >   [main] INFO  o.o.codegen.TemplateManager - writing file /workspace/c/client/.openapi-generator/FILES
+    >   ################################################################################
+    >   # Thanks for using OpenAPI Generator.                                          #
+    >   # Please consider donation to help us maintain this project 🙏                 #
+    >   # https://opencollective.com/openapi_generator/donate                          #
+    >   #                                                                              #
+    >   # This generator is contributed by Hemant Zope (https://github.com/zhemant)    #
+    >   # and Niklas Werner (https://github.com/PowerOfCreation).                      #
+    >   # Please support their work directly 🙏                                        #
+    >   # > Hemant Zope - https://www.patreon.com/zhemant                              #
+    >   # > Niklas Werner - https://paypal.me/wernerdevelopment                        #
+    >   ################################################################################
+
 
 # -----------------------------------------------------
 # Because we can ....
@@ -235,31 +275,29 @@
 
         zig build
 
---START--
-zig build
-info: Generated version info: 0.1.1 (v0.1.1 - 4d0c630)
-install
-└─ install openapi2zig
-   └─ zig build-exe openapi2zig Debug native 14 errors
-src/generators/unified/model_generator.zig:13:40: error: missing struct field: items
-            .buffer = std.ArrayList(u8){},
-                      ~~~~~~~~~~~~~~~~~^~
-....
-....
-src/generators/unified/model_generator.zig:33:24: error: member function expected 1 argument(s), found 2
-        try self.buffer.appendSlice(self.allocator, "///////////////////////////////////////////\n");
-            ~~~~~~~~~~~^~~~~~~~~~~~
-....
-....
-error: the following command failed with 14 compilation errors:
-/usr/bin/zig build-exe -ODebug --dep openapi2zig -Mroot=/opt/openapi2zig/src/main.zig -ODebug -I /opt/openapi2zig/src -Mopenapi2zig=/opt/openapi2zig/src/lib.zig --cache-dir /opt/openapi2zig/.zig-cache --global-cache-dir /root/.cache/zig --name openapi2zig --zig-lib-dir /usr/lib/zig/ --listen=-
-Build Summary: 3/6 steps succeeded; 1 failed
-install transitive failure
-└─ install openapi2zig transitive failure
-   └─ zig build-exe openapi2zig Debug native 14 errors
-error: the following build command failed with exit code 1:
-/opt/openapi2zig/.zig-cache/o/473a61bd56fa4c72a8c3047e58ce47d8/build /usr/bin/zig /usr/lib/zig /opt/openapi2zig /opt/openapi2zig/.zig-cache /root/.cache/zig --seed 0x2fd05517 -Zfea4fee11fe8d4ce
---END--
+    >   zig build
+    >   info: Generated version info: 0.1.1 (v0.1.1 - 4d0c630)
+    >   install
+    >   └─ install openapi2zig
+    >      └─ zig build-exe openapi2zig Debug native 14 errors
+    >   src/generators/unified/model_generator.zig:13:40: error: missing struct field: items
+    >               .buffer = std.ArrayList(u8){},
+    >                         ~~~~~~~~~~~~~~~~~^~
+    >   ....
+    >   ....
+    >   src/generators/unified/model_generator.zig:33:24: error: member function expected 1 argument(s), found 2
+    >           try self.buffer.appendSlice(self.allocator, "///////////////////////////////////////////\n");
+    >               ~~~~~~~~~~~^~~~~~~~~~~~
+    >   ....
+    >   ....
+    >   error: the following command failed with 14 compilation errors:
+    >   /usr/bin/zig build-exe -ODebug --dep openapi2zig -Mroot=/opt/openapi2zig/src/main.zig -ODebug -I /opt/openapi2zig/src -Mopenapi2zig=/opt/openapi2zig/src/lib.zig --cache-dir /opt/openapi2zig/.zig-cache --global-cache-dir /root/.cache/zig --name openapi2zig --zig-lib-dir /usr/lib/zig/ --listen=-
+    >   Build Summary: 3/6 steps succeeded; 1 failed
+    >   install transitive failure
+    >   └─ install openapi2zig transitive failure
+    >      └─ zig build-exe openapi2zig Debug native 14 errors
+    >   error: the following build command failed with exit code 1:
+    >   /opt/openapi2zig/.zig-cache/o/473a61bd56fa4c72a8c3047e58ce47d8/build /usr/bin/zig /usr/lib/zig /opt/openapi2zig /opt/openapi2zig/.zig-cache /root/.cache/zig --seed 0x2fd05517 -Zfea4fee11fe8d4ce
 
 
 # -----------------------------------------------------
@@ -272,10 +310,8 @@ error: the following build command failed with exit code 1:
     ./install.sh
 
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -299,12 +335,10 @@ error: the following build command failed with exit code 1:
         --input  "${source}" \
         --output "${target}"
 
---START--
-Detected OpenAPI version: v3.1
-Unsupported OpenAPI version: v3.1
-Error generating OpenAPI code: error.UnsupportedExtension
-error: UnsupportedExtension
---END--
+    >   Detected OpenAPI version: v3.1
+    >   Unsupported OpenAPI version: v3.1
+    >   Error generating OpenAPI code: error.UnsupportedExtension
+    >   error: UnsupportedExtension
 
 
     #
@@ -327,40 +361,36 @@ error: UnsupportedExtension
         --input  "${source}" \
         --output "${target}"
 
---START--
-Detected OpenAPI version: v3.0
-Successfully parsed OpenAPI v3.0 document
-Models generated successfully and written to '/workspace/zig/client'.
---END--
+    >   Detected OpenAPI version: v3.0
+    >   Successfully parsed OpenAPI v3.0 document
+    >   Models generated successfully and written to '/workspace/zig/client'.
 
 
     less "${target}"
 
---START--
-///////////////////////////////////////////
-// Generated Zig structures from OpenAPI
-///////////////////////////////////////////
-
-pub const RucioDataResource = struct {
-};
-
-pub const DockerImageSpec = struct {
-    digest: ?[]const u8 = null,
-    locations: ?[]const u8 = null,
-    platform: ?[]const u8 = null,
-};
-
-pub const RequestedScheduleBlock = struct {
-    requested: ?[]const u8 = null,
-};
-
-pub const ScheduleDurationInstant = struct {
-    duration: ?[]const u8 = null,
-    start: ?[]const u8 = null,
-};
-....
-....
---END--
+    >   ///////////////////////////////////////////
+    >   // Generated Zig structures from OpenAPI
+    >   ///////////////////////////////////////////
+    >   
+    >   pub const RucioDataResource = struct {
+    >   };
+    >   
+    >   pub const DockerImageSpec = struct {
+    >       digest: ?[]const u8 = null,
+    >       locations: ?[]const u8 = null,
+    >       platform: ?[]const u8 = null,
+    >   };
+    >   
+    >   pub const RequestedScheduleBlock = struct {
+    >       requested: ?[]const u8 = null,
+    >   };
+    >   
+    >   pub const ScheduleDurationInstant = struct {
+    >       duration: ?[]const u8 = null,
+    >       start: ?[]const u8 = null,
+    >   };
+    >   ....
+    >   ....
 
 
     #
