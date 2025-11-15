@@ -37,12 +37,10 @@ Execution Broker review
 
 The Execution Broker project has evolved into several components covering
 multiple streams within SRCNet, not only Execution Broker itself, but
-part of the work also applies to Workstep Execution, Workstep
+the work on the data model applies to Workstep Execution, Workstep
 Editing, Software Discovery, Science Portal, data provenance, and user
 history.
-It is past the point where a single person can handle all of the different
-roles involved with all of these components.
-The goal of this feature is to bring another person on board to share the
+The goal of this feature is to bring more people on board to share the
 knowledge about the project and help handle some of the tasks.
 
 The feature deliverable would be to produce a review of the project,
@@ -50,19 +48,17 @@ including a technical analysis of the work done so
 far, and an assesment of the potential benefits, problems and issues
 going forward.
 
-
-The work would probably take around two weeks for two people
+The work would probably take around two weeks of work for two people
 (the reviewer and the reviewee) spread
-over two months. It would consist of a series of meetings with time in
-between to write the documentation needed to transfer the knowledge.
+over two months. It would include a series of meetings with space in
+between to create the documentation needed to fill in the gaps.
 
-The aim is for SRCNet to haveat least one other person who understands all
-the different aspects of the project. Increasing the bus number to more
+The result is that  SRCNet will have at least one other person who understands
+all the different aspects of the project. Increasing the bus number to more
 than one.
 
-If successful, the new person would be able to advise on how to proceed
-with further development and provide a much needed second pair of eyes to
-help solve problems.
+The new members of the team be able to guide the next phases of development
+and provide much needed help to solve technical problems.
 
 
 

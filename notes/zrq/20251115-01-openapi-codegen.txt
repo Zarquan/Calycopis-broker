@@ -1,0 +1,221 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    mkdir froglet ; pushd froglet
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "$(pwd):/workspace:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+
+# -----------------------------------------------------
+# Checkout our OpenAPI schema.
+#[root@developer-tools]
+
+
+    git clone https://github.com/ivoa/Calycopis-schema /workspace/schema
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Checkout our pre-processor.
+#[root@developer-tools]
+
+    git clone https://github.com/ivoa/Calycopis-isobeon /workspace/isobeon
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Install the OpenAPI code generator.
+#[root@developer-tools]
+
+    generatorName=openapi-generator-cli
+    generatorVersion=7.17.0
+    generatorJarFile=${generatorName}-${generatorVersion}.jar
+    generatorPath=/opt/openapi-generator
+    generatorFullPath=${generatorPath}/${generatorJarFile}
+
+    #
+    # Check if the generator is instralled.
+    if [ ! -d "${generatorPath}" ]
+    then
+        mkdir "${generatorPath}"
+    fi
+
+    if [ ! -e "${generatorFullPath}" ]
+    then
+
+        which wget &> /dev/null
+        if [ $? -ne 0 ]
+        then
+            dnf install -y \
+                wget
+        fi
+
+        wget https://repo1.maven.org/maven2/org/openapitools/${generatorName}/${generatorVersion}/${generatorJarFile} \
+             --output-document "${generatorFullPath}"
+    fi
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+    source=/workspace/schema/schema
+    target=/workspace/schema/target
+
+    rm -rf "${target:?}"
+    mkdir  "${target:?}"
+
+    /workspace/isobeon/schema-processor.py \
+        "${source}/Calycopis-broker.yaml" \
+        "${target}/Calycopis-broker-full.yaml"
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Generate our Python client classes.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/python.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/python/client
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name python \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --package-name "broker_client"
+
+        ....
+        ....
+
+
+
+# -----------------------------------------------------
+# Generate our FastAPI service classes.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/fastapi.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/python/fastapi
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath:?}" \
+        generate \
+        --generator-name python-fastapi \
+        --input-spec "${source:?}" \
+        --output     "${target:?}" \
+        --package-name "broker_fastapi"
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Generate our Java client classes.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/java.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/java/client
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name java \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --api-package "net.ivoa.calycopis.openapi.webapp" \
+        --model-package "net.ivoa.calycopis.openapi.model" \
+        --model-name-prefix "Ivoa"
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Generate our Spring service classes.
+# https://github.com/OpenAPITools/openapi-generator/blob/master/docs/generators/spring.md
+#[root@developer-tools]
+
+    source=/workspace/schema/target/Calycopis-broker-full.yaml
+    target=/workspace/java/spring
+
+    rm -rf "${target:?}"
+    mkdir --parents "${target:?}"
+
+    java -jar "${generatorFullPath}" \
+        generate \
+        --generator-name spring \
+        --input-spec "${source}" \
+        --output     "${target}" \
+        --api-package "net.ivoa.calycopis.openapi.webapp" \
+        --model-package "net.ivoa.calycopis.openapi.model" \
+        --model-name-prefix "Ivoa"
+
+        ....
+        ....
+
+

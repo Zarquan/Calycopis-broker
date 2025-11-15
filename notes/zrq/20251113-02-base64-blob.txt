@@ -1,0 +1,69 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # Extract the first offer as JSON
+
+    yq -o 'json' '.offers[0]' \
+        examples/example-012/example-012-006-offerset-response.yaml \
+    | tee /tmp/example-offer-response.json
+
+    #
+    # Convert into compact JSON
+
+    jq -c '.' \
+        /tmp/example-offer-response.json \
+    | tee /tmp/example-offer-compact.json
+
+    #
+    # Encode in base64
+
+    base64 \
+        /tmp/example-offer-compact.json \
+    | tee /tmp/example-offer.base64
+
+    #
+    # Decode back into JSON
+
+    base64 --decode \
+        /tmp/example-offer.base64 \
+    | jq '.'
+
+
+
+
+
+    | base64 -d | jq '.'
+
