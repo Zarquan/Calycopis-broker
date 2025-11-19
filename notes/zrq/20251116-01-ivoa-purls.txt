@@ -1,0 +1,98 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    #
+    # Create a fork of the repository.
+    https://github.com/ivoa/w3id.org
+
+
+    git config user.email "dave.morris@manchester.ac.uk"
+    git config user.name  "Dave Morris"
+
+
+    #
+    # Clone to local machine and create a branch.
+
+    newbranch=ivoa-create-$(date '+%Y%m%d')
+    git checkout -b "${newbranch:?}"
+
+    >   Switched to a new branch 'ivoa-create-20251116'
+
+
+    git remote add upstream https://github.com/perma-id/w3id.org.git
+
+    >   git remote -v
+    >   origin      git@github.com:ivoa/w3id.org.git (fetch)
+    >   origin      git@github.com:ivoa/w3id.org.git (push)
+    >   upstream    https://github.com/perma-id/w3id.org.git (fetch)
+    >   upstream    https://github.com/perma-id/w3id.org.git (push)
+
+    #
+    # Add our new directory and a readme.md file.
+    mkdir ivoa
+    cat ivoa/readme.md <<
+# IVOA
+
+International Virtual Observatory Alliance (IVOA).
+[Project Website](https://www.ivoa.net)
+
+The Virtual Observatory (VO) is the vision that astronomical datasets and other resources should work as a seamless whole. Many projects and data centres worldwide are working towards this goal. The International Virtual Observatory Alliance (IVOA) is an organisation that debates and agrees the technical standards that are needed to make the VO possible. It also acts as a focus for VO aspirations, a framework for discussing and sharing VO ideas and technology, and body for promoting and publicising the VO.
+
+- Protocols
+- Vocabularies
+- Specifications
+
+### Contacts
+
+- Dave Morris
+  - email:  dave.morris@manchester.ac.uk
+  - github: Zarquan
+
+- Baptiste  Cecconi
+  - email:  baptiste.cecconi@obspm.fr
+  - github: BaptisteCecconi
+
+EOF
+
+    #
+    # Comit the changes to our fork.
+
+    git status
+    git add ivoa
+    git commit -m "Created the 'ivoa' directory"
+
+
+
