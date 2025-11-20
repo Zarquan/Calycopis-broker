@@ -23,6 +23,7 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 
 /**
@@ -139,17 +140,21 @@ extends AbstractValidatorImpl
     public String makeDataValidatorResultKey(final IvoaAbstractDataResource resource)
         {
         log.debug("makeDataValidatorResultKey(IvoaAbstractDataResource)");
-        log.debug("Resource [[{}][{}]]", resource.getUuid(), resource.getName());
+        log.debug("Resource [[{}]", resource.getMeta());
         String key = null ;
         if (resource != null)
             {
-            UUID uuid = resource.getUuid();
-            if (uuid != null)
+            IvoaComponentMetadata meta = resource.getMeta();
+            if (null != meta)
                 {
-                key = uuid.toString();
-                }
-            else {
-                key = resource.getName();
+                UUID uuid = meta.getUuid();
+                if (uuid != null)
+                    {
+                    key = uuid.toString();
+                    }
+                else {
+                    key = meta.getName();
+                    }
                 }
             }
         log.debug("Key [{}]", key);
@@ -238,13 +243,17 @@ extends AbstractValidatorImpl
         String key = null ;
         if (resource != null)
             {
-            UUID uuid = resource .getUuid();
-            if (uuid != null)
+            IvoaComponentMetadata meta = resource.getMeta();
+            if (null != meta)
                 {
-                key = uuid.toString();
-                }
-            else {
-                key = resource .getName();
+                UUID uuid = meta.getUuid();
+                if (uuid != null)
+                    {
+                    key = uuid.toString();
+                    }
+                else {
+                    key = meta.getName();
+                    }
                 }
             }
         log.debug("Key [{}]", key);
@@ -335,13 +344,17 @@ extends AbstractValidatorImpl
         String key = null ;
         if (resource != null)
             {
-            UUID uuid = resource.getUuid();
-            if (uuid != null)
+            IvoaComponentMetadata meta = resource.getMeta();
+            if (null != meta)
                 {
-                key = uuid.toString();
-                }
-            else {
-                key = resource.getName();
+                UUID uuid = meta.getUuid();
+                if (uuid != null)
+                    {
+                    key = uuid.toString();
+                    }
+                else {
+                    key = meta.getName();
+                    }
                 }
             }
         log.debug("Key [{}]", key);
@@ -432,13 +445,17 @@ extends AbstractValidatorImpl
         String key = null ;
         if (resource != null)
             {
-            UUID uuid = resource.getUuid();
-            if (uuid != null)
+            IvoaComponentMetadata meta = resource.getMeta();
+            if (null != meta)
                 {
-                key = uuid.toString();
-                }
-            else {
-                key = resource.getName();
+                UUID uuid = meta.getUuid();
+                if (uuid != null)
+                    {
+                    key = uuid.toString();
+                    }
+                else {
+                    key = meta.getName();
+                    }
                 }
             }
         log.debug("Key [{}]", key);

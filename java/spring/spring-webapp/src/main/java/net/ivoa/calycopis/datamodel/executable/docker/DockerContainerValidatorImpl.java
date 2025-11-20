@@ -23,7 +23,6 @@
 package net.ivoa.calycopis.datamodel.executable.docker;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +68,7 @@ implements DockerContainerValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractExecutable)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaDockerContainer)
             {
             return validate(
@@ -93,20 +92,18 @@ implements DockerContainerValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaDockerContainer)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaDockerContainer validated = new IvoaDockerContainer(
-            DockerContainer.TYPE_DISCRIMINATOR
-            );
 
-        //
-        // Validate the executable name.
-        // TODO Move this to a base class
-        success &= validateName(
-            requested.getName(),
-            validated,
-            context
+        // TODO Null check on requested.getMeta()
+        // Move uuid and name to a base class.
+        IvoaDockerContainer validated = new IvoaDockerContainer().meta(
+            makeMeta(
+                DockerContainer.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
 
         // Created
@@ -213,45 +210,6 @@ implements DockerContainerValidator
             }
         }
     
-    /**
-     * Validate the executable name.
-     * 
-     */
-    public boolean validateName(
-        final String requested,
-        final IvoaDockerContainer validated,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validateName(String ...)");
-        log.debug("Requested [{}]", requested);
-
-        boolean success = true ;
-    
-        String name = notEmpty(
-            requested
-            );
-        if (name != null)
-            {
-            // TODO Better checks
-            success &= badValueCheck(
-                name,
-                context
-                );
-            }
-        if (success)
-            {
-            validated.setName(
-                name
-                );
-            }
-        else {
-            validated.setName(
-                null
-                );
-            }
-        
-        return success;
-        }
 
     /**
      * Validate the executable access methods.

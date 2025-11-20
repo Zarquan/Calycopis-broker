@@ -124,10 +124,15 @@ implements SimpleComputeResourceValidator
         log.debug("Resource [{}]", requested);
 
         boolean success = true ;
-        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource(
-            SimpleComputeResource.TYPE_DISCRIMINATOR
-            );
 
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource().meta(
+            makeMeta(
+                SimpleComputeResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
+            );
+        
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
 
@@ -145,7 +150,7 @@ implements SimpleComputeResourceValidator
                 "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "cores",
                     mincores,
                     "limit",
@@ -161,7 +166,7 @@ implements SimpleComputeResourceValidator
                 "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "cores",
                     maxcores,
                     "limit",
@@ -194,7 +199,7 @@ implements SimpleComputeResourceValidator
                 "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "memory",
                     minmemory,
                     "limit",
@@ -211,7 +216,7 @@ implements SimpleComputeResourceValidator
                 "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "memory",
                     maxmemory,
                     "limit",
@@ -226,7 +231,6 @@ implements SimpleComputeResourceValidator
         // ....
 
         // Save the results in our IvoaSimpleComputeResource 
-        validated.setName(requested.getName());
 
         IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
         cores.setMin(mincores);
@@ -340,7 +344,7 @@ implements SimpleComputeResourceValidator
     @Deprecated
     private Long predictPrepareTime(final IvoaSimpleComputeResource validated)
         {
-        log.debug("Predicting prepare time [{}]", validated.getUuid());
+        log.debug("Predicting prepare time [{}]", validated.getMeta().getUuid());
         return DEFAULT_PREPARE_TIME;
         }
     }

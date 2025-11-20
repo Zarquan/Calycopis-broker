@@ -40,6 +40,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
 
 /**
@@ -74,10 +75,10 @@ implements AbstractStorageResource
     protected AbstractStorageResourceEntity(
         final SessionEntity session,
         final AbstractStorageResourceValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
@@ -137,20 +138,13 @@ implements AbstractStorageResource
     
     protected IvoaAbstractStorageResource fillBean(final IvoaAbstractStorageResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setMeta(
+            this.fillBean(
+                new IvoaComponentMetadata()
+                )
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()

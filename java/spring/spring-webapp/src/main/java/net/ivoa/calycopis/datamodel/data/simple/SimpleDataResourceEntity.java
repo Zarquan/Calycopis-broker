@@ -30,6 +30,7 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
 
 /**
@@ -73,6 +74,8 @@ public class SimpleDataResourceEntity
     
     /**
      * Protected constructor with parent.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public SimpleDataResourceEntity(
@@ -85,7 +88,7 @@ public class SimpleDataResourceEntity
             session,
             storage,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.location = validated.getLocation();
         }
@@ -101,12 +104,14 @@ public class SimpleDataResourceEntity
     public IvoaAbstractDataResource getIvoaBean()
         {
         return fillBean(
-            new IvoaSimpleDataResource(
-                SimpleDataResource.TYPE_DISCRIMINATOR
+            new IvoaSimpleDataResource().meta(
+                new IvoaComponentMetadata().kind(
+                    SimpleDataResource.TYPE_DISCRIMINATOR
+                    )
                 )
             );
         }
-
+    
     protected IvoaSimpleDataResource fillBean(final IvoaSimpleDataResource bean)
         {
         super.fillBean(

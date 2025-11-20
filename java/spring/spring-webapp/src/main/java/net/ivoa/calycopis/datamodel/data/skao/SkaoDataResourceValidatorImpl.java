@@ -110,14 +110,18 @@ implements SkaoDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSkaoDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaSkaoDataResource validated = new IvoaSkaoDataResource(
-            SkaoDataResource.TYPE_DISCRIMINATOR
+        IvoaSkaoDataResource validated = new IvoaSkaoDataResource().meta(
+            makeMeta(
+                SkaoDataResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
-
+        
         success &= duplicateCheck(
             requested,
             context
@@ -130,15 +134,6 @@ implements SkaoDataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
                 
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(
-                requested.getName()
-                )
-            );
-        
         //
         // Validate the IvoaIvoaDataResourceBlock
         success &= validate(

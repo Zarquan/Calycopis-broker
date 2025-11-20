@@ -50,6 +50,7 @@ import net.ivoa.calycopis.datamodel.message.MessageSubject;
 import net.ivoa.calycopis.functional.planning.AbstractPlanningStepEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.functional.planning.PlanningStepSequence;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -81,7 +82,7 @@ public class ComponentEntity
     /**
      * Protected constructor.
      *
-     */
+    @Deprecated
     protected ComponentEntity(final String name)
         {
         this(
@@ -90,6 +91,7 @@ public class ComponentEntity
             OffsetDateTime.now()
             );
         }
+     */
 
     /**
      * Protected constructor.
@@ -104,6 +106,19 @@ public class ComponentEntity
             );
         }
 
+    /**
+     * Protected constructor.
+     *
+     */
+    protected ComponentEntity(final IvoaComponentMetadata meta)
+        {
+        this(
+            meta.getName(),
+            meta.getDescription(),
+            OffsetDateTime.now()
+            );
+        }
+    
     /**
      * Protected constructor.
      *
@@ -148,6 +163,14 @@ public class ComponentEntity
         return this.created;
         }
 
+    @Column(name = "modified")
+    private OffsetDateTime modified;
+    @Override
+    public OffsetDateTime getModified()
+        {
+        return this.modified;
+        }
+    
     @OneToMany(
         mappedBy = "parent",
         fetch = FetchType.LAZY,
@@ -493,5 +516,22 @@ public class ComponentEntity
                 releaseLast = step;
                 }
             };
+        }
+
+    protected IvoaComponentMetadata fillBean(final IvoaComponentMetadata bean)
+        {
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+            this.getCreated()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        return bean ;
         }
     }

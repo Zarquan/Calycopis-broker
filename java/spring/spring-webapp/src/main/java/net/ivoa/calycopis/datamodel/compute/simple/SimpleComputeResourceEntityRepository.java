@@ -22,10 +22,6 @@
  */
 package net.ivoa.calycopis.datamodel.compute.simple;
 
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
 
 /**

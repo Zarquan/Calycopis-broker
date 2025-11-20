@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -62,16 +63,17 @@ implements AbstractDataResource
     /**
      * Protected constructor.
      * Automatically adds this resource to the parent SessionEntity.
+     * TODO meta can be replaced by Result.getObject().getMeta()
      * 
      */
     protected AbstractDataResourceEntity(
         final SessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
@@ -127,20 +129,13 @@ implements AbstractDataResource
     
     protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setMeta(
+            this.fillBean(
+                new IvoaComponentMetadata()
+                )
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()

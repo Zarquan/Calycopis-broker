@@ -69,7 +69,7 @@ implements SimpleDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaSimpleDataResource)
             {
             return validate(
@@ -89,14 +89,18 @@ implements SimpleDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
         
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource(
-            SimpleDataResource.TYPE_DISCRIMINATOR
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource().meta(
+            makeMeta(
+                SimpleDataResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
-
+        
         success &= duplicateCheck(
             requested,
             context
@@ -108,13 +112,6 @@ implements SimpleDataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-        
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(requested.getName())
-            );
 
         String location = trim(
             requested.getLocation()

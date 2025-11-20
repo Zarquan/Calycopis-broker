@@ -31,6 +31,7 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
@@ -203,9 +204,12 @@ public class OfferSetRequestParserImpl
         if (context.getComputeValidatorResults().isEmpty())
             {
             log.debug("Adding a default compute resource");
-            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource(
-                SimpleComputeResource.TYPE_DISCRIMINATOR 
+            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource().meta(
+                new IvoaComponentMetadata().kind(
+                    SimpleComputeResource.TYPE_DISCRIMINATOR
+                    )
                 );
+            
             computeValidators.validate(
                 compute,
                 context

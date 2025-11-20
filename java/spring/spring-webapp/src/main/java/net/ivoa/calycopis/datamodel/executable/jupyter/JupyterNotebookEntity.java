@@ -31,6 +31,8 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
@@ -64,6 +66,7 @@ public class JupyterNotebookEntity
             (IvoaJupyterNotebook) result.getObject()
             );
         }
+
     protected JupyterNotebookEntity(
         final SessionEntity session,
         final AbstractExecutableValidator.Result result,
@@ -72,7 +75,7 @@ public class JupyterNotebookEntity
         super(
             session,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.location = validated.getLocation();
         }
@@ -87,23 +90,19 @@ public class JupyterNotebookEntity
     @Override
     public IvoaAbstractExecutable getIvoaBean(final String baseurl)
         {
-        IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
-            JupyterNotebook.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaJupyterNotebook().meta(
+                new IvoaComponentMetadata().kind(
+                    JupyterNotebook.TYPE_DISCRIMINATOR
+                    )
+                )
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-        bean.location(
-            this.getLocation()
+        }
+        
+    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
+        {
+        super.fillBean(
+            bean
             );
         return bean;
         }

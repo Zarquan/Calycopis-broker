@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -44,10 +45,10 @@ extends LifecycleComponentEntity
     protected AbstractExecutableEntity(
         final SessionEntity session,
         final AbstractExecutableValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
@@ -86,20 +87,13 @@ extends LifecycleComponentEntity
 
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setMeta(
+            this.fillBean(
+                new IvoaComponentMetadata()
+                )
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()

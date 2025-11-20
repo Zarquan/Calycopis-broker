@@ -70,7 +70,7 @@ implements AmazonS3DataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
         if (requested instanceof IvoaS3DataResource)
             {
             return validate(
@@ -94,12 +94,16 @@ implements AmazonS3DataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaS3DataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaS3DataResource validated = new IvoaS3DataResource(
-            AmazonS3DataResource.TYPE_DISCRIMINATOR
+        IvoaS3DataResource validated = new IvoaS3DataResource().meta(
+            makeMeta(
+                AmazonS3DataResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
 
         success &= duplicateCheck(
@@ -113,10 +117,6 @@ implements AmazonS3DataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-
-        String name = trim(
-            requested.getName()
-            );
         
         String endpoint = trim(
             requested.getEndpoint()
@@ -162,7 +162,6 @@ implements AmazonS3DataResourceValidator
         // Accumulate state and return the fail here.
         //
 
-        validated.setName(name);
         validated.setEndpoint(endpoint);
         validated.setTemplate(template);
         validated.setBucket(bucket);

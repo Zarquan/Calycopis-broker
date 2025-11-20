@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
@@ -80,7 +81,8 @@ public class SimpleComputeResourceEntity
     
     /**
      * Protected constructor with session, template and offer.
-     *
+     * TODO validated can be replaced by Result.getObject()
+     * 
      */
     public SimpleComputeResourceEntity(
         final SessionEntity session,
@@ -92,7 +94,7 @@ public class SimpleComputeResourceEntity
             session,
             result,
             offer,
-            validated.getName()
+            validated.getMeta()
             );
         
         if (validated.getCores() != null)
@@ -221,7 +223,11 @@ public class SimpleComputeResourceEntity
     public IvoaSimpleComputeResource getIvoaBean(final String baseurl)
         {
         return fillBean(
-            new IvoaSimpleComputeResource(SimpleComputeResource.TYPE_DISCRIMINATOR)
+            new IvoaSimpleComputeResource().meta(
+                new IvoaComponentMetadata().kind(
+                    SimpleComputeResource.TYPE_DISCRIMINATOR
+                    )
+                )               
             );
         }
         

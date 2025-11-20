@@ -36,6 +36,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
@@ -65,21 +66,20 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final String name)
+    public LifecycleComponentEntity(final IvoaComponentMetadata meta)
         {
-        this(
-            (IvoaLifecycleSchedule)null,
-            name
+        super(
+            meta
             );
         }
-
+    
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final String name)
+    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final IvoaComponentMetadata meta)
         {
         super(
-            name
+            meta
             );
         if (schedule != null)
             {
@@ -373,7 +373,4 @@ implements LifecycleComponent
             return null ;
             }
         }
-
-    
-    
     }

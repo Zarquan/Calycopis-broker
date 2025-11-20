@@ -49,6 +49,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
@@ -99,7 +100,7 @@ public class DockerContainerEntity
         super(
             session,
             result,
-            validated.getName()
+            validated.getMeta()
             );
 
         this.privileged = validated.getPrivileged();
@@ -133,8 +134,10 @@ public class DockerContainerEntity
     public IvoaAbstractExecutable getIvoaBean(final String baseUrl)
         {
         return fillBean(
-            new IvoaDockerContainer(
-                DockerContainer.TYPE_DISCRIMINATOR
+            new IvoaDockerContainer().meta(
+                new IvoaComponentMetadata().kind(
+                    DockerContainer.TYPE_DISCRIMINATOR
+                    )
                 )
             );
         }

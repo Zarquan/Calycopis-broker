@@ -32,6 +32,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 
 /**
  *
@@ -61,9 +63,11 @@ implements AbstractVolumeMount
      * Automatically adds this resource to the parent SessionEntity.
      *
      */
-    protected AbstractVolumeMountEntity(final SessionEntity session, final String name)
-        {
-        super(name);
+    protected AbstractVolumeMountEntity(
+        final SessionEntity session,
+        final IvoaComponentMetadata meta
+        ){
+        super(meta);
         this.session = session;
         session.addVolumeMount(
             this
@@ -78,5 +82,15 @@ implements AbstractVolumeMount
     public SessionEntity getSession()
         {
         return this.session;
+        }
+
+    protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
+        {
+        bean.setMeta(
+            this.fillBean(
+                new IvoaComponentMetadata()
+                )
+            );
+        return bean;
         }
     }

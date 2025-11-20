@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
@@ -45,18 +46,12 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Slf4j
 public class OfferSetResponseBean
     extends IvoaOfferSetResponse {
-    /**
-     * The OpenAPI type identifier for an oferset response.
-     * 
-     */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0" ;
 
     /**
      * The URL path for OfferSets.
      * 
      */
     public static final String REQUEST_PATH = "/offersets/" ;
-
 
     /**
      * The base URL for the current request.
@@ -77,63 +72,70 @@ public class OfferSetResponseBean
 	public OfferSetResponseBean(final String baseurl, final OfferSetEntity entity)
 	    {
 	    super();
-	    super.type(TYPE_DISCRIMINATOR);
         this.baseurl = baseurl;
         this.entity = entity;
 	    }
+	
+	public IvoaComponentMetadata getMeta()
+	    {
+	    return new IvoaComponentMetadata() {
 
-    @Override
-    public UUID getUuid()
-        {
-        return entity.getUuid();
-        }
+        @Override
+        public String getKind()
+            {
+            return OfferSet.TYPE_DISCRIMINATOR;
+            }
+	    
+        @Override
+        public UUID getUuid()
+            {
+            return entity.getUuid();
+            }
 
-    /**
-     * Make a href URL for an OfferSetEntity.
-     * 
-     */
-    public static String makeHref(final String baseurl, final OfferSetEntity entity)
+        @Override
+        public String getUrl()
+            {
+            return makeUrl(baseurl, entity);
+            }
+
+        @Override
+        public String getName()
+            {
+            return entity.getName();
+            }
+
+        @Override
+        public String getDescription()
+            {
+            return entity.getDescription();
+            }
+
+        @Override
+        public OffsetDateTime getCreated()
+            {
+            return entity.getCreated();
+            }
+
+        @Override
+        public List<@Valid IvoaMessageItem> getMessages()
+            {
+            return new ListWrapper<IvoaMessageItem, MessageEntity>(
+                entity.getMessages()
+                ){
+                public IvoaMessageItem wrap(final MessageEntity inner)
+                    {
+                    return new MessageItemBean(
+                        inner
+                        );
+                    }
+                };
+            }
+        };
+    }
+
+    static String makeUrl(final String baseurl, final OfferSetEntity entity)
         {
         return baseurl + REQUEST_PATH + entity.getUuid();
-        }
-
-    @Override
-    public String getHref()
-        {
-        return makeHref(baseurl, entity);
-        }
-
-    @Override
-    public String getName()
-        {
-        return entity.getName();
-        }
-
-    @Override
-    public String getDescription()
-        {
-        return entity.getDescription();
-        }
-
-    @Override
-    public OffsetDateTime getCreated()
-        {
-        return entity.getCreated();
-        }
-
-    @Override
-    public List<@Valid IvoaMessageItem> getMessages()
-        {
-        return new ListWrapper<IvoaMessageItem, MessageEntity>(
-            entity.getMessages()
-            ){
-            public IvoaMessageItem wrap(final MessageEntity inner)
-                {
-                return new MessageItemBean(
-                    inner
-                    );
-                }
-            };
         }
 
     @Override

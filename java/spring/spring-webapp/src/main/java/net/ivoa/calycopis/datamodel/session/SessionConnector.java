@@ -23,8 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
-import java.util.List;
-
 /**
  * 
  */

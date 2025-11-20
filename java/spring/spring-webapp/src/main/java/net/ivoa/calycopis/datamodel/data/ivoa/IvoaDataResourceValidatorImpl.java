@@ -74,7 +74,7 @@ implements IvoaDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaIvoaDataResource)
             {
             return validate(
@@ -94,12 +94,16 @@ implements IvoaDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaIvoaDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaIvoaDataResource validated = new IvoaIvoaDataResource(
-            IvoaDataResource.TYPE_DISCRIMINATOR
+        IvoaIvoaDataResource validated = new IvoaIvoaDataResource().meta(
+            makeMeta(
+                IvoaDataResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
 
         success &= duplicateCheck(
@@ -113,15 +117,6 @@ implements IvoaDataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-        
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(
-                requested.getName()
-                )
-            );
         
         //
         // Validate the IvoaIvoaDataResourceBlock.

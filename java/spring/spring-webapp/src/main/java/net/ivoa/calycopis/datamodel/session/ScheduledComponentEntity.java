@@ -35,6 +35,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
@@ -63,7 +64,6 @@ implements ScheduledComponent
 
     /**
      * 
-     */
     public ScheduledComponentEntity(final String name)
         {
         this(
@@ -71,13 +71,17 @@ implements ScheduledComponent
             name
             );
         }
+     */
+
     /**
      * 
      */
-    public ScheduledComponentEntity(final IvoaExecutionSessionSchedule schedule, final String name)
-        {
+    public ScheduledComponentEntity(
+        final IvoaExecutionSessionSchedule schedule,
+        final IvoaComponentMetadata meta
+        ){
         super(
-            name
+            meta
             );
         if (schedule != null)
             {

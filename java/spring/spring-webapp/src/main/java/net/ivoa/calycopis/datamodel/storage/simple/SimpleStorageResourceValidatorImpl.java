@@ -64,7 +64,7 @@ implements SimpleStorageResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaSimpleStorageResource simple:
@@ -88,19 +88,20 @@ implements SimpleStorageResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
-            SimpleStorageResource.TYPE_DISCRIMINATOR
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource().meta(
+            makeMeta(
+                SimpleStorageResource.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
-
+        
         //
         // TODO Check available size.
         //
-
-        validated.setName(requested.getName());
-
         
         //
         // Calculate the preparation time.

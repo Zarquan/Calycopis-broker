@@ -30,6 +30,7 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
@@ -73,6 +74,8 @@ public class AmazonS3DataResourceEntity
     
     /**
      * Protected constructor with parent and template.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public AmazonS3DataResourceEntity(
@@ -85,7 +88,7 @@ public class AmazonS3DataResourceEntity
             session,
             storage,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.endpoint = validated.getEndpoint();
         this.template = validated.getTemplate();
@@ -126,8 +129,10 @@ public class AmazonS3DataResourceEntity
     public IvoaAbstractDataResource getIvoaBean()
         {
         return fillBean(
-            new IvoaS3DataResource (
-                AmazonS3DataResource.TYPE_DISCRIMINATOR
+            new IvoaS3DataResource().meta(
+                new IvoaComponentMetadata().kind(
+                    AmazonS3DataResource.TYPE_DISCRIMINATOR
+                    )
                 )
             );
         }

@@ -28,11 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -46,13 +43,13 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.Image;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAccessConnector;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
@@ -109,8 +106,8 @@ public class SessionEntity
     public SessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
         super(
-            null,
-            offerset.getName() + "-" + offerblock.getName()
+            offerset.getName() + "-" + offerblock.getName(),
+            ""
             );
         this.phase = IvoaExecutionSessionPhase.OFFERED;
         this.offerset = offerset;
@@ -296,18 +293,23 @@ public class SessionEntity
     @Override
     public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
         {
-        IvoaExecutionSessionResponse bean = new IvoaExecutionSessionResponse();
-        bean.setUuid(this.getUuid());
-        bean.setName(this.getName());
-        bean.setType(Session.TYPE_DISCRIMINATOR);
-        bean.setCreated(this.getCreated());
+        return fillBean(
+            new IvoaExecutionSessionResponse().meta(
+                new IvoaComponentMetadata().kind(
+                    TYPE_DISCRIMINATOR
+                    )
+                )
+            );
+        }
+    
+    public IvoaExecutionSessionResponse fillBean(final IvoaExecutionSessionResponse  bean)
+        {
+        super.fillBean(bean);
+        
         bean.setExpires(this.getExpires());
         bean.setPhase(this.getPhase());
         bean.setHref(
             baseurl + Session.REQUEST_PATH + this.getUuid()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setExecutable(
             this.getExecutable().getIvoaBean(

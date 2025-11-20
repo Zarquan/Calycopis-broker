@@ -30,6 +30,7 @@ import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -74,17 +75,19 @@ public class SimpleStorageResourceEntity
     
     /**
      * Protected constructor with parent and validator result.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     protected SimpleStorageResourceEntity(
         final SessionEntity session,
         final AbstractStorageResourceValidator.Result result,
-        final IvoaSimpleStorageResource template
+        final IvoaSimpleStorageResource validated
         ){
         super(
             session,
             result,
-            template.getName()
+            validated.getMeta()
             );
 
         // TODO Add the storage fields ...
@@ -94,12 +97,21 @@ public class SimpleStorageResourceEntity
     @Override
     public IvoaAbstractStorageResource getIvoaBean(String baseurl)
         {
-        IvoaSimpleStorageResource bean = new IvoaSimpleStorageResource(
-            SimpleStorageResource.TYPE_DISCRIMINATOR
+        return fillBean(
+            new IvoaSimpleStorageResource().meta(
+                new IvoaComponentMetadata().kind(
+                    SimpleStorageResource.TYPE_DISCRIMINATOR
+                    )
+                )
             );
-        super.fillBean(bean);
+        }
 
-        return bean ;
+    protected IvoaSimpleStorageResource fillBean(final IvoaSimpleStorageResource bean)
+        {
+        super.fillBean(
+            bean
+            );
+        return bean;
         }
     }
 

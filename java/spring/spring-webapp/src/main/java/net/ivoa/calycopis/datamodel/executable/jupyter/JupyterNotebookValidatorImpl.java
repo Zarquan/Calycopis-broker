@@ -59,7 +59,7 @@ implements JupyterNotebookValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractExecutable)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaJupyterNotebook)
             {
             return validate(
@@ -83,19 +83,16 @@ implements JupyterNotebookValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaJupyterNotebook)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaJupyterNotebook validated = new IvoaJupyterNotebook(
-            JupyterNotebook.TYPE_DISCRIMINATOR
-            );
 
-        //
-        // Validate the executable name.
-        success &= validateName(
-            requested.getName(),
-            validated,
-            context
+        IvoaJupyterNotebook validated = new IvoaJupyterNotebook().meta(
+            makeMeta(
+                JupyterNotebook.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
 
         //
@@ -166,47 +163,6 @@ implements JupyterNotebookValidator
                 );
             }
         }
-
-    /**
-     * Validate the executable name.
-     * 
-     */
-    public boolean validateName(
-        final String requested,
-        final IvoaJupyterNotebook validated,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validateName(String ...)");
-        log.debug("Requested [{}]", requested);
-
-        boolean success = true ;
-    
-        String name = notEmpty(
-            requested
-            );
-        if (name != null)
-            {
-            // TODO Make this configurable.
-            success &= badValueCheck(
-                name,
-                context
-                );
-            }
-        if (success)
-            {
-            validated.setName(
-                name
-                );
-            }
-        else {
-            validated.setName(
-                null
-                );
-            }
-        
-        return success;
-        }
-
     
     /**
      * Validate the notebook location.

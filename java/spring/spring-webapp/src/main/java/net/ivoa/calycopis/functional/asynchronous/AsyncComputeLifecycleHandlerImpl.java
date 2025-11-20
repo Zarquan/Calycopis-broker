@@ -25,7 +25,6 @@ package net.ivoa.calycopis.functional.asynchronous;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,11 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityRepository;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.skaha.client.ApiClient;
-import net.ivoa.calycopis.skaha.client.ApiException;
 import net.ivoa.calycopis.skaha.client.Configuration;
 import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
 import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;

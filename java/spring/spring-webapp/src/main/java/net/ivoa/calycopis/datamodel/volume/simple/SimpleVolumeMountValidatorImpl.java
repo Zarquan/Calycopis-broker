@@ -63,7 +63,7 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaSimpleVolumeMount simple:
@@ -87,15 +87,17 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount(
-            SimpleVolumeMount.TYPE_DISCRIMINATOR
+        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount().meta(
+            makeMeta(
+                SimpleVolumeMount.TYPE_DISCRIMINATOR,
+                requested.getMeta(),
+                context
+                )
             );
-        validated.setName(
-            requested.getName()
-            );
+        
         validated.setPath(
             requested.getPath()
             );

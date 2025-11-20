@@ -98,7 +98,7 @@ public class OffersetsApiDelegateImpl
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(
             URI.create(
-                response.getHref()
+                response.getMeta().getUrl()
                 )
             );
         return new ResponseEntity<IvoaOfferSetResponse>(

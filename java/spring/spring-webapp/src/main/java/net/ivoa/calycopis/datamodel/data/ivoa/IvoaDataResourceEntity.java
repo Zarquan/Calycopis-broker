@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
@@ -82,6 +83,8 @@ public class IvoaDataResourceEntity
 
     /**
      * Protected constructor with parent.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public IvoaDataResourceEntity(
@@ -94,7 +97,7 @@ public class IvoaDataResourceEntity
             session,
             storage,
             result,
-            validated.getName()
+            validated.getMeta()
             );
 
         IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();
@@ -364,12 +367,14 @@ public class IvoaDataResourceEntity
     public IvoaAbstractDataResource getIvoaBean()
         {
         return fillBean(
-            new IvoaIvoaDataResource(
-                IvoaDataResource.TYPE_DISCRIMINATOR
+            new IvoaIvoaDataResource().meta(
+                new IvoaComponentMetadata().kind(
+                    IvoaDataResource.TYPE_DISCRIMINATOR
+                    )
                 )
             );
         }
-
+    
     protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
         {
         super.fillBean(bean);

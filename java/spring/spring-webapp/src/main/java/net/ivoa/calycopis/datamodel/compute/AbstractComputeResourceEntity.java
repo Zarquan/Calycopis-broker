@@ -34,6 +34,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 
 /**
  * 
@@ -67,10 +68,10 @@ implements AbstractComputeResource
         final SessionEntity session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
@@ -109,28 +110,19 @@ implements AbstractComputeResource
         return this.session;
         }
 
-    
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setMeta(
+            this.fillBean(
+                new IvoaComponentMetadata()
+                )
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()
             );
         return bean;
         }
-    
     }

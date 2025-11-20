@@ -77,6 +77,8 @@ public class SimpleVolumeMountEntity
         }
     /**
      * Protected constructor with parent and validator result.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public SimpleVolumeMountEntity(
@@ -86,17 +88,10 @@ public class SimpleVolumeMountEntity
         ){
         super(
             session,
-            validated.getName()
+            validated.getMeta()
             );
         
         // TODO Add the fields ...
-        }
-
-    @Override
-    public IvoaAbstractVolumeMount getIvoaBean(String baseurl)
-        {
-        // TODO Auto-generated method stub
-        return null;
         }
 
     private ModeEnum mode;
@@ -120,7 +115,19 @@ public class SimpleVolumeMountEntity
         return null;
         }
 
+    @Override
+    public IvoaAbstractVolumeMount getIvoaBean(String baseurl)
+        {
+        // TODO Auto-generated method stub
+        return null;
+        }
 
-
+    protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
+        {
+        super.fillBean(
+            bean
+            );
+        return bean;
+        }
     }
 
