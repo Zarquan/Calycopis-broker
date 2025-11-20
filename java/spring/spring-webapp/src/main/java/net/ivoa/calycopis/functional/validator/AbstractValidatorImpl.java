@@ -75,12 +75,11 @@ public class AbstractValidatorImpl
      * 
      */
     public IvoaComponentMetadata makeMeta(
-        final String kind,
         final IvoaComponentMetadata requested,
         final OfferSetRequestParserContext context
         ){
 
-        final IvoaComponentMetadata meta = new IvoaComponentMetadata().kind(kind);
+        final IvoaComponentMetadata meta = new IvoaComponentMetadata();
         
         if (requested != null)
             {

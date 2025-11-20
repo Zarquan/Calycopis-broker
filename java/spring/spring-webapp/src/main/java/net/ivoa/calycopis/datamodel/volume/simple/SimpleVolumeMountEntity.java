@@ -32,7 +32,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
 
@@ -116,13 +115,19 @@ public class SimpleVolumeMountEntity
         }
 
     @Override
-    public IvoaAbstractVolumeMount getIvoaBean(String baseurl)
+    public IvoaSimpleVolumeMount makeBean(final String baseurl)
         {
-        // TODO Auto-generated method stub
-        return null;
+        return this.fillBean(
+            new IvoaSimpleVolumeMount().meta(
+                this.makeMeta(
+                    baseurl,
+                    SimpleVolumeMount.TYPE_DISCRIMINATOR
+                    )
+                )
+            );
         }
-
-    protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
+    
+    protected IvoaSimpleVolumeMount fillBean(final IvoaSimpleVolumeMount bean)
         {
         super.fillBean(
             bean

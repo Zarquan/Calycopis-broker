@@ -75,16 +75,16 @@ public class OfferSetResponseBean
         this.baseurl = baseurl;
         this.entity = entity;
 	    }
+
+    @Override
+    public String getKind()
+        {
+        return OfferSet.TYPE_DISCRIMINATOR;
+        }
 	
 	public IvoaComponentMetadata getMeta()
 	    {
 	    return new IvoaComponentMetadata() {
-
-        @Override
-        public String getKind()
-            {
-            return OfferSet.TYPE_DISCRIMINATOR;
-            }
 	    
         @Override
         public UUID getUuid()
@@ -152,7 +152,7 @@ public class OfferSetResponseBean
             ){
             public IvoaExecutionSessionResponse wrap(final SessionEntity inner)
                 {
-                return inner.getIvoaBean(
+                return inner.makeBean(
                     baseurl
                     );
                 }

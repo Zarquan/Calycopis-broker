@@ -34,6 +34,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
  * 
@@ -112,5 +113,22 @@ public class PodmanDockerContainerEntity
                 "Release image"
                 )
             );
+        }
+
+    @Override
+    public IvoaAbstractExecutable makeBean(final String baseurl)
+        {
+        return super.makeBean(
+            baseurl
+            );
+        }
+
+    @Override
+    protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
+        {
+        super.fillBean(
+            bean
+            );
+        return bean;
         }
     }

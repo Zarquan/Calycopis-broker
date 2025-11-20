@@ -29,8 +29,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
 
 /**
@@ -126,11 +124,12 @@ public class AmazonS3DataResourceEntity
         }
 
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaS3DataResource makeBean(String baseurl)
         {
         return fillBean(
             new IvoaS3DataResource().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     AmazonS3DataResource.TYPE_DISCRIMINATOR
                     )
                 )
@@ -142,9 +141,7 @@ public class AmazonS3DataResourceEntity
         super.fillBean(
             bean
             );
-
         // TODO fill in the Amazon fields
-
         return bean;
         }
     }

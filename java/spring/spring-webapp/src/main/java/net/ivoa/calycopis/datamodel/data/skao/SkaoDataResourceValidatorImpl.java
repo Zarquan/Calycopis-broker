@@ -114,13 +114,14 @@ implements SkaoDataResourceValidator
 
         boolean success = true ;
 
-        IvoaSkaoDataResource validated = new IvoaSkaoDataResource().meta(
-            makeMeta(
-                SkaoDataResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaSkaoDataResource validated = new IvoaSkaoDataResource()
+            .kind(SkaoDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
         
         success &= duplicateCheck(
             requested,

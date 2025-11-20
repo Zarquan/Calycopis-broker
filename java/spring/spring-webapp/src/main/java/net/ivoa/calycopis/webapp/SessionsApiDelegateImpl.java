@@ -70,7 +70,7 @@ public class SessionsApiDelegateImpl
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                found.get().getIvoaBean(
+                found.get().makeBean(
                     this.getBaseUrl()
                     ),
                 HttpStatus.OK
@@ -95,7 +95,7 @@ public class SessionsApiDelegateImpl
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
-                found.get().getIvoaBean(
+                found.get().makeBean(
                     this.getBaseUrl()
                     ),
                 HttpStatus.OK

@@ -87,13 +87,14 @@ implements JupyterNotebookValidator
 
         boolean success = true ;
 
-        IvoaJupyterNotebook validated = new IvoaJupyterNotebook().meta(
-            makeMeta(
-                JupyterNotebook.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaJupyterNotebook validated = new IvoaJupyterNotebook()
+            .kind(JupyterNotebook.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         //
         // Validate the notebook location.

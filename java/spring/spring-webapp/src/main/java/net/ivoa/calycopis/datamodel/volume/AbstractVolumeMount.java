@@ -28,7 +28,6 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 
 /**
  *
@@ -47,11 +46,5 @@ public interface AbstractVolumeMount
      *
      */
     public SessionEntity getSession();
-
-    /**
-     * Get an IVOA bean representation.
-     *
-     */
-    public IvoaAbstractVolumeMount getIvoaBean(final String baseurl);
 
     }

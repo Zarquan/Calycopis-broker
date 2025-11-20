@@ -38,7 +38,6 @@ import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
@@ -243,21 +242,21 @@ public class SkaoDataResourceEntity
                 }
             };
         }
-
     
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaAbstractDataResource makeBean(final String baseurl)
         {
         return fillBean(
             new IvoaSkaoDataResource().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     SkaoDataResource.TYPE_DISCRIMINATOR
                     )
                 )
             );
         }
     
-    protected IvoaSkaoDataResource fillBean(final IvoaSkaoDataResource bean)
+    protected IvoaAbstractDataResource fillBean(final IvoaSkaoDataResource bean)
         {
         super.fillBean(
             bean

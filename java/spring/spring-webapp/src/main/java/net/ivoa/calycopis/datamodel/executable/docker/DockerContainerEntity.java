@@ -49,7 +49,6 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
@@ -127,130 +126,6 @@ public class DockerContainerEntity
                     );                
                 }
             }
-        }
-
-    
-    @Override
-    public IvoaAbstractExecutable getIvoaBean(final String baseUrl)
-        {
-        return fillBean(
-            new IvoaDockerContainer().meta(
-                new IvoaComponentMetadata().kind(
-                    DockerContainer.TYPE_DISCRIMINATOR
-                    )
-                )
-            );
-        }
-
-    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
-        {
-        super.fillBean(
-            bean
-            );
-        
-        bean.setPrivileged(
-            this.privileged
-            );
-        bean.setEntrypoint(
-            this.entrypoint
-            );
-
-        if ((this.environment != null) && (this.environment.isEmpty() == false))
-            {
-            bean.setEnvironment(
-                this.environment
-                );
-            }
-
-        if (this.image != null)
-            {
-            IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();
-            
-            if ((this.image.getLocations() != null) && (this.image.getLocations().isEmpty() == false))
-                {
-                ivoaImage.setLocations(
-                    this.image.getLocations()
-                    );
-                }
-            ivoaImage.setDigest(
-                this.image.getDigest()
-                );
-
-            if (this.image.getPlatform() != null)
-                {
-                IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
-                ivoaPlatform.setArchitecture(
-                    this.image.getPlatform().getArchitecture()
-                    );
-                ivoaPlatform.setOs(
-                    this.image.getPlatform().getOs()
-                    );
-                ivoaImage.setPlatform(
-                    ivoaPlatform
-                    );
-                }
-            bean.setImage(
-                ivoaImage
-                );
-            }
-
-        if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
-            {
-            
-            IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
-
-            for (DockerNetworkPortEntity networkPort : this.networkPorts)
-                {
-                IvoaDockerNetworkPort ivoaNetworkPort = new IvoaDockerNetworkPort();
-                ivoaNetworkPort.setAccess(
-                    networkPort.getAccess()
-                    );
-                ivoaNetworkPort.setPath(
-                    networkPort.getPath()
-                    );
-                ivoaNetworkPort.setProtocol(
-                    networkPort.getProtocol()
-                    );
-
-                if (networkPort.getInternal() != null)
-                    {
-                    IvoaDockerInternalPort ivoaInternalPort = new IvoaDockerInternalPort();
-                    ivoaInternalPort.setPort(
-                        networkPort.getInternal().getPort()
-                        );
-                    ivoaNetworkPort.setInternal(
-                        ivoaInternalPort
-                        );
-                    }
-
-                if (networkPort.getExternal() != null)
-                    {
-                    IvoaDockerExternalPort ivoaExternalPort = new IvoaDockerExternalPort();
-                    ivoaExternalPort.setPort(
-                        networkPort.getExternal().getPort()
-                        );
-                    for (String address : networkPort.getExternal().getAddresses())
-                        {
-                        ivoaExternalPort.addAddressesItem(
-                            address
-                            );
-                        }
-                    ivoaNetworkPort.setExternal(
-                        ivoaExternalPort
-                        );
-                    }
-                ivoaNetworkSpec.addPortsItem(
-                    ivoaNetworkPort
-                    );
-                }
-            bean.setNetwork(
-                ivoaNetworkSpec
-                );
-            }
-        
-        // TODO generate the access URLs
-        
-        return bean;
         }
 
     @Embeddable
@@ -438,5 +313,128 @@ public class DockerContainerEntity
         {
         this.getReleaseList().getFirst().execute();
         }
-    
+
+    @Override
+    public IvoaAbstractExecutable makeBean(final String baseurl)
+        {
+        return this.fillBean(
+            new IvoaDockerContainer().meta(
+                this.makeMeta(
+                    baseurl,
+                    DockerContainer.TYPE_DISCRIMINATOR
+                    )
+                )
+            );
+        }
+
+    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
+        {
+        super.fillBean(
+            bean
+            );
+        
+        bean.setPrivileged(
+            this.privileged
+            );
+        bean.setEntrypoint(
+            this.entrypoint
+            );
+
+        if ((this.environment != null) && (this.environment.isEmpty() == false))
+            {
+            bean.setEnvironment(
+                this.environment
+                );
+            }
+
+        if (this.image != null)
+            {
+            IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();
+            
+            if ((this.image.getLocations() != null) && (this.image.getLocations().isEmpty() == false))
+                {
+                ivoaImage.setLocations(
+                    this.image.getLocations()
+                    );
+                }
+            ivoaImage.setDigest(
+                this.image.getDigest()
+                );
+
+            if (this.image.getPlatform() != null)
+                {
+                IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
+                ivoaPlatform.setArchitecture(
+                    this.image.getPlatform().getArchitecture()
+                    );
+                ivoaPlatform.setOs(
+                    this.image.getPlatform().getOs()
+                    );
+                ivoaImage.setPlatform(
+                    ivoaPlatform
+                    );
+                }
+            bean.setImage(
+                ivoaImage
+                );
+            }
+
+        if ((this.networkPorts != null) && (this.networkPorts.isEmpty() == false))
+            {
+            
+            IvoaDockerNetworkSpec ivoaNetworkSpec = new IvoaDockerNetworkSpec();
+
+            for (DockerNetworkPortEntity networkPort : this.networkPorts)
+                {
+                IvoaDockerNetworkPort ivoaNetworkPort = new IvoaDockerNetworkPort();
+                ivoaNetworkPort.setAccess(
+                    networkPort.getAccess()
+                    );
+                ivoaNetworkPort.setPath(
+                    networkPort.getPath()
+                    );
+                ivoaNetworkPort.setProtocol(
+                    networkPort.getProtocol()
+                    );
+
+                if (networkPort.getInternal() != null)
+                    {
+                    IvoaDockerInternalPort ivoaInternalPort = new IvoaDockerInternalPort();
+                    ivoaInternalPort.setPort(
+                        networkPort.getInternal().getPort()
+                        );
+                    ivoaNetworkPort.setInternal(
+                        ivoaInternalPort
+                        );
+                    }
+
+                if (networkPort.getExternal() != null)
+                    {
+                    IvoaDockerExternalPort ivoaExternalPort = new IvoaDockerExternalPort();
+                    ivoaExternalPort.setPort(
+                        networkPort.getExternal().getPort()
+                        );
+                    for (String address : networkPort.getExternal().getAddresses())
+                        {
+                        ivoaExternalPort.addAddressesItem(
+                            address
+                            );
+                        }
+                    ivoaNetworkPort.setExternal(
+                        ivoaExternalPort
+                        );
+                    }
+                ivoaNetworkSpec.addPortsItem(
+                    ivoaNetworkPort
+                    );
+                }
+            bean.setNetwork(
+                ivoaNetworkSpec
+                );
+            }
+        
+        // TODO generate the access URLs
+        
+        return bean;
+        }
     }

@@ -98,13 +98,14 @@ implements AmazonS3DataResourceValidator
 
         boolean success = true ;
 
-        IvoaS3DataResource validated = new IvoaS3DataResource().meta(
-            makeMeta(
-                AmazonS3DataResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaS3DataResource validated = new IvoaS3DataResource()
+            .kind(AmazonS3DataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         success &= duplicateCheck(
             requested,

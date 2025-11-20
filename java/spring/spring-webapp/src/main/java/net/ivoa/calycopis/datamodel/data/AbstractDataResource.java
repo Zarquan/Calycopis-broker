@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.data;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 
 /**
  * 
@@ -50,7 +49,7 @@ public interface AbstractDataResource
     /**
      * Get an IVOA bean representation.
      *  
+    protected IvoaAbstractDataResource makeBean();
      */
-    public IvoaAbstractDataResource getIvoaBean();
     
     }

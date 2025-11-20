@@ -204,11 +204,13 @@ public class OfferSetRequestParserImpl
         if (context.getComputeValidatorResults().isEmpty())
             {
             log.debug("Adding a default compute resource");
-            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource().meta(
-                new IvoaComponentMetadata().kind(
-                    SimpleComputeResource.TYPE_DISCRIMINATOR
-                    )
-                );
+            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource()
+                .kind(SimpleComputeResource.TYPE_DISCRIMINATOR)
+                .meta(
+                    new IvoaComponentMetadata().name(
+                        "Default compute resource"
+                        )
+                    );
             
             computeValidators.validate(
                 compute,

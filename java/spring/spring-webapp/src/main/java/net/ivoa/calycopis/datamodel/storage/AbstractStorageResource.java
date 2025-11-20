@@ -28,7 +28,6 @@ import java.util.List;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.Session;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
 /**
  * 
@@ -47,11 +46,5 @@ extends LifecycleComponent
      *
      */
     public List<AbstractDataResourceEntity> getDataResources();
-
-    /**
-     * Get an IVOA bean representation.
-     *  
-     */
-    public IvoaAbstractStorageResource getIvoaBean(final String baseurl);
 
     }

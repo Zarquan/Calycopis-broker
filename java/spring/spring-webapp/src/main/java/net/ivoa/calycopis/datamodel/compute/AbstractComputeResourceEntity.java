@@ -110,13 +110,15 @@ implements AbstractComputeResource
         return this.session;
         }
 
+    public IvoaAbstractComputeResource makeBean()
+        {
+        return this.makeBean(null);
+        }
+
+    public abstract IvoaAbstractComputeResource makeBean(final String baseurl);
+
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
         {
-        bean.setMeta(
-            this.fillBean(
-                new IvoaComponentMetadata()
-                )
-            );
         bean.setPhase(
             this.getPhase()
             );

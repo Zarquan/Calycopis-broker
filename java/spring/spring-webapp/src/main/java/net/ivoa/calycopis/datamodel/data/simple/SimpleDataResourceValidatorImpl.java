@@ -93,13 +93,14 @@ implements SimpleDataResourceValidator
 
         boolean success = true ;
         
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource().meta(
-            makeMeta(
-                SimpleDataResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource()
+            .kind(SimpleDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
         
         success &= duplicateCheck(
             requested,

@@ -211,3 +211,234 @@
         ....
 
 
+# -----------------------------------------------------
+# Generate an authentication token.
+#[root@developer-tools]
+
+        dnf install -y oidc-agent
+
+        eval $(oidc-agent)
+
+    >   Agent pid 911
+
+        # Login using our IDP
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device tester
+
+    >   Registering Client ...
+    >   Generating account configuration ...
+    >   ....
+    >   ....
+    >   Everything setup correctly!
+
+        #
+        # Generate a new auth token.
+        oidc-token tester > /calycopis/java/spring/spring-webapp/target/auth-token
+
+
+# -----------------------------------------------------
+# Test our service using curl.
+#[root@developer]
+
+        #
+        # Notebook container for 1HR.
+        cat > "/tmp/001-offerset-request.yaml" << EOF
+name: notebook-test
+executable:
+  meta:
+    name: test executable 001
+  kind: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "images.canfar.net/skaha/base-notebook:latest"
+    digest: "0000"
+schedule:
+  requested:
+    duration: PT10M
+compute:
+  meta:
+    name: test compute
+  kind: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - meta:
+      name: input data
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+data:
+  - meta:
+      name: example-data-01
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - meta:
+      name: example-data-02
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+EOF
+
+    cat > "/tmp/003-accept-00-request.json" << EOF
+{
+"update": {
+    "kind":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+
+cat > /tmp/makerequest << 'EOF'
+    echo
+    echo "-------- -------- -------- --------"
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@/tmp/001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | jq '.'
+    > "/tmp/002-offerset-response.yaml" \
+
+    sleep 1
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/json' \
+        --data-binary "@/tmp/003-accept-00-request.json" \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "/tmp/004-accept-00-response.yaml" \
+    | yq '{
+        "uuid": .uuid,
+        "name": .name,
+        "phase": .phase,
+        "schedule": .schedule
+        }'
+EOF
+
+cat > /tmp/fullstatus << 'EOF'
+    echo
+    echo "-------- -------- -------- --------"
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '.'
+EOF
+
+cat > /tmp/partstatus << 'EOF'
+    echo
+    echo "-------- -------- -------- --------"
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
+            "name": .name,
+            "phase": .phase,
+            "schedule": .schedule
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase,
+            "schedule": .executable.schedule
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase,
+            "schedule": .compute.schedule
+            },
+        "storage": [
+            .storage[] | {
+                "name": .name,
+                "phase": .phase,
+                "schedule": .schedule
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase,
+                "schedule": .schedule
+              }
+            ]
+        }'
+EOF
+
+cat > /tmp/tinystatus << 'EOF'
+    echo
+    echo "-------- -------- -------- --------"
+    curl \
+        --silent \
+        --show-error \
+        --header 'Accept: application/yaml' \
+        "$(yq '.offers[0].href' '/tmp/002-offerset-response.yaml')" \
+    | tee "004-accept-00-response.yaml" \
+    | yq '{
+        "session": {
+            "name": .name,
+            "phase": .phase,
+            "connectors": [
+                .connectors[] | {
+                    "type": .type,
+                    "location": .location
+                    }
+                ]
+          },
+        "executable": {
+            "name": .executable.name,
+            "phase": .executable.phase
+            },
+        "compute": {
+            "name": .compute.name,
+            "phase": .compute.phase
+            },
+        "storage": [
+            .storage[] | {
+                "name": .name,
+                "phase": .phase
+              }
+            ],
+        "data": [
+            .data[] | {
+                "name": .name,
+                "phase": .phase
+              }
+            ]
+        }'
+EOF
+
+chmod a+x /tmp/makerequest
+chmod a+x /tmp/fullstatus
+chmod a+x /tmp/partstatus
+chmod a+x /tmp/tinystatus
+
+
+/tmp/makerequest
+
+

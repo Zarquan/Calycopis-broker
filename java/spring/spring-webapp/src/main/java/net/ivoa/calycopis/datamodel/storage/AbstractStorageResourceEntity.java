@@ -136,13 +136,10 @@ implements AbstractStorageResource
             );
         }
     
+    public abstract IvoaAbstractStorageResource makeBean(final String baseurl);
+    
     protected IvoaAbstractStorageResource fillBean(final IvoaAbstractStorageResource bean)
         {
-        bean.setMeta(
-            this.fillBean(
-                new IvoaComponentMetadata()
-                )
-            );
         bean.setPhase(
             this.getPhase()
             );
@@ -159,7 +156,6 @@ implements AbstractStorageResource
                     }
                 }
             );
-        
         return bean;
         }
     }

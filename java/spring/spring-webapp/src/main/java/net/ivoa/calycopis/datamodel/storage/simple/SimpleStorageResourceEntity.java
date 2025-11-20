@@ -30,7 +30,6 @@ import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -93,13 +92,14 @@ public class SimpleStorageResourceEntity
         // TODO Add the storage fields ...
         
         }
-    
+
     @Override
-    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
+    public IvoaAbstractStorageResource makeBean(String baseurl)
         {
         return fillBean(
             new IvoaSimpleStorageResource().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     SimpleStorageResource.TYPE_DISCRIMINATOR
                     )
                 )
@@ -111,6 +111,9 @@ public class SimpleStorageResourceEntity
         super.fillBean(
             bean
             );
+        //
+        // Add the storage properties.
+        //
         return bean;
         }
     }

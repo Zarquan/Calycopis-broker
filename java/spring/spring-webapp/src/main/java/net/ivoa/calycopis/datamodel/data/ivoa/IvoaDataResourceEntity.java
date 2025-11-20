@@ -35,7 +35,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
@@ -364,11 +363,12 @@ public class IvoaDataResourceEntity
         }
     
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaAbstractDataResource makeBean(final String baseurl)
         {
-        return fillBean(
+        return this.fillBean(
             new IvoaIvoaDataResource().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     IvoaDataResource.TYPE_DISCRIMINATOR
                     )
                 )
@@ -377,7 +377,9 @@ public class IvoaDataResourceEntity
     
     protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
         {
-        super.fillBean(bean);
+        super.fillBean(
+            bean
+            );
 
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(

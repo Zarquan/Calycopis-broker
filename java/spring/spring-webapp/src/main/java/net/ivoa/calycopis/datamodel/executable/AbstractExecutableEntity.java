@@ -85,13 +85,15 @@ extends LifecycleComponentEntity
         return this.session;
         }
 
+    public IvoaAbstractExecutable makeBean()
+        {
+        return this.makeBean(null);
+        }
+
+    public abstract IvoaAbstractExecutable makeBean(final String baseurl);
+
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
-        bean.setMeta(
-            this.fillBean(
-                new IvoaComponentMetadata()
-                )
-            );
         bean.setPhase(
             this.getPhase()
             );

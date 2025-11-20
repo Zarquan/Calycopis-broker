@@ -251,7 +251,7 @@ public interface Session
      * Get an Ivoa bean representation.
      *  
      */
-    public IvoaExecutionSessionResponse getIvoaBean(final String baseurl);
+    public IvoaExecutionSessionResponse makeBean(final String baseurl);
 
     }
 

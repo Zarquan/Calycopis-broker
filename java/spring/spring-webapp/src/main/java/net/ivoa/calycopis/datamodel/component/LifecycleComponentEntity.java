@@ -39,8 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
 
 /**
  * 
@@ -83,7 +83,7 @@ implements LifecycleComponent
             );
         if (schedule != null)
             {
-            IvoaScheduleDurationInstant preparing = schedule.getPreparing();
+            IvoaScheduleStartDurationInstant preparing = schedule.getPreparing();
             if (null != preparing)
                 {
                 String startInstantString = preparing.getStart();
@@ -243,10 +243,10 @@ implements LifecycleComponent
             );
         }
 
-    public IvoaScheduleDurationInstant makePreparingBean()
+    public IvoaScheduleStartDurationInstant makePreparingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
         if (getPrepareStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -270,10 +270,10 @@ implements LifecycleComponent
             }
         }
 
-    public IvoaScheduleDurationInterval makeAvailableBean()
+    public IvoaScheduleStartDurationInterval makeAvailableBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInterval bean = new IvoaScheduleDurationInterval();
+        IvoaScheduleStartDurationInterval bean = new IvoaScheduleStartDurationInterval();
         if (getAvailableStartInstantSeconds() > 0)
             {
             StringBuffer buffer = new StringBuffer();
@@ -307,10 +307,10 @@ implements LifecycleComponent
             }
         }
 
-    public IvoaScheduleDurationInstant makeReleasingBean()
+    public IvoaScheduleStartDurationInstant makeReleasingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
         if (getReleaseStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -339,7 +339,7 @@ implements LifecycleComponent
         boolean valid = false;
         IvoaLifecycleSchedule bean = new IvoaLifecycleSchedule(); 
 
-        IvoaScheduleDurationInstant preparing = this.makePreparingBean();
+        IvoaScheduleStartDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)
             {
             bean.setPreparing(
@@ -348,7 +348,7 @@ implements LifecycleComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInterval available = this.makeAvailableBean();
+        IvoaScheduleStartDurationInterval available = this.makeAvailableBean();
         if (null != available)
             {
             bean.setAvailable(
@@ -357,7 +357,7 @@ implements LifecycleComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInstant releasing = this.makeReleasingBean(); 
+        IvoaScheduleStartDurationInstant releasing = this.makeReleasingBean(); 
         if (releasing != null)
             {
             bean.setReleasing(

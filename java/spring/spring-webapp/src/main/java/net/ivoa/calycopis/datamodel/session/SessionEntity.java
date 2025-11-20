@@ -27,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -48,8 +50,8 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaAccessConnector;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 
@@ -106,8 +108,7 @@ public class SessionEntity
     public SessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
         super(
-            offerset.getName() + "-" + offerblock.getName(),
-            ""
+            offerset.getName() + "-" + offerblock.getName()
             );
         this.phase = IvoaExecutionSessionPhase.OFFERED;
         this.offerset = offerset;
@@ -291,37 +292,44 @@ public class SessionEntity
         }
 
     @Override
-    public IvoaExecutionSessionResponse getIvoaBean(final String baseurl)
+    public IvoaExecutionSessionResponse makeBean(final String baseurl)
         {
-        return fillBean(
+        return this.fillBean(
+            baseurl,
             new IvoaExecutionSessionResponse().meta(
-                new IvoaComponentMetadata().kind(
-                    TYPE_DISCRIMINATOR
+                this.makeMeta(
+                    baseurl,
+                    Session.TYPE_DISCRIMINATOR
                     )
                 )
             );
         }
-    
-    public IvoaExecutionSessionResponse fillBean(final IvoaExecutionSessionResponse  bean)
+
+    protected List<@Valid IvoaAbstractOption> getOptions()
         {
-        super.fillBean(bean);
-        
-        bean.setExpires(this.getExpires());
-        bean.setPhase(this.getPhase());
-        bean.setHref(
-            baseurl + Session.REQUEST_PATH + this.getUuid()
-            );
-        bean.setExecutable(
-            this.getExecutable().getIvoaBean(
-                baseurl
-                )
+        return null;
+        }
+    
+    public IvoaExecutionSessionResponse fillBean(final String baseurl,final IvoaExecutionSessionResponse bean)
+        {
+        bean.setPhase(
+            this.getPhase()
             );
         bean.setSchedule(
             this.makeScheduleBean()
             );
+        bean.setExpires(
+            this.getExpires()
+            );
+
+        bean.setExecutable(
+            this.getExecutable().makeBean(
+                baseurl
+                )
+            );
 
         bean.setCompute(
-            this.getComputeResource().getIvoaBean(
+            this.getComputeResource().makeBean(
                 baseurl
                 )
             );
@@ -329,20 +337,20 @@ public class SessionEntity
         for (AbstractDataResourceEntity resource : this.getDataResources())
             {
             bean.addDataItem(
-                resource.getIvoaBean()
+                resource.makeBean(
+                    baseurl
+                    )
                 );
             }
 
         for (AbstractStorageResourceEntity resource : this.getStorageResources())
             {
             bean.addStorageItem(
-                resource.getIvoaBean(
+                resource.makeBean(
                     baseurl
                     )
                 );
             }
-
-        bean.setOptions(null);
 
         for (SessionConnectorEntity connector : this.getConnectors())
             {

@@ -82,26 +82,12 @@ public class ComponentEntity
     /**
      * Protected constructor.
      *
-    @Deprecated
+     */
     protected ComponentEntity(final String name)
         {
         this(
             name,
             null,
-            OffsetDateTime.now()
-            );
-        }
-     */
-
-    /**
-     * Protected constructor.
-     *
-     */
-    protected ComponentEntity(final String name, final String description)
-        {
-        this(
-            name,
-            description,
             OffsetDateTime.now()
             );
         }
@@ -518,11 +504,31 @@ public class ComponentEntity
             };
         }
 
-    protected IvoaComponentMetadata fillBean(final IvoaComponentMetadata bean)
-        {
+    protected IvoaComponentMetadata makeMeta(
+        final String kind,
+        final String baseurl
+        ){
+        return this.fillMeta(
+            kind,
+            baseurl,
+            new IvoaComponentMetadata()
+            ) ;
+        }
+
+    protected IvoaComponentMetadata fillMeta(
+        final String kind,
+        final String baseurl,
+        final IvoaComponentMetadata bean
+        ){
         bean.setUuid(
             this.getUuid()
             );
+        if (null != baseurl)
+            {
+            bean.setUrl(
+                baseurl + this.getUuid()
+                );
+            }
         bean.setName(
             this.getName()
             );

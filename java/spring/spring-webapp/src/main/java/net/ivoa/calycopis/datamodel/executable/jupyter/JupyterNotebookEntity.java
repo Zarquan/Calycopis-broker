@@ -30,9 +30,6 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 
 /**
@@ -88,18 +85,19 @@ public class JupyterNotebookEntity
         }
 
     @Override
-    public IvoaAbstractExecutable getIvoaBean(final String baseurl)
+    public IvoaJupyterNotebook makeBean(final String baseurl)
         {
-        return fillBean(
+        return this.fillBean(
             new IvoaJupyterNotebook().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     JupyterNotebook.TYPE_DISCRIMINATOR
                     )
                 )
             );
         }
-        
-    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
+
+    protected IvoaJupyterNotebook fillBean(final IvoaJupyterNotebook bean)
         {
         super.fillBean(
             bean

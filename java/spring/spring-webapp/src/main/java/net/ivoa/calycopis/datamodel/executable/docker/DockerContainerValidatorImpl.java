@@ -96,15 +96,14 @@ implements DockerContainerValidator
 
         boolean success = true ;
 
-        // TODO Null check on requested.getMeta()
-        // Move uuid and name to a base class.
-        IvoaDockerContainer validated = new IvoaDockerContainer().meta(
-            makeMeta(
-                DockerContainer.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaDockerContainer validated = new IvoaDockerContainer()
+            .kind(DockerContainer.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         // Created
         // Messages

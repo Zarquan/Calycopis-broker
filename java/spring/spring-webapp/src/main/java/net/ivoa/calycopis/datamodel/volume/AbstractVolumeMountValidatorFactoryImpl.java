@@ -66,7 +66,7 @@ public class AbstractVolumeMountValidatorFactoryImpl
         ){
         unknown(
             context,
-            resource.getMeta().getKind(),
+            resource.getKind(),
             context.makeVolumeValidatorResultKey(
                 resource
                 )

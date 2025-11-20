@@ -91,13 +91,14 @@ implements SimpleStorageResourceValidator
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource().meta(
-            makeMeta(
-                SimpleStorageResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource()
+            .kind(SimpleStorageResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
         
         //
         // TODO Check available size.

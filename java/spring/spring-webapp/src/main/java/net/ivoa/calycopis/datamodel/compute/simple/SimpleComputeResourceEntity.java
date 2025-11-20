@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
@@ -218,20 +217,34 @@ public class SimpleComputeResourceEntity
         }
      * 
      */
-    
+
+    // TODO Move this to a Skaha specific class.
+    @Column(name="skahasessionid")
+    private String skahasessionid;
     @Override
-    public IvoaSimpleComputeResource getIvoaBean(final String baseurl)
+    public String getSkahaSessionID()
+        {
+        return this.skahasessionid;
+        }
+    public void setSkahaSessionID(final String sessionid)
+        {
+        this.skahasessionid = sessionid ;
+        }
+
+    @Override
+    public IvoaSimpleComputeResource makeBean(final String baseurl)
         {
         return fillBean(
             new IvoaSimpleComputeResource().meta(
-                new IvoaComponentMetadata().kind(
+                this.makeMeta(
+                    baseurl,
                     SimpleComputeResource.TYPE_DISCRIMINATOR
                     )
                 )               
             );
         }
         
-    protected IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
+    public IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
         {
         super.fillBean(bean);
         
@@ -246,18 +259,6 @@ public class SimpleComputeResourceEntity
         bean.setMemory(memorybean);
         
         return bean;
-        }
-
-    @Column(name="skahasessionid")
-    private String skahasessionid;
-    @Override
-    public String getSkahaSessionID()
-        {
-        return this.skahasessionid;
-        }
-    public void setSkahaSessionID(final String sessionid)
-        {
-        this.skahasessionid = sessionid ;
         }
     }
 

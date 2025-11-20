@@ -90,13 +90,14 @@ implements SimpleVolumeMountValidator
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount().meta(
-            makeMeta(
-                SimpleVolumeMount.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount()
+           .kind(SimpleVolumeMount.TYPE_DISCRIMINATOR)
+           .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+               );
         
         validated.setPath(
             requested.getPath()

@@ -98,13 +98,14 @@ implements IvoaDataResourceValidator
 
         boolean success = true ;
 
-        IvoaIvoaDataResource validated = new IvoaIvoaDataResource().meta(
-            makeMeta(
-                IvoaDataResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaIvoaDataResource validated = new IvoaIvoaDataResource()
+            .kind(IvoaDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         success &= duplicateCheck(
             requested,

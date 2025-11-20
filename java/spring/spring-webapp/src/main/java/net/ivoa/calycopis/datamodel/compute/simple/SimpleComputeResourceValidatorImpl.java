@@ -125,13 +125,14 @@ implements SimpleComputeResourceValidator
 
         boolean success = true ;
 
-        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource().meta(
-            makeMeta(
-                SimpleComputeResource.TYPE_DISCRIMINATOR,
-                requested.getMeta(),
-                context
-                )
-            );
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource()
+            .kind(SimpleComputeResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
         
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;

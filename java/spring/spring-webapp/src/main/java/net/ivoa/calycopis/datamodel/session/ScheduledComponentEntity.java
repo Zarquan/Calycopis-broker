@@ -35,10 +35,9 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
 
 
 /**
@@ -64,28 +63,29 @@ implements ScheduledComponent
 
     /**
      * 
+     * 
+     */
     public ScheduledComponentEntity(final String name)
         {
         this(
-            (IvoaExecutionSessionSchedule)null,
+            null,
             name
             );
         }
-     */
 
     /**
      * 
      */
     public ScheduledComponentEntity(
         final IvoaExecutionSessionSchedule schedule,
-        final IvoaComponentMetadata meta
+        final String name
         ){
         super(
-            meta
+            name
             );
         if (schedule != null)
             {
-            IvoaScheduleDurationInstant preparing = schedule.getPreparing();
+            IvoaScheduleStartDurationInstant preparing = schedule.getPreparing();
             if (null != preparing)
                 {
                 String startInstantString = preparing.getStart();
@@ -230,10 +230,10 @@ implements ScheduledComponent
             );
         }
 
-    public IvoaScheduleDurationInstant makePreparingBean()
+    public IvoaScheduleStartDurationInstant makePreparingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
         if (getPrepareStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -257,10 +257,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaScheduleDurationInterval makeAvailableBean()
+    public IvoaScheduleStartDurationInterval makeAvailableBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInterval bean = new IvoaScheduleDurationInterval();
+        IvoaScheduleStartDurationInterval bean = new IvoaScheduleStartDurationInterval();
         if (getAvailableStartInstantSeconds() > 0)
             {
             StringBuffer buffer = new StringBuffer();
@@ -294,10 +294,10 @@ implements ScheduledComponent
             }
         }
 
-    public IvoaScheduleDurationInstant makeReleasingBean()
+    public IvoaScheduleStartDurationInstant makeReleasingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
         if (getReleaseStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -326,7 +326,7 @@ implements ScheduledComponent
         boolean valid = false;
         IvoaExecutionSessionSchedule bean = new IvoaExecutionSessionSchedule(); 
 
-        IvoaScheduleDurationInstant preparing = this.makePreparingBean();
+        IvoaScheduleStartDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)
             {
             bean.setPreparing(
@@ -335,7 +335,7 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInterval available = this.makeAvailableBean();
+        IvoaScheduleStartDurationInterval available = this.makeAvailableBean();
         if (null != available)
             {
             bean.setAvailable(
@@ -344,7 +344,7 @@ implements ScheduledComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInstant releasing = this.makeReleasingBean(); 
+        IvoaScheduleStartDurationInstant releasing = this.makeReleasingBean(); 
         if (releasing != null)
             {
             bean.setReleasing(
@@ -360,7 +360,4 @@ implements ScheduledComponent
             return null ;
             }
         }
-
-    
-    
     }

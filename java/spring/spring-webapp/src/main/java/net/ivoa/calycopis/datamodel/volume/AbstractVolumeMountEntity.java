@@ -84,13 +84,10 @@ implements AbstractVolumeMount
         return this.session;
         }
 
+    public abstract IvoaAbstractVolumeMount makeBean(final String baseurl);
+    
     protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
         {
-        bean.setMeta(
-            this.fillBean(
-                new IvoaComponentMetadata()
-                )
-            );
         return bean;
         }
     }

@@ -166,12 +166,14 @@ implements AbstractDataResourceValidator
 // /users/home/<username>/sessions/<sessionid>
         
             // Create a new StorageResource template.
-            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource().meta(
-                new IvoaComponentMetadata().kind(
+            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource()
+                .kind(
                     SimpleStorageResource.TYPE_DISCRIMINATOR
-                    ).name(
+                    )                    
+                .meta(
+                    new IvoaComponentMetadata().name(
                         "Storage for [" + context.makeDataValidatorResultKey(requested) + "]"
-                    )
+                        )
                 );
 
             //
