@@ -312,6 +312,9 @@ public class SessionEntity
     
     public IvoaExecutionSessionResponse fillBean(final String baseurl,final IvoaExecutionSessionResponse bean)
         {
+        bean.setKind(
+            TYPE_DISCRIMINATOR
+            );
         bean.setPhase(
             this.getPhase()
             );
