@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.volume.simple;
 
+import java.net.URI;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
@@ -40,7 +41,7 @@ public interface SimpleVolumeMount
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0") ;
     
     /**
      * Reference to the DataResources mounted in this volume.

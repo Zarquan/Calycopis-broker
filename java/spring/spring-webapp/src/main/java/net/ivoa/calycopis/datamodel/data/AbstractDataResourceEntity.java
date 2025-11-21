@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -127,15 +129,19 @@ implements AbstractDataResource
         this.storage = storage;
         }
 
+    @Deprecated
     public IvoaAbstractDataResource makeBean()
         {
         return this.makeBean(null);
         }
 
-    public abstract IvoaAbstractDataResource makeBean(final String baseurl);
+    public abstract IvoaAbstractDataResource makeBean(final URI baseuri);
 
     protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)
         {
+        bean.setKind(
+            this.getKind()
+            );
         bean.setPhase(
             this.getPhase()
             );

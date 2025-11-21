@@ -46,10 +46,4 @@ public interface AbstractDataResource
      */
     public AbstractStorageResource getStorage();
     
-    /**
-     * Get an IVOA bean representation.
-     *  
-    protected IvoaAbstractDataResource makeBean();
-     */
-    
     }

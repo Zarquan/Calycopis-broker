@@ -18,10 +18,4 @@ public interface AbstractExecutable
      */
     public Session getSession();
     
-    /**
-     * Get an IVOA bean representation.
-     *  
-    public IvoaAbstractExecutable getIvoaBean(final String baseurl);
-     */
-
     }

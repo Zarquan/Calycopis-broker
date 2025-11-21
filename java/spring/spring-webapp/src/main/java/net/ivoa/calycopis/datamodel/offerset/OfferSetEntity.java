@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,11 @@ public class OfferSetEntity
 extends ComponentEntity
     implements OfferSet
     {
+    @Override
+    public URI getKind()
+        {
+        return OfferSet.TYPE_DISCRIMINATOR ;
+        }
 
     protected OfferSetEntity()
         {

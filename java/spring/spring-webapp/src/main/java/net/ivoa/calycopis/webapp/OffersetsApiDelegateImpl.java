@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.webapp;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,7 +70,7 @@ public class OffersetsApiDelegateImpl
             {
             return new ResponseEntity<IvoaOfferSetResponse>(
                 new OfferSetResponseBean(
-                    this.getBaseUrl(),
+                    this.getBaseUri(),
                     found.get()
                     ),
                 HttpStatus.OK
@@ -90,16 +89,14 @@ public class OffersetsApiDelegateImpl
         ) {
         log.debug("offerSetPost [{}]", request.getName());
 	    IvoaOfferSetResponse response = new OfferSetResponseBean(
-	        this.getBaseUrl(),
+	        this.getBaseUri(),
 	        factory.create(
                 request
                 )
 	        );
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(
-            URI.create(
-                response.getMeta().getUrl()
-                )
+            response.getMeta().getUrl()
             );
         return new ResponseEntity<IvoaOfferSetResponse>(
             response,

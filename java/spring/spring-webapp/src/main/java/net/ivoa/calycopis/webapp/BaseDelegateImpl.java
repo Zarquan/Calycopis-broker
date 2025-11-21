@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.webapp;
 
+import java.net.URI;
 import java.util.Optional;
 
 import org.springframework.web.context.request.NativeWebRequest;
@@ -109,15 +110,17 @@ public class BaseDelegateImpl
      * https://gist.github.com/beradrian/d66008b6c5a784185c29
      *
      */
-    public String getBaseUrl()
+    public URI getBaseUri()
         {
         String contextpath = this.getContextPath();
         String requestURL  = this.getRequestURL();
         String requestURI  = this.getRequestURI();
-        return requestURL.substring(
-            0,
-            requestURL.length() - requestURI.length()
-            ) + contextpath;
+        return URI.create(
+            requestURL.substring(
+                0,
+                requestURL.length() - requestURI.length()
+                ) + contextpath
+            );
         }
     }
 

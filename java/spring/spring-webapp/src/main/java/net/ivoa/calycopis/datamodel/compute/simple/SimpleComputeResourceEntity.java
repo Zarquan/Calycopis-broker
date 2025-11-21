@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.compute.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -51,6 +53,11 @@ public class SimpleComputeResourceEntity
     extends AbstractComputeResourceEntity
     implements SimpleComputeResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleComputeResource.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -232,18 +239,17 @@ public class SimpleComputeResourceEntity
         }
 
     @Override
-    public IvoaSimpleComputeResource makeBean(final String baseurl)
+    public IvoaSimpleComputeResource makeBean(final URI baseuri)
         {
         return fillBean(
             new IvoaSimpleComputeResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    SimpleComputeResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )               
             );
         }
-        
+
     public IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
         {
         super.fillBean(bean);

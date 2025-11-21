@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
@@ -44,6 +46,11 @@ public class SimpleDataResourceEntity
     extends AbstractDataResourceEntity
     implements SimpleDataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleDataResource.TYPE_DISCRIMINATOR ;
+        }
 
     /**
      * Protected constructor
@@ -100,23 +107,20 @@ public class SimpleDataResourceEntity
         }
 
     @Override
-    public IvoaAbstractDataResource makeBean(final String baseurl)
+    public IvoaAbstractDataResource makeBean(final URI baseuri)
         {
         return fillBean(
             new IvoaSimpleDataResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    SimpleDataResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
         }
-    
+
     protected IvoaSimpleDataResource fillBean(final IvoaSimpleDataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         bean.setLocation(
             this.getLocation()
             );

@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public interface Session
      * The type identifier for an execution session response.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0");
 
     /**
      * The URL path for an execution session.
@@ -245,13 +246,12 @@ public interface Session
      *
      */
     public void addConnector(final String type, final String protocol, String location);
-    
-    
+
     /**
      * Get an Ivoa bean representation.
      *  
      */
-    public IvoaExecutionSessionResponse makeBean(final String baseurl);
+    public IvoaExecutionSessionResponse makeBean(final URI baseuri);
 
     }
 

@@ -116,19 +116,9 @@ public class PodmanDockerContainerEntity
         }
 
     @Override
-    public IvoaAbstractExecutable makeBean(final String baseurl)
-        {
-        return super.makeBean(
-            baseurl
-            );
-        }
-
-    @Override
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         return bean;
         }
     }

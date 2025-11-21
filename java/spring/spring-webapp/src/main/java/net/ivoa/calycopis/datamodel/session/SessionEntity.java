@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,11 @@ public class SessionEntity
     extends ScheduledComponentEntity
     implements Session
     {
+    @Override
+    public URI getKind()
+        {
+        return Session.TYPE_DISCRIMINATOR;
+        }
 
     @JoinColumn(name = "offerset", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -291,15 +297,13 @@ public class SessionEntity
             );
         }
 
-    @Override
-    public IvoaExecutionSessionResponse makeBean(final String baseurl)
+    public IvoaExecutionSessionResponse makeBean(final URI baseuri)
         {
         return this.fillBean(
-            baseurl,
+            baseuri,
             new IvoaExecutionSessionResponse().meta(
                 this.makeMeta(
-                    baseurl,
-                    Session.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
@@ -310,10 +314,10 @@ public class SessionEntity
         return null;
         }
     
-    public IvoaExecutionSessionResponse fillBean(final String baseurl,final IvoaExecutionSessionResponse bean)
+    public IvoaExecutionSessionResponse fillBean(final URI baseuri,final IvoaExecutionSessionResponse bean)
         {
         bean.setKind(
-            TYPE_DISCRIMINATOR
+            this.getKind()
             );
         bean.setPhase(
             this.getPhase()
@@ -327,13 +331,13 @@ public class SessionEntity
 
         bean.setExecutable(
             this.getExecutable().makeBean(
-                baseurl
+                baseuri
                 )
             );
 
         bean.setCompute(
             this.getComputeResource().makeBean(
-                baseurl
+                baseuri
                 )
             );
 
@@ -341,7 +345,7 @@ public class SessionEntity
             {
             bean.addDataItem(
                 resource.makeBean(
-                    baseurl
+                    baseuri
                     )
                 );
             }
@@ -350,7 +354,7 @@ public class SessionEntity
             {
             bean.addStorageItem(
                 resource.makeBean(
-                    baseurl
+                    baseuri
                     )
                 );
             }

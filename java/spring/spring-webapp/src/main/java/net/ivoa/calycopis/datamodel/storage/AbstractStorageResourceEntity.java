@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,10 +137,13 @@ implements AbstractStorageResource
             );
         }
     
-    public abstract IvoaAbstractStorageResource makeBean(final String baseurl);
+    public abstract IvoaAbstractStorageResource makeBean(final URI baseuri);
     
     protected IvoaAbstractStorageResource fillBean(final IvoaAbstractStorageResource bean)
         {
+        bean.setKind(
+            this.getKind()
+            );
         bean.setPhase(
             this.getPhase()
             );

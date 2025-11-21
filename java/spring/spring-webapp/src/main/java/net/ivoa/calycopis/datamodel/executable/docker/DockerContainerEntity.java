@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,6 +75,11 @@ public class DockerContainerEntity
     extends AbstractExecutableEntity
     implements DockerContainer
     {
+    @Override
+    public URI getKind()
+        {
+        return DockerContainer.TYPE_DISCRIMINATOR ;
+        }
 
     protected DockerContainerEntity()
         {
@@ -315,13 +321,12 @@ public class DockerContainerEntity
         }
 
     @Override
-    public IvoaAbstractExecutable makeBean(final String baseurl)
+    public IvoaAbstractExecutable makeBean(final URI baseuri)
         {
         return this.fillBean(
             new IvoaDockerContainer().meta(
                 this.makeMeta(
-                    baseurl,
-                    DockerContainer.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );

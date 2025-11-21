@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.component;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,18 @@ public interface Component
      *
      */
     public UUID getUuid();
+
+    /**
+     * Get the Component URI.
+     *
+     */
+    public URI makeUri(final URI baseuri);
+    
+    /**
+     * Get the Component kind (type).
+     *
+     */
+    public URI getKind() ;
 
     /**
      * Get the Component name.

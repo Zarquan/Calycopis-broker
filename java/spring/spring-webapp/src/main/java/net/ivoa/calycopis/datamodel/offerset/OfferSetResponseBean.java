@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.offerset;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +42,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 
 /**
  * A serialization bean for OfferSets.
+ * TODO Fold this back into OfferSetEntity.makeBean() to match the other entities. 
  * 
  */
 @Slf4j
@@ -54,10 +56,10 @@ public class OfferSetResponseBean
     public static final String REQUEST_PATH = "/offersets/" ;
 
     /**
-     * The base URL for the current request.
+     * The base URI for the current request.
      * 
      */
-    private final String baseurl;
+    private final URI baseuri;
 
     /**
      * The OfferSet entity to wrap.
@@ -69,15 +71,15 @@ public class OfferSetResponseBean
 	 * Protected constructor.
 	 * 
 	 */
-	public OfferSetResponseBean(final String baseurl, final OfferSetEntity entity)
+	public OfferSetResponseBean(final URI baseuri, final OfferSetEntity entity)
 	    {
 	    super();
-        this.baseurl = baseurl;
+        this.baseuri = baseuri;
         this.entity = entity;
 	    }
 
     @Override
-    public String getKind()
+    public URI getKind()
         {
         return OfferSet.TYPE_DISCRIMINATOR;
         }
@@ -93,9 +95,9 @@ public class OfferSetResponseBean
             }
 
         @Override
-        public String getUrl()
+        public URI getUrl()
             {
-            return makeUrl(baseurl, entity);
+            return makeUri(baseuri);
             }
 
         @Override
@@ -133,9 +135,20 @@ public class OfferSetResponseBean
         };
     }
 
-    static String makeUrl(final String baseurl, final OfferSetEntity entity)
+	/*
+	 * 
+    static String makeUrl(final URI baseuri, final OfferSetEntity entity)
         {
         return baseurl + REQUEST_PATH + entity.getUuid();
+        }
+     * 
+     */
+
+    public URI makeUri(final URI baseuri)
+        {
+        return baseuri.resolve(
+            entity.getUuid().toString()
+            );
         }
 
     @Override
@@ -153,7 +166,7 @@ public class OfferSetResponseBean
             public IvoaExecutionSessionResponse wrap(final SessionEntity inner)
                 {
                 return inner.makeBean(
-                    baseurl
+                    baseuri
                     );
                 }
             };

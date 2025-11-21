@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data.amazon;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
@@ -43,6 +45,11 @@ public class AmazonS3DataResourceEntity
     extends AbstractDataResourceEntity
     implements AmazonS3DataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return AmazonS3DataResource.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -124,13 +131,12 @@ public class AmazonS3DataResourceEntity
         }
 
     @Override
-    public IvoaS3DataResource makeBean(String baseurl)
+    public IvoaS3DataResource makeBean(URI baseuri)
         {
         return fillBean(
             new IvoaS3DataResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    AmazonS3DataResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
@@ -138,9 +144,7 @@ public class AmazonS3DataResourceEntity
 
     protected IvoaS3DataResource fillBean(final IvoaS3DataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         // TODO fill in the Amazon fields
         return bean;
         }

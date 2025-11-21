@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -47,6 +49,11 @@ public class JupyterNotebookEntity
     extends AbstractExecutableEntity
     implements JupyterNotebook
     {
+    @Override
+    public URI getKind()
+        {
+        return JupyterNotebook.TYPE_DISCRIMINATOR ;
+        }
 
     protected JupyterNotebookEntity()
         {
@@ -85,13 +92,12 @@ public class JupyterNotebookEntity
         }
 
     @Override
-    public IvoaJupyterNotebook makeBean(final String baseurl)
+    public IvoaJupyterNotebook makeBean(final URI baseuri)
         {
         return this.fillBean(
             new IvoaJupyterNotebook().meta(
                 this.makeMeta(
-                    baseurl,
-                    JupyterNotebook.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
@@ -99,9 +105,7 @@ public class JupyterNotebookEntity
 
     protected IvoaJupyterNotebook fillBean(final IvoaJupyterNotebook bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         return bean;
         }
     }

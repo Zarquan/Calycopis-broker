@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -84,10 +86,13 @@ implements AbstractVolumeMount
         return this.session;
         }
 
-    public abstract IvoaAbstractVolumeMount makeBean(final String baseurl);
+    public abstract IvoaAbstractVolumeMount makeBean(final URI baseuri);
     
     protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
         {
+        bean.setKind(
+            this.getKind()
+            );
         return bean;
         }
     }

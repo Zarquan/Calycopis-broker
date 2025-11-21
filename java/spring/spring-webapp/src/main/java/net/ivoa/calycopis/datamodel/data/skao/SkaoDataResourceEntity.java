@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.data.skao;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +59,11 @@ public class SkaoDataResourceEntity
     extends IvoaDataResourceEntity
     implements SkaoDataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SkaoDataResource.TYPE_DISCRIMINATOR ;
+        }
 
     /**
      * Protected constructor
@@ -244,23 +250,21 @@ public class SkaoDataResourceEntity
         }
     
     @Override
-    public IvoaAbstractDataResource makeBean(final String baseurl)
+    public IvoaAbstractDataResource makeBean(final URI baseuri)
         {
         return fillBean(
             new IvoaSkaoDataResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    SkaoDataResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
         }
-    
+
     protected IvoaAbstractDataResource fillBean(final IvoaSkaoDataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
+        
         IvoaSkaoDataResourceBlock block = new IvoaSkaoDataResourceBlock();
         bean.setSkao(
             block

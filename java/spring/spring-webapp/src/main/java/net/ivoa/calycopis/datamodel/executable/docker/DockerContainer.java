@@ -3,6 +3,7 @@
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public interface DockerContainer
      * The OpenAPI type identifier.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0") ;
 
     public Image getImage();
     

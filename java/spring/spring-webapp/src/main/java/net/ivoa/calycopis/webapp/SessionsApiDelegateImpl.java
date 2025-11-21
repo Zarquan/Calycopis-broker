@@ -71,7 +71,7 @@ public class SessionsApiDelegateImpl
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
                 found.get().makeBean(
-                    this.getBaseUrl()
+                    this.getBaseUri()
                     ),
                 HttpStatus.OK
                 );
@@ -96,7 +96,7 @@ public class SessionsApiDelegateImpl
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
                 found.get().makeBean(
-                    this.getBaseUrl()
+                    this.getBaseUri()
                     ),
                 HttpStatus.OK
                 );

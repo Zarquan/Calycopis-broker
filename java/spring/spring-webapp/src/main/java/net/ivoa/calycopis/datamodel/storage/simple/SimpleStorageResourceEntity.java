@@ -23,9 +23,12 @@
 
 package net.ivoa.calycopis.datamodel.storage.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import net.ivoa.calycopis.datamodel.session.Session;
 import net.ivoa.calycopis.datamodel.session.SessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
@@ -47,6 +50,11 @@ public class SimpleStorageResourceEntity
     extends AbstractStorageResourceEntity
     implements SimpleStorageResource
     {
+    @Override
+    public URI getKind()
+        {
+        return Session.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -94,13 +102,12 @@ public class SimpleStorageResourceEntity
         }
 
     @Override
-    public IvoaAbstractStorageResource makeBean(String baseurl)
+    public IvoaAbstractStorageResource makeBean(URI baseuri)
         {
         return fillBean(
             new IvoaSimpleStorageResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    SimpleStorageResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
@@ -108,9 +115,7 @@ public class SimpleStorageResourceEntity
 
     protected IvoaSimpleStorageResource fillBean(final IvoaSimpleStorageResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         //
         // Add the storage properties.
         //

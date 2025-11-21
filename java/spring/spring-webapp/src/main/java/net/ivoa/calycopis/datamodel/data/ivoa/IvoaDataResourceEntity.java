@@ -53,6 +53,11 @@ public class IvoaDataResourceEntity
     extends AbstractDataResourceEntity
     implements IvoaDataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return IvoaDataResource.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -363,23 +368,20 @@ public class IvoaDataResourceEntity
         }
     
     @Override
-    public IvoaAbstractDataResource makeBean(final String baseurl)
+    public IvoaAbstractDataResource makeBean(final URI baseuri)
         {
         return this.fillBean(
             new IvoaIvoaDataResource().meta(
                 this.makeMeta(
-                    baseurl,
-                    IvoaDataResource.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );
         }
-    
+
     protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
 
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(

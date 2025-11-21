@@ -3,6 +3,8 @@
  */
 package net.ivoa.calycopis.datamodel.executable;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -90,10 +92,13 @@ extends LifecycleComponentEntity
         return this.makeBean(null);
         }
 
-    public abstract IvoaAbstractExecutable makeBean(final String baseurl);
+    public abstract IvoaAbstractExecutable makeBean(final URI baseuri);
 
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
+        bean.setKind(
+            this.getKind()
+            );
         bean.setPhase(
             this.getPhase()
             );

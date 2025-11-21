@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data.simple;
 
+import java.net.URI;
+
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 
 /**
@@ -36,7 +38,7 @@ public interface SimpleDataResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/data/simple-data-resource-1.0") ;
     
     /**
      * Get the data location.

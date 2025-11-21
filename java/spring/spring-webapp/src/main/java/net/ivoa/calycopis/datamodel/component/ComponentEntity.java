@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.component;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +67,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class ComponentEntity
+public abstract class ComponentEntity
     implements Component, MessageSubject
     {
 
@@ -505,39 +506,47 @@ public class ComponentEntity
         }
 
     protected IvoaComponentMetadata makeMeta(
-        final String kind,
-        final String baseurl
+        final URI baseuri
         ){
         return this.fillMeta(
-            kind,
-            baseurl,
+            baseuri,
             new IvoaComponentMetadata()
             ) ;
         }
 
     protected IvoaComponentMetadata fillMeta(
-        final String kind,
-        final String baseurl,
+        final URI baseuri,
         final IvoaComponentMetadata bean
         ){
         bean.setUuid(
             this.getUuid()
             );
-        if (null != baseurl)
+        if (null != baseuri)
             {
             bean.setUrl(
-                baseurl + this.getUuid()
+                this.makeUri(
+                    baseuri
+                    )
                 );
             }
         bean.setName(
             this.getName()
             );
         bean.setCreated(
-            this.getCreated()
+                this.getCreated()
+                );
+        bean.setModified(
+            this.getModified()
             );
         bean.setMessages(
             this.getMessageBeans()
             );
         return bean ;
+        }
+
+    @Override
+    public URI makeUri(final URI baseuri)
+        {
+        return baseuri.resolve(this.getUuid().toString());
         }
     }

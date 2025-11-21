@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface OfferSet
      * The OpenAPI type identifier.
      * 
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0") ;
     
     /**
      * Get the date/time this OfferSet expires.

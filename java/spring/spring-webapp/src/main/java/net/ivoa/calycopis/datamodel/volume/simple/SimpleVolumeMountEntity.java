@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.volume.simple;
 
+import java.net.URI;
 import java.util.List;
 
 import jakarta.persistence.DiscriminatorValue;
@@ -50,6 +51,11 @@ public class SimpleVolumeMountEntity
     extends AbstractVolumeMountEntity
     implements SimpleVolumeMount
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleVolumeMount.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -115,13 +121,12 @@ public class SimpleVolumeMountEntity
         }
 
     @Override
-    public IvoaSimpleVolumeMount makeBean(final String baseurl)
+    public IvoaSimpleVolumeMount makeBean(final URI baseuri)
         {
         return this.fillBean(
             new IvoaSimpleVolumeMount().meta(
                 this.makeMeta(
-                    baseurl,
-                    SimpleVolumeMount.TYPE_DISCRIMINATOR
+                    baseuri
                     )
                 )
             );

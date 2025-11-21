@@ -3,6 +3,7 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
      */
     public void unknown(
         final OfferSetRequestParserContext context,
-        final String typeName,
+        final URI    typeName,
         final String className
         ){
         context.getOfferSetEntity().addWarning(
@@ -49,7 +50,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
             "Unknown type [${type}][${class}]",
             Map.of(
                 "type",
-                typeName,
+                typeName.toString(),
                 "class",
                 className
                 )

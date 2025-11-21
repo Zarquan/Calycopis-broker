@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -110,15 +112,19 @@ implements AbstractComputeResource
         return this.session;
         }
 
+    @Deprecated
     public IvoaAbstractComputeResource makeBean()
         {
         return this.makeBean(null);
         }
 
-    public abstract IvoaAbstractComputeResource makeBean(final String baseurl);
+    public abstract IvoaAbstractComputeResource makeBean(final URI baseuri);
 
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
         {
+        bean.setKind(
+            this.getKind()
+            );
         bean.setPhase(
             this.getPhase()
             );
