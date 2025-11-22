@@ -35,25 +35,27 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * Public interface for an execution session.
  *
  */
-public interface Session
-    extends ScheduledComponent
+public interface ExecutionSession
+    extends AbstractSession
     {
+    
     /**
-     * The type identifier for an execution session response.
+     * The type identifier for execution sessions.
      *
      */
     public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0");
 
     /**
-     * The URL path for an execution session.
+     * Get the parent OfferSet.
      *
      */
-    public static final String REQUEST_PATH = "/sessions/" ;
+    public OfferSetEntity getOfferSet();
 
     /**
      * Get the Execution phase.
@@ -72,132 +74,6 @@ public interface Session
      *
      */
     public OffsetDateTime getExpires();
-
-    /**
-     * Get the parent OfferSet.
-     *
-     */
-    public OfferSetEntity getOfferSet();
-
-    /**
-     * Get the start of the preparation step in seconds.
-     *
-    public long getPrepareStartInstantSeconds();
-     */
-
-    /**
-     * Get the start of the preparation step as an Instant.
-     *
-    public Instant getPrepareStartInstant();
-     */
-
-    /**
-     * Get the length of the preparation step in seconds.
-     *
-    public long getPrepareDurationSeconds();
-     */
-
-    /**
-     * Get the length of the preparation step as a Duration.
-     *
-    public Duration getPrepareDuration();
-     */
-
-    /**
-     * Get the end of the preparation step in seconds.
-     *
-    public long getPrepareDoneInstantSeconds();
-     */
-
-    /**
-     * Get the end of the preparation step as an Instant.
-     *
-    public Instant getPrepareDoneInstant();
-     */
-
-    /**
-     * Get the start of the execution start interval, in seconds.
-     *
-    public long getExecutionStartInstantSeconds();
-     */
-
-    /**
-     * Get the start of the execution start interval, as an Instant.
-     *
-    public Instant getExecutionStartInstant();
-     */
-
-    /**
-     * Get the length of the execution start interval in seconds.
-     *
-    public long getExecutionStartDurationSeconds();
-     */
-
-    /**
-     * Get the length of the execution start interval as a Duration.
-     *
-    public Duration getExecutionStartDuration();
-     */
-
-    /**
-     * Get the execution start interval (instant + duration) as an Interval.
-     *
-    public Interval getExecutionStartInterval();
-     */
-
-    /**
-     * Get the execution duration in seconds.
-     *
-    public long getExecutionDurationSeconds();
-     */
-
-    /**
-     * Get the execution duration as a Duration.
-     *
-    public Duration getExecutionDuration();
-     */
-
-    /**
-     * Get the execution interval as an Interval.
-     *
-    public Interval getExecutionInterval();
-     */
-
-    /**
-     * Get the start of the release step in seconds. 
-     *
-    public long getReleaseStartInstantSeconds();
-     */
-
-    /**
-     * Get the start of the release step as an Instant. 
-     *
-    public Instant getReleaseStartInstant();
-     */
-
-    /**
-     * Get the length of the release step in seconds. 
-     *
-    public long getReleaseDurationSeconds();
-     */
-
-    /**
-     * Get the length of the release step as a Duration. 
-     *
-    public Duration getReleaseDuration();
-     */
-
-    /**
-     * Get the end of the release step in seconds. 
-     *
-    public long getReleaseDoneInstantSeconds();
-     */
-
-    /**
-     * Get the end of the release step as an Instant. 
-     *
-    public Instant getReleaseDoneInstant();
-     */
     
     /**
      * Get the Executable entity.
@@ -248,10 +124,10 @@ public interface Session
     public void addConnector(final String type, final String protocol, String location);
 
     /**
-     * Get an Ivoa bean representation.
+     * Make an Ivoa bean representation.
      *  
      */
-    public IvoaExecutionSessionResponse makeBean(final URI baseuri);
+    public IvoaExecutionSessionResponse makeBean(final URIBuilder uribuilder);
 
     }
 

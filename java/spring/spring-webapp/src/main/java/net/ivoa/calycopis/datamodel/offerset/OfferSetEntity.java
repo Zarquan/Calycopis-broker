@@ -36,8 +36,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
+import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 @Slf4j
 @Entity
@@ -107,16 +111,60 @@ extends ComponentEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SessionEntity> executions = new ArrayList<SessionEntity>();
+    List<ExecutionSessionEntity> executions = new ArrayList<ExecutionSessionEntity>();
 
     @Override
-    public List<SessionEntity> getOffers()
+    public List<ExecutionSessionEntity> getOffers()
         {
         return executions ;
         }
  
-    public void addExecutionSession(final SessionEntity execution)
+    public void addExecutionSession(final ExecutionSessionEntity execution)
         {
         executions.add(execution);
         }
+    
+    @Override
+    protected URI getWebappPath()
+        {
+        return OfferSet.WEBAPP_PATH;
+        }
+
+    public IvoaOfferSetResponse makeBean(final URIBuilder uribuilder)
+        {
+        return this.fillBean(
+            uribuilder,
+            new IvoaOfferSetResponse().meta(
+                this.makeMeta(
+                    uribuilder
+                    )
+                )
+            );
+        }
+
+    public IvoaOfferSetResponse fillBean(final URIBuilder uribuilder, final IvoaOfferSetResponse bean)
+        {
+        bean.setKind(
+            this.getKind()
+            );
+        bean.setResult(
+            this.getResult()
+            );
+
+        bean.setOffers(
+            new ListWrapper<IvoaExecutionSessionResponse, ExecutionSessionEntity>(
+                this.getOffers()
+                ){
+                public IvoaExecutionSessionResponse wrap(final ExecutionSessionEntity inner)
+                    {
+                    return inner.makeBean(
+                        uribuilder
+                        );
+                    }
+                }
+            );
+        
+        return bean;
+        }
+    
     }

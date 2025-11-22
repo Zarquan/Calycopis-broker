@@ -24,7 +24,7 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -124,7 +124,7 @@ implements SimpleVolumeMountValidator
                 validated
                 ){
                 @Override
-                public SimpleVolumeMountEntity build(final SessionEntity session)
+                public SimpleVolumeMountEntity build(final ExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

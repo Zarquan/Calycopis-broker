@@ -20,26 +20,23 @@
  *
  *
  */
+
 package net.ivoa.calycopis.datamodel.session;
 
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import java.net.URI;
 
 /**
- * JpaRepository for SessionEntity.
+ * Public interface for an execution session.
  *
  */
-@Repository
-public interface SessionEntityRepository
-    extends JpaRepository<SessionEntity, UUID>
+public interface AbstractSession
+    extends ScheduledComponent
     {
-    
-    List<SessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
+    /**
+     * The webapp path for sessions.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("sessions/"); 
     
     }
 

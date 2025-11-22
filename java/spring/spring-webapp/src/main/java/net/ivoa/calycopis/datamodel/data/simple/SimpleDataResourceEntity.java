@@ -29,10 +29,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A Simple data resource.
@@ -66,7 +67,7 @@ public class SimpleDataResourceEntity
      *
      */
     public SimpleDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -85,7 +86,7 @@ public class SimpleDataResourceEntity
      *
      */
     public SimpleDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaSimpleDataResource validated
@@ -107,12 +108,12 @@ public class SimpleDataResourceEntity
         }
 
     @Override
-    public IvoaAbstractDataResource makeBean(final URI baseuri)
+    public IvoaAbstractDataResource makeBean(final URIBuilder builder)
         {
         return fillBean(
             new IvoaSimpleDataResource().meta(
                 this.makeMeta(
-                    baseuri
+                    builder
                     )
                 )
             );

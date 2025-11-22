@@ -21,26 +21,18 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.util;
 
-import java.util.Optional;
+import java.net.URI;
 import java.util.UUID;
 
-import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
-
 /**
- * 
+ * A builder to generate URIs for service endpoints.
+ *  
  */
-public interface SessionEntityUpdateHandler
-extends FactoryBase
+public interface URIBuilder
     {
 
-    /**
-     * Apply an Update request to an Session.
-     *
-     */
-    public Optional<SessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
-    
-    
+    public URI buildURI(final URI path, final UUID uuid);
+
     }

@@ -32,9 +32,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntityFactory;
-import net.ivoa.calycopis.datamodel.session.SessionEntityUpdateHandler;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityUpdateHandler;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
@@ -45,14 +45,14 @@ public class SessionsApiDelegateImpl
     implements SessionsApiDelegate
     {
 
-    private final SessionEntityFactory sessionFactory ;
-    private final SessionEntityUpdateHandler updateHandler ;
+    private final ExecutionSessionEntityFactory sessionFactory ;
+    private final ExecutionSessionEntityUpdateHandler updateHandler ;
 
     @Autowired
     public SessionsApiDelegateImpl(
         NativeWebRequest request,
-        SessionEntityFactory sessionFactory,
-        SessionEntityUpdateHandler updateHandler 
+        ExecutionSessionEntityFactory sessionFactory,
+        ExecutionSessionEntityUpdateHandler updateHandler 
         )
         {
         super(request);
@@ -64,14 +64,14 @@ public class SessionsApiDelegateImpl
     public ResponseEntity<IvoaExecutionSessionResponse> executionSessionGet(
         final UUID uuid
         ) {
-        final Optional<SessionEntity> found = sessionFactory.select(
+        final Optional<ExecutionSessionEntity> found = sessionFactory.select(
             uuid
             );
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
                 found.get().makeBean(
-                    this.getBaseUri()
+                    this.getURIBuilder()
                     ),
                 HttpStatus.OK
                 );
@@ -88,7 +88,7 @@ public class SessionsApiDelegateImpl
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
-       final Optional<SessionEntity> found = updateHandler.update(
+       final Optional<ExecutionSessionEntity> found = updateHandler.update(
             uuid,
             request.getUpdate()
             );
@@ -96,7 +96,7 @@ public class SessionsApiDelegateImpl
             {
             return new ResponseEntity<IvoaExecutionSessionResponse>(
                 found.get().makeBean(
-                    this.getBaseUri()
+                    this.getURIBuilder()
                     ),
                 HttpStatus.OK
                 );

@@ -26,6 +26,11 @@ server:
     tomcat:
         accesslog:
             enabled: true
+    # https://www.baeldung.com/spring-boot-context-path
+    servlet:
+        context-path: /baeldung
+
+
 # https://howtodoinjava.com/spring-boot/configure-logging-application-yml/
 logging:
     level:

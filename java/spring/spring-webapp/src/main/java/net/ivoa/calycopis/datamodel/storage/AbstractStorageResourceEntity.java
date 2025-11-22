@@ -39,10 +39,11 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -74,7 +75,7 @@ implements AbstractStorageResource
      * 
      */
     protected AbstractStorageResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -108,10 +109,10 @@ implements AbstractStorageResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private ExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public ExecutionSessionEntity getSession()
         {
         return this.session;
         }
@@ -137,7 +138,7 @@ implements AbstractStorageResource
             );
         }
     
-    public abstract IvoaAbstractStorageResource makeBean(final URI baseuri);
+    public abstract IvoaAbstractStorageResource makeBean(final URIBuilder builder);
     
     protected IvoaAbstractStorageResource fillBean(final IvoaAbstractStorageResource bean)
         {
@@ -161,5 +162,11 @@ implements AbstractStorageResource
                 }
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractStorageResource.WEBAPP_PATH;
         }
     }

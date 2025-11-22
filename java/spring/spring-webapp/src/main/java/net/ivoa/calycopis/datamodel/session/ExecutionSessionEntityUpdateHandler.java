@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,37 +21,26 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage.simple;
+package net.ivoa.calycopis.datamodel.session;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 
 /**
- * A SimpleStorageResource Factory.
- *
+ * 
  */
-public interface SimpleStorageResourceEntityFactory
-    extends FactoryBase
+public interface ExecutionSessionEntityUpdateHandler
+extends FactoryBase
     {
 
     /**
-     * Select a SimpleStorageResource based UUID.
+     * Apply an Update request to an ExecutionSession.
      *
      */
-    public Optional<SimpleStorageResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new SimpleStorageResourceEntity based on a template.
-     *
-     */
-    public SimpleStorageResourceEntity create(
-        final ExecutionSessionEntity session,
-        final AbstractStorageResourceValidator.Result result
-        );
-
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
+    
+    
     }
-

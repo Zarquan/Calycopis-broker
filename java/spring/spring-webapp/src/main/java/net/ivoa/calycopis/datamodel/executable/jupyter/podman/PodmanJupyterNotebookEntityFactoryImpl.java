@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -51,7 +51,7 @@ public class PodmanJupyterNotebookEntityFactoryImpl
 
     @Override
     public PodmanJupyterNotebookEntity create(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         PodmanJupyterNotebookEntity entity = this.repository.save(

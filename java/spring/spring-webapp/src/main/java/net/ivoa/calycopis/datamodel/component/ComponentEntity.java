@@ -55,6 +55,7 @@ import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * JPA Entity for a Component
@@ -506,29 +507,29 @@ public abstract class ComponentEntity
         }
 
     protected IvoaComponentMetadata makeMeta(
-        final URI baseuri
+        final URIBuilder builder
         ){
         return this.fillMeta(
-            baseuri,
+            builder,
             new IvoaComponentMetadata()
             ) ;
         }
 
+    protected abstract URI getWebappPath() ;
+    
     protected IvoaComponentMetadata fillMeta(
-        final URI baseuri,
+        final URIBuilder builder,
         final IvoaComponentMetadata bean
         ){
         bean.setUuid(
             this.getUuid()
             );
-        if (null != baseuri)
-            {
-            bean.setUrl(
-                this.makeUri(
-                    baseuri
-                    )
-                );
-            }
+        bean.setUrl(
+            builder.buildURI(
+                this.getWebappPath(),
+                this.uuid
+                )
+            );
         bean.setName(
             this.getName()
             );
@@ -542,11 +543,5 @@ public abstract class ComponentEntity
             this.getMessageBeans()
             );
         return bean ;
-        }
-
-    @Override
-    public URI makeUri(final URI baseuri)
-        {
-        return baseuri.resolve(this.getUuid().toString());
         }
     }

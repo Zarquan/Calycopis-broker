@@ -20,38 +20,26 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.session;
 
-package net.ivoa.calycopis.datamodel.storage.simple;
-
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * A SimpleStorageResource Factory.
+ * JpaRepository for ExecutionSessionEntity.
  *
  */
-public interface SimpleStorageResourceEntityFactory
-    extends FactoryBase
+@Repository
+public interface ExecutionSessionEntityRepository
+    extends JpaRepository<ExecutionSessionEntity, UUID>
     {
-
-    /**
-     * Select a SimpleStorageResource based UUID.
-     *
-     */
-    public Optional<SimpleStorageResourceEntity> select(final UUID uuid);
-
-    /**
-     * Create a new SimpleStorageResourceEntity based on a template.
-     *
-     */
-    public SimpleStorageResourceEntity create(
-        final ExecutionSessionEntity session,
-        final AbstractStorageResourceValidator.Result result
-        );
-
+    
+    List<ExecutionSessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
+    
     }
 

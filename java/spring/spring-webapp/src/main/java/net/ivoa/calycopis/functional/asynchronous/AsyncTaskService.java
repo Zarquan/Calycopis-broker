@@ -32,8 +32,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
@@ -44,13 +44,13 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 public class AsyncTaskService
     {
 
-    private final SessionEntityFactory factory ;
+    private final ExecutionSessionEntityFactory factory ;
 
     /**
      * 
      */
     @Autowired
-    public AsyncTaskService(final SessionEntityFactory factory)
+    public AsyncTaskService(final ExecutionSessionEntityFactory factory)
         {
         super();
         this.factory = factory ;
@@ -70,10 +70,10 @@ public class AsyncTaskService
             log.debug("Thread interupted [" + ouch.getClass().getSimpleName() + "][" + ouch.getMessage() + "]");
             }
         log.debug("Resetting phase for [" + uuid + "]");
-        Optional<SessionEntity> found = factory.select(uuid);
+        Optional<ExecutionSessionEntity> found = factory.select(uuid);
         if (found.isPresent())
             {
-            SessionEntity entity = found.get(); 
+            ExecutionSessionEntity entity = found.get(); 
             entity.setPhase(
                 IvoaExecutionSessionPhase.OFFERED
                 );

@@ -36,7 +36,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
@@ -45,6 +45,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * An IvoaDataResource entity.
@@ -79,7 +80,7 @@ public class SkaoDataResourceEntity
      *
      */
     public SkaoDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -97,7 +98,7 @@ public class SkaoDataResourceEntity
      *
      */
     public SkaoDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaSkaoDataResource validated
@@ -250,12 +251,12 @@ public class SkaoDataResourceEntity
         }
     
     @Override
-    public IvoaAbstractDataResource makeBean(final URI baseuri)
+    public IvoaAbstractDataResource makeBean(final URIBuilder builder)
         {
         return fillBean(
             new IvoaSkaoDataResource().meta(
                 this.makeMeta(
-                    baseuri
+                    builder
                     )
                 )
             );

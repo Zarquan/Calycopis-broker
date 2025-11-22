@@ -55,9 +55,10 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaAccessConnector;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
- * An Execution Entity.
+ * An execution session Entity.
  *
  */
 @Slf4j
@@ -68,14 +69,21 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
 @DiscriminatorValue(
     value = "uri:execution-session"
     )
-public class SessionEntity
+public class ExecutionSessionEntity
     extends ScheduledComponentEntity
-    implements Session
+    implements ExecutionSession
     {
+    
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractSession.WEBAPP_PATH;
+        }
+
     @Override
     public URI getKind()
         {
-        return Session.TYPE_DISCRIMINATOR;
+        return ExecutionSession.TYPE_DISCRIMINATOR;
         }
 
     @JoinColumn(name = "offerset", referencedColumnName = "uuid", nullable = false)
@@ -92,7 +100,7 @@ public class SessionEntity
      * Protected constructor
      *
      */
-    protected SessionEntity()
+    protected ExecutionSessionEntity()
         {
         super();
         }
@@ -101,7 +109,7 @@ public class SessionEntity
      * Protected constructor, used to create an example for the find method.
      *
      */
-    protected SessionEntity(final IvoaExecutionSessionPhase phase)
+    protected ExecutionSessionEntity(final IvoaExecutionSessionPhase phase)
         {
         super();
         this.phase = phase;
@@ -111,7 +119,7 @@ public class SessionEntity
      * Protected constructor with parent.
      *
      */
-    public SessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
+    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
         {
         super(
             offerset.getName() + "-" + offerblock.getName()
@@ -297,25 +305,27 @@ public class SessionEntity
             );
         }
 
-    public IvoaExecutionSessionResponse makeBean(final URI baseuri)
-        {
-        return this.fillBean(
-            baseuri,
-            new IvoaExecutionSessionResponse().meta(
-                this.makeMeta(
-                    baseuri
-                    )
-                )
-            );
-        }
-
     protected List<@Valid IvoaAbstractOption> getOptions()
         {
         return null;
         }
     
-    public IvoaExecutionSessionResponse fillBean(final URI baseuri,final IvoaExecutionSessionResponse bean)
+    public IvoaExecutionSessionResponse makeBean(final URIBuilder uribuilder)
         {
+        return this.fillBean(
+            uribuilder,
+            new IvoaExecutionSessionResponse().meta(
+                this.makeMeta(
+                    uribuilder
+                    )
+                )
+            );
+        }
+
+    public IvoaExecutionSessionResponse fillBean(
+        final URIBuilder uribuilder,
+        final IvoaExecutionSessionResponse bean
+        ){
         bean.setKind(
             this.getKind()
             );
@@ -328,16 +338,14 @@ public class SessionEntity
         bean.setExpires(
             this.getExpires()
             );
-
         bean.setExecutable(
             this.getExecutable().makeBean(
-                baseuri
+                uribuilder
                 )
             );
-
         bean.setCompute(
             this.getComputeResource().makeBean(
-                baseuri
+                uribuilder
                 )
             );
 
@@ -345,7 +353,7 @@ public class SessionEntity
             {
             bean.addDataItem(
                 resource.makeBean(
-                    baseuri
+                    uribuilder
                     )
                 );
             }
@@ -354,7 +362,7 @@ public class SessionEntity
             {
             bean.addStorageItem(
                 resource.makeBean(
-                    baseuri
+                    uribuilder
                     )
                 );
             }

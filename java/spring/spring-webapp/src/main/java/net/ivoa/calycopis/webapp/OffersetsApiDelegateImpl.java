@@ -37,7 +37,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetResponseBean;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.webapp.OffersetsApiDelegate;
@@ -69,9 +68,8 @@ public class OffersetsApiDelegateImpl
         if (found.isPresent())
             {
             return new ResponseEntity<IvoaOfferSetResponse>(
-                new OfferSetResponseBean(
-                    this.getBaseUri(),
-                    found.get()
+                found.get().makeBean(
+                    this.getURIBuilder()
                     ),
                 HttpStatus.OK
                 );
@@ -88,12 +86,12 @@ public class OffersetsApiDelegateImpl
         @RequestBody IvoaOfferSetRequest request
         ) {
         log.debug("offerSetPost [{}]", request.getName());
-	    IvoaOfferSetResponse response = new OfferSetResponseBean(
-	        this.getBaseUri(),
-	        factory.create(
-                request
-                )
-	        );
+        OfferSetEntity entity = factory.create(
+            request
+            );
+        IvoaOfferSetResponse response = entity.makeBean(
+            this.getURIBuilder()
+            );
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(
             response.getMeta().getUrl()

@@ -29,9 +29,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * An Amazon S3 data resource.
@@ -65,7 +66,7 @@ public class AmazonS3DataResourceEntity
      *
      */
     public AmazonS3DataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -84,7 +85,7 @@ public class AmazonS3DataResourceEntity
      *
      */
     public AmazonS3DataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaS3DataResource validated
@@ -131,12 +132,12 @@ public class AmazonS3DataResourceEntity
         }
 
     @Override
-    public IvoaS3DataResource makeBean(URI baseuri)
+    public IvoaS3DataResource makeBean(URIBuilder builder)
         {
         return fillBean(
             new IvoaS3DataResource().meta(
                 this.makeMeta(
-                    baseuri
+                    builder
                     )
                 )
             );

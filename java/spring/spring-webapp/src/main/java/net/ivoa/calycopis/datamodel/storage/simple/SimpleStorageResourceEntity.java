@@ -28,12 +28,13 @@ import java.net.URI;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.session.Session;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSession;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A SimpleStorageResource Entity.
@@ -53,7 +54,7 @@ public class SimpleStorageResourceEntity
     @Override
     public URI getKind()
         {
-        return Session.TYPE_DISCRIMINATOR;
+        return ExecutionSession.TYPE_DISCRIMINATOR;
         }
 
     /**
@@ -70,7 +71,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result
         ){
         this(
@@ -87,7 +88,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaSimpleStorageResource validated
         ){
@@ -102,12 +103,12 @@ public class SimpleStorageResourceEntity
         }
 
     @Override
-    public IvoaAbstractStorageResource makeBean(URI baseuri)
+    public IvoaAbstractStorageResource makeBean(URIBuilder uribuilder)
         {
         return fillBean(
             new IvoaSimpleStorageResource().meta(
                 this.makeMeta(
-                    baseuri
+                    uribuilder
                     )
                 )
             );

@@ -33,10 +33,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -67,7 +68,7 @@ implements AbstractComputeResource
      * 
      */
     protected AbstractComputeResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
         final IvoaComponentMetadata meta
@@ -104,21 +105,15 @@ implements AbstractComputeResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private ExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public ExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
-    @Deprecated
-    public IvoaAbstractComputeResource makeBean()
-        {
-        return this.makeBean(null);
-        }
-
-    public abstract IvoaAbstractComputeResource makeBean(final URI baseuri);
+    public abstract IvoaAbstractComputeResource makeBean(final URIBuilder builder);
 
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
         {
@@ -132,5 +127,11 @@ implements AbstractComputeResource
             this.makeScheduleBean()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractComputeResource.WEBAPP_PATH;
         }
     }

@@ -23,28 +23,27 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
+import java.net.URI;
+
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 
 /**
  *
  */
-@Table(
-    name = "volumemounts"
-    )
-@Inheritance(
-    strategy = InheritanceType.JOINED
-    )
 public interface AbstractVolumeMount
     extends Component
     {
     /**
+     * The webapp path for volume mounts.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("volume-mounts/"); 
+
+    /**
      * Get the parent Session.
      *
      */
-    public SessionEntity getSession();
+    public ExecutionSessionEntity getSession();
 
     }

@@ -47,7 +47,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -58,6 +58,7 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
 import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * JPA Entity for DockerContainer executables.
@@ -87,7 +88,7 @@ public class DockerContainerEntity
         }
 
     protected DockerContainerEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         this(
@@ -98,7 +99,7 @@ public class DockerContainerEntity
         }
     
     protected DockerContainerEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaDockerContainer validated
         ){
@@ -321,12 +322,12 @@ public class DockerContainerEntity
         }
 
     @Override
-    public IvoaAbstractExecutable makeBean(final URI baseuri)
+    public IvoaAbstractExecutable makeBean(final URIBuilder builder)
         {
         return this.fillBean(
             new IvoaDockerContainer().meta(
                 this.makeMeta(
-                    baseuri
+                    builder
                     )
                 )
             );

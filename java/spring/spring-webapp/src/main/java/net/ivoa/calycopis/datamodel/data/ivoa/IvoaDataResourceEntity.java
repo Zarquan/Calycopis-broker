@@ -32,13 +32,14 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * An IvoaDataResource entity.
@@ -73,7 +74,7 @@ public class IvoaDataResourceEntity
      *
      */
     public IvoaDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -92,7 +93,7 @@ public class IvoaDataResourceEntity
      *
      */
     public IvoaDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaIvoaDataResource validated
@@ -368,12 +369,12 @@ public class IvoaDataResourceEntity
         }
     
     @Override
-    public IvoaAbstractDataResource makeBean(final URI baseuri)
+    public IvoaAbstractDataResource makeBean(final URIBuilder builder)
         {
         return this.fillBean(
             new IvoaIvoaDataResource().meta(
                 this.makeMeta(
-                    baseuri
+                    builder
                     )
                 )
             );

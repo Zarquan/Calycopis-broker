@@ -44,12 +44,6 @@ public interface Component
     public UUID getUuid();
 
     /**
-     * Get the Component URI.
-     *
-     */
-    public URI makeUri(final URI baseuri);
-    
-    /**
      * Get the Component kind (type).
      *
      */

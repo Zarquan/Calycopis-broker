@@ -33,9 +33,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  *
@@ -66,7 +67,7 @@ implements AbstractVolumeMount
      *
      */
     protected AbstractVolumeMountEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final IvoaComponentMetadata meta
         ){
         super(meta);
@@ -78,15 +79,15 @@ implements AbstractVolumeMount
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private ExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public ExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
-    public abstract IvoaAbstractVolumeMount makeBean(final URI baseuri);
+    public abstract IvoaAbstractVolumeMount makeBean(final URIBuilder uribuilder);
     
     protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)
         {
@@ -94,5 +95,11 @@ implements AbstractVolumeMount
             this.getKind()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractVolumeMount.WEBAPP_PATH;
         }
     }

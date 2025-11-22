@@ -27,12 +27,24 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
+/**
+ * 
+ * TODO Split this into AbstractOfferSet and UmbleOfferSet ?
+ * 
+ */
 public interface OfferSet
     extends Component
     {
+    /**
+     * The webapp path for executables.
+     * TODO Move this to AbstractOfferset.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("offersets/"); 
+    
     /**
      * The OpenAPI type identifier.
      * 
@@ -55,6 +67,6 @@ public interface OfferSet
      * Get a list of the Execution offers.
      * 
      */
-    public List<SessionEntity> getOffers();
+    public List<ExecutionSessionEntity> getOffers();
     
     }

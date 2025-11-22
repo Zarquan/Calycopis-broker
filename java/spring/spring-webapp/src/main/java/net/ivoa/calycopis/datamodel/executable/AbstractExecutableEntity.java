@@ -13,9 +13,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -45,7 +46,7 @@ extends LifecycleComponentEntity
      * 
      */
     protected AbstractExecutableEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -79,20 +80,15 @@ extends LifecycleComponentEntity
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private ExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public ExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
-    public IvoaAbstractExecutable makeBean()
-        {
-        return this.makeBean(null);
-        }
-
-    public abstract IvoaAbstractExecutable makeBean(final URI baseuri);
+    public abstract IvoaAbstractExecutable makeBean(final URIBuilder builder);
 
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
@@ -106,5 +102,11 @@ extends LifecycleComponentEntity
             this.makeScheduleBean()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractExecutable.WEBAPP_PATH;
         }
     }

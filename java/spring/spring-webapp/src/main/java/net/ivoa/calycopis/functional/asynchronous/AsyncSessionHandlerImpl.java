@@ -37,8 +37,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntityRepository;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityRepository;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
@@ -141,14 +141,14 @@ implements AsyncSessionHandler
     static class InnerSessionHandler
         {
 
-        private final SessionEntityRepository sessionRepository;
+        private final ExecutionSessionEntityRepository sessionRepository;
         private final AsyncComputeHandler computeHandler;
         private final AsyncExecutableHandler executableHandler;
         private final AsyncStorageResourceHandler storageHandler;
 
         @Autowired
         InnerSessionHandler(
-            final SessionEntityRepository sessionRepository,
+            final ExecutionSessionEntityRepository sessionRepository,
             final AsyncComputeHandler computeHandler,
             final AsyncExecutableHandler executableHandler,
             final AsyncStorageResourceHandler storageHandler
@@ -201,7 +201,7 @@ implements AsyncSessionHandler
             {
             log.debug("Session [{}] setPreparing()", uuid);
             boolean success = false ;
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -238,7 +238,7 @@ implements AsyncSessionHandler
         void doPreparing(final UUID uuid)
             {
             log.debug("Session [{}] doPreparing()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             
@@ -303,7 +303,7 @@ implements AsyncSessionHandler
         void setAvailable(final UUID uuid)
             {
             log.debug("Session [{}] setAvailable()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -328,7 +328,7 @@ implements AsyncSessionHandler
         void doAvailable(final UUID uuid)
             {
             log.debug("Session [{}] doAvailable()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -433,7 +433,7 @@ implements AsyncSessionHandler
         void setReleasing(final UUID uuid)
             {
             log.debug("Session [{}] setReleasing()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -459,7 +459,7 @@ implements AsyncSessionHandler
         void doReleasing(final UUID uuid)
             {
             log.debug("Session [{}] doReleasing()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -493,7 +493,7 @@ implements AsyncSessionHandler
         void setCompleted(final UUID uuid)
             {
             log.debug("Session [{}] setCompleted()", uuid);
-            SessionEntity session = sessionRepository.findById(
+            ExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())

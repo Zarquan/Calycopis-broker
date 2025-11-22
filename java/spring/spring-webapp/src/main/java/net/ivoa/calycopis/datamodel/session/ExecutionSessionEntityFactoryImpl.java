@@ -43,22 +43,22 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  */
 @Slf4j
 @Component
-public class SessionEntityFactoryImpl
+public class ExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
-    implements SessionEntityFactory
+    implements ExecutionSessionEntityFactory
     {
 
-    private final SessionEntityRepository repository;
+    private final ExecutionSessionEntityRepository repository;
 
     @Autowired
-    public SessionEntityFactoryImpl(final SessionEntityRepository repository)
+    public ExecutionSessionEntityFactoryImpl(final ExecutionSessionEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<SessionEntity> select(UUID uuid)
+    public Optional<ExecutionSessionEntity> select(UUID uuid)
         {
         return this.repository.findById(
             uuid
@@ -66,10 +66,10 @@ public class SessionEntityFactoryImpl
         }
 
     @Override
-    public SessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
+    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
         {
         return this.repository.save(
-            new SessionEntity(
+            new ExecutionSessionEntity(
                 parent,
                 context,
                 offer
@@ -78,7 +78,7 @@ public class SessionEntityFactoryImpl
         }
 
     @Override
-    public List<SessionEntity> select(final IvoaExecutionSessionPhase phase)
+    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase)
         {
         return repository.findByPhase(
             phase
@@ -86,7 +86,7 @@ public class SessionEntityFactoryImpl
         }
 
     @Override
-    public SessionEntity save(final SessionEntity entity)
+    public ExecutionSessionEntity save(final ExecutionSessionEntity entity)
         {
         return repository.save(
             entity

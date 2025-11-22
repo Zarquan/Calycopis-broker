@@ -41,16 +41,16 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  */
 @Slf4j
 @Component
-public class SessionEntityUpdateHandlerImpl
+public class ExecutionSessionEntityUpdateHandlerImpl
 extends FactoryBaseImpl
-implements SessionEntityUpdateHandler
+implements ExecutionSessionEntityUpdateHandler
     {
 
-    private final SessionEntityRepository sessionRepository;
+    private final ExecutionSessionEntityRepository sessionRepository;
     private final AsyncSessionHandler asyncHandler;
 
     @Autowired
-    public SessionEntityUpdateHandlerImpl(final SessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
+    public ExecutionSessionEntityUpdateHandlerImpl(final ExecutionSessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
         {
         super();
         this.sessionRepository = repository;
@@ -59,13 +59,13 @@ implements SessionEntityUpdateHandler
 
     @Override
     // TODO return an UpdateResult, with entity, result and messages.
-    public Optional<SessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<SessionEntity> result = this.sessionRepository.findById(
+        Optional<ExecutionSessionEntity> result = this.sessionRepository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -74,7 +74,7 @@ implements SessionEntityUpdateHandler
             return result ;
             }
         else {
-            SessionEntity entity = update(
+            ExecutionSessionEntity entity = update(
                 result.get(),
                 update
                 );  
@@ -90,7 +90,7 @@ implements SessionEntityUpdateHandler
         }
 
     // TODO Pass in an UpdateResult, with entity, result and messages.
-    protected SessionEntity update(SessionEntity entity , final IvoaAbstractUpdate update)
+    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -114,7 +114,7 @@ implements SessionEntityUpdateHandler
         }
 
     // TODO Pass in an UpdateResult, with entity, result and messages.
-    protected SessionEntity update(SessionEntity entity , final IvoaEnumValueUpdate update)
+    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, EnumValueUpdate)");
         log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
@@ -145,7 +145,7 @@ implements SessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SessionEntity update(SessionEntity entity , final IvoaExecutionSessionPhase newphase)
+    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaExecutionSessionPhase newphase)
         {
         log.debug("update(Entity, Phase) [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
         switch(newphase)
@@ -179,7 +179,7 @@ implements SessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SessionEntity accept(SessionEntity entity)
+    protected ExecutionSessionEntity accept(ExecutionSessionEntity entity)
         {
         log.debug("accept(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -190,7 +190,7 @@ implements SessionEntityUpdateHandler
                     );
                 //
                 // REJECT the other Sessions in the offer.
-                for (SessionEntity sibling : entity.getOfferSet().getOffers())
+                for (ExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
                     {
                     if (sibling.getUuid().equals(entity.getUuid()) == false)
                         {
@@ -212,7 +212,7 @@ implements SessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SessionEntity reject(SessionEntity entity)
+    protected ExecutionSessionEntity reject(ExecutionSessionEntity entity)
         {
         log.debug("reject(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -231,7 +231,7 @@ implements SessionEntityUpdateHandler
         return entity ;
         }
 
-    protected SessionEntity cancel(SessionEntity entity)
+    protected ExecutionSessionEntity cancel(ExecutionSessionEntity entity)
         {
         log.debug("cancel(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -257,7 +257,7 @@ implements SessionEntityUpdateHandler
         }
 
     // TODO This should require a reason.
-    protected SessionEntity fail(SessionEntity entity)
+    protected ExecutionSessionEntity fail(ExecutionSessionEntity entity)
         {
         log.debug("fail(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())

@@ -30,11 +30,12 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A SimpleVolumeMount Entity.
@@ -71,7 +72,7 @@ public class SimpleVolumeMountEntity
      *
      */
     public SimpleVolumeMountEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractVolumeMountValidator.Result result
         ){
         this(
@@ -87,7 +88,7 @@ public class SimpleVolumeMountEntity
      *
      */
     public SimpleVolumeMountEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractVolumeMountValidator.Result result,
         final IvoaSimpleVolumeMount validated
         ){
@@ -121,12 +122,12 @@ public class SimpleVolumeMountEntity
         }
 
     @Override
-    public IvoaSimpleVolumeMount makeBean(final URI baseuri)
+    public IvoaSimpleVolumeMount makeBean(final URIBuilder uribuilder)
         {
         return this.fillBean(
             new IvoaSimpleVolumeMount().meta(
                 this.makeMeta(
-                    baseuri
+                    uribuilder
                     )
                 )
             );

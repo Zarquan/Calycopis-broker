@@ -34,35 +34,35 @@ import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 
 /**
- * An Execution Factory.
+ * A Factory for execution sessions.
  *
  */
-public interface SessionEntityFactory
+public interface ExecutionSessionEntityFactory
     extends FactoryBase
     {
     /**
-     * Select an SessionEntity based on UUID.
+     * Select an ExecutionSessionEntity based on UUID.
      *
      */
-    public Optional<SessionEntity> select(final UUID uuid);
+    public Optional<ExecutionSessionEntity> select(final UUID uuid);
 
     /**
      * Select ExecutionSessionEntities based on phase.
      *
      */
-    public List<SessionEntity> select(final IvoaExecutionSessionPhase phase);
+    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase);
     
     /**
-     * Create a new SessionEntity from a parser context and compute resource offer. 
+     * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
      *
      */
-    public SessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
+    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
     /**
-     * Save a SessionEntity.
+     * Save an ExecutionSessionEntity.
      *
      */
-    public SessionEntity save(final SessionEntity entity);
+    public ExecutionSessionEntity save(final ExecutionSessionEntity entity);
     
     }
 

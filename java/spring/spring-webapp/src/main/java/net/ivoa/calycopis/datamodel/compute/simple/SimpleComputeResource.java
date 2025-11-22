@@ -34,6 +34,7 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
 public interface SimpleComputeResource
     extends AbstractComputeResource
     {
+
     /**
      * The OpenAPI type identifier.
      * 

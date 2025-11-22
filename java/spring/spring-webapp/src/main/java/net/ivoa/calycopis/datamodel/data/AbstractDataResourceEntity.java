@@ -33,11 +33,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -69,7 +70,7 @@ implements AbstractDataResource
      * 
      */
     protected AbstractDataResourceEntity(
-        final SessionEntity session,
+        final ExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaComponentMetadata meta
@@ -108,10 +109,10 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private ExecutionSessionEntity session;
     
     @Override
-    public SessionEntity getSession()
+    public ExecutionSessionEntity getSession()
         {
         return this.session ;
         }
@@ -129,13 +130,7 @@ implements AbstractDataResource
         this.storage = storage;
         }
 
-    @Deprecated
-    public IvoaAbstractDataResource makeBean()
-        {
-        return this.makeBean(null);
-        }
-
-    public abstract IvoaAbstractDataResource makeBean(final URI baseuri);
+    public abstract IvoaAbstractDataResource makeBean(final URIBuilder builder);
 
     protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)
         {
@@ -152,5 +147,11 @@ implements AbstractDataResource
             this.storage.getUuid().toString()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractDataResource.WEBAPP_PATH;
         }
     }
