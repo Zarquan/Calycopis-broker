@@ -47,7 +47,7 @@ public interface AbstractComputeResource
      * The webapp path for compute resources.
      * 
      */
-    public static final URI WEBAPP_PATH = URI.create("compute-resources/"); 
+    public static final URI WEBAPP_PATH = URI.create("compute/"); 
     
     /**
      * Get the parent Session.  

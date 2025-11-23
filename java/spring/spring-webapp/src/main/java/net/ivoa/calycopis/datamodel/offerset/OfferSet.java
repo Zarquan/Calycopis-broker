@@ -49,7 +49,7 @@ public interface OfferSet
      * The OpenAPI type identifier.
      * 
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0") ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/offerset/execution-offerset-1.0") ;
     
     /**
      * Get the date/time this OfferSet expires.

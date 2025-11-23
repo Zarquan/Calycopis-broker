@@ -49,7 +49,7 @@ public interface ExecutionSession
      * The type identifier for execution sessions.
      *
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0");
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-1.0");
 
     /**
      * Get the parent OfferSet.

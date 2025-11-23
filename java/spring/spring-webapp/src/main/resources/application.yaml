@@ -28,7 +28,8 @@ server:
             enabled: true
     # https://www.baeldung.com/spring-boot-context-path
     servlet:
-        context-path: /baeldung
+        #context-path: /baeldung
+        context-path: /
 
 
 # https://howtodoinjava.com/spring-boot/configure-logging-application-yml/

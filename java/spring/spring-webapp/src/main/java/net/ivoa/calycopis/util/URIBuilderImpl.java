@@ -59,7 +59,7 @@ public class URIBuilderImpl implements URIBuilder
     public URI buildURI(final URI path, final UUID uuid)
         {
         URI result = requestURL.resolve(
-            this.contextpath + "/"
+            this.contextpath
             ).resolve(path)
                 .resolve(
                     uuid.toString()

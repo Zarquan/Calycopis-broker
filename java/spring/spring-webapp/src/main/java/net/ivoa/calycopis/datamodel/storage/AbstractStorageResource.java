@@ -40,7 +40,7 @@ extends LifecycleComponent
      * The webapp path for storage resources.
      * 
      */
-    public static final URI WEBAPP_PATH = URI.create("storage-resources/"); 
+    public static final URI WEBAPP_PATH = URI.create("storage/"); 
     
     /**
      * Get the parent Session.  

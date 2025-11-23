@@ -39,7 +39,7 @@ public interface AbstractDataResource
      * The webapp path for data resources.
      * 
      */
-    public static final URI WEBAPP_PATH = URI.create("data-resources/"); 
+    public static final URI WEBAPP_PATH = URI.create("data/"); 
 
     /**
      * Get the parent Session.  
