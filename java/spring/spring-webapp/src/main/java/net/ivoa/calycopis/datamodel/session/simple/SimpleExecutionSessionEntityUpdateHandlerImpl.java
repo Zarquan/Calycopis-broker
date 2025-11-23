@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,27 +30,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.asynchronous.AsyncSessionHandler;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * 
  */
 @Slf4j
 @Component
-public class ExecutionSessionEntityUpdateHandlerImpl
+public class SimpleExecutionSessionEntityUpdateHandlerImpl
 extends FactoryBaseImpl
-implements ExecutionSessionEntityUpdateHandler
+implements SimpleExecutionSessionEntityUpdateHandler
     {
 
-    private final ExecutionSessionEntityRepository sessionRepository;
+    private final SimpleExecutionSessionEntityRepository sessionRepository;
     private final AsyncSessionHandler asyncHandler;
 
     @Autowired
-    public ExecutionSessionEntityUpdateHandlerImpl(final ExecutionSessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
+    public SimpleExecutionSessionEntityUpdateHandlerImpl(final SimpleExecutionSessionEntityRepository repository, final AsyncSessionHandler asyncHandler)
         {
         super();
         this.sessionRepository = repository;
@@ -59,13 +60,13 @@ implements ExecutionSessionEntityUpdateHandler
 
     @Override
     // TODO return an UpdateResult, with entity, result and messages.
-    public Optional<ExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
+    public Optional<SimpleExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
         log.debug("UUID   [{}]", uuid);
         log.debug("Update [{}]", update.getClass());
 
-        Optional<ExecutionSessionEntity> result = this.sessionRepository.findById(
+        Optional<SimpleExecutionSessionEntity> result = this.sessionRepository.findById(
             uuid
             );
         if (result.isEmpty())
@@ -74,7 +75,7 @@ implements ExecutionSessionEntityUpdateHandler
             return result ;
             }
         else {
-            ExecutionSessionEntity entity = update(
+            SimpleExecutionSessionEntity entity = update(
                 result.get(),
                 update
                 );  
@@ -90,7 +91,7 @@ implements ExecutionSessionEntityUpdateHandler
         }
 
     // TODO Pass in an UpdateResult, with entity, result and messages.
-    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaAbstractUpdate update)
+    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
         log.debug("Entity [{}]", entity.getUuid());
@@ -114,7 +115,7 @@ implements ExecutionSessionEntityUpdateHandler
         }
 
     // TODO Pass in an UpdateResult, with entity, result and messages.
-    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
+    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, EnumValueUpdate)");
         log.debug("Entity [{}][{}]", entity.getUuid(), entity.getPhase());
@@ -123,7 +124,7 @@ implements ExecutionSessionEntityUpdateHandler
             {
             case "phase" :
                 try {
-                    IvoaExecutionSessionPhase newphase = IvoaExecutionSessionPhase.fromValue(
+                IvoaSimpleExecutionSessionPhase newphase = IvoaSimpleExecutionSessionPhase.fromValue(
                         update.getValue()
                         );
                     entity = this.update(
@@ -145,7 +146,7 @@ implements ExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected ExecutionSessionEntity update(ExecutionSessionEntity entity , final IvoaExecutionSessionPhase newphase)
+    protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaSimpleExecutionSessionPhase newphase)
         {
         log.debug("update(Entity, Phase) [{}][{}][{}]", entity.getUuid(), entity.getPhase(), newphase);
         switch(newphase)
@@ -179,22 +180,27 @@ implements ExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    protected ExecutionSessionEntity accept(ExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntity accept(SimpleExecutionSessionEntity entity)
         {
         log.debug("accept(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
             {
             case OFFERED:
                 entity.setPhase(
-                    IvoaExecutionSessionPhase.ACCEPTED
+                    IvoaSimpleExecutionSessionPhase.ACCEPTED
                     );
                 //
                 // REJECT the other Sessions in the offer.
-                for (ExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
+                for (AbstractExecutionSessionEntity sibling : entity.getOfferSet().getOffers())
                     {
                     if (sibling.getUuid().equals(entity.getUuid()) == false)
                         {
-                        reject(sibling);
+                        if (sibling instanceof SimpleExecutionSessionEntity)
+                            {
+                            reject(
+                                (SimpleExecutionSessionEntity) sibling
+                                );
+                            }
                         }
                     }
                 log.debug("Calling async handler for accepted session [{}]", entity.getUuid());
@@ -206,32 +212,32 @@ implements ExecutionSessionEntityUpdateHandler
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
-                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.ACCEPTED);
+                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaSimpleExecutionSessionPhase.ACCEPTED);
                 break;
             }
         return entity ;
         }
 
-    protected ExecutionSessionEntity reject(ExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntity reject(SimpleExecutionSessionEntity entity)
         {
         log.debug("reject(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
             {
             case OFFERED:
                 entity.setPhase(
-                    IvoaExecutionSessionPhase.REJECTED
+                    IvoaSimpleExecutionSessionPhase.REJECTED
                     );
                 break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
-                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.REJECTED);
+                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaSimpleExecutionSessionPhase.REJECTED);
                 break;
             }
         return entity ;
         }
 
-    protected ExecutionSessionEntity cancel(ExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntity cancel(SimpleExecutionSessionEntity entity)
         {
         log.debug("cancel(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -244,20 +250,20 @@ implements ExecutionSessionEntityUpdateHandler
             case AVAILABLE:
             case RUNNING:
                 entity.setPhase(
-                    IvoaExecutionSessionPhase.CANCELLED
+                    IvoaSimpleExecutionSessionPhase.CANCELLED
                     );
                 break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
-                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.CANCELLED);
+                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaSimpleExecutionSessionPhase.CANCELLED);
                 break;
             }
         return entity ;
         }
 
     // TODO This should require a reason.
-    protected ExecutionSessionEntity fail(ExecutionSessionEntity entity)
+    protected SimpleExecutionSessionEntity fail(SimpleExecutionSessionEntity entity)
         {
         log.debug("fail(Entity, Phase) [{}][{}]", entity.getUuid(), entity.getPhase());
         switch(entity.getPhase())
@@ -272,13 +278,13 @@ implements ExecutionSessionEntityUpdateHandler
             case RELEASING:
                 // If a sessions fails during releasing - has it actually failed ?
                 entity.setPhase(
-                    IvoaExecutionSessionPhase.FAILED
+                    IvoaSimpleExecutionSessionPhase.FAILED
                     );
                 break;
             default:
                 // We need to be able to return some error messages here.
                 // We need an ErrorResponse structure ..
-                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaExecutionSessionPhase.FAILED);
+                log.warn("Invalid phase transition [{}][{}][{}]", entity.getUuid(), entity.getPhase(), IvoaSimpleExecutionSessionPhase.FAILED);
                 break;
             }
         return entity ;

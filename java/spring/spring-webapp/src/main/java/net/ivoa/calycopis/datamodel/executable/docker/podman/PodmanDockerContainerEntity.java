@@ -32,7 +32,8 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
@@ -64,7 +65,7 @@ public class PodmanDockerContainerEntity
      *
      */
     public PodmanDockerContainerEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         super(
@@ -79,6 +80,8 @@ public class PodmanDockerContainerEntity
      */
     public void configure(final TestExecutionStepEntityFactory factory)
         {
+/*
+ * 
         //
         // If this really was download image step,
         // we would first check whether the image is already here,
@@ -113,6 +116,8 @@ public class PodmanDockerContainerEntity
                 "Release image"
                 )
             );
+ * 
+ */
         }
 
     @Override

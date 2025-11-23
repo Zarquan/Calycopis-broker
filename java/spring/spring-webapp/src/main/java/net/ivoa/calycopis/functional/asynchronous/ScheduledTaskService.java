@@ -29,9 +29,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * Experimental implementation of a background task.
@@ -43,14 +43,14 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 public class ScheduledTaskService
     {
 
-    private final ExecutionSessionEntityFactory factory ;
+    private final SimpleExecutionSessionEntityFactory factory ;
     private final AsyncTaskService other ;
     
     /**
      * 
      */
     @Autowired
-    public ScheduledTaskService(final ExecutionSessionEntityFactory factory, final AsyncTaskService other)
+    public ScheduledTaskService(final SimpleExecutionSessionEntityFactory factory, final AsyncTaskService other)
         {
         super();
         this.factory = factory;
@@ -61,8 +61,8 @@ public class ScheduledTaskService
     public void performScheduledTask()
         {
         log.debug("Looking for ACCEPTED offers");
-        List<ExecutionSessionEntity> found = factory.select(
-            IvoaExecutionSessionPhase.ACCEPTED
+        List<SimpleExecutionSessionEntity> found = factory.select(
+            IvoaSimpleExecutionSessionPhase.ACCEPTED
             );
 
         if (found.isEmpty())
@@ -70,12 +70,12 @@ public class ScheduledTaskService
             log.debug("None found");
             }
         else {
-            for (ExecutionSessionEntity entity : found)
+            for (SimpleExecutionSessionEntity entity : found)
                 {
                 log.debug("Found [" + entity.getUuid() + "][" + entity.getPhase() + "]");
                 // This bypasses the phase checking in factory. 
                 entity.setPhase(
-                    IvoaExecutionSessionPhase.PREPARING
+                    IvoaSimpleExecutionSessionPhase.PREPARING
                     );
                 entity = factory.save(
                     entity

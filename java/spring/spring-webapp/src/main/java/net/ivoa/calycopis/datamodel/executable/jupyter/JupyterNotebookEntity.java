@@ -31,7 +31,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.util.URIBuilder;
 
@@ -62,7 +62,7 @@ public class JupyterNotebookEntity
         }
 
     protected JupyterNotebookEntity(
-        final ExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         this(   
@@ -73,7 +73,7 @@ public class JupyterNotebookEntity
         }
 
     protected JupyterNotebookEntity(
-        final ExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaJupyterNotebook validated
         ){

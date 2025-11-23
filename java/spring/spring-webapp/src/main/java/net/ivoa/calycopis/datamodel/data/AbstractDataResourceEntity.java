@@ -33,7 +33,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
@@ -70,7 +71,7 @@ implements AbstractDataResource
      * 
      */
     protected AbstractDataResourceEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaComponentMetadata meta
@@ -80,9 +81,13 @@ implements AbstractDataResource
             );
 
         this.session = session;
-        session.addDataResource(
-            this
-            );
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity)session).addDataResource(
+                this
+                );
+            }
+
         this.storage = storage;
         storage.addDataResource(
             this
@@ -109,10 +114,10 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private AbstractExecutionSessionEntity session;
     
     @Override
-    public ExecutionSessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session ;
         }

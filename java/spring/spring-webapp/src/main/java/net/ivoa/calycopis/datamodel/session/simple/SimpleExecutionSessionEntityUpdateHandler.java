@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,26 +20,27 @@
  *
  *
  */
-package net.ivoa.calycopis.datamodel.session;
 
-import java.util.List;
+package net.ivoa.calycopis.datamodel.session.simple;
+
+import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 
 /**
- * JpaRepository for ExecutionSessionEntity.
- *
+ * 
  */
-@Repository
-public interface ExecutionSessionEntityRepository
-    extends JpaRepository<ExecutionSessionEntity, UUID>
+public interface SimpleExecutionSessionEntityUpdateHandler
+extends FactoryBase
     {
+
+    /**
+     * Apply an Update request to an ExecutionSession.
+     *
+     */
+    public Optional<SimpleExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate request);
     
-    List<ExecutionSessionEntity> findByPhase(final IvoaExecutionSessionPhase phase);
     
     }
-

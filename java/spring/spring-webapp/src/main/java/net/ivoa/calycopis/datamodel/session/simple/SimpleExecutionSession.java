@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -30,44 +30,36 @@ import java.util.List;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
-import net.ivoa.calycopis.util.URIBuilder;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * Public interface for an execution session.
  *
  */
-public interface ExecutionSession
-    extends AbstractSession
+public interface SimpleExecutionSession
+    extends AbstractExecutionSession
     {
     
     /**
-     * The type identifier for execution sessions.
+     * The type identifier for a simple execution session.
      *
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-1.0");
-
-    /**
-     * Get the parent OfferSet.
-     *
-     */
-    public OfferSetEntity getOfferSet();
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/simple-execution-session-1.0");
 
     /**
      * Get the Execution phase.
      *
      */
-    public IvoaExecutionSessionPhase getPhase();
+    public IvoaSimpleExecutionSessionPhase getPhase();
 
     /**
      * Set the Execution phase.
      *
      */
-    void setPhase(final IvoaExecutionSessionPhase phase);
+    void setPhase(final IvoaSimpleExecutionSessionPhase phase);
 
     /**
      * Get the expiry date for an OFFERED Execution.
@@ -109,25 +101,19 @@ public interface ExecutionSession
      * Get a list of the connectors.
      *
      */
-    public List<SessionConnectorEntity> getConnectors();
+    public List<SimpleSessionConnectorEntity> getConnectors();
 
     /**
      * Add a new connector.
      *
      */
-    public void addConnector(final SessionConnectorEntity connector);
+    public void addConnector(final SimpleSessionConnectorEntity connector);
 
     /**
      * Add a new connector.
      *
      */
     public void addConnector(final String type, final String protocol, String location);
-
-    /**
-     * Make an Ivoa bean representation.
-     *  
-     */
-    public IvoaExecutionSessionResponse makeBean(final URIBuilder uribuilder);
 
     }
 

@@ -26,7 +26,9 @@ package net.ivoa.calycopis.datamodel.data;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
 /**
@@ -46,7 +48,7 @@ public interface AbstractDataResource
      * TODO Can we make this just the interface ?
      * 
      */
-    public ExecutionSessionEntity getSession();
+    public AbstractExecutionSession getSession();
 
     /**
      * Get the storage for this data.  

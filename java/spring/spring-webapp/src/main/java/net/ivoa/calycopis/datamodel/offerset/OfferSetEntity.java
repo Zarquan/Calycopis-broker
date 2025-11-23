@@ -36,8 +36,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -53,8 +53,14 @@ import net.ivoa.calycopis.util.URIBuilder;
     )
 public class OfferSetEntity
 extends ComponentEntity
-    implements OfferSet
+implements OfferSet
     {
+    @Override
+    protected URI getWebappPath()
+        {
+        return OfferSet.WEBAPP_PATH;
+        }
+
     @Override
     public URI getKind()
         {
@@ -111,25 +117,19 @@ extends ComponentEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<ExecutionSessionEntity> executions = new ArrayList<ExecutionSessionEntity>();
+    List<AbstractExecutionSessionEntity> executions = new ArrayList<AbstractExecutionSessionEntity>();
 
     @Override
-    public List<ExecutionSessionEntity> getOffers()
+    public List<AbstractExecutionSessionEntity> getOffers()
         {
         return executions ;
         }
  
-    public void addExecutionSession(final ExecutionSessionEntity execution)
+    public void addExecutionSession(final AbstractExecutionSessionEntity execution)
         {
         executions.add(execution);
         }
     
-    @Override
-    protected URI getWebappPath()
-        {
-        return OfferSet.WEBAPP_PATH;
-        }
-
     public IvoaOfferSetResponse makeBean(final URIBuilder uribuilder)
         {
         return this.fillBean(
@@ -152,10 +152,10 @@ extends ComponentEntity
             );
 
         bean.setOffers(
-            new ListWrapper<IvoaExecutionSessionResponse, ExecutionSessionEntity>(
+            new ListWrapper<IvoaAbstractExecutionSession, AbstractExecutionSessionEntity>(
                 this.getOffers()
                 ){
-                public IvoaExecutionSessionResponse wrap(final ExecutionSessionEntity inner)
+                public IvoaAbstractExecutionSession wrap(final AbstractExecutionSessionEntity inner)
                     {
                     return inner.makeBean(
                         uribuilder
@@ -166,5 +166,4 @@ extends ComponentEntity
         
         return bean;
         }
-    
     }

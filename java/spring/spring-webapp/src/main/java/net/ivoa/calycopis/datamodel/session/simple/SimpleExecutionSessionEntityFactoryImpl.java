@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * An ExecutionSessionFactory implementation.
@@ -43,22 +43,22 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
  */
 @Slf4j
 @Component
-public class ExecutionSessionEntityFactoryImpl
+public class SimpleExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
-    implements ExecutionSessionEntityFactory
+    implements SimpleExecutionSessionEntityFactory
     {
 
-    private final ExecutionSessionEntityRepository repository;
+    private final SimpleExecutionSessionEntityRepository repository;
 
     @Autowired
-    public ExecutionSessionEntityFactoryImpl(final ExecutionSessionEntityRepository repository)
+    public SimpleExecutionSessionEntityFactoryImpl(final SimpleExecutionSessionEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<ExecutionSessionEntity> select(UUID uuid)
+    public Optional<SimpleExecutionSessionEntity> select(UUID uuid)
         {
         return this.repository.findById(
             uuid
@@ -66,10 +66,10 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
+    public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
         {
         return this.repository.save(
-            new ExecutionSessionEntity(
+            new SimpleExecutionSessionEntity(
                 parent,
                 context,
                 offer
@@ -78,7 +78,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase)
+    public List<SimpleExecutionSessionEntity> select(final IvoaSimpleExecutionSessionPhase phase)
         {
         return repository.findByPhase(
             phase
@@ -86,7 +86,7 @@ public class ExecutionSessionEntityFactoryImpl
         }
 
     @Override
-    public ExecutionSessionEntity save(final ExecutionSessionEntity entity)
+    public SimpleExecutionSessionEntity save(final SimpleExecutionSessionEntity entity)
         {
         return repository.save(
             entity

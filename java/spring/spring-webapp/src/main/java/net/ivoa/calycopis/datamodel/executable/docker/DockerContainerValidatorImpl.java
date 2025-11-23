@@ -32,7 +32,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
@@ -176,7 +176,7 @@ implements DockerContainerValidator
                 validated
                 ) {
                 @Override
-                public AbstractExecutableEntity build(final ExecutionSessionEntity session)
+                public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return platform.getDockerContainerEntityFactory().create(
                         session,

@@ -26,7 +26,8 @@ package net.ivoa.calycopis.datamodel.volume;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 
 /**
  *
@@ -44,6 +45,6 @@ public interface AbstractVolumeMount
      * Get the parent Session.
      *
      */
-    public ExecutionSessionEntity getSession();
+    public AbstractExecutionSessionEntity getSession();
 
     }

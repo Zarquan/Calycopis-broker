@@ -32,9 +32,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityFactory;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * 
@@ -44,13 +44,13 @@ import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
 public class AsyncTaskService
     {
 
-    private final ExecutionSessionEntityFactory factory ;
+    private final SimpleExecutionSessionEntityFactory factory ;
 
     /**
      * 
      */
     @Autowired
-    public AsyncTaskService(final ExecutionSessionEntityFactory factory)
+    public AsyncTaskService(final SimpleExecutionSessionEntityFactory factory)
         {
         super();
         this.factory = factory ;
@@ -70,12 +70,12 @@ public class AsyncTaskService
             log.debug("Thread interupted [" + ouch.getClass().getSimpleName() + "][" + ouch.getMessage() + "]");
             }
         log.debug("Resetting phase for [" + uuid + "]");
-        Optional<ExecutionSessionEntity> found = factory.select(uuid);
+        Optional<SimpleExecutionSessionEntity> found = factory.select(uuid);
         if (found.isPresent())
             {
-            ExecutionSessionEntity entity = found.get(); 
+            SimpleExecutionSessionEntity entity = found.get(); 
             entity.setPhase(
-                IvoaExecutionSessionPhase.OFFERED
+                IvoaSimpleExecutionSessionPhase.OFFERED
                 );
             entity = factory.save(
                 entity

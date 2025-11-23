@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -155,7 +155,7 @@ implements IvoaDataResourceValidator
                 validated
                 ){
                 @Override
-                public IvoaDataResourceEntity build(final ExecutionSessionEntity session)
+                public IvoaDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

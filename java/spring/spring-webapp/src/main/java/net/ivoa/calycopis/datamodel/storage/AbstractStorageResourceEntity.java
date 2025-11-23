@@ -39,7 +39,9 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -75,7 +77,7 @@ implements AbstractStorageResource
      * 
      */
     protected AbstractStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -84,10 +86,26 @@ implements AbstractStorageResource
             );
 
         this.session = session;
-        session.addStorageResource(
-            this
-            );
-
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity)session).addStorageResource(
+                this
+                );
+            }
+        
+        if (session instanceof ScheduledExecutionSessionEntity)
+            {
+            this.init(
+                ((ScheduledExecutionSessionEntity) session),
+                result
+                );
+            }
+        }
+    
+    protected void init(
+        final ScheduledExecutionSessionEntity session,
+        AbstractStorageResourceValidator.Result result
+        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
@@ -109,10 +127,10 @@ implements AbstractStorageResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private AbstractExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session;
         }

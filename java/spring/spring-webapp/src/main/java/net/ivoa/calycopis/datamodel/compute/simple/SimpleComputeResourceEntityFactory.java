@@ -26,7 +26,8 @@ package net.ivoa.calycopis.datamodel.compute.simple;
 import java.util.Optional;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
@@ -49,7 +50,7 @@ public interface SimpleComputeResourceEntityFactory
      *
      */
     public SimpleComputeResourceEntity create(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         );

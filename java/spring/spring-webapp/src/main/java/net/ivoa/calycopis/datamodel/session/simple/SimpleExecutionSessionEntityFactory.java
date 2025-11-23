@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,38 +31,38 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * A Factory for execution sessions.
  *
  */
-public interface ExecutionSessionEntityFactory
+public interface SimpleExecutionSessionEntityFactory
     extends FactoryBase
     {
     /**
      * Select an ExecutionSessionEntity based on UUID.
      *
      */
-    public Optional<ExecutionSessionEntity> select(final UUID uuid);
+    public Optional<SimpleExecutionSessionEntity> select(final UUID uuid);
 
     /**
      * Select ExecutionSessionEntities based on phase.
      *
      */
-    public List<ExecutionSessionEntity> select(final IvoaExecutionSessionPhase phase);
+    public List<SimpleExecutionSessionEntity> select(final IvoaSimpleExecutionSessionPhase phase);
     
     /**
      * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
      *
      */
-    public ExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
+    public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
     /**
      * Save an ExecutionSessionEntity.
      *
      */
-    public ExecutionSessionEntity save(final ExecutionSessionEntity entity);
+    public SimpleExecutionSessionEntity save(final SimpleExecutionSessionEntity entity);
     
     }
 

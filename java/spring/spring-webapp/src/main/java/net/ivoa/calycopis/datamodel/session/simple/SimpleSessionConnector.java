@@ -21,12 +21,12 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 /**
  * 
  */
-public interface SessionConnector
+public interface SimpleSessionConnector
     {
     public String getType();
     

@@ -28,7 +28,8 @@ import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSession;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 
 /**
  * 
@@ -46,7 +47,7 @@ extends LifecycleComponent
      * Get the parent Session.  
      *
      */
-    public ExecutionSession getSession();
+    public AbstractExecutionSession getSession();
 
     /**
      * Get a list of the data resources stored in this storage resource.

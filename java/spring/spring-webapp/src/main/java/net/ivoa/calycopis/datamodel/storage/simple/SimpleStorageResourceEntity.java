@@ -28,8 +28,9 @@ import java.net.URI;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.session.ExecutionSession;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
@@ -54,7 +55,7 @@ public class SimpleStorageResourceEntity
     @Override
     public URI getKind()
         {
-        return ExecutionSession.TYPE_DISCRIMINATOR;
+        return SimpleExecutionSession.TYPE_DISCRIMINATOR;
         }
 
     /**
@@ -71,7 +72,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result
         ){
         this(
@@ -88,7 +89,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaSimpleStorageResource validated
         ){

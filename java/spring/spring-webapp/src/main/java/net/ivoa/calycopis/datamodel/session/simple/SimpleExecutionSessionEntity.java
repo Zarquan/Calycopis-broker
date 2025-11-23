@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -37,8 +37,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -48,13 +46,14 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
-import net.ivoa.calycopis.openapi.model.IvoaAccessConnector;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponse;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleSessionConnector;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**
@@ -64,43 +63,27 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Slf4j
 @Entity
 @Table(
-    name = "executionsessions"
+    name = "simpleexecutionsessions"
     )
 @DiscriminatorValue(
-    value = "uri:execution-session"
+    value = "uri:simple-execution-session"
     )
-public class ExecutionSessionEntity
-    extends ScheduledComponentEntity
-    implements ExecutionSession
+public class SimpleExecutionSessionEntity
+    extends AbstractExecutionSessionEntity
+    implements SimpleExecutionSession
     {
     
     @Override
-    protected URI getWebappPath()
-        {
-        return AbstractSession.WEBAPP_PATH;
-        }
-
-    @Override
     public URI getKind()
         {
-        return ExecutionSession.TYPE_DISCRIMINATOR;
-        }
-
-    @JoinColumn(name = "offerset", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private OfferSetEntity offerset;
-
-    @Override
-    public OfferSetEntity getOfferSet()
-        {
-        return this.offerset;
+        return SimpleExecutionSession.TYPE_DISCRIMINATOR;
         }
 
     /**
      * Protected constructor
      *
      */
-    protected ExecutionSessionEntity()
+    protected SimpleExecutionSessionEntity()
         {
         super();
         }
@@ -109,7 +92,7 @@ public class ExecutionSessionEntity
      * Protected constructor, used to create an example for the find method.
      *
      */
-    protected ExecutionSessionEntity(final IvoaExecutionSessionPhase phase)
+    protected SimpleExecutionSessionEntity(final IvoaSimpleExecutionSessionPhase phase)
         {
         super();
         this.phase = phase;
@@ -119,46 +102,29 @@ public class ExecutionSessionEntity
      * Protected constructor with parent.
      *
      */
-    public ExecutionSessionEntity(final OfferSetEntity offerset, final OfferSetRequestParserContext context, final ResourceOffer offerblock)
-        {
+    public SimpleExecutionSessionEntity(
+        final OfferSetEntity offerset,
+        final OfferSetRequestParserContext context,
+        final ResourceOffer offerblock
+        ){
         super(
+            offerset,
             offerset.getName() + "-" + offerblock.getName()
             );
-        this.phase = IvoaExecutionSessionPhase.OFFERED;
-        this.offerset = offerset;
-        offerset.addExecutionSession(
-            this
-            );
+        this.phase = IvoaSimpleExecutionSessionPhase.OFFERED;
         this.expires = offerset.getExpires();
-
-        // TODO factor in the compute prepare time.
-        // OfferBlock needs to have separate prepare and available times.
-        // Actually - the offerblock relates to the compute resource.
-        this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
-        this.availableDurationSeconds     = offerblock.getDuration().toSeconds();
-
-        this.prepareDurationSeconds       = context.getTotalPrepareTime();
-        this.prepareStartInstantSeconds   = this.availableStartInstantSeconds - this.prepareDurationSeconds;
-
-        //
-        // Hard coded 10s release duration.
-        // Start releasing as soon as availability ends.
-        // Release duration should depends on the components.
-        this.releaseDurationSeconds = 10L ; 
-        this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 5L ;         
-        
         }
 
     @Column(name = "phase")
     @Enumerated(EnumType.STRING)
-    private IvoaExecutionSessionPhase phase = IvoaExecutionSessionPhase.INITIAL;
+    private IvoaSimpleExecutionSessionPhase phase = IvoaSimpleExecutionSessionPhase.INITIAL;
     @Override
-    public IvoaExecutionSessionPhase getPhase()
+    public IvoaSimpleExecutionSessionPhase getPhase()
         {
         return this.phase;
         }
     @Override
-    public void setPhase(final IvoaExecutionSessionPhase newphase)
+    public void setPhase(final IvoaSimpleExecutionSessionPhase newphase)
         {
         // TODO This is where we need to have the phase transition checking.
         this.phase = newphase;
@@ -276,16 +242,16 @@ public class ExecutionSessionEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SessionConnectorEntity> connectors = new ArrayList<SessionConnectorEntity>();
+    List<SimpleSessionConnectorEntity> connectors = new ArrayList<SimpleSessionConnectorEntity>();
 
     @Override
-    public List<SessionConnectorEntity> getConnectors()
+    public List<SimpleSessionConnectorEntity> getConnectors()
         {
         return connectors;
         }
 
     @Override
-    public void addConnector(final SessionConnectorEntity connector)
+    public void addConnector(final SimpleSessionConnectorEntity connector)
         {
         connectors.add(
             connector
@@ -296,7 +262,7 @@ public class ExecutionSessionEntity
     public void addConnector(String type, String protocol, String location)
         {
         this.addConnector(
-            new SessionConnectorEntity(
+            new SimpleSessionConnectorEntity(
                 this,
                 type,
                 protocol,
@@ -310,11 +276,11 @@ public class ExecutionSessionEntity
         return null;
         }
     
-    public IvoaExecutionSessionResponse makeBean(final URIBuilder uribuilder)
+    public IvoaSimpleExecutionSession makeBean(final URIBuilder uribuilder)
         {
         return this.fillBean(
             uribuilder,
-            new IvoaExecutionSessionResponse().meta(
+            new IvoaSimpleExecutionSession().meta(
                 this.makeMeta(
                     uribuilder
                     )
@@ -322,18 +288,15 @@ public class ExecutionSessionEntity
             );
         }
 
-    public IvoaExecutionSessionResponse fillBean(
+    public IvoaSimpleExecutionSession fillBean(
         final URIBuilder uribuilder,
-        final IvoaExecutionSessionResponse bean
+        final IvoaSimpleExecutionSession bean
         ){
         bean.setKind(
             this.getKind()
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setSchedule(
-            this.makeScheduleBean()
             );
         bean.setExpires(
             this.getExpires()
@@ -367,10 +330,10 @@ public class ExecutionSessionEntity
                 );
             }
 
-        for (SessionConnectorEntity connector : this.getConnectors())
+        for (SimpleSessionConnectorEntity connector : this.getConnectors())
             {
-            IvoaAccessConnector accessor = new IvoaAccessConnector();
-            accessor.setType(connector.getType());
+            IvoaSimpleSessionConnector accessor = new IvoaSimpleSessionConnector();
+            accessor.setKind(connector.getType());
             accessor.setProtocol(connector.getProtocol());
             accessor.setLocation(connector.getLocation());
             bean.addConnectorsItem(

@@ -21,8 +21,9 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.scheduled;
 
+import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 
@@ -34,55 +35,76 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionSchedule;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
-
+import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSession;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
  */
 @Slf4j
 @Entity
-@Table(name = "scheduledcomponents")
+@Table(name = "scheduledexecutionsession")
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class ScheduledComponentEntity
-extends ComponentEntity
-implements ScheduledComponent
+public class ScheduledExecutionSessionEntity
+extends SimpleExecutionSessionEntity
+implements ScheduledExecutionSession
     {
+
+    @Override
+    public URI getKind()
+        {
+        return ScheduledExecutionSession.TYPE_DISCRIMINATOR;
+        }
+
     /**
      * 
      */
-    public ScheduledComponentEntity()
+    public ScheduledExecutionSessionEntity()
         {
         super();
         }
 
     /**
      * 
-     * 
      */
-    public ScheduledComponentEntity(final String name)
-        {
-        this(
-            null,
-            name
-            );
-        }
-
-    /**
-     * 
-     */
-    public ScheduledComponentEntity(
-        final IvoaExecutionSessionSchedule schedule,
-        final String name
+    public ScheduledExecutionSessionEntity(
+        final OfferSetEntity offerset,
+        final OfferSetRequestParserContext context,
+        final ResourceOffer offerblock
         ){
-        super(
-            name
-            );
+        super(offerset, context, offerblock);
+
+        // TODO factor in the compute prepare time.
+        // OfferBlock needs to have separate prepare and available times.
+        // Actually - the offerblock relates to the compute resource.
+        this.availableStartInstantSeconds = offerblock.getStartTime().getEpochSecond();
+        this.availableDurationSeconds     = offerblock.getDuration().toSeconds();
+
+        this.prepareDurationSeconds       = context.getTotalPrepareTime();
+        this.prepareStartInstantSeconds   = this.availableStartInstantSeconds - this.prepareDurationSeconds;
+
+        //
+        // Hard coded 10s release duration.
+        // Start releasing as soon as availability ends.
+        // Release duration should depends on the components.
+        this.releaseDurationSeconds = 10L ; 
+        this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 5L ;         
+
+        }
+    
+    public void init(final IvoaScheduledExecutionSchedule schedule)
+        {
         if (schedule != null)
             {
             IvoaScheduleStartDurationInstant preparing = schedule.getPreparing();
@@ -117,7 +139,7 @@ implements ScheduledComponent
                 }
             }
         }
-    
+        
     @Column(name = "prepare_start_instant_seconds")
     protected long prepareStartInstantSeconds;
     @Override
@@ -321,10 +343,10 @@ implements ScheduledComponent
             }
         }
     
-    public IvoaExecutionSessionSchedule makeScheduleBean()
+    public IvoaScheduledExecutionSchedule makeScheduleBean()
         {
         boolean valid = false;
-        IvoaExecutionSessionSchedule bean = new IvoaExecutionSessionSchedule(); 
+        IvoaScheduledExecutionSchedule bean = new IvoaScheduledExecutionSchedule(); 
 
         IvoaScheduleStartDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)
@@ -359,5 +381,31 @@ implements ScheduledComponent
         else {
             return null ;
             }
+        }
+
+    public IvoaScheduledExecutionSession makeBean(final URIBuilder uribuilder)
+        {
+        return this.fillBean(
+            uribuilder,
+            new IvoaScheduledExecutionSession().meta(
+                this.makeMeta(
+                    uribuilder
+                    )
+                )
+            );
+        }
+
+    public IvoaScheduledExecutionSession fillBean(
+        final URIBuilder uribuilder,
+        final IvoaScheduledExecutionSession bean
+        ){
+        super.fillBean(
+            uribuilder,
+            bean
+            );
+        bean.setSchedule(
+            this.makeScheduleBean()
+            );
+        return bean;
         }
     }

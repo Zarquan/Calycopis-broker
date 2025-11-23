@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityRepository;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.skaha.client.ApiClient;
 import net.ivoa.calycopis.skaha.client.Configuration;
 import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
@@ -148,17 +149,20 @@ implements AsyncComputeHandler
                             log.info("[{}][{}][{}] Access location [{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionObject.getConnectURL());
                             loop = false ;
 
-                            entity.getSession().addConnector(
-                                "urn:jupyter-notebook",
-                                "HTTPS",
-                                sessionObject.getConnectURL()
-                                );                            
-
-                            entity.getSession().addConnector(
-                                "skaha:science-portal",
-                                "HTTPS",
-                                SKAHA_ENDPOINT + "science-portal/"
-                                );                            
+                            if (entity.getSession() instanceof SimpleExecutionSessionEntity)
+                                {
+                                ((SimpleExecutionSessionEntity)entity.getSession()).addConnector(
+                                    "urn:jupyter-notebook",
+                                    "HTTPS",
+                                    sessionObject.getConnectURL()
+                                    );                            
+   
+                                ((SimpleExecutionSessionEntity)entity.getSession()).addConnector(
+                                    "skaha:science-portal",
+                                    "HTTPS",
+                                    SKAHA_ENDPOINT + "science-portal/"
+                                    );                            
+                                }
                             
                             break ;
 

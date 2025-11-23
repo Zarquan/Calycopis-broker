@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2024 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,34 +20,26 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.session.scheduled;
 
-package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
-
+import java.util.List;
 import java.util.UUID;
 
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
- * 
+ * JpaRepository for ExecutionSessionEntity.
+ *
  */
-public interface PodmanJupyterNotebookEntityFactory
-extends JupyterNotebookEntityFactory
+@Repository
+public interface ScheduledExecutionSessionEntityRepository
+    extends JpaRepository<ScheduledExecutionSessionEntity, UUID>
     {
-    /**
-     * Find a Entity based on UUID.
-     * 
-     */
-    public PodmanJupyterNotebookEntity select(final UUID uuid);
-
-    /**
-     * Create a new Entity based on a template.
-     *
-     */
-    public PodmanJupyterNotebookEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractExecutableValidator.Result result
-        );
-
+    
+    List<ScheduledExecutionSessionEntity> findByPhase(final IvoaSimpleExecutionSessionPhase phase);
+    
     }
+

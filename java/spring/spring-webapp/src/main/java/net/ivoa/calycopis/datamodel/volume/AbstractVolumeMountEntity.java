@@ -33,7 +33,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -67,22 +68,25 @@ implements AbstractVolumeMount
      *
      */
     protected AbstractVolumeMountEntity(
-        final ExecutionSessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final IvoaComponentMetadata meta
         ){
         super(meta);
         this.session = session;
-        session.addVolumeMount(
-            this
-            );
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity) session).addVolumeMount(
+                this
+                );
+            }
         }
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session;
+    private AbstractExecutionSessionEntity session;
 
     @Override
-    public ExecutionSessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session;
         }

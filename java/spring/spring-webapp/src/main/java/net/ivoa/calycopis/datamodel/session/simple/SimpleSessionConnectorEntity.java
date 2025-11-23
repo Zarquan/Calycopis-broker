@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session;
+package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.util.UUID;
 
@@ -40,8 +40,8 @@ import jakarta.persistence.Table;
 @Table(
     name = "sessionconnectors"
     )
-public class SessionConnectorEntity
-implements SessionConnector
+public class SimpleSessionConnectorEntity
+implements SimpleSessionConnector
     {
     @Id
     @GeneratedValue
@@ -54,12 +54,12 @@ implements SessionConnector
     /**
      * 
      */
-    public SessionConnectorEntity()
+    public SimpleSessionConnectorEntity()
         {
         super();
         }
 
-    public SessionConnectorEntity(final ExecutionSessionEntity session, final String type, final String protocol, final String location)
+    public SimpleSessionConnectorEntity(final SimpleExecutionSessionEntity session, final String type, final String protocol, final String location)
         {
         super();
         this.session = session;
@@ -73,8 +73,8 @@ implements SessionConnector
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private ExecutionSessionEntity session ;
-    public ExecutionSessionEntity getSession()
+    private SimpleExecutionSessionEntity session ;
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }

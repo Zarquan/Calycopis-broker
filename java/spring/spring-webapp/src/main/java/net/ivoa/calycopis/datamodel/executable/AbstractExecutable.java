@@ -6,7 +6,8 @@ package net.ivoa.calycopis.datamodel.executable;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.ExecutionSession;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 
 /**
  * 
@@ -24,6 +25,6 @@ public interface AbstractExecutable
      * Get the parent Session.  
      *
      */
-    public ExecutionSession getSession();
+    public AbstractExecutionSession getSession();
     
     }

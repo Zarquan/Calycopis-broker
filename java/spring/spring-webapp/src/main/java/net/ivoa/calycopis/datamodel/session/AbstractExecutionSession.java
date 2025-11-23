@@ -25,18 +25,27 @@ package net.ivoa.calycopis.datamodel.session;
 
 import java.net.URI;
 
+import net.ivoa.calycopis.datamodel.component.Component;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
+
 /**
  * Public interface for an execution session.
  *
  */
-public interface AbstractSession
-    extends ScheduledComponent
+public interface AbstractExecutionSession
+    extends Component
     {
     /**
      * The webapp path for sessions.
      * 
      */
     public static final URI WEBAPP_PATH = URI.create("sessions/"); 
-    
+
+    /**
+     * Get the parent OfferSet.
+     *
+     */
+    public OfferSetEntity getOfferSet();
+
     }
 

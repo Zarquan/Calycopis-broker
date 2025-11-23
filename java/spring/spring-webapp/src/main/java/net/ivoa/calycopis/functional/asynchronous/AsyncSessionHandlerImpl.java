@@ -37,11 +37,13 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.ExecutionSessionEntityRepository;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntityRepository;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityRepository;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionPhase;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * AsyncSessionHandler runs it's process() method in a new Thread. 
@@ -141,14 +143,14 @@ implements AsyncSessionHandler
     static class InnerSessionHandler
         {
 
-        private final ExecutionSessionEntityRepository sessionRepository;
+        private final ScheduledExecutionSessionEntityRepository sessionRepository;
         private final AsyncComputeHandler computeHandler;
         private final AsyncExecutableHandler executableHandler;
         private final AsyncStorageResourceHandler storageHandler;
 
         @Autowired
         InnerSessionHandler(
-            final ExecutionSessionEntityRepository sessionRepository,
+            final ScheduledExecutionSessionEntityRepository sessionRepository,
             final AsyncComputeHandler computeHandler,
             final AsyncExecutableHandler executableHandler,
             final AsyncStorageResourceHandler storageHandler
@@ -201,7 +203,7 @@ implements AsyncSessionHandler
             {
             log.debug("Session [{}] setPreparing()", uuid);
             boolean success = false ;
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -214,7 +216,7 @@ implements AsyncSessionHandler
                     log.debug("Session [{}] setPreparing() phase is [ACCEPTED]", session.getUuid());
                     success = true ;
                     session.setPhase(
-                        IvoaExecutionSessionPhase.PREPARING
+                        IvoaSimpleExecutionSessionPhase.PREPARING
                         );
                     session = this.sessionRepository.save(
                         session
@@ -238,7 +240,7 @@ implements AsyncSessionHandler
         void doPreparing(final UUID uuid)
             {
             log.debug("Session [{}] doPreparing()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             
@@ -303,7 +305,7 @@ implements AsyncSessionHandler
         void setAvailable(final UUID uuid)
             {
             log.debug("Session [{}] setAvailable()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -311,7 +313,7 @@ implements AsyncSessionHandler
                 case PREPARING:
                     log.debug("Session [{}] setAvailable() phase changed [{}]->[AVAILABLE]", session.getUuid(), session.getPhase());
                     session.setPhase(
-                        IvoaExecutionSessionPhase.AVAILABLE
+                        IvoaSimpleExecutionSessionPhase.AVAILABLE
                         );
                     session = this.sessionRepository.save(
                         session
@@ -328,7 +330,7 @@ implements AsyncSessionHandler
         void doAvailable(final UUID uuid)
             {
             log.debug("Session [{}] doAvailable()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -433,7 +435,7 @@ implements AsyncSessionHandler
         void setReleasing(final UUID uuid)
             {
             log.debug("Session [{}] setReleasing()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -442,7 +444,7 @@ implements AsyncSessionHandler
                 case RUNNING:
                     log.debug("Session [{}] setReleasing() phase changed [{}]->[RELEASING]", session.getUuid(), session.getPhase());
                     session.setPhase(
-                        IvoaExecutionSessionPhase.RELEASING
+                        IvoaSimpleExecutionSessionPhase.RELEASING
                         );
                     session = this.sessionRepository.save(
                         session
@@ -459,7 +461,7 @@ implements AsyncSessionHandler
         void doReleasing(final UUID uuid)
             {
             log.debug("Session [{}] doReleasing()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -493,7 +495,7 @@ implements AsyncSessionHandler
         void setCompleted(final UUID uuid)
             {
             log.debug("Session [{}] setCompleted()", uuid);
-            ExecutionSessionEntity session = sessionRepository.findById(
+            ScheduledExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -502,7 +504,7 @@ implements AsyncSessionHandler
                 case RUNNING:
                 case RELEASING:
                     session.setPhase(
-                        IvoaExecutionSessionPhase.COMPLETED
+                        IvoaSimpleExecutionSessionPhase.COMPLETED
                         );
                     session = this.sessionRepository.save(
                         session
