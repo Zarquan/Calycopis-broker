@@ -27,8 +27,6 @@ import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
 /**

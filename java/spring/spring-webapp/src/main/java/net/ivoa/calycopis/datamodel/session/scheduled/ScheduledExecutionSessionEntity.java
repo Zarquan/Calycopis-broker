@@ -37,14 +37,12 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
 import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
 import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSchedule;
 import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSession;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**
@@ -52,7 +50,7 @@ import net.ivoa.calycopis.util.URIBuilder;
  */
 @Slf4j
 @Entity
-@Table(name = "scheduledexecutionsession")
+@Table(name = "scheduledexecutionsessions")
 @Inheritance(
     strategy = InheritanceType.JOINED
     )

@@ -261,27 +261,27 @@ public class ComputeResourceOfferFactoryImpl
             WITH ExecutionBlocks AS
                 (
                 SELECT
-                    ExecutionSessions.phase AS BlockPhase,
-                    ScheduledComponents.available_start_instant_seconds  / :blockstep AS BlockStart,
-                    ScheduledComponents.available_duration_seconds / :blockstep AS BlockLength,
+                    SimpleExecutionSessions.phase AS BlockPhase,
+                    ScheduledExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
+                    ScheduledExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM
-                    ScheduledComponents
+                    SimpleExecutionSessions
                 JOIN
-                    ExecutionSessions
+                    ScheduledExecutionSessions
                 ON
-                    ExecutionSessions.uuid = ScheduledComponents.uuid
+                    SimpleExecutionSessions.uuid = ScheduledExecutionSessions.uuid
                 JOIN
                     AbstractComputeResources
                 ON
-                    AbstractComputeResources.session = ExecutionSessions.uuid
+                    AbstractComputeResources.session = SimpleExecutionSessions.uuid
                 JOIN
                     SimpleComputeResources
                 ON
                     SimpleComputeResources.uuid = AbstractComputeResources.uuid
                 WHERE
-                    ExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
+                    SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
                 ),
             AvailableBlocks AS
                 (
