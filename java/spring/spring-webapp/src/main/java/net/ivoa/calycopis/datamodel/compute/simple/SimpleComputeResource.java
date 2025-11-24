@@ -39,7 +39,7 @@ public interface SimpleComputeResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.0") ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/computer/simple-compute-resource-1.0") ;
 
     /**
      * The minimum number of CPU cores requested.

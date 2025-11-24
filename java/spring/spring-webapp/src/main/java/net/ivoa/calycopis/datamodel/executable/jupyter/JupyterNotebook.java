@@ -17,7 +17,7 @@ public interface JupyterNotebook
      * The type discriminator for Jupyter notebooks.
      * 
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/executable/jupyter-notebook-1.0") ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0") ;
     
     /**
      * Get the location of the notebook.

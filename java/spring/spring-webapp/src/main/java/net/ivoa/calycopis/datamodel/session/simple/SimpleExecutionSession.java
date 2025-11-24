@@ -47,7 +47,7 @@ public interface SimpleExecutionSession
      * The type identifier for a simple execution session.
      *
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/session/simple-execution-session-1.0");
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/simple-execution-session-1.0");
 
     /**
      * Get the Execution phase.

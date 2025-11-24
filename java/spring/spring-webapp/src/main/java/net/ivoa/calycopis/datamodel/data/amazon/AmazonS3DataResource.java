@@ -38,7 +38,7 @@ public interface AmazonS3DataResource
      * The OpenAPI type identifier.
      * 
      */
-    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/types/data/S3-data-resource-1.0") ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/S3-data-resource-1.0") ;
 
     /**
      * Get the Amazon S3 service endpoint.
