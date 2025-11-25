@@ -35,6 +35,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseFour;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
@@ -86,11 +87,11 @@ public class SessionsApiDelegateImpl
     @Override
     public ResponseEntity<IvoaExecutionSessionResponseFour> executionSessionPost(
         final UUID uuid,
-        final IvoaUpdateRequest request
+        final IvoaAbstractUpdate request
         ) {
        final Optional<SimpleExecutionSessionEntity> found = updateHandler.update(
             uuid,
-            request.getUpdate()
+            request
             );
         if (found.isPresent())
             {

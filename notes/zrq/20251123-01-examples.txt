@@ -224,7 +224,7 @@ EOF
         )
 
     #
-    # Request the offersetet in JSON.
+    # Request the full offersetet in JSON.
     curl \
         --silent \
         --show-error \
@@ -280,10 +280,9 @@ EOF
     #
     # Reject the first offer using YAML.
     cat > "${examplefull}-006-reject-00-request.yaml" << EOF
-update:
-  kind:  uri:enum-value-update
-  path:  phase
-  value: REJECTED
+kind:  uri:enum-value-update
+path:  phase
+value: REJECTED
 EOF
 
     #
@@ -348,11 +347,9 @@ EOF
     # Accept the second offer using JSON.
 cat > "${examplefull}-010-accept-01-request.json" << EOF
 {
-"update": {
-    "kind":  "uri:enum-value-update",
-    "path":  "phase",
-    "value": "ACCEPTED"
-    }
+"kind":  "uri:enum-value-update",
+"path":  "phase",
+"value": "ACCEPTED"
 }
 EOF
 
