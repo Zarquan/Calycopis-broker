@@ -35,7 +35,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseThree;
+import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseFour;
 import net.ivoa.calycopis.openapi.model.IvoaUpdateRequest;
 import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
 
@@ -61,7 +61,7 @@ public class SessionsApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionSessionResponseThree> executionSessionGet(
+    public ResponseEntity<IvoaExecutionSessionResponseFour> executionSessionGet(
         final UUID uuid
         ) {
         final Optional<SimpleExecutionSessionEntity> found = sessionFactory.select(
@@ -69,7 +69,7 @@ public class SessionsApiDelegateImpl
             );
         if (found.isPresent())
             {
-            return new ResponseEntity<IvoaExecutionSessionResponseThree>(
+            return new ResponseEntity<IvoaExecutionSessionResponseFour>(
                 found.get().makeBean(
                     this.getURIBuilder()
                     ),
@@ -77,14 +77,14 @@ public class SessionsApiDelegateImpl
                 );
             }
         else {
-            return new ResponseEntity<IvoaExecutionSessionResponseThree>(
+            return new ResponseEntity<IvoaExecutionSessionResponseFour>(
                 HttpStatus.NOT_FOUND
                 );
             }
         }
 
     @Override
-    public ResponseEntity<IvoaExecutionSessionResponseThree> executionSessionPost(
+    public ResponseEntity<IvoaExecutionSessionResponseFour> executionSessionPost(
         final UUID uuid,
         final IvoaUpdateRequest request
         ) {
@@ -94,7 +94,7 @@ public class SessionsApiDelegateImpl
             );
         if (found.isPresent())
             {
-            return new ResponseEntity<IvoaExecutionSessionResponseThree>(
+            return new ResponseEntity<IvoaExecutionSessionResponseFour>(
                 found.get().makeBean(
                     this.getURIBuilder()
                     ),
@@ -102,7 +102,7 @@ public class SessionsApiDelegateImpl
                 );
             }
         else {
-            return new ResponseEntity<IvoaExecutionSessionResponseThree>(
+            return new ResponseEntity<IvoaExecutionSessionResponseFour>(
                 HttpStatus.NOT_FOUND
                 );
             }

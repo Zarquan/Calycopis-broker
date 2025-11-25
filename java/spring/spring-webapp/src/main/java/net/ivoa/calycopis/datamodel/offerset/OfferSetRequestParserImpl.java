@@ -21,7 +21,6 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
