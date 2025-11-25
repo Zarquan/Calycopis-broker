@@ -1,30 +1,30 @@
 {
   "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
   "meta": {
-    "uuid": "0bb9b347-7e45-47a8-b542-408b902c1c2e",
+    "uuid": "a73562c4-5f7a-46af-a8c6-9c881cd0b7ae",
     "name": "no-name-offer-1",
-    "url": "http://127.0.0.1:8082/sessions/0bb9b347-7e45-47a8-b542-408b902c1c2e",
-    "created": "2025-11-25T03:20:25.28331Z"
+    "url": "http://127.0.0.1:8082/sessions/a73562c4-5f7a-46af-a8c6-9c881cd0b7ae",
+    "created": "2025-11-25T05:12:49.729704Z"
   },
   "executable": {
     "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
     "meta": {
-      "uuid": "9c401bcf-ea9a-45bc-9233-3faf9b03e779",
+      "uuid": "b794573c-ecbd-4ffa-9776-fba305158af0",
       "name": "executable-001",
-      "url": "http://127.0.0.1:8082/executables/9c401bcf-ea9a-45bc-9233-3faf9b03e779",
-      "created": "2025-11-25T03:20:25.288582Z"
+      "url": "http://127.0.0.1:8082/executables/b794573c-ecbd-4ffa-9776-fba305158af0",
+      "created": "2025-11-25T05:12:49.73684Z"
     },
     "phase": "INITIALIZING",
     "schedule": {
       "preparing": {
-        "start": "2025-11-25T05:21:00Z",
+        "start": "2025-11-25T07:13:00Z",
         "duration": "PT45S"
       },
       "available": {
-        "start": "2025-11-25T05:21:45Z/PT0S"
+        "start": "2025-11-25T07:13:45Z/PT0S"
       },
       "releasing": {
-        "start": "2025-11-25T07:22:05Z",
+        "start": "2025-11-25T09:14:05Z",
         "duration": "PT1S"
       }
     }
@@ -32,23 +32,23 @@
   "compute": {
     "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
     "meta": {
-      "uuid": "06be2b73-a9ea-4e3f-8557-aad9df01428a",
+      "uuid": "44f47ba3-3ddb-462c-9897-be1b67072245",
       "name": "computer-001",
-      "url": "http://127.0.0.1:8082/compute/06be2b73-a9ea-4e3f-8557-aad9df01428a",
-      "created": "2025-11-25T03:20:25.294263Z"
+      "url": "http://127.0.0.1:8082/compute/44f47ba3-3ddb-462c-9897-be1b67072245",
+      "created": "2025-11-25T05:12:49.739979Z"
     },
     "phase": "INITIALIZING",
     "schedule": {
       "preparing": {
-        "start": "2025-11-25T05:21:45Z",
+        "start": "2025-11-25T07:13:45Z",
         "duration": "PT15S"
       },
       "available": {
-        "start": "2025-11-25T05:22:00Z/PT0S",
+        "start": "2025-11-25T07:14:00Z/PT0S",
         "duration": "PT2H"
       },
       "releasing": {
-        "start": "2025-11-25T07:22:05Z",
+        "start": "2025-11-25T09:14:05Z",
         "duration": "PT10S"
       }
     },
@@ -62,18 +62,18 @@
     }
   },
   "phase": "OFFERED",
-  "expires": "2025-11-25T03:25:24.947369Z",
+  "expires": "2025-11-25T05:17:49.399271Z",
   "schedule": {
     "preparing": {
-      "start": "2025-11-25T05:21:00Z",
+      "start": "2025-11-25T07:13:00Z",
       "duration": "PT1M"
     },
     "available": {
-      "start": "2025-11-25T05:22:00Z/PT0S",
+      "start": "2025-11-25T07:14:00Z/PT0S",
       "duration": "PT2H"
     },
     "releasing": {
-      "start": "2025-11-25T07:22:05Z",
+      "start": "2025-11-25T09:14:05Z",
       "duration": "PT10S"
     }
   }

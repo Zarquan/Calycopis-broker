@@ -1,4 +1,3 @@
-update:
-  kind:  uri:enum-value-update
-  path:  phase
-  value: REJECTED
+kind:  uri:enum-value-update
+path:  phase
+value: REJECTED
