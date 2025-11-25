@@ -55,7 +55,8 @@ implements AsyncComputeHandler
     {
     
     //public static final String SKAHA_ENDPOINT = "https://services.swesrc.chalmers.se/";
-    public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
+    //public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
+    public static final String SKAHA_ENDPOINT = "https://example.com/" ;
 
     @Autowired
     AsyncComputeLifecycleHandlerImpl(
@@ -126,7 +127,7 @@ implements AsyncComputeHandler
 
             String sessionID = null ;
             try {
-                sessionID = skahaSessionManager .v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
+                sessionID = skahaSessionManager.v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
                 sessionID = sessionID.strip();
                 log.info("SessionID [{}] : ", sessionID);
                 }
@@ -135,7 +136,8 @@ implements AsyncComputeHandler
                 log.error("Exception [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
                 }
 
-            boolean loop = true ;
+            //boolean loop = true ;
+            boolean loop = false ;
             for (int count = 0 ; ((loop == true) && (count < 1000)) ; count++)
                 {
                 try {
