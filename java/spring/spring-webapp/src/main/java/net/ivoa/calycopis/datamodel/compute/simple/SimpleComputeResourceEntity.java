@@ -23,17 +23,20 @@
 
 package net.ivoa.calycopis.datamodel.compute.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A Simple compute resource.
@@ -51,6 +54,11 @@ public class SimpleComputeResourceEntity
     extends AbstractComputeResourceEntity
     implements SimpleComputeResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleComputeResource.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -66,7 +74,7 @@ public class SimpleComputeResourceEntity
      *
      */
     public SimpleComputeResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){
@@ -80,10 +88,11 @@ public class SimpleComputeResourceEntity
     
     /**
      * Protected constructor with session, template and offer.
-     *
+     * TODO validated can be replaced by Result.getObject()
+     * 
      */
     public SimpleComputeResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
         final IvoaSimpleComputeResource validated
@@ -92,7 +101,7 @@ public class SimpleComputeResourceEntity
             session,
             result,
             offer,
-            validated.getName()
+            validated.getMeta()
             );
         
         if (validated.getCores() != null)
@@ -216,16 +225,33 @@ public class SimpleComputeResourceEntity
         }
      * 
      */
-    
+
+    // TODO Move this to a Skaha specific class.
+    @Column(name="skahasessionid")
+    private String skahasessionid;
     @Override
-    public IvoaSimpleComputeResource getIvoaBean(final String baseurl)
+    public String getSkahaSessionID()
+        {
+        return this.skahasessionid;
+        }
+    public void setSkahaSessionID(final String sessionid)
+        {
+        this.skahasessionid = sessionid ;
+        }
+
+    @Override
+    public IvoaSimpleComputeResource makeBean(final URIBuilder builder)
         {
         return fillBean(
-            new IvoaSimpleComputeResource(SimpleComputeResource.TYPE_DISCRIMINATOR)
+            new IvoaSimpleComputeResource().meta(
+                this.makeMeta(
+                    builder
+                    )
+                )               
             );
         }
-        
-    protected IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
+
+    public IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
         {
         super.fillBean(bean);
         
@@ -240,18 +266,6 @@ public class SimpleComputeResourceEntity
         bean.setMemory(memorybean);
         
         return bean;
-        }
-
-    @Column(name="skahasessionid")
-    private String skahasessionid;
-    @Override
-    public String getSkahaSessionID()
-        {
-        return this.skahasessionid;
-        }
-    public void setSkahaSessionID(final String sessionid)
-        {
-        this.skahasessionid = sessionid ;
         }
     }
 

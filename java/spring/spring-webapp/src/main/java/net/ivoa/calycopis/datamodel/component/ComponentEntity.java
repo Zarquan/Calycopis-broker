@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.component;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,9 +51,11 @@ import net.ivoa.calycopis.datamodel.message.MessageSubject;
 import net.ivoa.calycopis.functional.planning.AbstractPlanningStepEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.functional.planning.PlanningStepSequence;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * JPA Entity for a Component
@@ -65,7 +68,7 @@ import net.ivoa.calycopis.util.ListWrapper;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class ComponentEntity
+public abstract class ComponentEntity
     implements Component, MessageSubject
     {
 
@@ -95,15 +98,15 @@ public class ComponentEntity
      * Protected constructor.
      *
      */
-    protected ComponentEntity(final String name, final String description)
+    protected ComponentEntity(final IvoaComponentMetadata meta)
         {
         this(
-            name,
-            description,
+            meta.getName(),
+            meta.getDescription(),
             OffsetDateTime.now()
             );
         }
-
+    
     /**
      * Protected constructor.
      *
@@ -148,6 +151,14 @@ public class ComponentEntity
         return this.created;
         }
 
+    @Column(name = "modified")
+    private OffsetDateTime modified;
+    @Override
+    public OffsetDateTime getModified()
+        {
+        return this.modified;
+        }
+    
     @OneToMany(
         mappedBy = "parent",
         fetch = FetchType.LAZY,
@@ -493,5 +504,44 @@ public class ComponentEntity
                 releaseLast = step;
                 }
             };
+        }
+
+    protected IvoaComponentMetadata makeMeta(
+        final URIBuilder builder
+        ){
+        return this.fillMeta(
+            builder,
+            new IvoaComponentMetadata()
+            ) ;
+        }
+
+    protected abstract URI getWebappPath() ;
+    
+    protected IvoaComponentMetadata fillMeta(
+        final URIBuilder builder,
+        final IvoaComponentMetadata bean
+        ){
+        bean.setUuid(
+            this.getUuid()
+            );
+        bean.setUrl(
+            builder.buildURI(
+                this.getWebappPath(),
+                this.uuid
+                )
+            );
+        bean.setName(
+            this.getName()
+            );
+        bean.setCreated(
+                this.getCreated()
+                );
+        bean.setModified(
+            this.getModified()
+            );
+        bean.setMessages(
+            this.getMessageBeans()
+            );
+        return bean ;
         }
     }

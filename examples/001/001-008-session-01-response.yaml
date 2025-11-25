@@ -1,0 +1,59 @@
+kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+meta:
+  uuid: "a73562c4-5f7a-46af-a8c6-9c881cd0b7ae"
+  name: "no-name-offer-1"
+  url: "http://127.0.0.1:8082/sessions/a73562c4-5f7a-46af-a8c6-9c881cd0b7ae"
+  created: "2025-11-25T05:12:49.729704Z"
+executable:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0"
+  meta:
+    uuid: "b794573c-ecbd-4ffa-9776-fba305158af0"
+    name: "executable-001"
+    url: "http://127.0.0.1:8082/executables/b794573c-ecbd-4ffa-9776-fba305158af0"
+    created: "2025-11-25T05:12:49.73684Z"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      start: "2025-11-25T07:13:00Z"
+      duration: "PT45S"
+    available:
+      start: "2025-11-25T07:13:45Z/PT0S"
+    releasing:
+      start: "2025-11-25T09:14:05Z"
+      duration: "PT1S"
+compute:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+  meta:
+    uuid: "44f47ba3-3ddb-462c-9897-be1b67072245"
+    name: "computer-001"
+    url: "http://127.0.0.1:8082/compute/44f47ba3-3ddb-462c-9897-be1b67072245"
+    created: "2025-11-25T05:12:49.739979Z"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      start: "2025-11-25T07:13:45Z"
+      duration: "PT15S"
+    available:
+      start: "2025-11-25T07:14:00Z/PT0S"
+      duration: "PT2H"
+    releasing:
+      start: "2025-11-25T09:14:05Z"
+      duration: "PT10S"
+  cores:
+    min: 10
+    max: 10
+  memory:
+    min: 10
+    max: 10
+phase: "OFFERED"
+expires: "2025-11-25T05:17:49.399271Z"
+schedule:
+  preparing:
+    start: "2025-11-25T07:13:00Z"
+    duration: "PT1M"
+  available:
+    start: "2025-11-25T07:14:00Z/PT0S"
+    duration: "PT2H"
+  releasing:
+    start: "2025-11-25T09:14:05Z"
+    duration: "PT10S"

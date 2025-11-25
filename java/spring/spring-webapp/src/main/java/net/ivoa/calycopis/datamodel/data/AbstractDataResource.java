@@ -23,10 +23,11 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
+import java.net.URI;
+
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 
 /**
  * 
@@ -35,22 +36,22 @@ public interface AbstractDataResource
     extends LifecycleComponent
     {
     /**
+     * The webapp path for data resources.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("data/"); 
+
+    /**
      * Get the parent Session.  
      * TODO Can we make this just the interface ?
      * 
      */
-    public SessionEntity getSession();
+    public AbstractExecutionSession getSession();
 
     /**
      * Get the storage for this data.  
      *
      */
     public AbstractStorageResource getStorage();
-    
-    /**
-     * Get an IVOA bean representation.
-     *  
-     */
-    public IvoaAbstractDataResource getIvoaBean();
     
     }

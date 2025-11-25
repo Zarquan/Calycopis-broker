@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
@@ -66,7 +66,7 @@ public class AmazonS3DataResourceEntityFactoryImpl
 
     @Override
     public AmazonS3DataResourceEntity create(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){

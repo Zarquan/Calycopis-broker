@@ -1,0 +1,122 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    public interface AbstractStorageResource
+
+        public static final String WEBAPP_PATH = "storage-resources/" ;
+
+    public class AbstractStorageResourceEntity
+
+        public abstract IvoaAbstractStorageResource makeBean(final URIBuilder builder);
+
+        @Override
+        protected String getWebappPath()
+            {
+            return AbstractStorageResource.WEBAPP_PATH;
+            }
+
+    public interface SimpleStorageResource
+
+    public class SimpleStorageResourceEntity
+
+        @Override
+        public IvoaAbstractStorageResource makeBean(URIBuilder uribuilder)
+            {
+            return fillBean(
+                new IvoaSimpleStorageResource().meta(
+                    this.makeMeta(
+                        uribuilder
+                        )
+                    )
+                );
+            }
+
+
+# -----------------------------------------------------
+
+    public interface AbstractSession
+
+    public class AbstractSessionEntity
+
+    public interface ExecutionSession
+
+        public static final String WEBAPP_PATH = "sessions/" ;
+
+
+
+    public class ExecutionSessionEntity
+
+        public IvoaExecutionSessionResponse makeBean(final URIBuilder uribuilder)
+            {
+            return this.fillBean(
+                uribuilder,
+                new IvoaExecutionSessionResponse().meta(
+                    this.makeMeta(
+                        uribuilder
+                        )
+                    )
+                );
+            }
+
+
+
+# -----------------------------------------------------
+
+    public interface OfferSet
+
+        public static final String WEBAPP_PATH = "offersets/" ;
+
+
+    public class OfferSetEntity
+
+        public IvoaOfferSetResponse makeBean(final URIBuilder uribuilder)
+            {
+            return this.fillBean(
+                uribuilder,
+                new IvoaOfferSetResponse().meta(
+                    this.makeMeta(
+                        uribuilder
+                        )
+                    )
+                );
+            }
+
+        public IvoaOfferSetResponse fillBean(final URIBuilder uribuilder, final IvoaOfferSetResponse bean)
+            {
+            ....
+            }
+
+
+

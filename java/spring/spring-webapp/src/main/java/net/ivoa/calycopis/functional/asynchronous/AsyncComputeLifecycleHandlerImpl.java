@@ -25,7 +25,6 @@ package net.ivoa.calycopis.functional.asynchronous;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,11 +35,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityRepository;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityRepository;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.skaha.client.ApiClient;
-import net.ivoa.calycopis.skaha.client.ApiException;
 import net.ivoa.calycopis.skaha.client.Configuration;
 import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
 import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
@@ -57,7 +55,8 @@ implements AsyncComputeHandler
     {
     
     //public static final String SKAHA_ENDPOINT = "https://services.swesrc.chalmers.se/";
-    public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
+    //public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
+    public static final String SKAHA_ENDPOINT = "https://example.com/" ;
 
     @Autowired
     AsyncComputeLifecycleHandlerImpl(
@@ -128,7 +127,7 @@ implements AsyncComputeHandler
 
             String sessionID = null ;
             try {
-                sessionID = skahaSessionManager .v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
+                sessionID = skahaSessionManager.v0SessionPost(image, type, name, cores, ram, cmd, args, env, xSkahaRegistryAuth);
                 sessionID = sessionID.strip();
                 log.info("SessionID [{}] : ", sessionID);
                 }
@@ -137,7 +136,8 @@ implements AsyncComputeHandler
                 log.error("Exception [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
                 }
 
-            boolean loop = true ;
+            //boolean loop = true ;
+            boolean loop = false ;
             for (int count = 0 ; ((loop == true) && (count < 1000)) ; count++)
                 {
                 try {
@@ -151,17 +151,20 @@ implements AsyncComputeHandler
                             log.info("[{}][{}][{}] Access location [{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionObject.getConnectURL());
                             loop = false ;
 
-                            entity.getSession().addConnector(
-                                "urn:jupyter-notebook",
-                                "HTTPS",
-                                sessionObject.getConnectURL()
-                                );                            
-
-                            entity.getSession().addConnector(
-                                "skaha:science-portal",
-                                "HTTPS",
-                                SKAHA_ENDPOINT + "science-portal/"
-                                );                            
+                            if (entity.getSession() instanceof SimpleExecutionSessionEntity)
+                                {
+                                ((SimpleExecutionSessionEntity)entity.getSession()).addConnector(
+                                    "urn:jupyter-notebook",
+                                    "HTTPS",
+                                    sessionObject.getConnectURL()
+                                    );                            
+   
+                                ((SimpleExecutionSessionEntity)entity.getSession()).addConnector(
+                                    "skaha:science-portal",
+                                    "HTTPS",
+                                    SKAHA_ENDPOINT + "science-portal/"
+                                    );                            
+                                }
                             
                             break ;
 

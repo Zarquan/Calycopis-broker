@@ -29,9 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
 
 /**
@@ -163,9 +165,16 @@ implements AbstractDataResourceValidator
 // The CANFAR version of this should call Cavern to create a session directory in the user's home space.
 // /users/home/<username>/sessions/<sessionid>
         
-            // Create a request for a new StorageResource.
-            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource();
-            storageResource.setName("Storage for [" + context.makeDataValidatorResultKey(requested) + "]");
+            // Create a new StorageResource template.
+            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource()
+                .kind(
+                    SimpleStorageResource.TYPE_DISCRIMINATOR
+                    )                    
+                .meta(
+                    new IvoaComponentMetadata().name(
+                        "Storage for [" + context.makeDataValidatorResultKey(requested) + "]"
+                        )
+                );
 
             //
             // Validate the new StorageResource.
@@ -180,7 +189,7 @@ implements AbstractDataResourceValidator
                 {
                 if (null != storageResult.getObject())
                     {
-                    log.debug("Adding storage reference [{}][{}]", storageResult.getObject().getName(),storageResult.getObject().getUuid());
+                    log.debug("Adding storage reference [{}][{}]", storageResult.getObject().getMeta().getName(),storageResult.getObject().getMeta().getUuid());
                     validated.setStorage(
                         context.makeStorageValidatorResultKey(
                             storageResult.getObject()

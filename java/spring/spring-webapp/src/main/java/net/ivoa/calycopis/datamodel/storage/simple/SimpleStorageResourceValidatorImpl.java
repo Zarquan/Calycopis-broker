@@ -24,7 +24,7 @@ package net.ivoa.calycopis.datamodel.storage.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
@@ -64,7 +64,7 @@ implements SimpleStorageResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaSimpleStorageResource simple:
@@ -88,19 +88,21 @@ implements SimpleStorageResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleStorageResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource(
-            SimpleStorageResource.TYPE_DISCRIMINATOR
-            );
-
+        IvoaSimpleStorageResource validated = new IvoaSimpleStorageResource()
+            .kind(SimpleStorageResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
+        
         //
         // TODO Check available size.
         //
-
-        validated.setName(requested.getName());
-
         
         //
         // Calculate the preparation time.
@@ -130,7 +132,7 @@ implements SimpleStorageResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractStorageResourceEntity build(SessionEntity session)
+                public AbstractStorageResourceEntity build(SimpleExecutionSessionEntity session)
                     {
                     entity = entityFactory.create(
                         session,

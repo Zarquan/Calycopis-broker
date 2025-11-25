@@ -22,17 +22,22 @@
  */
 package net.ivoa.calycopis.webapp;
 
+import java.net.URI;
 import java.util.Optional;
 
 import org.springframework.web.context.request.NativeWebRequest;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.util.URIBuilder;
+import net.ivoa.calycopis.util.URIBuilderImpl;
 
 /**
  * Base class for our delegates.
  * Includes methods to get the base URL used in redirects.
  *
  */
+@Slf4j
 public class BaseDelegateImpl
     {
 
@@ -109,15 +114,32 @@ public class BaseDelegateImpl
      * https://gist.github.com/beradrian/d66008b6c5a784185c29
      *
      */
-    public String getBaseUrl()
+    public URI getBaseUri()
         {
         String contextpath = this.getContextPath();
-        String requestURL  = this.getRequestURL();
-        String requestURI  = this.getRequestURI();
-        return requestURL.substring(
-            0,
-            requestURL.length() - requestURI.length()
-            ) + contextpath;
+        URI requestURL  = URI.create(this.getRequestURL());
+        URI requestURI  = URI.create(this.getRequestURI());
+        
+        log.debug("URL [{}]", requestURL);
+        log.debug("URI [{}]", requestURI);
+        log.debug("Context [{}]", contextpath);
+
+        URI base = requestURL.resolve(contextpath + "/");
+        log.debug("Base    [{}]", base);
+        return base;
+        }
+
+    /**
+     * Get a URI builder to create Component URLs.
+     * 
+     */
+    public URIBuilder getURIBuilder()
+        {
+        return new URIBuilderImpl(
+            this.getBaseUri(),
+            this.getBaseUri(),
+            this.getContextPath()
+            );
         }
     }
 

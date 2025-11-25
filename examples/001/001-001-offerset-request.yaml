@@ -1,0 +1,20 @@
+# A request for 1HR Jupyter notebook sessions, with max and min compute resources.
+#name: example-001
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0
+  meta:
+    name: executable-001
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+schedule:
+  requested:
+    duration: PT1H
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  meta:
+    name: computer-001
+  cores:
+    min: 5
+    max: 15
+  memory:
+    min: 3
+    max: 9

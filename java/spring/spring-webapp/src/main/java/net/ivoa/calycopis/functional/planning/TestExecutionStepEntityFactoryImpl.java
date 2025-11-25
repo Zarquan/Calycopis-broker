@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -65,7 +65,7 @@ implements TestExecutionStepEntityFactory
 
     @Override
     public TestExecutionStepEntity create(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final ComponentEntity component,
         final Duration offset,
         final Duration duration,

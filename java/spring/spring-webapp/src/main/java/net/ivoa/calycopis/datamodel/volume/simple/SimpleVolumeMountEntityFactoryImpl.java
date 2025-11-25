@@ -30,7 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -64,7 +64,7 @@ public class SimpleVolumeMountEntityFactoryImpl
         }
 
     public SimpleVolumeMountEntity create(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractVolumeMountValidator.Result result
         ){
         return this.repository.save(

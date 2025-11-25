@@ -23,14 +23,17 @@
 
 package net.ivoa.calycopis.datamodel.data.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleDataResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A Simple data resource.
@@ -44,6 +47,11 @@ public class SimpleDataResourceEntity
     extends AbstractDataResourceEntity
     implements SimpleDataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleDataResource.TYPE_DISCRIMINATOR ;
+        }
 
     /**
      * Protected constructor
@@ -59,7 +67,7 @@ public class SimpleDataResourceEntity
      *
      */
     public SimpleDataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -73,10 +81,12 @@ public class SimpleDataResourceEntity
     
     /**
      * Protected constructor with parent.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public SimpleDataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaSimpleDataResource validated
@@ -85,7 +95,7 @@ public class SimpleDataResourceEntity
             session,
             storage,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.location = validated.getLocation();
         }
@@ -98,20 +108,20 @@ public class SimpleDataResourceEntity
         }
 
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaAbstractDataResource makeBean(final URIBuilder builder)
         {
         return fillBean(
-            new IvoaSimpleDataResource(
-                SimpleDataResource.TYPE_DISCRIMINATOR
+            new IvoaSimpleDataResource().meta(
+                this.makeMeta(
+                    builder
+                    )
                 )
             );
         }
 
     protected IvoaSimpleDataResource fillBean(final IvoaSimpleDataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
         bean.setLocation(
             this.getLocation()
             );

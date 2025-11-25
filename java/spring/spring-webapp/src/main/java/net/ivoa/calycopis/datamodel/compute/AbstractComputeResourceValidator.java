@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -46,7 +46,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
          * Build an entity based on our validation result.
          * 
          */
-        public AbstractComputeResourceEntity build(final SessionEntity session, final ComputeResourceOffer offer);
+        public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer);
 
         }
 
@@ -83,7 +83,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractComputeResourceEntity build(final SessionEntity session, final ComputeResourceOffer offer)
+        public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)
             {
             return null;
             }

@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.data;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -31,10 +33,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -62,22 +67,27 @@ implements AbstractDataResource
     /**
      * Protected constructor.
      * Automatically adds this resource to the parent SessionEntity.
+     * TODO meta can be replaced by Result.getObject().getMeta()
      * 
      */
     protected AbstractDataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
-        session.addDataResource(
-            this
-            );
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity)session).addDataResource(
+                this
+                );
+            }
+
         this.storage = storage;
         storage.addDataResource(
             this
@@ -104,10 +114,10 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private AbstractExecutionSessionEntity session;
     
     @Override
-    public SessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session ;
         }
@@ -124,23 +134,16 @@ implements AbstractDataResource
         {
         this.storage = storage;
         }
-    
+
+    public abstract IvoaAbstractDataResource makeBean(final URIBuilder builder);
+
     protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setKind(
+            this.getKind()
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()
@@ -149,5 +152,11 @@ implements AbstractDataResource
             this.storage.getUuid().toString()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractDataResource.WEBAPP_PATH;
         }
     }

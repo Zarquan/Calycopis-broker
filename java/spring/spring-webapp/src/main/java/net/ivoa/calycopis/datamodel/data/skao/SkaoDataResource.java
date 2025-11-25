@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.data.skao;
 
+import java.net.URI;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResource;
@@ -39,7 +40,7 @@ public interface SkaoDataResource
      * The OpenAPI type identifier.
      *
      */
-    public static final String TYPE_DISCRIMINATOR = "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0" ;
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/skao-data-resource-1.0") ;
 
     public String getNamespace();
     public String getObjectid();

@@ -23,12 +23,13 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
+import java.net.URI;
+
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
 
 /**
  * 
@@ -43,15 +44,15 @@ public interface AbstractComputeResource
     extends LifecycleComponent
     {
     /**
+     * The webapp path for compute resources.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("compute/"); 
+    
+    /**
      * Get the parent Session.  
      *
      */
-    public SessionEntity getSession();
-
-    /**
-     * Get an IVOA bean representation.
-     *  
-     */
-    public IvoaAbstractComputeResource getIvoaBean(final String baseurl);
+    public AbstractExecutionSession getSession();
 
     }

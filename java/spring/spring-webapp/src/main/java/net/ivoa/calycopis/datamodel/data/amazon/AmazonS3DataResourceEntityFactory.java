@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
@@ -50,7 +50,7 @@ public interface AmazonS3DataResourceEntityFactory
      *
      */
     public AmazonS3DataResourceEntity create(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         );

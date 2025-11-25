@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -49,7 +49,7 @@ extends FactoryBase
      *
      */
     public TestExecutionStepEntity create(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final ComponentEntity component,
         final Duration offset,
         final Duration duration,

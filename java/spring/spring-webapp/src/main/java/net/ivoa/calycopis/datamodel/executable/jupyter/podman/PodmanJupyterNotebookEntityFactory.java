@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 
 /**
  * 
@@ -46,7 +46,7 @@ extends JupyterNotebookEntityFactory
      *
      */
     public PodmanJupyterNotebookEntity create(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         );
 

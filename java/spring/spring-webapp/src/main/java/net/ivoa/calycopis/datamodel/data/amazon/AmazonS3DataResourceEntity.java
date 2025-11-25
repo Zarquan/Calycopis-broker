@@ -23,14 +23,16 @@
 
 package net.ivoa.calycopis.datamodel.data.amazon;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * An Amazon S3 data resource.
@@ -44,6 +46,11 @@ public class AmazonS3DataResourceEntity
     extends AbstractDataResourceEntity
     implements AmazonS3DataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return AmazonS3DataResource.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -59,7 +66,7 @@ public class AmazonS3DataResourceEntity
      *
      */
     public AmazonS3DataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -73,10 +80,12 @@ public class AmazonS3DataResourceEntity
     
     /**
      * Protected constructor with parent and template.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     public AmazonS3DataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaS3DataResource validated
@@ -85,7 +94,7 @@ public class AmazonS3DataResourceEntity
             session,
             storage,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.endpoint = validated.getEndpoint();
         this.template = validated.getTemplate();
@@ -123,23 +132,21 @@ public class AmazonS3DataResourceEntity
         }
 
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaS3DataResource makeBean(URIBuilder builder)
         {
         return fillBean(
-            new IvoaS3DataResource (
-                AmazonS3DataResource.TYPE_DISCRIMINATOR
+            new IvoaS3DataResource().meta(
+                this.makeMeta(
+                    builder
+                    )
                 )
             );
         }
 
     protected IvoaS3DataResource fillBean(final IvoaS3DataResource bean)
         {
-        super.fillBean(
-            bean
-            );
-
+        super.fillBean(bean);
         // TODO fill in the Amazon fields
-
         return bean;
         }
     }

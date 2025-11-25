@@ -1,0 +1,86 @@
+executable:
+  meta:
+    name: executable-007-01
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+
+schedule:
+  requested:
+      duration: PT1H
+
+compute:
+  meta:
+    name: computer-007-01
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  cores:
+    min:  8
+    max: 16
+  memory:
+    min:  8
+    max: 16
+  volumes:
+    - volume-007-01
+
+volumes:
+  - meta:
+      name: volume-007-01
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+    path: /calibration
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - data-007-01
+      - data-007-02
+
+  - meta:
+      name: volume-007-02
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+    path: /input
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - data-007-03
+
+  - meta:
+      name: volume-007-03
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+    path: /working
+    mode: READWRITE
+    cardinality: INSTANCE
+    resources:
+      - working-storage-007-04
+storage:
+  - meta:
+      name: default-storage-007-01
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0
+    data:
+      - data-007-01
+      - data-007-02
+
+  - meta:
+      name: storage-for-data-007-03
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0
+    data:
+      - data-007-03
+
+  - meta:
+      name: working-storage-007-04
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0
+    size:
+      min: 2048
+
+data:
+  - meta:
+      name: data-007-01
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-01.vot
+
+  - meta:
+      name: data-007-02
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-02.vot
+
+  - meta:
+      name: data-007-03
+    kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    location: https://example.org/data/data-007-03.vot

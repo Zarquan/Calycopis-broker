@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 
 /**
  * Base class for Validatior implementations.
@@ -67,6 +68,32 @@ public class AbstractValidatorImpl
                 }
             }
         return string;
+        }
+    
+    /**
+     * Validate a metadata block.
+     * 
+     */
+    public IvoaComponentMetadata makeMeta(
+        final IvoaComponentMetadata requested,
+        final OfferSetRequestParserContext context
+        ){
+
+        final IvoaComponentMetadata meta = new IvoaComponentMetadata();
+        
+        if (requested != null)
+            {
+            meta.uuid(
+                requested.getUuid()
+                );
+            meta.name(
+                notEmpty(
+                    requested.getName()
+                    )
+                );
+            }
+        
+        return meta;
         }
     
     /**

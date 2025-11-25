@@ -90,7 +90,7 @@ public class AbstractDataResourceValidatorFactoryImpl
         ){
         unknown(
             context,
-            resource.getType(),
+            resource.getKind(),
             resource.getClass().getName()
             );
         }

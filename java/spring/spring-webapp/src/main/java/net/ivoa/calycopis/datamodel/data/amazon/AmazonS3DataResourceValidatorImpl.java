@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -70,7 +70,7 @@ implements AmazonS3DataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
         if (requested instanceof IvoaS3DataResource)
             {
             return validate(
@@ -94,13 +94,18 @@ implements AmazonS3DataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaS3DataResource)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaS3DataResource validated = new IvoaS3DataResource(
-            AmazonS3DataResource.TYPE_DISCRIMINATOR
-            );
+        IvoaS3DataResource validated = new IvoaS3DataResource()
+            .kind(AmazonS3DataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         success &= duplicateCheck(
             requested,
@@ -113,10 +118,6 @@ implements AmazonS3DataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-
-        String name = trim(
-            requested.getName()
-            );
         
         String endpoint = trim(
             requested.getEndpoint()
@@ -162,7 +163,6 @@ implements AmazonS3DataResourceValidator
         // Accumulate state and return the fail here.
         //
 
-        validated.setName(name);
         validated.setEndpoint(endpoint);
         validated.setTemplate(template);
         validated.setBucket(bucket);
@@ -196,7 +196,7 @@ implements AmazonS3DataResourceValidator
                 validated
                 ){
                 @Override
-                public AmazonS3DataResourceEntity build(final SessionEntity session)
+                public AmazonS3DataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

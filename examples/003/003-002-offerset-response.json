@@ -1,0 +1,328 @@
+{
+  "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0",
+  "meta": {
+    "uuid": "26d89caf-eb2f-47c3-a04c-230c0707f83d",
+    "name": "no-name",
+    "url": "http://127.0.0.1:8082/offersets/26d89caf-eb2f-47c3-a04c-230c0707f83d",
+    "created": "2025-11-25T05:19:05.290910658Z"
+  },
+  "result": "YES",
+  "offers": [
+    {
+      "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
+      "meta": {
+        "uuid": "2061e59b-61f7-4ae2-b9a1-5c0bdc03a95c",
+        "name": "no-name-offer-0",
+        "url": "http://127.0.0.1:8082/sessions/2061e59b-61f7-4ae2-b9a1-5c0bdc03a95c",
+        "created": "2025-11-25T05:19:05.816286428Z"
+      },
+      "executable": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
+        "meta": {
+          "uuid": "082ea4fb-6e0e-4525-901d-773822e7eb7e",
+          "url": "http://127.0.0.1:8082/executables/082ea4fb-6e0e-4525-901d-773822e7eb7e",
+          "created": "2025-11-25T05:19:05.818773147Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T05:20:00Z",
+            "duration": "PT45S"
+          },
+          "available": {
+            "start": "2025-11-25T05:20:45Z/PT0S"
+          },
+          "releasing": {
+            "start": "2025-11-25T09:21:05Z",
+            "duration": "PT1S"
+          }
+        }
+      },
+      "compute": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+        "meta": {
+          "uuid": "c48a115d-5401-4d83-b618-075cdcba1965",
+          "name": "Default compute resource",
+          "url": "http://127.0.0.1:8082/compute/c48a115d-5401-4d83-b618-075cdcba1965",
+          "created": "2025-11-25T05:19:05.821002706Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T05:20:45Z",
+            "duration": "PT15S"
+          },
+          "available": {
+            "start": "2025-11-25T05:21:00Z/PT0S",
+            "duration": "PT4H"
+          },
+          "releasing": {
+            "start": "2025-11-25T09:21:05Z",
+            "duration": "PT10S"
+          }
+        },
+        "cores": {
+          "min": 2,
+          "max": 2
+        },
+        "memory": {
+          "min": 2,
+          "max": 2
+        }
+      },
+      "phase": "OFFERED",
+      "expires": "2025-11-25T05:24:05.290956672Z",
+      "schedule": {
+        "preparing": {
+          "start": "2025-11-25T05:20:00Z",
+          "duration": "PT1M"
+        },
+        "available": {
+          "start": "2025-11-25T05:21:00Z/PT0S",
+          "duration": "PT4H"
+        },
+        "releasing": {
+          "start": "2025-11-25T09:21:05Z",
+          "duration": "PT10S"
+        }
+      }
+    },
+    {
+      "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
+      "meta": {
+        "uuid": "2a688cd7-1c7e-4adc-b75e-a209c3726251",
+        "name": "no-name-offer-1",
+        "url": "http://127.0.0.1:8082/sessions/2a688cd7-1c7e-4adc-b75e-a209c3726251",
+        "created": "2025-11-25T05:19:05.823044399Z"
+      },
+      "executable": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
+        "meta": {
+          "uuid": "378a063f-09ad-4369-a15c-116bc7b938e6",
+          "url": "http://127.0.0.1:8082/executables/378a063f-09ad-4369-a15c-116bc7b938e6",
+          "created": "2025-11-25T05:19:05.825875681Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T09:20:00Z",
+            "duration": "PT45S"
+          },
+          "available": {
+            "start": "2025-11-25T09:20:45Z/PT0S"
+          },
+          "releasing": {
+            "start": "2025-11-25T13:21:05Z",
+            "duration": "PT1S"
+          }
+        }
+      },
+      "compute": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+        "meta": {
+          "uuid": "857cfc39-2cf6-4dd4-be7b-04d9a62b6a6e",
+          "name": "Default compute resource",
+          "url": "http://127.0.0.1:8082/compute/857cfc39-2cf6-4dd4-be7b-04d9a62b6a6e",
+          "created": "2025-11-25T05:19:05.828962472Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T09:20:45Z",
+            "duration": "PT15S"
+          },
+          "available": {
+            "start": "2025-11-25T09:21:00Z/PT0S",
+            "duration": "PT4H"
+          },
+          "releasing": {
+            "start": "2025-11-25T13:21:05Z",
+            "duration": "PT10S"
+          }
+        },
+        "cores": {
+          "min": 2,
+          "max": 2
+        },
+        "memory": {
+          "min": 2,
+          "max": 2
+        }
+      },
+      "phase": "OFFERED",
+      "expires": "2025-11-25T05:24:05.290956672Z",
+      "schedule": {
+        "preparing": {
+          "start": "2025-11-25T09:20:00Z",
+          "duration": "PT1M"
+        },
+        "available": {
+          "start": "2025-11-25T09:21:00Z/PT0S",
+          "duration": "PT4H"
+        },
+        "releasing": {
+          "start": "2025-11-25T13:21:05Z",
+          "duration": "PT10S"
+        }
+      }
+    },
+    {
+      "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
+      "meta": {
+        "uuid": "72b22875-3bd2-401f-b6c4-637ee6d98cb2",
+        "name": "no-name-offer-2",
+        "url": "http://127.0.0.1:8082/sessions/72b22875-3bd2-401f-b6c4-637ee6d98cb2",
+        "created": "2025-11-25T05:19:05.831838624Z"
+      },
+      "executable": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
+        "meta": {
+          "uuid": "7d0f5022-3e01-450b-91b1-7cb7395e0826",
+          "url": "http://127.0.0.1:8082/executables/7d0f5022-3e01-450b-91b1-7cb7395e0826",
+          "created": "2025-11-25T05:19:05.834942129Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T13:20:00Z",
+            "duration": "PT45S"
+          },
+          "available": {
+            "start": "2025-11-25T13:20:45Z/PT0S"
+          },
+          "releasing": {
+            "start": "2025-11-25T17:21:05Z",
+            "duration": "PT1S"
+          }
+        }
+      },
+      "compute": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+        "meta": {
+          "uuid": "d95bc7fc-e297-43a6-b6b5-76b764d42a26",
+          "name": "Default compute resource",
+          "url": "http://127.0.0.1:8082/compute/d95bc7fc-e297-43a6-b6b5-76b764d42a26",
+          "created": "2025-11-25T05:19:05.83773465Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T13:20:45Z",
+            "duration": "PT15S"
+          },
+          "available": {
+            "start": "2025-11-25T13:21:00Z/PT0S",
+            "duration": "PT4H"
+          },
+          "releasing": {
+            "start": "2025-11-25T17:21:05Z",
+            "duration": "PT10S"
+          }
+        },
+        "cores": {
+          "min": 2,
+          "max": 2
+        },
+        "memory": {
+          "min": 2,
+          "max": 2
+        }
+      },
+      "phase": "OFFERED",
+      "expires": "2025-11-25T05:24:05.290956672Z",
+      "schedule": {
+        "preparing": {
+          "start": "2025-11-25T13:20:00Z",
+          "duration": "PT1M"
+        },
+        "available": {
+          "start": "2025-11-25T13:21:00Z/PT0S",
+          "duration": "PT4H"
+        },
+        "releasing": {
+          "start": "2025-11-25T17:21:05Z",
+          "duration": "PT10S"
+        }
+      }
+    },
+    {
+      "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
+      "meta": {
+        "uuid": "e63b8730-9f7c-4c2f-b8de-361102e17c83",
+        "name": "no-name-offer-3",
+        "url": "http://127.0.0.1:8082/sessions/e63b8730-9f7c-4c2f-b8de-361102e17c83",
+        "created": "2025-11-25T05:19:05.84305902Z"
+      },
+      "executable": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
+        "meta": {
+          "uuid": "2efe9567-edb2-41d5-813b-5630437052bd",
+          "url": "http://127.0.0.1:8082/executables/2efe9567-edb2-41d5-813b-5630437052bd",
+          "created": "2025-11-25T05:19:05.846625871Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T17:20:00Z",
+            "duration": "PT45S"
+          },
+          "available": {
+            "start": "2025-11-25T17:20:45Z/PT0S"
+          },
+          "releasing": {
+            "start": "2025-11-25T21:21:05Z",
+            "duration": "PT1S"
+          }
+        }
+      },
+      "compute": {
+        "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+        "meta": {
+          "uuid": "54b6bbf4-6310-4494-a1cb-9b1cf016468e",
+          "name": "Default compute resource",
+          "url": "http://127.0.0.1:8082/compute/54b6bbf4-6310-4494-a1cb-9b1cf016468e",
+          "created": "2025-11-25T05:19:05.849727518Z"
+        },
+        "phase": "INITIALIZING",
+        "schedule": {
+          "preparing": {
+            "start": "2025-11-25T17:20:45Z",
+            "duration": "PT15S"
+          },
+          "available": {
+            "start": "2025-11-25T17:21:00Z/PT0S",
+            "duration": "PT4H"
+          },
+          "releasing": {
+            "start": "2025-11-25T21:21:05Z",
+            "duration": "PT10S"
+          }
+        },
+        "cores": {
+          "min": 2,
+          "max": 2
+        },
+        "memory": {
+          "min": 2,
+          "max": 2
+        }
+      },
+      "phase": "OFFERED",
+      "expires": "2025-11-25T05:24:05.290956672Z",
+      "schedule": {
+        "preparing": {
+          "start": "2025-11-25T17:20:00Z",
+          "duration": "PT1M"
+        },
+        "available": {
+          "start": "2025-11-25T17:21:00Z/PT0S",
+          "duration": "PT4H"
+        },
+        "releasing": {
+          "start": "2025-11-25T21:21:05Z",
+          "duration": "PT10S"
+        }
+      }
+    }
+  ]
+}

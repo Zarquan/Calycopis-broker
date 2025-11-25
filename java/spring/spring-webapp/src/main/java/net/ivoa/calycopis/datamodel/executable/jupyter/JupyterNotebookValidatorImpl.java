@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -59,7 +59,7 @@ implements JupyterNotebookValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractExecutable)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaJupyterNotebook)
             {
             return validate(
@@ -83,20 +83,18 @@ implements JupyterNotebookValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaJupyterNotebook)");
-        log.debug("Executable [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaJupyterNotebook validated = new IvoaJupyterNotebook(
-            JupyterNotebook.TYPE_DISCRIMINATOR
-            );
 
-        //
-        // Validate the executable name.
-        success &= validateName(
-            requested.getName(),
-            validated,
-            context
-            );
+        IvoaJupyterNotebook validated = new IvoaJupyterNotebook()
+            .kind(JupyterNotebook.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         //
         // Validate the notebook location.
@@ -134,7 +132,7 @@ implements JupyterNotebookValidator
                 validated
                 ){
                 @Override
-                public AbstractExecutableEntity build(final SessionEntity session)
+                public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return platform.getJupyterNotebookEntityFactory().create(
                         session,
@@ -166,47 +164,6 @@ implements JupyterNotebookValidator
                 );
             }
         }
-
-    /**
-     * Validate the executable name.
-     * 
-     */
-    public boolean validateName(
-        final String requested,
-        final IvoaJupyterNotebook validated,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validateName(String ...)");
-        log.debug("Requested [{}]", requested);
-
-        boolean success = true ;
-    
-        String name = notEmpty(
-            requested
-            );
-        if (name != null)
-            {
-            // TODO Make this configurable.
-            success &= badValueCheck(
-                name,
-                context
-                );
-            }
-        if (success)
-            {
-            validated.setName(
-                name
-                );
-            }
-        else {
-            validated.setName(
-                null
-                );
-            }
-        
-        return success;
-        }
-
     
     /**
      * Validate the notebook location.

@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -31,9 +33,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -64,19 +69,22 @@ implements AbstractComputeResource
      * 
      */
     protected AbstractComputeResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
-        session.setComputeResource(
-            this
-            );
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity) session).setComputeResource(
+                this
+                );
+            }
         
         //
         // Start preparing before the offer is available.
@@ -101,36 +109,33 @@ implements AbstractComputeResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private AbstractExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
-    
+    public abstract IvoaAbstractComputeResource makeBean(final URIBuilder builder);
+
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setKind(
+            this.getKind()
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()
             );
         return bean;
         }
-    
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractComputeResource.WEBAPP_PATH;
+        }
     }

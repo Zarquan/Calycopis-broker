@@ -39,7 +39,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 
 /**
  * 
@@ -53,7 +53,7 @@ public abstract class AbstractPlanningStepEntity
 implements PlanningStep
     {
 
-    public AbstractPlanningStepEntity(final SessionEntity session, final ComponentEntity component, final AbstractPlanningStepEntity template)
+    public AbstractPlanningStepEntity(final SimpleExecutionSessionEntity session, final ComponentEntity component, final AbstractPlanningStepEntity template)
         {
         this(
             session,
@@ -63,7 +63,7 @@ implements PlanningStep
             );
         }
 
-    public AbstractPlanningStepEntity(final SessionEntity session, final ComponentEntity component, final Duration offset, final Duration duration)
+    public AbstractPlanningStepEntity(final SimpleExecutionSessionEntity session, final ComponentEntity component, final Duration offset, final Duration duration)
         {
         this(
             session,
@@ -73,7 +73,7 @@ implements PlanningStep
         this.duration = duration;
         }
 
-    public AbstractPlanningStepEntity(final SessionEntity session, final ComponentEntity component)
+    public AbstractPlanningStepEntity(final SimpleExecutionSessionEntity session, final ComponentEntity component)
         {
         super();
         this.session = session;
@@ -96,9 +96,9 @@ implements PlanningStep
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private SimpleExecutionSessionEntity session;
     @Override
-    public SessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }

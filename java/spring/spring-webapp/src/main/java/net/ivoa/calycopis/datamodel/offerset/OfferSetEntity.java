@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutionSession;
+import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
+import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 @Slf4j
 @Entity
@@ -48,8 +53,19 @@ import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
     )
 public class OfferSetEntity
 extends ComponentEntity
-    implements OfferSet
+implements OfferSet
     {
+    @Override
+    protected URI getWebappPath()
+        {
+        return OfferSet.WEBAPP_PATH;
+        }
+
+    @Override
+    public URI getKind()
+        {
+        return OfferSet.TYPE_DISCRIMINATOR ;
+        }
 
     protected OfferSetEntity()
         {
@@ -101,16 +117,51 @@ extends ComponentEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    List<SessionEntity> executions = new ArrayList<SessionEntity>();
+    List<AbstractExecutionSessionEntity> executions = new ArrayList<AbstractExecutionSessionEntity>();
 
     @Override
-    public List<SessionEntity> getOffers()
+    public List<AbstractExecutionSessionEntity> getOffers()
         {
         return executions ;
         }
  
-    public void addExecutionSession(final SessionEntity execution)
+    public void addExecutionSession(final AbstractExecutionSessionEntity execution)
         {
         executions.add(execution);
+        }
+    
+    public IvoaOfferSetResponse makeBean(final URIBuilder uribuilder)
+        {
+        return this.fillBean(
+            uribuilder,
+            new IvoaOfferSetResponse().meta(
+                this.makeMeta(
+                    uribuilder
+                    )
+                )
+            );
+        }
+
+    public IvoaOfferSetResponse fillBean(final URIBuilder uribuilder, final IvoaOfferSetResponse bean)
+        {
+        bean.setKind(
+            this.getKind()
+            );
+        bean.setResult(
+            this.getResult()
+            );
+        bean.setOffers(
+            new ListWrapper<IvoaAbstractExecutionSession, AbstractExecutionSessionEntity>(
+                this.getOffers()
+                ){
+                public IvoaAbstractExecutionSession wrap(final AbstractExecutionSessionEntity inner)
+                    {
+                    return inner.makeBean(
+                        uribuilder
+                        );
+                    }
+                }
+            );
+        return bean;
         }
     }

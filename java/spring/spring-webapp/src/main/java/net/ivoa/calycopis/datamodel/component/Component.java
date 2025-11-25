@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.component;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +44,12 @@ public interface Component
     public UUID getUuid();
 
     /**
+     * Get the Component kind (type).
+     *
+     */
+    public URI getKind() ;
+
+    /**
      * Get the Component name.
      *
      */
@@ -55,11 +62,17 @@ public interface Component
     public String getDescription();
 
     /**
-     * Get the Component creation date.
+     * Get the Component created date.
      *
      */
     public OffsetDateTime getCreated();
 
+    /**
+     * Get the Component modified date.
+     *
+     */
+    public OffsetDateTime getModified();
+    
     /**
      * Get a list of messages for this Component.
      * TODO Split this into a separate MessageList interface.

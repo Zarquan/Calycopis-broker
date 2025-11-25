@@ -23,15 +23,17 @@
 
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A Jupyter notebook executable.
@@ -48,6 +50,11 @@ public class JupyterNotebookEntity
     extends AbstractExecutableEntity
     implements JupyterNotebook
     {
+    @Override
+    public URI getKind()
+        {
+        return JupyterNotebook.TYPE_DISCRIMINATOR ;
+        }
 
     protected JupyterNotebookEntity()
         {
@@ -55,7 +62,7 @@ public class JupyterNotebookEntity
         }
 
     protected JupyterNotebookEntity(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         this(   
@@ -64,15 +71,16 @@ public class JupyterNotebookEntity
             (IvoaJupyterNotebook) result.getObject()
             );
         }
+
     protected JupyterNotebookEntity(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaJupyterNotebook validated
         ){
         super(
             session,
             result,
-            validated.getName()
+            validated.getMeta()
             );
         this.location = validated.getLocation();
         }
@@ -85,26 +93,20 @@ public class JupyterNotebookEntity
         }
 
     @Override
-    public IvoaAbstractExecutable getIvoaBean(final String baseurl)
+    public IvoaJupyterNotebook makeBean(final URIBuilder builder)
         {
-        IvoaJupyterNotebook bean = new IvoaJupyterNotebook(
-            JupyterNotebook.TYPE_DISCRIMINATOR
+        return this.fillBean(
+            new IvoaJupyterNotebook().meta(
+                this.makeMeta(
+                    builder
+                    )
+                )
             );
-        bean.setUuid(
-            this.getUuid()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
-            );
-        bean.location(
-            this.getLocation()
-            );
+        }
+
+    protected IvoaJupyterNotebook fillBean(final IvoaJupyterNotebook bean)
+        {
+        super.fillBean(bean);
         return bean;
         }
     }

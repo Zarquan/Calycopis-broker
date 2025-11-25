@@ -3,6 +3,8 @@
  */
 package net.ivoa.calycopis.datamodel.executable;
 
+import java.net.URI;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -11,8 +13,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -42,19 +48,35 @@ extends LifecycleComponentEntity
      * 
      */
     protected AbstractExecutableEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
-        session.setExecutable(
-            this
-            );
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity) session).setExecutable(
+                this
+                );
+            }
 
+        if (session instanceof ScheduledExecutionSessionEntity)
+            {
+            this.init(
+                (ScheduledExecutionSessionEntity) session,
+                result
+                );
+            }
+        }
+    
+    protected void init(
+        final ScheduledExecutionSessionEntity session,
+        final AbstractExecutableValidator.Result result
+        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
@@ -76,34 +98,33 @@ extends LifecycleComponentEntity
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private AbstractExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
+    public abstract IvoaAbstractExecutable makeBean(final URIBuilder builder);
+
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setKind(
+            this.getKind()
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()
             );
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractExecutable.WEBAPP_PATH;
         }
     }

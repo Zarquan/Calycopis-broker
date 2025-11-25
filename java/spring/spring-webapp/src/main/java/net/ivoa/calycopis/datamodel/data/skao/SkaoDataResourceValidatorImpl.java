@@ -34,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -110,14 +110,19 @@ implements SkaoDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSkaoDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaSkaoDataResource validated = new IvoaSkaoDataResource(
-            SkaoDataResource.TYPE_DISCRIMINATOR
-            );
-
+        IvoaSkaoDataResource validated = new IvoaSkaoDataResource()
+            .kind(SkaoDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
+        
         success &= duplicateCheck(
             requested,
             context
@@ -130,15 +135,6 @@ implements SkaoDataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
                 
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(
-                requested.getName()
-                )
-            );
-        
         //
         // Validate the IvoaIvoaDataResourceBlock
         success &= validate(
@@ -183,7 +179,7 @@ implements SkaoDataResourceValidator
                 validated
                 ){
                 @Override
-                public SkaoDataResourceEntity build(final SessionEntity session)
+                public SkaoDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

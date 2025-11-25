@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -74,7 +74,7 @@ implements IvoaDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaIvoaDataResource)
             {
             return validate(
@@ -94,13 +94,18 @@ implements IvoaDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaIvoaDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
-        IvoaIvoaDataResource validated = new IvoaIvoaDataResource(
-            IvoaDataResource.TYPE_DISCRIMINATOR
-            );
+        IvoaIvoaDataResource validated = new IvoaIvoaDataResource()
+            .kind(IvoaDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
 
         success &= duplicateCheck(
             requested,
@@ -113,15 +118,6 @@ implements IvoaDataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-        
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(
-                requested.getName()
-                )
-            );
         
         //
         // Validate the IvoaIvoaDataResourceBlock.
@@ -159,7 +155,7 @@ implements IvoaDataResourceValidator
                 validated
                 ){
                 @Override
-                public IvoaDataResourceEntity build(final SessionEntity session)
+                public IvoaDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

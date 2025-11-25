@@ -77,8 +77,11 @@ public class OfferSetFactoryImpl
     public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest)
     	{
     	OfferSetEntity offersetEntity = new OfferSetEntity(
-	        offersetRequest.getName(),
-            offersetRequest.getDescription(),
+    	    // hackfix    
+	        // offersetRequest.getName(),
+            // offersetRequest.getDescription(),
+    	    "no-name",
+    	    "no-description",
 	        OffsetDateTime.now(),
 	        OffsetDateTime.now().plusSeconds(
                 DEFAULT_EXPIRY_TIME_SECONDS

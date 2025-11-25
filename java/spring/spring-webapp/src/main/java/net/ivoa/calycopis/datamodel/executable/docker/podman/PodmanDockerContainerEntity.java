@@ -23,8 +23,6 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
-import java.time.Duration;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -32,8 +30,9 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
  * 
@@ -63,7 +62,7 @@ public class PodmanDockerContainerEntity
      *
      */
     public PodmanDockerContainerEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         super(
@@ -78,6 +77,8 @@ public class PodmanDockerContainerEntity
      */
     public void configure(final TestExecutionStepEntityFactory factory)
         {
+/*
+ * 
         //
         // If this really was download image step,
         // we would first check whether the image is already here,
@@ -112,5 +113,14 @@ public class PodmanDockerContainerEntity
                 "Release image"
                 )
             );
+ * 
+ */
+        }
+
+    @Override
+    protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
+        {
+        super.fillBean(bean);
+        return bean;
         }
     }

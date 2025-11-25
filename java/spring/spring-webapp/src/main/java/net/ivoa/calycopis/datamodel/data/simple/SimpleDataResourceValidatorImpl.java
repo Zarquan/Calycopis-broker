@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -69,7 +69,7 @@ implements SimpleDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractDataResource)");
-        log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaSimpleDataResource)
             {
             return validate(
@@ -89,14 +89,19 @@ implements SimpleDataResourceValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleDataResource)");
-        log.debug("Resource [{}]", context.makeDataValidatorResultKey(requested));
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
         
-        IvoaSimpleDataResource validated = new IvoaSimpleDataResource(
-            SimpleDataResource.TYPE_DISCRIMINATOR
-            );
-
+        IvoaSimpleDataResource validated = new IvoaSimpleDataResource()
+            .kind(SimpleDataResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
+        
         success &= duplicateCheck(
             requested,
             context
@@ -108,13 +113,6 @@ implements SimpleDataResourceValidator
             context
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
-        
-        validated.setUuid(
-            requested.getUuid()
-            );
-        validated.setName(
-            trim(requested.getName())
-            );
 
         String location = trim(
             requested.getLocation()
@@ -158,7 +156,7 @@ implements SimpleDataResourceValidator
                 validated
                 ){
                 @Override
-                public SimpleDataResourceEntity build(final SessionEntity session)
+                public SimpleDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

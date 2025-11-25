@@ -30,7 +30,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 
 /**
  * 
@@ -60,7 +60,7 @@ implements PodmanJupyterNotebook
      *
      */
     public PodmanJupyterNotebookEntity(
-        final SessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         super(

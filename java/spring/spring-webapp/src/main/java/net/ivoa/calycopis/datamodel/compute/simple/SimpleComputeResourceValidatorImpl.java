@@ -29,7 +29,7 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -124,10 +124,16 @@ implements SimpleComputeResourceValidator
         log.debug("Resource [{}]", requested);
 
         boolean success = true ;
-        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource(
-            SimpleComputeResource.TYPE_DISCRIMINATOR
-            );
 
+        IvoaSimpleComputeResource validated = new IvoaSimpleComputeResource()
+            .kind(SimpleComputeResource.TYPE_DISCRIMINATOR)
+            .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+                );
+        
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
 
@@ -145,7 +151,7 @@ implements SimpleComputeResourceValidator
                 "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "cores",
                     mincores,
                     "limit",
@@ -161,7 +167,7 @@ implements SimpleComputeResourceValidator
                 "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "cores",
                     maxcores,
                     "limit",
@@ -194,7 +200,7 @@ implements SimpleComputeResourceValidator
                 "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "memory",
                     minmemory,
                     "limit",
@@ -211,7 +217,7 @@ implements SimpleComputeResourceValidator
                 "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
-                    requested.getName(),
+                    requested.getMeta().getName(),
                     "memory",
                     maxmemory,
                     "limit",
@@ -226,7 +232,6 @@ implements SimpleComputeResourceValidator
         // ....
 
         // Save the results in our IvoaSimpleComputeResource 
-        validated.setName(requested.getName());
 
         IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
         cores.setMin(mincores);
@@ -286,7 +291,7 @@ implements SimpleComputeResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractComputeResourceEntity build(final SessionEntity session, final ComputeResourceOffer offer)                
+                public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
                     {
                     this.entity = entityFactory.create(
                         session,
@@ -340,7 +345,7 @@ implements SimpleComputeResourceValidator
     @Deprecated
     private Long predictPrepareTime(final IvoaSimpleComputeResource validated)
         {
-        log.debug("Predicting prepare time [{}]", validated.getUuid());
+        log.debug("Predicting prepare time [{}]", validated.getMeta().getUuid());
         return DEFAULT_PREPARE_TIME;
         }
     }

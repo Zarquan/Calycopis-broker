@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.functional.asynchronous;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 
 /**

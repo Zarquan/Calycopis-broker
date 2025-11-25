@@ -66,7 +66,7 @@ public class AbstractComputeResourceValidatorFactoryImpl
         ){
         unknown(
             context,
-            resource.getType(),
+            resource.getKind(),
             context.makeComputeValidatorResultKey(
                 resource
                 )

@@ -22,16 +22,35 @@
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
 
+/**
+ * 
+ * TODO Split this into AbstractOfferSet and UmbleOfferSet ?
+ * 
+ */
 public interface OfferSet
     extends Component
     {
+    /**
+     * The webapp path for executables.
+     * TODO Move this to AbstractOfferset.
+     * 
+     */
+    public static final URI WEBAPP_PATH = URI.create("offersets/"); 
+    
+    /**
+     * The OpenAPI type identifier.
+     * 
+     */
+    public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0") ;
+    
     /**
      * Get the date/time this OfferSet expires.
      * 
@@ -48,6 +67,6 @@ public interface OfferSet
      * Get a list of the Execution offers.
      * 
      */
-    public List<SessionEntity> getOffers();
+    public List<AbstractExecutionSessionEntity> getOffers();
     
     }

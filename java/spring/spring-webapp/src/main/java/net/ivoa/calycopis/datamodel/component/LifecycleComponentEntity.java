@@ -36,10 +36,11 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleDurationInterval;
+import net.ivoa.calycopis.openapi.model.IvoaLifecycleStartDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaLifecycleStartDurationInterval;
 
 /**
  * 
@@ -65,25 +66,24 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final String name)
+    public LifecycleComponentEntity(final IvoaComponentMetadata meta)
         {
-        this(
-            (IvoaLifecycleSchedule)null,
-            name
+        super(
+            meta
             );
         }
-
+    
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final String name)
+    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final IvoaComponentMetadata meta)
         {
         super(
-            name
+            meta
             );
         if (schedule != null)
             {
-            IvoaScheduleDurationInstant preparing = schedule.getPreparing();
+            IvoaLifecycleStartDurationInstant preparing = schedule.getPreparing();
             if (null != preparing)
                 {
                 String startInstantString = preparing.getStart();
@@ -243,10 +243,10 @@ implements LifecycleComponent
             );
         }
 
-    public IvoaScheduleDurationInstant makePreparingBean()
+    public IvoaLifecycleStartDurationInstant makePreparingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaLifecycleStartDurationInstant bean = new IvoaLifecycleStartDurationInstant(); 
         if (getPrepareStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -270,10 +270,10 @@ implements LifecycleComponent
             }
         }
 
-    public IvoaScheduleDurationInterval makeAvailableBean()
+    public IvoaLifecycleStartDurationInterval makeAvailableBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInterval bean = new IvoaScheduleDurationInterval();
+        IvoaLifecycleStartDurationInterval bean = new IvoaLifecycleStartDurationInterval();
         if (getAvailableStartInstantSeconds() > 0)
             {
             StringBuffer buffer = new StringBuffer();
@@ -307,10 +307,10 @@ implements LifecycleComponent
             }
         }
 
-    public IvoaScheduleDurationInstant makeReleasingBean()
+    public IvoaLifecycleStartDurationInstant makeReleasingBean()
         {
         boolean valid = false;
-        IvoaScheduleDurationInstant bean = new IvoaScheduleDurationInstant(); 
+        IvoaLifecycleStartDurationInstant bean = new IvoaLifecycleStartDurationInstant(); 
         if (getReleaseStartInstantSeconds() > 0)
             {
             bean.setStart(
@@ -339,7 +339,7 @@ implements LifecycleComponent
         boolean valid = false;
         IvoaLifecycleSchedule bean = new IvoaLifecycleSchedule(); 
 
-        IvoaScheduleDurationInstant preparing = this.makePreparingBean();
+        IvoaLifecycleStartDurationInstant preparing = this.makePreparingBean();
         if (null != preparing)
             {
             bean.setPreparing(
@@ -348,7 +348,7 @@ implements LifecycleComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInterval available = this.makeAvailableBean();
+        IvoaLifecycleStartDurationInterval available = this.makeAvailableBean();
         if (null != available)
             {
             bean.setAvailable(
@@ -357,7 +357,7 @@ implements LifecycleComponent
             valid = true;
             }
 
-        IvoaScheduleDurationInstant releasing = this.makeReleasingBean(); 
+        IvoaLifecycleStartDurationInstant releasing = this.makeReleasingBean(); 
         if (releasing != null)
             {
             bean.setReleasing(
@@ -373,7 +373,4 @@ implements LifecycleComponent
             return null ;
             }
         }
-
-    
-    
     }

@@ -1,0 +1,1101 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=schema-meta
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Change the schema file name and add a symlink for backwards compatibility.
+#[root@developer-tools]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+        pushd schema
+
+            git mv Calycopis-broker.yaml execution-broker.yaml
+
+            ln -s execution-broker.yaml Calycopis-broker.yaml
+            git add Calycopis-broker.yaml
+
+            git push
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+        source=/trebula/schema
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/execution-broker.yaml" \
+            "${target}/execution-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    # newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Launch a client in the same container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Generate an authentication token.
+#[root@developer-tools]
+
+        dnf install -y oidc-agent
+
+        eval $(oidc-agent)
+
+    >   Agent pid 911
+
+        # Login using our IDP
+        oidc-gen --iss=https://ska-iam.stfc.ac.uk --scope max --flow=device tester
+
+    >   Registering Client ...
+    >   Generating account configuration ...
+    >   ....
+    >   ....
+    >   Everything setup correctly!
+
+        #
+        # Generate a new auth token.
+        oidc-token tester > /calycopis/java/spring/spring-webapp/target/auth-token
+
+
+# -----------------------------------------------------
+# Test our service using curl.
+#[root@developer]
+
+        #
+        # Notebook container for 1HR.
+        cat > "/tmp/001-offerset-request.yaml" << EOF
+name: notebook-test
+executable:
+  meta:
+    name: test executable 001
+  kind: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "images.canfar.net/skaha/base-notebook:latest"
+    digest: "0000"
+schedule:
+  requested:
+    duration: PT10M
+compute:
+  meta:
+    name: test compute
+  kind: https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Input data"
+volumes:
+  - meta:
+      name: input data
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/volume/simple-volume-mount-1.0
+    path: /inputs/
+    mode: READONLY
+    cardinality: CONTAINER
+    resources:
+      - example-data-01
+      - example-data-02
+data:
+  - meta:
+      name: example-data-01
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-082506"
+      datasize:   27487790694400
+      replicas:
+        - rsename: "AUSRC_STORM"
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+  - meta:
+      name: example-data-02
+    kind: https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0
+    skao:
+      namespace:  "testing"
+      objectname: "zrq-test-20250509-094501"
+      datasize:   26843545600
+      replicas:
+        - rsename: "JPSRC_STORM"
+        - rsename: "SPSRC_STORM"
+EOF
+
+    cat > "/tmp/003-accept-00-request.json" << EOF
+{
+"update": {
+    "kind":  "uri:enum-value-update",
+    "path":  "phase",
+    "value": "ACCEPTED"
+    }
+}
+EOF
+
+    curl \
+        --silent \
+        --show-error \
+        --header 'Content-Type: application/yaml' \
+        --data-binary "@/tmp/001-offerset-request.yaml" \
+        --header 'Accept: application/yaml' \
+        'http://127.0.0.1:8082/offersets' \
+    | tee "/tmp/002-offerset-response.yaml" \
+    | jq '.'
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0"
+    >   meta:
+    >     uuid: "016779b3-9831-4645-a810-201d9b552d75"
+    >     name: "notebook-test"
+    >     url: "http://127.0.0.1:8082/offersets/016779b3-9831-4645-a810-201d9b552d75"
+    >     created: "2025-11-20T15:55:05.747456441Z"
+    >   result: "YES"
+    >   offers:
+    >     - meta:
+    >         uuid: "0ab7d5bf-b9b9-4a10-9355-d9603882dd5d"
+    >         name: "notebook-test-offer-0"
+    >         url: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.00ab7d5bf-b9b9-4a10-9355-d9603882dd5d"
+    >         created: "2025-11-20T15:55:06.141351946Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "9bfa6d53-d779-4646-95f1-0a858a3b0082"
+    >           name: "test executable 001"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.09bfa6d53-d779-4646-95f1-0a858a3b0082"
+    >           created: "2025-11-20T15:55:06.157834221Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T15:55:50Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-11-20T15:56:25Z/PT0S"
+    >           releasing:
+    >             start: "2025-11-20T16:18:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "4350146e-b6cf-4cd1-bbba-aeb5d5270265"
+    >           name: "test compute"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.04350146e-b6cf-4cd1-bbba-aeb5d5270265"
+    >           created: "2025-11-20T15:55:06.1773532Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T15:57:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-11-20T15:58:00Z/PT0S"
+    >             duration: "PT20M"
+    >           releasing:
+    >             start: "2025-11-20T16:18:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "3087730a-9166-45c0-aea9-d2019d1727f7"
+    >             name: "Storage for [example-data-01]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.03087730a-9166-45c0-aea9-d2019d1727f7"
+    >             created: "2025-11-20T15:55:06.186276799Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T15:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T15:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T15:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "ec337316-48f0-43d7-a8c8-f7b9a42c8d1a"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "41095f00-4d70-4178-a163-0188a0754aca"
+    >             name: "Storage for [example-data-02]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.041095f00-4d70-4178-a163-0188a0754aca"
+    >             created: "2025-11-20T15:55:06.194023298Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T15:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T15:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T15:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "2c822871-965c-4b8f-b9e4-ff4e0cce7b3d"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "ec337316-48f0-43d7-a8c8-f7b9a42c8d1a"
+    >             name: "example-data-01"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0ec337316-48f0-43d7-a8c8-f7b9a42c8d1a"
+    >             created: "2025-11-20T15:55:06.196320625Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T15:55:55Z"
+    >               duration: "PT1M"
+    >             available:
+    >               start: "2025-11-20T15:56:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T15:56:55Z"
+    >               duration: "PT10S"
+    >           storage: "3087730a-9166-45c0-aea9-d2019d1727f7"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-082506"
+    >             datasize: 27487790694400
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "AUSRC_STORM"
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "2c822871-965c-4b8f-b9e4-ff4e0cce7b3d"
+    >             name: "example-data-02"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.02c822871-965c-4b8f-b9e4-ff4e0cce7b3d"
+    >             created: "2025-11-20T15:55:06.20496085Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T15:55:55Z"
+    >               duration: "PT1M50S"
+    >             available:
+    >               start: "2025-11-20T15:57:45Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T15:57:45Z"
+    >               duration: "PT10S"
+    >           storage: "41095f00-4d70-4178-a163-0188a0754aca"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-094501"
+    >             datasize: 26843545600
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >       phase: "OFFERED"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-11-20T15:55:50Z"
+    >           duration: "PT2M10S"
+    >         available:
+    >           start: "2025-11-20T15:58:00Z/PT0S"
+    >           duration: "PT20M"
+    >         releasing:
+    >           start: "2025-11-20T16:18:05Z"
+    >           duration: "PT10S"
+    >       expires: "2025-11-20T16:00:05.747471658Z"
+    >     - meta:
+    >         uuid: "29292cbc-b558-4a9e-82f1-1fa700f1ce7b"
+    >         name: "notebook-test-offer-1"
+    >         url: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.029292cbc-b558-4a9e-82f1-1fa700f1ce7b"
+    >         created: "2025-11-20T15:55:06.215720579Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "3e3bc1a7-1666-4253-af78-46b04193984a"
+    >           name: "test executable 001"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.03e3bc1a7-1666-4253-af78-46b04193984a"
+    >           created: "2025-11-20T15:55:06.218398669Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:15:50Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-11-20T16:16:25Z/PT0S"
+    >           releasing:
+    >             start: "2025-11-20T16:38:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "62d00e9a-3243-44e0-8451-43b68fc16f98"
+    >           name: "test compute"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.062d00e9a-3243-44e0-8451-43b68fc16f98"
+    >           created: "2025-11-20T15:55:06.23209869Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:17:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-11-20T16:18:00Z/PT0S"
+    >             duration: "PT20M"
+    >           releasing:
+    >             start: "2025-11-20T16:38:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "d5abf660-8c80-467f-858f-b13b08491945"
+    >             name: "Storage for [example-data-01]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0d5abf660-8c80-467f-858f-b13b08491945"
+    >             created: "2025-11-20T15:55:06.235040376Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:15:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:15:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:16:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "adf18c5d-b21e-43a2-a926-26cc9031295c"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "086ed6e8-67d5-4429-9aba-ea2f5e153068"
+    >             name: "Storage for [example-data-02]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0086ed6e8-67d5-4429-9aba-ea2f5e153068"
+    >             created: "2025-11-20T15:55:06.236939165Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:15:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:15:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:16:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "686082c5-9e7f-42ce-87bd-63fd0334f29e"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "adf18c5d-b21e-43a2-a926-26cc9031295c"
+    >             name: "example-data-01"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0adf18c5d-b21e-43a2-a926-26cc9031295c"
+    >             created: "2025-11-20T15:55:06.239128224Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:15:55Z"
+    >               duration: "PT1M"
+    >             available:
+    >               start: "2025-11-20T16:16:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:16:55Z"
+    >               duration: "PT10S"
+    >           storage: "d5abf660-8c80-467f-858f-b13b08491945"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-082506"
+    >             datasize: 27487790694400
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "AUSRC_STORM"
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "686082c5-9e7f-42ce-87bd-63fd0334f29e"
+    >             name: "example-data-02"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0686082c5-9e7f-42ce-87bd-63fd0334f29e"
+    >             created: "2025-11-20T15:55:06.245636415Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:15:55Z"
+    >               duration: "PT1M50S"
+    >             available:
+    >               start: "2025-11-20T16:17:45Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:17:45Z"
+    >               duration: "PT10S"
+    >           storage: "086ed6e8-67d5-4429-9aba-ea2f5e153068"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-094501"
+    >             datasize: 26843545600
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >       phase: "OFFERED"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-11-20T16:15:50Z"
+    >           duration: "PT2M10S"
+    >         available:
+    >           start: "2025-11-20T16:18:00Z/PT0S"
+    >           duration: "PT20M"
+    >         releasing:
+    >           start: "2025-11-20T16:38:05Z"
+    >           duration: "PT10S"
+    >       expires: "2025-11-20T16:00:05.747471658Z"
+    >     - meta:
+    >         uuid: "cf078b61-10b7-459a-ac8d-98bf6bc40de4"
+    >         name: "notebook-test-offer-2"
+    >         url: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.0cf078b61-10b7-459a-ac8d-98bf6bc40de4"
+    >         created: "2025-11-20T15:55:06.254230147Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "fb2e0e83-42b0-470a-bb5f-b94efe530434"
+    >           name: "test executable 001"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0fb2e0e83-42b0-470a-bb5f-b94efe530434"
+    >           created: "2025-11-20T15:55:06.257030692Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:35:50Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-11-20T16:36:25Z/PT0S"
+    >           releasing:
+    >             start: "2025-11-20T16:58:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "89a76d58-bd92-4fe4-99e3-b8a04a2e2a28"
+    >           name: "test compute"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.089a76d58-bd92-4fe4-99e3-b8a04a2e2a28"
+    >           created: "2025-11-20T15:55:06.270944114Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:37:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-11-20T16:38:00Z/PT0S"
+    >             duration: "PT20M"
+    >           releasing:
+    >             start: "2025-11-20T16:58:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "4b35ffc2-49d6-4ddd-b675-9ee1c5b6b383"
+    >             name: "Storage for [example-data-01]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.04b35ffc2-49d6-4ddd-b675-9ee1c5b6b383"
+    >             created: "2025-11-20T15:55:06.274245364Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:35:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:35:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:36:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "7fa11fe9-6dd8-4c9f-8ee5-ec2bb3cde22c"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "a4f5d16b-e98f-4239-bc62-cf91da1407c9"
+    >             name: "Storage for [example-data-02]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0a4f5d16b-e98f-4239-bc62-cf91da1407c9"
+    >             created: "2025-11-20T15:55:06.279655001Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:35:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:35:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:36:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "821efcf6-e2fa-4036-a67c-e112dec2717f"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "7fa11fe9-6dd8-4c9f-8ee5-ec2bb3cde22c"
+    >             name: "example-data-01"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.07fa11fe9-6dd8-4c9f-8ee5-ec2bb3cde22c"
+    >             created: "2025-11-20T15:55:06.282909066Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:35:55Z"
+    >               duration: "PT1M"
+    >             available:
+    >               start: "2025-11-20T16:36:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:36:55Z"
+    >               duration: "PT10S"
+    >           storage: "4b35ffc2-49d6-4ddd-b675-9ee1c5b6b383"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-082506"
+    >             datasize: 27487790694400
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "AUSRC_STORM"
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "821efcf6-e2fa-4036-a67c-e112dec2717f"
+    >             name: "example-data-02"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0821efcf6-e2fa-4036-a67c-e112dec2717f"
+    >             created: "2025-11-20T15:55:06.287517847Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:35:55Z"
+    >               duration: "PT1M50S"
+    >             available:
+    >               start: "2025-11-20T16:37:45Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:37:45Z"
+    >               duration: "PT10S"
+    >           storage: "a4f5d16b-e98f-4239-bc62-cf91da1407c9"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-094501"
+    >             datasize: 26843545600
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >       phase: "OFFERED"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-11-20T16:35:50Z"
+    >           duration: "PT2M10S"
+    >         available:
+    >           start: "2025-11-20T16:38:00Z/PT0S"
+    >           duration: "PT20M"
+    >         releasing:
+    >           start: "2025-11-20T16:58:05Z"
+    >           duration: "PT10S"
+    >       expires: "2025-11-20T16:00:05.747471658Z"
+    >     - meta:
+    >         uuid: "35805c6a-c307-4cd5-afa5-c31c9f23a6a8"
+    >         name: "notebook-test-offer-3"
+    >         url: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.035805c6a-c307-4cd5-afa5-c31c9f23a6a8"
+    >         created: "2025-11-20T15:55:06.297026586Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "32b4f410-1707-4389-bf47-3b27e4d4fff8"
+    >           name: "test executable 001"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.032b4f410-1707-4389-bf47-3b27e4d4fff8"
+    >           created: "2025-11-20T15:55:06.300580168Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:55:50Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-11-20T16:56:25Z/PT0S"
+    >           releasing:
+    >             start: "2025-11-20T17:18:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "6c032c9a-4083-4b26-8e90-51ae9457386c"
+    >           name: "test compute"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.06c032c9a-4083-4b26-8e90-51ae9457386c"
+    >           created: "2025-11-20T15:55:06.315046065Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:57:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-11-20T16:58:00Z/PT0S"
+    >             duration: "PT20M"
+    >           releasing:
+    >             start: "2025-11-20T17:18:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "04ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >             name: "Storage for [example-data-01]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.004ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >             created: "2025-11-20T15:55:06.31783997Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "8a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "4d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >             name: "Storage for [example-data-02]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.04d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >             created: "2025-11-20T15:55:06.31990738Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "f210ae93-e49f-4bfd-847f-90342149518f"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "8a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >             name: "example-data-01"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.08a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >             created: "2025-11-20T15:55:06.321930195Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:55Z"
+    >               duration: "PT1M"
+    >             available:
+    >               start: "2025-11-20T16:56:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:55Z"
+    >               duration: "PT10S"
+    >           storage: "04ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-082506"
+    >             datasize: 27487790694400
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "AUSRC_STORM"
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "f210ae93-e49f-4bfd-847f-90342149518f"
+    >             name: "example-data-02"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0f210ae93-e49f-4bfd-847f-90342149518f"
+    >             created: "2025-11-20T15:55:06.32655445Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:55Z"
+    >               duration: "PT1M50S"
+    >             available:
+    >               start: "2025-11-20T16:57:45Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:57:45Z"
+    >               duration: "PT10S"
+    >           storage: "4d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-094501"
+    >             datasize: 26843545600
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >       phase: "OFFERED"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-11-20T16:55:50Z"
+    >           duration: "PT2M10S"
+    >         available:
+    >           start: "2025-11-20T16:58:00Z/PT0S"
+    >           duration: "PT20M"
+    >         releasing:
+    >           start: "2025-11-20T17:18:05Z"
+    >           duration: "PT10S"
+    >       expires: "2025-11-20T16:00:05.747471658Z"
+
+
+    #
+    # Offerset response isa offerset
+    #
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/types/offerset/offerset-response-1.0"
+    >   meta:
+    >     uuid: "016779b3-9831-4645-a810-201d9b552d75"
+    >     name: "notebook-test"
+    >     url: "http://127.0.0.1:8082/offersets/016779b3-9831-4645-a810-201d9b552d75"
+    >     created: "2025-11-20T15:55:05.747456441Z"
+    >   result: "YES"
+    >   offers:
+    >     ....
+    >     ....
+
+    #
+    # Session response needs a kind.
+    # Can we put phase and expires in the meta block.
+    # Need to populate the modified field.
+    #
+
+    >   ....
+    >   ....
+    >     - meta:
+    >         uuid: "35805c6a-c307-4cd5-afa5-c31c9f23a6a8"
+    >         name: "notebook-test-offer-3"
+    >         url: "https://www.purl.org/ivoa.net/EB/schema/types/session/execution-session-response-1.035805c6a-c307-4cd5-afa5-c31c9f23a6a8"
+    >         created: "2025-11-20T15:55:06.297026586Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "32b4f410-1707-4389-bf47-3b27e4d4fff8"
+    >           name: "test executable 001"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.032b4f410-1707-4389-bf47-3b27e4d4fff8"
+    >           created: "2025-11-20T15:55:06.300580168Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:55:50Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-11-20T16:56:25Z/PT0S"
+    >           releasing:
+    >             start: "2025-11-20T17:18:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "6c032c9a-4083-4b26-8e90-51ae9457386c"
+    >           name: "test compute"
+    >           url: "https://www.purl.org/ivoa.net/EB/schema/types/computer/simple-compute-resource-1.06c032c9a-4083-4b26-8e90-51ae9457386c"
+    >           created: "2025-11-20T15:55:06.315046065Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-11-20T16:57:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-11-20T16:58:00Z/PT0S"
+    >             duration: "PT20M"
+    >           releasing:
+    >             start: "2025-11-20T17:18:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "04ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >             name: "Storage for [example-data-01]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.004ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >             created: "2025-11-20T15:55:06.31783997Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "8a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "4d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >             name: "Storage for [example-data-02]"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/storage/simple-storage-resource-1.04d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >             created: "2025-11-20T15:55:06.31990738Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:50Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "2025-11-20T16:55:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:05Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "f210ae93-e49f-4bfd-847f-90342149518f"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "8a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >             name: "example-data-01"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.08a0b2626-a311-4c78-8c7f-ab216cf70fab"
+    >             created: "2025-11-20T15:55:06.321930195Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:55Z"
+    >               duration: "PT1M"
+    >             available:
+    >               start: "2025-11-20T16:56:55Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:56:55Z"
+    >               duration: "PT10S"
+    >           storage: "04ccff48-de9f-4375-a2cc-39e4ede32d8a"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-082506"
+    >             datasize: 27487790694400
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "AUSRC_STORM"
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0"
+    >           meta:
+    >             uuid: "f210ae93-e49f-4bfd-847f-90342149518f"
+    >             name: "example-data-02"
+    >             url: "https://www.purl.org/ivoa.net/EB/schema/types/data/skao-data-resource-1.0f210ae93-e49f-4bfd-847f-90342149518f"
+    >             created: "2025-11-20T15:55:06.32655445Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "2025-11-20T16:55:55Z"
+    >               duration: "PT1M50S"
+    >             available:
+    >               start: "2025-11-20T16:57:45Z/PT0S"
+    >             releasing:
+    >               start: "2025-11-20T16:57:45Z"
+    >               duration: "PT10S"
+    >           storage: "4d4456d3-a6cb-434d-8d3f-9e1ffcc79c6e"
+    >           ivoa: {}
+    >           skao:
+    >             namespace: "testing"
+    >             objectname: "zrq-test-20250509-094501"
+    >             datasize: 26843545600
+    >             checksum: {}
+    >             replicas:
+    >               - rsename: "JPSRC_STORM"
+    >               - rsename: "SPSRC_STORM"
+    >       phase: "OFFERED"
+    >       expires: "2025-11-20T16:00:05.747471658Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-11-20T16:55:50Z"
+    >           duration: "PT2M10S"
+    >         available:
+    >           start: "2025-11-20T16:58:00Z/PT0S"
+    >           duration: "PT20M"
+    >         releasing:
+    >           start: "2025-11-20T17:18:05Z"
+    >           duration: "PT10S"
+

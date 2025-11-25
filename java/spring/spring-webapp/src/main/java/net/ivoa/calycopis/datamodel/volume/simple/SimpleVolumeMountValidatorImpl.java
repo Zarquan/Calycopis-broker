@@ -24,7 +24,7 @@ package net.ivoa.calycopis.datamodel.volume.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -63,7 +63,7 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaSimpleVolumeMount simple:
@@ -87,15 +87,18 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getName(), requested.getClass().getName());
+        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
-        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount(
-            SimpleVolumeMount.TYPE_DISCRIMINATOR
-            );
-        validated.setName(
-            requested.getName()
-            );
+        IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount()
+           .kind(SimpleVolumeMount.TYPE_DISCRIMINATOR)
+           .meta(
+                makeMeta(
+                    requested.getMeta(),
+                    context
+                    )
+               );
+        
         validated.setPath(
             requested.getPath()
             );
@@ -121,7 +124,7 @@ implements SimpleVolumeMountValidator
                 validated
                 ){
                 @Override
-                public SimpleVolumeMountEntity build(final SessionEntity session)
+                public SimpleVolumeMountEntity build(final SimpleExecutionSessionEntity session)
                     {
                     return entityFactory.create(
                         session,

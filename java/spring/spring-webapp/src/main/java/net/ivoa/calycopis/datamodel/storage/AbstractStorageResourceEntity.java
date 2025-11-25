@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,9 +39,13 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
@@ -72,19 +77,35 @@ implements AbstractStorageResource
      * 
      */
     protected AbstractStorageResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
-        final String name
+        final IvoaComponentMetadata meta
         ){
         super(
-            name
+            meta
             );
 
         this.session = session;
-        session.addStorageResource(
-            this
-            );
-
+        if (session instanceof SimpleExecutionSessionEntity)
+            {
+            ((SimpleExecutionSessionEntity)session).addStorageResource(
+                this
+                );
+            }
+        
+        if (session instanceof ScheduledExecutionSessionEntity)
+            {
+            this.init(
+                ((ScheduledExecutionSessionEntity) session),
+                result
+                );
+            }
+        }
+    
+    protected void init(
+        final ScheduledExecutionSessionEntity session,
+        AbstractStorageResourceValidator.Result result
+        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
@@ -106,10 +127,10 @@ implements AbstractStorageResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SessionEntity session;
+    private AbstractExecutionSessionEntity session;
 
     @Override
-    public SessionEntity getSession()
+    public AbstractExecutionSessionEntity getSession()
         {
         return this.session;
         }
@@ -135,22 +156,15 @@ implements AbstractStorageResource
             );
         }
     
+    public abstract IvoaAbstractStorageResource makeBean(final URIBuilder builder);
+    
     protected IvoaAbstractStorageResource fillBean(final IvoaAbstractStorageResource bean)
         {
-        bean.setUuid(
-            this.getUuid()
+        bean.setKind(
+            this.getKind()
             );
         bean.setPhase(
             this.getPhase()
-            );
-        bean.setName(
-            this.getName()
-            );
-        bean.setCreated(
-            this.getCreated()
-            );
-        bean.setMessages(
-            this.getMessageBeans()
             );
         bean.setSchedule(
             this.makeScheduleBean()
@@ -165,7 +179,12 @@ implements AbstractStorageResource
                     }
                 }
             );
-        
         return bean;
+        }
+
+    @Override
+    protected URI getWebappPath()
+        {
+        return AbstractStorageResource.WEBAPP_PATH;
         }
     }

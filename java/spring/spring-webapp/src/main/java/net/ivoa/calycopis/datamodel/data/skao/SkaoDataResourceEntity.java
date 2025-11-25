@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.data.skao;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoChecksumItem;
@@ -44,6 +45,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
 import net.ivoa.calycopis.openapi.model.IvoaSkaoReplicaItem;
 import net.ivoa.calycopis.util.ListWrapper;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * An IvoaDataResource entity.
@@ -58,6 +60,11 @@ public class SkaoDataResourceEntity
     extends IvoaDataResourceEntity
     implements SkaoDataResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SkaoDataResource.TYPE_DISCRIMINATOR ;
+        }
 
     /**
      * Protected constructor
@@ -73,7 +80,7 @@ public class SkaoDataResourceEntity
      *
      */
     public SkaoDataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result
         ){
@@ -87,10 +94,11 @@ public class SkaoDataResourceEntity
         
     /**
      * Protected constructor with parent.
+     * TODO validated can be replaced by Result.getObject()
      *
      */
     public SkaoDataResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaSkaoDataResource validated
@@ -241,23 +249,23 @@ public class SkaoDataResourceEntity
                 }
             };
         }
-
     
     @Override
-    public IvoaAbstractDataResource getIvoaBean()
+    public IvoaAbstractDataResource makeBean(final URIBuilder builder)
         {
         return fillBean(
-            new IvoaSkaoDataResource(
-                SkaoDataResource.TYPE_DISCRIMINATOR
+            new IvoaSkaoDataResource().meta(
+                this.makeMeta(
+                    builder
+                    )
                 )
             );
         }
 
-    protected IvoaSkaoDataResource fillBean(final IvoaSkaoDataResource bean)
+    protected IvoaAbstractDataResource fillBean(final IvoaSkaoDataResource bean)
         {
-        super.fillBean(
-            bean
-            );
+        super.fillBean(bean);
+        
         IvoaSkaoDataResourceBlock block = new IvoaSkaoDataResourceBlock();
         bean.setSkao(
             block

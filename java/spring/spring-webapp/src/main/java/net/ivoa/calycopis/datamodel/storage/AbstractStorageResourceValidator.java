@@ -29,7 +29,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 
@@ -64,7 +64,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
          * Build an entity based on our validation result.
          * 
          */
-        public AbstractStorageResourceEntity build(final SessionEntity session);
+        public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session);
 
         }
 
@@ -143,7 +143,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         
         @Override
         // Here because we need to create Results with just a status and no entity.
-        public AbstractStorageResourceEntity build(final SessionEntity session)
+        public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
             {
             return null ;
             }

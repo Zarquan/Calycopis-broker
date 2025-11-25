@@ -41,7 +41,7 @@ public class MessageItemBean extends IvoaMessageItem
         }
 
     @Override
-    public String getType()
+    public String getKind()
         {
         return entity.getType();
         }

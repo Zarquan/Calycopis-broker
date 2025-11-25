@@ -23,14 +23,18 @@
 
 package net.ivoa.calycopis.datamodel.storage.simple;
 
+import java.net.URI;
+
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.session.SessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * A SimpleStorageResource Entity.
@@ -47,6 +51,11 @@ public class SimpleStorageResourceEntity
     extends AbstractStorageResourceEntity
     implements SimpleStorageResource
     {
+    @Override
+    public URI getKind()
+        {
+        return SimpleExecutionSession.TYPE_DISCRIMINATOR;
+        }
 
     /**
      * Protected constructor
@@ -62,7 +71,7 @@ public class SimpleStorageResourceEntity
      *
      */
     protected SimpleStorageResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result
         ){
         this(
@@ -74,32 +83,44 @@ public class SimpleStorageResourceEntity
     
     /**
      * Protected constructor with parent and validator result.
+     * TODO validated can be replaced by Result.getObject()
+     * TODO No need to pass validated.getMeta() separately.
      *
      */
     protected SimpleStorageResourceEntity(
-        final SessionEntity session,
+        final AbstractExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
-        final IvoaSimpleStorageResource template
+        final IvoaSimpleStorageResource validated
         ){
         super(
             session,
             result,
-            template.getName()
+            validated.getMeta()
             );
 
         // TODO Add the storage fields ...
         
         }
-    
-    @Override
-    public IvoaAbstractStorageResource getIvoaBean(String baseurl)
-        {
-        IvoaSimpleStorageResource bean = new IvoaSimpleStorageResource(
-            SimpleStorageResource.TYPE_DISCRIMINATOR
-            );
-        super.fillBean(bean);
 
-        return bean ;
+    @Override
+    public IvoaAbstractStorageResource makeBean(URIBuilder uribuilder)
+        {
+        return fillBean(
+            new IvoaSimpleStorageResource().meta(
+                this.makeMeta(
+                    uribuilder
+                    )
+                )
+            );
+        }
+
+    protected IvoaSimpleStorageResource fillBean(final IvoaSimpleStorageResource bean)
+        {
+        super.fillBean(bean);
+        //
+        // Add the storage properties.
+        //
+        return bean;
         }
     }
 
