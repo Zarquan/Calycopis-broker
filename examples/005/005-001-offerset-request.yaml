@@ -1,0 +1,33 @@
+# A request for 1HR Jupyter notebook session with a downloadable data resource.
+executable:
+  meta:
+    name: executable-005
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0
+  location: https://raw.githubusercontent.com/Zarquan/binder-demo/main/02_dmhh.ipynb
+
+schedule:
+  requested:
+      duration: PT1H
+
+compute:
+  meta:
+    name: computer-005
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - "Calibration data"
+
+volumes:
+- meta:
+    name: "Calibration data"
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+  path: /calibration/
+  mode: READWRITE
+  cardinality: INSTANCE
+  resources:
+    - data-005-01
+
+data:
+- meta:
+    name: data-005-01
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+  location: https://example.org/data/data-005.vot

@@ -1,0 +1,78 @@
+{
+  "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0",
+  "meta": {
+    "uuid": "1f41f52b-d8fb-4afc-9ae3-d7983fe82710",
+    "name": "no-name-offer-0",
+    "url": "http://127.0.0.1:8082/sessions/1f41f52b-d8fb-4afc-9ae3-d7983fe82710",
+    "created": "2025-11-25T05:22:11.213966Z"
+  },
+  "executable": {
+    "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0",
+    "meta": {
+      "uuid": "9df30c49-4f72-4dbb-8078-8330ed050e41",
+      "url": "http://127.0.0.1:8082/executables/9df30c49-4f72-4dbb-8078-8330ed050e41",
+      "created": "2025-11-25T05:22:11.228808Z"
+    },
+    "phase": "INITIALIZING",
+    "schedule": {
+      "preparing": {
+        "start": "2025-11-25T05:23:00Z",
+        "duration": "PT45S"
+      },
+      "available": {
+        "start": "2025-11-25T05:23:45Z/PT0S"
+      },
+      "releasing": {
+        "start": "2025-11-25T07:24:05Z",
+        "duration": "PT1S"
+      }
+    }
+  },
+  "compute": {
+    "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    "meta": {
+      "uuid": "9a2295d0-2032-4fe7-a98a-e17fd84360cc",
+      "url": "http://127.0.0.1:8082/compute/9a2295d0-2032-4fe7-a98a-e17fd84360cc",
+      "created": "2025-11-25T05:22:11.236755Z"
+    },
+    "phase": "INITIALIZING",
+    "schedule": {
+      "preparing": {
+        "start": "2025-11-25T05:23:45Z",
+        "duration": "PT15S"
+      },
+      "available": {
+        "start": "2025-11-25T05:24:00Z/PT0S",
+        "duration": "PT2H"
+      },
+      "releasing": {
+        "start": "2025-11-25T07:24:05Z",
+        "duration": "PT10S"
+      }
+    },
+    "cores": {
+      "min": 8,
+      "max": 8
+    },
+    "memory": {
+      "min": 8,
+      "max": 8
+    }
+  },
+  "phase": "REJECTED",
+  "expires": "2025-11-25T05:27:10.440117Z",
+  "schedule": {
+    "preparing": {
+      "start": "2025-11-25T05:23:00Z",
+      "duration": "PT1M"
+    },
+    "available": {
+      "start": "2025-11-25T05:24:00Z/PT0S",
+      "duration": "PT2H"
+    },
+    "releasing": {
+      "start": "2025-11-25T07:24:05Z",
+      "duration": "PT10S"
+    }
+  }
+}
