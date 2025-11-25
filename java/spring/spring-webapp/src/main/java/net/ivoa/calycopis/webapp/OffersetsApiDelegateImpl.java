@@ -85,7 +85,8 @@ public class OffersetsApiDelegateImpl
     public ResponseEntity<IvoaOfferSetResponse> offerSetPost(
         @RequestBody IvoaOfferSetRequest request
         ) {
-        log.debug("offerSetPost [{}]", request.getName());
+        //hackfix
+        //log.debug("offerSetPost [{}]", request.getName());
         OfferSetEntity entity = factory.create(
             request
             );

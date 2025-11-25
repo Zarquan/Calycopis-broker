@@ -150,7 +150,6 @@ implements OfferSet
         bean.setResult(
             this.getResult()
             );
-
         bean.setOffers(
             new ListWrapper<IvoaAbstractExecutionSession, AbstractExecutionSessionEntity>(
                 this.getOffers()
@@ -163,7 +162,6 @@ implements OfferSet
                     }
                 }
             );
-        
         return bean;
         }
     }

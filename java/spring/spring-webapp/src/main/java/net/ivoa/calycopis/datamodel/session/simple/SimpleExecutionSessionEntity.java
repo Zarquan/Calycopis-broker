@@ -50,6 +50,7 @@ import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
+import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
