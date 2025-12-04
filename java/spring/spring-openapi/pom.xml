@@ -32,7 +32,7 @@
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-openapi</artifactId>
-	<version>0.0.1-SNAPSHOT-20251125</version>
+	<version>0.0.1-SNAPSHOT-20251204</version>
 	<packaging>jar</packaging>
 	<name>Calycopis OpenAPI</name>
 	<description>IVOA ExecutionBroker implementation</description>

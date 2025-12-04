@@ -21,22 +21,40 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
+import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.UUID;
-
-import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+public interface AbstractProcessor
     {
+    
+    public URI  getKind();
+    
+    public UUID getUuid();
+    
+    public UUID getThreadId();
+    
+    enum ProcessorPhase
+        {
+        DORMANT,
+        ACTIVE,
+        COMPLETED,
+        FAILED
+        }
+    
+    public ProcessorPhase getPhase();
+    
+    public OffsetDateTime getCreated();
+    
+    public OffsetDateTime getModified();
 
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
+    public OffsetDateTime getActivation();
+    
+    public void process();
 
     }

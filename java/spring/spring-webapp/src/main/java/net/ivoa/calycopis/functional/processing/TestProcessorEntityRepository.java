@@ -21,22 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
 import java.util.UUID;
 
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+public interface TestProcessorEntityRepository
+extends JpaRepository<TestProcessorEntity, UUID>
     {
-
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
 
     }

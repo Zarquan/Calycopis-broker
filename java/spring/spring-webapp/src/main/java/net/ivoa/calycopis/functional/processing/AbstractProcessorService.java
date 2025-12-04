@@ -21,22 +21,20 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
-import java.util.UUID;
+import java.net.URI;
+import java.util.List;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
+public interface AbstractProcessorService
 extends FactoryBase
     {
-
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
+    
+    public List<URI> getKinds();
 
     }

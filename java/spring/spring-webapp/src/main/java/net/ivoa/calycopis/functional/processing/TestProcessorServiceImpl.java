@@ -21,22 +21,46 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
-import java.util.UUID;
+import java.net.URI;
+import java.util.List;
 
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+@Slf4j
+@Service
+public class TestProcessorServiceImpl
+extends AbstractProcessorServiceImpl
+implements TestProcessorService
     {
 
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
+    private static final List<URI> KIND_LIST = List.of(
+        TestProcessor.KIND
+        );
 
+    @Override
+    public List<URI> getKinds()
+        {
+        return KIND_LIST;
+        }
+
+    @Autowired
+    public TestProcessorServiceImpl()
+        {
+        super();
+        }
+
+    @Scheduled(fixedDelay = 10000)
+    public void loop()
+        {
+        super.loop();
+        }
     }

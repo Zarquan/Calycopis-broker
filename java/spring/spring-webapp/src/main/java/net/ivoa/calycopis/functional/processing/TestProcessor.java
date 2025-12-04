@@ -21,22 +21,21 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
-import java.util.UUID;
-
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import java.net.URI;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+public interface TestProcessor
+extends AbstractProcessor
     {
+    
+    static final URI KIND = URI.create("urn:ivoa:calycopis:functional:processing:TestProcessor") ;
 
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
+    public int getPollCount();
+
+    public int getPollTime();
 
     }

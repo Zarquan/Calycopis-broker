@@ -21,22 +21,39 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
+package net.ivoa.calycopis.functional.processing;
 
-import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+@Component
+public class TestProcessorFactoryImpl
+extends FactoryBaseImpl
+implements TestProcessorFactory
     {
 
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
+    final TestProcessorEntityRepository repository;
+
+    @Autowired
+    public TestProcessorFactoryImpl(final TestProcessorEntityRepository repository)
+        {
+        super();
+        this.repository = repository;
+        }
+
+    @Override
+    public TestProcessorEntity create()
+        {
+        return this.repository.save(
+            new TestProcessorEntity(
+                TestProcessor.KIND
+                )
+            );
+        }
 
     }

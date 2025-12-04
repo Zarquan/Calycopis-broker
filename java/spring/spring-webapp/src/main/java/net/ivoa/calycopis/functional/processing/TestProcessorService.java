@@ -21,22 +21,13 @@
  *
  */
 
-package net.ivoa.calycopis.functional.asynchronous;
-
-import java.util.UUID;
-
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+package net.ivoa.calycopis.functional.processing;
 
 /**
  * 
  */
-public interface AsyncSessionHandler
-extends FactoryBase
+public interface TestProcessorService
+extends AbstractProcessorService
     {
-
-    /**
-     *
-     */
-    public void activate(final UUID uuid);
 
     }

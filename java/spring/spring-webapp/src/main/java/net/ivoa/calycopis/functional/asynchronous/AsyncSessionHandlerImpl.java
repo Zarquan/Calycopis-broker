@@ -66,7 +66,7 @@ implements AsyncSessionHandler
 
     @Override
     @Async("TaskExecutor-21")
-    public void process(final UUID uuid)
+    public void activate(final UUID uuid)
         {
         log.debug("Processing session [{}]", uuid);
 
