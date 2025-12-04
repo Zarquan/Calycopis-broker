@@ -58,7 +58,7 @@ implements TestProcessorService
         super();
         }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 10000)
     public void loop()
         {
         super.loop();
