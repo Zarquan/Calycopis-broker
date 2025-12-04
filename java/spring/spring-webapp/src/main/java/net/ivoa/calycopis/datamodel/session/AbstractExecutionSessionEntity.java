@@ -84,7 +84,6 @@ implements AbstractExecutionSession
         return this.offerset;
         }
 
-    //hackfix public abstract IvoaAbstractExecutionSession makeBean(final URIBuilder uribuilder);
     public abstract IvoaAbstractExecutionSession makeBean(final URIBuilder uribuilder);
     
     }

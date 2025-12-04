@@ -37,6 +37,6 @@ extends FactoryBase
     /**
      *
      */
-    public void process(final UUID uuid);
+    public void activate(final UUID uuid);
 
     }

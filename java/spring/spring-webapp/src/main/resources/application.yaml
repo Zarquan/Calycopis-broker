@@ -35,8 +35,8 @@ server:
 # https://howtodoinjava.com/spring-boot/configure-logging-application-yml/
 logging:
     level:
-        com.baeldung: INFO
         net.ivoa: DEBUG
+        com.baeldung: INFO
         org.hibernate: INFO
         org.apache.tomcat: INFO
         org.apache.catalina: INFO
