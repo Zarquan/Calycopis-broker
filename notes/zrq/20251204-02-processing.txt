@@ -1,0 +1,431 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Import schema the changes from Paul.
+#[user@desktop]
+
+    branchname=schema-fixes
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+        pushd ..
+            cp -a "github-zrq" "backup-$(date '+%Y%m%d')"
+        popd
+    popd
+
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git fetch upstream  pull/44/head:eval-fixes
+
+    >   remote: Enumerating objects: 41, done.
+    >   remote: Counting objects: 100% (41/41), done.
+    >   remote: Compressing objects: 100% (8/8), done.
+    >   remote: Total 41 (delta 30), reused 41 (delta 30), pack-reused 0 (from 0)
+    >   Unpacking objects: 100% (41/41), 4.53 KiB | 220.00 KiB/s, done.
+    >   From github.com:ivoa/Calycopis-schema
+    >    * [new ref]         refs/pull/44/head -> eval-fixes
+
+
+        git merge eval-fixes
+
+    >   Updating 1630083..9a93431
+    >   Fast-forward
+    >    schema/v1.0/components.yaml                                 | 116 +++++++++++++++++++++++++++++++++++++++++++++++++++++++-------------------------------------------------------------
+    >    schema/v1.0/components/components.yaml                      |  42 ------------------------------------------
+    >    schema/v1.0/components/messages.yaml                        |   2 +-
+    >    schema/v1.0/components/utils.yaml                           |  16 ++++++++--------
+    >    schema/v1.0/execution-broker.yaml                           |  12 ++++++------
+    >    schema/v1.0/types/compute/simple-compute-resource-1.0.yaml  |   7 +++----
+    >    schema/v1.0/types/data/S3-data-resource-1.0.yaml            |   1 -
+    >    schema/v1.0/types/data/ivoa-data-resource-1.0.yaml          |  10 +++-------
+    >    schema/v1.0/types/data/rucio-data-resource-1.0.yaml         |   5 +----
+    >    schema/v1.0/types/data/simple-data-resource-1.0.yaml        |   1 -
+    >    schema/v1.0/types/data/skao-data-resource-1.0.yaml          |  10 +++-------
+    >    schema/v1.0/types/executable/docker-container-1.0.yaml      |  13 ++++++-------
+    >    schema/v1.0/types/executable/jupyter-notebook-1.0.yaml      |   1 -
+    >    schema/v1.0/types/executable/singularity-container-1.0.yaml |   1 -
+    >    schema/v1.0/types/offerset/offerset-request-1.0.yaml        |   6 +++---
+    >    schema/v1.0/types/offerset/offerset-response-1.0.yaml       |   4 ++--
+    >    schema/v1.0/types/storage/simple-storage-resource-1.0.yaml  |   4 +---
+    >    schema/v1.0/types/volume/simple-volume-mount-1.0.yaml       |   1 -
+    >    18 files changed, 92 insertions(+), 160 deletions(-)
+    >    delete mode 100644 schema/v1.0/components/components.yaml
+
+
+        git status
+
+    >   On branch 20251204-zrq-schema-fixes
+    >   nothing to commit, working tree clean
+
+
+        git log
+
+    >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
+    >   Date:   Tue Nov 25 15:36:54 2025 +0000
+    >   
+    >       remove spurious file
+    >   
+    >   commit 66b7f16feaf10dc382faf95fa1683b9934b28a1c
+    >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
+    >   Date:   Tue Nov 25 15:36:22 2025 +0000
+    >   
+    >       remove spurious name fields
+    >   
+    >   commit 39b3e0a4c12ba17e16aae893f4eeab07ea40eab6
+    >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
+    >   Date:   Tue Nov 25 15:30:10 2025 +0000
+    >   
+    >       initial "obvious" $ref fixes
+    >   
+    >   commit 1630083f33eacc840d73ab76a64b8347cb245175 (upstream/main, upstream/HEAD, origin/main, origin/HEAD, main)
+    >   Merge: 11c6628 0eb68a3
+    >   Author: Zarquan <Zarquan@users.noreply.github.com>
+    >   Date:   Tue Nov 25 06:42:00 2025 +0000
+    >   
+    >       Merge pull request #43 from Zarquan/20251120-zrq-schema-meta
+    >   
+    >       20251120 zrq schema meta
+    >   ....
+    >   ....
+
+
+        git status
+
+    >   On branch 20251204-zrq-schema-fixes
+    >   nothing to commit, working tree clean
+
+
+        git diff 20251204-zrq-schema-fixes upstream/main
+
+    >   diff --git a/schema/v1.0/components.yaml b/schema/v1.0/components.yaml
+    >   index 552ca1c..b68e46e 100644
+    >   --- a/schema/v1.0/components.yaml
+    >   +++ b/schema/v1.0/components.yaml
+    >   @@ -93,7 +93,7 @@ components:
+    >              xml:
+    >                name: options
+    >              items:
+    >   -            $ref: '#/components/schemas/AbstractOption'
+    >   +            $ref: 'AbstractOption'
+    >   
+    >        AbstractComponent:
+    >          description: >-
+    >   @@ -111,7 +111,7 @@ components:
+    >            meta:
+    >              description: >-
+    >                The component metadata.
+    >   -          $ref: '#/components/schemas/ComponentMetadata'
+    >   +          $ref: 'ComponentMetadata'
+    >   ....
+    >   ....
+
+    #
+    # Looks like we have all the changes Paul made.
+    # Give it a try ...
+    #
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        source=/trebula/schema/v1.0
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/execution-broker.yaml" \
+            "${target}/execution-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Run some tests
+#[root@container]
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+        #
+        # Create a new offerset.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '.'
+
+        #
+        # Accept the first offer.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+
+
+    >   ....
+    >   ....
+    >   2025-12-04 17:20:43 INFO scheduling-1 AbstractProcessorServiceImpl loop() ++++++++
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl loop() Starting processing loop [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Finding next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() No active tasks found for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Claiming next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() [1] tasks claimed for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Finding next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Found active task [e198880f-4263-4c5e-8d30-683531cff9f2] for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 AbstractProcessorServiceImpl process() Processing service [71fe0984-d135-11f0-b3c6-8fccb0e72028] processing task [e198880f-4263-4c5e-8d30-683531cff9f2][TestProcessorEntity]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 TestProcessorEntity process() Processing task [e198880f-4263-4c5e-8d30-683531cff9f2] process()
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 TestProcessorEntity process() Processing task [e198880f-4263-4c5e-8d30-683531cff9f2] poll count [1]
+    >   2025-12-04 17:20:43 DEBUG scheduling-1 TestProcessorEntity process() Processing task [e198880f-4263-4c5e-8d30-683531cff9f2] sleep
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 TestProcessorEntity process() Processing task [e198880f-4263-4c5e-8d30-683531cff9f2] awake
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl process() Saving task [e198880f-4263-4c5e-8d30-683531cff9f2] with activation [2025-12-04T17:21:17.366486028Z]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Finding next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() No active tasks found for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Claiming next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() [0] tasks claimed for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() No active tasks for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 DEBUG scheduling-1 AbstractProcessorServiceImpl loop() Exiting processing loop [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:20:47 INFO scheduling-1 AbstractProcessorServiceImpl loop() --------
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Wrap the steps in a function and call it lots of times.
+#[root@container]
+
+    createnew()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        > "004-accept-00-response.yaml"
+        }
+
+
+    for x in {1..10}; do createnew; done
+
+
+
+    >   ....
+    >   ....
+    >   2025-12-04 17:35:56 INFO scheduling-1 AbstractProcessorServiceImpl loop() ++++++++
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl loop() Starting processing loop [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Finding next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Found active task [f0f0dfcc-e45f-4f61-9241-bd942209a36c] for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl process() Processing service [71fe0984-d135-11f0-b3c6-8fccb0e72028] processing task [f0f0dfcc-e45f-4f61-9241-bd942209a36c][TestProcessorEntity]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 TestProcessorEntity process() Processing task [f0f0dfcc-e45f-4f61-9241-bd942209a36c] process()
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 TestProcessorEntity process() Processing task [f0f0dfcc-e45f-4f61-9241-bd942209a36c] reached poll limit [20][20]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl process() Saving task [f0f0dfcc-e45f-4f61-9241-bd942209a36c] with activation [2025-12-04T17:35:56.619478Z]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Finding next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() No active tasks found for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() Claiming next active task for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() [0] tasks claimed for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl getNext() No active tasks for service [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 DEBUG scheduling-1 AbstractProcessorServiceImpl loop() Exiting processing loop [71fe0984-d135-11f0-b3c6-8fccb0e72028]
+    >   2025-12-04 17:35:56 INFO scheduling-1 AbstractProcessorServiceImpl loop() --------
+    >   ....
+    >   ....
+
+    #
+    # Looks good.
+    # Accept Paul's pull request for the schema.
+    # Merge the borker branch and move on to the next thing.
+    #
+
+
+
+
