@@ -1,0 +1,559 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    table processingsteps
+    AbstractProcessingStep
+
+        URI  kind
+        UUID uuid
+        UUID handler
+        enum ProcessingStepPhase phase
+            DORMANT     Not done anything yet
+            WAITING     Waiting for something else
+            ACTIVE      Doing stuff
+            COMPLETED
+            FAILED
+        DateTime created
+        DateTime modified
+        DateTime activation
+
+    AbstractProcessingHandler
+
+        URI  kind
+        UUID uuid
+
+
+            #
+            # Find the next step assigned to this handler.
+            SELECT
+                uuid
+            FROM
+                processingsteps
+            WHERE
+                handler = this
+            AND
+                phase = ACTIVE
+            ORDER BY
+                activation ASC
+            LIMIT
+                1
+
+            #
+            # Find the next unassigned step.
+            SELECT
+                uuid
+            FROM
+                processingsteps
+            WHERE
+                kind  = this.kind
+            AND
+                phase = WAITING | ACTIVE
+            AND
+                handler IS NULL
+            ORDER BY
+                activation ASC
+            LIMIT
+                1
+
+            #
+            # Claim the next unassigned step.
+            UPDATE
+                processingsteps
+            SET
+                phase = ACTIVE
+                handler = this
+            WHERE
+                uuid = (
+                    SELECT
+                        uuid
+                    FROM
+                        processingsteps
+                    WHERE
+                        kind  = this.kind
+                    AND
+                        phase = ACTIVE
+                    AND
+                        handler IS NULL
+                    AND
+                        activation > now
+                    ORDER BY
+                        activation ASC
+                    LIMIT
+                        1
+                    )
+
+    Refresh and Fetch an Entity After Save in JPA | Baeldung
+    https://www.baeldung.com/spring-data-jpa-refresh-fetch-entity-after-save
+
+    Spring Data JPA @Modifying Annotation
+    https://www.baeldung.com/spring-data-jpa-modifying-annotation
+    @Modifying(flushAutomatically = true)
+    @Query("update ... ")
+
+    java - In Spring Data JPA how do I perform a `SELECT FOR UPDATE` ...
+    https://stackoverflow.com/questions/77356182/in-spring-data-jpa-how-do-i-perform-a-select-for-update-without-resorting-to-w
+
+    Pessimistic Locking in JPA | Baeldung
+    https://www.baeldung.com/jpa-pessimistic-locking
+
+    Defining Query Methods :: Spring Data Commons
+    https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html#repositories.query-methods.query-creation
+
+    Doing SELECT FOR UPDATE in JPA | mobiarch
+    https://mobiarch.wordpress.com/2013/08/01/doing-select-for-update-in-jpa/
+
+# -----------------------------------------------------
+
+    table processingsteps
+    AbstractProcessingStep
+
+        URI  kind
+        UUID uuid
+        UUID handler
+        enum ProcessingStepPhase phase
+            DORMANT
+            ACTIVE
+            COMPLETED
+            FAILED
+        DateTime created
+        DateTime modified
+        DateTime activation
+
+        void activate();
+        void process();
+
+    AbstractProcessingHandler
+
+        URI  kind
+        UUID uuid
+
+
+    Get the next active step.
+    If none, activate a new one.
+    Get the next active step.
+    If none, sleep.
+
+    process the step
+
+        do stuff
+            e.g poll the status ...
+        if done, update the phase COMPLETED|FAILED
+        else
+        back put it on the queue
+            UPDATE
+                processingsteps
+            SET
+                activation = now + delay
+            WHERE
+                uuid = this.uuid
+
+# -----------------------------------------------------
+
+    AbstractHandler
+
+        UUID getUuid()
+        URI  getKind()
+
+    AbstractStep
+
+        UUID getUuid()
+        URI  getKind()
+
+        activate()
+            this.activate(0, false)
+
+        activate(reset)
+            this.activate(0, reset)
+
+        activate(delay, reset)
+            this.setPhase(ACTIVE)
+            this.setHandler(handler.getUuid())
+            this.setActivation(now + delay)
+            if (reset)
+                this.setPollTime(0)
+                this.setPollCount(0)
+
+        SessionEntity getSession()
+
+    PrepareStep
+
+        getPrepareTime()
+        getTotalPrepareTime()
+
+
+
+    // Skaha JupyterNotebook
+    // Extends JupyterNotebook AND DockerContainer
+    // Extends JupyterNotebook hasa DockerContainer
+
+    SkahaJupyterNotebook
+        kind: uri:/skaha-jupyter-notebook
+        location: ...
+        requrements: ...
+        container:
+          SkahaDockerContainer
+
+    SkahaDockerContainer
+        String imageid
+
+
+    SkahaPrepareJupyterNotebookStep
+        // Transfer the notebook into user's storage space
+        // Transfer the requirements into user's storage space
+
+        // Wait for the compute resource (Skaha session) to run
+        // Apply the requirements BEFORE the compute resource becomes available.
+        // Means we need to intercept the end of the compute resource's prepare step.
+        // container.onstartup() ...
+
+
+    // Specific step to stage a DockerImage in Skaha
+    SkahaPrepareDockerContainerStep
+
+        if (container.getImageId() == null)
+
+            imageid = call skaha to find image
+            if (imageid != null)
+                container.setPhase(AVAILABLE)
+                container.setImageId(imageid)
+                this.setPhase(COMPLETED)
+            else
+                imageid = call skaha to stage image
+                if (imageid == null)
+                    container.setPhase(FAILED)
+                    this.setPhase(FAILED)
+                else
+                    container.setPhase(PREPARING)
+                    container.setImageId(imageid)
+                    this.activate(polldelay, true)
+
+    // Specific step to release a DockerImage image (nop)
+    // NOP at the moment because we aren't reference tracking
+    SkahaReleasDockerContainerStep
+
+        if (container.getImageId() != null)
+            container.setPhase(RELEASING)
+            this.activate(polldelay, true)
+        else
+            container.setPhase(FAILED)
+            this.setPhase(FAILED)
+
+
+    // Generic step to poll the status of a Skaha image
+    SkahaPollDockerContainerStep
+
+        if pollcount > limit
+            container.setPhase(FAILED)
+            this.setPhase(FAILED)
+            return
+
+        if polltime > limit
+            container.setPhase(FAILED)
+            this.setPhase(FAILED)
+            return
+
+        if (executable.getIdent() == null)
+            container.setPhase(FAILED)
+            this.setPhase(FAILED)
+            return
+
+        else
+            status = call skaha to poll status
+
+            if status == failed
+                container.setPhase(FAILED)
+                this.setPhase(FAILED)
+                return
+
+            if status == busy
+                this.activate(polldelay)
+                return
+
+            if (container.getPhase() == PREPARING)
+
+                if status == ready
+                    this.setPhase(COMPLETED)
+                    executable.setPhase(AVAILABLE)
+                    return
+
+            if (container.getPhase() == RELEASING)
+
+                if status == *
+                    this.setPhase(COMPLETED)
+                    executable.setPhase(COMPLETED)
+                    return
+
+
+
+    PrepareCompute
+
+        ComputeEntity getCompute()
+
+    // Specific step to run a DockerImage in Skaha
+    SkahaExecuteDockerContainerStep
+    SkahaPrepareCompute
+
+        SkahaDockerContainerEntity getSkahaDockerContainer()
+
+        if compute.getPhase() == FAILED
+            this.setPhase(FAILED)
+            return
+
+        if compute.getPhase() == DORMANT,WAITING
+            compute.SetPhase(PREPARING)
+            session.SetPhase(PREPARING)
+            this.activate(polldelay, true)
+            return
+
+        if compute.getPhase() == PREPARING
+
+            boolean ready = true;
+            boolean wait  = false;
+            boolean fail  = false;
+
+            // Check our executable.
+            ready &= (executable.getPhase() == AVAILABLE)
+            wait  |= (executable.getPhase() == PENDING)
+            fail  |= (executable.getPhase() == FAILED)
+
+            // Check our storage resources.
+            foreach (session.getStorage())
+                ready &= (storage.getPhase() == AVAILABLE)
+                wait  |= (storage.getPhase() == PENDING)
+                fail  |= (storage.getPhase() == FAILED)
+
+            // Check our data resources.
+            foreach (session.getData())
+                ready &= (data.getPhase() == AVAILABLE)
+                wait  |= (data.getPhase() == PENDING)
+                fail  |= (data.getPhase() == FAILED)
+
+            if (fail)
+                this.setPhase(FAILED)
+                return
+
+            if (wait)
+                this.activate(polldelay)
+                return
+
+            if (ready)
+
+                // If the activation time is in the future.
+                if (start > now)
+                    this.activate(polldelay)
+                    return
+
+                // If the activation time is too far in the past.
+                if ((now - start) > toolong)
+                    this.setPhase(FAILED)
+                    return
+
+                // Start the Skaha session
+                skahaid = call Skaha to start the session
+
+                if (skahaid == null)
+                    this.setPhase(FAILED)
+                    return
+
+                if (skahaid != null)
+                    this.activate(polldelay)
+                    return
+
+
+# -----------------------------------------------------
+
+    Potential for lockup if a thread tries to modify two entities at a time.
+    Conflict occurs if two threads try to modify the same two entities at the same time
+    container thread can modify the container
+    container thread can't directly modify the session
+
+    container thread can add the session to the queue for processing later ?
+    insert a row (uuid, phase) into the session processing queue
+    session processing thread takes the next row (uuid) from the queue
+
+    How do LockModeType.PESSIMISTIC_READ and LockModeType.PESSIMISTIC_WRITE work in JPA and Hibernate - Vlad Mihalcea
+    https://vladmihalcea.com/hibernate-locking-patterns-how-do-pessimistic_read-and-pessimistic_write-work/
+
+    LockModeType (Jakarta Persistence API documentation)
+    https://jakarta.ee/specifications/persistence/2.2/apidocs/javax/persistence/lockmodetype
+
+        A lock with LockModeType.PESSIMISTIC_WRITE can be obtained on an entity instance to force serialization among
+        transactions attempting to update the entity data.
+        A lock with LockModeType.PESSIMISTIC_READ can be used to query data using repeatable-read semantics without
+        the need to reread the data at the end of the transaction to obtain a lock, and without blocking other transactions
+        reading the data.
+        A lock with LockModeType.PESSIMISTIC_WRITE can be used when querying data and there is a high likelihood of
+        deadlock or update failure among concurrent updating transactions.
+
+    Pessimistic Locking in JPA
+    https://www.baeldung.com/jpa-pessimistic-locking
+
+    Demo Application for Spring Data JPA Pessimistic Locking
+    https://github.com/andylke/demo-spring-jpa-pessimistic-locking
+
+
+    **
+    We can just allow the processing thread to loop if we get an exception
+    If we do nothing, this step will be next in the list for this thread.
+    So we close the transaction, and it will get picked up again next trip around the loop.
+    If we do nothng it will still be at the top of the list.
+    If we want we can add a delay to push it down the list
+        this.activate(polldelay)
+    **
+
+        LockModeType.PESSIMISTIC_WRITE on our step will just guarantee we own it
+        LockModeType.PESSIMISTIC_WRITE on other entities should cause an Exception if 2 threads try to write
+
+
+    Useful stuff
+    java - How to beautifully update a JPA entity in Spring Data? - Stack Overflow
+    https://stackoverflow.com/questions/39741102/how-to-beautifully-update-a-jpa-entity-in-spring-data
+
+    https://stackoverflow.com/a/39746931
+    T getById(ID id) has been deprecated since 2.7. Please use T getReferenceById(ID id) instead.
+    The idea is the same, it returns a reference only. But it is more self-explained
+
+    In each case, activating a step takes 2 transactions.
+    First transaction claims the step by setting phase and adding thread id
+    If first transacton fails with PessimisticLockException, two threads are trying to claim
+    the same step. Let go and try again - random pause eg Ethernet/Wifi.
+
+    Second transacton does stuff and then updates state.
+    If second transacton fails with PessimisticLockException, the claim _should_ prevent two
+    threads updating the same step, so this is more likley to be two threads trying to update
+    the same entities.
+
+    We need to make sure that the steps are re-entrant.
+    If the step update fails PessimisticLockException, it will stay at the top of the queue
+    and be picked up next time around.
+    In which case, we don't want to repeat the action, e.g. creating directory, transferring data
+    or launching a session, but we do want to pick up the state and complete the database updates.
+
+    So we need to keep track of the results outside the database.
+    Or outside of the locked table.
+    If we insert a row rather than updating a row, is that immune from PessimisticLockException ?
+
+    How does database pessimistic locking interact with INSERT, UPDATE, and DELETE SQL statements
+    https://vladmihalcea.com/how-does-database-pessimistic-locking-interact-with-insert-update-and-delete-sql-statements/
+        According to this it depends on the database, but PostgreSQl would allow the INSERT, while MySQL might block it.
+
+    ChatGPT seems to think we don't need a second queue.
+    We can keep the uncomitted state in the operation (step) class and just retry the update query.
+    https://chatgpt.com/c/69285197-8400-832a-8108-53102e825487
+
+    ChatGPT introduces the Saga orchestration pattern
+    https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/saga-orchestration.html
+
+    Pattern: Saga
+    https://microservices.io/patterns/data/saga.html
+
+    In our case, we could retry the update/commit step, and then apply a simplistic manual compensation step.
+    If the retry fails, we record it in a log and let the humans pick it up afterwards.
+    Later, if it happens a lot, we can look at automating it.
+    Worst case we launch duplicate sessions in Skaha or download/stage the same data twice.
+
+    Based on ChatGPT's suggestions
+
+        @Transactional
+        void prepareOperation()
+            {
+            // Load the values we need from our entities.
+            }
+
+        void performOperation()
+            {
+            // Perform the external thing
+            }
+
+        @Retryable(maxAttempts = 3, value = LockTimeoutException.class)
+        @Transactional
+        public void updateInventory(...)
+            {
+            // Save the results in our entities.
+            }
+
+        @Recover
+        public void recover(LockTimeoutException ex, Long itemId, int deltaQty)
+            {
+            failOperation();
+            }
+
+        @Retryable(maxAttempts = 3, value = LockTimeoutException.class)
+        @Transactional
+        public void failOperation(...)
+            {
+            // Mark the operation as failed to prevent it being loaded again.
+            }
+
+        @Recover
+        public void recover(LockTimeoutException ex, Long itemId, int deltaQty)
+            {
+            // Record the failure in a log.
+            // Manual intervention to fix it.
+            }
+
+        If we save the state in the operation and put it back on the queue ...
+        Isn't this the same as retrying the updateInventory() step with a longer delay ?
+
+# -----------------------------------------------------
+
+    Arguably we are inventing an internal message queue one bit at a time.
+    How long would it take to learn how to use MQ for this.
+    Advantage would be well know deployment and administration.
+    Cost is learning time only to find out it doesn't quite do what we want.
+
+# -----------------------------------------------------
+
+    For a SkahaContainer we have
+
+        Executable - DockerContainer
+        Compute    - SkahaSession
+        Volumes    - Cavern directories
+        Storage    - Cavern directories or Rucio staging
+        Data       - GenericDownload or SRCPrepareData
+
+    Make sure everything is ready.
+    If not ready, activate(delay)
+
+    if ready
+        launch Skaha session
+        save skahaSessionId in compute
+        compute = AVAILABLE
+        session = AVAILABLE
+        connections += ....
+
+# -----------------------------------------------------
+
+

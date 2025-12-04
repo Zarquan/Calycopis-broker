@@ -1,0 +1,146 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+        #
+        # Create a new offerset.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '.'
+
+        #
+        # Accept the first offer.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+
+# -----------------------------------------------------
+
+    #
+    # Wrap it as a function and call it many times.
+
+    createnew()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        > "004-accept-00-response.yaml"
+        }
+
+
+    for x in {1..100}; do createnew; done
+
+        #
+        # Works, with a few quirks.
+        # 99% of the time is spent in the Thread.sleep() inside TestProcessorEntity.process()
+        # TestProcessorEntity.process() puts the task back on the queue with an activation time 30seconds in the future.
+        # The processing loop will favor tasks that have already been claimed by this Thread.
+        # So the system averages out to have ~5 tasks being processed and the rest waiting unclaimed in the queue.
+        #
+        # This is good enough for now.
+        # Main thing is it doesn't get swamped by an overload of requests.
+        #
+        # TODO Migrate to an external PostgreSQL database to see how it performs.
+        # TODO Experiment with more than one instance sharing the same database.
+        #
+        # When there is nothing in the queue it wastes a lot of time polling.
+        # TODO Back off the polling loop when there isn't anything in the queue.
+        # This will become a problem when we have several queue processors.
+        #
+        # More of a problem is the cleanup of the temp table in the booking query.
+        # This slows the database down a lot and means requests take a long time to process.
+        # TODO Tweak the booking query to be more performant.
+        #
+
+# -----------------------------------------------------
+

@@ -1,0 +1,277 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Doing SELECT FOR UPDATE in JPA | mobiarch
+    https://mobiarch.wordpress.com/2013/08/01/doing-select-for-update-in-jpa/
+
+    Spring Data JPA @Modifying Annotation | Baeldung
+    https://www.baeldung.com/spring-data-jpa-modifying-annotation
+
+    Defining Query Methods :: Spring Data Commons
+    https://docs.spring.io/spring-data/commons/reference/repositories/query-methods-details.html#repositories.query-methods.query-creation
+
+    java - In Spring Data JPA how do I perform a `SELECT FOR UPDATE` without resorting to writing the SQL and keeping non-blocking versions? - Stack Overflow
+    https://stackoverflow.com/questions/77356182/in-spring-data-jpa-how-do-i-perform-a-select-for-update-without-resorting-to-w
+
+
+# -----------------------------------------------------
+
+
+    The plan ...
+
+    Add things to a queue by putting them in a database table.
+
+    Processing thread takes the next thing off the queue by setting a value in the database table.
+    Processing thread does the next step .. then adds the thing onto the back of the queue.
+
+    Either the existing entities themselves, or a 'step' class linked to the entities.
+    Using steps means we can have different types of steps.
+
+    A step get selected, the thread runs whatever is in the step, and then calls the next step.
+
+    The whole setup is designed to be thread safe, using SELECT FOR UPDATE queries to manage the queue.
+    Intention is we can have several processing threads running in the background.
+    Expanding to multiple worker services that coordinate together by sharing the same database.
+
+# -----------------------------------------------------
+
+    Start with an ExecutionSession, with Executable, Compute, Storage and Data resources.
+
+    When the ExecutionSession is ACCEPTED, it calls an accept() method on each of its components.
+
+    Activating an Executable adds a PrepareExecutable step to the queue.
+    Specifically a SkahaPrepareExecutable step, handled by a SkahaExecutableHandler.
+    This calls the Skaha interface to stage a copy of the container image.
+
+    Activating a Data resource doesn't do anything yet.
+    It needs to wait for the corresponding storage to be ready.
+
+    Activating a Storage resource adds a PrepareStorage step to the queue.
+    Specifically a SRCNetPrepareStorage step, handled by a SRCNetStorageHandler.
+
+    When the PrepareStorage step completes, it activates the data resources assigned to that storage.
+
+    Activating a Data resource adds a PrepareData step to the queue.
+    Specifically a SRCNetPrepareData step, handled by a SRCNetDataHandler.
+    Specifically a SimplePrepareData step, handled by a SimpleDataHandler.
+
+    When all of the Executable, Storage, and Data components are ready,
+    <something> activates the Compute component, adding a PrepareCompute step to the queue.
+
+    Perhaps the PrepareCompute step is already in the database, but not activated yet.
+    Each of the Prepare steps for the other components calls activate on the PrepareCompute step,
+    but that just checks to see if everything is ready and if not, it waits.
+
+    When all of the other components are ready, the PrepareCompute step is activated.
+
+    Specifically a SkahaPrepareCompute, handled by a SkahaComputeHandler,
+    which calls the Skaha API to start the session.
+
+# -----------------------------------------------------
+
+    Accepting an ExecutionSession adds a prepare step for each component.
+
+        PrepareExecutableStep
+        PrepareComputeStep
+        PrepareStorageStep
+        PrepareDataStep
+
+    A PrepareDataStep does nothing until the associated StorageResource is ready.
+        if (storage.phase != READY)
+           wait
+
+    A PrepareExecutableStep goes ahead and stages the executable.
+    A SkahaPrepareExecutableStep calls the Skaha and Harbor API to stage a copy of the container image.
+    A PodmanPrepareExecutableStep calls the Podman API to stage a copy of the container image.
+    A OpenstackPrepareExecutableStep has to wait until the VM is up and running before it can do anything.
+    So the sequence may depend on the platform.
+
+    For the Skaha and Podman cases, when the PrepareExecutableStep becomes READY it will activate the ComputeResource.
+    The ComputeResource will wait for everything else to be ready.
+
+
+    A PrepareStorageStep goes ahead and creates the storage space.
+
+    A SRCNetPrepareStorageStep checks to see if we have space in our Rucio staging area.
+    Then updates to READY or FAILED.
+
+    A CavernPrepareStorageStep checks to see if we have space in our Cavern service.
+    Then updates to READY or FAILED .
+
+    When it becomes READY, a PrepareStorageStep activates all of the DataResources waiting for this storage Resource.
+    It also activates the Compute resource too.
+
+
+    Question - what do we do about the volume mounts.
+    TODO Move volume mounts back onto the Compute resources.
+    TODO Separate volume mounts into Abstract, Instance and Collection mounts.
+    TODO Add new volume mount access modes, ReadOnly, WriteTemp, WriteLocal, and WriteGlobal.
+        ReadOnly is staged locally but can't be written to
+        WriteTemp writes to a temp copy that lasts as long as this session
+        WriteLocal writes to the local Cavern filesystem
+        WriteGlobal writes to the local Cavern filesystem, and then pushes the result back into the cloud
+
+
+    A PrepareDataStep goes ahead and stages the data.
+
+    A SimplePrepareDataStep downloads the data to the target storage area.
+    This may involve downloading to a temp space and then moving/linking it into the target space.
+
+    A SRCNetPrepareDataStep calls the local prepare data API to stage the data.
+    This may also involve calls the the Rucio API to extend the lease of the local copy.
+
+    When it becomes READY, each PrepareDataStep will activate the ComputeResource.
+    The ComputeResource will wait for everything to be ready before starting its own preparation.
+
+    A SkahaPrepareComputeStep will call the Skaha API to launch the session and then add a StatusPollingStep to the queue.
+    A PodmanPrepareComputeStep will call the Podman API to launch the session and then add a StatusPollingStep to the queue.
+
+    The StatusPollingStep will sleep for a while and then poll the external service to check on the status.
+    To start with will need SkahaStatusPollingStep and PodmanStatusPollingSteps that check their associated services and update their Compute resources.
+    We might extend this to have status polling for the other resources, including data transfers, storage resources etc.
+
+# -----------------------------------------------------
+
+    Each ProcessingStep has a reference back to the ComponentEntity that it is handling.
+
+    Each ProcessingStep has a phase [..], a kind (URI), and a processor id.
+    A ProcessingThread looks for ProcessingSteps with phase = READY, kind = xyz AND processor IS NULL.
+    The first thing it does is update the phase to RUNNING and set the processor ID to the UUID of this thread.
+    That claims the ProcessingStep and blocks anyone else from picking it up.
+
+    The ProcessingThread then runs the process() method on the ProcessingStep, which load the associated ComponentEntity and
+    begins the processing.
+
+    The processing might mean taking specific actions, or it might just mean the ProcessingStep isn't ready and just gets put back in the queue.
+
+    Putting the ProcessingStep into the queue involves updating the database recored to set the phase to WAITING, the processor ID to NULL,
+    and updating the updated/modified timestamp to now.
+
+    Other ProcessingThreads will use the updated/modified timestamp to select the oldest ProcessingStep from the queue.
+
+    Different types of ProcessingThread will handle different types of ProcessingStep (kind = xyz).
+    Which means we can have different sizes of thread pools for different tasks with different cadences etc.
+
+# -----------------------------------------------------
+
+    Each ProcessingStep has a reference back to the ComponentEntity that it is handling.
+    Do we need the complicated linked list of steps that we have in the code at the moment.
+    Probably not.
+    Better to start again with a clean set of classes.
+    We can delete the old ones now to avoid confision.
+
+# -----------------------------------------------------
+
+    What about ProcessingSteps that are waiting for other steps to complete first ?
+    phase = WAITING
+
+    In which case we need an additional phase.
+
+      * WAITING for something else
+      * READY   ready to be executed
+      * RUNNING claimed and running
+      * COMPLETED end state
+      * FAILED    end state
+      * CANCELLED end state
+
+    .. and we need a state for 'before stuff'
+    preparing - is an action not a state
+    preliminary
+    precursor
+    pristine
+    dormant ?
+    stateless
+    initial
+    initializing - is an action not a state
+    inactive - kind of waiting/ready but even less active
+    dormant - not yet woken up - I like that
+
+# -----------------------------------------------------
+
+    To make this work are we going to need a more robust database.
+    TODO Migrate from the current in-memory DB to a PostgreSQL instance.
+    TODO Add the container deployment to make this happen.
+
+# -----------------------------------------------------
+
+    Right now I am just trying to imagine it all.
+    How it all fits together.
+    Which bits feel smooth and fit together and which bits feel shakey, flakey, or rough.
+
+# -----------------------------------------------------
+
+    Do we need to use the linked list of steps, or can we just get away with the entities as they are ?
+    Problem with the linked list of steps is complexity and fragility.
+    Problem with just using the entities is there are many things to do.
+
+    Allocate storage
+        One step, check the quotas, make the directory and we are done.
+        but we also need to activate the data entities linked to the storage
+        if we are using entities, we just activate the data entities.
+        if the steps already exist, we need to find and activate the steps
+        if the steps are linked to the data entities, then we can activate the steps by activating the data entity
+        activating the data entity creates or activates the chain of steps associated with that data entity
+
+    Prepare data
+        Wait for the storage to become ready - just do nothing ?
+        Call preparedata to make the transfer - simple enough.
+        Spawn a thread to transfer the data - simple enough.
+        Poll the status of the transfer - how do we do that ?
+        Check the data has arrived - do we need this ?
+
+    Creating steps ..
+
+        Only creating the steps once an entity is activated reduces complexity
+        We don't have lots of inactive steps in the database that need clearing up afterwards
+        Bias check - that is based on a feeling not a real problem
+        Why are we scared of 1,000's of dormant steps in the database
+
+        Creating the steps early on means we can use them to calculate the timings
+        Polymorphinc step classes
+        The entity chooses which kind of steps to created based on the platform
+        Each step has a calculatePrepareCost() and getTotalPrepareCost() method
+        calculatePrepareCost() is an abstract method implemented by each kind of step
+        getTotalPrepareCost() adds the calculatePrepareCost() for this step to the getTotalPrepareCost() of the previous (next) steps
+        working backwards along the linked list of steps
+
+        I am tending towards the create steps early idea ...
+        As long as we are happy with 1,000's of dormant steps in the database
+
+        I think this means we build on the linked list of steps we already have.
+
+
+
+
+

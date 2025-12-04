@@ -1,0 +1,176 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # Single Operator linked to each Component.
+    # A PlatformComponentTypeOperator looks after a Component.
+    # Handles the Component lifecycle from creation to release.
+    # Put back into the queue several times.
+    # Takes appropriate actions based on the Component state.
+    #
+
+    CanfarExecutionSession == SkahaSession
+    Compute resource is a data component
+    Adjusts the cpu and memory to match the available options.
+    CanfarExecutionSessionOperator launches the Skaha session.
+
+
+    We started out as Operation, because they represented one step.
+    Changed to Operator due to a typo.
+    If we have one 'thing' per Component, then a better option would
+    be Actor or Processor.
+
+    How about Processor or ProcessingThing ...
+
+    A ProcessingThread picks up a specific type of Processor from the
+    queue and processes it.
+
+
+
+
+# -----------------------------------------------------
+
+    ScheduledProcessingLoop
+
+    AbstractProcessor
+
+        URI  getKind()
+        UUID getUuid()
+        UUID getHandlerUuid()
+        Phase getPhase()
+            DORMANT     Not done anything yet
+            WAITING     Waiting for something else ?
+            ACTIVE      Doing stuff
+            COMPLETED
+            FAILED
+        DateTime getCreated()
+        DateTime getModified()
+        DateTime getActivation()
+
+
+    table AbstractProcessors
+    AbstractProcessorImpl
+    implements AbstractProcessor
+
+        URI  kind
+        UUID uuid
+        UUID handler
+        enum ProcessingStepPhase phase
+            DORMANT     Not done anything yet
+            WAITING     Waiting for something else ?
+            ACTIVE      Doing stuff
+            COMPLETED
+            FAILED
+        DateTime created
+        DateTime modified
+        DateTime activation
+
+
+    AbstractOperationHandler
+
+        URI  getKind()
+        UUID getUuid()
+
+
+    AbstractOperationHandlerImpl
+
+        URI  getKind()
+        UUID getUuid()
+
+        private final InnerAbstractOperationHandlerImpl inner ;
+
+        @Autowired
+        AbstractOperationHandlerImpl(
+            final InnerAbstractOperationHandlerImpl inner
+            ){
+            this.inner = inner;
+            }
+
+        @Slf4j
+        @Component
+        static class InnerAbstractOperationHandlerImpl
+            {
+
+            // Stuff ...
+            private final ScheduledExecutionSessionEntityRepository sessionRepository;
+            private final AsyncComputeHandler computeHandler;
+            private final AsyncExecutableHandler executableHandler;
+            private final AsyncStorageResourceHandler storageHandler;
+
+            @Autowired
+            InnerOperationHandlerImpl(
+                final ScheduledExecutionSessionEntityRepository sessionRepository,
+                final AsyncComputeHandler computeHandler,
+                final AsyncExecutableHandler executableHandler,
+                final AsyncStorageResourceHandler storageHandler
+                ){
+                this.sessionRepository = sessionRepository;
+                this.computeHandler    = computeHandler;
+                this.executableHandler = executableHandler;
+                this.storageHandler    = storageHandler;
+                }
+
+            // Load the values we need from our entities.
+            abstract void prepareOperation(AbstractOperation operation)
+
+            // Perform the external thing.
+            abstract void performOperation(AbstractOperation operation)
+
+            // Save the results in our entities.
+            abstract public void updateEntities(AbstractOperation operation)
+
+            @Retryable(maxAttempts = 3, value = LockTimeoutException.class)
+            @Transactional
+            public void failOperation(AbstractOperation operation)
+                {
+                // Mark the operation as failed to prevent it being loaded again.
+                }
+
+            @Recover
+            public void recover(LockTimeoutException ex, Long itemId, int deltaQty)
+                {
+                // Record the failure in a log.
+                // Manual intervention to fix it.
+                }
+            }
+        }
+
+
+
+
+
+
+
+
