@@ -55,7 +55,7 @@ extends JpaRepository<AbstractProcessorEntity, UUID>
         AND
             p.kind IN :kinds
         AND
-            activation < now()
+            activation < CURRENT_TIMESTAMP
         ORDER BY
             p.activation ASC
         LIMIT 1
@@ -85,7 +85,7 @@ extends JpaRepository<AbstractProcessorEntity, UUID>
             AND
                 p.kind IN :kinds
             AND
-                activation < now()
+                activation < CURRENT_TIMESTAMP
             ORDER BY
                 p.activation ASC
             LIMIT 1
