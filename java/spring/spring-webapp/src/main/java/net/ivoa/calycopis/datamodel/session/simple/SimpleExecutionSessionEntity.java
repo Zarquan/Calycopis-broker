@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,9 +131,9 @@ public class SimpleExecutionSessionEntity
         }
     
     @Column(name = "expires")
-    private OffsetDateTime expires;
+    private Instant expires;
     @Override
-    public OffsetDateTime getExpires()
+    public Instant getExpires()
         {
         return this.expires;
         }

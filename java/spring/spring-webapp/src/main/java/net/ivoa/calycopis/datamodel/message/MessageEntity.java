@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.message;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Map;
@@ -86,7 +87,7 @@ public class MessageEntity
         this.level = level;
         this.parent = parent;
         this.template = template;
-        this.datetime = OffsetDateTime.now();
+        this.datetime = Instant.now();
         }
 
     @Column(name = "type")
@@ -99,10 +100,10 @@ public class MessageEntity
         }
 
     @Column(name = "datetime")
-    private OffsetDateTime datetime;
+    private Instant datetime;
 
     @Override
-    public OffsetDateTime getTime()
+    public Instant getTime()
         {
         return this.datetime;
         }

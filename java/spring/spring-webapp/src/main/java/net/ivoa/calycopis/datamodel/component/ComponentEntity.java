@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.datamodel.component;
 
 import java.net.URI;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,7 +91,7 @@ public abstract class ComponentEntity
         this(
             name,
             null,
-            OffsetDateTime.now()
+            Instant.now()
             );
         }
 
@@ -103,7 +104,7 @@ public abstract class ComponentEntity
         this(
             meta.getName(),
             meta.getDescription(),
-            OffsetDateTime.now()
+            Instant.now()
             );
         }
     
@@ -111,7 +112,7 @@ public abstract class ComponentEntity
      * Protected constructor.
      *
      */
-    protected ComponentEntity(final String name, final String description, final OffsetDateTime created)
+    protected ComponentEntity(final String name, final String description, final Instant created)
         {
         this.name = name;
         this.created = created;
@@ -144,17 +145,17 @@ public abstract class ComponentEntity
         }
 
     @Column(name = "created")
-    private OffsetDateTime created;
+    private Instant created;
     @Override
-    public OffsetDateTime getCreated()
+    public Instant getCreated()
         {
         return this.created;
         }
 
     @Column(name = "modified")
-    private OffsetDateTime modified;
+    private Instant modified;
     @Override
-    public OffsetDateTime getModified()
+    public Instant getModified()
         {
         return this.modified;
         }

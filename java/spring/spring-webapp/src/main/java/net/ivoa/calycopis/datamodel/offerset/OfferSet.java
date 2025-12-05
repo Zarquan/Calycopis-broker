@@ -23,7 +23,7 @@
 package net.ivoa.calycopis.datamodel.offerset;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.Component;
@@ -55,7 +55,7 @@ public interface OfferSet
      * Get the date/time this OfferSet expires.
      * 
      */
-    public OffsetDateTime getExpires();
+    public Instant getExpires();
 
     /**
      * Get the OfferSet (YES|NO) result.

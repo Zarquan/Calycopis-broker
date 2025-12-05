@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.message;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public interface Message
      * The date and time of the message. 
      * @return time
      */
-    public OffsetDateTime getTime();
+    public Instant getTime();
 
    /**
      * The message level. 

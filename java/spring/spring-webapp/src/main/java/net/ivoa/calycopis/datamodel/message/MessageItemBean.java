@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.message;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Map;
 
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
@@ -47,7 +47,7 @@ public class MessageItemBean extends IvoaMessageItem
         }
 
     @Override
-    public OffsetDateTime getTime()
+    public Instant getTime()
         {
         return entity.getTime();
         }

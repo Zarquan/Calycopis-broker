@@ -23,7 +23,7 @@
 package net.ivoa.calycopis.datamodel.offerset;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +72,7 @@ implements OfferSet
         super();
         }
 
-    protected OfferSetEntity(final String name, final String description, final OffsetDateTime created, final OffsetDateTime expires)
+    protected OfferSetEntity(final String name, final String description, final Instant created, final Instant expires)
         {
         super(
             name,
@@ -83,10 +83,10 @@ implements OfferSet
         }
 
     @Column(name = "expires")
-    private OffsetDateTime expires;
+    private Instant expires;
 
     @Override
-    public OffsetDateTime getExpires()
+    public Instant getExpires()
         {
         return this.expires;
         }

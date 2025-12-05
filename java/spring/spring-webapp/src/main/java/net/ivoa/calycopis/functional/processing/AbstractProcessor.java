@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.functional.processing;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -49,11 +49,11 @@ public interface AbstractProcessor
     
     public ProcessorPhase getPhase();
     
-    public OffsetDateTime getCreated();
+    public Instant getCreated();
     
-    public OffsetDateTime getModified();
+    public Instant getModified();
 
-    public OffsetDateTime getActivation();
+    public Instant getActivation();
     
     public void process();
 
