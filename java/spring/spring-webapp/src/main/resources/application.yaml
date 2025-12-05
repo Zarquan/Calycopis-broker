@@ -51,10 +51,16 @@ spring:
     # https://www.baeldung.com/spring-boot-h2-database
     # https://stackoverflow.com/a/38047021
     datasource:
-        url: jdbc:h2:mem:testdb
-        username: sa
-        password: password
-        driverClassName: org.h2.Driver
+#       url: jdbc:h2:mem:testdb
+#       username: sa
+#       password: password
+#       driverClassName: org.h2.Driver
+
+        url: jdbc:postgresql://postgresql:5432/calycopis
+        username: albert
+        password: UVai0wie-wa9Eed4g
+        driverClassName: org.postgresql.Driver
+
         initialize: true
     jpa:
         # https://medium.com/@hweemyoung/when-hibernate-dialect-not-working-d2c1eca549e3
