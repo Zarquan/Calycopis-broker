@@ -32,7 +32,7 @@
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
 	<artifactId>calycopis-openapi</artifactId>
-	<version>0.0.1-SNAPSHOT-20251204</version>
+	<version>0.0.1-SNAPSHOT-20251205</version>
 	<packaging>jar</packaging>
 	<name>Calycopis OpenAPI</name>
 	<description>IVOA ExecutionBroker implementation</description>
@@ -185,7 +185,20 @@
                                 </additionalModelTypeAnnotations>
                                 <!--templateDirectory>${project.basedir}/openapi-generator-templates</templateDirectory-->
                                 <!--openApiNullable>false</openApiNullable-->
+                                <dateLibrary>java8</dateLibrary>
                             </configOptions>
+                            <!--+
+                                | Use specific date-time classes.
+                                | https://www.baeldung.com/openapi-map-date-types#use-other-standard-date-classes
+                                +-->
+                            <typeMappings>
+                                <typeMapping>DateTime=Instant</typeMapping>
+                                <typeMapping>Date=Date</typeMapping>
+                            </typeMappings>
+                            <importMappings>
+                                <importMapping>Instant=java.time.Instant</importMapping>
+                                <importMapping>Date=java.util.Date</importMapping>
+                            </importMappings>
                         </configuration>
                     </execution>
                 </executions>
