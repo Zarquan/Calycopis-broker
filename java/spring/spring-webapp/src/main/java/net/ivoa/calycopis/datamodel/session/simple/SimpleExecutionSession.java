@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
@@ -65,7 +65,7 @@ public interface SimpleExecutionSession
      * Get the expiry date for an OFFERED Execution.
      *
      */
-    public OffsetDateTime getExpires();
+    public Instant getExpires();
     
     /**
      * Get the Executable entity.

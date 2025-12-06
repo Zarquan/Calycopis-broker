@@ -288,39 +288,39 @@ public class ComputeResourceOfferFactoryImpl
                 SELECT
                     StartRange.StartRow AS StartRow,
                     COUNT(ExecutionBlocks.BlockStart) AS RowCount,
-                    (:totalcores  - IfNull(sum(ExecutionBlocks.UsedCores),  0)) AS FreeCores,
-                    (:totalmemory - IfNull(sum(ExecutionBlocks.UsedMemory), 0)) AS FreeMemory
+                    (:totalcores  - COALESCE(sum(ExecutionBlocks.UsedCores),  0)) AS FreeCores,
+                    (:totalmemory - COALESCE(sum(ExecutionBlocks.UsedMemory), 0)) AS FreeMemory
                 FROM
                     (
                     SELECT
-                        x + :rangeoffset AS StartRow
+                        generate_series + :rangeoffset AS StartRow
                     FROM
-                        SYSTEM_RANGE(:rangestart, :rangeend)
+                         generate_series(:rangestart, :rangeend)
                     ) AS StartRange
                 LEFT OUTER JOIN
                     ExecutionBlocks
                 ON  (
-                        (ExecutionBlocks.BlockStart <= StartRange.StartRow)
-                        AND
-                        ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
-                        )
+                        (ExecutionBlocks.BlockStart <= StartRange.StartRow)
+                    AND
+                        ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
+                    )
                 GROUP BY
                     StartRange.StartRow
                 ),
             ConsecutiveBlocks AS (
                 SELECT
                     AvailableBlocks.StartRow,
-                    (AvailableBlocks.StartRow + 1) -
-                        (
-                        ROW_NUMBER() OVER (
-                            PARTITION BY (
-                                AvailableBlocks.FreeCores  >= :mincores
-                                AND
-                                AvailableBlocks.FreeMemory >= :minmemory
-                                )
-                            ORDER BY AvailableBlocks.StartRow
-                            )
-                        ) AS BlockGroup,
+                    (AvailableBlocks.StartRow + 1) -
+                        (
+                        ROW_NUMBER() OVER (
+                            PARTITION BY (
+                                AvailableBlocks.FreeCores  >= :mincores
+                                AND
+                                AvailableBlocks.FreeMemory >= :minmemory
+                                )
+                            ORDER BY AvailableBlocks.StartRow
+                            )
+                        ) AS BlockGroup,
                     FreeCores,
                     FreeMemory
                 FROM
@@ -358,9 +358,9 @@ public class ComputeResourceOfferFactoryImpl
                     CombinedBlocks,
                     (
                     SELECT
-                        x AS n
+                        generate_series AS n
                     FROM
-                        SYSTEM_RANGE(1, :maxblocklength)
+                        generate_series(1, :maxblocklength)
                     ) AS Numbers
                 WHERE
                     (CombinedBlocks.BlockStart + (:maxblocklength * (n - 1))) < (BlockStart + BlockLength)
@@ -374,7 +374,7 @@ public class ComputeResourceOfferFactoryImpl
                     SplitBlocks.FreeMemory
                 FROM
                     AvailableBlocks
-                JOIN
+                CROSS JOIN
                     SplitBlocks
                 WHERE
                     AvailableBlocks.StartRow >= SplitBlocks.BlockStart
@@ -386,11 +386,11 @@ public class ComputeResourceOfferFactoryImpl
                     SplitBlocks.BlockLength <= :maxblocklength
                 ),
             GroupedBlocks AS (
-                SELECT
-                    MatchingBlocks.BlockStart,
-                    MatchingBlocks.BlockLength,
-                    MIN(MatchingBlocks.FreeCores)  AS FreeCores,
-                    MIN(MatchingBlocks.FreeMemory) AS FreeMemory
+                SELECT
+                    MatchingBlocks.BlockStart,
+                    MatchingBlocks.BlockLength,
+                    MIN(MatchingBlocks.FreeCores)  AS FreeCores,
+                    MIN(MatchingBlocks.FreeMemory) AS FreeMemory
                 FROM
                     MatchingBlocks
                 GROUP BY
@@ -399,16 +399,16 @@ public class ComputeResourceOfferFactoryImpl
                 ),
             ScaledBlocks AS (
                 SELECT
-                    GroupedBlocks.BlockStart,
-                    GroupedBlocks.BlockLength,
+                    GroupedBlocks.BlockStart,
+                    GroupedBlocks.BlockLength,
                     LEAST(
-                        :maxcores,
-                        GroupedBlocks.FreeCores
-                        ) AS BlockCores,
+                        :maxcores,
+                        GroupedBlocks.FreeCores
+                        ) AS BlockCores,
                     LEAST(
-                        :maxmemory,
-                        GroupedBlocks.FreeMemory
-                        ) AS BlockMemory
+                        :maxmemory,
+                        GroupedBlocks.FreeMemory
+                        ) AS BlockMemory
                 FROM
                     GroupedBlocks
                 ),

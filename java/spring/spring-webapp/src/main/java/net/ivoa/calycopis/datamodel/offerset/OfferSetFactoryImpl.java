@@ -25,7 +25,7 @@
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -77,13 +77,13 @@ public class OfferSetFactoryImpl
     public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest)
     	{
     	OfferSetEntity offersetEntity = new OfferSetEntity(
-    	    // hackfix    
+    	    // tempfix    
 	        // offersetRequest.getName(),
             // offersetRequest.getDescription(),
     	    "no-name",
     	    "no-description",
-	        OffsetDateTime.now(),
-	        OffsetDateTime.now().plusSeconds(
+    	    Instant.now(),
+    	    Instant.now().plusSeconds(
                 DEFAULT_EXPIRY_TIME_SECONDS
                 )
 	        );

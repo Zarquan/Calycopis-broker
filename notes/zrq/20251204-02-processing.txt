@@ -99,28 +99,28 @@
 
     >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
     >   Date:   Tue Nov 25 15:36:54 2025 +0000
-    >   
+    >
     >       remove spurious file
-    >   
+    >
     >   commit 66b7f16feaf10dc382faf95fa1683b9934b28a1c
     >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
     >   Date:   Tue Nov 25 15:36:22 2025 +0000
-    >   
+    >
     >       remove spurious name fields
-    >   
+    >
     >   commit 39b3e0a4c12ba17e16aae893f4eeab07ea40eab6
     >   Author: Paul Harrison <paul.harrison@manchester.ac.uk>
     >   Date:   Tue Nov 25 15:30:10 2025 +0000
-    >   
+    >
     >       initial "obvious" $ref fixes
-    >   
+    >
     >   commit 1630083f33eacc840d73ab76a64b8347cb245175 (upstream/main, upstream/HEAD, origin/main, origin/HEAD, main)
     >   Merge: 11c6628 0eb68a3
     >   Author: Zarquan <Zarquan@users.noreply.github.com>
     >   Date:   Tue Nov 25 06:42:00 2025 +0000
-    >   
+    >
     >       Merge pull request #43 from Zarquan/20251120-zrq-schema-meta
-    >   
+    >
     >       20251120 zrq schema meta
     >   ....
     >   ....
@@ -144,7 +144,7 @@
     >              items:
     >   -            $ref: '#/components/schemas/AbstractOption'
     >   +            $ref: 'AbstractOption'
-    >   
+    >
     >        AbstractComponent:
     >          description: >-
     >   @@ -111,7 +111,7 @@ components:
@@ -300,7 +300,6 @@
     pushd "$(mktemp --directory)"
 
     cat > "001-offerset-request.yaml" << EOF
-kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0
 executable:
   kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
   image:

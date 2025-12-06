@@ -71,7 +71,7 @@ implements TestProcessor
             try {
                 log.debug("Processing task [{}] sleep", this.uuid);
                 Thread.sleep(
-                    (long) (Math.random() * 5000)
+                    (long) (Math.random() * 500)
                     );
                 log.debug("Processing task [{}] awake", this.uuid);
                 }

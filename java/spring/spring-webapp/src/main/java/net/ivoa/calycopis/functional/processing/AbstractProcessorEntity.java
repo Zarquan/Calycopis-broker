@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.functional.processing;
 
 import java.net.URI;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import jakarta.persistence.Entity;
@@ -89,23 +89,23 @@ implements AbstractProcessor
         return this.phase;
         }
 
-    private OffsetDateTime created;
+    private Instant created;
     @Override
-    public OffsetDateTime getCreated()
+    public Instant getCreated()
         {
         return this.created;
         }
 
-    private OffsetDateTime modified;
+    private Instant modified;
     @Override
-    public OffsetDateTime getModified()
+    public Instant getModified()
         {
         return this.modified;
         }
 
-    private OffsetDateTime activation;
+    private Instant activation;
     @Override
-    public OffsetDateTime getActivation()
+    public Instant getActivation()
         {
         return this.activation;
         }
@@ -128,7 +128,7 @@ implements AbstractProcessor
     public void activate(int delay, boolean reset)
         {
         this.phase = ProcessorPhase.ACTIVE;
-        this.activation = OffsetDateTime.now().plusSeconds(delay);
+        this.activation = Instant.now().plusSeconds(delay);
         if (reset)
             {
             this.reset();
