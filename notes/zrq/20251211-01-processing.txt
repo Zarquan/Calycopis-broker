@@ -1,0 +1,190 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Iterative design steps ..
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+
+    Multiple Activations per Component, can be picked up by different threads.
+    Analogous to multiple HttpRequests for the same Component.
+
+    Potential lock up if we get entangled requests.
+
+        Request #1 - Storage resource links to Data resource
+        Request #2 - Data resource links to Storage resource
+
+    Why is this not a problem with HttpRequests ?
+    .. because the requests would trigger an Exception ?
+
+    Difference between Activations and HttpRequests,
+    A HttpRequest contains details about the Action to perform.
+    An Activation doesn't contain any details of what needs to be done.
+    Activation relies on deducing the Action based on current state.
+
+    If we have multiple Activations on multiple threads will they cause conflict ?
+
+
+# -----------------------------------------------------
+
+
+    Httprequest
+    ActionRequest
+    ActionRequestEntity
+    ActionRequestFactory
+    ActionRequestFactoryImpl
+    ActionRequestRepository
+        URI kind
+        ...
+
+    ComponentActionRequest
+    extends ActionRequest
+    ComponentActionRequestEntity
+    extends ActionRequestEntity
+        URI kind
+        Component.uuid
+
+
+    ActionRequestProcessingService
+
+        @Scheduled
+        loop()
+
+            @Transactional
+            ActionRequest.uuid = findNext()
+
+            @Transactional
+            Action action = preProcess(ActionRequest.uuid)
+
+                ActionRequest request = requestRepo.findById(
+                    ActionRequest.uuid
+                    )
+                Component component = componentRepo.findById(
+                    request.componentId
+                    )
+                Action action = component.preProcess(
+                    request
+                    )
+                ....
+                ....
+
+            action.process()
+                ....
+                ....
+
+            @Transactional
+            postProcess(ActionRequest.uuid, action)
+
+                ActionRequest request = requestRepo.findById(
+                    ActionRequest.uuid
+                    )
+                Component component = componentRepo.findById(
+                    request.componentId
+                    )
+                ....
+                ....
+
+
+    Where does SessionEntity get actionFactory
+    Where does StorageEntity get actionFactory
+    pass actionFactory as a parameter
+
+    SessionEntity.update(final ActionRequestFactory actionFactory) {
+        {
+        case ACCEPT;:
+            accept(actionFactory)
+
+    SessionEntity.accept(final ActionRequestFactory actionFactory) {
+        {
+        this.phase = ACCEPTED
+        // Add an Action to the processing queue.
+        actionFactory.create(
+            AcceptSessionRequest.kind,
+            this
+            )
+
+    SessionActionFactory.create(
+        URI kind,
+        SessionEntity session
+        ){
+        switch(kind)
+            {
+            case AcceptSessionRequest.kind:
+                return repository.save(
+                    new AcceptSessionRequest(
+                        session
+                        )
+                    )
+            }
+        }
+
+    ActionRequestProcessingService
+
+        Action preProcess()
+            {
+            ....
+            ....
+            Action action = component.preProcess(
+                actionFactory,
+                request
+                )
+            ....
+            ....
+            }
+
+    SessionEntity
+
+        Action preProcess(
+            final ActionFactory actionFactory,
+            final ActionRequest request
+            ){
+            ....
+            ....
+            switch(request.getKind())
+                {
+                case AcceptSessionRequest.kind :
+                    this.phase = PREPARING
+                    // Add an ActionRequest to the processing queue for each storage resource.
+                    foreach (Storage)
+                        actionFactory.create(
+                            PrepareStorageRequest.kind,
+                            storage
+                            )
+
+                }
+            ....
+            ....
+            }
+
+
+
+
+

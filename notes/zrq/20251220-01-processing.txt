@@ -1,0 +1,370 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implement the processing request approach.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=processing-requests
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run our containers in a Podman Pod.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod calycopis-pod \
+        --expose 8082 \
+        --name calycopis-dev \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@calycopis-dev]
+
+    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@calycopis-dev]
+
+        source=/trebula/schema/v1.0
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/execution-broker.yaml" \
+            "${target}/execution-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@calycopis-dev]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@calycopis-dev]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@calycopis-dev]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        calycopis-dev \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Run some tests
+#[root@container]
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+        #
+        # Create a new offerset.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '.'
+
+        #
+        # Accept the first offer.
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Wrap the steps in a function and call it lots of times.
+#[root@container]
+
+    createnew()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml"
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "$(yq '.offers[0].meta.url' '002-offerset-response.yaml')" \
+        > "004-accept-00-response.yaml"
+        }
+
+
+    for w in {1..10}
+    do
+        for x in {1..10}
+        do
+            for y in {1..10}
+            do
+                echo "[${w}][${x}][${y}]"
+                createnew
+            done
+            sleep 10
+        done
+        sleep 60
+    done
+
+
+# -----------------------------------------------------
+# Run the PostgreSQL client in the database container ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        postgresql \
+            bash
+
+        psql --host localhost --username albert calycopis
+
+    >   psql (18.1 (Debian 18.1-1.pgdg13+2))
+    >   Type "help" for help.
+    >   ....
+    >   ....
+
+
+    SELECT
+        *
+    FROM
+        preparesessionrequests
+    JOIN
+        sessionprocessingrequests
+    ON
+        preparesessionrequests.uuid = sessionprocessingrequests.uuid
+    JOIN
+        processingrequests
+    ON
+        sessionprocessingrequests.uuid = processingrequests.uuid
+        ;
+
+    >   ....
+    >   ....
+
+
+    SELECT
+        *
+    FROM
+        prepareexecutablerequests
+    JOIN
+        executableprocessingrequests
+    ON
+        prepareexecutablerequests.uuid = executableprocessingrequests.uuid
+    JOIN
+        processingrequests
+    ON
+        executableprocessingrequests.uuid = processingrequests.uuid
+        ;
+
+    >   ....
+    >   ....
+
+
+    SELECT
+        *
+    FROM
+        preparestoragerequests
+    JOIN
+        storageprocessingrequests
+    ON
+        preparestoragerequests.uuid = storageprocessingrequests.uuid
+    JOIN
+        processingrequests
+    ON
+        storageprocessingrequests.uuid = processingrequests.uuid
+        ;
+
+    >   ....
+    >   ....
+
+
+
