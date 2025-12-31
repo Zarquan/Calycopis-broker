@@ -27,7 +27,9 @@ import java.util.concurrent.Executor;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,6 +51,14 @@ public class AsyncConfiguration
         super();
         log.info("AsyncConfiguration created");
         
+        }
+
+    // https://stackoverflow.com/a/45174389
+    @Bean(name = "TaskScheduler-55")
+    public TaskScheduler taskScheduler() {
+        final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(10);
+        return scheduler;
         }
 
     @Bean(name = "TaskExecutor-21")
