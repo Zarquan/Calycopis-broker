@@ -23,10 +23,10 @@
 
 package net.ivoa.calycopis.functional.platfom.canfar;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.Platform;
+import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
- * 
+ *
  */
 public interface CanfarPlatform
 extends Platform

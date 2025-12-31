@@ -26,12 +26,13 @@ package net.ivoa.calycopis.functional.platfom;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
 /**
  * 
  */
 public interface Platform
-extends FactoryBase
+extends FactoryBase, RequestProcessingPlatform
     {
     /**
      * Get the DockerContainerEntityFactory for this platform.
@@ -44,5 +45,5 @@ extends FactoryBase
      *
      */
     public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
-        
+    
     }

@@ -23,20 +23,13 @@
 
 package net.ivoa.calycopis.functional.platfom.podman;
 
-import net.ivoa.calycopis.datamodel.executable.docker.podman.PodmanDockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.jupyter.podman.PodmanJupyterNotebookEntityFactory;
 import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
- * 
+ *
  */
 public interface PodmanPlatform
 extends Platform
     {
-    @Override
-    public PodmanDockerContainerEntityFactory getDockerContainerEntityFactory();
-
-    @Override
-    public PodmanJupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
 
     }
