@@ -91,12 +91,12 @@ public class SimpleExecutionSessionEntity
     /**
      * Protected constructor, used to create an example for the find method.
      *
-     */
     protected SimpleExecutionSessionEntity(final IvoaSimpleExecutionSessionPhase phase)
         {
         super();
         this.phase = phase;
         }
+     */
     
     /**
      * Protected constructor with parent.
@@ -129,7 +129,7 @@ public class SimpleExecutionSessionEntity
         // TODO This is where we need to have the phase transition checking.
         this.phase = newphase;
         }
-    
+
     @Column(name = "expires")
     private Instant expires;
     @Override
