@@ -40,7 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
  * 
  */
 @Slf4j
-public abstract class JupyterNotebookValidatorImpl
+public class JupyterNotebookValidatorImpl
 extends AbstractValidatorImpl
 implements JupyterNotebookValidator
     {
@@ -211,11 +211,15 @@ implements JupyterNotebookValidator
         }
 
     /*
-     * Platform dependent prepare time.
+     * TODO This will be platform dependent.
      * 
      */
+    public static final Long DEFAULT_PREPARE_TIME = 45L;
     @Deprecated
-    protected abstract Long predictPrepareTime(final IvoaJupyterNotebook requested);
+    protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
 
     }
 
