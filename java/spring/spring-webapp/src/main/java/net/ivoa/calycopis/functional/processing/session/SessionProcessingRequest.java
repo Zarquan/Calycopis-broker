@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 
 /**
@@ -33,6 +33,6 @@ public interface SessionProcessingRequest
 extends ProcessingRequest
     {
 
-    public AbstractExecutionSession getSession();
+    public SimpleExecutionSession getSession();
     
     }
