@@ -32,8 +32,8 @@ import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.processing.TestProcessorEntity;
-import net.ivoa.calycopis.functional.processing.TestProcessorFactory;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.session.PrepareSessionRequest;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
@@ -48,17 +48,18 @@ extends FactoryBaseImpl
 implements SimpleExecutionSessionEntityUpdateHandler
     {
 
+    private final Platform platform;
+
     private final SimpleExecutionSessionEntityRepository sessionRepository;
-    private final TestProcessorFactory testProcessorFactory;
     
     @Autowired
     public SimpleExecutionSessionEntityUpdateHandlerImpl(
         final SimpleExecutionSessionEntityRepository repository,
-        final TestProcessorFactory testProcessorFactory
+        final Platform platform
         ){
         super();
         this.sessionRepository = repository;
-        this.testProcessorFactory = testProcessorFactory;
+        this.platform = platform;
         }
 
     @Override
@@ -207,19 +208,12 @@ implements SimpleExecutionSessionEntityUpdateHandler
                         }
                     }
 
-                log.debug("Creating processor for session [{}]", entity.getUuid());
-                TestProcessorEntity processor = testProcessorFactory.create();
-                log.debug("Created processor [{}] for session [{}]", processor.getUuid() , entity.getUuid());
-                processor.activate();
-/*
- * 
-                log.debug("Calling async handler for accepted session [{}]", entity.getUuid());
-                asyncHandler.activate(
-                    entity.getUuid()
+                log.debug("Creating prepare request for session [{}]", entity.getUuid());
+                PrepareSessionRequest request = platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                    entity
                     );
-                log.debug("Back from async handler for accepted session [{}]", entity.getUuid());
- *                 
- */
+                log.debug("Created prepare request [{}] for session [{}]", request.getUuid() , entity.getUuid());
+
                 break;
             default:
                 // We need to be able to return some error messages here.
