@@ -77,7 +77,7 @@ implements AbstractStorageResource
      * 
      */
     protected AbstractStorageResourceEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -86,12 +86,10 @@ implements AbstractStorageResource
             );
 
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity)session).addStorageResource(
-                this
-                );
-            }
+        this.session.addStorageResource(
+            this
+            );
+
         
         if (session instanceof ScheduledExecutionSessionEntity)
             {
@@ -127,10 +125,10 @@ implements AbstractStorageResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
+    private SimpleExecutionSessionEntity session;
 
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }

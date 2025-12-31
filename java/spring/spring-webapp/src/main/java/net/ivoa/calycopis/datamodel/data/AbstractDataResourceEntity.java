@@ -71,7 +71,7 @@ implements AbstractDataResource
      * 
      */
     protected AbstractDataResourceEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaComponentMetadata meta
@@ -81,15 +81,12 @@ implements AbstractDataResource
             );
 
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity)session).addDataResource(
-                this
-                );
-            }
+        this.session.addDataResource(
+            this
+            );
 
         this.storage = storage;
-        storage.addDataResource(
+        this.storage.addDataResource(
             this
             );
 
@@ -114,10 +111,10 @@ implements AbstractDataResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
+    private SimpleExecutionSessionEntity session;
     
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session ;
         }

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -26,7 +27,7 @@ extends FactoryBase
      *
      */
     public DockerContainerEntity create(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         );
 

@@ -48,7 +48,7 @@ extends LifecycleComponentEntity
      * 
      */
     protected AbstractExecutableEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -57,13 +57,11 @@ extends LifecycleComponentEntity
             );
 
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity) session).setExecutable(
-                this
-                );
-            }
+        this.session.setExecutable(
+            this
+            );
 
+        // TODO Get rid of this nasty class cast.
         if (session instanceof ScheduledExecutionSessionEntity)
             {
             this.init(
@@ -98,10 +96,10 @@ extends LifecycleComponentEntity
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
+    private SimpleExecutionSessionEntity session;
 
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }

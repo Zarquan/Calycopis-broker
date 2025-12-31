@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -64,7 +65,7 @@ public class SimpleStorageResourceEntityFactoryImpl
         }
 
     public SimpleStorageResourceEntity create(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result)
         {
         return this.repository.save(

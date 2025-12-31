@@ -30,6 +30,7 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 
 /**
  * 
@@ -53,6 +54,6 @@ public interface AbstractComputeResource
      * Get the parent Session.  
      *
      */
-    public AbstractExecutionSession getSession();
+    public SimpleExecutionSession getSession();
 
     }

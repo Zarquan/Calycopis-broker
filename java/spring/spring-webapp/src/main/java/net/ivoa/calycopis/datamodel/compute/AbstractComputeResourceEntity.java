@@ -69,7 +69,7 @@ implements AbstractComputeResource
      * 
      */
     protected AbstractComputeResourceEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
         final IvoaComponentMetadata meta
@@ -79,12 +79,9 @@ implements AbstractComputeResource
             );
 
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity) session).setComputeResource(
-                this
-                );
-            }
+        this.session.setComputeResource(
+            this
+            );
         
         //
         // Start preparing before the offer is available.
@@ -109,10 +106,10 @@ implements AbstractComputeResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
+    private SimpleExecutionSessionEntity session;
 
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }
