@@ -64,8 +64,8 @@ public class ComputeResourceOfferFactoryImpl
      * TODO make this configurable.
      *
      */
-    //public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
-    public static final Long BLOCK_STEP_SECONDS  = 60L ;
+    public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
+    //public static final Long BLOCK_STEP_SECONDS  = 60L ;
 
     /**
      * How far to look ahead.
@@ -73,7 +73,8 @@ public class ComputeResourceOfferFactoryImpl
      * TODO This should be set by the Duration of the requested start Interval.
      *
      */
-    public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L;
+    //public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L;
+    public static final Long BLOCK_RANGE_SECONDS = 2L * 60L * 60L;
 
     /**
      * The default start time range if none is specified in the request.
@@ -471,7 +472,7 @@ public class ComputeResourceOfferFactoryImpl
                 )
             )
 
-            SELECT * FROM CombinedQuery
+            SELECT * FROM EarlyBlocks
 
             """;
 
