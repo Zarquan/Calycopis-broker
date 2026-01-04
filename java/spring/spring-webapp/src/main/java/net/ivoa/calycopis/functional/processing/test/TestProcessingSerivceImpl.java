@@ -36,12 +36,7 @@ import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingService;
 import net.ivoa.calycopis.functional.processing.ProcessingServiceImpl;
-import net.ivoa.calycopis.functional.processing.compute.PrepareComputeResourceRequest;
-import net.ivoa.calycopis.functional.processing.data.PrepareDataResourceRequest;
-import net.ivoa.calycopis.functional.processing.executable.PrepareExecutableRequest;
-import net.ivoa.calycopis.functional.processing.session.PrepareSessionRequest;
-import net.ivoa.calycopis.functional.processing.session.SessionAvailableRequest;
-import net.ivoa.calycopis.functional.processing.storage.PrepareStorageResourceRequest;
+import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest;
 
 /**
  * 
@@ -66,12 +61,7 @@ implements ProcessingService
     public List<URI> getKinds()
         {
         return List.of(
-            PrepareSessionRequest.KIND,
-            PrepareStorageResourceRequest.KIND,
-            PrepareDataResourceRequest.KIND,
-            PrepareComputeResourceRequest.KIND,
-            PrepareExecutableRequest.KIND,
-            SessionAvailableRequest.KIND
+            SessionProcessingRequest.KIND
             );
         }
 
@@ -84,7 +74,7 @@ implements ProcessingService
         }
     
     @Override
-    protected ProcessingAction preProcess(ProcessingRequestEntity request)
+    protected ProcessingAction preProcess(final ProcessingRequestEntity request)
         {
         log.debug("Service [{}] pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         request.preProcess(
@@ -94,11 +84,12 @@ implements ProcessingService
         }
 
     @Override
-    protected void postProcess(ProcessingRequestEntity request, ProcessingAction action)
+    protected void postProcess(final ProcessingRequestEntity request, ProcessingAction action)
         {
         log.debug("Service [{}] post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         request.postProcess(
-            this.platform
+            this.platform,
+            action
             );
         }
     }

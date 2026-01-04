@@ -23,15 +23,11 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
-import java.net.URI;
-
 /**
  * 
  */
-public interface SessionAvailableRequest
+public interface ReleaseSessionRequest
 extends SessionProcessingRequest
     {
-    
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.session-available-request");
 
     }

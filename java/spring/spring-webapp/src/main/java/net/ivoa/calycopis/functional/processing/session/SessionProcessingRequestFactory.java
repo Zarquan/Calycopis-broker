@@ -23,8 +23,7 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
@@ -34,12 +33,16 @@ public interface SessionProcessingRequestFactory
 extends FactoryBase
     {
 
-    public PrepareSessionRequest createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
+    public PrepareSessionRequest  createPrepareSessionRequest(final ScheduledExecutionSessionEntity session);
 
-    public CancelSessionRequest  createCancelSessionRequest(final SimpleExecutionSessionEntity session);
+    public StartSessionRequest    createStartSessionRequest(final ScheduledExecutionSessionEntity session);
 
-    public FailSessionRequest    createFailSessionRequest(final SimpleExecutionSessionEntity session);
+    public MonitorSessionRequest  createMonitorSessionRequest(final ScheduledExecutionSessionEntity session);
 
-    public SessionAvailableRequest createSessionAvailableRequest(final SimpleExecutionSessionEntity session);
+    public ReleaseSessionRequest  createReleaseSessionRequest(final ScheduledExecutionSessionEntity session);
+
+    public CancelSessionRequest  createCancelSessionRequest(final ScheduledExecutionSessionEntity session);
+
+    public FailSessionRequest    createFailSessionRequest(final ScheduledExecutionSessionEntity session);
 
     }

@@ -25,7 +25,6 @@ package net.ivoa.calycopis.datamodel.component;
 
 import java.net.URI;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
 

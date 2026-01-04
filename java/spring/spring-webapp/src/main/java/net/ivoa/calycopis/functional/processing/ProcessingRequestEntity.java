@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.functional.processing;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -108,9 +109,10 @@ implements ProcessingRequest
 
     public void activate()
         {
-        this.activate(0, false);
+        this.activate(0);
         }
 
+    @Deprecated
     public void activate(boolean reset)
         {
         this.activate(0, reset);
@@ -118,20 +120,23 @@ implements ProcessingRequest
 
     public void activate(int delay)
         {
-        this.activate(delay, false);
+        this.activate(Duration.ofSeconds(delay));
         }
 
+    @Deprecated
     public void activate(int delay, boolean reset)
         {
         this.activation = Instant.now().plusSeconds(delay);
         }
 
-    @Override
-    public void postProcess(final RequestProcessingPlatform platform)
+    public void activate(final Duration delay)
         {
-        log.debug("post-processing request [{}]", this.getUuid());
-        //
-        // We are done so delete this request from the queue.
+        this.activation = Instant.now().plus(delay);
+        }
+    
+    protected void done(final RequestProcessingPlatform platform)
+        {        
+        log.debug("ProcessingRequest [{}][{}] done", this.getUuid(), this.getClass().getSimpleName());
         platform.getProcessingRequestFactory().delete(
             this
             );

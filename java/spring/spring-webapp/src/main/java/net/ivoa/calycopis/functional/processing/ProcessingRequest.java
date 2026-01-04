@@ -32,7 +32,7 @@ import java.util.UUID;
  */
 public interface ProcessingRequest
     {
-    
+
     public URI  getKind();
     
     public UUID getUuid();
@@ -44,10 +44,9 @@ public interface ProcessingRequest
     public Instant getModified();
 
     public Instant getActivationTime();
-
     
     public ProcessingAction preProcess(final RequestProcessingPlatform platform);
 
-    public void postProcess(final RequestProcessingPlatform platform);
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action);
     
     }

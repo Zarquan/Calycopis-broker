@@ -21,28 +21,13 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing;
-
-import java.util.UUID;
+package net.ivoa.calycopis.functional.processing.session;
 
 /**
- * An external action to be performed outside of any transaction context.
  * 
  */
-public interface ProcessingAction
+public interface MonitorSessionRequest
+extends SessionProcessingRequest
     {
-    public static final ProcessingAction NO_ACTION = null ;
 
-    /**
-     * Get the UUID of the original ActionRequest.
-     *  
-     */
-    public UUID getRequestUuid();
-    
-    /**
-     * Perform the action, outside any transaction context.
-     * 
-     */
-    public boolean process();
-    
     }

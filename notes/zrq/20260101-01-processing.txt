@@ -32,7 +32,7 @@
         Work in progress ...
 
 # -----------------------------------------------------
-# TODO Change Session to Execution, because CANFAR has sessions, and because we are ExecutionBroker, not SessionBroker.
+# TODO Change Session to Execution, because we are ExecutionBroker, not SessionBroker.
 # TODO Change SessionPhase INITIAL to INITIALIZING
 # TODO Deprecate RUNNING in both lists
 #
@@ -72,19 +72,19 @@
     PrepareSessionRequest
         preProcess()
             switch(session.getPhase())
-                INITIAL
-                OFFERED
-                REJECTED
-                EXPIRED
+                case IvoaSimpleExecutionSessionPhase.INITIAL:
+                case IvoaSimpleExecutionSessionPhase.OFFERED:
+                case IvoaSimpleExecutionSessionPhase.REJECTED:
+                case IvoaSimpleExecutionSessionPhase.EXPIRED:
                     fail(
                         "[${}] shouldn't get called if phase is stll [${}]",
                         this.getClass().getSimpleName(),
                         session.getPhase()
                         )
-                    return NO_ACTION
+                    return NO_ACTION ;
 
-                ACCEPTED
-                WAITING
+                case IvoaSimpleExecutionSessionPhase.ACCEPTED:
+                case IvoaSimpleExecutionSessionPhase.WAITING:
                     // If we don't need to start preparing yet.
                     if (session.getPrepareStart() > now())
                         session.setPhase(WAITING)
@@ -96,54 +96,59 @@
                         schedule PrepareExecutableRequest()
                         schedule PrepareStorageRequest()
                     // No action needed at this point.
-                    return NO_ACTION
+                    return NO_ACTION ;
 
-                PREPARING
+                case IvoaSimpleExecutionSessionPhase.PREPARING:
                     // Phase is already PREPARING, no action needed.
-                    return no action
+                    return NO_ACTION ;
 
-                AVAILABLE
-                RUNNING
-                RELEASING
-                COMPLETED
-                CANCELLED
-                FAILED
+                case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+                case IvoaSimpleExecutionSessionPhase.RUNNING:
+                case IvoaSimpleExecutionSessionPhase.RELEASING:
+                case IvoaSimpleExecutionSessionPhase.COMPLETED:
+                case IvoaSimpleExecutionSessionPhase.CANCELLED:
+                case IvoaSimpleExecutionSessionPhase.FAILED:
                     // Phase is past PREPARING, no action needed.
-
-                    return no action
+                    return NO_ACTION ;
 
     --------
+
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform)
+        {
+        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+
 
     PrepareSessionRequest
         postProcess()
             switch(session.getPhase())
-                INITIAL
-                OFFERED
-                REJECTED
-                EXPIRED
+                case IvoaSimpleExecutionSessionPhase.INITIAL:
+                case IvoaSimpleExecutionSessionPhase.OFFERED:
+                case IvoaSimpleExecutionSessionPhase.REJECTED:
+                case IvoaSimpleExecutionSessionPhase.EXPIRED:
                     fail(
                         "[${}] shouldn't get called if phase is stll [${}]",
                         this.getClass().getSimpleName(),
                         session.getPhase()
                         )
 
-                WAITING
+                case IvoaSimpleExecutionSessionPhase.WAITING:
                     // Phase is still waiting, reschedule this request.
                     reschedule(
                         10, TimeUnit.SECONDS
                         )
 
-                PREPARING
+                case IvoaSimpleExecutionSessionPhase.PREPARING:
                     // Phase has been set to PREPARING, schedule a start.
                     schedule StartSessionRequest()
                     done()
 
-                AVAILABLE
-                RUNNING
-                RELEASING
-                COMPLETED
-                CANCELLED
-                FAILED
+                case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+                case IvoaSimpleExecutionSessionPhase.RUNNING:
+                case IvoaSimpleExecutionSessionPhase.RELEASING:
+                case IvoaSimpleExecutionSessionPhase.COMPLETED:
+                case IvoaSimpleExecutionSessionPhase.CANCELLED:
+                case IvoaSimpleExecutionSessionPhase.FAILED:
                     // Phase is past PREPARING, no action needed.
                     done()
 

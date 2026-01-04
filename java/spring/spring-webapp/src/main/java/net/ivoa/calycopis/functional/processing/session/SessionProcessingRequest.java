@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
+import java.net.URI;
+
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 
@@ -32,6 +34,8 @@ import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 public interface SessionProcessingRequest
 extends ProcessingRequest
     {
+
+    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.session-processing-request");
 
     public SimpleExecutionSession getSession();
     

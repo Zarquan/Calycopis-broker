@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;

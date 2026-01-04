@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -23,26 +23,31 @@
 
 package net.ivoa.calycopis.functional.processing;
 
-import java.util.UUID;
-
 /**
- * An external action to be performed outside of any transaction context.
  * 
  */
-public interface ProcessingAction
+public class ProcessingRequestException extends Exception
     {
-    public static final ProcessingAction NO_ACTION = null ;
 
-    /**
-     * Get the UUID of the original ActionRequest.
-     *  
-     */
-    public UUID getRequestUuid();
+    private static final long serialVersionUID = 1L;
     
-    /**
-     * Perform the action, outside any transaction context.
-     * 
-     */
-    public boolean process();
+    public ProcessingRequestException()
+        {
+        super();
+        }
+
+    public ProcessingRequestException(final String message) 
+        {
+        super(message);
+        }
     
+    public ProcessingRequestException(final String message, Object... args) 
+        {
+        super(
+            String.format(
+                message,
+                args
+                )
+            );
+        }
     }

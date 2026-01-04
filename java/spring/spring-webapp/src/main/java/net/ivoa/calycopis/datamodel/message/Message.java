@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.message;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.Map;
 
 import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;

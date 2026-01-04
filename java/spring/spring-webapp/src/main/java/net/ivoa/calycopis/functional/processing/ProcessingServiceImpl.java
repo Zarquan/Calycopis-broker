@@ -166,8 +166,8 @@ implements ProcessingService
             }
         }
     
-    protected abstract ProcessingAction preProcess(final ProcessingRequestEntity activation);
+    protected abstract ProcessingAction preProcess(final ProcessingRequestEntity request);
 
-    protected abstract void postProcess(final ProcessingRequestEntity activation, final ProcessingAction action);
+    protected abstract void postProcess(final ProcessingRequestEntity request, final ProcessingAction action);
 
     }

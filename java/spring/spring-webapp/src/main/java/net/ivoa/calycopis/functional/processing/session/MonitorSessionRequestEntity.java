@@ -21,17 +21,16 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.functional.processing.session;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
 /**
  * 
@@ -39,41 +38,44 @@ import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 @Slf4j
 @Entity
 @Table(
-    name = "podmandockercontainers"
+    name = "monitorsessionrequests"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class PodmanDockerContainerEntity
-    extends DockerContainerEntity
-    implements PodmanDockerContainer
+public class MonitorSessionRequestEntity
+extends SessionProcessingRequestEntity
+implements MonitorSessionRequest
     {
 
-    /**
-     * 
-     */
-    public PodmanDockerContainerEntity()
+    protected MonitorSessionRequestEntity()
         {
         super();
         }
 
-    /**
-     *
-     */
-    public PodmanDockerContainerEntity(
-        final SimpleExecutionSessionEntity session,
-        final AbstractExecutableValidator.Result result
-        ){
+    protected MonitorSessionRequestEntity(final ScheduledExecutionSessionEntity session)
+        {
         super(
-            session,
-            result
+            SessionProcessingRequest.KIND,
+            session
             );
         }
 
     @Override
-    protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
+    public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        super.fillBean(bean);
-        return bean;
+        log.debug("pre-processing session [{}]", session.getUuid());
+        //
+        // No further Action required.
+        return ProcessingAction.NO_ACTION ;
+        }
+
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+        {
+        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        this.done(
+            platform
+            );
         }
     }

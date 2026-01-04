@@ -28,7 +28,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
@@ -54,13 +54,12 @@ implements FailSessionRequest
         super();
         }
 
-    protected FailSessionRequestEntity(final SimpleExecutionSessionEntity session)
+    protected FailSessionRequestEntity(final ScheduledExecutionSessionEntity session)
         {
         super(
-            FailSessionRequest.KIND,
+            SessionProcessingRequest.KIND,
             session
             );
-        log.debug("Created FailSessionRequestEntity for session [{}]", session.getUuid());
         }
 
     @Override
@@ -91,14 +90,14 @@ implements FailSessionRequest
             case IvoaSimpleExecutionSessionPhase.CANCELLED:
             case IvoaSimpleExecutionSessionPhase.COMPLETED:
             case IvoaSimpleExecutionSessionPhase.FAILED:
-                log.debug("Unable to cancel, session [{}][{}] is already [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+                log.debug("Skipping FAIL for session [{}][{}], phase is already [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
                 // Nothing more required.
-                return null;
+                return ProcessingAction.NO_ACTION ;
                 
             default:
                 log.error("Unexpected phase [{}] for session [{}][{}]", this.session.getPhase(), this.session.getUuid(), this.session.getClass().getSimpleName());
                 // Nothing more required.
-                return null ;
+                return ProcessingAction.NO_ACTION ;
             }
         //
         // Set the session phase to FAILED.
@@ -107,13 +106,25 @@ implements FailSessionRequest
             );
         
         //
-        // Cancel all the components ...
-        platform.getComputeProcessingRequestFactory().createCancelComputeResourceRequest(
+        // Release all of the components ...
+        platform.getComputeProcessingRequestFactory().createReleaseComputeResourceRequest(
             this.session.getComputeResource()
             );
-
+        // TODO Release the Executable.
+        // TODO Release all the data resources.
+        // TODO Release all the storage resources.
+        
         //
-        // Nothing more required.
-        return null;
+        // No further Action required.
+        return ProcessingAction.NO_ACTION ;
+        }
+
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+        {
+        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        this.done(
+            platform
+            );
         }
     }

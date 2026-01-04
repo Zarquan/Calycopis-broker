@@ -23,8 +23,6 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
-import java.net.URI;
-
 /**
  * 
  */
@@ -32,6 +30,4 @@ public interface PrepareSessionRequest
 extends SessionProcessingRequest
     {
     
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.prepare-session-request");
-
     }

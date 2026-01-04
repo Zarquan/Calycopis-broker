@@ -33,9 +33,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
+import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * 
@@ -58,7 +60,7 @@ implements SessionProcessingRequest
         super();
         }
 
-    protected SessionProcessingRequestEntity(final URI kind, final SimpleExecutionSessionEntity session)
+    protected SessionProcessingRequestEntity(final URI kind, final ScheduledExecutionSessionEntity session)
         {
         super(kind);
         log.debug("Created SessionProcessingRequestEntity kind [{}] for session [{}]", kind, session.getUuid());
@@ -67,11 +69,30 @@ implements SessionProcessingRequest
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    protected SimpleExecutionSessionEntity session;
+    protected ScheduledExecutionSessionEntity session;
 
     @Override
-    public SimpleExecutionSessionEntity getSession()
+    public ScheduledExecutionSessionEntity getSession()
         {
         return this.session;
+        }
+
+    protected ProcessingAction failSession(final RequestProcessingPlatform platform)
+        {
+        if (this.session != null)
+            {
+            log.debug("Failing session [{}]", this.session.getUuid());
+            this.session.setPhase(
+                IvoaSimpleExecutionSessionPhase.FAILED
+                );
+            platform.getSessionProcessingRequestFactory().createFailSessionRequest(
+                this.session
+                );            
+            }
+        else {
+            log.debug("No session to fail");
+            }
+        // FailSessionRequest issued, no further Action required.
+        return ProcessingAction.NO_ACTION ;
         }
     }
