@@ -21,17 +21,21 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.executable;
+package net.ivoa.calycopis.functional.processing.component;
 
 import java.net.URI;
+
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 
 /**
  * 
  */
-public interface PrepareExecutableRequest
-extends ExecutableProcessingRequest
+public interface ComponentProcessingRequest
+extends ProcessingRequest
     {
+    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.component-processing-request");
     
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.prepare-executable-request");
+    public LifecycleComponent getComponent();
 
     }

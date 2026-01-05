@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,17 +20,25 @@
  *
  *
  */
-package net.ivoa.calycopis.functional.processing.executable;
 
-import java.util.UUID;
+package net.ivoa.calycopis.functional.processing.component;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
- * A SimpleStorageResource JpaRepository.
  *
  */
-public interface ExecutableProcessingRequestRepository
-extends JpaRepository<ExecutableProcessingRequestEntity, UUID>
+public interface ComponentProcessingRequestFactory
+extends FactoryBase
     {
+
+    public PrepareComponentRequestEntity createPrepareComponentRequest(final LifecycleComponentEntity component);
+
+    public ReleaseComponentRequestEntity createReleaseComponentRequest(final LifecycleComponentEntity component);
+
+    public CancelComponentRequestEntity createCancelComponentRequest(final LifecycleComponentEntity component);
+
+    public FailComponentRequestEntity createFailComponentRequest(final LifecycleComponentEntity component);
+    
     }

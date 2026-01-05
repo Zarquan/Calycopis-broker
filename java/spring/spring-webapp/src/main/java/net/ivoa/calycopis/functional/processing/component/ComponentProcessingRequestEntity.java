@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.storage;
+package net.ivoa.calycopis.functional.processing.component;
 
 import java.net.URI;
 
@@ -33,44 +33,44 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
 
 /**
- *
+ * 
  */
 @Slf4j
 @Entity
 @Table(
-    name = "storageprocessingrequests"
+    name = "componentprocessingrequests"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class StorageResourceProcessingRequestEntity
+public abstract class ComponentProcessingRequestEntity
 extends ProcessingRequestEntity
-implements StorageResourceProcessingRequest
+implements ComponentProcessingRequest
     {
 
-    protected StorageResourceProcessingRequestEntity()
+    protected ComponentProcessingRequestEntity()
         {
         super();
         }
 
-    protected StorageResourceProcessingRequestEntity(final URI kind, final AbstractStorageResourceEntity storage)
+    protected ComponentProcessingRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
         super(kind);
-        this.storage = storage;
+        this.component = component;
         }
 
-    @JoinColumn(name = "storage", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractStorageResourceEntity storage;
+    private LifecycleComponent component;
 
     @Override
-    public AbstractStorageResourceEntity getStorageResource()
+    public LifecycleComponent getComponent()
         {
-        return this.storage;
+        return this.component;
         }
     }
-

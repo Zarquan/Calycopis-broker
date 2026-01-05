@@ -21,17 +21,13 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.compute;
-
-import java.net.URI;
+package net.ivoa.calycopis.functional.processing.component;
 
 /**
  * 
  */
-public interface CancelComputeResourceRequest
-extends ComputeResourceProcessingRequest
+public interface PrepareComponentRequest
+extends ComponentProcessingRequest
     {
-    
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.cancel-compute-request");
 
     }

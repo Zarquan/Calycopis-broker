@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.functional.processing.compute;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
-import net.ivoa.calycopis.functional.processing.ProcessingRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
  */
-public interface ComputeResourceProcessingRequest extends ProcessingRequest
+public interface ComputeResourceProcessingRequest
+extends ComponentProcessingRequest
     {
 
     public AbstractComputeResource getComputeResource();

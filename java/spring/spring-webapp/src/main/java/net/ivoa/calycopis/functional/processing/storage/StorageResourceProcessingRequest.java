@@ -24,13 +24,13 @@
 package net.ivoa.calycopis.functional.processing.storage;
 
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
-import net.ivoa.calycopis.functional.processing.ProcessingRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
  */
 public interface StorageResourceProcessingRequest
-extends ProcessingRequest
+extends ComponentProcessingRequest
     {
 
     public AbstractStorageResource getStorageResource();

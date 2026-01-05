@@ -21,56 +21,64 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.data;
+package net.ivoa.calycopis.functional.processing.component;
 
 import java.net.URI;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
+import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 
 /**
- *
+ * 
  */
 @Slf4j
 @Entity
 @Table(
-    name = "dataprocessingrequests"
+    name = "cancelcomponentrequests"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class DataResourceProcessingRequestEntity
-extends ProcessingRequestEntity
-implements DataResourceProcessingRequest
+public abstract class CancelComponentRequestEntity
+extends ComponentProcessingRequestEntity
+implements CancelComponentRequest
     {
 
-    protected DataResourceProcessingRequestEntity()
+    protected CancelComponentRequestEntity()
         {
         super();
         }
 
-    protected DataResourceProcessingRequestEntity(final URI kind, final AbstractDataResourceEntity data)
+    protected CancelComponentRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
-        super(kind);
-        this.data = data;
+        super(
+            kind,
+            component
+            );
         }
-
-    @JoinColumn(name = "data", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractDataResourceEntity data;
 
     @Override
-    public AbstractDataResourceEntity getDataResource()
+    public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        return this.data;
+        // TODO Auto-generated method stub
+        return null;
         }
-    }
 
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+        {
+        // TODO Auto-generated method stub
+        }
+    
+    protected abstract ProcessingAction makeAction();
+
+    }

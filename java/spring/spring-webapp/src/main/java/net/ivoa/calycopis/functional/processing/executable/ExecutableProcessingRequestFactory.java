@@ -23,8 +23,13 @@
 
 package net.ivoa.calycopis.functional.processing.executable;
 
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.processing.component.CancelComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.FailComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.PrepareComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.ReleaseComponentRequest;
 
 /**
  *
@@ -33,8 +38,12 @@ public interface ExecutableProcessingRequestFactory
 extends FactoryBase
     {
 
-    public PrepareExecutableRequest createPrepareExecutableRequest(final AbstractExecutableEntity executable);
+    public PrepareComponentRequest createPrepareExecutableRequest(final AbstractExecutableEntity executable);
 
-    public void delete(final ExecutableProcessingRequest request);
+    public ReleaseComponentRequest createReleaseExecutableRequest(final AbstractExecutableEntity executable);
+
+    public CancelComponentRequest  createCancelExecutableRequest(final AbstractExecutableEntity executable);
+
+    public FailComponentRequest  createFailExecutableRequest(final AbstractExecutableEntity executable);
 
     }

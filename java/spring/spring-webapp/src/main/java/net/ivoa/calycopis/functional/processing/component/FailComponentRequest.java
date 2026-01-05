@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,17 +20,14 @@
  *
  *
  */
-package net.ivoa.calycopis.functional.processing.compute;
-
-import java.util.UUID;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+    
+package net.ivoa.calycopis.functional.processing.component;
 
 /**
- * A SimpleStorageResource JpaRepository.
- *
+ * 
  */
-public interface ComputeResourceProcessingRequestRepository
-extends JpaRepository<ComputeResourceProcessingRequestEntity, UUID>
+public interface FailComponentRequest
+extends ComponentProcessingRequest
     {
+
     }

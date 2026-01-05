@@ -25,6 +25,10 @@ package net.ivoa.calycopis.functional.processing.compute;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.processing.component.CancelComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.FailComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.PrepareComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.ReleaseComponentRequest;
 
 /**
  *
@@ -33,13 +37,12 @@ public interface ComputeResourceProcessingRequestFactory
 extends FactoryBase
     {
 
-    public PrepareComputeResourceRequest createPrepareComputeResourceRequest(final AbstractComputeResourceEntity compute);
+    public PrepareComponentRequest createPrepareComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
 
-    public CancelComputeResourceRequest  createCancelComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
+    public ReleaseComponentRequest createReleaseComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
 
-    public ReleaseComputeResourceRequest createReleaseComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
+    public CancelComponentRequest  createCancelComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
 
-    public void delete(final ComputeResourceProcessingRequest request);
-
+    public FailComponentRequest  createFailComputeResourceRequest(final AbstractComputeResourceEntity computeResource);
 
     }

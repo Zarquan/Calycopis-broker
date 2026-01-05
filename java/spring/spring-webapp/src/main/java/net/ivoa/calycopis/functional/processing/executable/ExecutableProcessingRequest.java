@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.functional.processing.executable;
 
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutable;
-import net.ivoa.calycopis.functional.processing.ProcessingRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
  */
-public interface ExecutableProcessingRequest extends ProcessingRequest
+public interface ExecutableProcessingRequest
+extends ComponentProcessingRequest
     {
 
     public AbstractExecutable getExecutable();

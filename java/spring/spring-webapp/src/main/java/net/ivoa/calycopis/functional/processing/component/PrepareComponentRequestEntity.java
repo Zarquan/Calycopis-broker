@@ -21,13 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.compute;
+package net.ivoa.calycopis.functional.processing.component;
+
+import java.net.URI;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
@@ -39,38 +43,42 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 @Slf4j
 @Entity
 @Table(
-    name = "releasecomputerequests"
+    name = "preparecomponentrequests"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class ReleaseComputeResourceRequestEntity
-extends ComputeResourceProcessingRequestEntity
-implements ReleaseComputeResourceRequest
+public abstract class PrepareComponentRequestEntity
+extends ComponentProcessingRequestEntity
+implements PrepareComponentRequest
     {
 
-    protected ReleaseComputeResourceRequestEntity()
+    protected PrepareComponentRequestEntity()
         {
         super();
         }
 
-    protected ReleaseComputeResourceRequestEntity(final AbstractComputeResourceEntity compute)
+    protected PrepareComponentRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
         super(
-            ReleaseComputeResourceRequest.KIND,
-            compute
+            kind,
+            component
             );
         }
 
     @Override
     public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        log.debug("Pre-processing request [{}][{}] for [{}][{}]", this.getUuid(), this.getClass().getSimpleName(), this.getComputeResource().getUuid(), getComputeResource().getClass().getSimpleName());
-        //
-        // Mark our resource as RELEASING.
-        this.getComputeResource().setPhase(IvoaLifecyclePhase.RELEASING);
-        //
-        // No additional action required.
+        // TODO Auto-generated method stub
         return null;
         }
+
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+        {
+        // TODO Auto-generated method stub
+        }
+    
+    protected abstract ProcessingAction makeAction();
+
     }

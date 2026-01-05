@@ -21,17 +21,13 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.data;
-
-import java.net.URI;
+package net.ivoa.calycopis.functional.processing.component;
 
 /**
  * 
  */
-public interface PrepareDataResourceRequest
-extends DataResourceProcessingRequest
+public interface CancelComponentRequest
+extends ComponentProcessingRequest
     {
-    
-    public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.prepare-data-request");
 
     }

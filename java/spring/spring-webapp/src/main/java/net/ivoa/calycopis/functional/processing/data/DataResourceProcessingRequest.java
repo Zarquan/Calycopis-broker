@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.functional.processing.data;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
-import net.ivoa.calycopis.functional.processing.ProcessingRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
  */
-public interface DataResourceProcessingRequest extends ProcessingRequest
+public interface DataResourceProcessingRequest
+extends ComponentProcessingRequest
     {
 
     public AbstractDataResource getDataResource();

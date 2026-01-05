@@ -21,13 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.compute;
+package net.ivoa.calycopis.functional.processing.component;
+
+import java.net.URI;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
@@ -39,47 +43,42 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 @Slf4j
 @Entity
 @Table(
-    name = "cancelcomputerequests"
+    name = "releasecomponentrequests"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class CancelComputeResourceRequestEntity
-extends ComputeResourceProcessingRequestEntity
-implements CancelComputeResourceRequest
+public abstract class ReleaseComponentRequestEntity
+extends ComponentProcessingRequestEntity
+implements ReleaseComponentRequest
     {
 
-    protected CancelComputeResourceRequestEntity()
+    protected ReleaseComponentRequestEntity()
         {
         super();
         }
 
-    protected CancelComputeResourceRequestEntity(final AbstractComputeResourceEntity compute)
+    protected ReleaseComponentRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
         super(
-            PrepareComputeResourceRequest.KIND,
-            compute
+            kind,
+            component
             );
         }
 
     @Override
     public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        log.debug("Pre-processing request [{}][{}] for [{}][{}]", this.getUuid(), this.getClass().getSimpleName(), this.getComputeResource().getUuid(), getComputeResource().getClass().getSimpleName());
-        //
-        // Mark our resource as CANCELLED.
-        this.getComputeResource().setPhase(IvoaLifecyclePhase.CANCELLED);
-        //
-        // No additional action required.
+        // TODO Auto-generated method stub
         return null;
         }
 
     @Override
-    public void postProcess(final RequestProcessingPlatform platform)
+    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
         {
-        log.debug("Post-processing request [{}][{}] for [{}][{}]", this.getUuid(), this.getClass().getSimpleName(), this.getComputeResource().getUuid(), getComputeResource().getClass().getSimpleName());
-        //
-        // Close this request.
-        super.postProcess(platform);
+        // TODO Auto-generated method stub
         }
+    
+    protected abstract ProcessingAction makeAction();
+
     }

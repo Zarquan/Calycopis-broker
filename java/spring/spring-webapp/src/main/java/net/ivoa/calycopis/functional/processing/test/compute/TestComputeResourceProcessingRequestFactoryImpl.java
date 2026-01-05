@@ -21,27 +21,29 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing.compute;
+package net.ivoa.calycopis.functional.processing.test.compute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestRepository;
+import net.ivoa.calycopis.functional.processing.compute.ComputeResourceProcessingRequestFactory;
 
 /**
  *
  */
 @Component
-public class ComputeResourceProcessingRequestFactoryImpl
+public class TestComputeResourceProcessingRequestFactoryImpl
 extends FactoryBaseImpl
 implements ComputeResourceProcessingRequestFactory
     {
 
-    private final ComputeResourceProcessingRequestRepository repository;
+    private final ComponentProcessingRequestRepository repository;
 
     @Autowired
-    public ComputeResourceProcessingRequestFactoryImpl(final ComputeResourceProcessingRequestRepository repository)
+    public TestComputeResourceProcessingRequestFactoryImpl(final ComponentProcessingRequestRepository repository)
         {
         super();
         this.repository = repository;
@@ -68,10 +70,10 @@ implements ComputeResourceProcessingRequestFactory
         }
 
     @Override
-    public CancelComputeResourceRequest createCancelComputeResourceRequest(AbstractComputeResourceEntity compute)
+    public CancelTestComputeResourceRequest createCancelComputeResourceRequest(AbstractComputeResourceEntity compute)
         {
         return repository.save(
-            new CancelComputeResourceRequestEntity(
+            new CancelTestComputeResourceRequestEntity(
                 compute
                 )
             );
