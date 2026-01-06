@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
 /**
  * 
@@ -66,11 +67,20 @@ implements ComponentProcessingRequest
 
     @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private LifecycleComponent component;
+    protected LifecycleComponent component;
 
     @Override
     public LifecycleComponent getComponent()
         {
         return this.component;
         }
+
+    protected void fail(final RequestProcessingPlatform platform)
+        {        
+        log.debug("ProcessingRequest [{}][{}] failed", this.getUuid(), this.getClass().getSimpleName());
+        platform.getSessionProcessingRequestFactory().createFailSessionRequest(
+            this.component.get
+            );
+        }
+
     }
