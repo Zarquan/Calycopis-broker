@@ -19,8 +19,7 @@ import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntityFactory;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
@@ -55,8 +54,7 @@ public class OfferSetRequestParserImpl
     private final ComputeResourceOfferFactory computeOfferFactory;
 
     // TODO Replace this with a builder ..
-    private final SimpleExecutionSessionEntityFactory    simpleExecutionSessionFactory;
-    private final ScheduledExecutionSessionEntityFactory scheduledExecutionSessionFactory;
+    private final SimpleExecutionSessionEntityFactory executionSessionFactory;
 
     /**
      * Executable Validators.
@@ -96,8 +94,7 @@ public class OfferSetRequestParserImpl
         final AbstractDataResourceValidatorFactory dataValidators, 
         final AbstractVolumeMountValidatorFactory volumeValidators, 
         final AbstractComputeResourceValidatorFactory computeValidators,
-        final SimpleExecutionSessionEntityFactory simpleExecutionSessionFactory,
-        final ScheduledExecutionSessionEntityFactory scheduledExecutionSessionFactory
+        final SimpleExecutionSessionEntityFactory executionSessionFactory
         ){
         super();
         this.computeOfferFactory  = offerBlockFactory ;
@@ -106,8 +103,7 @@ public class OfferSetRequestParserImpl
         this.dataValidators       = dataValidators ;
         this.volumeValidators     = volumeValidators ;
         this.computeValidators    = computeValidators ;
-        this.simpleExecutionSessionFactory    = simpleExecutionSessionFactory;
-        this.scheduledExecutionSessionFactory = scheduledExecutionSessionFactory;
+        this.executionSessionFactory = executionSessionFactory;
         }
     
     @Override
@@ -454,7 +450,7 @@ public class OfferSetRequestParserImpl
             for (ComputeResourceOffer computeOffer : computeOffers)
                 {
                 log.debug("OfferBlock [{}]", computeOffer.getStartTime());
-                ScheduledExecutionSessionEntity executionSessionEntity = scheduledExecutionSessionFactory.create(
+                SimpleExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
                     context.getOfferSetEntity(),
                     context,
                     computeOffer

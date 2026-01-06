@@ -23,7 +23,6 @@
 
 package net.ivoa.calycopis.functional.processing.session;
 
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
@@ -36,16 +35,16 @@ extends FactoryBase
 
     // TODO Do the return types need to be different ?
     // TODO Does the Session parameter need to be an interface or an Entity ?
-    public PrepareSessionRequest  createPrepareSessionRequest(final SimpleExecutionSession session);
+    public PrepareSessionRequest  createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public StartSessionRequest    createStartSessionRequest(final SimpleExecutionSession session);
+    public StartSessionRequest    createStartSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public MonitorSessionRequest  createMonitorSessionRequest(final SimpleExecutionSession session);
+    public MonitorSessionRequest  createMonitorSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public ReleaseSessionRequest  createReleaseSessionRequest(final SimpleExecutionSession session);
+    public ReleaseSessionRequest  createReleaseSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public CancelSessionRequest  createCancelSessionRequest(final SimpleExecutionSession session);
+    public CancelSessionRequest  createCancelSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public FailSessionRequest    createFailSessionRequest(final SimpleExecutionSession session);
+    public FailSessionRequest    createFailSessionRequest(final SimpleExecutionSessionEntity session);
 
     }

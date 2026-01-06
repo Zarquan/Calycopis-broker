@@ -48,6 +48,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 /**
  * 
  */
+@Deprecated
 @Slf4j
 @Entity
 @Table(name = "scheduledexecutionsessions")

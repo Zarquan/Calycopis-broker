@@ -43,6 +43,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
  */
 @Slf4j
 @Component
+@Deprecated
 public class ScheduledExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
     implements ScheduledExecutionSessionEntityFactory

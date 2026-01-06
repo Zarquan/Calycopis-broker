@@ -28,7 +28,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
@@ -53,7 +53,7 @@ implements MonitorSessionRequest
         super();
         }
 
-    protected MonitorSessionRequestEntity(final ScheduledExecutionSessionEntity session)
+    protected MonitorSessionRequestEntity(final SimpleExecutionSessionEntity session)
         {
         super(
             SessionProcessingRequest.KIND,

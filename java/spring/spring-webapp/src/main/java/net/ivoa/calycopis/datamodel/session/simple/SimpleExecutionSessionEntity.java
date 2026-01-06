@@ -24,11 +24,14 @@
 package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
+
+import org.threeten.extra.Interval;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,6 +54,10 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
+import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
+import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSchedule;
+import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleSessionConnector;
@@ -275,12 +282,292 @@ public class SimpleExecutionSessionEntity
         {
         return null;
         }
+
+    public void init(final IvoaScheduledExecutionSchedule schedule)
+        {
+        if (schedule != null)
+            {
+            IvoaScheduleStartDurationInstant preparing = schedule.getPreparing();
+            if (null != preparing)
+                {
+                String startInstantString = preparing.getStart();
+                if (null != startInstantString)
+                    {
+                    try {
+                        this.prepareStartInstantSeconds = Instant.parse(
+                            startInstantString
+                            ).getEpochSecond();
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.warn("Exception parsing prepare start instant [{}][{}]", startInstantString, ouch.getMessage());
+                        }
+                    }
+                String durationString = preparing.getDuration();
+                if (null != durationString)
+                    {
+                    try {
+                        this.prepareDurationSeconds = Duration.parse(
+                            durationString
+                            ).getSeconds();
+                        }
+                    catch (Exception ouch)
+                        {
+                        log.warn("Exception parsing prepare duration [{}][{}]", durationString, ouch.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+        
+    @Column(name = "prepare_start_instant_seconds")
+    protected long prepareStartInstantSeconds;
+    @Override
+    public long getPrepareStartInstantSeconds()
+        {
+        return this.prepareStartInstantSeconds;
+        }
+    @Override
+    public Instant getPrepareStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            prepareStartInstantSeconds
+            );
+        }
     
-    public IvoaSimpleExecutionSession makeBean(final URIBuilder uribuilder)
+    @Column(name = "prepare_duration_seconds")
+    protected long prepareDurationSeconds;
+    @Override
+    public long getPrepareDurationSeconds()
+        {
+        return this.prepareDurationSeconds;
+        }
+    @Override
+    public Duration getPrepareDuration()
+        {
+        return Duration.ofSeconds(
+            prepareDurationSeconds
+            );
+        }
+
+    @Column(name = "available_start_instant_seconds")
+    protected long availableStartInstantSeconds;
+    @Override
+    public long getAvailableStartInstantSeconds()
+        {
+        return this.availableStartInstantSeconds;
+        }
+    @Override
+    public Instant getAvailableStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            availableStartInstantSeconds
+            );
+        }
+    @Column(name = "available_start_duration_seconds")
+    protected long availableStartDurationSeconds;
+    @Override
+    public long getAvailableStartDurationSeconds()
+        {
+        return this.availableStartDurationSeconds;
+        }
+    @Override
+    public Duration getAvailableStartDuration()
+        {
+        return Duration.ofSeconds(
+            availableStartDurationSeconds
+            );
+        }
+    @Override
+    public Interval getAvailableStartInterval()
+        {
+        return Interval.of(
+            getAvailableStartInstant(),
+            getAvailableStartDuration()
+            );
+        }
+    
+    @Column(name = "available_duration_seconds")
+    protected long availableDurationSeconds;
+    @Override
+    public long getAvailableDurationSeconds()
+        {
+        return this.availableDurationSeconds;
+        }
+    @Override
+    public Duration getAvailableDuration()
+        {
+        return Duration.ofSeconds(
+            availableDurationSeconds
+            );
+        }
+    
+    @Column(name = "release_start_instant_seconds")
+    protected long releaseStartInstantSeconds;
+    @Override
+    public long getReleaseStartInstantSeconds()
+        {
+        return this.releaseStartInstantSeconds;
+        }
+    @Override
+    public Instant getReleaseStartInstant()
+        {
+        return Instant.ofEpochSecond(
+            releaseStartInstantSeconds
+            );
+        }
+    
+    @Column(name = "release_duration_seconds")
+    protected long releaseDurationSeconds;
+    @Override
+    public long getReleaseDurationSeconds()
+        {
+        return this.releaseDurationSeconds;
+        }
+    @Override
+    public Duration getReleaseDuration()
+        {
+        return Duration.ofSeconds(
+            releaseDurationSeconds
+            );
+        }
+
+    public IvoaScheduleStartDurationInstant makePreparingBean()
+        {
+        boolean valid = false;
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
+        if (getPrepareStartInstantSeconds() > 0)
+            {
+            bean.setStart(
+                getPrepareStartInstant().toString()
+                );
+            valid = true;
+            }
+        if (getPrepareDurationSeconds() > 0)
+            {
+            bean.setDuration(
+                getPrepareDuration().toString()
+                );
+            valid = true;
+            }
+        if (valid)
+            {
+            return bean;
+            }
+        else {
+            return null ;
+            }
+        }
+
+    public IvoaScheduleStartDurationInterval makeAvailableBean()
+        {
+        boolean valid = false;
+        IvoaScheduleStartDurationInterval bean = new IvoaScheduleStartDurationInterval();
+        if (getAvailableStartInstantSeconds() > 0)
+            {
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(
+                getAvailableStartInstant().toString()
+                );
+            buffer.append(
+                "/"
+                );
+            buffer.append(
+                getAvailableStartDuration().toString()
+                );
+            bean.setStart(
+                buffer.toString()
+                );
+            valid = true ;
+            }
+        if (getAvailableDurationSeconds() > 0)
+            {
+            bean.setDuration(
+                getAvailableDuration().toString()
+                );
+            valid = true ;
+            }
+        if (valid)
+            {
+            return bean;
+            }
+        else {
+            return null ;
+            }
+        }
+
+    public IvoaScheduleStartDurationInstant makeReleasingBean()
+        {
+        boolean valid = false;
+        IvoaScheduleStartDurationInstant bean = new IvoaScheduleStartDurationInstant(); 
+        if (getReleaseStartInstantSeconds() > 0)
+            {
+            bean.setStart(
+                getReleaseStartInstant().toString()
+                );
+            valid = true;
+            }
+        if (getReleaseDurationSeconds() > 0)
+            {
+            bean.setDuration(
+                getReleaseDuration().toString()
+                );
+            valid = true;
+            }
+        if (valid)
+            {
+            return bean;
+            }
+        else {
+            return null ;
+            }
+        }
+    
+    public IvoaScheduledExecutionSchedule makeScheduleBean()
+        {
+        boolean valid = false;
+        IvoaScheduledExecutionSchedule bean = new IvoaScheduledExecutionSchedule(); 
+
+        IvoaScheduleStartDurationInstant preparing = this.makePreparingBean();
+        if (null != preparing)
+            {
+            bean.setPreparing(
+                preparing
+                );
+            valid = true;
+            }
+
+        IvoaScheduleStartDurationInterval available = this.makeAvailableBean();
+        if (null != available)
+            {
+            bean.setAvailable(
+                available
+                );
+            valid = true;
+            }
+
+        IvoaScheduleStartDurationInstant releasing = this.makeReleasingBean(); 
+        if (releasing != null)
+            {
+            bean.setReleasing(
+                this.makeReleasingBean()
+                );
+            valid = true ;
+            }
+        if (valid)
+            {
+            return bean;
+            }
+        else {
+            return null ;
+            }
+        }
+
+    public IvoaScheduledExecutionSession makeBean(final URIBuilder uribuilder)
         {
         return this.fillBean(
             uribuilder,
-            new IvoaSimpleExecutionSession().meta(
+            new IvoaScheduledExecutionSession().meta(
                 this.makeMeta(
                     uribuilder
                     )
@@ -288,6 +575,20 @@ public class SimpleExecutionSessionEntity
             );
         }
 
+    public IvoaScheduledExecutionSession fillBean(
+            final URIBuilder uribuilder,
+            final IvoaScheduledExecutionSession bean
+            ){
+            this.fillBean(
+                uribuilder,
+                (IvoaSimpleExecutionSession ) bean
+                );
+            bean.setSchedule(
+                this.makeScheduleBean()
+                );
+            return bean;
+            }
+    
     public IvoaSimpleExecutionSession fillBean(
         final URIBuilder uribuilder,
         final IvoaSimpleExecutionSession bean

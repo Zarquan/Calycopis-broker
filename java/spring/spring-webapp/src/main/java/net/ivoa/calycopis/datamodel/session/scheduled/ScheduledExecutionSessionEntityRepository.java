@@ -34,6 +34,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
  * JpaRepository for ExecutionSessionEntity.
  *
  */
+@Deprecated
 @Repository
 public interface ScheduledExecutionSessionEntityRepository
     extends JpaRepository<ScheduledExecutionSessionEntity, UUID>

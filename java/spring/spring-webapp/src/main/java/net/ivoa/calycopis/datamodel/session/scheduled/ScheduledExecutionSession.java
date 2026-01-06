@@ -33,6 +33,7 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 /**
  * 
  */
+@Deprecated
 public interface ScheduledExecutionSession
 extends SimpleExecutionSession
     {

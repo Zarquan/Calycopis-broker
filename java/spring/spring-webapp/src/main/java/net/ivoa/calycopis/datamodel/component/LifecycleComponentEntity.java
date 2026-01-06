@@ -39,9 +39,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSession;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
@@ -137,7 +134,7 @@ implements LifecycleComponent
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected SimpleExecutionSessionEntity session;
     @Override
-    public SimpleExecutionSession getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }

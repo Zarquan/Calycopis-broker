@@ -37,6 +37,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
  * A Factory for execution sessions.
  *
  */
+@Deprecated
 public interface ScheduledExecutionSessionEntityFactory
     extends FactoryBase
     {

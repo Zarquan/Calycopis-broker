@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.data;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
 /**
