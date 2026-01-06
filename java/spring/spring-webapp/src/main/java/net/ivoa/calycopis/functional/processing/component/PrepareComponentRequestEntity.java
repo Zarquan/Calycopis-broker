@@ -192,7 +192,7 @@ implements ComponentProcessingRequest
                 // Need to check the result of the Action.
                 switch (action.getNextPhase())
                     {
-                    // If the preparation is still ongoing, we stay in PREPARING.
+                    // If the preparation is still ongoing, update the activation time and wait.
                     case PREPARING:
                         this.activate();  
                         break;
@@ -205,7 +205,7 @@ implements ComponentProcessingRequest
                         this.done(platform);
                         break;
 
-                    // If the preparation failed, the next phase is FAILED.
+                    // If the preparation failed, fail this component.
                     case FAILED:
                         this.fail(platform);
                         break;
@@ -220,16 +220,9 @@ implements ComponentProcessingRequest
                             this.getComponent().getUuid(),
                             this.getComponent().getClass().getSimpleName()
                             );
-                        this.done(platform);
+                        this.fail(platform);
                         break;
                     }
-
-                
-                // Otherwise, we stay in PREPARING.
-                else {
-                    this.activate();  
-                    }
-                break;
 
             case AVAILABLE:
             case RUNNING:
@@ -248,7 +241,7 @@ implements ComponentProcessingRequest
                     this.getComponent().getUuid(),
                     this.getComponent().getClass().getSimpleName()
                     );
-                this.done(platform);
+                this.fail(platform);
                 break;
             }
         }

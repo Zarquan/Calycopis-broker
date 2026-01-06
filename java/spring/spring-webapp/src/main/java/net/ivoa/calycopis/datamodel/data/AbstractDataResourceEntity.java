@@ -76,10 +76,10 @@ implements AbstractDataResource
         final IvoaComponentMetadata meta
         ){
         super(
+            session,
             meta
             );
 
-        this.session = session;
         this.session.addDataResource(
             this
             );

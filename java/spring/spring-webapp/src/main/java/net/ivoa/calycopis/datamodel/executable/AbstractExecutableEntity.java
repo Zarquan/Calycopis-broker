@@ -52,10 +52,10 @@ extends LifecycleComponentEntity
         final IvoaComponentMetadata meta
         ){
         super(
+            session,
             meta
             );
 
-        this.session = session;
         this.session.setExecutable(
             this
             );

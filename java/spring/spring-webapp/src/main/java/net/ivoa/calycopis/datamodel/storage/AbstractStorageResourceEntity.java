@@ -81,15 +81,15 @@ implements AbstractStorageResource
         final IvoaComponentMetadata meta
         ){
         super(
+            session,
             meta
             );
 
-        this.session = session;
         this.session.addStorageResource(
             this
             );
 
-        
+        // TODO Change session to ScheduledExecutionSession and get rid of this class cast
         if (session instanceof ScheduledExecutionSessionEntity)
             {
             this.init(

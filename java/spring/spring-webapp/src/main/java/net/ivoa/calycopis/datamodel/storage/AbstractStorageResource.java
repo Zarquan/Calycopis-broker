@@ -43,12 +43,6 @@ extends LifecycleComponent
     public static final URI WEBAPP_PATH = URI.create("storage/"); 
     
     /**
-     * Get the parent Session.  
-     *
-     */
-    public AbstractExecutionSession getSession();
-
-    /**
      * Get a list of the data resources stored in this storage resource.
      *
      */

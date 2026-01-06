@@ -79,7 +79,7 @@ implements ComponentProcessingRequest
         {        
         log.debug("ProcessingRequest [{}][{}] failed", this.getUuid(), this.getClass().getSimpleName());
         platform.getSessionProcessingRequestFactory().createFailSessionRequest(
-            this.component.get
+            this.component.getSession()
             );
         }
 

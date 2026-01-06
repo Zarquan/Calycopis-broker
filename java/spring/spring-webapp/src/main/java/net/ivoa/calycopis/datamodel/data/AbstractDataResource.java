@@ -42,12 +42,6 @@ public interface AbstractDataResource
     public static final URI WEBAPP_PATH = URI.create("data/"); 
 
     /**
-     * Get the parent Session.  
-     * 
-     */
-    public SimpleExecutionSession getSession();
-
-    /**
      * Get the storage for this data.  
      *
      */

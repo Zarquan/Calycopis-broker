@@ -75,7 +75,7 @@ public class SimpleComputeResourceEntity
      *
      */
     public SimpleComputeResourceEntity(
-        final ScheduledExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
         ){

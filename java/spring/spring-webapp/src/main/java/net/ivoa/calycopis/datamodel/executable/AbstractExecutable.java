@@ -20,10 +20,4 @@ public interface AbstractExecutable
      */
     public static final URI WEBAPP_PATH = URI.create("executables/"); 
     
-    /**
-     * Get the parent Session.  
-     *
-     */
-    public AbstractExecutionSession getSession();
-    
     }
