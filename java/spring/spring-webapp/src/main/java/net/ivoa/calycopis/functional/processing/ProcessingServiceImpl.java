@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
  * 
@@ -165,9 +166,24 @@ implements ProcessingService
                 );
             }
         }
+
+    protected ProcessingAction preProcess(final ProcessingRequestEntity request)
+        {
+        log.debug("Service [{}] pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+        return request.preProcess(
+            this.getPlatform()
+            );
+        }
+
+    protected void postProcess(final ProcessingRequestEntity request, ProcessingAction action)
+        {
+        log.debug("Service [{}] post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+        request.postProcess(
+            this.getPlatform(),
+            action
+            );
+        }
+
+    protected abstract Platform getPlatform();
     
-    protected abstract ProcessingAction preProcess(final ProcessingRequestEntity request);
-
-    protected abstract void postProcess(final ProcessingRequestEntity request, final ProcessingAction action);
-
     }

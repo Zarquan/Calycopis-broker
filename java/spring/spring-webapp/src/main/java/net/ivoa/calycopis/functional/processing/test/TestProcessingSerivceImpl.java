@@ -32,8 +32,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingService;
 import net.ivoa.calycopis.functional.processing.ProcessingServiceImpl;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest;
@@ -49,6 +47,11 @@ implements ProcessingService
     {
 
     private final Platform platform;
+    @Override
+    protected Platform getPlatform()
+        {
+        return this.platform;
+        }
 
     @Autowired
     public TestProcessingSerivceImpl(final Platform platform)
@@ -73,23 +76,4 @@ implements ProcessingService
         super.loop();
         }
     
-    @Override
-    protected ProcessingAction preProcess(final ProcessingRequestEntity request)
-        {
-        log.debug("Service [{}] pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
-        request.preProcess(
-            this.platform
-            );
-        return null;
-        }
-
-    @Override
-    protected void postProcess(final ProcessingRequestEntity request, ProcessingAction action)
-        {
-        log.debug("Service [{}] post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
-        request.postProcess(
-            this.platform,
-            action
-            );
-        }
     }
