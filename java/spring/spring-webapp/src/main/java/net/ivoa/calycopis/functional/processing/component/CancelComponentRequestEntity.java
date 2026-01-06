@@ -30,12 +30,10 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -50,7 +48,7 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
     )
 public abstract class CancelComponentRequestEntity
 extends ComponentProcessingRequestEntity
-implements CancelComponentRequest
+implements ComponentProcessingRequest
     {
 
     protected CancelComponentRequestEntity()
@@ -69,8 +67,7 @@ implements CancelComponentRequest
     @Override
     public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        // TODO Auto-generated method stub
-        return null;
+        return ProcessingAction.NO_ACTION;
         }
 
     @Override
@@ -79,6 +76,11 @@ implements CancelComponentRequest
         // TODO Auto-generated method stub
         }
     
-    protected abstract ProcessingAction makeAction();
+    protected ProcessingAction getAction(final ComponentProcessingRequest request)
+        {
+        return this.getComponent().getCancelAction(
+            request
+            );
+        }
 
     }
