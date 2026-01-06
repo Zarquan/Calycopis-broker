@@ -26,8 +26,10 @@ package net.ivoa.calycopis.functional.asynchronous;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated
 public interface AsyncStorageResourceHandler
 extends AsyncLifecycleComponentHandler<AbstractStorageResourceEntity>
     {

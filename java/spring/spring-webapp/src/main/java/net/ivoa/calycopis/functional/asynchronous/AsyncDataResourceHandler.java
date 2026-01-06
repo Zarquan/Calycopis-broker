@@ -26,8 +26,10 @@ package net.ivoa.calycopis.functional.asynchronous;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated
 public interface AsyncDataResourceHandler
 extends AsyncLifecycleComponentHandler<AbstractDataResourceEntity>
     {

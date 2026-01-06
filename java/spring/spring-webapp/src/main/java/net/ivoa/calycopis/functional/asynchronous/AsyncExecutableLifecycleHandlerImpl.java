@@ -36,8 +36,10 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityRepository;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated    
 @Component
 public class AsyncExecutableLifecycleHandlerImpl
 extends AsyncLifecycleComponentHandlerImpl<AbstractExecutableEntity>

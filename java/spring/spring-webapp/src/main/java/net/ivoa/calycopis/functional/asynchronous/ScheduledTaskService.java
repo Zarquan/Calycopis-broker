@@ -40,6 +40,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
  */
 @Slf4j
 @Service
+@Deprecated
 public class ScheduledTaskService
     {
 

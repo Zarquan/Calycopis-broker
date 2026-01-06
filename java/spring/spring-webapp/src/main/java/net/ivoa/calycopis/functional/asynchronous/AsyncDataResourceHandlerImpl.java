@@ -36,9 +36,11 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityRepository;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
 @Component
+@Deprecated
 public class AsyncDataResourceHandlerImpl
 extends AsyncLifecycleComponentHandlerImpl<AbstractDataResourceEntity>
 implements AsyncDataResourceHandler

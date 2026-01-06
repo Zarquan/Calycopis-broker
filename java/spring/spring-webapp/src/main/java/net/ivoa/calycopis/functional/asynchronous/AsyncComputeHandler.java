@@ -26,8 +26,10 @@ package net.ivoa.calycopis.functional.asynchronous;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated
 public interface AsyncComputeHandler
 extends AsyncLifecycleComponentHandler<SimpleComputeResourceEntity>
     {

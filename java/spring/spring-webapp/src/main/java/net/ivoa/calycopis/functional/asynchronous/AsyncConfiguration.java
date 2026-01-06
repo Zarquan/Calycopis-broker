@@ -60,7 +60,8 @@ public class AsyncConfiguration
         scheduler.setPoolSize(10);
         return scheduler;
         }
-
+/*
+ * 
     @Bean(name = "TaskExecutor-21")
     public Executor taskExecutor()
         {
@@ -76,7 +77,7 @@ public class AsyncConfiguration
         executor.initialize();
         return executor;
 
-        /*
+       / *
          * Assume we don't need this any more.
          * Virtual threads are part of the standard JDK. 
         if (supportsVirtualThreads()) {
@@ -94,6 +95,8 @@ public class AsyncConfiguration
             return executor;
             }
          * 
-         */
+         * /
         }    
+* 
+*/
     }

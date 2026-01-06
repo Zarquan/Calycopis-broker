@@ -42,6 +42,7 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
  *  
  */
 @Slf4j
+@Deprecated
 public abstract class AsyncLifecycleComponentHandlerImpl<EntityType extends LifecycleComponentEntity>
 extends FactoryBaseImpl
 implements AsyncLifecycleComponentHandler<EntityType>
