@@ -25,10 +25,7 @@ package net.ivoa.calycopis.functional.processing.storage;
 
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.functional.processing.component.CancelComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.FailComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.PrepareComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.ReleaseComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
@@ -37,12 +34,12 @@ public interface StorageResourceProcessingRequestFactory
 extends FactoryBase
     {
 
-    public PrepareComponentRequest createPrepareStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
+    public ComponentProcessingRequest createPrepareStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
 
-    public ReleaseComponentRequest createReleaseStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
+    public ComponentProcessingRequest createReleaseStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
 
-    public CancelComponentRequest  createCancelStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
+    public ComponentProcessingRequest createCancelStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
 
-    public FailComponentRequest  createFailStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
+    public ComponentProcessingRequest createFailStorageResourceRequest(final AbstractStorageResourceEntity storageResource);
 
     }

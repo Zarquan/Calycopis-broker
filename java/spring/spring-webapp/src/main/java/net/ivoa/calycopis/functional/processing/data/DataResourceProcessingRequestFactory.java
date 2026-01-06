@@ -25,10 +25,7 @@ package net.ivoa.calycopis.functional.processing.data;
 
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.functional.processing.component.CancelComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.FailComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.PrepareComponentRequest;
-import net.ivoa.calycopis.functional.processing.component.ReleaseComponentRequest;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  *
@@ -37,12 +34,12 @@ public interface DataResourceProcessingRequestFactory
 extends FactoryBase
     {
 
-    public PrepareComponentRequest createPrepareDataResourceRequest(final AbstractDataResourceEntity dataResource);
+    public ComponentProcessingRequest createPrepareDataResourceRequest(final AbstractDataResourceEntity dataResource);
 
-    public ReleaseComponentRequest createReleaseDataResourceRequest(final AbstractDataResourceEntity dataResource);
+    public ComponentProcessingRequest createReleaseDataResourceRequest(final AbstractDataResourceEntity dataResource);
 
-    public CancelComponentRequest  createCancelDataResourceRequest(final AbstractDataResourceEntity dataResource);
+    public ComponentProcessingRequest createCancelDataResourceRequest(final AbstractDataResourceEntity dataResource);
 
-    public FailComponentRequest  createFailDataResourceRequest(final AbstractDataResourceEntity dataResource);
+    public ComponentProcessingRequest createFailDataResourceRequest(final AbstractDataResourceEntity dataResource);
 
     }

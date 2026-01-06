@@ -30,12 +30,9 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -50,7 +47,7 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
     )
 public abstract class FailComponentRequestEntity
 extends ComponentProcessingRequestEntity
-implements FailComponentRequest
+implements ComponentProcessingRequest
     {
 
     protected FailComponentRequestEntity()

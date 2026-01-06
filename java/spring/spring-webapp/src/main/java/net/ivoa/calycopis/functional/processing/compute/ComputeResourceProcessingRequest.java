@@ -29,6 +29,7 @@ import net.ivoa.calycopis.functional.processing.component.ComponentProcessingReq
 /**
  *
  */
+@Deprecated
 public interface ComputeResourceProcessingRequest
 extends ComponentProcessingRequest
     {

@@ -26,6 +26,7 @@ package net.ivoa.calycopis.functional.processing.component;
 /**
  * 
  */
+@Deprecated
 public interface ReleaseComponentRequest
 extends ComponentProcessingRequest
     {
