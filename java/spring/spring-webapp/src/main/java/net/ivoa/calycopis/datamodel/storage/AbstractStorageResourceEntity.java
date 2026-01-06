@@ -39,7 +39,6 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
@@ -89,20 +88,6 @@ implements AbstractStorageResource
             this
             );
 
-        // TODO Change session to ScheduledExecutionSession and get rid of this class cast
-        if (session instanceof ScheduledExecutionSessionEntity)
-            {
-            this.init(
-                ((ScheduledExecutionSessionEntity) session),
-                result
-                );
-            }
-        }
-    
-    protected void init(
-        final ScheduledExecutionSessionEntity session,
-        AbstractStorageResourceValidator.Result result
-        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
