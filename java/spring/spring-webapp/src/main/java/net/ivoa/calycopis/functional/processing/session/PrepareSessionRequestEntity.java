@@ -114,9 +114,9 @@ implements PrepareSessionRequest
         if ((session.getPrepareStartInstant() != null) && (session.getPrepareStartInstant().isAfter(Instant.now())))
             {
             log.debug(
-                "Session [{}] PrepareStart is in the future [{}]",
+                "Session [{}] prepare start time is in the future [{}]",
                 this.session.getUuid(),
-                session.getPrepareStartInstant()
+                this.session.getPrepareStartInstant()
                 );
             // Set the session phase to WAITING.
             this.session.setPhase(
@@ -176,19 +176,19 @@ implements PrepareSessionRequest
                 log.error(
                     "[${}] shouldn't get called if phase is stll [${}]",
                     this.getClass().getSimpleName(),
-                    session.getPhase()
+                    this.session.getPhase()
                     );
                 this.done(platform);
                 break;
 
             case IvoaSimpleExecutionSessionPhase.WAITING:
-                // Phase is waiting, reschedule this request for half the time between now and then.
+                // Phase is waiting, reschedule this request.
                 Duration delay = Duration.ofSeconds(30);
-                if ((session.getPrepareStartInstant() != null) && (session.getPrepareStartInstant().isAfter(Instant.now())))
+                if ((this.session.getPrepareStartInstant() != null) && (this.session.getPrepareStartInstant().isAfter(Instant.now())))
                     {
                     delay = Duration.between(
                         Instant.now(),
-                        session.getPrepareStartInstant()
+                        this.session.getPrepareStartInstant()
                         ).dividedBy(
                             2L
                             );

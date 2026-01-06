@@ -25,6 +25,8 @@ package net.ivoa.calycopis.functional.processing;
 
 import java.util.UUID;
 
+import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
+
 /**
  * An external action to be performed outside of any transaction context.
  * 
@@ -44,5 +46,11 @@ public interface ProcessingAction
      * 
      */
     public boolean process();
+
+    /**
+     * Get the next phase after this action is performed.
+     * 
+     */
+    public IvoaLifecyclePhase getNextPhase();
     
     }

@@ -24,15 +24,15 @@
 package net.ivoa.calycopis.functional.processing.component;
 
 import java.net.URI;
+import java.time.Duration;
+import java.time.Instant;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
@@ -50,7 +50,7 @@ import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
     )
 public abstract class PrepareComponentRequestEntity
 extends ComponentProcessingRequestEntity
-implements PrepareComponentRequest
+implements ComponentProcessingRequest
     {
 
     protected PrepareComponentRequestEntity()
@@ -69,16 +69,187 @@ implements PrepareComponentRequest
     @Override
     public ProcessingAction preProcess(final RequestProcessingPlatform platform)
         {
-        // TODO Auto-generated method stub
-        return null;
+        log.debug(
+            "Pre-processing component [{}][{}][{}]",
+            this.component.getUuid(),
+            this.component.getPhase(),
+            this.component.getClass().getSimpleName()
+            );
+        switch(this.component.getPhase())
+            {
+            case INITIALIZING:
+            case WAITING:
+                // If the start time is in the future.
+                if ((this.component.getPrepareStartInstant() != null) && (this.component.getPrepareStartInstant().isAfter(Instant.now())))
+                    {
+                    log.debug(
+                        "Component [{}][{}] prepare start time is in the future [{}]",
+                        this.component.getUuid(),
+                        this.component.getClass().getSimpleName(),
+                        this.component.getPrepareStartInstant()
+                        );
+                    // Set the phase to WAITING.
+                    this.component.setPhase(
+                        IvoaLifecyclePhase.WAITING
+                        );
+                    // No further action required.
+                    return ProcessingAction.NO_ACTION;
+                    }
+                // Start the prepare process.
+                else {
+                    // Set the phase to PREPARING.
+                    this.component.setPhase(
+                        IvoaLifecyclePhase.PREPARING
+                        );
+                    // Start the prepare action.
+                    return this.component.getPrepareAction(
+                        this
+                        );            
+                    }
+
+            case PREPARING:
+                // Continue the prepare action.
+                return this.component.getPrepareAction(
+                    this
+                    );
+                    
+
+            case AVAILABLE:
+            case RUNNING:
+            case RELEASING:
+            case COMPLETED:
+            case CANCELLED:
+            case FAILED:
+                // Phase is past PREPARING, no action needed.
+                return ProcessingAction.NO_ACTION;
+
+            default:
+                log.error(
+                    "Unexpected phase [{}] for component [{}][{}]",
+                    this.getComponent().getPhase(),
+                    this.getComponent().getUuid(),
+                    this.getComponent().getClass().getSimpleName()
+                    );
+            
+            }
+        return ProcessingAction.NO_ACTION;
         }
 
     @Override
     public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
         {
-        // TODO Auto-generated method stub
-        }
-    
-    protected abstract ProcessingAction makeAction();
+        log.debug(
+            "Post-processing component [{}][{}][{}]",
+            this.getComponent().getUuid(),
+            this.getComponent().getPhase(),
+            this.getComponent().getClass().getSimpleName()
+            );
+        log.debug(
+            "Post-processing component [{}][{}][{}]",
+            this.component.getUuid(),
+            this.component.getPhase(),
+            this.component.getClass().getSimpleName()
+            );
 
+        switch(this.component.getPhase())
+            {
+            case INITIALIZING:
+                // Shouldn't get here.
+                log.error(
+                    "Unexpected phase [{}] for component [{}][{}]",
+                    this.getComponent().getPhase(),
+                    this.getComponent().getUuid(),
+                    this.getComponent().getClass().getSimpleName()
+                    );
+                break;
+                
+            case WAITING:
+                // Phase is waiting, reschedule this request.
+                Duration delay = Duration.ofSeconds(30);
+                if ((this.component.getPrepareStartInstant() != null) && (this.component.getPrepareStartInstant().isAfter(Instant.now())))
+                    {
+                    delay = Duration.between(
+                        Instant.now(),
+                        this.component.getPrepareStartInstant()
+                        ).dividedBy(
+                            2L
+                            );
+                    }
+                log.debug(
+                    "Re-scheduling request [{}][{}] for component [{}][{}] in [{}]s",
+                    this.getUuid(),
+                    this.getClass().getSimpleName(),
+                    this.component.getUuid(),
+                    this.component.getClass().getSimpleName(),
+                    delay.getSeconds()
+                    );
+                this.activate(  
+                    delay
+                    );
+                break;
+                
+            case PREPARING:
+                // Need to check the result of the Action.
+                switch (action.getNextPhase())
+                    {
+                    // If the preparation is still ongoing, we stay in PREPARING.
+                    case PREPARING:
+                        this.activate();  
+                        break;
+
+                    // If the preparation has finished, the next phase is AVAILABLE.
+                    case AVAILABLE:
+                        this.component.setPhase(
+                            IvoaLifecyclePhase.AVAILABLE
+                            );
+                        this.done(platform);
+                        break;
+
+                    // If the preparation failed, the next phase is FAILED.
+                    case FAILED:
+                        this.fail(platform);
+                        break;
+                        
+                    // Anything else doesn't make sense.
+                    default:
+                        log.error(
+                            "Unexpected next phase [{}] result from action for request [{}][{}] for component [{}][{}]",
+                            action.getNextPhase(),
+                            this.getUuid(),
+                            this.getClass().getSimpleName(),
+                            this.getComponent().getUuid(),
+                            this.getComponent().getClass().getSimpleName()
+                            );
+                        this.done(platform);
+                        break;
+                    }
+
+                
+                // Otherwise, we stay in PREPARING.
+                else {
+                    this.activate();  
+                    }
+                break;
+
+            case AVAILABLE:
+            case RUNNING:
+            case RELEASING:
+            case COMPLETED:
+            case CANCELLED:
+            case FAILED:
+                // Phase is past PREPARING, we are done.
+                this.done(platform);
+                break;
+
+            default:
+                log.error(
+                    "Unexpected phase [{}] for component [{}][{}]",
+                    this.getComponent().getPhase(),
+                    this.getComponent().getUuid(),
+                    this.getComponent().getClass().getSimpleName()
+                    );
+                this.done(platform);
+                break;
+            }
+        }
     }
