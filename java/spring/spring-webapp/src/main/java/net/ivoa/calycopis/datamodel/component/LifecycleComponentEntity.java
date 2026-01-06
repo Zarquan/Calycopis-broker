@@ -32,10 +32,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSession;
+import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSession;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
@@ -66,9 +75,13 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaComponentMetadata meta)
-        {
-        super(
+    public LifecycleComponentEntity(
+        final SimpleExecutionSessionEntity session,
+        final IvoaComponentMetadata meta
+        ){
+        this(
+            session,
+            null,
             meta
             );
         }
@@ -76,11 +89,15 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final IvoaComponentMetadata meta)
-        {
+    public LifecycleComponentEntity(
+        final SimpleExecutionSessionEntity session,
+        final IvoaLifecycleSchedule schedule,
+        final IvoaComponentMetadata meta
+        ){
         super(
             meta
             );
+        this.session = session;
         if (schedule != null)
             {
             IvoaLifecycleStartDurationInstant preparing = schedule.getPreparing();
@@ -114,6 +131,15 @@ implements LifecycleComponent
                     }
                 }
             }
+        }
+
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    protected SimpleExecutionSessionEntity session;
+    @Override
+    public SimpleExecutionSession getSession()
+        {
+        return this.session;
         }
 
     @Column(name = "phase")
@@ -372,5 +398,29 @@ implements LifecycleComponent
         else {
             return null ;
             }
+        }
+
+    @Override
+    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+    
+    @Override
+    public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+    
+    @Override
+    public ProcessingAction getCancelAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+
+    @Override
+    public ProcessingAction getFailAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
         }
     }

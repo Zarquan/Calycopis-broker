@@ -74,10 +74,9 @@ implements AbstractComputeResource
         final IvoaComponentMetadata meta
         ){
         super(
+            session,
             meta
             );
-
-        this.session = session;
         this.session.setComputeResource(
             this
             );
@@ -101,16 +100,6 @@ implements AbstractComputeResource
         this.releaseDurationSeconds = 10L ; 
         this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 5L ;         
                 
-        }
-
-    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private SimpleExecutionSessionEntity session;
-
-    @Override
-    public SimpleExecutionSessionEntity getSession()
-        {
-        return this.session;
         }
 
     public abstract IvoaAbstractComputeResource makeBean(final URIBuilder builder);
