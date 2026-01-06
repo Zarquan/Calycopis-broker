@@ -26,8 +26,11 @@ package net.ivoa.calycopis.datamodel.compute;
 import java.net.URI;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
@@ -71,9 +74,9 @@ implements AbstractComputeResource
         final IvoaComponentMetadata meta
         ){
         super(
-            session,
             meta
             );
+        this.session = session;
         this.session.setComputeResource(
             this
             );
@@ -99,6 +102,16 @@ implements AbstractComputeResource
                 
         }
 
+    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    protected SimpleExecutionSessionEntity session;
+    @Override
+    public SimpleExecutionSessionEntity getSession()
+        {
+        return this.session;
+        }
+
+    
     public abstract IvoaAbstractComputeResource makeBean(final URIBuilder builder);
 
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)

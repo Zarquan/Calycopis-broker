@@ -263,16 +263,12 @@ public class ComputeResourceOfferFactoryImpl
                 (
                 SELECT
                     SimpleExecutionSessions.phase AS BlockPhase,
-                    ScheduledExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
-                    ScheduledExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
+                    SimpleExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
+                    SimpleExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM
                     SimpleExecutionSessions
-                JOIN
-                    ScheduledExecutionSessions
-                ON
-                    SimpleExecutionSessions.uuid = ScheduledExecutionSessions.uuid
                 JOIN
                     AbstractComputeResources
                 ON
@@ -280,7 +276,7 @@ public class ComputeResourceOfferFactoryImpl
                 JOIN
                     SimpleComputeResources
                 ON
-                    SimpleComputeResources.uuid = AbstractComputeResources.uuid
+                    SimpleComputeResources.uuid = LifecycleComponent.uuid
                 WHERE
                     SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
                 ),

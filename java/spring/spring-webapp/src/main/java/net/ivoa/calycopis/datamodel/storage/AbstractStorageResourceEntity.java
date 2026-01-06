@@ -80,10 +80,10 @@ implements AbstractStorageResource
         final IvoaComponentMetadata meta
         ){
         super(
-            session,
             meta
             );
 
+        this.session = session;
         this.session.addStorageResource(
             this
             );
@@ -110,7 +110,6 @@ implements AbstractStorageResource
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private SimpleExecutionSessionEntity session;
-
     @Override
     public SimpleExecutionSessionEntity getSession()
         {

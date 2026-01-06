@@ -67,10 +67,10 @@ implements ComponentProcessingRequest
 
     @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    protected LifecycleComponent component;
+    protected LifecycleComponentEntity component;
 
     @Override
-    public LifecycleComponent getComponent()
+    public LifecycleComponentEntity getComponent()
         {
         return this.component;
         }

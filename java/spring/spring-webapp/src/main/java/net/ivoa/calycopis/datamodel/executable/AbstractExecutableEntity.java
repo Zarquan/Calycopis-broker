@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
@@ -52,28 +51,14 @@ extends LifecycleComponentEntity
         final IvoaComponentMetadata meta
         ){
         super(
-            session,
             meta
             );
 
+        this.session = session;
         this.session.setExecutable(
             this
             );
 
-        // TODO Get rid of this nasty class cast.
-        if (session instanceof ScheduledExecutionSessionEntity)
-            {
-            this.init(
-                (ScheduledExecutionSessionEntity) session,
-                result
-                );
-            }
-        }
-    
-    protected void init(
-        final ScheduledExecutionSessionEntity session,
-        final AbstractExecutableValidator.Result result
-        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
@@ -96,7 +81,6 @@ extends LifecycleComponentEntity
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     private SimpleExecutionSessionEntity session;
-
     @Override
     public SimpleExecutionSessionEntity getSession()
         {
