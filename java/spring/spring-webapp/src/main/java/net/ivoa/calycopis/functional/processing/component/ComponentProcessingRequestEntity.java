@@ -35,8 +35,8 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
 /**
  * 
@@ -59,6 +59,14 @@ implements ComponentProcessingRequest
         super();
         }
 
+    protected ComponentProcessingRequestEntity(final LifecycleComponentEntity component)
+        {
+        this(
+            ComponentProcessingRequest.KIND,
+            component
+            );
+        }
+
     protected ComponentProcessingRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
         super(kind);
@@ -75,7 +83,7 @@ implements ComponentProcessingRequest
         return this.component;
         }
 
-    protected void fail(final RequestProcessingPlatform platform)
+    protected void fail(final Platform platform)
         {        
         log.debug("ProcessingRequest [{}][{}] failed", this.getUuid(), this.getClass().getSimpleName());
         platform.getSessionProcessingRequestFactory().createFailSessionRequest(

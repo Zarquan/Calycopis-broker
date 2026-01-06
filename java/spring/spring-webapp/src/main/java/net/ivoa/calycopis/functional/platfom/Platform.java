@@ -26,13 +26,15 @@ package net.ivoa.calycopis.functional.platfom;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
 
 /**
  * 
  */
 public interface Platform
-extends FactoryBase, RequestProcessingPlatform
+extends FactoryBase
     {
     /**
      * Get the DockerContainerEntityFactory for this platform.
@@ -45,5 +47,23 @@ extends FactoryBase, RequestProcessingPlatform
      *
      */
     public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
+
+    /**
+     * Get the ProcessingRequestFactory for this platform.
+     *
+     */
+    public ProcessingRequestFactory getProcessingRequestFactory();
+    
+    /**
+     * Get the SessionProcessingRequestFactory for this platform.
+     *
+     */
+    public SessionProcessingRequestFactory getSessionProcessingRequestFactory();
+    
+    /**
+     * Get the ComponentProcessingRequestFactory for this platform.
+     *
+     */
+    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory();
     
     }

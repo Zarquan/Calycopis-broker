@@ -30,11 +30,8 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFacto
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.compute.ComputeResourceProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.data.DataResourceProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.executable.ExecutableProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.storage.StorageResourceProcessingRequestFactory;
 
 /**
  * 
@@ -56,19 +53,13 @@ implements Platform
         final JupyterNotebookEntityFactory jupyterNotebookEntityFactory,
         final ProcessingRequestFactory processingRequestFactory,
         final SessionProcessingRequestFactory sessionProcessingRequestFactory,
-        final StorageResourceProcessingRequestFactory storageResourceProcessingRequestFactory,
-        final DataResourceProcessingRequestFactory dataResourceProcessingRequestFactory,
-        final ExecutableProcessingRequestFactory executableProcessingRequestFactory,
-        final ComputeResourceProcessingRequestFactory computeResourceProcessingRequestFactory
+        final ComponentProcessingRequestFactory componentResourceProcessingRequestFactory
         ){
         this.dockerContainerEntityFactory = dockerContainerEntityFactory ;
         this.jupyterNotebookEntityFactory = jupyterNotebookEntityFactory ;
         this.processingRequestFactory = processingRequestFactory;
         this.sessionProcessingRequestFactory = sessionProcessingRequestFactory;
-        this.storageResourceProcessingRequestFactory = storageResourceProcessingRequestFactory;
-        this.dataResourceProcessingRequestFactory = dataResourceProcessingRequestFactory;
-        this.executableProcessingRequestFactory = executableProcessingRequestFactory;
-        this.computeResourceProcessingRequestFactory = computeResourceProcessingRequestFactory;
+        this.componentProcessingRequestFactory = componentResourceProcessingRequestFactory;
         }
 
     private DockerContainerEntityFactory dockerContainerEntityFactory;  
@@ -85,14 +76,13 @@ implements Platform
         return this.jupyterNotebookEntityFactory;
         }
 
-    
     private ProcessingRequestFactory processingRequestFactory;
     @Override
     public ProcessingRequestFactory getProcessingRequestFactory()
         {
         return this.processingRequestFactory;
         }
-    
+
     private SessionProcessingRequestFactory sessionProcessingRequestFactory;
     @Override
     public SessionProcessingRequestFactory getSessionProcessingRequestFactory()
@@ -100,31 +90,11 @@ implements Platform
         return this.sessionProcessingRequestFactory;
         }
     
-    private StorageResourceProcessingRequestFactory storageResourceProcessingRequestFactory;
+    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
     @Override
-    public StorageResourceProcessingRequestFactory getStorageProcessingRequestFactory()
+    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory()
         {
-        return this.storageResourceProcessingRequestFactory;
+        return this.componentProcessingRequestFactory;
         }
     
-    private DataResourceProcessingRequestFactory dataResourceProcessingRequestFactory;
-    @Override
-    public DataResourceProcessingRequestFactory getDataProcessingRequestFactory()
-        {
-        return this.dataResourceProcessingRequestFactory;
-        }
-    
-    private ExecutableProcessingRequestFactory executableProcessingRequestFactory;
-    @Override
-    public ExecutableProcessingRequestFactory getExecutableProcessingRequestFactory()
-        {
-        return this.executableProcessingRequestFactory;
-        }
-    
-    private ComputeResourceProcessingRequestFactory computeResourceProcessingRequestFactory;
-    @Override
-    public ComputeResourceProcessingRequestFactory getComputeProcessingRequestFactory()
-        {
-        return this.computeResourceProcessingRequestFactory;
-        }
     }

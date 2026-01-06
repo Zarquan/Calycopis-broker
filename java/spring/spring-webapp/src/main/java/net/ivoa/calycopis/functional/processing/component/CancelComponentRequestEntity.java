@@ -31,8 +31,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 
 /**
  * 
@@ -45,7 +45,7 @@ import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public abstract class CancelComponentRequestEntity
+public class CancelComponentRequestEntity
 extends ComponentProcessingRequestEntity
 implements ComponentProcessingRequest
     {
@@ -55,31 +55,20 @@ implements ComponentProcessingRequest
         super();
         }
 
-    protected CancelComponentRequestEntity(final URI kind, final LifecycleComponentEntity component)
+    protected CancelComponentRequestEntity(final LifecycleComponentEntity component)
         {
-        super(
-            kind,
-            component
-            );
+        super(component);
         }
 
     @Override
-    public ProcessingAction preProcess(final RequestProcessingPlatform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         return ProcessingAction.NO_ACTION;
         }
 
     @Override
-    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         // TODO Auto-generated method stub
         }
-    
-    protected ProcessingAction getAction(final ComponentProcessingRequest request)
-        {
-        return this.getComponent().getCancelAction(
-            request
-            );
-        }
-
     }

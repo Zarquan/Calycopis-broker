@@ -28,9 +28,13 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -63,7 +67,7 @@ implements CancelSessionRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final RequestProcessingPlatform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug("pre-processing session [{}]", session.getUuid());
         //
@@ -104,23 +108,33 @@ implements CancelSessionRequest
         this.session.setPhase(
             IvoaSimpleExecutionSessionPhase.CANCELLED
             );
-        
         //
-        // Release all of the components ...
-        platform.getComputeProcessingRequestFactory().createReleaseComputeResourceRequest(
+        // Schedule the release of the session components.
+        platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+            this.session.getExecutable()
+            );
+        platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
             this.session.getComputeResource()
             );
-        // TODO Release the executable.
-        // TODO Release all the data resources.
-        // TODO Release all the storage resources.
-        
+        for(AbstractDataResourceEntity dataResource : this.session.getDataResources())
+            {
+            platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+                dataResource
+                );
+            }
+        for(AbstractStorageResourceEntity storageResource : session.getStorageResources())
+            {
+            platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+                storageResource
+                );
+            }
         //
         // No further Action required.
         return ProcessingAction.NO_ACTION ;
         }
 
     @Override
-    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
         this.done(

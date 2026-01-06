@@ -35,6 +35,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
  * 
@@ -134,7 +135,7 @@ implements ProcessingRequest
         this.activation = Instant.now().plus(delay);
         }
     
-    protected void done(final RequestProcessingPlatform platform)
+    protected void done(final Platform platform)
         {        
         log.debug("ProcessingRequest [{}][{}] done", this.getUuid(), this.getClass().getSimpleName());
         platform.getProcessingRequestFactory().delete(

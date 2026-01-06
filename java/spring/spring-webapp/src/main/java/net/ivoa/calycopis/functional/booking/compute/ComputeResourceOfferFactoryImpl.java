@@ -276,7 +276,7 @@ public class ComputeResourceOfferFactoryImpl
                 JOIN
                     SimpleComputeResources
                 ON
-                    SimpleComputeResources.uuid = LifecycleComponent.uuid
+                    SimpleComputeResources.uuid = AbstractComputeResources.uuid
                 WHERE
                     SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
                 ),

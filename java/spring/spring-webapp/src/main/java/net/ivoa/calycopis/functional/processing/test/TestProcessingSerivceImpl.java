@@ -68,7 +68,6 @@ implements ProcessingService
             );
         }
 
-
     @Override
     @Scheduled(fixedDelay = 10000)
     public void loop()

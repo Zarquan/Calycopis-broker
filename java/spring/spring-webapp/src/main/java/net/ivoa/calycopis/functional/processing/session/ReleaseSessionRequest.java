@@ -26,6 +26,7 @@ package net.ivoa.calycopis.functional.processing.session;
 /**
  * 
  */
+@Deprecated
 public interface ReleaseSessionRequest
 extends SessionProcessingRequest
     {

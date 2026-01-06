@@ -34,9 +34,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -77,7 +77,7 @@ implements SessionProcessingRequest
         return this.session;
         }
 
-    protected ProcessingAction failSession(final RequestProcessingPlatform platform)
+    protected ProcessingAction failSession(final Platform platform)
         {
         if (this.session != null)
             {

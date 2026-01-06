@@ -27,6 +27,8 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.UUID;
 
+import net.ivoa.calycopis.functional.platfom.Platform;
+
 /**
  * 
  */
@@ -45,8 +47,8 @@ public interface ProcessingRequest
 
     public Instant getActivationTime();
     
-    public ProcessingAction preProcess(final RequestProcessingPlatform platform);
+    public ProcessingAction preProcess(final Platform platform);
 
-    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action);
+    public void postProcess(final Platform platform, final ProcessingAction action);
     
     }

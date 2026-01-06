@@ -34,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.RequestProcessingPlatform;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -68,7 +68,7 @@ implements PrepareSessionRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final RequestProcessingPlatform platform)
+    public ProcessingAction preProcess(final Platform platform)
         {
         log.debug("pre-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
 
@@ -108,7 +108,7 @@ implements PrepareSessionRequest
             }
         }
 
-    protected ProcessingAction prepareSession(final RequestProcessingPlatform platform)
+    protected ProcessingAction prepareSession(final Platform platform)
         {
         // If we don't need to start preparing yet.
         if ((session.getPrepareStartInstant() != null) && (session.getPrepareStartInstant().isAfter(Instant.now())))
@@ -131,31 +131,25 @@ implements PrepareSessionRequest
                 IvoaSimpleExecutionSessionPhase.PREPARING
                 );
             //
-            // Start preparing the executable.
-            platform.getExecutableProcessingRequestFactory().createPrepareExecutableRequest(
-                this.session.getExecutable()
+            // Start preparing the components.
+            platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+                session.getExecutable()
                 );
-            //
-            // Start preparing the storage resources.
+            platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+                session.getComputeResource()
+                );
             for(AbstractStorageResourceEntity storageResource : session.getStorageResources())
                 {
-                platform.getStorageProcessingRequestFactory().createPrepareStorageResourceRequest(
+                platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
                     storageResource
                     );
                 }
-            //
-            // Start preparing the data resources.
             for(AbstractDataResourceEntity dataResource : session.getDataResources())
                 {
-                platform.getDataProcessingRequestFactory().createPrepareDataResourceRequest(
+                platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
                     dataResource
                     );
                 }
-            //
-            // Start preparing the compute resources.
-            platform.getComputeProcessingRequestFactory().createPrepareComputeResourceRequest(
-                session.getComputeResource()
-                );
         
             }
         //
@@ -164,7 +158,7 @@ implements PrepareSessionRequest
         }
 
     @Override
-    public void postProcess(final RequestProcessingPlatform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
         switch(this.session.getPhase())
