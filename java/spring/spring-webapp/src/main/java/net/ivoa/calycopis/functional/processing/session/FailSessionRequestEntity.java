@@ -28,10 +28,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
@@ -50,7 +48,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
     )
 public class FailSessionRequestEntity
 extends SessionProcessingRequestEntity
-implements FailSessionRequest
+implements SessionProcessingRequest
     {
 
     protected FailSessionRequestEntity()

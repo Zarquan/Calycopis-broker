@@ -35,16 +35,16 @@ extends FactoryBase
 
     // TODO Do the return types need to be different ?
     // TODO Does the Session parameter need to be an interface or an Entity ?
-    public PrepareSessionRequest  createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public StartSessionRequest    createStartSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest    createStartSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public MonitorSessionRequest  createMonitorSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createMonitorSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public ReleaseSessionRequest  createReleaseSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createReleaseSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public CancelSessionRequest  createCancelSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createCancelSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public FailSessionRequest    createFailSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest    createFailSessionRequest(final SimpleExecutionSessionEntity session);
 
     }

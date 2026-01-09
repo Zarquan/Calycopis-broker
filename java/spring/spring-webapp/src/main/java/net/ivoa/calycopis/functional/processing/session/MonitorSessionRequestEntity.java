@@ -45,7 +45,7 @@ import net.ivoa.calycopis.functional.processing.ProcessingAction;
     )
 public class MonitorSessionRequestEntity
 extends SessionProcessingRequestEntity
-implements MonitorSessionRequest
+implements SessionProcessingRequest
     {
 
     protected MonitorSessionRequestEntity()

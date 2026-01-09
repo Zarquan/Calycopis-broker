@@ -51,7 +51,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
     )
 public class PrepareSessionRequestEntity
 extends SessionProcessingRequestEntity
-implements PrepareSessionRequest
+implements SessionProcessingRequest
     {
 
     protected PrepareSessionRequestEntity()

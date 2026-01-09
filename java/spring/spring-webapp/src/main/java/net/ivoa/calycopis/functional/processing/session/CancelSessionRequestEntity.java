@@ -50,7 +50,7 @@ import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
     )
 public class CancelSessionRequestEntity
 extends SessionProcessingRequestEntity
-implements CancelSessionRequest
+implements SessionProcessingRequest
     {
 
     protected CancelSessionRequestEntity()

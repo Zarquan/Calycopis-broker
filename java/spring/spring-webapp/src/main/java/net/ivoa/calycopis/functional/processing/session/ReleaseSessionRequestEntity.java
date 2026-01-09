@@ -45,7 +45,7 @@ import net.ivoa.calycopis.functional.processing.ProcessingAction;
     )
 public class ReleaseSessionRequestEntity
 extends SessionProcessingRequestEntity
-implements ReleaseSessionRequest
+implements SessionProcessingRequest
     {
 
     protected ReleaseSessionRequestEntity()
