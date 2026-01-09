@@ -145,21 +145,29 @@ implements ProcessingService
             return found ;
             }
         
+        /*
+         * Inner method to pre-process the request in a transaction.
+         * 
+         */
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         protected ProcessingAction preProcess(final ProcessingServiceImpl outer, final UUID requestId)
             {
             ProcessingRequestEntity request = this.requestRepository.findById(requestId).orElseThrow();
-            log.debug("Service [{}] pre-processing request [{}][{}]", outer.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+            log.debug("Service [{}] inner pre-processing request [{}][{}]", outer.getUuid(), request.getUuid(), request.getClass().getSimpleName());
             return outer.preProcess(
                 request
                 );
             }
 
+        /*
+         * Inner method to post-process the request in a transaction.
+         * 
+         */
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         protected void postProcess(final ProcessingServiceImpl outer, final UUID requestId, final ProcessingAction action)
             {
             ProcessingRequestEntity request = this.requestRepository.findById(requestId).orElseThrow();
-            log.debug("Service [{}] post-processing request [{}][{}]", outer.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+            log.debug("Service [{}] inner post-processing request [{}][{}]", outer.getUuid(), request.getUuid(), request.getClass().getSimpleName());
             outer.postProcess(
                 request,
                 action
@@ -167,17 +175,25 @@ implements ProcessingService
             }
         }
 
+    /*
+     * Outer pre-process method that can be overridden if needed.
+     * 
+     */
     protected ProcessingAction preProcess(final ProcessingRequestEntity request)
         {
-        log.debug("Service [{}] pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+        log.debug("Service [{}] outer pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         return request.preProcess(
             this.getPlatform()
             );
         }
 
+    /*
+     * Outer post-process method that can be overridden if needed.
+     * 
+     */
     protected void postProcess(final ProcessingRequestEntity request, ProcessingAction action)
         {
-        log.debug("Service [{}] post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
+        log.debug("Service [{}] outer post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         request.postProcess(
             this.getPlatform(),
             action
