@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingService;
 import net.ivoa.calycopis.functional.processing.ProcessingServiceImpl;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest;
 
 /**
@@ -64,7 +65,8 @@ implements ProcessingService
     public List<URI> getKinds()
         {
         return List.of(
-            SessionProcessingRequest.KIND
+            SessionProcessingRequest.KIND,
+            ComponentProcessingRequest.KIND
             );
         }
 

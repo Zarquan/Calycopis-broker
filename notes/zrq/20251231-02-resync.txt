@@ -247,65 +247,63 @@ EOF
         | yq '.'
 
 
---START--
-kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
-meta:
-  uuid: "48ce696f-bccb-4d70-af0b-14ac0d1470d9"
-  name: "no-name-offer-0"
-  url: "http://127.0.0.1:8082/sessions/48ce696f-bccb-4d70-af0b-14ac0d1470d9"
-  created: "2025-12-31T21:07:46.204850Z"
-executable:
-  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
-  meta:
-    uuid: "622afc1f-dfae-4f08-aaf1-d114eba16d96"
-    url: "http://127.0.0.1:8082/executables/622afc1f-dfae-4f08-aaf1-d114eba16d96"
-    created: "2025-12-31T21:07:46.229255Z"
-  phase: "AVAILABLE"
-  schedule:
-    preparing:
-      start: "2025-12-31T21:09:00Z"
-      duration: "PT45S"
-    available:
-      start: "2025-12-31T21:09:45Z/PT0S"
-    releasing:
-      start: "2025-12-31T23:10:05Z"
-      duration: "PT1S"
-  privileged: false
-compute:
-  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
-  meta:
-    uuid: "2dc8ac96-3e77-4f28-8559-381701b6fca5"
-    name: "Default compute resource"
-    url: "http://127.0.0.1:8082/compute/2dc8ac96-3e77-4f28-8559-381701b6fca5"
-    created: "2025-12-31T21:07:46.253647Z"
-  phase: "AVAILABLE"
-  schedule:
-    preparing:
-      start: "2025-12-31T21:09:45Z"
-      duration: "PT15S"
-    available:
-      start: "2025-12-31T21:10:00Z/PT0S"
-      duration: "PT2H"
-    releasing:
-      start: "2025-12-31T23:10:05Z"
-      duration: "PT10S"
-  cores:
-    min: 2
-    max: 2
-  memory:
-    min: 2
-    max: 2
-phase: "PREPARING"
-expires: "2025-12-31T21:12:46.071558Z"
-schedule:
-  preparing:
-    start: "2025-12-31T21:09:00Z"
-    duration: "PT1M"
-  available:
-    start: "2025-12-31T21:10:00Z/PT0S"
-    duration: "PT2H"
-  releasing:
-    start: "2025-12-31T23:10:05Z"
-    duration: "PT10S"
---END--
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "48ce696f-bccb-4d70-af0b-14ac0d1470d9"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/48ce696f-bccb-4d70-af0b-14ac0d1470d9"
+    >     created: "2025-12-31T21:07:46.204850Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "622afc1f-dfae-4f08-aaf1-d114eba16d96"
+    >       url: "http://127.0.0.1:8082/executables/622afc1f-dfae-4f08-aaf1-d114eba16d96"
+    >       created: "2025-12-31T21:07:46.229255Z"
+    >     phase: "AVAILABLE"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-12-31T21:09:00Z"
+    >         duration: "PT45S"
+    >       available:
+    >         start: "2025-12-31T21:09:45Z/PT0S"
+    >       releasing:
+    >         start: "2025-12-31T23:10:05Z"
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "2dc8ac96-3e77-4f28-8559-381701b6fca5"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/2dc8ac96-3e77-4f28-8559-381701b6fca5"
+    >       created: "2025-12-31T21:07:46.253647Z"
+    >     phase: "AVAILABLE"
+    >     schedule:
+    >       preparing:
+    >         start: "2025-12-31T21:09:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2025-12-31T21:10:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2025-12-31T23:10:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "PREPARING"
+    >   expires: "2025-12-31T21:12:46.071558Z"
+    >   schedule:
+    >     preparing:
+    >       start: "2025-12-31T21:09:00Z"
+    >       duration: "PT1M"
+    >     available:
+    >       start: "2025-12-31T21:10:00Z/PT0S"
+    >       duration: "PT2H"
+    >     releasing:
+    >       start: "2025-12-31T23:10:05Z"
+    >       duration: "PT10S"
 
