@@ -33,11 +33,7 @@ public interface SessionProcessingRequestFactory
 extends FactoryBase
     {
 
-    // TODO Do the return types need to be different ?
-    // TODO Does the Session parameter need to be an interface or an Entity ?
     public SessionProcessingRequest  createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
-
-    public SessionProcessingRequest    createStartSessionRequest(final SimpleExecutionSessionEntity session);
 
     public SessionProcessingRequest  createMonitorSessionRequest(final SimpleExecutionSessionEntity session);
 
