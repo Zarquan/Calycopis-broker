@@ -61,17 +61,6 @@ implements SessionProcessingRequestFactory
         }
 
     @Override
-    public StartSessionRequestEntity createStartSessionRequest(final SimpleExecutionSessionEntity session)
-        {
-        log.debug("Creating StartSessionRequest for session [{}]", session.getUuid());
-        return repository.save(
-            new StartSessionRequestEntity(
-                session
-                )
-            );
-        }
-
-    @Override
     public MonitorSessionRequestEntity createMonitorSessionRequest(final SimpleExecutionSessionEntity session)
         {
         log.debug("Creating MonitorSessionRequest for session [{}]", session.getUuid());

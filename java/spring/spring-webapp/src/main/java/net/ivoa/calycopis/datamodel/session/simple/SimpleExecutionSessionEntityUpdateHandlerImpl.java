@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.processing.session.PrepareSessionRequest;
+import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
@@ -209,7 +209,7 @@ implements SimpleExecutionSessionEntityUpdateHandler
                     }
 
                 log.debug("Creating prepare request for session [{}]", entity.getUuid());
-                PrepareSessionRequest request = platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                SessionProcessingRequest request = platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
                     entity
                     );
                 log.debug("Created prepare request [{}] for session [{}]", request.getUuid() , entity.getUuid());
