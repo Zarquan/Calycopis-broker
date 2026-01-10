@@ -109,7 +109,6 @@ implements ComponentProcessingRequest
                 return this.component.getPrepareAction(
                     this
                     );
-                    
 
             case AVAILABLE:
             case RUNNING:
@@ -141,17 +140,11 @@ implements ComponentProcessingRequest
             this.getComponent().getPhase(),
             this.getComponent().getClass().getSimpleName()
             );
-        log.debug(
-            "Post-processing component [{}][{}][{}]",
-            this.component.getUuid(),
-            this.component.getPhase(),
-            this.component.getClass().getSimpleName()
-            );
 
         switch(this.component.getPhase())
             {
+            // Shouldn't get here.
             case INITIALIZING:
-                // Shouldn't get here.
                 log.error(
                     "Unexpected phase [{}] for component [{}][{}]",
                     this.getComponent().getPhase(),
@@ -160,8 +153,8 @@ implements ComponentProcessingRequest
                     );
                 break;
                 
+            // Phase is waiting, reschedule this request.
             case WAITING:
-                // Phase is waiting, reschedule this request.
                 Duration delay = Duration.ofSeconds(30);
                 if ((this.component.getPrepareStartInstant() != null) && (this.component.getPrepareStartInstant().isAfter(Instant.now())))
                     {
@@ -180,47 +173,61 @@ implements ComponentProcessingRequest
                     this.component.getClass().getSimpleName(),
                     delay.getSeconds()
                     );
-                this.activate(  
-                    delay
-                    );
+                this.activate(delay);
+                break;
+            //
+            // If the component is PREPARING, check the action for the next phase.
+            case PREPARING:
+                // If we have an action.
+                if (action != null)
+                    {
+                    //
+                    // Update the component with the results of the action.
+                    action.postProcess(
+                        this.component
+                        );
+                    //
+                    // Check the next phase from the action.
+                    switch (action.getNextPhase())
+                        {
+                        // If the preparation is still ongoing, update the activation time and wait.
+                        case PREPARING:
+                            this.activate();  
+                            break;
+    
+                        // If the preparation has finished, the next phase is AVAILABLE.
+                        case AVAILABLE:
+                            this.component.setPhase(
+                                IvoaLifecyclePhase.AVAILABLE
+                                );
+                            this.done(platform);
+                            break;
+    
+                        // If the preparation failed, fail this component.
+                        case FAILED:
+                            this.fail(platform);
+                            break;
+                            
+                        // Anything else doesn't make sense.
+                        default:
+                            log.error(
+                                "Unexpected next phase [{}] result from action for request [{}][{}] for component [{}][{}]",
+                                action.getNextPhase(),
+                                this.getUuid(),
+                                this.getClass().getSimpleName(),
+                                this.getComponent().getUuid(),
+                                this.getComponent().getClass().getSimpleName()
+                                );
+                            this.fail(platform);
+                            break;
+                        }
+                    }
+                // If we don't have an action, assume we are done
+                else {
+                    this.done(platform);
+                    }
                 break;
                 
-            case PREPARING:
-                // Need to check the result of the Action.
-                switch (action.getNextPhase())
-                    {
-                    // If the preparation is still ongoing, update the activation time and wait.
-                    case PREPARING:
-                        this.activate();  
-                        break;
-
-                    // If the preparation has finished, the next phase is AVAILABLE.
-                    case AVAILABLE:
-                        this.component.setPhase(
-                            IvoaLifecyclePhase.AVAILABLE
-                            );
-                        this.done(platform);
-                        break;
-
-                    // If the preparation failed, fail this component.
-                    case FAILED:
-                        this.fail(platform);
-                        break;
-                        
-                    // Anything else doesn't make sense.
-                    default:
-                        log.error(
-                            "Unexpected next phase [{}] result from action for request [{}][{}] for component [{}][{}]",
-                            action.getNextPhase(),
-                            this.getUuid(),
-                            this.getClass().getSimpleName(),
-                            this.getComponent().getUuid(),
-                            this.getComponent().getClass().getSimpleName()
-                            );
-                        this.fail(platform);
-                        break;
-                    }
-
             case AVAILABLE:
             case RUNNING:
             case RELEASING:

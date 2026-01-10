@@ -25,6 +25,7 @@ package net.ivoa.calycopis.functional.processing;
 
 import java.util.UUID;
 
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 
 /**
@@ -52,5 +53,19 @@ public interface ProcessingAction
      * 
      */
     public IvoaLifecyclePhase getNextPhase();
+
+    /**
+     * Prepare the Action, performed in a Transaction before processing.
+     * TODO Move this to a ComponentProcessingAction.
+     * 
+    boolean preProcess(final LifecycleComponentEntity component);
+     */
+
+    /**
+     * Update the Component, performed in a Transaction after processing.
+     * TODO Move this to a ComponentProcessingAction.
+     *
+     */
+    boolean postProcess(final LifecycleComponentEntity component);
     
     }
