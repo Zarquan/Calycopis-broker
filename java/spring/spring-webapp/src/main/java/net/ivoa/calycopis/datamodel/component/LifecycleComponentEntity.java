@@ -380,11 +380,15 @@ implements LifecycleComponent
             }
         }
 
+    /*
+     * 
     @Override
     public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
         }
+     * 
+     */
     
     @Override
     public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)
