@@ -21,15 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
 
 /**
- *
+ * 
  */
-public interface AbstractStorageResourceEntityFactory
-extends LifecycleComponentEntityFactory<AbstractStorageResourceEntity>
+public interface AbstractComputeResourceEntityFactory
+extends LifecycleComponentEntityFactory<AbstractComputeResourceEntity>
     {
-
+    
     }

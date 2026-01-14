@@ -26,12 +26,14 @@ package net.ivoa.calycopis.functional.processing.component;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
@@ -52,7 +54,7 @@ public class PrepareComponentRequestEntity
 extends ComponentProcessingRequestEntity
 implements ComponentProcessingRequest
     {
-
+    
     protected PrepareComponentRequestEntity()
         {
         super();
@@ -72,6 +74,36 @@ implements ComponentProcessingRequest
             this.component.getPhase(),
             this.component.getClass().getSimpleName()
             );
+
+        AbstractLifecycleComponentEntityFactory componentFactory = platform.getLifecycleComponentEntityFactory();
+        
+        log.debug("Calling abstract factory");
+        Optional<LifecycleComponentEntity> found = componentFactory.select(
+            this.component.getKind(),
+            this.component.getUuid()
+            );
+        log.debug("Returned from abstract factory");
+
+        if (found.isPresent())
+            {
+            log.debug("Getting optional content");
+            LifecycleComponentEntity entity = found.get(); 
+            log.debug(
+                "Pre-processing component [{}][{}][{}]",
+                entity.getUuid(),
+                entity.getPhase(),
+                entity.getClass().getSimpleName()
+                );
+            }
+        else {
+            log.error(
+                "Component [{}][{}][{}] not found in factory",
+                this.component.getUuid(),
+                this.component.getKind(),
+                this.component.getClass().getSimpleName()
+                );
+            }
+        
         switch(this.component.getPhase())
             {
             case INITIALIZING:

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * JpaRepository for DockerContainerEntity.
+ * JpaRepository for LifecycleComponentEntities.
  *
  */
 @Repository

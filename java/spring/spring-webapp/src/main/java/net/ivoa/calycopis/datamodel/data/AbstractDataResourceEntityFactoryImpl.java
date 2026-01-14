@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.data;
 
 import java.net.URI;
 import java.util.Optional;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
+import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -41,15 +41,15 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class AbstractStorageResourceEntityFactoryImpl
+public class AbstractDataResourceEntityFactoryImpl
 extends FactoryBaseImpl
-implements AbstractStorageResourceEntityFactory
+implements AbstractDataResourceEntityFactory
     {
 
-    private AbstractStorageResourceEntityRepository repository;
+    private AbstractDataResourceEntityRepository repository;
 
     private static final Set<URI> KINDS = Set.of(
-        SimpleStorageResource.TYPE_DISCRIMINATOR
+        SimpleDataResource.TYPE_DISCRIMINATOR
         );
 
     @Override
@@ -59,14 +59,14 @@ implements AbstractStorageResourceEntityFactory
         }
 
     @Autowired
-    public AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
+    public AbstractDataResourceEntityFactoryImpl(final AbstractDataResourceEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<AbstractStorageResourceEntity> select(UUID uuid)
+    public Optional<AbstractDataResourceEntity> select(UUID uuid)
         {
         return repository.findById(uuid);
         }

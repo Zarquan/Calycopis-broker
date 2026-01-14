@@ -21,15 +21,26 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.component;
 
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
+import java.net.URI;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
+import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  *
  */
-public interface AbstractStorageResourceEntityFactory
-extends LifecycleComponentEntityFactory<AbstractStorageResourceEntity>
+public interface AbstractLifecycleComponentEntityFactory
+extends FactoryBase
     {
+
+    /**
+     * The select an entity by type and identifier.
+     *
+     */
+    public Optional<LifecycleComponentEntity> select(final URI kind, final UUID uuid);
 
     }

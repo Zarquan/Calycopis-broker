@@ -26,8 +26,13 @@ package net.ivoa.calycopis.functional.platfom;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
@@ -42,24 +47,29 @@ extends FactoryBaseImpl
 implements Platform
     {
 
-    public PlatformImpl()
-        {
-        super();
-        }
-    
     @Autowired
     public PlatformImpl(
         final DockerContainerEntityFactory dockerContainerEntityFactory,
         final JupyterNotebookEntityFactory jupyterNotebookEntityFactory,
         final ProcessingRequestFactory processingRequestFactory,
         final SessionProcessingRequestFactory sessionProcessingRequestFactory,
-        final ComponentProcessingRequestFactory componentResourceProcessingRequestFactory
+        final ComponentProcessingRequestFactory componentResourceProcessingRequestFactory,
+        final AbstractComputeResourceEntityFactory computeResourceEntityFactory,
+        final AbstractDataResourceEntityFactory dataResourceEntityFactory,
+        final AbstractExecutableEntityFactory executableEntityFactory,
+        final AbstractStorageResourceEntityFactory storageResourceEntityFactory,
+        final AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory
         ){
         this.dockerContainerEntityFactory = dockerContainerEntityFactory ;
         this.jupyterNotebookEntityFactory = jupyterNotebookEntityFactory ;
         this.processingRequestFactory = processingRequestFactory;
         this.sessionProcessingRequestFactory = sessionProcessingRequestFactory;
         this.componentProcessingRequestFactory = componentResourceProcessingRequestFactory;
+        this.computeResourceEntityFactory = computeResourceEntityFactory;
+        this.dataResourceEntityFactory = dataResourceEntityFactory;
+        this.executableEntityFactory = executableEntityFactory;
+        this.storageResourceEntityFactory = storageResourceEntityFactory;
+        this.lifecycleComponentEntityFactory = lifecycleComponentEntityFactory;
         }
 
     private DockerContainerEntityFactory dockerContainerEntityFactory;  
@@ -96,5 +106,39 @@ implements Platform
         {
         return this.componentProcessingRequestFactory;
         }
-    
+
+    final AbstractComputeResourceEntityFactory computeResourceEntityFactory;
+    @Override
+    public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory()
+        {
+        return this.computeResourceEntityFactory;
+        }
+
+    final AbstractDataResourceEntityFactory dataResourceEntityFactory;
+    @Override
+    public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
+        {
+        return this.dataResourceEntityFactory;
+        }
+
+    final AbstractExecutableEntityFactory executableEntityFactory;
+    @Override
+    public AbstractExecutableEntityFactory getExecutableEntityFactory()
+        {
+        return this.executableEntityFactory;
+        }
+
+    final AbstractStorageResourceEntityFactory storageResourceEntityFactory;
+    @Override
+    public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory()
+        {
+        return this.storageResourceEntityFactory;
+        }
+
+    final AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory;
+    @Override
+    public AbstractLifecycleComponentEntityFactory getLifecycleComponentEntityFactory()
+        {
+        return this.lifecycleComponentEntityFactory;
+        }
     }

@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.executable;
 
 import java.net.URI;
 import java.util.Optional;
@@ -33,7 +33,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactoryImpl;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebook;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -41,15 +42,16 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class AbstractStorageResourceEntityFactoryImpl
+public class AbstractExecutableEntityFactoryImpl
 extends FactoryBaseImpl
-implements AbstractStorageResourceEntityFactory
+implements AbstractExecutableEntityFactory
     {
 
-    private AbstractStorageResourceEntityRepository repository;
+    private AbstractExecutableEntityRepository repository;
 
     private static final Set<URI> KINDS = Set.of(
-        SimpleStorageResource.TYPE_DISCRIMINATOR
+        DockerContainer.TYPE_DISCRIMINATOR,
+        JupyterNotebook.TYPE_DISCRIMINATOR
         );
 
     @Override
@@ -59,14 +61,14 @@ implements AbstractStorageResourceEntityFactory
         }
 
     @Autowired
-    public AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
+    public AbstractExecutableEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
         {
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<AbstractStorageResourceEntity> select(UUID uuid)
+    public Optional<AbstractExecutableEntity> select(UUID uuid)
         {
         return repository.findById(uuid);
         }
