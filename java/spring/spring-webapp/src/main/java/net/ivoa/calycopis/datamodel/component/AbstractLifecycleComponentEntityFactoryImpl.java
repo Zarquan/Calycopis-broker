@@ -90,22 +90,15 @@ implements AbstractLifecycleComponentEntityFactory
         }
     
     @Override
-    public Optional<LifecycleComponentEntity> select(final URI kind, final UUID uuid)
+    public LifecycleComponentEntity select(final URI kind, final UUID uuid)
         {
         LifecycleComponentEntityFactory<?> factory = this.registry.get(kind);
         if (factory!=null)
             {
-            return Optional.ofNullable(
-                factory.select(
-                    uuid
-                    ).
-                orElse(
-                    null
-                    )
-                );
+            return factory.select(uuid).orElse(null);
             }
         else {
-            return Optional.empty();
+            return null;
             }
         }
     }

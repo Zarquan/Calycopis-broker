@@ -41,6 +41,6 @@ extends FactoryBase
      * The select an entity by type and identifier.
      *
      */
-    public Optional<LifecycleComponentEntity> select(final URI kind, final UUID uuid);
+    public LifecycleComponentEntity select(final URI kind, final UUID uuid);
 
     }

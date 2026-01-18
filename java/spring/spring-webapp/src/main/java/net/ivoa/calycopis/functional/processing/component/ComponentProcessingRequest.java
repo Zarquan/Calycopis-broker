@@ -26,6 +26,7 @@ package net.ivoa.calycopis.functional.processing.component;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequest;
 
 /**
@@ -36,6 +37,6 @@ extends ProcessingRequest
     {
     public static final URI KIND = URI.create("urn:ivoa.calycopis.processing.component-processing-request");
     
-    public LifecycleComponent getComponent();
+    public LifecycleComponent getComponent(final Platform platform);
 
     }

@@ -24,6 +24,7 @@
 package net.ivoa.calycopis.functional.processing.component;
 
 import java.net.URI;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -70,25 +71,38 @@ implements ComponentProcessingRequest
     protected ComponentProcessingRequestEntity(final URI kind, final LifecycleComponentEntity component)
         {
         super(kind);
-        this.component = component;
+        this.componentKind = component.getKind();
+        this.componentUuid = component.getUuid();
         }
 
+    protected URI componentKind;
+    protected UUID componentUuid;
+    
+    /*
+     *
     @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     protected LifecycleComponentEntity component;
+     *
+     */
 
     @Override
-    public LifecycleComponentEntity getComponent()
+    public LifecycleComponentEntity getComponent(final Platform platform)
         {
-        return this.component;
+        return platform.getLifecycleComponentEntityFactory().select(
+            this.componentKind,
+            this.componentUuid
+            );
         }
-
+    
     protected void fail(final Platform platform)
         {        
         log.debug("ProcessingRequest [{}][{}] failed", this.getUuid(), this.getClass().getSimpleName());
         platform.getSessionProcessingRequestFactory().createFailSessionRequest(
-            this.component.getSession()
+            this.getComponent(platform).getSession()
             );
         }
 
+    
+    
     }

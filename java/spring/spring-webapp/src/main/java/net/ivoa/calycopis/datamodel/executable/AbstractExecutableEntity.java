@@ -139,7 +139,7 @@ extends LifecycleComponentEntity
             public boolean process()
                 {
                 log.debug(
-                    "Preparing [{}][{}] count [{}]",
+                    "** Preparing [{}][{}] count [{}]",
                     AbstractExecutableEntity.this.getUuid(),
                     AbstractExecutableEntity.this.getClass().getSimpleName(),
                     count

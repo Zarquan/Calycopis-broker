@@ -69,56 +69,49 @@ implements ComponentProcessingRequest
     public ProcessingAction preProcess(final Platform platform)
         {
         log.debug(
-            "Pre-processing component [{}][{}][{}]",
-            this.component.getUuid(),
-            this.component.getPhase(),
-            this.component.getClass().getSimpleName()
+            "Pre-processing component [{}][{}]",
+            this.componentUuid,
+            this.componentKind
             );
-
-        AbstractLifecycleComponentEntityFactory componentFactory = platform.getLifecycleComponentEntityFactory();
         
-        log.debug("Calling abstract factory");
-        Optional<LifecycleComponentEntity> found = componentFactory.select(
-            this.component.getKind(),
-            this.component.getUuid()
+        log.debug("Resolving component using platform factories");
+        LifecycleComponentEntity component = this.getComponent(
+            platform
             );
-        log.debug("Returned from abstract factory");
 
-        if (found.isPresent())
+        if (component != null)
             {
-            log.debug("Getting optional content");
-            LifecycleComponentEntity entity = found.get(); 
             log.debug(
-                "Pre-processing component [{}][{}][{}]",
-                entity.getUuid(),
-                entity.getPhase(),
-                entity.getClass().getSimpleName()
+                "Component found [{}][{}][{}]",
+                component.getUuid(),
+                component.getPhase(),
+                component.getClass().getSimpleName()
                 );
             }
         else {
             log.error(
-                "Component [{}][{}][{}] not found in factory",
-                this.component.getUuid(),
-                this.component.getKind(),
-                this.component.getClass().getSimpleName()
+                "Unable to find component in factory [{}][{}]",
+                this.componentUuid,
+                this.componentKind
                 );
+            return ProcessingAction.NO_ACTION;
             }
         
-        switch(this.component.getPhase())
+        switch(component.getPhase())
             {
             case INITIALIZING:
             case WAITING:
                 // If the start time is in the future.
-                if ((this.component.getPrepareStartInstant() != null) && (this.component.getPrepareStartInstant().isAfter(Instant.now())))
+                if ((component.getPrepareStartInstant() != null) && (component.getPrepareStartInstant().isAfter(Instant.now())))
                     {
                     log.debug(
                         "Component [{}][{}] prepare start time is in the future [{}]",
-                        this.component.getUuid(),
-                        this.component.getClass().getSimpleName(),
-                        this.component.getPrepareStartInstant()
+                        component.getUuid(),
+                        component.getClass().getSimpleName(),
+                        component.getPrepareStartInstant()
                         );
                     // Set the phase to WAITING.
-                    this.component.setPhase(
+                    component.setPhase(
                         IvoaLifecyclePhase.WAITING
                         );
                     // No further action required.
@@ -127,18 +120,18 @@ implements ComponentProcessingRequest
                 // Start the prepare process.
                 else {
                     // Set the phase to PREPARING.
-                    this.component.setPhase(
+                    component.setPhase(
                         IvoaLifecyclePhase.PREPARING
                         );
                     // Start the prepare action.
-                    return this.component.getPrepareAction(
+                    return component.getPrepareAction(
                         this
                         );            
                     }
 
             case PREPARING:
                 // Continue the prepare action.
-                return this.component.getPrepareAction(
+                return component.getPrepareAction(
                     this
                     );
 
@@ -154,9 +147,9 @@ implements ComponentProcessingRequest
             default:
                 log.error(
                     "Unexpected phase [{}] for component [{}][{}]",
-                    this.getComponent().getPhase(),
-                    this.getComponent().getUuid(),
-                    this.getComponent().getClass().getSimpleName()
+                    component.getPhase(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
                     );
             
             }
@@ -167,32 +160,61 @@ implements ComponentProcessingRequest
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
         log.debug(
-            "Post-processing component [{}][{}][{}]",
-            this.getComponent().getUuid(),
-            this.getComponent().getPhase(),
-            this.getComponent().getClass().getSimpleName()
+            "Post-processing component [{}][{}]",
+            this.componentUuid,
+            this.componentKind
+            );
+            
+        log.debug("Resolving component using platform factories");
+        LifecycleComponentEntity component = this.getComponent(
+            platform
             );
 
-        switch(this.component.getPhase())
+        if (component != null)
+            {
+            log.debug(
+                "Component found [{}][{}][{}]",
+                component.getUuid(),
+                component.getPhase(),
+                component.getClass().getSimpleName()
+                );
+            }
+        else {
+            log.error(
+                "Unable to find component in factory [{}][{}]",
+                this.componentUuid,
+                this.componentKind
+                );
+            return ;
+            }
+        
+        log.debug(
+            "Post-processing component [{}][{}][{}]",
+            component.getUuid(),
+            component.getPhase(),
+            component.getClass().getSimpleName()
+            );
+
+        switch(component.getPhase())
             {
             // Shouldn't get here.
             case INITIALIZING:
                 log.error(
                     "Unexpected phase [{}] for component [{}][{}]",
-                    this.getComponent().getPhase(),
-                    this.getComponent().getUuid(),
-                    this.getComponent().getClass().getSimpleName()
+                    component.getPhase(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
                     );
                 break;
                 
             // Phase is waiting, reschedule this request.
             case WAITING:
                 Duration delay = Duration.ofSeconds(30);
-                if ((this.component.getPrepareStartInstant() != null) && (this.component.getPrepareStartInstant().isAfter(Instant.now())))
+                if ((component.getPrepareStartInstant() != null) && (component.getPrepareStartInstant().isAfter(Instant.now())))
                     {
                     delay = Duration.between(
                         Instant.now(),
-                        this.component.getPrepareStartInstant()
+                        component.getPrepareStartInstant()
                         ).dividedBy(
                             2L
                             );
@@ -201,8 +223,8 @@ implements ComponentProcessingRequest
                     "Re-scheduling request [{}][{}] for component [{}][{}] in [{}]s",
                     this.getUuid(),
                     this.getClass().getSimpleName(),
-                    this.component.getUuid(),
-                    this.component.getClass().getSimpleName(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
                     delay.getSeconds()
                     );
                 this.activate(delay);
@@ -215,8 +237,15 @@ implements ComponentProcessingRequest
                     {
                     //
                     // Update the component with the results of the action.
+                    log.debug(
+                        "** Post-processing action for request [{}][{}] for component [{}][{}]",
+                        this.getUuid(),
+                        this.getClass().getSimpleName(),
+                        component.getUuid(),
+                        component.getClass().getSimpleName()
+                        );
                     action.postProcess(
-                        this.component
+                        component
                         );
                     //
                     // Check the next phase from the action.
@@ -229,7 +258,7 @@ implements ComponentProcessingRequest
     
                         // If the preparation has finished, the next phase is AVAILABLE.
                         case AVAILABLE:
-                            this.component.setPhase(
+                            component.setPhase(
                                 IvoaLifecyclePhase.AVAILABLE
                                 );
                             this.done(platform);
@@ -247,8 +276,8 @@ implements ComponentProcessingRequest
                                 action.getNextPhase(),
                                 this.getUuid(),
                                 this.getClass().getSimpleName(),
-                                this.getComponent().getUuid(),
-                                this.getComponent().getClass().getSimpleName()
+                                component.getUuid(),
+                                component.getClass().getSimpleName()
                                 );
                             this.fail(platform);
                             break;
@@ -273,9 +302,9 @@ implements ComponentProcessingRequest
             default:
                 log.error(
                     "Unexpected phase [{}] for component [{}][{}]",
-                    this.getComponent().getPhase(),
-                    this.getComponent().getUuid(),
-                    this.getComponent().getClass().getSimpleName()
+                    component.getPhase(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
                     );
                 this.fail(platform);
                 break;
