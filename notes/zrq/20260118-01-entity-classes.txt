@@ -254,8 +254,195 @@ EOF
         | yq '.'
         }
 
+    createaccept
+
+    checkstatus
+
+
+--START--
+kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+executable:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      duration: "PT45S"
+    available:
+      start: "1970-01-01T00:00:45Z/PT0S"
+  ....
+compute:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      start: "2026-01-18T13:39:45Z"
+      duration: "PT15S"
+    available:
+      start: "2026-01-18T13:40:00Z/PT0S"
+      duration: "PT2H"
+  ....
+phase: "ACCEPTED"
+expires: "2026-01-18T13:41:56.948259Z"
+--END--
+
+
+--START--
+kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+executable:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+  phase: "AVAILABLE"
+  schedule:
+    preparing:
+      duration: "PT45S"
+    available:
+      start: "1970-01-01T00:00:45Z/PT0S"
+  ....
+compute:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+  phase: "WAITING"
+  schedule:
+    preparing:
+      start: "2026-01-18T13:39:45Z"
+      duration: "PT15S"
+    available:
+      start: "2026-01-18T13:40:00Z/PT0S"
+      duration: "PT2H"
+  ....
+phase: "PREPARING"
+expires: "2026-01-18T13:41:56.948259Z"
+--END--
+
+
+--START--
+kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+executable:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+  phase: "AVAILABLE"
+  schedule:
+    preparing:
+      duration: "PT45S"
+    available:
+      start: "1970-01-01T00:00:45Z/PT0S"
+  ....
+compute:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+  phase: "AVAILABLE"
+  schedule:
+    preparing:
+      start: "2026-01-18T13:39:45Z"
+      duration: "PT15S"
+    available:
+      start: "2026-01-18T13:40:00Z/PT0S"
+      duration: "PT2H"
+  ....
+phase: "PREPARING"
+expires: "2026-01-18T13:41:56.948259Z"
+--END--
+
+
+    #
+    # Looks good ...
+    # Components transition from INITIALIZING, WAITING, PREPARING to AVAILABLE.
+    # Components need to poke their session once they are AVAILABLE.
+    #
+
+    #
+    # Added session poke ...
+    #
+
+    peekstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '
+            {
+            "phase": .phase,
+            "executable": {
+                "phase": .executable.phase
+                },
+            "compute": {
+                "phase": .compute.phase
+                }
+            }
+            '
+        }
 
     createaccept
 
+    peekstatus
+
+--START--
+kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+meta:
+  uuid: "832baf90-ab27-4d26-8c39-d7685adf707b"
+  name: "no-name-offer-0"
+  url: "http://127.0.0.1:8082/sessions/832baf90-ab27-4d26-8c39-d7685adf707b"
+  created: "2026-01-18T15:27:42.535998Z"
+executable:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+  meta:
+    uuid: "2deba2cb-26d6-4445-bdbb-1bbadc1b4663"
+    url: "http://127.0.0.1:8082/executables/2deba2cb-26d6-4445-bdbb-1bbadc1b4663"
+    created: "2026-01-18T15:27:42.566813Z"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      duration: "PT45S"
+    available:
+      start: "1970-01-01T00:00:45Z/PT0S"
+    releasing:
+      duration: "PT1S"
+  privileged: false
+compute:
+  kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+  meta:
+    uuid: "d4130886-4748-44e6-820f-b5b553538f33"
+    name: "Default compute resource"
+    url: "http://127.0.0.1:8082/compute/d4130886-4748-44e6-820f-b5b553538f33"
+    created: "2026-01-18T15:27:42.599741Z"
+  phase: "INITIALIZING"
+  schedule:
+    preparing:
+      start: "2026-01-18T15:29:45Z"
+      duration: "PT15S"
+    available:
+      start: "2026-01-18T15:30:00Z/PT0S"
+      duration: "PT2H"
+    releasing:
+      start: "2026-01-18T17:30:05Z"
+      duration: "PT10S"
+  cores:
+    min: 2
+    max: 2
+  memory:
+    min: 2
+    max: 2
+phase: "ACCEPTED"
+expires: "2026-01-18T15:32:42.412864Z"
+--END--
+
+--START--
+phase: "PREPARING"
+executable:
+  phase: "AVAILABLE"
+compute:
+  phase: "WAITING"
+--END--
+
+--START--
+phase: "AVAILABLE"
+executable:
+  phase: "AVAILABLE"
+compute:
+  phase: "AVAILABLE"
+--END--
 
 

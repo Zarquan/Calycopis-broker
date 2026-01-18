@@ -94,15 +94,26 @@ implements ComponentProcessingRequest
             this.componentUuid
             );
         }
-    
+        
     protected void fail(final Platform platform)
-        {        
-        log.debug("ProcessingRequest [{}][{}] failed", this.getUuid(), this.getClass().getSimpleName());
-        platform.getSessionProcessingRequestFactory().createFailSessionRequest(
-            this.getComponent(platform).getSession()
+        {
+        this.fail(
+            platform,
+            this.getComponent(platform)
             );
         }
 
-    
-    
+    protected void fail(final Platform platform, final LifecycleComponentEntity component)
+        {
+        log.debug(
+            "ProcessingRequest [{}][{}] failed",
+            this.getUuid(),
+            this.getClass().getSimpleName()
+            );
+        platform.getSessionProcessingRequestFactory().createFailSessionRequest(
+            component.getSession()
+            );
+        this.done(platform);
+        }
+        
     }

@@ -261,12 +261,17 @@ implements ComponentProcessingRequest
                             component.setPhase(
                                 IvoaLifecyclePhase.AVAILABLE
                                 );
+                            // Schedule an update for our session.
+                            platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                                component.getSession()
+                                );
+                            // Done.
                             this.done(platform);
                             break;
     
                         // If the preparation failed, fail this component.
                         case FAILED:
-                            this.fail(platform);
+                            this.fail(platform, component);
                             break;
                             
                         // Anything else doesn't make sense.

@@ -41,6 +41,6 @@ extends FactoryBase
 
     public SessionProcessingRequest  createCancelSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public SessionProcessingRequest    createFailSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createFailSessionRequest(final SimpleExecutionSessionEntity session);
 
     }

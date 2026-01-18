@@ -96,9 +96,11 @@ implements SessionProcessingRequest
                     platform
                     );
             //
-            // Phase is already PREPARING, no Action required.
+            // Check if we are done.
             case IvoaSimpleExecutionSessionPhase.PREPARING:
-                return ProcessingAction.NO_ACTION ;
+                return finishPreparing(
+                    platform
+                    );
             //
             // Phase is past PREPARING, no further Action required.
             case IvoaSimpleExecutionSessionPhase.AVAILABLE:
