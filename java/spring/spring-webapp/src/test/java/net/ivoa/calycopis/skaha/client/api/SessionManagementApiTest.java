@@ -25,8 +25,11 @@ import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
 
 /**
  * API tests for SessionManagementApi
+ * Deprecated because the tests rely on a hack to read an authentication token from file.
+ * 
  */
 @Slf4j
+@Deprecated
 public class SessionManagementApiTest {
 
     private ApiClient defaultClient ;
@@ -59,7 +62,7 @@ public class SessionManagementApiTest {
      *
      * @throws ApiException if the Api call fails
      */
-    @Test
+    //@Test
     public void listSessions()
         throws IOException, ApiException
         {
@@ -90,7 +93,7 @@ public class SessionManagementApiTest {
      *
      * @throws ApiException if the Api call fails
      */
-    @Test
+    //@Test
     public void createSession()
         throws IOException, ApiException
         {
@@ -125,7 +128,7 @@ public class SessionManagementApiTest {
      *
      * @throws ApiException if the Api call fails
      */
-    @Test
+    //@Test
     public void getSession()
         throws Exception
         {
@@ -143,7 +146,7 @@ public class SessionManagementApiTest {
             }
         }
 
-    @Test
+    //@Test
     public void deleteAll()
         throws IOException, ApiException
         {
