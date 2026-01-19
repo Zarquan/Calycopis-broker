@@ -1,0 +1,435 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Re-sync files after time spent experimenting.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    git status
+
+    >   On branch 20251220-zrq-processing-requests
+    >   Changes to be committed:
+    >     (use "git restore --staged <file>..." to unstage)
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessor.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequest.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorEntity.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestEntity.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorEntityRepository.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestRepository.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorService.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingService.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorServiceImpl.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingServiceImpl.java
+    >
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestRepository.java
+    >
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessor.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessor.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorEntity.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntity.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorEntityRepository.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntityRepository.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorFactory.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactory.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorFactoryImpl.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactoryImpl.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorService.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorService.java
+    >   	renamed:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorServiceImpl.java -> java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorServiceOne.java
+    >
+    >   Changes not staged for commit:
+    >     (use "git add/rm <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >
+    >   	modified:   java/spring/spring-openapi/pom.xml
+    >   	modified:   java/spring/spring-webapp/pom.xml
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/component/Component.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/component/ComponentEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResource.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntityFactoryImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResource.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntityFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntityFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntityFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntityFactoryImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidatorFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainer.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerNetworkPortEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidatorImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/message/Message.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/message/MessageEntity.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/AbstractExecutionSession.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/AbstractExecutionSessionEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityUpdateHandler.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityUpdateHandlerImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityFactory.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityFactoryImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/asynchronous/AsyncConfiguration.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/booking/compute/ComputeResourceOfferFactoryImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/factory/FactoryBaseImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/Platform.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/canfar/CanfarPlatform.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatformImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequest.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestEntity.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestRepository.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingService.java
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingServiceImpl.java
+    >
+    >   	modified:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestRepository.java
+    >
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessor.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntity.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntityRepository.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactory.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactoryImpl.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorService.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorServiceOne.java
+    >
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java
+    >
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/PlatformImpl.java
+    >
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingAction.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactory.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactoryImpl.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/RequestProcessingPlatform.java
+    >
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/CancelSessionRequest.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/CancelSessionRequestEntity.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/FailSessionRequest.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/FailSessionRequestEntity.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/PrepareSessionRequest.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/PrepareSessionRequestEntity.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionAvailableRequest.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionAvailableRequestEntity.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequest.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestEntity.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestFactory.java
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestFactoryImpl.java
+    >
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/compute/
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/data/
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/executable/
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/storage/
+    >
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessingSerivceImpl.java
+    >
+    >   	notes/zrq/20251208-01-processing.txt
+    >   	notes/zrq/20251208-02-processing.txt
+    >   	notes/zrq/20251211-01-processing.txt
+    >   	notes/zrq/20251214-01-processing.txt
+    >   	notes/zrq/20251216-01-processing.txt
+    >   	notes/zrq/20251220-01-processing.txt
+    >   	notes/zrq/20251231-01-resync.txt
+
+
+# -----------------------------------------------------
+
+    git status \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test
+
+    >   On branch 20251220-zrq-processing-requests
+    >   Changes to be committed:
+    >     (use "git restore --staged <file>..." to unstage)
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessor.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntity.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntityRepository.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactory.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactoryImpl.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorService.java
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorServiceOne.java
+    >
+    >   Changes not staged for commit:
+    >     (use "git add/rm <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessor.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntity.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntityRepository.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactory.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactoryImpl.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorService.java
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorServiceOne.java
+    >
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessingSerivceImpl.java
+
+    #
+    # A mess of added and deleted files ..
+    #
+
+    git restore --staged \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test
+
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessor.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntity.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorEntityRepository.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactory.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorFactoryImpl.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorService.java
+    >   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessorServiceOne.java
+
+
+    git status \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test
+
+    >   On branch 20251220-zrq-processing-requests
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test/
+
+
+    rm -r \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/test
+
+    #
+    # Moved files not removed.
+    git commit -m "Removed TestProcessor classes" \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessor.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorEntityRepository.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorService.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/TestProcessorServiceImpl.java
+
+
+    #
+    # Renamed files listed as added and deleted.
+    git commit -m "Renamed AbstractProcessor to ProcessingRequest" \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestRepository.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingService.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingServiceImpl.java
+
+    git commit -m "Renamed AbstractProcessor to ProcessingRequest" \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessor.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorEntityRepository.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorService.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/AbstractProcessorServiceImpl.java
+
+
+    #
+    # Same file listed as added and deleted at the same time.
+    git status \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java
+
+    >   On branch 20251220-zrq-processing-requests
+    >   Changes to be committed:
+    >     (use "git restore --staged <file>..." to unstage)
+    >   	deleted:    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java
+    >
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java
+
+    git restore --staged \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityRepository.java
+
+    >   On branch 20251220-zrq-processing-requests
+    >   nothing to commit, working tree clean
+
+
+    git diff \
+        java/spring/spring-openapi/pom.xml
+
+    >   diff --git a/java/spring/spring-openapi/pom.xml b/java/spring/spring-openapi/pom.xml
+    >   index 4cf23a4..3640b07 100644
+    >   --- a/java/spring/spring-openapi/pom.xml
+    >   +++ b/java/spring/spring-openapi/pom.xml
+    >   @@ -32,7 +32,7 @@
+    >           </parent>
+    >           <groupId>net.ivoa.calycopis</groupId>
+    >           <artifactId>calycopis-openapi</artifactId>
+    >   -       <version>0.0.1-SNAPSHOT-20251205</version>
+    >   +       <version>0.0.1-SNAPSHOT-20251220</version>
+    >           <packaging>jar</packaging>
+    >           <name>Calycopis OpenAPI</name>
+    >           <description>IVOA ExecutionBroker implementation</description>
+
+    git add \
+        java/spring/spring-openapi/pom.xml \
+	    java/spring/spring-webapp/pom.xml
+
+    git commit -m "Version bump" \
+        java/spring/spring-openapi/pom.xml \
+	    java/spring/spring-webapp/pom.xml
+
+
+    #
+    # A new file already syaged ?
+
+    >   ....
+    >   	new file:   java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestRepository.java
+    >   ....
+
+    git restore --staged \
+        java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestRepository.java
+
+
+    #
+    # Now we can add the changes ..
+
+    git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResource.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResource.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerNetworkPortEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/podman/PodmanDockerContainerEntityFactoryImpl.java
+
+    git commit -m "Replacing AbstractSession with SimpleSession"
+
+
+    git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainer.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerEntity.java
+    git commit -m "Adding Docker prefix to confusing class names"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidatorFactoryImpl.java
+    git commit -m "Replacing platform specific validators"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidatorImpl.java
+    git commit -m "Adding predictPrepareTime() placeholder"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntity.java
+    git commit -m "Removed unused constructor"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityUpdateHandlerImpl.java
+    git commit -m "Replaced TestProcessor with PrepareSessionRequest"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/asynchronous/AsyncConfiguration.java
+    git commit -m "Added TaskScheduler"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/canfar/CanfarPlatform.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatform.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/podman/PodmanPlatformImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/PlatformImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/platfom/Platform.java
+    git commit -m "Adding Platform implementations"
+
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingAction.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/RequestProcessingPlatform.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/CancelSessionRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/CancelSessionRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/FailSessionRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/FailSessionRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/PrepareSessionRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/PrepareSessionRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionAvailableRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionAvailableRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequest.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestEntity.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestFactory.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestFactoryImpl.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestRepository.java \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/compute/ \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/data/ \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/executable/ \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/processing/storage/
+
+    git commit -m "Adding ProcessingRequests and ProcessingActions"
+
+	git add \
+	    java/spring/spring-webapp/src/main/java/net/ivoa/calycopis/functional/booking/compute/ComputeResourceOfferFactoryImpl.java
+    git commit -m "Tweaked the booking query"
+
+
+	git add notes
+    git commit -m "Added notes ..."
+
+
+    git status
+
+    >   On branch 20251220-zrq-processing-requests
+    >   nothing to commit, working tree clean
+

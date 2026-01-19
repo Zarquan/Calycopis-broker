@@ -1,0 +1,73 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Class cast issue with LifecycleComponentEntity.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # The simple form of PrepareComponentRequestEntity points to PodmanDockerContainerEntity via a reference to LifecycleComponentEntity.
+    # The post-processing part of the loop doesn't fully resolve the type of the Component, and we end up with a class cast issue.
+    #
+
+    >   ....
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl getNext() Finding next request for service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl getNext() Found request [eec73e2f-fa9c-492e-896b-83fa863f8ed6] for service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl loop() Pre-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl preProcess() Service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac] inner pre-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6][PrepareComponentRequestEntity]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl preProcess() Service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac] outer pre-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6][PrepareComponentRequestEntity]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 PrepareComponentRequestEntity preProcess() Pre-processing component [1ca9aa93-836f-40f0-b153-95b2fec6d91e][PREPARING][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 ProcessingServiceImpl loop() Processing action [] for request [eec73e2f-fa9c-492e-896b-83fa863f8ed6]
+    >   2026-01-09 21:00:48 DEBUG TaskScheduler-55-1 AbstractExecutableEntity process() Preparing [1ca9aa93-836f-40f0-b153-95b2fec6d91e][PodmanDockerContainerEntity] count [0]
+    >   2026-01-09 21:00:49 DEBUG TaskScheduler-55-1 ProcessingServiceImpl loop() Post-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6]
+    >   2026-01-09 21:00:49 DEBUG TaskScheduler-55-1 ProcessingServiceImpl postProcess() Service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac] inner post-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6][PrepareComponentRequestEntity]
+    >   2026-01-09 21:00:49 DEBUG TaskScheduler-55-1 ProcessingServiceImpl postProcess() Service [1d55339b-ed9e-11f0-a121-3d4a83ad92ac] outer post-processing request [eec73e2f-fa9c-492e-896b-83fa863f8ed6][PrepareComponentRequestEntity]
+    >   2026-01-09 21:00:49 DEBUG TaskScheduler-55-1 PrepareComponentRequestEntity postProcess() Post-processing component [1ca9aa93-836f-40f0-b153-95b2fec6d91e][PREPARING][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-09 21:00:49 DEBUG TaskScheduler-55-1 AbstractExecutableEntity postProcess() Post processing [1ca9aa93-836f-40f0-b153-95b2fec6d91e][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-09 21:00:49 ERROR TaskScheduler-55-1 AbstractExecutableEntity postProcess() Unexpected component type [LifecycleComponentEntity$HibernateProxy] post processing [1ca9aa93-836f-40f0-b153-95b2fec6d91e][LifecycleComponentEntity$HibernateProxy]
+    >   ....
+
+    #
+    # First explore the inheritance tree.
+    # Is this because PodmanDockerContainerEntity is too many levels away from LifecycleComponentEntity ?
+    # Does it work if we simplify the inheritance tree ?
+    # Otherwise, do we need a registry of entity factories ?
+    # Part of Platform is getEntityFactory(URI kind), and we register each EntityFactory as they are created.
+    # (*) Note - the EntityFactories still need to be loaded by Spring via an @Autowired annotation for them to work.
+    #
+    # Yay, just another bump in the road ...
+    # Slows us down though :-(
+    # We are really close, but it keeps slipping away.
+    #
+    # Interesting to see if Quarkus makes this kind of thing easier.
+    # Cool if it does.
+    #
+

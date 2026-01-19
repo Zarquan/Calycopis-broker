@@ -1,0 +1,348 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Iterative design steps ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Do we use a generic processing thread that references ComponentEntity or LifecycleComponentEntity
+    and uses the polymorphic discriminator to load the correct class for each Entity, or do we have
+    different types of Processors for each type of Entity.
+
+    Do we keep the process method in the Processor implementation or od we move it to the ComponentEntity ?
+
+    Processor has a lazy-loaded reference to the corresponding Entity.
+    Entity does not have a reference to the Processor - preventing thread conflicts.
+
+    Keep Processor generic and call the process() method on the Component.
+    The process() method takes one action based on the current state.
+
+    Create a Sleepy version of each of the Component types, with a simple sleep() call in their process() methods.
+    SleepySimpleData
+    SleepySimpleCompute
+    SleepyDockerExecutable
+    ...
+
+# -----------------------------------------------------
+
+    Got is wrong again.
+    Current design for TestProcessorEntity has the long sleep inside a transaction.
+
+        @Transactional(propagation = Propagation.REQUIRES_NEW)
+        protected void process(final AbstractProcessorService service, final UUID uuid)
+            {
+            AbstractProcessorEntity processor = this.repository.findById(uuid).orElseThrow();
+            log.debug("Processing service [{}] processing task [{}][{}]", service.getUuid(), processor.getUuid(), processor.getClass().getSimpleName());
+            processor.process();
+            log.debug("Saving task [{}] with activation [{}]", processor.getUuid(), processor.getActivation());
+            repository.save(processor);
+            }
+
+    This is wrong.
+    We need a preProcess(), process() and postProcess methods.
+    preProcess() and postProcess are @Transactional and load the entities
+    process is NOT transactional
+
+    ProcessingService
+
+        loop
+
+            ProcessingAction action = inner.preProcess(UUID procid)
+                TransactionalInnerClass
+                    preProcess(UUID uuid)
+                        actor = this.repository.findById(procid).orElseThrow();
+                        return actor.getComponent().preProcess()
+                            switch(phase)
+                                ....
+                                default:
+                                    actor.deactivate();
+                                    return null;
+
+
+            if (action != null)
+
+                action.process()
+                    // Do external thing based on the component and its phase
+                    // Calling Skaha
+                    // Allocating storage
+                    // Downloading data
+                    // Pausing for a moment ..
+
+                inner.postProcess(UUID procid, ProcessingAction action)
+                    TransactionalInnerClass
+                        postProcess(UUID procid, action)
+                            actor = this.repository.findById(procid).orElseThrow();
+                            actor.getComponent().postProcess(action, actor)
+                                switch(phase)
+                                    ....
+                                    default:
+                                        actor.deactivate()
+
+
+
+# -----------------------------------------------------
+
+    We also need to be able to activate one actor from another.
+    Storage resources need to be able to activate their data resources.
+
+    We can model this as adding them by INSERTing a row into the queue,
+    but that imples a delete when they are done
+
+    INSERTing a new row is thread safe because no one else can be using the new row
+    UPDATEing an existing row isn't thread safe because another thread might be using the same row
+
+    The way to do this is to have a separate table for the notifications.
+    INSERT a row to activate an actor.
+    The actor DELETEs the row when done.
+
+# -----------------------------------------------------
+
+    ComponentEntity is a thing
+    Action is a thing
+
+    service.inner.preProcess()
+        component.preProcess() => Action
+
+    service.inner.process(action)
+        action.process()
+
+    service.inner.postProcess()
+        component.postProcess(action)
+
+    What does the Actor do ?
+
+    Queue table has uuid of Actor
+    Actor provides reference to Component
+    Actor has a phase - but how is this different to the Component phase ?
+
+    At the moment Actor is an Entity and the queue is the same table.
+    So each Actor has a single entry.
+    Selection is done by sorting by activation time.
+
+    Ignore the Actors
+    Queue table has UUID and kind of component and activation time.
+
+    INSERT a row on the table to get a Component processed.
+    Row is DELETED once the Action is created.
+    If we do that we will need to use JdbcTemplate to do the SQL operations ourselves.
+
+    We don't need to resort to a JdbcTemplate to do this.
+    We can use the JPA repository to create and delete the rows.
+    So Actor is an Entity, with a LAZY_LOADED reference to Component.
+    Use the JpaRepository to create and delete the objects.
+
+    To activate a Component, create a new Activation.
+
+    Activation
+        uuid
+        activation date
+        component ref
+
+    repository.save(
+        new Activation(
+            component,
+            datetime
+            )
+        )
+
+    Once we have created the action, delete the Activation
+
+    repository.delete(activation)
+
+    problem
+    we will have more than one activation per component
+    which will mean more than one activation thread per component
+    the claim will lock the activation, but not the component
+    so we can have more than one thread modifying the component ...
+    two threads load activations for the same component
+    each thread sees the same component state, and produces an action to perform the same external operation
+
+
+    missing something
+    going round in circles
+
+    we want another thread to be able to notify a component, putting it on the queue to be processed
+    to avoid conflicts we allow multiple entries per component
+    because they should be harmless
+    but that is only true if the component is locked while it is being processed
+
+    we don't want to use the transaction locking, because that would cause a concurrent modification
+    exception and rollback, or it could potentially cause lock up if two threads tried to access the
+    same entity from different directions
+
+    We created the ProcessingActor with a 1:1 relationship between Actor and Component
+    so that claiming the Actor claimed the Component.
+
+    but if another thread wanted to add the ProcessingActor to the queue for processing
+    it would have to get a lock on the ProcessingActor and then update its activation time
+    which could conflict with what another thread was about to do ..
+
+    Two things means two tables ?
+    Smells bad
+
+    table of notifications
+    insert a record to schdule something
+    with a reference to the Actor for a component
+
+    get the next notification,
+    get the actorid
+    delete the notification
+
+    get the Actor, and claim it by setting threadid
+    prevents others from using it
+
+    this feels like 2 queues, which is an anti-pattern
+
+
+
+    drop as many Activations into the queue as you want
+
+    a service thread getNext() picks up the next Activation and claims it by adding the service/threadid
+
+    the service thread preProcess() picks up the Activation together with the Component in a transaction
+
+    we need to mark the Component as busy
+    so that other Activations don't modify it during the process() method
+    or do we ?
+
+    the whole reason for the preProcess(), process() and postProcess() split is
+    the long running process() method is outside a transaction
+    so that other threads can access the Component
+
+    we need to set a state on the preProcess() that tells other threads what is happening
+    and prevents them causing a conflict
+
+# -----------------------------------------------------
+
+    Do we just need to say there is an active Action in progress ?
+    Try some worked examples
+
+        Downloading a data resource
+        DataResource phase starts at INITIALIZING or WAITING
+
+        First Activation comes from the Offer being accepted
+        Second Activation comes from storage resource being ready
+        but the Activations just notify, they don't say why
+
+        First Activation is picked up
+        service.preProcess()
+        finds the DataResource phase is WAITING
+        checks the storage resource is ready
+        sets the DataResource phase to PREPARING
+        creates a download Action
+        deletes the Activation
+
+        service.process()
+        starts the download Action
+
+        Second Activation is picked up
+        service.preProcess()
+        finds the DataResource phase is already PREPARING
+        which means an Action has already been launched
+        do nothing
+        deletes the Activation
+
+        service.process()
+        completes the download Action
+
+        service.postProcess()
+        finds the DataResource phase is still PREPARING
+        sets the DataResource phase to AVAILABLE
+        adds Activation for the parent Session
+
+# -----------------------------------------------------
+
+        Transfer a data resource
+        DataResource phase starts at INITIALIZING or WAITING
+
+        First Activation comes from the Offer being accepted
+        Second Activation comes from storage resource being ready
+        but the Activations just notify, they don't say why
+
+        First Activation is picked up
+        service.preProcess()
+        finds the DataResource phase is WAITING
+        checks the storage resource is ready
+        sets the DataResource phase to PREPARING
+        creates a prepareData start Action
+        sets something in the Component to indicate an Action is in progress
+        leaves the Activation in place
+
+        service.process()
+        Action calls external prepareData services saves the response
+
+        service.postProcess()
+        checks the DataResource phase is still PREPARING
+        saves the id from the prepareData response as prepareid in the Component
+        updates the Activation timestamp to wait +30sec
+
+
+        First Activation is picked up again
+        service.preProcess()
+        finds the DataResource phase is PREPARING ++
+        finds the id from the prepareData response
+        creates a prepareData poll Action
+
+        service.process()
+        Action polls external prepareData service and saves the response
+
+        service.postProcess()
+        checks the DataResource phase is still PREPARING ++
+        checks the prepareData response (in progress)
+        updates the activation timestamp to wait +30sec
+        or delete this one and add a new one ..
+
+
+        Second Activation is picked up
+        service.preProcess()
+        finds the DataResource phase is already PREPARING
+        which means an Action has already been launched
+        do nothing
+        deletes this Activation
+
+
+        First Activation is picked up again
+        service.preProcess()
+        finds the DataResource phase is PREPARING
+        finds the id from the prepareData response
+        creates a prepareData poll Action
+
+        service.process()
+        Action polls external prepareData service and saves the response
+
+        service.postProcess()
+        checks the DataResource phase is still PREPARING
+        checks the prepareData response (done)
+        sets the DataResource phase to AVAILABLE
+        adds Activation for the parent Session
+        deletes this Activation
+
+

@@ -33,7 +33,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
@@ -69,7 +68,7 @@ implements AbstractComputeResource
      * 
      */
     protected AbstractComputeResourceEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
         final IvoaComponentMetadata meta
@@ -77,14 +76,10 @@ implements AbstractComputeResource
         super(
             meta
             );
-
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity) session).setComputeResource(
-                this
-                );
-            }
+        this.session.setComputeResource(
+            this
+            );
         
         //
         // Start preparing before the offer is available.
@@ -109,14 +104,14 @@ implements AbstractComputeResource
 
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
-
+    protected SimpleExecutionSessionEntity session;
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }
 
+    
     public abstract IvoaAbstractComputeResource makeBean(final URIBuilder builder);
 
     protected IvoaAbstractComputeResource fillBean(final IvoaAbstractComputeResource bean)

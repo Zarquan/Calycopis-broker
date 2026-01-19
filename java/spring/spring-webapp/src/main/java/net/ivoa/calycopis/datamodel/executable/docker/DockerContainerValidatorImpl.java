@@ -33,7 +33,7 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
@@ -49,15 +49,15 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
  *
  */
 @Slf4j
-public abstract class DockerContainerValidatorImpl
+public class DockerContainerValidatorImpl
 extends AbstractExecutableValidatorImpl
 implements DockerContainerValidator
     {
 
-    private final PodmanPlatform platform;
+    private final Platform platform;
 
     @Autowired
-    public DockerContainerValidatorImpl(final PodmanPlatform platform)
+    public DockerContainerValidatorImpl(final Platform platform)
         {
         this.platform = platform;
         }
@@ -625,10 +625,14 @@ implements DockerContainerValidator
         }
 
     /*
-     * Platform dependent prepare time.
+     * TODO This will be platform dependent.
      * 
      */
+    public static final Long DEFAULT_PREPARE_TIME = 45L;
     @Deprecated
-    protected abstract Long predictPrepareTime(final IvoaDockerContainer validated);
+    protected Long predictPrepareTime(final IvoaDockerContainer validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
     
     }

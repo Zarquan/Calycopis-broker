@@ -28,8 +28,10 @@ import java.util.UUID;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated
 public interface AsyncSessionHandler
 extends FactoryBase
     {

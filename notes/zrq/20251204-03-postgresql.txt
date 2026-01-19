@@ -236,10 +236,8 @@ EOF
         | tee "004-accept-00-response.yaml" \
         | yq '.'
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -295,29 +293,23 @@ EOF
 
         psql --host localhost --username albert calycopis
 
---START--
-psql (18.1 (Debian 18.1-1.pgdg13+2))
-Type "help" for help.
+    >   psql (18.1 (Debian 18.1-1.pgdg13+2))
+    >   Type "help" for help.
+    >   
+    >   calycopis=#
+    >   ....
+    >   ....
 
-calycopis=#
-....
-....
---END--
+    >   calycopis=# \db
+    >         List of tablespaces
+    >       Name    | Owner  | Location
+    >   ------------+--------+----------
+    >    pg_default | albert |
+    >    pg_global  | albert |
+    >   (2 rows)
 
---START--
-calycopis=# \db
-      List of tablespaces
-    Name    | Owner  | Location
-------------+--------+----------
- pg_default | albert |
- pg_global  | albert |
-(2 rows)
---END--
-
---START--
-calycopis=# \dt
-Did not find any tables.
---END--
+    >   calycopis=# \dt
+    >   Did not find any tables.
 
 
 # -----------------------------------------------------
@@ -326,13 +318,11 @@ Did not find any tables.
 
     pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
 
---START--
-....
-....
-org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC connection [Connection to localhost:5432 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.] [n/a]
-....
-....
---END--
+    >   ....
+    >   ....
+    >   org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC connection [Connection to localhost:5432 refused. Check that the hostname and port are correct and that the postmaster is accepting TCP/IP connections.] [n/a]
+    >   ....
+    >   ....
 
     #
     # OK, here we go ...
@@ -361,10 +351,8 @@ org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC 
         ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
         bash
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     podman run \
@@ -379,10 +367,8 @@ org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC 
         --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
         docker.io/library/postgres:latest
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -394,26 +380,24 @@ org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC 
         ....
         ....
 
---START--
-....
-....
-2025-12-04 18:40:01 ERROR main SpringApplication reportFailure() Application run failed
-org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'abstractProcessorServiceImpl.TransactionalInnerClass': Unsatisfied dependency expressed through field 'repository': Error creating bean with name 'abstractProcessorEntityRepository' defined in net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository defined in @EnableJpaRepositories declared on AmbleckApplication: Could not create query for public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List); Reason: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
-....
-....
-Caused by: org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List); Reason: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
-....
-....
-Caused by: java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
-....
-....
-Caused by: java.lang.IllegalArgumentException: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
-....
-....
-Caused by: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
-....
-....
---END--
+    >   ....
+    >   ....
+    >   2025-12-04 18:40:01 ERROR main SpringApplication reportFailure() Application run failed
+    >   org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'abstractProcessorServiceImpl.TransactionalInnerClass': Unsatisfied dependency expressed through field 'repository': Error creating bean with name 'abstractProcessorEntityRepository' defined in net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository defined in @EnableJpaRepositories declared on AmbleckApplication: Could not create query for public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List); Reason: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
+    >   ....
+    >   ....
+    >   Caused by: org.springframework.data.repository.query.QueryCreationException: Could not create query for public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List); Reason: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
+    >   ....
+    >   ....
+    >   Caused by: java.lang.IllegalArgumentException: Validation failed for query for method public abstract java.util.UUID net.ivoa.calycopis.functional.processing.AbstractProcessorEntityRepository.selectNextActive(java.util.UUID,java.util.List)
+    >   ....
+    >   ....
+    >   Caused by: java.lang.IllegalArgumentException: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
+    >   ....
+    >   ....
+    >   Caused by: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
+    >   ....
+    >   ....
 
     #
     # To start with, we shouldn't be using OffsetDateTime.
@@ -424,24 +408,22 @@ Caused by: org.hibernate.query.SemanticException: Cannot compare left expression
     # We can tell the OpenAPI code generator which classes to use for dates and times.
     # https://www.baeldung.com/openapi-map-date-types#use-other-standard-date-classes
     #
---START--
-  ....
-  <configOptions>
-      <java8>true</java8>
-      <dateLibrary>custom</dateLibrary>
-      <openApiNullable>false</openApiNullable>
-      <interfaceOnly>true</interfaceOnly>
-  </configOptions>
-  <typeMappings>
-    <typeMapping>DateTime=Instant</typeMapping>
-    <typeMapping>Date=Date</typeMapping>
-  </typeMappings>
-  <importMappings>
-      <importMapping>Instant=java.time.Instant</importMapping>
-      <importMapping>Date=java.util.Date</importMapping>
-  </importMappings>
-  ....
---END--
+    >     ....
+    >     <configOptions>
+    >         <java8>true</java8>
+    >         <dateLibrary>custom</dateLibrary>
+    >         <openApiNullable>false</openApiNullable>
+    >         <interfaceOnly>true</interfaceOnly>
+    >     </configOptions>
+    >     <typeMappings>
+    >       <typeMapping>DateTime=Instant</typeMapping>
+    >       <typeMapping>Date=Date</typeMapping>
+    >     </typeMappings>
+    >     <importMappings>
+    >         <importMapping>Instant=java.time.Instant</importMapping>
+    >         <importMapping>Date=java.util.Date</importMapping>
+    >     </importMappings>
+    >     ....
 
 
 # -----------------------------------------------------
@@ -450,13 +432,11 @@ Caused by: org.hibernate.query.SemanticException: Cannot compare left expression
 
     pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
 
---START--
-....
-....
-Caused by: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
-....
-....
---END--
+    >   ....
+    >   ....
+    >   Caused by: org.hibernate.query.SemanticException: Cannot compare left expression of type 'java.time.OffsetDateTime' with right expression of type 'java.lang.Object'
+    >   ....
+    >   ....
 
         #
         # Found a JPA value for the current date and time.
@@ -464,13 +444,11 @@ Caused by: org.hibernate.query.SemanticException: Cannot compare left expression
         # https://www.objectdb.com/java/jpa/query/jpql/date#current_date_and_time
         #
 
---START--
-....
-....
-AND
-    activation < CURRENT_TIMESTAMP
-....
---END--
+    >   ....
+    >   ....
+    >   AND
+    >       activation < CURRENT_TIMESTAMP
+    >   ....
 
 
 # -----------------------------------------------------
@@ -495,17 +473,15 @@ AND
 
 
 
---START--
-....
-2025-12-05 14:11:01 ERROR http-nio-8082-exec-1 [dispatcherServlet] log() Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception
-    [Request processing failed: org.springframework.jdbc.BadSqlGrammarException: PreparedStatementCallback; bad SQL grammar [
-    ....
-    ....
-    ]] with root cause
-org.postgresql.util.PSQLException: ERROR: syntax error at or near "    "
-  Position: 1739
-....
---END--
+    >   ....
+    >   2025-12-05 14:11:01 ERROR http-nio-8082-exec-1 [dispatcherServlet] log() Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception
+    >       [Request processing failed: org.springframework.jdbc.BadSqlGrammarException: PreparedStatementCallback; bad SQL grammar [
+    >       ....
+    >       ....
+    >       ]] with root cause
+    >   org.postgresql.util.PSQLException: ERROR: syntax error at or near "    "
+    >     Position: 1739
+    >   ....
 
     So ... Position: 1739
     That doesn't really help much.
@@ -741,57 +717,53 @@ org.postgresql.util.PSQLException: ERROR: syntax error at or near "    "
 
             \db
 
---START--
-      List of tablespaces
-    Name    | Owner  | Location
-------------+--------+----------
- pg_default | albert |
- pg_global  | albert |
-(2 rows)
---END--
+    >         List of tablespaces
+    >       Name    | Owner  | Location
+    >   ------------+--------+----------
+    >    pg_default | albert |
+    >    pg_global  | albert |
+    >   (2 rows)
 
 
             \dt
---START--
-                    List of tables
- Schema |            Name            | Type  | Owner
---------+----------------------------+-------+--------
- public | abstract_processors        | table | albert
- public | abstractcomputeresources   | table | albert
- public | abstractdataresources      | table | albert
- public | abstractexecutables        | table | albert
- public | abstractexecutionsessions  | table | albert
- public | abstractstorageresources   | table | albert
- public | abstractvolumemounts       | table | albert
- public | components                 | table | albert
- public | dockercontainers           | table | albert
- public | dockerenvironmentvariables | table | albert
- public | dockerexternaladdresses    | table | albert
- public | dockerimagelocations       | table | albert
- public | dockernetworkports         | table | albert
- public | ivoadataresources          | table | albert
- public | jupyternotebooks           | table | albert
- public | lifecyclecomponents        | table | albert
- public | messages                   | table | albert
- public | offersets                  | table | albert
- public | planningsequence           | table | albert
- public | planningsteps              | table | albert
- public | podmandockercontainers     | table | albert
- public | podmanjupyternotebooks     | table | albert
- public | s3dataresources            | table | albert
- public | scheduledexecutionsessions | table | albert
- public | sessionconnectors          | table | albert
- public | simplecomputeresources     | table | albert
- public | simpledataresources        | table | albert
- public | simpleexecutionsessions    | table | albert
- public | simplestorageresources     | table | albert
- public | simplevolumemounts         | table | albert
- public | skaodataresourcereplicas   | table | albert
- public | skaodataresources          | table | albert
- public | test_processors            | table | albert
- public | teststeps                  | table | albert
-(34 rows)
---END--
+    >                       List of tables
+    >    Schema |            Name            | Type  | Owner
+    >   --------+----------------------------+-------+--------
+    >    public | abstract_processors        | table | albert
+    >    public | abstractcomputeresources   | table | albert
+    >    public | abstractdataresources      | table | albert
+    >    public | abstractexecutables        | table | albert
+    >    public | abstractexecutionsessions  | table | albert
+    >    public | abstractstorageresources   | table | albert
+    >    public | abstractvolumemounts       | table | albert
+    >    public | components                 | table | albert
+    >    public | dockercontainers           | table | albert
+    >    public | dockerenvironmentvariables | table | albert
+    >    public | dockerexternaladdresses    | table | albert
+    >    public | dockerimagelocations       | table | albert
+    >    public | dockernetworkports         | table | albert
+    >    public | ivoadataresources          | table | albert
+    >    public | jupyternotebooks           | table | albert
+    >    public | lifecyclecomponents        | table | albert
+    >    public | messages                   | table | albert
+    >    public | offersets                  | table | albert
+    >    public | planningsequence           | table | albert
+    >    public | planningsteps              | table | albert
+    >    public | podmandockercontainers     | table | albert
+    >    public | podmanjupyternotebooks     | table | albert
+    >    public | s3dataresources            | table | albert
+    >    public | scheduledexecutionsessions | table | albert
+    >    public | sessionconnectors          | table | albert
+    >    public | simplecomputeresources     | table | albert
+    >    public | simpledataresources        | table | albert
+    >    public | simpleexecutionsessions    | table | albert
+    >    public | simplestorageresources     | table | albert
+    >    public | simplevolumemounts         | table | albert
+    >    public | skaodataresourcereplicas   | table | albert
+    >    public | skaodataresources          | table | albert
+    >    public | test_processors            | table | albert
+    >    public | teststeps                  | table | albert
+    >   (34 rows)
 
 
         #
@@ -834,11 +806,9 @@ org.postgresql.util.PSQLException: ERROR: syntax error at or near "    "
         WHERE
             SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
 
---START--
- blockphase | blockstart | blocklength | usedcores | usedmemory
-------------+------------+-------------+-----------+------------
-(0 rows)
---END--
+    >    blockphase | blockstart | blocklength | usedcores | usedmemory
+    >   ------------+------------+-------------+-----------+------------
+    >   (0 rows)
 
 
     WITH ExecutionBlocks AS
@@ -890,10 +860,8 @@ org.postgresql.util.PSQLException: ERROR: syntax error at or near "    "
         StartRange.StartRow
     ;
 
---START--
-ERROR:  syntax error at or near "    "
-LINE 43:         AND
---END--
+    >   ERROR:  syntax error at or near "    "
+    >   LINE 43:         AND
 
     #
     # It is objecting to the spaces before the AND in the LEFT OUTER JOIN .. ON criteria.
@@ -903,12 +871,10 @@ LINE 43:         AND
     # Moving on to the next problem.
     #
 
---START--
-ERROR:  function ifnull(numeric, integer) does not exist
-LINE 30:         (32  - IfNull(sum(ExecutionBlocks.UsedCores),  0)) A...
-                        ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
---END--
+    >   ERROR:  function ifnull(numeric, integer) does not exist
+    >   LINE 30:         (32  - IfNull(sum(ExecutionBlocks.UsedCores),  0)) A...
+    >                           ^
+    >   HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
 
     #
     # H2 IfNull is an alias for COALESCE
@@ -964,29 +930,27 @@ HINT:  No function matches the given name and argument types. You might need to 
         StartRange.StartRow
     ;
 
---START--
-startrow | rowcount | freecores | freememory
-----------+----------+-----------+-------------
- 29415869 |        0 |        32 | 34359738368
- 29416178 |        0 |        32 | 34359738368
- 29416835 |        0 |        32 | 34359738368
- 29416238 |        0 |        32 | 34359738368
- 29416630 |        0 |        32 | 34359738368
- 29417016 |        0 |        32 | 34359738368
- 29417010 |        0 |        32 | 34359738368
- 29415966 |        0 |        32 | 34359738368
- 29416945 |        0 |        32 | 34359738368
- 29416618 |        0 |        32 | 34359738368
- 29416598 |        0 |        32 | 34359738368
- 29416651 |        0 |        32 | 34359738368
- 29415933 |        0 |        32 | 34359738368
-....
-....
- 29416841 |        0 |        32 | 34359738368
- 29416197 |        0 |        32 | 34359738368
- 29416056 |        0 |        32 | 34359738368
-(1440 rows)
---END--
+    >   startrow | rowcount | freecores | freememory
+    >   ----------+----------+-----------+-------------
+    >    29415869 |        0 |        32 | 34359738368
+    >    29416178 |        0 |        32 | 34359738368
+    >    29416835 |        0 |        32 | 34359738368
+    >    29416238 |        0 |        32 | 34359738368
+    >    29416630 |        0 |        32 | 34359738368
+    >    29417016 |        0 |        32 | 34359738368
+    >    29417010 |        0 |        32 | 34359738368
+    >    29415966 |        0 |        32 | 34359738368
+    >    29416945 |        0 |        32 | 34359738368
+    >    29416618 |        0 |        32 | 34359738368
+    >    29416598 |        0 |        32 | 34359738368
+    >    29416651 |        0 |        32 | 34359738368
+    >    29415933 |        0 |        32 | 34359738368
+    >   ....
+    >   ....
+    >    29416841 |        0 |        32 | 34359738368
+    >    29416197 |        0 |        32 | 34359738368
+    >    29416056 |        0 |        32 | 34359738368
+    >   (1440 rows)
 
     #
     # Moving on to the next problem.
@@ -1068,18 +1032,14 @@ startrow | rowcount | freecores | freememory
     SELECT * FROM ConsecutiveBlocks
     ;
 
---START--
-ERROR:  syntax error at or near "ROW_NUMBER"
-LINE 55:                 ROW_NUMBER() OVER (
---END--
+    >   ERROR:  syntax error at or near "ROW_NUMBER"
+    >   LINE 55:                 ROW_NUMBER() OVER (
 
 
     Removed "(AvailableBlocks.StartRow + 1) -" and we get a different error ..
 
---START--
-ERROR:  syntax error at or near "("
-LINE 53:             ROW_NUMBER() OVER (
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 53:             ROW_NUMBER() OVER (
 
 
     WITH ExecutionBlocks AS
@@ -1155,10 +1115,8 @@ LINE 53:             ROW_NUMBER() OVER (
     SELECT * FROM ConsecutiveBlocks
     ;
 
---START--
-ERROR:  syntax error at or near "("
-LINE 53:             ROW_NUMBER() OVER (
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 53:             ROW_NUMBER() OVER (
 
 
     #
@@ -1217,9 +1175,7 @@ LINE 53:             ROW_NUMBER() OVER (
     SELECT * INTO AvailableBlocksTemp FROM AvailableBlocks
     ;
 
---START--
-SELECT 1440
---END--
+    >   SELECT 1440
 
     #
     # Now we can experiment with the ConsecutiveBlocks query.
@@ -1248,10 +1204,8 @@ SELECT 1440
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
-ERROR:  syntax error at or near "ROW_NUMBER"
-LINE 5:                 ROW_NUMBER () OVER (
---END--
+    >   ERROR:  syntax error at or near "ROW_NUMBER"
+    >   LINE 5:                 ROW_NUMBER () OVER (
 
 
 
@@ -1275,10 +1229,8 @@ LINE 5:                 ROW_NUMBER () OVER (
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
-ERROR:  syntax error at or near "("
-LINE 2:             ROW_NUMBER () OVER (
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 2:             ROW_NUMBER () OVER (
 
 
         SELECT
@@ -1293,10 +1245,8 @@ LINE 2:             ROW_NUMBER () OVER (
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
-ERROR:  syntax error at or near "("
-LINE 2:             ROW_NUMBER () OVER () AS BlockGroup,
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 2:             ROW_NUMBER () OVER () AS BlockGroup,
 
 
         SELECT
@@ -1311,10 +1261,8 @@ LINE 2:             ROW_NUMBER () OVER () AS BlockGroup,
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
-ERROR:  syntax error at or near "("
-LINE 2:             ROW_NUMBER() AS BlockGroup,
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 2:             ROW_NUMBER() AS BlockGroup,
 
 
         SELECT
@@ -1329,10 +1277,8 @@ LINE 2:             ROW_NUMBER() AS BlockGroup,
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
-ERROR:  syntax error at or near "("
-LINE 2:             ROW_NUMBER() AS BlockGroup,
---END--
+    >   ERROR:  syntax error at or near "("
+    >   LINE 2:             ROW_NUMBER() AS BlockGroup,
 
 
         SELECT ROW_NUMBER() OVER () AS BlockGroup,
@@ -1346,19 +1292,17 @@ LINE 2:             ROW_NUMBER() AS BlockGroup,
             AvailableBlocksTemp.FreeMemory >= 1
         ;
 
---START--
- blockgroup | freecores | freememory
-------------+-----------+-------------
-          1 |        32 | 34359738368
-          2 |        32 | 34359738368
-          3 |        32 | 34359738368
-        ....
-        ....
-       1438 |        32 | 34359738368
-       1439 |        32 | 34359738368
-       1440 |        32 | 34359738368
-(1440 rows)
---END--
+    >    blockgroup | freecores | freememory
+    >   ------------+-----------+-------------
+    >             1 |        32 | 34359738368
+    >             2 |        32 | 34359738368
+    >             3 |        32 | 34359738368
+    >           ....
+    >           ....
+    >          1438 |        32 | 34359738368
+    >          1439 |        32 | 34359738368
+    >          1440 |        32 | 34359738368
+    >   (1440 rows)
 
         #
         # It was a problem with white spaces (again) !!
@@ -1372,52 +1316,50 @@ LINE 2:             ROW_NUMBER() AS BlockGroup,
 
     hexdump -C ComputeResourceOfferFactoryImpl.java
 
---START--
-....
-000025b0  20 20 20 20 20 20 20 20  53 45 4c 45 43 54 0a 20  |        SELECT. |
-000025c0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-000025d0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
-000025e0  6b 73 2e 53 74 61 72 74  52 6f 77 2c 0a 20 20 20  |ks.StartRow,.   |
-000025f0  20 20 20 20 20 20 20 20  20 c2 a0 c2 a0 c2 a0 c2  |         .......|
-00002600  a0 c2 a0 c2 a0 c2 a0 c2  a0 28 41 76 61 69 6c 61  |.........(Availa|
-00002610  62 6c 65 42 6c 6f 63 6b  73 2e 53 74 61 72 74 52  |bleBlocks.StartR|
-00002620  6f 77 20 2b 20 31 29 20  2d 0a 20 20 20 20 20 20  |ow + 1) -.      |
-00002630  20 20 20 20 20 20 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |      ..........|
-00002640  c2 a0 c2 a0 c2 a0 20 20  20 20 28 0a 20 20 20 20  |......    (.    |
-00002650  20 20 20 20 20 20 20 20  c2 a0 c2 a0 c2 a0 c2 a0  |        ........|
-00002660  c2 a0 c2 a0 c2 a0 c2 a0  20 20 20 20 52 4f 57 5f  |........    ROW_|
-00002670  4e 55 4d 42 45 52 28 29  20 4f 56 45 52 20 28 0a  |NUMBER() OVER (.|
-00002680  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
-00002690  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
-000026a0  20 20 20 20 50 41 52 54  49 54 49 4f 4e 20 42 59  |    PARTITION BY|
-000026b0  20 28 0a 20 20 20 20 20  20 20 20 20 20 20 20 c2  | (.            .|
-000026c0  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 c2 a0 c2 a0 20  |............... |
-000026d0  20 20 20 20 20 20 20 20  20 20 20 41 76 61 69 6c  |           Avail|
-000026e0  61 62 6c 65 42 6c 6f 63  6b 73 2e 46 72 65 65 43  |ableBlocks.FreeC|
-000026f0  6f 72 65 73 20 20 3e 3d  20 3a 6d 69 6e 63 6f 72  |ores  >= :mincor|
-00002700  65 73 0a 20 20 20 20 20  20 20 20 20 20 20 20 c2  |es.            .|
-00002710  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 c2 a0 c2 a0 20  |............... |
-00002720  20 20 20 20 20 20 20 20  20 20 20 41 4e 44 0a 20  |           AND. |
-00002730  20 20 20 20 20 20 20 20  20 20 20 c2 a0 c2 a0 c2  |           .....|
-00002740  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 20 20 20 20 20  |...........     |
-00002750  20 20 20 20 20 20 20 41  76 61 69 6c 61 62 6c 65  |       Available|
-00002760  42 6c 6f 63 6b 73 2e 46  72 65 65 4d 65 6d 6f 72  |Blocks.FreeMemor|
-00002770  79 20 3e 3d 20 3a 6d 69  6e 6d 65 6d 6f 72 79 0a  |y >= :minmemory.|
-00002780  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
-00002790  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
-000027a0  20 20 20 20 20 20 20 20  29 0a 20 20 20 20 20 20  |        ).      |
-000027b0  20 20 20 20 20 20 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |      ..........|
-000027c0  c2 a0 c2 a0 c2 a0 20 20  20 20 20 20 20 20 4f 52  |......        OR|
-000027d0  44 45 52 20 42 59 20 41  76 61 69 6c 61 62 6c 65  |DER BY Available|
-000027e0  42 6c 6f 63 6b 73 2e 53  74 61 72 74 52 6f 77 0a  |Blocks.StartRow.|
-000027f0  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
-00002800  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
-00002810  20 20 20 20 29 0a 20 20  20 20 20 20 20 20 20 20  |    ).          |
-00002820  20 20 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |  ..............|
-00002830  c2 a0 20 20 20 20 29 20  41 53 20 42 6c 6f 63 6b  |..    ) AS Block|
-00002840  47 72 6f 75 70 2c 0a 20  20 20 20 20 20 20 20 20  |Group,.         |
-....
---END--
+    >   ....
+    >   000025b0  20 20 20 20 20 20 20 20  53 45 4c 45 43 54 0a 20  |        SELECT. |
+    >   000025c0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   000025d0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
+    >   000025e0  6b 73 2e 53 74 61 72 74  52 6f 77 2c 0a 20 20 20  |ks.StartRow,.   |
+    >   000025f0  20 20 20 20 20 20 20 20  20 c2 a0 c2 a0 c2 a0 c2  |         .......|
+    >   00002600  a0 c2 a0 c2 a0 c2 a0 c2  a0 28 41 76 61 69 6c 61  |.........(Availa|
+    >   00002610  62 6c 65 42 6c 6f 63 6b  73 2e 53 74 61 72 74 52  |bleBlocks.StartR|
+    >   00002620  6f 77 20 2b 20 31 29 20  2d 0a 20 20 20 20 20 20  |ow + 1) -.      |
+    >   00002630  20 20 20 20 20 20 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |      ..........|
+    >   00002640  c2 a0 c2 a0 c2 a0 20 20  20 20 28 0a 20 20 20 20  |......    (.    |
+    >   00002650  20 20 20 20 20 20 20 20  c2 a0 c2 a0 c2 a0 c2 a0  |        ........|
+    >   00002660  c2 a0 c2 a0 c2 a0 c2 a0  20 20 20 20 52 4f 57 5f  |........    ROW_|
+    >   00002670  4e 55 4d 42 45 52 28 29  20 4f 56 45 52 20 28 0a  |NUMBER() OVER (.|
+    >   00002680  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
+    >   00002690  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
+    >   000026a0  20 20 20 20 50 41 52 54  49 54 49 4f 4e 20 42 59  |    PARTITION BY|
+    >   000026b0  20 28 0a 20 20 20 20 20  20 20 20 20 20 20 20 c2  | (.            .|
+    >   000026c0  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 c2 a0 c2 a0 20  |............... |
+    >   000026d0  20 20 20 20 20 20 20 20  20 20 20 41 76 61 69 6c  |           Avail|
+    >   000026e0  61 62 6c 65 42 6c 6f 63  6b 73 2e 46 72 65 65 43  |ableBlocks.FreeC|
+    >   000026f0  6f 72 65 73 20 20 3e 3d  20 3a 6d 69 6e 63 6f 72  |ores  >= :mincor|
+    >   00002700  65 73 0a 20 20 20 20 20  20 20 20 20 20 20 20 c2  |es.            .|
+    >   00002710  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 c2 a0 c2 a0 20  |............... |
+    >   00002720  20 20 20 20 20 20 20 20  20 20 20 41 4e 44 0a 20  |           AND. |
+    >   00002730  20 20 20 20 20 20 20 20  20 20 20 c2 a0 c2 a0 c2  |           .....|
+    >   00002740  a0 c2 a0 c2 a0 c2 a0 c2  a0 c2 a0 20 20 20 20 20  |...........     |
+    >   00002750  20 20 20 20 20 20 20 41  76 61 69 6c 61 62 6c 65  |       Available|
+    >   00002760  42 6c 6f 63 6b 73 2e 46  72 65 65 4d 65 6d 6f 72  |Blocks.FreeMemor|
+    >   00002770  79 20 3e 3d 20 3a 6d 69  6e 6d 65 6d 6f 72 79 0a  |y >= :minmemory.|
+    >   00002780  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
+    >   00002790  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
+    >   000027a0  20 20 20 20 20 20 20 20  29 0a 20 20 20 20 20 20  |        ).      |
+    >   000027b0  20 20 20 20 20 20 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |      ..........|
+    >   000027c0  c2 a0 c2 a0 c2 a0 20 20  20 20 20 20 20 20 4f 52  |......        OR|
+    >   000027d0  44 45 52 20 42 59 20 41  76 61 69 6c 61 62 6c 65  |DER BY Available|
+    >   000027e0  42 6c 6f 63 6b 73 2e 53  74 61 72 74 52 6f 77 0a  |Blocks.StartRow.|
+    >   000027f0  20 20 20 20 20 20 20 20  20 20 20 20 c2 a0 c2 a0  |            ....|
+    >   00002800  c2 a0 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 20 20 20 20  |............    |
+    >   00002810  20 20 20 20 29 0a 20 20  20 20 20 20 20 20 20 20  |    ).          |
+    >   00002820  20 20 c2 a0 c2 a0 c2 a0  c2 a0 c2 a0 c2 a0 c2 a0  |  ..............|
+    >   00002830  c2 a0 20 20 20 20 29 20  41 53 20 42 6c 6f 63 6b  |..    ) AS Block|
+    >   00002840  47 72 6f 75 70 2c 0a 20  20 20 20 20 20 20 20 20  |Group,.         |
+    >   ....
 
         #
         # Useful `sed` expression to replace them
@@ -1427,46 +1369,44 @@ LINE 2:             ROW_NUMBER() AS BlockGroup,
 
         hexdump -C ComputeResourceOfferFactoryImpl.java
 
---START--
-....
-000025b0  20 20 20 20 20 20 20 20  53 45 4c 45 43 54 0a 20  |        SELECT. |
-000025c0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-000025d0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
-000025e0  6b 73 2e 53 74 61 72 74  52 6f 77 2c 0a 20 20 20  |ks.StartRow,.   |
-000025f0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002600  20 28 41 76 61 69 6c 61  62 6c 65 42 6c 6f 63 6b  | (AvailableBlock|
-00002610  73 2e 53 74 61 72 74 52  6f 77 20 2b 20 31 29 20  |s.StartRow + 1) |
-00002620  2d 0a 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |-.              |
-00002630  20 20 20 20 20 20 20 20  20 20 28 0a 20 20 20 20  |          (.    |
-00002640  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002650  20 20 20 20 52 4f 57 5f  4e 55 4d 42 45 52 28 29  |    ROW_NUMBER()|
-00002660  20 4f 56 45 52 20 28 0a  20 20 20 20 20 20 20 20  | OVER (.        |
-00002670  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002680  20 20 20 20 50 41 52 54  49 54 49 4f 4e 20 42 59  |    PARTITION BY|
-00002690  20 28 0a 20 20 20 20 20  20 20 20 20 20 20 20 20  | (.             |
-000026a0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-000026b0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
-000026c0  6b 73 2e 46 72 65 65 43  6f 72 65 73 20 20 3e 3d  |ks.FreeCores  >=|
-000026d0  20 3a 6d 69 6e 63 6f 72  65 73 0a 20 20 20 20 20  | :mincores.     |
-000026e0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-000026f0  20 20 20 20 20 20 20 20  20 20 20 41 4e 44 0a 20  |           AND. |
-00002700  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002710  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 41  |               A|
-00002720  76 61 69 6c 61 62 6c 65  42 6c 6f 63 6b 73 2e 46  |vailableBlocks.F|
-00002730  72 65 65 4d 65 6d 6f 72  79 20 3e 3d 20 3a 6d 69  |reeMemory >= :mi|
-00002740  6e 6d 65 6d 6f 72 79 0a  20 20 20 20 20 20 20 20  |nmemory.        |
-00002750  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002760  20 20 20 20 20 20 20 20  29 0a 20 20 20 20 20 20  |        ).      |
-00002770  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-00002780  20 20 20 20 20 20 4f 52  44 45 52 20 42 59 20 41  |      ORDER BY A|
-00002790  76 61 69 6c 61 62 6c 65  42 6c 6f 63 6b 73 2e 53  |vailableBlocks.S|
-000027a0  74 61 72 74 52 6f 77 0a  20 20 20 20 20 20 20 20  |tartRow.        |
-000027b0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
-000027c0  20 20 20 20 29 0a 20 20  20 20 20 20 20 20 20 20  |    ).          |
-000027d0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 29 20  |              ) |
-000027e0  41 53 20 42 6c 6f 63 6b  47 72 6f 75 70 2c 0a 20  |AS BlockGroup,. |
-....
---END--
+    >   ....
+    >   000025b0  20 20 20 20 20 20 20 20  53 45 4c 45 43 54 0a 20  |        SELECT. |
+    >   000025c0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   000025d0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
+    >   000025e0  6b 73 2e 53 74 61 72 74  52 6f 77 2c 0a 20 20 20  |ks.StartRow,.   |
+    >   000025f0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002600  20 28 41 76 61 69 6c 61  62 6c 65 42 6c 6f 63 6b  | (AvailableBlock|
+    >   00002610  73 2e 53 74 61 72 74 52  6f 77 20 2b 20 31 29 20  |s.StartRow + 1) |
+    >   00002620  2d 0a 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |-.              |
+    >   00002630  20 20 20 20 20 20 20 20  20 20 28 0a 20 20 20 20  |          (.    |
+    >   00002640  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002650  20 20 20 20 52 4f 57 5f  4e 55 4d 42 45 52 28 29  |    ROW_NUMBER()|
+    >   00002660  20 4f 56 45 52 20 28 0a  20 20 20 20 20 20 20 20  | OVER (.        |
+    >   00002670  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002680  20 20 20 20 50 41 52 54  49 54 49 4f 4e 20 42 59  |    PARTITION BY|
+    >   00002690  20 28 0a 20 20 20 20 20  20 20 20 20 20 20 20 20  | (.             |
+    >   000026a0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   000026b0  20 20 20 41 76 61 69 6c  61 62 6c 65 42 6c 6f 63  |   AvailableBloc|
+    >   000026c0  6b 73 2e 46 72 65 65 43  6f 72 65 73 20 20 3e 3d  |ks.FreeCores  >=|
+    >   000026d0  20 3a 6d 69 6e 63 6f 72  65 73 0a 20 20 20 20 20  | :mincores.     |
+    >   000026e0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   000026f0  20 20 20 20 20 20 20 20  20 20 20 41 4e 44 0a 20  |           AND. |
+    >   00002700  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002710  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 41  |               A|
+    >   00002720  76 61 69 6c 61 62 6c 65  42 6c 6f 63 6b 73 2e 46  |vailableBlocks.F|
+    >   00002730  72 65 65 4d 65 6d 6f 72  79 20 3e 3d 20 3a 6d 69  |reeMemory >= :mi|
+    >   00002740  6e 6d 65 6d 6f 72 79 0a  20 20 20 20 20 20 20 20  |nmemory.        |
+    >   00002750  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002760  20 20 20 20 20 20 20 20  29 0a 20 20 20 20 20 20  |        ).      |
+    >   00002770  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   00002780  20 20 20 20 20 20 4f 52  44 45 52 20 42 59 20 41  |      ORDER BY A|
+    >   00002790  76 61 69 6c 61 62 6c 65  42 6c 6f 63 6b 73 2e 53  |vailableBlocks.S|
+    >   000027a0  74 61 72 74 52 6f 77 0a  20 20 20 20 20 20 20 20  |tartRow.        |
+    >   000027b0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 20 20  |                |
+    >   000027c0  20 20 20 20 29 0a 20 20  20 20 20 20 20 20 20 20  |    ).          |
+    >   000027d0  20 20 20 20 20 20 20 20  20 20 20 20 20 20 29 20  |              ) |
+    >   000027e0  41 53 20 42 6c 6f 63 6b  47 72 6f 75 70 2c 0a 20  |AS BlockGroup,. |
+    >   ....
 
 
 # -----------------------------------------------------
@@ -1476,285 +1416,277 @@ LINE 2:             ROW_NUMBER() AS BlockGroup,
     pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
 
 
---START--
-....
-2025-12-05 17:42:10 ERROR http-nio-8082-exec-1 [dispatcherServlet] log() Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.jdbc.BadSqlGrammarException: PreparedStatementCallback; bad SQL grammar [
-WITH ExecutionBlocks AS
-    (
-    SELECT
-        SimpleExecutionSessions.phase AS BlockPhase,
-        ScheduledExecutionSessions.available_start_instant_seconds  / 60 AS BlockStart,
-        ScheduledExecutionSessions.available_duration_seconds / 60 AS BlockLength,
-        COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
-        COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
-    FROM
-        SimpleExecutionSessions
-    JOIN
-        ScheduledExecutionSessions
-    ON
-        SimpleExecutionSessions.uuid = ScheduledExecutionSessions.uuid
-    JOIN
-        AbstractComputeResources
-    ON
-        AbstractComputeResources.session = SimpleExecutionSessions.uuid
-    JOIN
-        SimpleComputeResources
-    ON
-        SimpleComputeResources.uuid = AbstractComputeResources.uuid
-    WHERE
-        SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
-    ),
-AvailableBlocks AS
-    (
-    SELECT
-        StartRange.StartRow AS StartRow,
-        COUNT(ExecutionBlocks.BlockStart) AS RowCount,
-        (32  - COALESCE(sum(ExecutionBlocks.UsedCores),  0)) AS FreeCores,
-        (34359738368 - COALESCE(sum(ExecutionBlocks.UsedMemory), 0)) AS FreeMemory
-    FROM
-        (
-        SELECT
-            generate_series + 29415942 AS StartRow
-        FROM
-             generate_series(1, 1440)
-        ) AS StartRange
-    LEFT OUTER JOIN
-        ExecutionBlocks
-    ON  (
-            (ExecutionBlocks.BlockStart <= StartRange.StartRow)
-        AND
-            ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
-        )
-    GROUP BY
-        StartRange.StartRow
-    ),
-ConsecutiveBlocks AS (
-    SELECT
-        AvailableBlocks.StartRow,
-        (AvailableBlocks.StartRow + 1) -
-            (
-            ROW_NUMBER() OVER (
-                PARTITION BY (
-                    AvailableBlocks.FreeCores  >= 1
-                    AND
-                    AvailableBlocks.FreeMemory >= 1
-                    )
-                ORDER BY AvailableBlocks.StartRow
-                )
-            ) AS BlockGroup,
-        FreeCores,
-        FreeMemory
-    FROM
-        AvailableBlocks
-    WHERE
-        AvailableBlocks.FreeCores  >= 1
-        AND
-        AvailableBlocks.FreeMemory >= 1
-    ),
-CombinedBlocks AS (
-    SELECT
-        COUNT(*) AS BlockLength,
-        MIN(ConsecutiveBlocks.StartRow)   AS BlockStart,
-        MIN(ConsecutiveBlocks.FreeCores)  AS FreeCores,
-        MIN(ConsecutiveBlocks.FreeMemory) AS FreeMemory
-    FROM
-        ConsecutiveBlocks
-    WHERE
-        ConsecutiveBlocks.BlockGroup IS NOT NULL
-    GROUP BY
-        ConsecutiveBlocks.BlockGroup
-    HAVING
-        COUNT(*) >= 60
-    ),
-SplitBlocks AS (
-    SELECT
-        (CombinedBlocks.BlockStart + (120 * (n - 1))) AS BlockStart,
-        LEAST(
-            120,
-            (CombinedBlocks.BlockLength - (120 * (n - 1)))
-            ) AS BlockLength,
-        CombinedBlocks.FreeCores  AS FreeCores,
-        CombinedBlocks.FreeMemory AS FreeMemory
-    FROM
-        CombinedBlocks,
-        (
-        SELECT
-            x AS n
-        FROM
-            SYSTEM_RANGE(1, 120)
-        ) AS Numbers
-    WHERE
-        (CombinedBlocks.BlockStart + (120 * (n - 1))) < (BlockStart + BlockLength)
-    ),
-MatchingBlocks AS (
-    SELECT
-        AvailableBlocks.StartRow,
-        SplitBlocks.BlockStart,
-        SplitBlocks.BlockLength,
-        SplitBlocks.FreeCores,
-        SplitBlocks.FreeMemory
-    FROM
-        AvailableBlocks
-    JOIN
-        SplitBlocks
-    WHERE
-        AvailableBlocks.StartRow >= SplitBlocks.BlockStart
-    AND
-        AvailableBlocks.StartRow < (SplitBlocks.BlockStart + SplitBlocks.BlockLength)
-    AND
-        SplitBlocks.BlockLength >= 60
-    AND
-        SplitBlocks.BlockLength <= 120
-    ),
-GroupedBlocks AS (
-    SELECT
-        MatchingBlocks.BlockStart,
-        MatchingBlocks.BlockLength,
-        MIN(MatchingBlocks.FreeCores)  AS FreeCores,
-        MIN(MatchingBlocks.FreeMemory) AS FreeMemory
-    FROM
-        MatchingBlocks
-    GROUP BY
-        MatchingBlocks.BlockStart,
-        MatchingBlocks.BlockLength
-    ),
-ScaledBlocks AS (
-    SELECT
-        GroupedBlocks.BlockStart,
-        GroupedBlocks.BlockLength,
-        LEAST(
-            2,
-            GroupedBlocks.FreeCores
-            ) AS BlockCores,
-        LEAST(
-            2,
-            GroupedBlocks.FreeMemory
-            ) AS BlockMemory
-    FROM
-        GroupedBlocks
-    ),
-EarlyBlocks AS (
-    SELECT
-        *
-    FROM
-        ScaledBlocks
-    ORDER BY
-        ScaledBlocks.BlockStart    ASC,
-        ScaledBlocks.BlockCores    DESC,
-        ScaledBlocks.BlockMemory   DESC,
-        ScaledBlocks.BlockLength   DESC
-    LIMIT 4
-    ),
-HiMemBlocks AS (
-    SELECT
-        *
-    FROM
-        ScaledBlocks
-    ORDER BY
-        ScaledBlocks.BlockMemory   DESC,
-        ScaledBlocks.BlockCores    DESC,
-        ScaledBlocks.BlockStart    ASC,
-        ScaledBlocks.BlockLength   DESC
-    LIMIT 4
-    ),
-HiCpuBlocks AS (
-    SELECT
-        *
-    FROM
-        ScaledBlocks
-    ORDER BY
-        ScaledBlocks.BlockCores    DESC,
-        ScaledBlocks.BlockMemory   DESC,
-        ScaledBlocks.BlockStart    ASC,
-        ScaledBlocks.BlockLength   DESC
-    LIMIT 4
-    ),
-CombinedQuery AS (
-    (
-    SELECT
-        *
-    FROM
-        EarlyBlocks
-    )
-UNION
-    (
-    SELECT
-        *
-    FROM
-        HiMemBlocks
-    )
-UNION
-    (
-    SELECT
-        *
-    FROM
-        HiCpuBlocks
-    )
-)
-
-SELECT * FROM CombinedQuery
-
-]] with root cause
-org.postgresql.util.PSQLException: ERROR: syntax error at or near "WHERE"
-  Position: 3593
---END--
+    >   ....
+    >   2025-12-05 17:42:10 ERROR http-nio-8082-exec-1 [dispatcherServlet] log() Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: org.springframework.jdbc.BadSqlGrammarException: PreparedStatementCallback; bad SQL grammar [
+    >   WITH ExecutionBlocks AS
+    >       (
+    >       SELECT
+    >           SimpleExecutionSessions.phase AS BlockPhase,
+    >           ScheduledExecutionSessions.available_start_instant_seconds  / 60 AS BlockStart,
+    >           ScheduledExecutionSessions.available_duration_seconds / 60 AS BlockLength,
+    >           COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
+    >           COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
+    >       FROM
+    >           SimpleExecutionSessions
+    >       JOIN
+    >           ScheduledExecutionSessions
+    >       ON
+    >           SimpleExecutionSessions.uuid = ScheduledExecutionSessions.uuid
+    >       JOIN
+    >           AbstractComputeResources
+    >       ON
+    >           AbstractComputeResources.session = SimpleExecutionSessions.uuid
+    >       JOIN
+    >           SimpleComputeResources
+    >       ON
+    >           SimpleComputeResources.uuid = AbstractComputeResources.uuid
+    >       WHERE
+    >           SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
+    >       ),
+    >   AvailableBlocks AS
+    >       (
+    >       SELECT
+    >           StartRange.StartRow AS StartRow,
+    >           COUNT(ExecutionBlocks.BlockStart) AS RowCount,
+    >           (32  - COALESCE(sum(ExecutionBlocks.UsedCores),  0)) AS FreeCores,
+    >           (34359738368 - COALESCE(sum(ExecutionBlocks.UsedMemory), 0)) AS FreeMemory
+    >       FROM
+    >           (
+    >           SELECT
+    >               generate_series + 29415942 AS StartRow
+    >           FROM
+    >                generate_series(1, 1440)
+    >           ) AS StartRange
+    >       LEFT OUTER JOIN
+    >           ExecutionBlocks
+    >       ON  (
+    >               (ExecutionBlocks.BlockStart <= StartRange.StartRow)
+    >           AND
+    >               ((ExecutionBlocks.BlockStart + ExecutionBlocks.BlockLength) > StartRange.StartRow)
+    >           )
+    >       GROUP BY
+    >           StartRange.StartRow
+    >       ),
+    >   ConsecutiveBlocks AS (
+    >       SELECT
+    >           AvailableBlocks.StartRow,
+    >           (AvailableBlocks.StartRow + 1) -
+    >               (
+    >               ROW_NUMBER() OVER (
+    >                   PARTITION BY (
+    >                       AvailableBlocks.FreeCores  >= 1
+    >                       AND
+    >                       AvailableBlocks.FreeMemory >= 1
+    >                       )
+    >                   ORDER BY AvailableBlocks.StartRow
+    >                   )
+    >               ) AS BlockGroup,
+    >           FreeCores,
+    >           FreeMemory
+    >       FROM
+    >           AvailableBlocks
+    >       WHERE
+    >           AvailableBlocks.FreeCores  >= 1
+    >           AND
+    >           AvailableBlocks.FreeMemory >= 1
+    >       ),
+    >   CombinedBlocks AS (
+    >       SELECT
+    >           COUNT(*) AS BlockLength,
+    >           MIN(ConsecutiveBlocks.StartRow)   AS BlockStart,
+    >           MIN(ConsecutiveBlocks.FreeCores)  AS FreeCores,
+    >           MIN(ConsecutiveBlocks.FreeMemory) AS FreeMemory
+    >       FROM
+    >           ConsecutiveBlocks
+    >       WHERE
+    >           ConsecutiveBlocks.BlockGroup IS NOT NULL
+    >       GROUP BY
+    >           ConsecutiveBlocks.BlockGroup
+    >       HAVING
+    >           COUNT(*) >= 60
+    >       ),
+    >   SplitBlocks AS (
+    >       SELECT
+    >           (CombinedBlocks.BlockStart + (120 * (n - 1))) AS BlockStart,
+    >           LEAST(
+    >               120,
+    >               (CombinedBlocks.BlockLength - (120 * (n - 1)))
+    >               ) AS BlockLength,
+    >           CombinedBlocks.FreeCores  AS FreeCores,
+    >           CombinedBlocks.FreeMemory AS FreeMemory
+    >       FROM
+    >           CombinedBlocks,
+    >           (
+    >           SELECT
+    >               x AS n
+    >           FROM
+    >               SYSTEM_RANGE(1, 120)
+    >           ) AS Numbers
+    >       WHERE
+    >           (CombinedBlocks.BlockStart + (120 * (n - 1))) < (BlockStart + BlockLength)
+    >       ),
+    >   MatchingBlocks AS (
+    >       SELECT
+    >           AvailableBlocks.StartRow,
+    >           SplitBlocks.BlockStart,
+    >           SplitBlocks.BlockLength,
+    >           SplitBlocks.FreeCores,
+    >           SplitBlocks.FreeMemory
+    >       FROM
+    >           AvailableBlocks
+    >       JOIN
+    >           SplitBlocks
+    >       WHERE
+    >           AvailableBlocks.StartRow >= SplitBlocks.BlockStart
+    >       AND
+    >           AvailableBlocks.StartRow < (SplitBlocks.BlockStart + SplitBlocks.BlockLength)
+    >       AND
+    >           SplitBlocks.BlockLength >= 60
+    >       AND
+    >           SplitBlocks.BlockLength <= 120
+    >       ),
+    >   GroupedBlocks AS (
+    >       SELECT
+    >           MatchingBlocks.BlockStart,
+    >           MatchingBlocks.BlockLength,
+    >           MIN(MatchingBlocks.FreeCores)  AS FreeCores,
+    >           MIN(MatchingBlocks.FreeMemory) AS FreeMemory
+    >       FROM
+    >           MatchingBlocks
+    >       GROUP BY
+    >           MatchingBlocks.BlockStart,
+    >           MatchingBlocks.BlockLength
+    >       ),
+    >   ScaledBlocks AS (
+    >       SELECT
+    >           GroupedBlocks.BlockStart,
+    >           GroupedBlocks.BlockLength,
+    >           LEAST(
+    >               2,
+    >               GroupedBlocks.FreeCores
+    >               ) AS BlockCores,
+    >           LEAST(
+    >               2,
+    >               GroupedBlocks.FreeMemory
+    >               ) AS BlockMemory
+    >       FROM
+    >           GroupedBlocks
+    >       ),
+    >   EarlyBlocks AS (
+    >       SELECT
+    >           *
+    >       FROM
+    >           ScaledBlocks
+    >       ORDER BY
+    >           ScaledBlocks.BlockStart    ASC,
+    >           ScaledBlocks.BlockCores    DESC,
+    >           ScaledBlocks.BlockMemory   DESC,
+    >           ScaledBlocks.BlockLength   DESC
+    >       LIMIT 4
+    >       ),
+    >   HiMemBlocks AS (
+    >       SELECT
+    >           *
+    >       FROM
+    >           ScaledBlocks
+    >       ORDER BY
+    >           ScaledBlocks.BlockMemory   DESC,
+    >           ScaledBlocks.BlockCores    DESC,
+    >           ScaledBlocks.BlockStart    ASC,
+    >           ScaledBlocks.BlockLength   DESC
+    >       LIMIT 4
+    >       ),
+    >   HiCpuBlocks AS (
+    >       SELECT
+    >           *
+    >       FROM
+    >           ScaledBlocks
+    >       ORDER BY
+    >           ScaledBlocks.BlockCores    DESC,
+    >           ScaledBlocks.BlockMemory   DESC,
+    >           ScaledBlocks.BlockStart    ASC,
+    >           ScaledBlocks.BlockLength   DESC
+    >       LIMIT 4
+    >       ),
+    >   CombinedQuery AS (
+    >       (
+    >       SELECT
+    >           *
+    >       FROM
+    >           EarlyBlocks
+    >       )
+    >   UNION
+    >       (
+    >       SELECT
+    >           *
+    >       FROM
+    >           HiMemBlocks
+    >       )
+    >   UNION
+    >       (
+    >       SELECT
+    >           *
+    >       FROM
+    >           HiCpuBlocks
+    >       )
+    >   )
+    >   
+    >   SELECT * FROM CombinedQuery
+    >   
+    >   ]] with root cause
+    >   org.postgresql.util.PSQLException: ERROR: syntax error at or near "WHERE"
+    >     Position: 3593
 
 
     #
     # Put the same query into psql and we get a slightly more useful error.
     #
 
---START--
-....
-....
-ERROR:  syntax error at or near "WHERE"
-LINE 119:     WHERE
---END--
+    >   ....
+    >   ....
+    >   ERROR:  syntax error at or near "WHERE"
+    >   LINE 119:     WHERE
 
 
     #
     # Line 119 is the where clause of MatchingBlocks
     #
 
---START--
-....
-MatchingBlocks AS (
-    SELECT
-        AvailableBlocks.StartRow,
-        SplitBlocks.BlockStart,
-        SplitBlocks.BlockLength,
-        SplitBlocks.FreeCores,
-        SplitBlocks.FreeMemory
-    FROM
-        AvailableBlocks
-    JOIN
-        SplitBlocks
-    WHERE
-        AvailableBlocks.StartRow >= SplitBlocks.BlockStart
-    AND
-        AvailableBlocks.StartRow < (SplitBlocks.BlockStart + SplitBlocks.BlockLength)
-    AND
-        SplitBlocks.BlockLength >= 60
-    AND
-        SplitBlocks.BlockLength <= 120
-    ),
-....
---END--
+    >   ....
+    >   MatchingBlocks AS (
+    >       SELECT
+    >           AvailableBlocks.StartRow,
+    >           SplitBlocks.BlockStart,
+    >           SplitBlocks.BlockLength,
+    >           SplitBlocks.FreeCores,
+    >           SplitBlocks.FreeMemory
+    >       FROM
+    >           AvailableBlocks
+    >       JOIN
+    >           SplitBlocks
+    >       WHERE
+    >           AvailableBlocks.StartRow >= SplitBlocks.BlockStart
+    >       AND
+    >           AvailableBlocks.StartRow < (SplitBlocks.BlockStart + SplitBlocks.BlockLength)
+    >       AND
+    >           SplitBlocks.BlockLength >= 60
+    >       AND
+    >           SplitBlocks.BlockLength <= 120
+    >       ),
+    >   ....
 
 
     #
     # Probably because we have a JOIN and no ON.
     #
 
---START--
-....
-                FROM
-                    AvailableBlocks
-                JOIN
-                    SplitBlocks
-                WHERE
-....
---END--
+    >   ....
+    >                   FROM
+    >                       AvailableBlocks
+    >                   JOIN
+    >                       SplitBlocks
+    >                   WHERE
+    >   ....
 
 
 
@@ -1788,11 +1720,9 @@ MatchingBlocks AS (
 
     SELECT * FROM ExecutionBlocks ;
 
---START--
- blockphase | blockstart | blocklength | usedcores | usedmemory
-------------+------------+-------------+-----------+------------
-(0 rows)
---END--
+    >    blockphase | blockstart | blocklength | usedcores | usedmemory
+    >   ------------+------------+-------------+-----------+------------
+    >   (0 rows)
 
 
     SELECT
@@ -1822,19 +1752,17 @@ MatchingBlocks AS (
 
     SELECT * FROM AvailableBlocks ;
 
---START--
- startrow | rowcount | freecores | freememory
-----------+----------+-----------+-------------
- 29416178 |        0 |        32 | 34359738368
- 29416835 |        0 |        32 | 34359738368
- 29416238 |        0 |        32 | 34359738368
-....
-....
- 29416841 |        0 |        32 | 34359738368
- 29416197 |        0 |        32 | 34359738368
- 29416056 |        0 |        32 | 34359738368
-(1440 rows)
---END--
+    >    startrow | rowcount | freecores | freememory
+    >   ----------+----------+-----------+-------------
+    >    29416178 |        0 |        32 | 34359738368
+    >    29416835 |        0 |        32 | 34359738368
+    >    29416238 |        0 |        32 | 34359738368
+    >   ....
+    >   ....
+    >    29416841 |        0 |        32 | 34359738368
+    >    29416197 |        0 |        32 | 34359738368
+    >    29416056 |        0 |        32 | 34359738368
+    >   (1440 rows)
 
 
     SELECT
@@ -1864,19 +1792,17 @@ MatchingBlocks AS (
 
     SELECT * FROM ConsecutiveBlocks ;
 
---START--
- startrow | blockgroup | freecores | freememory
-----------+------------+-----------+-------------
- 29415943 |   29415943 |        32 | 34359738368
- 29415944 |   29415943 |        32 | 34359738368
- 29415945 |   29415943 |        32 | 34359738368
-....
-....
- 29417380 |   29415943 |        32 | 34359738368
- 29417381 |   29415943 |        32 | 34359738368
- 29417382 |   29415943 |        32 | 34359738368
-(1440 rows)
---END--
+    >    startrow | blockgroup | freecores | freememory
+    >   ----------+------------+-----------+-------------
+    >    29415943 |   29415943 |        32 | 34359738368
+    >    29415944 |   29415943 |        32 | 34359738368
+    >    29415945 |   29415943 |        32 | 34359738368
+    >   ....
+    >   ....
+    >    29417380 |   29415943 |        32 | 34359738368
+    >    29417381 |   29415943 |        32 | 34359738368
+    >    29417382 |   29415943 |        32 | 34359738368
+    >   (1440 rows)
 
 
     SELECT
@@ -1898,11 +1824,9 @@ MatchingBlocks AS (
 
     SELECT * FROM CombinedBlocks ;
 
---START--
- blocklength | blockstart | freecores | freememory
--------------+------------+-----------+-------------
-        1440 |   29415943 |        32 | 34359738368
---END--
+    >    blocklength | blockstart | freecores | freememory
+    >   -------------+------------+-----------+-------------
+    >           1440 |   29415943 |        32 | 34359738368
 
 
     SELECT
@@ -1929,24 +1853,22 @@ MatchingBlocks AS (
 
     SELECT * FROM SplitBlocks ;
 
---START--
-SELECT 12
- blockstart | blocklength | freecores | freememory
-------------+-------------+-----------+-------------
-   29415943 |         120 |        32 | 34359738368
-   29416063 |         120 |        32 | 34359738368
-   29416183 |         120 |        32 | 34359738368
-   29416303 |         120 |        32 | 34359738368
-   29416423 |         120 |        32 | 34359738368
-   29416543 |         120 |        32 | 34359738368
-   29416663 |         120 |        32 | 34359738368
-   29416783 |         120 |        32 | 34359738368
-   29416903 |         120 |        32 | 34359738368
-   29417023 |         120 |        32 | 34359738368
-   29417143 |         120 |        32 | 34359738368
-   29417263 |         120 |        32 | 34359738368
-(12 rows)
---END--
+    >   SELECT 12
+    >    blockstart | blocklength | freecores | freememory
+    >   ------------+-------------+-----------+-------------
+    >      29415943 |         120 |        32 | 34359738368
+    >      29416063 |         120 |        32 | 34359738368
+    >      29416183 |         120 |        32 | 34359738368
+    >      29416303 |         120 |        32 | 34359738368
+    >      29416423 |         120 |        32 | 34359738368
+    >      29416543 |         120 |        32 | 34359738368
+    >      29416663 |         120 |        32 | 34359738368
+    >      29416783 |         120 |        32 | 34359738368
+    >      29416903 |         120 |        32 | 34359738368
+    >      29417023 |         120 |        32 | 34359738368
+    >      29417143 |         120 |        32 | 34359738368
+    >      29417263 |         120 |        32 | 34359738368
+    >   (12 rows)
 
 
     SELECT
@@ -1971,10 +1893,8 @@ SELECT 12
         SplitBlocks.BlockLength <= 120
     ;
 
---START--
-ERROR:  syntax error at or near "WHERE"
-LINE 13:     WHERE
---END--
+    >   ERROR:  syntax error at or near "WHERE"
+    >   LINE 13:     WHERE
 
     #
     # Looks like H2 interprets a JOIN with no ON as a CROSS JOIN.
@@ -2004,19 +1924,17 @@ LINE 13:     WHERE
 
     SELECT * FROM MatchingBlocks ;
 
---START--
- startrow | blockstart | blocklength | freecores | freememory
-----------+------------+-------------+-----------+-------------
- 29416178 |   29416063 |         120 |        32 | 34359738368
- 29416835 |   29416783 |         120 |        32 | 34359738368
- 29416238 |   29416183 |         120 |        32 | 34359738368
-....
-....
- 29416841 |   29416783 |         120 |        32 | 34359738368
- 29416197 |   29416183 |         120 |        32 | 34359738368
- 29416056 |   29415943 |         120 |        32 | 34359738368
-(1440 rows)
---END--
+    >    startrow | blockstart | blocklength | freecores | freememory
+    >   ----------+------------+-------------+-----------+-------------
+    >    29416178 |   29416063 |         120 |        32 | 34359738368
+    >    29416835 |   29416783 |         120 |        32 | 34359738368
+    >    29416238 |   29416183 |         120 |        32 | 34359738368
+    >   ....
+    >   ....
+    >    29416841 |   29416783 |         120 |        32 | 34359738368
+    >    29416197 |   29416183 |         120 |        32 | 34359738368
+    >    29416056 |   29415943 |         120 |        32 | 34359738368
+    >   (1440 rows)
 
     SELECT
         MatchingBlocks.BlockStart,
@@ -2034,23 +1952,21 @@ LINE 13:     WHERE
 
     SELECT * FROM GroupedBlocks ;
 
---START--
- blockstart | blocklength | freecores | freememory
-------------+-------------+-----------+-------------
-   29416423 |         120 |        32 | 34359738368
-   29416663 |         120 |        32 | 34359738368
-   29415943 |         120 |        32 | 34359738368
-   29416183 |         120 |        32 | 34359738368
-   29417143 |         120 |        32 | 34359738368
-   29417023 |         120 |        32 | 34359738368
-   29416783 |         120 |        32 | 34359738368
-   29417263 |         120 |        32 | 34359738368
-   29416063 |         120 |        32 | 34359738368
-   29416903 |         120 |        32 | 34359738368
-   29416303 |         120 |        32 | 34359738368
-   29416543 |         120 |        32 | 34359738368
-(12 rows)
---END--
+    >    blockstart | blocklength | freecores | freememory
+    >   ------------+-------------+-----------+-------------
+    >      29416423 |         120 |        32 | 34359738368
+    >      29416663 |         120 |        32 | 34359738368
+    >      29415943 |         120 |        32 | 34359738368
+    >      29416183 |         120 |        32 | 34359738368
+    >      29417143 |         120 |        32 | 34359738368
+    >      29417023 |         120 |        32 | 34359738368
+    >      29416783 |         120 |        32 | 34359738368
+    >      29417263 |         120 |        32 | 34359738368
+    >      29416063 |         120 |        32 | 34359738368
+    >      29416903 |         120 |        32 | 34359738368
+    >      29416303 |         120 |        32 | 34359738368
+    >      29416543 |         120 |        32 | 34359738368
+    >   (12 rows)
 
 
     SELECT
@@ -2072,23 +1988,21 @@ LINE 13:     WHERE
 
     SELECT * FROM ScaledBlocks ;
 
---START--
- blockstart | blocklength | blockcores | blockmemory
-------------+-------------+------------+-------------
-   29416423 |         120 |          2 |           2
-   29416663 |         120 |          2 |           2
-   29415943 |         120 |          2 |           2
-   29416183 |         120 |          2 |           2
-   29417143 |         120 |          2 |           2
-   29417023 |         120 |          2 |           2
-   29416783 |         120 |          2 |           2
-   29417263 |         120 |          2 |           2
-   29416063 |         120 |          2 |           2
-   29416903 |         120 |          2 |           2
-   29416303 |         120 |          2 |           2
-   29416543 |         120 |          2 |           2
-(12 rows)
---END--
+    >    blockstart | blocklength | blockcores | blockmemory
+    >   ------------+-------------+------------+-------------
+    >      29416423 |         120 |          2 |           2
+    >      29416663 |         120 |          2 |           2
+    >      29415943 |         120 |          2 |           2
+    >      29416183 |         120 |          2 |           2
+    >      29417143 |         120 |          2 |           2
+    >      29417023 |         120 |          2 |           2
+    >      29416783 |         120 |          2 |           2
+    >      29417263 |         120 |          2 |           2
+    >      29416063 |         120 |          2 |           2
+    >      29416903 |         120 |          2 |           2
+    >      29416303 |         120 |          2 |           2
+    >      29416543 |         120 |          2 |           2
+    >   (12 rows)
 
 
     SELECT
@@ -2107,15 +2021,13 @@ LINE 13:     WHERE
 
     SELECT * FROM EarlyBlocks ;
 
---START--
- blockstart | blocklength | blockcores | blockmemory
-------------+-------------+------------+-------------
-   29415943 |         120 |          2 |           2
-   29416063 |         120 |          2 |           2
-   29416183 |         120 |          2 |           2
-   29416303 |         120 |          2 |           2
-(4 rows)
---END--
+    >    blockstart | blocklength | blockcores | blockmemory
+    >   ------------+-------------+------------+-------------
+    >      29415943 |         120 |          2 |           2
+    >      29416063 |         120 |          2 |           2
+    >      29416183 |         120 |          2 |           2
+    >      29416303 |         120 |          2 |           2
+    >   (4 rows)
 
 
     SELECT
@@ -2134,15 +2046,13 @@ LINE 13:     WHERE
 
     SELECT * FROM HiMemBlocks ;
 
---START--
- blockstart | blocklength | blockcores | blockmemory
-------------+-------------+------------+-------------
-   29415943 |         120 |          2 |           2
-   29416063 |         120 |          2 |           2
-   29416183 |         120 |          2 |           2
-   29416303 |         120 |          2 |           2
-(4 rows)
---END--
+    >    blockstart | blocklength | blockcores | blockmemory
+    >   ------------+-------------+------------+-------------
+    >      29415943 |         120 |          2 |           2
+    >      29416063 |         120 |          2 |           2
+    >      29416183 |         120 |          2 |           2
+    >      29416303 |         120 |          2 |           2
+    >   (4 rows)
 
 
     SELECT
@@ -2161,15 +2071,13 @@ LINE 13:     WHERE
 
     SELECT * FROM HiCpuBlocks ;
 
---START--
- blockstart | blocklength | blockcores | blockmemory
-------------+-------------+------------+-------------
-   29415943 |         120 |          2 |           2
-   29416063 |         120 |          2 |           2
-   29416183 |         120 |          2 |           2
-   29416303 |         120 |          2 |           2
-(4 rows)
---END--
+    >    blockstart | blocklength | blockcores | blockmemory
+    >   ------------+-------------+------------+-------------
+    >      29415943 |         120 |          2 |           2
+    >      29416063 |         120 |          2 |           2
+    >      29416183 |         120 |          2 |           2
+    >      29416303 |         120 |          2 |           2
+    >   (4 rows)
 
 
     SELECT
@@ -2201,15 +2109,13 @@ LINE 13:     WHERE
 
     SELECT * FROM CombinedQuery ;
 
---START--
- blockstart | blocklength | blockcores | blockmemory
-------------+-------------+------------+-------------
-   29415943 |         120 |          2 |           2
-   29416183 |         120 |          2 |           2
-   29416063 |         120 |          2 |           2
-   29416303 |         120 |          2 |           2
-(4 rows)
---END--
+    >    blockstart | blocklength | blockcores | blockmemory
+    >   ------------+-------------+------------+-------------
+    >      29415943 |         120 |          2 |           2
+    >      29416183 |         120 |          2 |           2
+    >      29416063 |         120 |          2 |           2
+    >      29416303 |         120 |          2 |           2
+    >   (4 rows)
 
 
 # -----------------------------------------------------
@@ -2231,252 +2137,250 @@ LINE 13:     WHERE
     | tee "002-offerset-response.yaml" \
     | yq '.'
 
---START--
-kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
-meta:
-  uuid: "b06d405e-7c78-4538-8cb5-436e0966599e"
-  name: "no-name"
-  url: "http://127.0.0.1:8082/offersets/b06d405e-7c78-4538-8cb5-436e0966599e"
-  created: "2025-12-05T19:00:01.154297173Z"
-result: "YES"
-offers:
-  - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
-    meta:
-      uuid: "975b739a-6844-4fee-835b-4b832071d89d"
-      name: "no-name-offer-0"
-      url: "http://127.0.0.1:8082/sessions/975b739a-6844-4fee-835b-4b832071d89d"
-      created: "2025-12-05T19:00:01.278924813Z"
-    executable:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
-      meta:
-        uuid: "ba8dffa0-71fb-45a2-a741-95fdd25fea6c"
-        url: "http://127.0.0.1:8082/executables/ba8dffa0-71fb-45a2-a741-95fdd25fea6c"
-        created: "2025-12-05T19:00:01.301855429Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T19:00:10Z"
-          duration: "PT35S"
-        available:
-          start: "2025-12-05T19:00:45Z/PT0S"
-        releasing:
-          start: "2025-12-05T21:01:05Z"
-          duration: "PT1S"
-      privileged: false
-    compute:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
-      meta:
-        uuid: "165984cf-34f6-4d25-b0f8-8e0f846f2149"
-        name: "Default compute resource"
-        url: "http://127.0.0.1:8082/compute/165984cf-34f6-4d25-b0f8-8e0f846f2149"
-        created: "2025-12-05T19:00:01.326565443Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T19:00:45Z"
-          duration: "PT15S"
-        available:
-          start: "2025-12-05T19:01:00Z/PT0S"
-          duration: "PT2H"
-        releasing:
-          start: "2025-12-05T21:01:05Z"
-          duration: "PT10S"
-      cores:
-        min: 2
-        max: 2
-      memory:
-        min: 2
-        max: 2
-    phase: "OFFERED"
-    expires: "2025-12-05T19:05:01.154297910Z"
-    schedule:
-      preparing:
-        start: "2025-12-05T19:00:10Z"
-        duration: "PT50S"
-      available:
-        start: "2025-12-05T19:01:00Z/PT0S"
-        duration: "PT2H"
-      releasing:
-        start: "2025-12-05T21:01:05Z"
-        duration: "PT10S"
-  - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
-    meta:
-      uuid: "2bd7759d-e692-45ce-a60f-a1217c43befd"
-      name: "no-name-offer-1"
-      url: "http://127.0.0.1:8082/sessions/2bd7759d-e692-45ce-a60f-a1217c43befd"
-      created: "2025-12-05T19:00:01.340027012Z"
-    executable:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
-      meta:
-        uuid: "af5d8ba8-09ad-48c9-acfd-abea4b5c985b"
-        url: "http://127.0.0.1:8082/executables/af5d8ba8-09ad-48c9-acfd-abea4b5c985b"
-        created: "2025-12-05T19:00:01.352944467Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T21:00:10Z"
-          duration: "PT35S"
-        available:
-          start: "2025-12-05T21:00:45Z/PT0S"
-        releasing:
-          start: "2025-12-05T23:01:05Z"
-          duration: "PT1S"
-      privileged: false
-    compute:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
-      meta:
-        uuid: "16d637bf-39bf-4122-8ff5-2fd8e5890664"
-        name: "Default compute resource"
-        url: "http://127.0.0.1:8082/compute/16d637bf-39bf-4122-8ff5-2fd8e5890664"
-        created: "2025-12-05T19:00:01.371741939Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T21:00:45Z"
-          duration: "PT15S"
-        available:
-          start: "2025-12-05T21:01:00Z/PT0S"
-          duration: "PT2H"
-        releasing:
-          start: "2025-12-05T23:01:05Z"
-          duration: "PT10S"
-      cores:
-        min: 2
-        max: 2
-      memory:
-        min: 2
-        max: 2
-    phase: "OFFERED"
-    expires: "2025-12-05T19:05:01.154297910Z"
-    schedule:
-      preparing:
-        start: "2025-12-05T21:00:10Z"
-        duration: "PT50S"
-      available:
-        start: "2025-12-05T21:01:00Z/PT0S"
-        duration: "PT2H"
-      releasing:
-        start: "2025-12-05T23:01:05Z"
-        duration: "PT10S"
-  - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
-    meta:
-      uuid: "1db058e9-6aef-4ca4-8e8d-c661cd432ba4"
-      name: "no-name-offer-2"
-      url: "http://127.0.0.1:8082/sessions/1db058e9-6aef-4ca4-8e8d-c661cd432ba4"
-      created: "2025-12-05T19:00:01.388626282Z"
-    executable:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
-      meta:
-        uuid: "b0810705-e87e-4040-ac62-3265af476f72"
-        url: "http://127.0.0.1:8082/executables/b0810705-e87e-4040-ac62-3265af476f72"
-        created: "2025-12-05T19:00:01.404934752Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T23:00:10Z"
-          duration: "PT35S"
-        available:
-          start: "2025-12-05T23:00:45Z/PT0S"
-        releasing:
-          start: "2025-12-06T01:01:05Z"
-          duration: "PT1S"
-      privileged: false
-    compute:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
-      meta:
-        uuid: "8653ed30-f074-4ed1-b9a8-fe4b182b069d"
-        name: "Default compute resource"
-        url: "http://127.0.0.1:8082/compute/8653ed30-f074-4ed1-b9a8-fe4b182b069d"
-        created: "2025-12-05T19:00:01.420177734Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-05T23:00:45Z"
-          duration: "PT15S"
-        available:
-          start: "2025-12-05T23:01:00Z/PT0S"
-          duration: "PT2H"
-        releasing:
-          start: "2025-12-06T01:01:05Z"
-          duration: "PT10S"
-      cores:
-        min: 2
-        max: 2
-      memory:
-        min: 2
-        max: 2
-    phase: "OFFERED"
-    expires: "2025-12-05T19:05:01.154297910Z"
-    schedule:
-      preparing:
-        start: "2025-12-05T23:00:10Z"
-        duration: "PT50S"
-      available:
-        start: "2025-12-05T23:01:00Z/PT0S"
-        duration: "PT2H"
-      releasing:
-        start: "2025-12-06T01:01:05Z"
-        duration: "PT10S"
-  - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
-    meta:
-      uuid: "81f9ab02-62e0-413d-a59f-33bd6091fe87"
-      name: "no-name-offer-3"
-      url: "http://127.0.0.1:8082/sessions/81f9ab02-62e0-413d-a59f-33bd6091fe87"
-      created: "2025-12-05T19:00:01.437467528Z"
-    executable:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
-      meta:
-        uuid: "868c6c01-6c2e-4534-a25c-ac2bad454e5e"
-        url: "http://127.0.0.1:8082/executables/868c6c01-6c2e-4534-a25c-ac2bad454e5e"
-        created: "2025-12-05T19:00:01.457957554Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-06T01:00:10Z"
-          duration: "PT35S"
-        available:
-          start: "2025-12-06T01:00:45Z/PT0S"
-        releasing:
-          start: "2025-12-06T03:01:05Z"
-          duration: "PT1S"
-      privileged: false
-    compute:
-      kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
-      meta:
-        uuid: "9aedc391-1fdb-4a59-a1b1-6c4181bc093e"
-        name: "Default compute resource"
-        url: "http://127.0.0.1:8082/compute/9aedc391-1fdb-4a59-a1b1-6c4181bc093e"
-        created: "2025-12-05T19:00:01.474946567Z"
-      phase: "INITIALIZING"
-      schedule:
-        preparing:
-          start: "2025-12-06T01:00:45Z"
-          duration: "PT15S"
-        available:
-          start: "2025-12-06T01:01:00Z/PT0S"
-          duration: "PT2H"
-        releasing:
-          start: "2025-12-06T03:01:05Z"
-          duration: "PT10S"
-      cores:
-        min: 2
-        max: 2
-      memory:
-        min: 2
-        max: 2
-    phase: "OFFERED"
-    expires: "2025-12-05T19:05:01.154297910Z"
-    schedule:
-      preparing:
-        start: "2025-12-06T01:00:10Z"
-        duration: "PT50S"
-      available:
-        start: "2025-12-06T01:01:00Z/PT0S"
-        duration: "PT2H"
-      releasing:
-        start: "2025-12-06T03:01:05Z"
-        duration: "PT10S"
---END--
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "b06d405e-7c78-4538-8cb5-436e0966599e"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/b06d405e-7c78-4538-8cb5-436e0966599e"
+    >     created: "2025-12-05T19:00:01.154297173Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "975b739a-6844-4fee-835b-4b832071d89d"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/975b739a-6844-4fee-835b-4b832071d89d"
+    >         created: "2025-12-05T19:00:01.278924813Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "ba8dffa0-71fb-45a2-a741-95fdd25fea6c"
+    >           url: "http://127.0.0.1:8082/executables/ba8dffa0-71fb-45a2-a741-95fdd25fea6c"
+    >           created: "2025-12-05T19:00:01.301855429Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T19:00:10Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-12-05T19:00:45Z/PT0S"
+    >           releasing:
+    >             start: "2025-12-05T21:01:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "165984cf-34f6-4d25-b0f8-8e0f846f2149"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/165984cf-34f6-4d25-b0f8-8e0f846f2149"
+    >           created: "2025-12-05T19:00:01.326565443Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T19:00:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-12-05T19:01:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2025-12-05T21:01:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       phase: "OFFERED"
+    >       expires: "2025-12-05T19:05:01.154297910Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-12-05T19:00:10Z"
+    >           duration: "PT50S"
+    >         available:
+    >           start: "2025-12-05T19:01:00Z/PT0S"
+    >           duration: "PT2H"
+    >         releasing:
+    >           start: "2025-12-05T21:01:05Z"
+    >           duration: "PT10S"
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "2bd7759d-e692-45ce-a60f-a1217c43befd"
+    >         name: "no-name-offer-1"
+    >         url: "http://127.0.0.1:8082/sessions/2bd7759d-e692-45ce-a60f-a1217c43befd"
+    >         created: "2025-12-05T19:00:01.340027012Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "af5d8ba8-09ad-48c9-acfd-abea4b5c985b"
+    >           url: "http://127.0.0.1:8082/executables/af5d8ba8-09ad-48c9-acfd-abea4b5c985b"
+    >           created: "2025-12-05T19:00:01.352944467Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T21:00:10Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-12-05T21:00:45Z/PT0S"
+    >           releasing:
+    >             start: "2025-12-05T23:01:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "16d637bf-39bf-4122-8ff5-2fd8e5890664"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/16d637bf-39bf-4122-8ff5-2fd8e5890664"
+    >           created: "2025-12-05T19:00:01.371741939Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T21:00:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-12-05T21:01:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2025-12-05T23:01:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       phase: "OFFERED"
+    >       expires: "2025-12-05T19:05:01.154297910Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-12-05T21:00:10Z"
+    >           duration: "PT50S"
+    >         available:
+    >           start: "2025-12-05T21:01:00Z/PT0S"
+    >           duration: "PT2H"
+    >         releasing:
+    >           start: "2025-12-05T23:01:05Z"
+    >           duration: "PT10S"
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "1db058e9-6aef-4ca4-8e8d-c661cd432ba4"
+    >         name: "no-name-offer-2"
+    >         url: "http://127.0.0.1:8082/sessions/1db058e9-6aef-4ca4-8e8d-c661cd432ba4"
+    >         created: "2025-12-05T19:00:01.388626282Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "b0810705-e87e-4040-ac62-3265af476f72"
+    >           url: "http://127.0.0.1:8082/executables/b0810705-e87e-4040-ac62-3265af476f72"
+    >           created: "2025-12-05T19:00:01.404934752Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T23:00:10Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-12-05T23:00:45Z/PT0S"
+    >           releasing:
+    >             start: "2025-12-06T01:01:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "8653ed30-f074-4ed1-b9a8-fe4b182b069d"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/8653ed30-f074-4ed1-b9a8-fe4b182b069d"
+    >           created: "2025-12-05T19:00:01.420177734Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-05T23:00:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-12-05T23:01:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2025-12-06T01:01:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       phase: "OFFERED"
+    >       expires: "2025-12-05T19:05:01.154297910Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-12-05T23:00:10Z"
+    >           duration: "PT50S"
+    >         available:
+    >           start: "2025-12-05T23:01:00Z/PT0S"
+    >           duration: "PT2H"
+    >         releasing:
+    >           start: "2025-12-06T01:01:05Z"
+    >           duration: "PT10S"
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "81f9ab02-62e0-413d-a59f-33bd6091fe87"
+    >         name: "no-name-offer-3"
+    >         url: "http://127.0.0.1:8082/sessions/81f9ab02-62e0-413d-a59f-33bd6091fe87"
+    >         created: "2025-12-05T19:00:01.437467528Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "868c6c01-6c2e-4534-a25c-ac2bad454e5e"
+    >           url: "http://127.0.0.1:8082/executables/868c6c01-6c2e-4534-a25c-ac2bad454e5e"
+    >           created: "2025-12-05T19:00:01.457957554Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-06T01:00:10Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2025-12-06T01:00:45Z/PT0S"
+    >           releasing:
+    >             start: "2025-12-06T03:01:05Z"
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "9aedc391-1fdb-4a59-a1b1-6c4181bc093e"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/9aedc391-1fdb-4a59-a1b1-6c4181bc093e"
+    >           created: "2025-12-05T19:00:01.474946567Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2025-12-06T01:00:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2025-12-06T01:01:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2025-12-06T03:01:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       phase: "OFFERED"
+    >       expires: "2025-12-05T19:05:01.154297910Z"
+    >       schedule:
+    >         preparing:
+    >           start: "2025-12-06T01:00:10Z"
+    >           duration: "PT50S"
+    >         available:
+    >           start: "2025-12-06T01:01:00Z/PT0S"
+    >           duration: "PT2H"
+    >         releasing:
+    >           start: "2025-12-06T03:01:05Z"
+    >           duration: "PT10S"
 
     #
     # Yay it works :-D

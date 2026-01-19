@@ -29,7 +29,6 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
 
 /**
  * 
@@ -48,11 +47,5 @@ public interface AbstractComputeResource
      * 
      */
     public static final URI WEBAPP_PATH = URI.create("compute/"); 
-    
-    /**
-     * Get the parent Session.  
-     *
-     */
-    public AbstractExecutionSession getSession();
 
     }

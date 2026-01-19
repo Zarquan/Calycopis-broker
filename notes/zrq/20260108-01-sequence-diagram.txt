@@ -1,0 +1,437 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Keep a copy of the SRCNet architecture sequence diagrams.
+        They will probably be changed fairly soon to reflect the new architecture.
+        I wanted to keep a copy for reference.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    https://confluence.skatelescope.org/display/SRCSC/SRCNet+Sequence+Diagrams
+    Created by Salgado, Jesus, last modified on Nov 19, 2025, viewed 133 times
+
+    Batch Processing: General Method
+    PlantUML Macro
+
+        @startuml
+        autonumber
+        actor User
+        participant "Global Execution API" as WorkflowAPI
+        participant "Data Management API" as DMAPI
+
+        == Submit Batch Job ==
+        User -> WorkflowAPI: Submit workflow step (batch)
+        WorkflowAPI --> User: Return Job ID
+
+        == Wait for Completion ==
+        loop Until job finishes
+          User -> WorkflowAPI: Poll job status (Job ID)
+          WorkflowAPI --> User: Status (queued / running / completed)
+        end
+
+        == Retrieve Results ==
+        User -> DMAPI: Request result data (Job ID)
+        DMAPI --> User: Provide result dataset
+
+        @enduml
+
+    Interactive session: General method
+    PlantUML Macro
+
+        @startuml
+        autonumber
+
+        actor User
+        participant "Science Gateway" as Gateway
+        participant "Global Execution API" as WorkflowAPI
+        participant "Node level Brokers" as Brokers
+        participant "Node level Session Manager" as SessionMgr
+
+        == Request ==
+        User -> Gateway: Request interactive session\n(type, resources, input data)
+        Gateway -> WorkflowAPI: Forward request
+
+        == Resource Discovery ==
+        WorkflowAPI -> Brokers: Query execution offers
+        Brokers --> WorkflowAPI: Available offers
+
+        == Offer Selection ==
+        WorkflowAPI --> Gateway: Present offers to user
+        Gateway --> User: List of available sessions
+        User -> Gateway: Select offer
+
+        == Session Startup ==
+        Gateway -> Brokers: Confirm selected offer
+        Brokers -> SessionMgr: Start session (notebook, visualisation, CLI)
+        Brokers --> User: Interactive session ready
+
+        @enduml
+
+
+    Workstep editor: General method
+    PlantUML Macro
+
+        @startuml
+        autonumber
+
+        actor User
+        participant "Science Gateway" as Gateway
+        participant "Workstep Editor" as WorkstepEditor
+
+        == Create workstep ==
+        note over Gateway, WorkstepEditor : Editor can be part of the Science Gateway or Workstep Execution
+        User -> Gateway : Create new workstep
+        alt Create empty workstep
+          Gateway -> WorkstepEditor ++ : Create from empty\n(Workstep{})
+        else Create from data
+          Gateway -> WorkstepEditor : Create from data\n(Workstep{data})
+        else Create from template
+          Gateway -> WorkstepEditor : Create from template\n(Workstep{executable, resources})
+        else Create from Software Discovery (URL)
+          Gateway -> WorkstepEditor : Create from Software Discovery (URL)\n(URL->Workstep{executable, resources})
+        else Create from user history
+          Gateway -> WorkstepEditor : Create from user history (URL)\n(URL->Workstep{executable, resources})
+        else Create from data provenance
+          Gateway -> WorkstepEditor : Create from data provenance (URL)\n(URL->Workstep{executable, resources})
+        end
+        WorkstepEditor --> Gateway -- : New workstep\n(Workstep{UUID, executable, resources})
+        Gateway --> User : New workstep
+
+         == Edit workstep ==
+        note over Gateway, WorkstepEditor : Editor can be part of the Science Gateway or Workstep Execution
+        loop Editing loop
+          User -> Gateway : Edit a workstep
+          alt Edit the executable
+            Gateway -> WorkstepEditor ++ : Set executable\n(UUID, {executable})
+          else Edit the data resources
+            Gateway -> WorkstepEditor : Edit data\n(UUID, {data})
+          else Edit the compute resources
+            Gateway -> WorkstepEditor : Set compute\n(UUID, {compute})
+          else Edit the storage resources
+            Gateway -> WorkstepEditor : Edit storage\n(UUID, {storage})
+          end   
+          WorkstepEditor --> Gateway -- : Workstep\n(Workstep{UUID, executable, resources})
+          Gateway --> User : Updated workstep
+        end
+
+        @enduml
+
+    Batch processing : Using PanDA
+    PlantUML Macro
+
+        @startuml
+        autonumber
+
+        actor "User (via Workflow Execution API)" as User
+        participant "Science Gateway" as Gateway
+        participant "Global Execution API" as WorkflowAPI
+        participant "PanDA Server" as PanDA
+        participant Harvester
+        participant "Harbor (Container Registry)" as Harbor
+        participant "Kubernetes API" as K8sAPI
+        participant Pod
+        participant "Pilot" as Pilot
+        participant "Data Management API" as DMAPI
+        participant "Rucio" as Rucio
+        participant Storage
+
+        == Create workstep ==
+        opt Workstep creation (optional)
+          User -> Gateway: Create workstep
+        end
+
+        == Job Submission ==
+        User -> WorkflowAPI: Submit workstep (job/task)
+        WorkflowAPI -> PanDA: Register job submission
+
+        == Job Acquisition ==
+        loop Periodically
+          Harvester -> PanDA: Pull pending jobs
+          PanDA --> Harvester: Provide job description
+        end
+
+        == Job Preparation ==
+        Harvester -> Harbor: Select container image (Pilot + payload)
+        Harvester -> K8sAPI: Submit Kubernetes Job (YAML with image ref)
+        K8sAPI -> Harbor: Pull container image
+        K8sAPI -> Pod: Schedule pod with Pilot + Payload
+        Pod -> Pilot: Start execution
+
+        == Input Data Staging ==
+        Pilot -> DMAPI: Request input dataset
+        DMAPI -> Rucio: Locate dataset
+        Rucio -> Storage: Fetch data from distributed storage
+        Storage --> Rucio: Provide dataset
+        Rucio --> DMAPI: Return dataset reference
+        DMAPI --> Pilot: Provide input files
+
+        == Job Execution ==
+        Pilot -> Pilot: Execute user payload
+
+        == Output Data Upload ==
+        Pilot -> DMAPI: Upload output data products
+        DMAPI -> Rucio: Register dataset + replicas
+        Rucio -> Storage: Store dataset + metadata
+        Storage --> Rucio: Confirm storage
+        Rucio --> DMAPI: Confirm registration
+        DMAPI --> Pilot: Acknowledge upload
+
+        == Monitoring ==
+        Pilot -> PanDA: Send heartbeats, logs, status
+        K8sAPI -> Harvester: Pod status
+        Harvester -> PanDA: Report job status updates
+
+        == User Polling ==
+        loop Periodic status check
+          User -> WorkflowAPI: Query workflow status
+          WorkflowAPI -> PanDA: Check job status
+          PanDA --> WorkflowAPI: Status (queued/running/finished)
+          WorkflowAPI --> User: Status
+        end
+
+        == Completion ==
+        Pilot -> PanDA: Notify job completion + output metadata
+        PanDA -> WorkflowAPI: Job complete, outputs in DMAPI
+        WorkflowAPI -> User: Notify workflow complete
+
+        == Results Retrieval ==
+        User -> DMAPI: Query dataset identifiers
+        DMAPI -> Rucio: Lookup dataset
+        Rucio -> Storage: Provide output files
+        Storage --> Rucio: Deliver files
+        Rucio --> DMAPI: Deliver dataset
+        DMAPI --> User: Output data (FITS, logs, tables)
+
+        @enduml
+
+
+    Interactive Session: Interactive interface start-up using ExecutionBroker 
+    PlantUML Macro
+
+        @startuml
+        autonumber
+
+        actor User
+        participant "Science Gateway" as Gateway
+        participant "Global Execution API" as WorkstepExecute
+        participant "Execution Broker @ Site A" as BrokerA
+        participant "Execution Broker @ Site B" as BrokerB
+        participant "PrepareData @ Site A" as PrepareDataA
+        participant "Cavern @ Site A" as CavernA
+        participant "Harbor @ Site A" as HarborA
+        participant "CANFAR @ Site A" as SkahaA
+
+        == Create workstep ==
+        User -> Gateway: Create workstep
+
+        == Submit workstep ==
+        User -> Gateway ++ : Submit workstep(UUID)
+        Gateway -> WorkstepExecute ++ : Submit workstep(Workstep{UUID})
+        note right of WorkstepExecute
+          Workflow Execution API enriches submission
+          with executable and resource info
+        end note
+        WorkstepExecute -> Permissions ++ : Check user permissions
+        alt Not authorised
+          Permissions --> WorkstepExecute : Not authorised
+          WorkstepExecute --> Gateway : Not authorised
+          Gateway --> User : Not authorised
+        else Authorised
+          Permissions --> WorkstepExecute -- : Authorised
+          par Request offers
+            WorkstepExecute -> BrokerA ++ : Query resource availability + data locality
+            BrokerA --> WorkstepExecute -- : Offer (available: Yes, window=Now, data local)
+          else
+            WorkstepExecute -> BrokerB ++ : Query resource availability + data locality
+            BrokerB --> WorkstepExecute -- : Offer (available: Yes, window=2h, data remote)
+          end
+        end
+        WorkstepExecute --> Gateway -- : Offerset\noffers[Workstep{UUID, executable, resources}]
+        Gateway --> User -- : Display offers
+
+        == Offer Selection ==
+        User -> Gateway : Select offer (UUID)
+        Gateway -> BrokerA ++ : Accept offer (UUID)\nsetPhase(UUID, ACCEPTED) or setPhase(UUID, ACCEPTED, callback{type, criteria, content})
+        == Prepare session ==
+        BrokerA -> Permissions ++ : Check user permissions
+        alt Not authorised
+          Permissions --> BrokerA : Not authorised
+          BrokerA --> Gateway : Not authorised
+          Gateway --> User : Not authorised
+        else Authorised
+          Permissions --> BrokerA -- : Authorised
+          par Prepare data (Rucio)
+            BrokerA -> PrepareDataA ++ : Prepare data for session
+            PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+            loop Status check
+              BrokerA -> PrepareDataA ++ : Query transfer status
+              PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+            end
+          else Prepare data (Cavern)
+            BrokerA -> CavernA ++ : Pull data for session
+            CavernA --> BrokerA -- : Status (running, completed, failed)
+            loop Status check
+              BrokerA -> CavernA ++ : Query transfer status
+              CavernA --> BrokerA -- : Status (running, completed, failed)
+            end
+          else Prepare code (Harbor)
+            BrokerA -> HarborA ++ : Pull container image
+            HarborA --> BrokerA -- : Status (running, completed, failed)
+            loop Status check
+              BrokerA -> HarborA ++ : Query transfer status
+              HarborA --> BrokerA -- : Status (running, completed, failed)
+            end
+          end
+
+          == Start session ==
+          BrokerA -> SkahaA ++ : Start CANFAR session (Notebook / CARTA / CLI)
+          SkahaA --> BrokerA -- : Session URL / credentials
+
+          == Query session phase ==
+          note over Gateway,WorkstepExecute  : Polling is not required if a callback has been registered
+          loop Polling loop
+            Gateway -> BrokerA ++ : Query session phase (UUID)
+            BrokerA --> Gateway -- : Phase (PREPARING, AVAILABLE, COMPLETED, FAILED)
+          end
+
+          == Session ready ==
+          BrokerA --> Gateway -- : Callback {session: UUID, phase: AVAILABLE}
+
+          Gateway -> BrokerA ++ : Query session state (UUID)
+          BrokerA --> Gateway -- : Workstep{UUID, executable, resources}
+
+          Gateway --> User : Provide access link to session
+        end
+        @enduml
+
+
+# -----------------------------------------------------
+
+    Development versions in Coral space
+
+    COR-969a: Interactive execution sequence diagram
+    https://confluence.skatelescope.org/display/SRCSC/COR-969a%3A+Interactive+execution+sequence+diagram
+    Created by Morris, Dave, last modified on Oct 01, 2025, viewed 17 times
+
+
+    PlantUML Macro
+
+        @startuml
+        autonumber
+
+        actor User
+        participant "Science Gateway" as Gateway
+        participant "Workstep Editor" as WorkstepEditor
+        participant "Workflow Execution API" as WorkstepExecute
+        participant "Permissions Service" as Permissions
+        participant "Execution Broker @ Site A" as BrokerA
+        participant "Execution Broker @ Site B" as BrokerB
+        participant "PrepareData @ Site A" as PrepareDataA
+        participant "Cavern @ Site A" as CavernA
+        participant "Harbor @ Site A" as HarborA
+        participant "CANFAR @ Site A" as SkahaA
+
+        == Create workstep ==
+        User -> Gateway: Create workstep
+
+        == Execute workstep ==
+        User -> Gateway ++ : Execute workstep(UUID)
+        Gateway -> WorkstepEditor ++ : Execute workstep(UUID)
+        WorkstepEditor -> WorkstepExecute --++ : Execute workstep(Workstep{UUID, executable, resources})
+        WorkstepExecute -> Permissions ++ : Check user permissions
+        Permissions --> WorkstepExecute -- : Authorised / Not authorised
+        alt Not authorised
+        WorkstepExecute --> Gateway : Not authorised
+        Gateway --> User : Not authorised
+        else Authorised
+        par Request offers
+        WorkstepExecute -> BrokerA ++ : Query resource availability + data locality
+        BrokerA --> WorkstepExecute -- : Offer (available: Yes, window=Now, data local)
+        else
+        WorkstepExecute -> BrokerB ++ : Query resource availability + data locality
+        BrokerB --> WorkstepExecute -- : Offer (available: Yes, window=2h, data remote)
+        end
+        end
+        WorkstepExecute --> Gateway -- : Offerset\noffers[Workstep{UUID, executable, resources}]
+        Gateway --> User -- : Display offers
+
+        == Offer Selection ==
+        User -> Gateway : Select BrokerA offer
+        Gateway -> BrokerA ++ : Confirm selected offer\nsetPhase(ACCEPTED) or setPhase(ACCEPTED, callback{type, criteria, content})
+        == Prepare session ==
+        BrokerA -> Permissions ++ : Check user permissions
+        Permissions --> BrokerA -- : Authorised / Not authorised
+        alt Not authorised
+        BrokerA --> Gateway : Not authorised
+        Gateway --> User : Not authorised
+        else Authorised
+        par Prepare data (Rucio)
+        BrokerA -> PrepareDataA ++ : Prepare data for session
+        PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+        loop Status check
+        BrokerA -> PrepareDataA ++ : Query transfer status
+        PrepareDataA --> BrokerA -- : Status (running, completed, failed)
+        end
+        else Prepare data (Cavern)
+        BrokerA -> CavernA ++ : Pull data for session
+        CavernA --> BrokerA -- : Status (running, completed, failed)
+        loop Status check
+        BrokerA -> CavernA ++ : Query transfer status
+        CavernA --> BrokerA -- : Status (running, completed, failed)
+        end
+        else Prepare code (Harbor)
+        BrokerA -> HarborA ++ : Pull container image
+        HarborA --> BrokerA -- : Status (running, completed, failed)
+        loop Status check
+        BrokerA -> HarborA ++ : Query transfer status
+        HarborA --> BrokerA -- : Status (running, completed, failed)
+        end
+        end
+
+        == Start session ==
+        BrokerA -> SkahaA ++ : Start CANFAR session (Notebook / CARTA / CLI)
+        SkahaA --> BrokerA -- : Session URL / credentials
+
+        == Session Status ==
+        note over Gateway,WorkstepExecute  : Status polling is not required if a callback has been registered
+        loop Status polling
+        Gateway -> BrokerA ++ : Query workstep status
+        BrokerA --> Gateway -- : Status (preparing, available, completed, failed)
+        end
+
+        == Session ready ==
+        BrokerA --> Gateway -- : Callback {content: "session.phase: AVAILABLE"}
+        Gateway --> User : Provide access link to session
+        end
+
+        @enduml
+
+

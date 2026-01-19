@@ -4,7 +4,9 @@
 package net.ivoa.calycopis.datamodel.executable;
 
 import java.net.URI;
+import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -12,17 +14,22 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**
  * 
  */
+@Slf4j
 @Entity
 @Table(
     name = "abstractexecutables"
@@ -48,7 +55,7 @@ extends LifecycleComponentEntity
      * 
      */
     protected AbstractExecutableEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaComponentMetadata meta
         ){
@@ -57,26 +64,10 @@ extends LifecycleComponentEntity
             );
 
         this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
-            {
-            ((SimpleExecutionSessionEntity) session).setExecutable(
-                this
-                );
-            }
+        this.session.setExecutable(
+            this
+            );
 
-        if (session instanceof ScheduledExecutionSessionEntity)
-            {
-            this.init(
-                (ScheduledExecutionSessionEntity) session,
-                result
-                );
-            }
-        }
-    
-    protected void init(
-        final ScheduledExecutionSessionEntity session,
-        final AbstractExecutableValidator.Result result
-        ){
         //
         // Start preparing when the session starts preparing.
         this.prepareDurationSeconds     = result.getPreparationTime();
@@ -98,10 +89,9 @@ extends LifecycleComponentEntity
     
     @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
-
+    private SimpleExecutionSessionEntity session;
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public SimpleExecutionSessionEntity getSession()
         {
         return this.session;
         }
@@ -126,5 +116,104 @@ extends LifecycleComponentEntity
     protected URI getWebappPath()
         {
         return AbstractExecutable.WEBAPP_PATH;
+        }
+
+    // TODO Move this to a test specific class.
+    @Column(name="preparecounter")
+    private int preparecounter;
+    public int getPrepareCounter()
+        {
+        return this.preparecounter;
+        }
+
+    // Generic prepare action - move to the real Entities later.
+    @Override
+    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+        {
+        return new ProcessingAction()
+            {
+
+            int count = AbstractExecutableEntity.this.preparecounter ;
+            
+            @Override
+            public boolean process()
+                {
+                log.debug(
+                    "** Preparing [{}][{}] count [{}]",
+                    AbstractExecutableEntity.this.getUuid(),
+                    AbstractExecutableEntity.this.getClass().getSimpleName(),
+                    count
+                    );
+    
+                count++;
+                try {
+                    Thread.sleep(1000);
+                    }
+                catch (InterruptedException e)
+                    {
+                    log.error(
+                        "Interrupted while preparing [{}][{}]",
+                        AbstractExecutableEntity.this.getUuid(),
+                        AbstractExecutableEntity.this.getClass().getSimpleName()
+                        );
+                    }
+    
+                return true ;
+                }
+    
+            @Override
+            public UUID getRequestUuid()
+                {
+                return request.getUuid();
+                }
+    
+            @Override
+            public IvoaLifecyclePhase getNextPhase()
+                {
+                if (count < 4)
+                    {
+                    return IvoaLifecyclePhase.PREPARING ;
+                    }
+                else {
+                    return IvoaLifecyclePhase.AVAILABLE ;
+                    }
+                }
+            
+            @Override
+            public boolean postProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Post processing [{}][{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                if (component instanceof AbstractExecutableEntity)
+                    {
+                    return postProcess(
+                        (AbstractExecutableEntity) component
+                        );
+                    }
+                else {
+                    log.error(  
+                        "Unexpected component type [{}] post processing [{}][{}]",
+                        component.getClass().getSimpleName(),
+                        component.getUuid(),
+                        component.getClass().getSimpleName()
+                        );
+                    return false ;
+                    }
+                }
+                
+            public boolean postProcess(final AbstractExecutableEntity component)
+                {
+                log.debug(
+                    "Post processing [{}][{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                component.preparecounter = this.count ;
+                return true ;
+                }
+            };
         }
     }

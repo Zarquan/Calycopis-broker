@@ -1,0 +1,556 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Design the processing requests.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# TODO Change Session to Execution, because we are ExecutionBroker, not SessionBroker.
+# TODO Change SessionPhase INITIAL to INITIALIZING
+# TODO Deprecate RUNNING in both lists
+#
+
+    session phases
+        INITIAL
+        OFFERED
+        ACCEPTED
+        REJECTED
+        EXPIRED
+
+        WAITING
+        PREPARING
+        AVAILABLE
+        RUNNING ??
+        RELEASING
+        COMPLETED
+        CANCELLED
+        FAILED
+
+
+    component phases
+        INITIALIZING
+        WAITING
+        PREPARING
+        AVAILABLE
+        RUNNING ??
+        RELEASING
+        COMPLETED
+        CANCELLED
+        FAILED
+
+    --------
+
+    public static final NO_ACTION = null ;
+
+    PrepareSessionRequest
+        preProcess()
+            switch(session.getPhase())
+                case IvoaSimpleExecutionSessionPhase.INITIAL:
+                case IvoaSimpleExecutionSessionPhase.OFFERED:
+                case IvoaSimpleExecutionSessionPhase.REJECTED:
+                case IvoaSimpleExecutionSessionPhase.EXPIRED:
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+                    return NO_ACTION ;
+
+                case IvoaSimpleExecutionSessionPhase.ACCEPTED:
+                case IvoaSimpleExecutionSessionPhase.WAITING:
+                    // If we don't need to start preparing yet.
+                    if (session.getPrepareStart() > now())
+                        session.setPhase(WAITING)
+                    // If we should start preparing now.
+                    else
+                        session.setPhase(PREPARING)
+                        schedule PrepareComputeRequest()
+                        schedule PrepareDataRequest()
+                        schedule PrepareExecutableRequest()
+                        schedule PrepareStorageRequest()
+                    // No action needed at this point.
+                    return NO_ACTION ;
+
+                case IvoaSimpleExecutionSessionPhase.PREPARING:
+                    // Phase is already PREPARING, no action needed.
+                    return NO_ACTION ;
+
+                case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+                case IvoaSimpleExecutionSessionPhase.RUNNING:
+                case IvoaSimpleExecutionSessionPhase.RELEASING:
+                case IvoaSimpleExecutionSessionPhase.COMPLETED:
+                case IvoaSimpleExecutionSessionPhase.CANCELLED:
+                case IvoaSimpleExecutionSessionPhase.FAILED:
+                    // Phase is past PREPARING, no action needed.
+                    return NO_ACTION ;
+
+    --------
+
+    @Override
+    public void postProcess(final RequestProcessingPlatform platform)
+        {
+        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+
+
+    PrepareSessionRequest
+        postProcess()
+            switch(session.getPhase())
+                case IvoaSimpleExecutionSessionPhase.INITIAL:
+                case IvoaSimpleExecutionSessionPhase.OFFERED:
+                case IvoaSimpleExecutionSessionPhase.REJECTED:
+                case IvoaSimpleExecutionSessionPhase.EXPIRED:
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+
+                case IvoaSimpleExecutionSessionPhase.WAITING:
+                    // Phase is still waiting, reschedule this request.
+                    reschedule(
+                        10, TimeUnit.SECONDS
+                        )
+
+                case IvoaSimpleExecutionSessionPhase.PREPARING:
+                    // Phase has been set to PREPARING, schedule a start.
+                    schedule StartSessionRequest()
+                    done()
+
+                case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+                case IvoaSimpleExecutionSessionPhase.RUNNING:
+                case IvoaSimpleExecutionSessionPhase.RELEASING:
+                case IvoaSimpleExecutionSessionPhase.COMPLETED:
+                case IvoaSimpleExecutionSessionPhase.CANCELLED:
+                case IvoaSimpleExecutionSessionPhase.FAILED:
+                    // Phase is past PREPARING, no action needed.
+                    done()
+
+    --------
+
+    StartSessionRequest
+        preProcess()
+            switch(session.getPhase())
+                INITIAL
+                OFFERED
+                REJECTED
+                EXPIRED
+                ACCEPTED
+                WAITING
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+                    return NO_ACTION
+
+                PREPARING
+
+                    // If we don't have a CANFAR session yet.
+                    if (session.getCanfarSessionId() == null)
+                        // Check if all our components are AVAILABLE.
+                        ready &= checkAvailable(data)
+                        ready &= checkAvailable(compute)
+                        ready &= checkAvailable(executable)
+                        ready &= checkAvailable(storage)
+
+                        // If all of our components are AVAILABLE.
+                        if (ready)
+                            // Start a new CANFAR session.
+                            return new CanfarSessionCreateAction(
+                                ....
+                                )
+
+                        // If our components are not AVAILABLE yet.
+                        else
+                            // No action, reschedule in post.
+                            return no action
+
+                    // If we already have a CANFAR session.
+                    if (session.getCanfarSessionId() != null)
+                        // Start polling the CANFAR session status.
+                        return new CanfarSessionPollAction(
+                            session.getCanfarSessionId()
+                            )
+
+
+                AVAILABLE
+                RUNNING
+                RELEASING
+                COMPLETED
+                CANCELLED
+                FAILED
+                    // Phase is past PREPARING, no action needed.
+                    return no action
+
+    --------
+
+    StartSessionRequest
+        checkAvailable(component)
+            switch(component.getPhase())
+                INITIALIZING
+                WAITING
+                    // Component hasn't reached PREPARING, session should wait.
+                    return false
+                PREPARING
+                    // Component is PREPARING, session should wait.
+                    return false
+
+                AVAILABLE
+                RUNNING
+                    // Component is AVAILABLE, session can proceed.
+                    return true
+
+                RELEASING
+                COMPLETED
+                FAILED
+                    // Schedule a FailSessionRequest to handle it
+                    schedule FailSessionRequest(
+                        session,
+                        "Component [${}] is [${}] while Session is [${}]",
+                        component.getUuid(),
+                        component.getPhase(),
+                        session.getPhase()
+                        )
+                    return false
+
+                CANCELLED
+                    // Schedule a CancelSessionRequest to handle it
+                    schedule CancelSessionRequest(
+                        session,
+                        "Component [${}] has been [CANCELLED] while Session is [${}]",
+                        component.getUUid(),
+                        session.getPhase()
+                        )
+                    return false
+
+        --------
+
+        CanfarSessionCreateAction
+            process()
+                this.canfarSessionID = skaha....
+
+        --------
+
+        CanfarSessionPollAction
+            process()
+                this.canfarSessionStatus = skaha....
+
+    --------
+
+    StartSessionRequest
+        postProcess()
+            switch(session.getPhase())
+                INITIAL
+                OFFERED
+                REJECTED
+                EXPIRED
+                ACCEPTED
+                WAITING
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+
+                PREPARING
+                    // If our Session state didn't trigger an Action, try again.
+                    if (action == null)
+                        reschedule(
+                            10, TimeUnit.SECONDS
+                            )
+
+                    // Do we use an instanceof and class cast or use a base class ?
+                    // If our Action has a CANFAR session ID.
+                    else if (action.getCanfarSessionId() != null)
+
+                        // Transfer the CANFAR session ID to our Entity.
+                        session.setCanfarSessionId(
+                            action.getCanfarSessionId()
+                            )
+
+                        // Transfer the CANFAR session state to our Entity.
+                        session.setCanfarSessionState(
+                            action.getCanfarSessionStatus()
+                            )
+
+                        // Check the CANFAR session state.
+                        if (action.getCanfarSessionStatus() != null)
+                            switch(action.getCanfarSessionStatus())
+
+                                // If our CANFAR session is not running yet, try again.
+                                starting
+                                    reschedule(
+                                        10, TimeUnit.SECONDS
+                                        )
+
+                                // If the CANFAR session is running.
+                                running
+                                    // Change our phase to AVAILABLE|RUNNING
+                                    session.setPhase(AVAILABLE)
+                                    // Schedule a MonitorSessionrequest
+                                    schedule MonitorSessionRequest
+                                    done()
+
+                                // If the CANFAR session has completed
+                                // If the CANFAR session has cancelled
+                                // If the CANFAR session has failed
+                                // .....
+                                // Schedule a FailSessionRequest to handle it
+                                default
+                                    schedule FailSessionRequest(
+                                        session,
+                                        "Unexpected CANFAR session status [${}] while Session phase is [${}]",
+                                        action.getCanfarSessionStatus(),
+                                        session.getPhase()
+                                        )
+
+
+
+                    // If our Action does not have a CANFAR session ID.
+                    else
+                        fail(action)
+                        fail(
+                            action.getRequestUuid(),
+                            action.getSessionUuid(),
+                            action.getMessage()
+                            )
+
+                RUNNING
+                AVAILABLE
+                    // Phase has moved on, no action needed.
+                    done()
+
+                RELEASING
+                COMPLETED
+                CANCELLED
+                FAILED
+                    // Phase has moved on, no action needed.
+                    done()
+
+
+    --------
+
+    MonitorSessionRequest
+        preProcess()
+            switch(session.getPhase())
+                INITIAL
+                OFFERED
+                REJECTED
+                EXPIRED
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+                    return NO_ACTION
+
+                ACCEPTED
+                WAITING
+                PREPARING
+                AVAILABLE
+                RUNNING
+                RELEASING
+                COMPLETED
+                CANCELLED
+                FAILED
+
+                    // Check the CANFAR session status.
+                    if (session.getCanfarSessionId() != null)
+                        return new CanfarSessionPollAction(
+                            session.getCanfarSessionId()
+                            )
+                    // If we don't have a CANFAR session ID.
+                    else
+                        fail(
+                            "[${}] called with null CANFAR session ID [{}][{}]",
+                            this.getClass().getSimpleName(),
+                            session.getUuid(),
+                            session.getPhase()
+                            )
+                        return NO_ACTION
+
+    MonitorSessionRequest
+
+        postProcess()
+            switch(session.getPhase())
+                INITIAL
+                OFFERED
+                REJECTED
+                EXPIRED
+                    fail(
+                        "[${}] shouldn't get called if phase is stll [${}]",
+                        this.getClass().getSimpleName(),
+                        session.getPhase()
+                        )
+
+                ACCEPTED
+                WAITING
+                PREPARING
+                RUNNING
+                AVAILABLE
+                RELEASING
+                COMPLETED
+                CANCELLED
+                FAILED
+
+                    // If we have a vaild CANFAR session ID.
+                    if (action != null)
+                        if (action.getCanfarSessionId() != null)
+
+                            // Transfer the CANFAR session state to our Entity.
+                            session.setCanfarSessionState(
+                                action.getCanfarSessionStatus()
+                                )
+
+                            // Compare CANFAR session state with our own Session phase.
+                            if (action.getCanfarSessionStatus() != null)
+                                switch(action.getCanfarSessionStatus())
+                                    running
+                                        switch(session.getPhase())
+                                            ACCEPTED  // Fail, unexpected state, need to delete the CANFAR Session
+                                            WAITING   // Fail, unexpected state, need to delete the CANFAR Session
+                                            PREPARING // Fail, unexpected state, need to delete the CANFAR Session
+                                            // FailSessionRequest will delete the CANFAR session
+                                            schedule FailSessionRequest(
+                                                session,
+                                                "Unexpected CANFAR session status [${}] for Session [${}][${}]",
+                                                action.getCanfarSessionStatus(),
+                                                session.getUuid()
+                                                session.getPhase()
+                                                )
+
+                                            RUNNING   // OK, reschedule(delay)
+                                            AVAILABLE // OK, reschedule(delay)
+
+                                            RELEASING // Fail, unexpected state, need to delete the CANFAR Session
+                                            COMPLETED // Fail, unexpected state, need to delete the CANFAR Session
+                                            CANCELLED // Fail, unexpected state, need to delete the CANFAR Session
+                                            FAILED    // Fail, unexpected state, need to delete the CANFAR Session
+
+                                    completed
+                                        switch(session.getPhase())
+                                            ACCEPTED  // Fail, unexpected state, need to schedule a FailSessionAction
+                                            WAITING   // Fail, unexpected state, need to schedule a FailSessionAction
+                                            PREPARING // Fail, unexpected state, need to schedule a FailSessionAction
+
+                                            RUNNING   // CANFAR Session has completed early, need to schedule a ReleaseSessionAction
+                                            AVAILABLE // CANFAR Session has completed early, need to schedule a ReleaseSessionAction
+
+                                            RELEASING // OK, reschedule(delay)
+                                            COMPLETED // OK, done()
+                                            CANCELLED // OK, done()
+                                            FAILED    // OK, done()
+
+                                    failed
+                                        switch(session.getPhase())
+                                            ACCEPTED  // CANFAR Session has failed, need to schedule a FailSessionAction
+                                            WAITING   // CANFAR Session has failed, need to schedule a FailSessionAction
+                                            PREPARING // CANFAR Session has failed, need to schedule a FailSessionAction
+                                            AVAILABLE // CANFAR Session has failed, need to schedule a FailSessionAction
+                                            RUNNING   // CANFAR Session has failed, need to schedule a FailSessionAction
+                                                schedule FailSessionAction(
+                                                    )
+
+                                            RELEASING // CANFAR Session has failed, update Session phase to match
+                                            COMPLETED // CANFAR Session has failed, update Session phase to match
+                                            CANCELLED // OK, done()
+                                            FAILED    // OK, done()
+
+                                    NotFound
+                                        switch(session.getPhase())
+                                            ACCEPTED  // CANFAR Session is NotFound, no action needed.
+                                            WAITING   // CANFAR Session is NotFound, no action needed.
+                                            PREPARING // CANFAR Session is NotFound, no action needed.
+                                                done()
+
+                                            AVAILABLE // CANFAR Session has gone, need to schedule a FailSessionAction
+                                            RUNNING   // CANFAR Session has gone, need to schedule a FailSessionAction
+                                                done()
+
+                                            RELEASING // CANFAR Session has gone, nothing to do.
+                                            COMPLETED // CANFAR Session has gone, nothing to do.
+                                            CANCELLED // CANFAR Session has gone, nothing to do.
+                                            FAILED    // CANFAR Session has gone, nothing to do.
+                                                done()
+
+                                    default
+                                        schedule FailSessionRequest(
+                                            session,
+                                            "Unexpected CANFAR session status [${}] for Session [${}][${}]",
+                                            action.getCanfarSessionStatus(),
+                                            session.getUuid()
+                                            session.getPhase()
+                                            )
+                                        done()
+
+                            else if (action.getCanfarSessionStatus() == null)
+                                schedule FailSessionRequest(
+                                    session,
+                                    "Unexpected CANFAR session status [${}] for Session [${}][${}]",
+                                    action.getCanfarSessionStatus(),
+                                    session.getUuid()
+                                    session.getPhase()
+                                    )
+                                done()
+
+
+
+                        // If our Action does not have a CANFAR session ID.
+                        else if (action.getCanfarSessionId() == null)
+                            fail(action)
+                            fail(
+                                action.getRequestUuid(),
+                                action.getSessionUuid(),
+                                action.getMessage()
+                                )
+                    // If we don't have an Action.
+                    else if (action == null)
+                        fail("Missing Action")
+                        done()
+
+
+
+
+
+
+
+
+    ReleaseSessionRequest
+
+    CompleteSessionRequest
+
+    CancelSessionRequest
+
+    FailSessionRequest
+
+
+
+
+

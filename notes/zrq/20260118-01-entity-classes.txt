@@ -1,0 +1,436 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Explore the issue with the entity classes.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Run our containers in a Podman Pod.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod calycopis-pod \
+        --expose 8082 \
+        --name calycopis-dev \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@calycopis-dev]
+
+    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+# TODO Can we replace this with the redocly bundle tool ?
+# https://redocly.com/docs/cli/commands/bundle
+# https://github.com/Zarquan/jordanita/blob/90dc08d73e02857c56afba92f4a5100cfbbd2a39/notes/uksrc/hemaris/20260113-01-openapi-vodml.txt#L144-L164
+#[root@calycopis-dev]
+
+        source=/trebula/schema/v1.0
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/execution-broker.yaml" \
+            "${target}/execution-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@calycopis-dev]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@calycopis-dev]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build and run the Java service.
+#[root@calycopis-dev]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean spring-boot:run ; popd
+
+        ....
+        ....
+
+
+
+# -----------------------------------------------------
+# Launch second terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        calycopis-dev \
+            bash
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Run some tests
+#[root@container]
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+    #
+    # Request a new offerset and accept the first one.
+    createaccept()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml" \
+
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+        }
+
+    checkstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '.'
+        }
+
+    createaccept
+
+    checkstatus
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >     ....
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-01-18T13:39:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-01-18T13:40:00Z/PT0S"
+    >         duration: "PT2H"
+    >     ....
+    >   phase: "ACCEPTED"
+    >   expires: "2026-01-18T13:41:56.948259Z"
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     phase: "AVAILABLE"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >     ....
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     phase: "WAITING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-01-18T13:39:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-01-18T13:40:00Z/PT0S"
+    >         duration: "PT2H"
+    >     ....
+    >   phase: "PREPARING"
+    >   expires: "2026-01-18T13:41:56.948259Z"
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     phase: "AVAILABLE"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >     ....
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     phase: "AVAILABLE"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-01-18T13:39:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-01-18T13:40:00Z/PT0S"
+    >         duration: "PT2H"
+    >     ....
+    >   phase: "PREPARING"
+    >   expires: "2026-01-18T13:41:56.948259Z"
+
+
+    #
+    # Looks good ...
+    # Components transition from INITIALIZING, WAITING, PREPARING to AVAILABLE.
+    # Components need to poke their session once they are AVAILABLE.
+    #
+
+    #
+    # Added session poke ...
+    #
+
+    peekstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '
+            {
+            "phase": .phase,
+            "executable": {
+                "phase": .executable.phase
+                },
+            "compute": {
+                "phase": .compute.phase
+                }
+            }
+            '
+        }
+
+    createaccept
+
+    peekstatus
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "832baf90-ab27-4d26-8c39-d7685adf707b"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/832baf90-ab27-4d26-8c39-d7685adf707b"
+    >     created: "2026-01-18T15:27:42.535998Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "2deba2cb-26d6-4445-bdbb-1bbadc1b4663"
+    >       url: "http://127.0.0.1:8082/executables/2deba2cb-26d6-4445-bdbb-1bbadc1b4663"
+    >       created: "2026-01-18T15:27:42.566813Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "d4130886-4748-44e6-820f-b5b553538f33"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/d4130886-4748-44e6-820f-b5b553538f33"
+    >       created: "2026-01-18T15:27:42.599741Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-01-18T15:29:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-01-18T15:30:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-01-18T17:30:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "ACCEPTED"
+    >   expires: "2026-01-18T15:32:42.412864Z"
+
+    >   phase: "PREPARING"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "WAITING"
+
+    >   phase: "AVAILABLE"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "AVAILABLE"
+
+

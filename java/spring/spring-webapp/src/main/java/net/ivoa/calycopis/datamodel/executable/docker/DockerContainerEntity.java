@@ -46,7 +46,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
 import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
@@ -86,7 +86,7 @@ public class DockerContainerEntity
         }
 
     protected DockerContainerEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         this(
@@ -97,7 +97,7 @@ public class DockerContainerEntity
         }
     
     protected DockerContainerEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result,
         final IvoaDockerContainer validated
         ){
@@ -135,7 +135,7 @@ public class DockerContainerEntity
 
     @Embeddable
     public static class ImageImpl
-    implements Image
+    implements DockerImage
         {
 
         public ImageImpl()
@@ -189,9 +189,9 @@ public class DockerContainerEntity
         private String platformArch;
         private String platformOs;
         @Override
-        public Platform getPlatform()
+        public DockerPlatform getPlatform()
             {
-            return new Platform()
+            return new DockerPlatform()
                 {
                 @Override
                 public String getArchitecture()
@@ -256,18 +256,18 @@ public class DockerContainerEntity
     protected List<DockerNetworkPortEntity> networkPorts = new ArrayList<DockerNetworkPortEntity>();
 
     @Override
-    public Network getNetwork()
+    public DockerNetwork getNetwork()
         {
-        return new Network()
+        return new DockerNetwork()
             {
-            public List<NetworkPort> getPorts()
+            public List<DockerNetworkPort> getPorts()
                 {
-                return new ListWrapper<NetworkPort, DockerNetworkPortEntity>(
+                return new ListWrapper<DockerNetworkPort, DockerNetworkPortEntity>(
                     networkPorts
                     ){
-                    public NetworkPort wrap(final DockerNetworkPortEntity inner)
+                    public DockerNetworkPort wrap(final DockerNetworkPortEntity inner)
                         {
-                        return (NetworkPort) inner ;
+                        return (DockerNetworkPort) inner ;
                         }
                     };
                 }

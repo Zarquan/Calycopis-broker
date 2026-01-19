@@ -37,10 +37,12 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityF
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
 @Slf4j
 @Service
+@Deprecated
 public class AsyncTaskService
     {
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 
@@ -56,7 +56,7 @@ public class PodmanDockerContainerEntityFactoryImpl
 
     @Override
     public PodmanDockerContainerEntity create(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         PodmanDockerContainerEntity entity = this.repository.save(
@@ -65,7 +65,7 @@ public class PodmanDockerContainerEntityFactoryImpl
                 result
                 )
             );
-        entity.configure(factory);
+        //entity.configure(factory);
         entity.schedule();
 
         return entity ;

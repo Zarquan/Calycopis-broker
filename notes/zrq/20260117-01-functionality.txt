@@ -1,0 +1,182 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the Attribution-ShareAlike 4.0 International License
+#     as published by the Creative Commons, either version 4.0 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the Attribution-ShareAlike 4.0
+#     International License along with this software.
+#     If not, see <https://creativecommons.org/licenses/by-sa/4.0/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Can we deploy it ?
+    Depends what 'deploy' means ?
+
+    Can we put it in front of users ?
+        It isn't production ready.
+        See below
+
+    Can we run it on our own machine ?
+        Yes, Maven build does this every day
+
+    Can we run it in a container ?
+        Yes, here is the image
+
+    What else does it need ?
+        PostgreSQL database
+
+    Can it use an in-memory database for testing
+        Yes, works with H2, but the booking query is slow.
+
+    Can we run it in docker-compose
+        Yes, here is the config
+
+    Can we run it in Kubernetes
+        Yes, here is the Helm chart
+
+    What bits are missing
+
+        It needs to connect to an execution platform
+        Close (days) to being able to connect to
+            Docker
+            CANFAR
+            Kubernetes
+
+        It needs access to data
+            HTTP download is fine, but we need to write the downloader code to do that
+            or we could launch a shell script to call curl or rsync
+            If data is already available on Ceph we can do a volume mount
+
+        It needs an authentication mechanism
+            Decide which auth service(s) we want to use.
+            Need to create JPA entities to model user accounts.
+
+    Can we split the two endpoints
+        Yes, code for the two parts is functionally separate, as long as they share the same database.
+        Can be implemented as two parts of the same webapp, or separate webapps.
+        Designed to be stateless apart from the database.
+        Can have multiple instances of each.
+        2x /offerset entry points with load balancing
+        8x /execution services interacting with the execution platform
+
+    /offersets
+        POST a template to request a set of offers
+        Service verifies the request syntax and buids an internal tree
+        Applies the local policies and rejects the request if it doesn't meet them
+        * No policies defined yet see below
+        Returns redirect to /offersets/{uuid}
+
+    /offersets/{uuid}
+
+        Simple result code : YES/NO
+        A set of zero or more execution offers that meet the requested criteria.
+        A set of zero or more messages, INFO, WARN, FAIL, ERROR, DEBUG
+        Each offer in the list represents a contract
+            Details of what resources are on offer, cpu cores, memory, storage space etc.
+            Resources reserved for the lifetime of the offer - 5min by default
+            Offer MAY specify a start and end time for the execution, IF the implementation can provide that.
+            All fields are optional, up to the implementation how much detail they want to offer.
+            Up to the client to decide which offer they want to accept.
+            The only guarantee is that all the offers MUST meet the minimum requested criteria.
+            It is safe to accept any offer.
+            Automatically accepting the first is a valid strategy.
+
+    /executions/{uuid}
+
+        Represents an execution
+        Phase starts with state OFFERED
+        Phase changes to EXPIRED automatically when timeout expires
+
+        Client changes phase to ACCEPTED to start the execution process
+        Phase changes to WAITING if not needed yet (e.g. requested start is tomorrow)
+        Phase changes to PREPARING while the system gets all of the required resources in place.
+        Compute and storage are easy to prepare.
+        Preparing data requires something like SRCNet PrepareData
+            If HTTP allocate space and download the data
+            If CephFS, combination of bind and volume mount
+        Phase changes to AVAILABLE once everything is ready.
+            Execution starts as soon as phase is AVAILABLE
+            RUNNING is redundant - deprecated
+            Batch mode task runs until completion
+            Interactive waits for user interaction
+        Phase changes to RELEASING when done
+            Releasing data may mean pushing results back into remote storage
+            Releasing local compute and storage is done AFTER the data has been released (saved).
+        Phase changes to COMPLETED when done
+
+    Both the /offersets and /executions support update options.
+        Details ....
+
+    Possible policy plugins
+
+        Docker Harbor white list.
+            URL ...
+
+        Docker image white list.
+            Checksum
+            Name
+            Version
+            ...
+
+        User group membership
+            Needs identity and membership services
+
+        User quotas
+            Needs identity and membership services
+
+        ....
+
+
+    In the current design the offers in an offerset are executions.
+    Implementing only the /offersets endpoint would mean a re-design.
+    New type of thing in the response.
+    Possibly, but also a distraction.
+    Unlikley to be useful once we get the /executions endpoint working.
+    Needs a detailed use case to develop this further.
+
+    1) Last updates to the OpenAPI model
+        session => execution
+        volumes => simplecompute/volumes
+        simple and scheduled session => simple session
+    2) Generate a new VODML-model
+        yes we could do 2 then 1, but slower
+
+    3) Generate the Quarkus framework
+
+    4) Implement the business logic
+
+    5) Changes to the date handling (*)
+
+
+
+
+
+
+
+

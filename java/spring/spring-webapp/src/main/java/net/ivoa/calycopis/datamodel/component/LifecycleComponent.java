@@ -28,6 +28,9 @@ import java.time.Instant;
 
 import org.threeten.extra.Interval;
 
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 
 /**
@@ -46,6 +49,12 @@ extends Component
      *
      */
     public void setPhase(final IvoaLifecyclePhase phase);
+
+    /**
+     * Get the parent Session.  
+     *
+     */
+    public SimpleExecutionSessionEntity getSession();
 
    /**
     *
@@ -121,6 +130,29 @@ extends Component
     *
     */
    public long getReleaseDurationSeconds();
+
+   /**
+    * Return a ProcessingAction to prepare this Component.
+    * 
+    */
+   public ProcessingAction getPrepareAction(final ComponentProcessingRequest request);
    
-    
+   /**
+    * Return a ProcessingAction to release this Component.
+    * 
+    */
+   public ProcessingAction getReleaseAction(final ComponentProcessingRequest request);
+   
+   /**
+    * Return a ProcessingAction to cancel this Component.
+    * 
+    */
+   public ProcessingAction getCancelAction(final ComponentProcessingRequest request);
+
+   /**
+    * Return a ProcessingAction to fail this Component.
+    * 
+    */
+   public ProcessingAction getFailAction(final ComponentProcessingRequest request);
+   
     }

@@ -64,8 +64,8 @@ public class ComputeResourceOfferFactoryImpl
      * TODO make this configurable.
      *
      */
-    //public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
-    public static final Long BLOCK_STEP_SECONDS  = 60L ;
+    public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
+    //public static final Long BLOCK_STEP_SECONDS  = 60L ;
 
     /**
      * How far to look ahead.
@@ -73,7 +73,8 @@ public class ComputeResourceOfferFactoryImpl
      * TODO This should be set by the Duration of the requested start Interval.
      *
      */
-    public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L;
+    //public static final Long BLOCK_RANGE_SECONDS = 24L * 60L * 60L;
+    public static final Long BLOCK_RANGE_SECONDS = 2L * 60L * 60L;
 
     /**
      * The default start time range if none is specified in the request.
@@ -262,16 +263,12 @@ public class ComputeResourceOfferFactoryImpl
                 (
                 SELECT
                     SimpleExecutionSessions.phase AS BlockPhase,
-                    ScheduledExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
-                    ScheduledExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
+                    SimpleExecutionSessions.available_start_instant_seconds  / :blockstep AS BlockStart,
+                    SimpleExecutionSessions.available_duration_seconds / :blockstep AS BlockLength,
                     COALESCE(SimpleComputeResources.maxofferedcores,  SimpleComputeResources.maxrequestedcores)  AS UsedCores,
                     COALESCE(SimpleComputeResources.maxofferedmemory, SimpleComputeResources.maxrequestedmemory) AS UsedMemory
                 FROM
                     SimpleExecutionSessions
-                JOIN
-                    ScheduledExecutionSessions
-                ON
-                    SimpleExecutionSessions.uuid = ScheduledExecutionSessions.uuid
                 JOIN
                     AbstractComputeResources
                 ON
@@ -471,7 +468,7 @@ public class ComputeResourceOfferFactoryImpl
                 )
             )
 
-            SELECT * FROM CombinedQuery
+            SELECT * FROM EarlyBlocks
 
             """;
 

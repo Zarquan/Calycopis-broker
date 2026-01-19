@@ -1,0 +1,127 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Iterative design steps ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    SessionProcessingRequest
+    extends ProcessingActionRequest
+
+        public Session getSession();
+
+
+    SessionProcessingRequestEntity
+    extends ProcessingActionRequestEntity
+
+        SessionProcessingRequestEntity(SessionEntity session)
+            this.session = session;
+
+        @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
+        @OneToOne(optional = false, fetch = FetchType.LAZY)
+        private SessionEntity session;
+
+        @Override
+        public SessionEntity getSession()
+            {
+            return this.session;
+            }
+
+
+    SessionProcessingRequestFactory
+
+        SessionProcessingRequest create(
+            URI kind,
+            SessionEntity session
+            )
+
+
+    Platform
+        SessionProcessingRequestFactory    getSessionProcessingRequestFactory
+        StorageProcessingRequestFactory    getStorageProcessingRequestFactory
+        DataProcessingRequestFactory       getDataProcessingRequestFactory
+        ExecutableProcessingRequestFactory getExecutableProcessingRequestFactory
+        ComputeProcessingRequestFactory    getComputeProcessingRequestFactory
+
+        ProcessingRequestFactory getProcessingRequestFactory
+            Too generic
+            We need to be able to pass in different components, e.g. ExecutionSession, StorageResource etc.
+            It would result in lots of class detection and casting.
+
+
+    PrepareSessionRequest
+    extends SessionProcessingRequest
+        public static URI KIND = ...
+
+    PrepareSessionRequestEntity
+
+        preProcess()
+            // Start processing the executable
+
+            // Start processing the storage
+            foreach(StorageResource storage)
+                {
+                platform.getStorageProcessingRequestFactory.create(
+                    PrepareStorageRequest.KIND,
+                    storage
+                    )
+                }
+
+            // Start processing the data
+
+            // Start processing the compute
+
+            // No further action
+            return null;
+
+        process() {}
+
+        postProcess() {}
+
+
+
+
+    SimpleExecutionSessionEntityUpdateHandlerImpl
+
+        SimpleExecutionSessionEntity accept(SimpleExecutionSessionEntity entity)
+
+            entity.setPhase(ACCEPTED)
+            // Reject the other offers
+
+            // Start processing the session.
+            requestFactory.create(
+                PrepareSessionRequest.KIND,
+                session
+                )
+
+
+
+

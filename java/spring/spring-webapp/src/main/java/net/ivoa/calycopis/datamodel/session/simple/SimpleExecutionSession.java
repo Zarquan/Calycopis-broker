@@ -24,8 +24,11 @@
 package net.ivoa.calycopis.datamodel.session.simple;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+
+import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
@@ -115,5 +118,80 @@ public interface SimpleExecutionSession
      */
     public void addConnector(final String type, final String protocol, String location);
 
+    /**
+    *
+    */
+   public Instant getPrepareStartInstant();
+
+   /**
+    *
+    */
+   public long getPrepareStartInstantSeconds();
+
+   /**
+    *
+    */
+   public Duration getPrepareDuration();
+
+   /**
+    *
+    */
+   public long getPrepareDurationSeconds();
+
+   /**
+    *
+    */
+   public Interval getAvailableStartInterval();
+
+   /**
+    *
+    */
+   public Instant getAvailableStartInstant();
+
+   /**
+    *
+    */
+   public long getAvailableStartInstantSeconds();
+
+   /**
+    *
+    */
+   public Duration getAvailableStartDuration();
+
+   /**
+    *
+    */
+   public long getAvailableStartDurationSeconds();
+
+   /**
+    *
+    */
+   public Duration getAvailableDuration();
+
+   /**
+    *
+    */
+   public long getAvailableDurationSeconds();
+
+   /**
+    *
+    */
+   public Instant getReleaseStartInstant();
+
+   /**
+    *
+    */
+   public long getReleaseStartInstantSeconds();
+
+   /**
+    *
+    */
+   public Duration getReleaseDuration();
+
+   /**
+    *
+    */
+   public long getReleaseDurationSeconds();
+    
     }
 

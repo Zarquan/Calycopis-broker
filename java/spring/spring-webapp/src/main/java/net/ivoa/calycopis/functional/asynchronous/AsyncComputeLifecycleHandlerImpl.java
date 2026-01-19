@@ -45,10 +45,12 @@ import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
 import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
 @Slf4j
 @Component
+@Deprecated
 public class AsyncComputeLifecycleHandlerImpl
 extends AsyncLifecycleComponentHandlerImpl<SimpleComputeResourceEntity>
 implements AsyncComputeHandler

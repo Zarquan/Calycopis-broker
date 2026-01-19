@@ -30,8 +30,10 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
+ * Experiments with asynchronous processing.
  * 
  */
+@Deprecated
 public interface AsyncLifecycleComponentHandler<EntityType extends LifecycleComponentEntity>
 extends FactoryBase
     {

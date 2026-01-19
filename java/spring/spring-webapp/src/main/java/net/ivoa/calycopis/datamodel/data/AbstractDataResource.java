@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.data;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSession;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
 /**
@@ -40,13 +39,6 @@ public interface AbstractDataResource
      * 
      */
     public static final URI WEBAPP_PATH = URI.create("data/"); 
-
-    /**
-     * Get the parent Session.  
-     * TODO Can we make this just the interface ?
-     * 
-     */
-    public AbstractExecutionSession getSession();
 
     /**
      * Get the storage for this data.  

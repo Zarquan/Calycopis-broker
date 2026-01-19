@@ -36,6 +36,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
@@ -66,9 +68,11 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaComponentMetadata meta)
-        {
-        super(
+    public LifecycleComponentEntity(
+        final IvoaComponentMetadata meta
+        ){
+        this(
+            null,
             meta
             );
         }
@@ -76,8 +80,10 @@ implements LifecycleComponent
     /**
      * 
      */
-    public LifecycleComponentEntity(final IvoaLifecycleSchedule schedule, final IvoaComponentMetadata meta)
-        {
+    public LifecycleComponentEntity(
+        final IvoaLifecycleSchedule schedule,
+        final IvoaComponentMetadata meta
+        ){
         super(
             meta
             );
@@ -372,5 +378,33 @@ implements LifecycleComponent
         else {
             return null ;
             }
+        }
+
+    /*
+     * 
+    @Override
+    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+     * 
+     */
+    
+    @Override
+    public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+    
+    @Override
+    public ProcessingAction getCancelAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+
+    @Override
+    public ProcessingAction getFailAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
         }
     }

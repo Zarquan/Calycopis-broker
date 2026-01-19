@@ -36,9 +36,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.ExternalPort;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.InternalPort;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.NetworkPort;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.DockerExternalPort;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.DockerInternalPort;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.DockerNetworkPort;
 import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
 
 /**
@@ -50,7 +50,7 @@ import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
     name = "dockernetworkports"
     )
 public class DockerNetworkPortEntity
-implements NetworkPort
+implements DockerNetworkPort
     {
     @Id
     @GeneratedValue
@@ -107,9 +107,9 @@ implements NetworkPort
 
     protected Integer internalPortNumber;
     @Override
-    public InternalPort getInternal()
+    public DockerInternalPort getInternal()
         {
-        return new InternalPort()
+        return new DockerInternalPort()
             {
             @Override
             public Integer getPort()
@@ -132,11 +132,11 @@ implements NetworkPort
     private List<String> externalAddresses = new ArrayList<String>();
     
     @Override
-    public ExternalPort getExternal()
+    public DockerExternalPort getExternal()
         {
         if ((externalPortNumber != null) || (externalAddresses.isEmpty() == false))
             {
-            return new ExternalPort()
+            return new DockerExternalPort()
                 {
                 @Override
                 public Integer getPort()

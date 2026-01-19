@@ -83,7 +83,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
 
         @Override
         // Here because we need to create Results with just a status and no entity
-        public AbstractDataResourceEntity build(SimpleExecutionSessionEntity session)
+        public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
             {
             return null;
             }

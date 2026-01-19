@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -23,17 +23,21 @@
 
 package net.ivoa.calycopis.datamodel.storage;
 
+import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactoryImpl;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
- * 
+ *
  */
 @Slf4j
 @Component
@@ -42,22 +46,29 @@ extends FactoryBaseImpl
 implements AbstractStorageResourceEntityFactory
     {
 
-    private final AbstractStorageResourceEntityRepository repository;
+    private AbstractStorageResourceEntityRepository repository;
 
-    /**
-     * 
-     */
+    private static final Set<URI> KINDS = Set.of(
+        SimpleStorageResource.TYPE_DISCRIMINATOR
+        );
+
+    @Override
+    public Set<URI> getKinds()
+        {
+        return KINDS ;
+        }
+
     @Autowired
     public AbstractStorageResourceEntityFactoryImpl(final AbstractStorageResourceEntityRepository repository)
         {
+        super();
         this.repository = repository;
         }
 
     @Override
     public Optional<AbstractStorageResourceEntity> select(UUID uuid)
         {
-        return this.repository.findById(
-            uuid
-            );
+        return repository.findById(uuid);
         }
+
     }

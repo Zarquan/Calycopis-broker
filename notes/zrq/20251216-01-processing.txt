@@ -1,0 +1,149 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Platform
+        SessionProcessingRequestFactory    getSessionProcessingRequestFactory();
+        StorageProcessingRequestFactory    getStorageProcessingRequestFactory();
+        DataProcessingRequestFactory       getDataProcessingRequestFactory();
+        ExecutableProcessingRequestFactory getExecutableProcessingRequestFactory();
+        ComputeProcessingRequestFactory    getComputeProcessingRequestFactory();
+
+
+    SessionProcessingRequestFactory
+
+        SessionProcessingRequest create(URI kind, ExecutionSession session)
+
+
+    SimpleExecutionSessionEntityUpdateHandlerImpl
+
+        SimpleExecutionSessionEntity accept(SimpleExecutionSessionEntity entity)
+
+            entity.setPhase(ACCEPTED)
+            // Reject the other offers
+
+            // Add a processing request to the queue.
+            platform.getSessionProcessingRequestFactory().create(
+                PrepareSessionRequest.KIND,
+                session
+                )
+
+
+    SessionProcessingRequest
+    extends ProcessingActionRequest
+
+        public Session getSession();
+
+
+    SessionProcessingRequestEntity
+    extends ProcessingActionRequestEntity
+
+        SessionProcessingRequestEntity(SessionEntity session)
+            this.session = session;
+
+        @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
+        @OneToOne(optional = false, fetch = FetchType.LAZY)
+        private SessionEntity session;
+
+        @Override
+        public SessionEntity getSession()
+            {
+            return this.session;
+            }
+
+
+    PrepareSessionRequest
+    extends SessionProcessingRequest
+        public static URI KIND = ...
+
+
+    PrepareSessionRequestEntity
+
+        // Having the Autowired inside the Entity is an anti-pattern.
+        // https://stackoverflow.com/questions/58197685/how-to-use-autowired-in-an-class-annotated-with-entity
+        // https://stackoverflow.com/questions/1018797/can-you-use-autowired-with-static-fields
+        // On the other hand, we want the Entities to contain the processing code.
+        // If the Entities do the processing, different implementations of Entity will do different things.
+        // So we need to pass the platform in as a parameter.
+        preProcess(Platform platform)
+
+            // Start processing the executable
+            platform.getExecutableProcessingRequestFactory.create(
+                PrepareExecutableRequest.KIND,
+                session.getExecutable()
+                )
+
+            // Start processing the storage
+            foreach(StorageResource storage : session.getStorage())
+                {
+                platform.getStorageProcessingRequestFactory.create(
+                    PrepareStorageRequest.KIND,
+                    storage
+                    )
+                }
+
+            // Start processing the data ?
+            foreach(DataResource data : session.getData())
+                {
+                platform.getDataProcessingRequestFactory.create(
+                    PrepareDataRequest.KIND,
+                    data
+                    )
+                }
+
+            // Start processing the compute ?
+            platform.getComputeProcessingRequestFactory.create(
+                PrepareComputeRequest.KIND,
+                session.getCompute()
+                )
+
+
+            // Components are in the queue.
+            // Mark this ActionRequest as COMPLETED.
+            // Components will schedule another SessionAction when they complete.
+            this.phase = COMPLETED
+
+            // Alternatively - delete this ActionRequest.
+            platform.getSessionProcessingRequestFactory.delete(
+                this
+                );
+
+            // No further action.
+            return null;
+
+
+
+
+

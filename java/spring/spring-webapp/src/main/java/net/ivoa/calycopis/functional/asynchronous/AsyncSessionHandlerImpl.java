@@ -37,19 +37,20 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.scheduled.ScheduledExecutionSessionEntityRepository;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityRepository;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
 
 /**
+ * Experiments with asynchronous processing.
  * AsyncSessionHandler runs it's process() method in a new Thread. 
  *  
  */
 @Slf4j
 @Component
+@Deprecated
 public class AsyncSessionHandlerImpl
 extends FactoryBaseImpl
 implements AsyncSessionHandler
@@ -142,14 +143,14 @@ implements AsyncSessionHandler
     static class InnerSessionHandler
         {
 
-        private final ScheduledExecutionSessionEntityRepository sessionRepository;
+        private final SimpleExecutionSessionEntityRepository sessionRepository;
         private final AsyncComputeHandler computeHandler;
         private final AsyncExecutableHandler executableHandler;
         private final AsyncStorageResourceHandler storageHandler;
 
         @Autowired
         InnerSessionHandler(
-            final ScheduledExecutionSessionEntityRepository sessionRepository,
+            final SimpleExecutionSessionEntityRepository sessionRepository,
             final AsyncComputeHandler computeHandler,
             final AsyncExecutableHandler executableHandler,
             final AsyncStorageResourceHandler storageHandler
@@ -202,7 +203,7 @@ implements AsyncSessionHandler
             {
             log.debug("Session [{}] setPreparing()", uuid);
             boolean success = false ;
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -304,7 +305,7 @@ implements AsyncSessionHandler
         void setAvailable(final UUID uuid)
             {
             log.debug("Session [{}] setAvailable()", uuid);
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -329,7 +330,7 @@ implements AsyncSessionHandler
         void doAvailable(final UUID uuid)
             {
             log.debug("Session [{}] doAvailable()", uuid);
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -434,7 +435,7 @@ implements AsyncSessionHandler
         void setReleasing(final UUID uuid)
             {
             log.debug("Session [{}] setReleasing()", uuid);
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())
@@ -460,7 +461,7 @@ implements AsyncSessionHandler
         void doReleasing(final UUID uuid)
             {
             log.debug("Session [{}] doReleasing()", uuid);
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
     
@@ -494,7 +495,7 @@ implements AsyncSessionHandler
         void setCompleted(final UUID uuid)
             {
             log.debug("Session [{}] setCompleted()", uuid);
-            ScheduledExecutionSessionEntity session = sessionRepository.findById(
+            SimpleExecutionSessionEntity session = sessionRepository.findById(
                 uuid
                 ).orElseThrow();
             switch (session.getPhase())

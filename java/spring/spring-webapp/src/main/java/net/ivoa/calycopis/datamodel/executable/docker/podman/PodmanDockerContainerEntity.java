@@ -30,8 +30,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
 
 /**
@@ -62,59 +61,13 @@ public class PodmanDockerContainerEntity
      *
      */
     public PodmanDockerContainerEntity(
-        final AbstractExecutionSessionEntity session,
+        final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
         super(
             session,
             result
             );
-        }
-
-    /**
-     * Configure the prepare and release steps.
-     * 
-     */
-    public void configure(final TestExecutionStepEntityFactory factory)
-        {
-/*
- * 
-        //
-        // If this really was download image step,
-        // we would first check whether the image is already here,
-        // then, if not, we would make a guess as to how long it would take to download. 
-        this.getSession().getPrepareList().addStep(
-            factory.create(
-                this.getSession(),
-                this,
-                Duration.ofSeconds(30),
-                Duration.ofSeconds(30),
-                "Download image"
-                )
-            );
-        //
-        // This just checks the checksum ?
-        this.getSession().getPrepareList().addStep(
-            factory.create(
-                this.getSession(),
-                this,
-                Duration.ofSeconds(10),
-                Duration.ofSeconds(10),
-                "Verify image"
-                )
-            );
-
-        this.getSession().getReleaseList().addStep(
-            factory.create(
-                this.getSession(),
-                this,
-                Duration.ofSeconds(5),
-                Duration.ofSeconds(5),
-                "Release image"
-                )
-            );
- * 
- */
         }
 
     @Override

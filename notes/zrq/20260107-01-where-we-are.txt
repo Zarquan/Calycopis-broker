@@ -1,0 +1,94 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+Summary of where we are with Execution Broker.
+Target for 2025 has been to adapt Execution Broker to fit into the SRCNet architecture.
+
+* Executing Jupyter notebooks in CANFAR on SRCNet nodes
+
+Target for 2026 is up for discussion.
+
+* Executing eMerlin workflows on eMerlin data at JBO
+
+* Executing tasks on DiRAC HPC platform
+  https://dirac.ac.uk/
+
+* User interface to help with demos
+  * Command line demos can be complex and confuusing.
+  * Are the React components generated from the OpenAPI schema any use ?
+
+
+Presentation for SRCNet demo 6th Nov 2025.
+https://github.com/Zarquan/jordanita/blob/main/presentations/20251106-SRCNet-ExecutionBrokerDemo/20251106-SRCNet-ExecutionBrokerDemo.pdf
+
+Good explanation of the messages that are sent to the boroker.
+The broker service was able launch a session in CANFAR, some of the time, BUT it was EXTREMELY fragile
+It failed during the demo because I was hacking the authentication tokens to get it to work.
+
+The rushed implementation contains terrible code to manage the concurrent tasks.
+Work in December/January is to replace the terrible code with a much more robust design.
+The new code base is able to handle 1,000s of overlapping requests without getting confused.
+
+Presentation for [SRCNet architecture meeting 9th Sept 2025](https://github.com/Zarquan/jordanita/blob/main/presentations/20250909-SRCNet-ExecutionDataModel/20250909-SRCnet-ExecutionDataModel.pdf)
+(*) the meeting ran out of time, so this was not presented at the meeting
+
+Several SRCNet components were potentially using very similar data models to describe similar things.
+Splitting the Execution Broker model into re-usable components that could be common for all the SRCNet services.
+Things like Executable, DataResource, StorageResource, ComputeResource etc.
+Then these could be used like Lego bricks to build the interfaces for the SRCNet services.
+
+## Execution Broker [progress report 22nd May 2025](https://github.com/Zarquan/jordanita/blob/main/presentations/20250522-SRCNet-ExecutionBroker/20250522-SRCnet-ExecutionBroker.pdf)
+
+Progress report on the scheduling business logic.
+Using hardcoded download time values for each DataLake node.
+The scheduling logic would select the best available estimate for a given data resources and calclate the appropriate
+preparation and start time for the the offers.
+The more remote the data, the longer the preparation time, the later the start time offered by the service.
+
+
+[COR-821] ivo://.... identifiers for SRCNet DataProducts
+https://confluence.skatelescope.org/pages/viewpage.action?pageId=319989873
+
+ivo:// pattern for SRCNet resources.
+https://github.com/Zarquan/jordanita/blob/main/presentations/20250408-SRCnet-IVOIDs/20250408-SRCnet-IVOIDs.pdf
+
+    This was presented at a SRCNet architecture meeting, but I don't know if it was taken further.
+    The scope of the Coral feature was to present it at the meeting.
+    I don't know if anyone took this on board and implemented it.
+
+
+
+
+
