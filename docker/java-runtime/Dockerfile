@@ -23,7 +23,8 @@ ARG buildtag
 # FROM docker.io/library/eclipse-temurin:21
 # FROM docker.io/library/eclipse-temurin:21-jre-ubi9-minimal
 # FROM docker.io/library/eclipse-temurin:21-jre-ubi10-minimal
-FROM docker.io/library/eclipse-temurin:21-jre-ubi9
+# FROM docker.io/library/eclipse-temurin:21-jre-ubi9
+FROM docker.io/library/eclipse-temurin:25.0.1_8-jre
 
 ARG buildtag
 ARG buildtime
