@@ -260,23 +260,21 @@ EOF
     createaccept
 
 
---START--
-....
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl getNext() Found request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d] for service [9a74af2c-f17c-11f0-b8a8-a5826592ca45]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl preProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] inner pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl preProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] outer pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 PrepareComponentRequestEntity preProcess() Pre-processing component [673a329a-f310-4efa-abed-d4ef1d29d80d][PREPARING][LifecycleComponentEntity$HibernateProxy]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Processing action [] for request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
-2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 AbstractExecutableEntity process() Preparing [673a329a-f310-4efa-abed-d4ef1d29d80d][PodmanDockerContainerEntity] count [0]
-2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
-2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl postProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] inner post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
-2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl postProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] outer post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
-2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 PrepareComponentRequestEntity postProcess() Post-processing component [673a329a-f310-4efa-abed-d4ef1d29d80d][PREPARING][LifecycleComponentEntity$HibernateProxy]
-2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 AbstractExecutableEntity postProcess() Post processing [673a329a-f310-4efa-abed-d4ef1d29d80d][LifecycleComponentEntity$HibernateProxy]
-2026-01-14 19:12:15 ERROR TaskScheduler-55-10 AbstractExecutableEntity postProcess() Unexpected component type [LifecycleComponentEntity$HibernateProxy] post processing [673a329a-f310-4efa-abed-d4ef1d29d80d][LifecycleComponentEntity$HibernateProxy]
-....
---END--
+    >   ....
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl getNext() Found request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d] for service [9a74af2c-f17c-11f0-b8a8-a5826592ca45]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl preProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] inner pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl preProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] outer pre-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 PrepareComponentRequestEntity preProcess() Pre-processing component [673a329a-f310-4efa-abed-d4ef1d29d80d][PREPARING][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Processing action [] for request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
+    >   2026-01-14 19:12:14 DEBUG TaskScheduler-55-10 AbstractExecutableEntity process() Preparing [673a329a-f310-4efa-abed-d4ef1d29d80d][PodmanDockerContainerEntity] count [0]
+    >   2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl loop() Post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d]
+    >   2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl postProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] inner post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
+    >   2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 ProcessingServiceImpl postProcess() Service [9a74af2c-f17c-11f0-b8a8-a5826592ca45] outer post-processing request [b5b0f2a8-9965-41c5-a8ef-feb9a97a099d][PrepareComponentRequestEntity]
+    >   2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 PrepareComponentRequestEntity postProcess() Post-processing component [673a329a-f310-4efa-abed-d4ef1d29d80d][PREPARING][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-14 19:12:15 DEBUG TaskScheduler-55-10 AbstractExecutableEntity postProcess() Post processing [673a329a-f310-4efa-abed-d4ef1d29d80d][LifecycleComponentEntity$HibernateProxy]
+    >   2026-01-14 19:12:15 ERROR TaskScheduler-55-10 AbstractExecutableEntity postProcess() Unexpected component type [LifecycleComponentEntity$HibernateProxy] post processing [673a329a-f310-4efa-abed-d4ef1d29d80d][LifecycleComponentEntity$HibernateProxy]
+    >   ....
 
 
 
