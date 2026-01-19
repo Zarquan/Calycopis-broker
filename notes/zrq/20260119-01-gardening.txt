@@ -1,0 +1,609 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Gardening and general tidy up.
+        Pull out the weeds.
+        ....
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    TODO list
+
+    broker:
+
+        Publish webapp and schema jars
+        Publish Docker image
+
+        Remove the old planning step code.
+        Rename Session to Execution
+
+        Write Java tests
+        Write Python tests
+
+    schema:
+
+        Rename Session to Execution
+        Rename /sessions to /executions
+
+        Move volumes into simple compute resource
+
+        Generate Java client
+        Generate Python client
+
+        Refactor the polymorphic inheritance.
+
+
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=build-process
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of the developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --publish 8082:8082 \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${ISOBEON_CODE}:/isobeon:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2/repository:/root/.m2/repository:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Update the version in the Maven POM.
+#[root@developer-tools]
+
+    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+
+    # TODO This moves to the schema project.
+    pushd /calycopis/java/spring/spring-openapi
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+    pushd /calycopis/java/spring/spring-webapp
+
+        sed -i '
+            /<\/parent>/, /<properties>/ {
+                s/<version>.*<\/version>/<version>'${newversion:?}'<\/version>/
+                }
+            ' pom.xml
+
+    popd
+
+
+# -----------------------------------------------------
+# Build the combined schema.
+#[root@developer-tools]
+
+        source=/trebula/schema/v1.0
+        target=/trebula/target/
+
+        rm -rf "${target:?}"
+        mkdir  "${target:?}"
+
+        /isobeon/schema-processor.py \
+            "${source}/execution-broker.yaml" \
+            "${target}/execution-broker-${newversion}.yaml"
+
+        ls -al "${target}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Copy the combined schema back into the Java project.
+#[root@developer-tools]
+
+    #
+    # Note - using symlinks works inside the container, but breaks the Eclipse build.
+    # Although not a problem because we don't need the Eclipse build for anything.
+    # TODO Move the Maven project into the schema project and install a jar.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi
+        pushd openapi
+
+            rm -rf target
+
+            cp -r /trebula/target target
+
+            ls -al target
+
+        popd
+    popd
+
+
+# -----------------------------------------------------
+# Build the Java service API.
+#[root@developer-tools]
+
+    #
+    # TODO This moves to the schema project.
+    #
+
+    pushd /calycopis/java/spring/spring-openapi ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build the Java service.
+#[root@developer-tools]
+
+    pushd /calycopis/java/spring/spring-webapp  ; ./mvnw clean install ; popd
+
+        ....
+        ....
+
+
+# -----------------------------------------------------
+# Build our Docker image.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        docker/bin/clean.sh
+
+    >   Checking pods
+    >   Deleting pods
+    >   c254aed5d972b575261047c773ae22d3ededc839ea91d7a8ac709e11f4b1cc91
+    >   Checking containers
+    >   Checking images
+    >   Deleting images
+    >   Untagged: docker.io/library/postgres:latest
+    >   Untagged: docker.io/library/python:3.9
+    >   Untagged: ghcr.io/ivoa/calycopis/developer-tools:2025.08.12
+    >   ....
+    >   ....
+    >   Deleted: ....
+    >   Deleted: ....
+    >   Deleted: ....
+    >   ....
+    >   ....
+    >   Checking images
+
+
+# -----------------------------------------------------
+#[user@desktop]
+# Update the Java runtime image
+# https://hub.docker.com/_/eclipse-temurin/tags
+
+    ....
+    ....
+
+    >   ....
+    >   FROM docker.io/library/eclipse-temurin:25.0.1_8-jre
+    >   ....
+
+
+# -----------------------------------------------------
+# Create our docker container.
+#[user@desktop]
+
+    newversion=0.0.1-SNAPSHOT-$(date '+%Y%m%d')
+    jarfile=calycopis-webapp-${newversion:?}.jar
+
+    buildtag=$(date '+%Y.%m.%d')
+    buildtime=$(date '+%Y-%m-%dT%H:%M:%S')
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        podman build \
+            --build-arg "jarfile=${jarfile:?}" \
+            --build-arg "buildtag=${buildtag:?}" \
+            --build-arg "buildtime=${buildtime:?}" \
+            --tag "calycopis/calycopis-broker:latest" \
+            --tag "calycopis/calycopis-broker:${buildtag:?}" \
+            --file "docker/java-runtime/Dockerfile" \
+            "java/spring/spring-webapp/target"
+
+    popd
+
+    >   STEP 1/22: FROM docker.io/library/eclipse-temurin:25.0.1_8-jre
+    >   Trying to pull docker.io/library/eclipse-temurin:25.0.1_8-jre...
+    >   Getting image source signatures
+    >   ....
+    >   ....
+    >   Successfully tagged localhost/calycopis/calycopis-broker:2026.01.19
+    >   Successfully tagged localhost/calycopis/calycopis-broker:latest
+    >   9e47b031c76082613d7cef724910931923e08fa4518585ad46247809d13e0522
+
+
+# -----------------------------------------------------
+# Check our secret function works.
+#[user@desktop]
+
+    getsecret example.frog
+
+    >   ....
+    >   ....
+
+
+
+# -----------------------------------------------------
+# Generate a new access token with permission to upload packages.
+# https://github.com/settings/tokens
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Login to the GitHub registry.
+# https://github.com/settings/tokens
+#[user@desktop]
+
+    reponame="ghcr.io"
+    repopath="${reponame}/ivoa"
+
+    guser=$(getsecret 'devops.ghcrio.user')
+    gpass=$(getsecret 'devops.ghcrio.pass')
+
+    echo "${gpass:?}" \
+    | podman login \
+        --password-stdin \
+        --username "${guser:?}" \
+        "${reponame}"
+
+    >   Login Succeeded!
+
+
+# -----------------------------------------------------
+# Push our images to our GitHub repository.
+#[user@desktop]
+
+    pushtag()
+        {
+        local imagename=${1:?}
+        local imagetag=${2:?}
+        podman tag \
+            "${imagename:?}:${imagetag:?}" \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        podman push \
+            "${repopath:?}/${imagename:?}:${imagetag:?}"
+        }
+
+    pushtag "calycopis/calycopis-broker" "latest"
+    pushtag "calycopis/calycopis-broker" "${buildtag:?}"
+
+    >   Getting image source signatures
+    >   Copying blob 4df111052549 done   |
+    >   ....
+    >   ....
+    >   Copying config 9e47b031c7 done   |
+    >   Writing manifest to image destination
+
+    >   Getting image source signatures
+    >   Copying blob c11d336e3126 skipped: already exists
+    >   ....
+    >   ....
+    >   Copying blob 9cad768664b0 skipped: already exists
+    >   Copying config 9e47b031c7 done   |
+    >   Writing manifest to image destination
+
+
+# -----------------------------------------------------
+# Run our published image.
+#[user@desktop]
+
+    #
+    # Clear our image cache.
+    podman image \
+        rm -f $(podman images -q)
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+    #
+    # Run the published image.
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod calycopis-pod \
+        --expose 8082 \
+        --name calycopis-broker \
+        "ghcr.io/ivoa/calycopis/calycopis-broker:${buildtag}"
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run a copy of our dev tools and run some tests
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod calycopis-pod \
+        --name calycopis-devtools \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+    #
+    # Request a new offerset and accept the first one.
+    createaccept()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml" \
+
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+        }
+
+    checkstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '.'
+        }
+
+    peekstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '
+            {
+            "phase": .phase,
+            "executable": {
+                "phase": .executable.phase
+                },
+            "compute": {
+                "phase": .compute.phase
+                }
+            }
+            '
+        }
+
+    createaccept
+
+    peekstatus
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "56d89022-caf3-4607-a367-4a5bd5afbe22"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/56d89022-caf3-4607-a367-4a5bd5afbe22"
+    >     created: "2026-01-19T08:06:15.480876Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "b4b24f6c-4736-4a28-9769-f2b9e01a72f4"
+    >       url: "http://127.0.0.1:8082/executables/b4b24f6c-4736-4a28-9769-f2b9e01a72f4"
+    >       created: "2026-01-19T08:06:15.510183Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "f5377396-ed63-4db1-a951-d23663aa15f4"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/f5377396-ed63-4db1-a951-d23663aa15f4"
+    >       created: "2026-01-19T08:06:15.539791Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-01-19T08:09:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-01-19T08:10:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-01-19T10:10:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "ACCEPTED"
+    >   expires: "2026-01-19T08:11:15.307386Z"
+
+    >   phase: "PREPARING"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "WAITING"
+
+    >   phase: "AVAILABLE"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "AVAILABLE"
+
+    #
+    # Looks good :-)
+    # Push the boundaries a bit ...
+    #
+
+    for i in {1..10}
+    do
+        echo "[${i}]--------"
+        createaccept
+    done
+
+    for i in {1..100}
+    do
+        echo "[${i}]--------"
+        createaccept
+    done
+
+    peekstatus
+
+    >   phase: "PREPARING"
+    >   executable:
+    >     phase: "INITIALIZING"
+    >   compute:
+    >     phase: "INITIALIZING"
+
+    #
+    # It accepted all the requests, but they are stuck in the queue.
+    # It hasn't got round to processing the last requests yet.
+    # Need to have multiple processing threads to solve this.
+    #
+    # Test version of SimpleComputeResourceEntity has a 1s sleep
+    # which is called 4 times while the resource is preparing
+    #   Thread.sleep(1000);
+    #
+    # The equivalent would be a slow download which could tie up the processing thread.
+    # We need to have an asynchronous downloaing service that we can poll.
+    # Simplified version of VOSpace ...
+    #
+    # Need to start tesing with multiple processing threads.
+    # Need to write the tests in Python.
+    #
+    # Gets there in the end though :-)
+    #
+
+    >   phase: "AVAILABLE"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "AVAILABLE"
+
+

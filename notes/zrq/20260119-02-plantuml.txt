@@ -1,0 +1,56 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Version Control Your Diagrams: Automated PlantUML Rendering with GitHub Actions | MSicc's Blog
+    https://msicc.net/version-control-your-diagrams-automated-plantuml-rendering-github-actions
+
+
+    Pegmatite
+    https://dev.to/hgsgtk/how-to-preview-a-diagram-image-from-plantuml-code-on-a-github-page-542k
+
+
+    plantuml/plantuml-server: PlantUML Online Server
+    https://github.com/plantuml/plantuml-server
+
+
+    Using plantuml within a markdown document - Stack Overflow
+    https://stackoverflow.com/questions/66934681/using-plantuml-within-a-markdown-document
+
+
+    git - How to integrate UML diagrams into GitLab or GitHub - Stack Overflow
+    https://stackoverflow.com/questions/32203610/how-to-integrate-uml-diagrams-into-gitlab-or-github
+
+
+
