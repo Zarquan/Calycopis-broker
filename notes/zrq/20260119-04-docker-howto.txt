@@ -25,29 +25,13 @@
 
     Target:
 
-        Update our howto notes to include Docker rather than Podman.
+        Success
 
     Result:
 
         Work in progress ...
 
-
 # -----------------------------------------------------
-# Create a new branch.
-#[user@desktop]
-
-    branchname=docker-howto
-    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
-
-    source "${HOME:?}/calycopis.env"
-    pushd "${CALYCOPIS_CODE}"
-
-        git checkout main
-
-        git checkout -b "${newbranch:?}"
-
-    popd
-
 
 # -----------------------------------------------------
 # Create a clean VM in DigitalOcean.
@@ -56,94 +40,37 @@
     >   ....
     >   ....
 
-    IPv4: 161.35.41.80
-    IPv6: 2a03:b0c0:1:e0:0:1:b19:8001
+    IPv4: 167.99.107.252
+    IPv6: 2604:a880:2:d1:0:1:16ab:3001
 
 # -----------------------------------------------------
 # Login and configure.
 #[user@desktop]
 
-    ssh root@2a03:b0c0:1:e0:0:1:b19:8001
+    ssh root@2604:a880:2:d1:0:1:16ab:3001
 
         dnf install -y docker
-
-        docker --version
-
-    >   Docker version 29.1.3, build 1.fc42
-
-
-        systemctl status docker.service
-
-    >   systemctl status docker.service
-    >   ○ docker.service - Docker Application Container Engine
-    >        Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; preset: disabled)
-    >       Drop-In: /usr/lib/systemd/system/service.d
-    >                └─10-timeout-abort.conf, 50-keep-warm.conf
-    >        Active: inactive (dead)
-    >   TriggeredBy: ○ docker.socket
-    >          Docs: https://docs.docker.com
-
 
         systemctl enable docker.service
         systemctl start  docker.service
         systemctl status docker.service
 
+    >   ....
+    >   ....
     >   ● docker.service - Docker Application Container Engine
     >        Loaded: loaded (/usr/lib/systemd/system/docker.service; enabled; preset: disabled)
     >       Drop-In: /usr/lib/systemd/system/service.d
     >                └─10-timeout-abort.conf, 50-keep-warm.conf
-    >        Active: active (running) since Mon 2026-01-19 12:09:49 UTC; 3s ago
-    >    Invocation: 96d6442a27764e04bc1116594da10d16
+    >        Active: active (running) since Mon 2026-01-19 13:25:19 UTC; 29ms ago
+    >    Invocation: 6531dde46e024570aa7473f36bc797b6
     >   TriggeredBy: ● docker.socket
     >          Docs: https://docs.docker.com
-    >      Main PID: 1796 (dockerd)
-    >         Tasks: 8
-    >        Memory: 26.6M (peak: 27.3M)
-    >           CPU: 451ms
+    >      Main PID: 1850 (dockerd)
+    >         Tasks: 7
+    >        Memory: 26.9M (peak: 28.7M)
+    >           CPU: 347ms
     >        CGroup: /system.slice/docker.service
-    >                └─1796 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --selinux-enabled --userland-proxy-path /usr/bin/docker-proxy --init-path /usr/bin/tini-static
-
-
-# -----------------------------------------------------
-# Run our containers.
-#[user@desktop]
-
-    #
-    # Run our database server.
-    docker run \
-        --rm \
-        --detach \
-        --name postgresql \
-        --publish 5432:5432 \
-        --env "POSTGRES_DB=calycopis" \
-        --env "POSTGRES_USER=albert" \
-        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
-        docker.io/library/postgres:latest
-
-    >   ....
-    >   ....
-    >   ef13937159d4: Download complete
-    >   Digest: sha256:5773fe724c49c42a7a9ca70202e11e1dff21fb7235b335a73f39297d200b73a2
-    >   Status: Downloaded newer image for postgres:latest
-    >   392c4eee3078337a297ccac99501b2cc7431af72bc55f31f46c5545241de94b1
-
-
-    #
-    # Run our webapp.
-    docker run \
-        --rm \
-        --tty \
-        --interactive \
-        --publish 8082:8082 \
-        --name calycopis-broker \
-        "ghcr.io/ivoa/calycopis/calycopis-broker:latest"
-
-    >   ....
-    >   ....
-    >   2026-01-19 12:12:22 WARN main SqlExceptionHelper logExceptions() SQL Error: 0, SQLState: 08001
-    >   2026-01-19 12:12:22 ERROR main SqlExceptionHelper logExceptions() The connection attempt failed.
-    >   2026-01-19 12:12:22 WARN main JdbcEnvironmentInitiator getJdbcEnvironmentUsingJdbcMetadata() HHH000342: Could not obtain connection to query metadata
-    >   org.hibernate.exception.JDBCConnectionException: unable to obtain isolated JDBC connection [The connection attempt failed.] [n/a]
+    >                └─1850 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --selinux-enabled --userland-proxy-path /usr/bin/docker-proxy --init-path /usr/bin/tini-static
 
 
 # -----------------------------------------------------
@@ -170,9 +97,6 @@
         --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
         docker.io/library/postgres:latest
 
-    >   ....
-    >   ....
-
 
     #
     # Run our webapp.
@@ -184,27 +108,9 @@
         --network calycopis-net \
         "ghcr.io/ivoa/calycopis/calycopis-broker:latest"
 
-    docker logs \
-        --follow calycopis-broker
 
-    >   ....
-    >   ....
-    >   2026-01-19 12:32:39 INFO main QueryEnhancerFactory <clinit>() Hibernate is in classpath; If applicable, HQL parser will be used.
-    >   2026-01-19 12:32:43 INFO main AsyncConfiguration <init>() AsyncConfiguration created
-    >   2026-01-19 12:32:46 INFO main H2ConsoleAutoConfiguration log() H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://postgresql:5432/calycopis'
-    >   2026-01-19 12:32:46 INFO main EndpointLinksResolver <init>() Exposing 1 endpoint beneath base path '/actuator'
-    >   2026-01-19 12:32:46 INFO main Http11NioProtocol () Starting ProtocolHandler ["http-nio-8082"]
-    >   2026-01-19 12:32:46 INFO main TomcatWebServer start() Tomcat started on port 8082 (http) with context path '/'
-    >   ....
-    >   ....
-
-
-# -----------------------------------------------------
-# Login and run some tests.
-#[user@desktop]
-
-    ssh root@2a03:b0c0:1:e0:0:1:b19:8001
-
+    #
+    # Run our dev tools to get the client.
     docker run \
         --rm \
         --tty \
@@ -214,12 +120,9 @@
         ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
         bash
 
-    >   ....
-    >   ....
-    >   aeaf775f61dd: Pull complete
-    >   Digest: sha256:36ec0de7449846c6e6f3636d63bdc901acc942f1758b5c0a206db626d162bd1e
-    >   Status: Downloaded newer image for ghcr.io/ivoa/calycopis/developer-tools:2025.08.12
 
+    #
+    # Run a quick test ..
 
     pushd "$(mktemp --directory)"
 
@@ -247,6 +150,7 @@ EOF
     # Request a new offerset and accept the first one.
     createaccept()
         {
+        echo "create --------"
         curl \
             --silent \
             --show-error \
@@ -256,6 +160,7 @@ EOF
             "${endpoint:?}/offersets" \
         > "002-offerset-response.yaml" \
 
+        echo "accept --------"
         sessionurl=$(
             yq '.offers[0].meta.url' '002-offerset-response.yaml'
             )
@@ -270,23 +175,9 @@ EOF
         | yq '.'
         }
 
-    checkstatus()
-        {
-        sessionurl=$(
-            yq '.offers[0].meta.url' '002-offerset-response.yaml'
-            )
-
-        curl \
-            --silent \
-            --show-error \
-            --header 'Accept: application/yaml' \
-            "${sessionurl}" \
-        | tee "005-status-00-response.yaml" \
-        | yq '.'
-        }
-
     peekstatus()
         {
+        echo "peek --------"
         sessionurl=$(
             yq '.offers[0].meta.url' '002-offerset-response.yaml'
             )
@@ -314,18 +205,20 @@ EOF
 
     peekstatus
 
+    >   create --------
+    >   accept --------
     >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
     >   meta:
-    >     uuid: "34338684-ec70-439f-8b8b-ff5d0984b9a4"
+    >     uuid: "276e4baf-cd84-4793-a242-ce8cbc0ce6cb"
     >     name: "no-name-offer-0"
-    >     url: "http://calycopis-broker:8082/sessions/34338684-ec70-439f-8b8b-ff5d0984b9a4"
-    >     created: "2026-01-19T12:54:57.754990Z"
+    >     url: "http://calycopis-broker:8082/sessions/276e4baf-cd84-4793-a242-ce8cbc0ce6cb"
+    >     created: "2026-01-19T13:29:20.785156Z"
     >   executable:
     >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
     >     meta:
-    >       uuid: "d5d2ef8a-7eb4-49f6-a6a8-46155ab285c1"
-    >       url: "http://calycopis-broker:8082/executables/d5d2ef8a-7eb4-49f6-a6a8-46155ab285c1"
-    >       created: "2026-01-19T12:54:57.773682Z"
+    >       uuid: "6c71bbb3-36e2-4b78-836f-43125d9e9fdd"
+    >       url: "http://calycopis-broker:8082/executables/6c71bbb3-36e2-4b78-836f-43125d9e9fdd"
+    >       created: "2026-01-19T13:29:20.823564Z"
     >     phase: "INITIALIZING"
     >     schedule:
     >       preparing:
@@ -338,20 +231,20 @@ EOF
     >   compute:
     >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
     >     meta:
-    >       uuid: "3bff18a3-45c5-47a0-903a-798d16fdeb0c"
+    >       uuid: "40662020-f31c-4fd1-866c-e743babd5536"
     >       name: "Default compute resource"
-    >       url: "http://calycopis-broker:8082/compute/3bff18a3-45c5-47a0-903a-798d16fdeb0c"
-    >       created: "2026-01-19T12:54:57.797416Z"
+    >       url: "http://calycopis-broker:8082/compute/40662020-f31c-4fd1-866c-e743babd5536"
+    >       created: "2026-01-19T13:29:20.873674Z"
     >     phase: "INITIALIZING"
     >     schedule:
     >       preparing:
-    >         start: "2026-01-19T12:59:45Z"
+    >         start: "2026-01-19T13:34:45Z"
     >         duration: "PT15S"
     >       available:
-    >         start: "2026-01-19T13:00:00Z/PT0S"
+    >         start: "2026-01-19T13:35:00Z/PT0S"
     >         duration: "PT2H"
     >       releasing:
-    >         start: "2026-01-19T15:00:05Z"
+    >         start: "2026-01-19T15:35:05Z"
     >         duration: "PT10S"
     >     cores:
     >       min: 2
@@ -360,24 +253,21 @@ EOF
     >       min: 2
     >       max: 2
     >   phase: "ACCEPTED"
-    >   expires: "2026-01-19T12:59:57.704524Z"
+    >   expires: "2026-01-19T13:34:20.443931Z"
 
+    >   peek --------
     >   phase: "ACCEPTED"
     >   executable:
     >     phase: "INITIALIZING"
     >   compute:
     >     phase: "INITIALIZING"
 
+    >   peek --------
     >   phase: "PREPARING"
     >   executable:
     >     phase: "AVAILABLE"
     >   compute:
     >     phase: "WAITING"
 
-    >   phase: "AVAILABLE"
-    >   executable:
-    >     phase: "AVAILABLE"
-    >   compute:
-    >     phase: "AVAILABLE"
 
 
