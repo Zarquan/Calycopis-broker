@@ -37,7 +37,7 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityF
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
 import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseFour;
-import net.ivoa.calycopis.openapi.webapp.SessionsApiDelegate;
+import net.ivoa.calycopis.openapi.api.SessionsApiDelegate;
 
 @Service
 public class SessionsApiDelegateImpl
@@ -52,7 +52,7 @@ public class SessionsApiDelegateImpl
     public SessionsApiDelegateImpl(
         NativeWebRequest request,
         SimpleExecutionSessionEntityFactory sessionFactory,
-        SimpleExecutionSessionEntityUpdateHandler updateHandler 
+        SimpleExecutionSessionEntityUpdateHandler updateHandler
         )
         {
         super(request);

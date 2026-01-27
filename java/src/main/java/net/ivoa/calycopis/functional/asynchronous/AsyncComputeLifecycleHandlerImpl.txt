@@ -38,15 +38,15 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityRepository;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.skaha.client.ApiClient;
-import net.ivoa.calycopis.skaha.client.Configuration;
-import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
-import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
-import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
+//import net.ivoa.calycopis.skaha.client.ApiClient;
+//import net.ivoa.calycopis.skaha.client.Configuration;
+//import net.ivoa.calycopis.skaha.client.api.SessionManagementApi;
+//import net.ivoa.calycopis.skaha.client.model.SkahaSessionObject;
+//import net.ivoa.calycopis.skaha.client.model.SkahaSessionType;
 
 /**
  * Experiments with asynchronous processing.
- * 
+ *
  */
 @Slf4j
 @Component
@@ -55,7 +55,7 @@ public class AsyncComputeLifecycleHandlerImpl
 extends AsyncLifecycleComponentHandlerImpl<SimpleComputeResourceEntity>
 implements AsyncComputeHandler
     {
-    
+
     //public static final String SKAHA_ENDPOINT = "https://services.swesrc.chalmers.se/";
     //public static final String SKAHA_ENDPOINT = "https://canfar.srcnet.skao.int/" ;
     public static final String SKAHA_ENDPOINT = "https://example.com/" ;
@@ -93,7 +93,7 @@ implements AsyncComputeHandler
                 {
                 log.error("Exception loading token [{}][{}]", ouch.getClass().getSimpleName(), ouch.getMessage());
                 }
-            
+
             return new SessionManagementApi(
                 skahaApiClient
                 );
@@ -116,8 +116,8 @@ implements AsyncComputeHandler
             log.debug("[{}][{}][{}] doPreparing() [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), entity.getPhase(), counter);
 
             SessionManagementApi skahaSessionManager = init();
-            
-            SkahaSessionType type = SkahaSessionType.NOTEBOOK; 
+
+            SkahaSessionType type = SkahaSessionType.NOTEBOOK;
             String name = entity.getSession().getName();
             String image = "images.canfar.net/skaha/base-notebook:latest";
             Integer cores = entity.getMinOfferedCores().intValue();
@@ -159,19 +159,19 @@ implements AsyncComputeHandler
                                     "urn:jupyter-notebook",
                                     "HTTPS",
                                     sessionObject.getConnectURL()
-                                    );                            
-   
+                                    );
+
                                 ((SimpleExecutionSessionEntity)entity.getSession()).addConnector(
                                     "skaha:science-portal",
                                     "HTTPS",
                                     SKAHA_ENDPOINT + "science-portal/"
-                                    );                            
+                                    );
                                 }
-                            
+
                             break ;
 
                         case "Pending":
-                        default : 
+                        default :
                             loop = true ;
                             log.debug("[{}][{}][{}] skaha polling sleep [{}][{}]", entity.getClass().getSimpleName(), entity.getUuid(), entity.getName(), sessionID, sessionStatus);
                             Thread.sleep(1000);

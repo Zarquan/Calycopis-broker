@@ -39,7 +39,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.webapp.OffersetsApiDelegate;
+import net.ivoa.calycopis.openapi.api.OffersetsApiDelegate;
 
 @Slf4j
 @Service
