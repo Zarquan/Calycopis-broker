@@ -31,7 +31,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
-	<artifactId>calycopis-broker-webapp</artifactId>
+	<artifactId>calycopis-broker</artifactId>
 	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<name>Calycopis broker webapp</name>
@@ -59,17 +59,18 @@
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
             <artifactId>calycopis-openapi-spring</artifactId>
-        	<version>${calycopis.openapi.version}</version>
+        	<!--version>${calycopis.openapi.version}</version-->
+        	<version>0.0.2</version>
         </dependency>
 
         <!--+
             | Include our generated Skaha client.
-            +-->
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
             <artifactId>skaha-client</artifactId>
         	<version>0.1-SNAPSHOT</version>
         </dependency>
+            +-->
 
         <!--+
             | GitHub UUID generator.
@@ -240,7 +241,7 @@
 
 	<build>
 
-        <finalName>${project.artifactId}-${trebula.build.version}</finalName>
+        <!--finalName>${project.artifactId}-${calycopis.build.version}</finalName-->
 
 		<plugins>
 
