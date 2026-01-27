@@ -123,10 +123,13 @@ target
     git mv pom.xml    java
     git mv mvnw       java
     git mv .gitignore java
-    git mv .classpath java
-    git mv .project   java
-    git mv .settings  java
+    git mv .mvn java
 
+    mv .classpath java
+    mv .project   java
+
+    git add .
+    git commit -m "Moved main Java project to java directory"
 
     #
     # Then move the Python tests and curl examples into tests directory
@@ -148,6 +151,14 @@ target
             |
             +--
             +--
+
+    mkdir tests
+    git mv examples tests/curl
+
+    git add .
+    git commit -m "Moved examples into tests/curl directory"
+
+
 
 
 # -----------------------------------------------------
@@ -191,30 +202,29 @@ target
 
 
 # -----------------------------------------------------
-# Create our build and dist directories.
+# Create our build properties.
 #[root@action-runner]
 
     #
-    # Set our target version.
+    # Set the version properties.
     schemaversion=0.0.2
-    javaversion=${schemaversion:?}-SNAPSHOT-$(date '+%Y%m%d')
+    buildversion=${schemaversion:?}-SNAPSHOT-$(date '+%Y%m%d')
 
-    #
-    # Check a directory exists.
-    checkexists()
-        {
-        local target=${1:?}
+    pushd /calycopis/java
 
-        if [ ! -e "${target}" ]
-        then
-            mkdir \
-                --parents \
-                "${target}"
-        fi
-        }
+        #
+        # Update the build properties.
+        mkdir build
+        cat > build/build.properties << EOF
+calycopis.openapi.version=${schemaversion}
+calycopis.broker.version=${buildversion}
+EOF
 
-    checkexists \
-        /calycopis/build
+        #
+        # Build the Java package.
+        ./mvnw clean install
+
+    popd
 
 
 
