@@ -95,9 +95,59 @@ target
     git mv java/spring/spring-webapp/pom.xml .
     git mv java/spring/spring-webapp/src .
 
+    git add .
+    git commit -m "Moved main Java project to the top level"
+
+    rmdir java/spring/spring-webapp
+    rmdir java/spring
+    rmdir java
+
+--START--
+....
+....
+--END--
+
+    #
+    # Looking at the result, probably move the Java code into a java directory.
+    #
+
+    java
+      |
+      +-- src
+      +-- pom.xml
+      +-- mvnw
+      +-- mvnw.cmd
+
+    mkdir java
+    git mv src        java
+    git mv pom.xml    java
+    git mv mvnw       java
+    git mv .gitignore java
+    git mv .classpath java
+    git mv .project   java
+    git mv .settings  java
 
 
+    #
+    # Then move the Python tests and curl examples into tests directory
+    #
 
+    tests
+      |
+      +-- java
+      |     |
+      |     +--
+      |     +--
+      |
+      +-- python
+      |     |
+      |     +--
+      |     +--
+      |
+      +-- curl
+            |
+            +--
+            +--
 
 
 # -----------------------------------------------------

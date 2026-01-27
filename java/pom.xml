@@ -31,17 +31,15 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>net.ivoa.calycopis</groupId>
-	<artifactId>calycopis-webapp</artifactId>
-	<version>0.0.1-SNAPSHOT-20260119</version>
+	<artifactId>calycopis-broker-webapp</artifactId>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
-	<name>Calycopis webapp</name>
-	<description>IVOA ExecutionBroker implementation</description>
+	<name>Calycopis broker webapp</name>
+	<description>IVOA ExecutionBroker Spring Boot implementation</description>
 	<properties>
 		<java.version>21</java.version>
-        <!--lombok.version>1.18.38</lombok.version-->
-        <!--build.version>0.0.1-SNAPSHOT-${maven.build.timestamp}</build.version-->
-        <!--build.version>0.0.1-SNAPSHOT-20250515</build.version-->
-        <!--maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format-->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
         <!--+
             | Enable annotation processing in the compiler.
             | https://stackoverflow.com/a/79367717
@@ -49,15 +47,19 @@
             | Starting with JDK 21, this option must be set explicitly.
             +-->
         <maven.compiler.proc>full</maven.compiler.proc>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
         <!--+
-            | Include our generated broker classes.
+            | Include our generated Spring Boot classes.
+            | https://github.com/Zarquan/Calycopis-schema/tree/main
+            | If building locally, this should get picked up from local .m2 cache,
+            | otherwise it should be available in the GitHub repository.
             +-->
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
-            <artifactId>calycopis-openapi</artifactId>
-        	<version>${project.version}</version>
+            <artifactId>calycopis-openapi-spring</artifactId>
+        	<version>${calycopis.openapi.version}</version>
         </dependency>
 
         <!--+
@@ -68,6 +70,7 @@
             <artifactId>skaha-client</artifactId>
         	<version>0.1-SNAPSHOT</version>
         </dependency>
+
         <!--+
             | GitHub UUID generator.
             +-->
@@ -76,6 +79,7 @@
           <artifactId>uuid-creator</artifactId>
           <version>6.1.1</version>
         </dependency>
+
         <!--+
             | Embedded H2 database.
             | https://www.baeldung.com/spring-boot-h2-database
@@ -89,6 +93,7 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         <!--+
             | ThreeTen time classes.
             | https://github.com/ThreeTen/threeten-extra
@@ -98,31 +103,29 @@
           <artifactId>threeten-extra</artifactId>
           <version>1.8.0</version>
         </dependency>
+
         <!--+
             | Add slf4j and log4j logging.
             | https://www.baeldung.com/java-logging-intro
-            | Versions are managed by SpringBoot
+            | (versions are managed by SpringBoot)
             +-->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <!--version>2.0.17</version-->
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j2-impl</artifactId>
-            <!--version>2.25.1</version-->
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <!--version>2.25.1<version-->
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <!--version>2.25.1</version-->
         </dependency>
+
         <!--+
             | Exclude default logging from SpringBoot.
             | https://stackoverflow.com/a/61873064
@@ -141,6 +144,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
+
         <!--+
             | Project Lombok
             | https://projectlombok.org/
@@ -177,6 +181,7 @@
 
         <!--+
             | Spring dependencies.
+            | (versions are managed by SpringBoot)
             +-->
         <dependency>
 	        <groupId>org.springframework.boot</groupId>
@@ -195,22 +200,19 @@
 
         <!--+
             | Jackson annotations.
-            | Versions are managed by SpringBoot
+            | (versions are managed by SpringBoot)
             +-->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-yaml</artifactId>
-            <!--version>2.19.2</version-->
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
             <artifactId>jackson-dataformat-xml</artifactId>
-            <!--version>2.19.2</version-->
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <!--version>2.19.2</version-->
         </dependency>
 
         <!--+
@@ -237,11 +239,41 @@
 	</dependencies>
 
 	<build>
+
+        <finalName>${project.artifactId}-${trebula.build.version}</finalName>
+
 		<plugins>
+
+            <!--+
+                | Read the build properties during initialization phase.
+                | Stack Overflow - Maven, read version number from property file
+                | https://stackoverflow.com/questions/8541332/maven-read-version-number-from-property-file
+                | https://stackoverflow.com/a/13970763
+                +-->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>build/build.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
 		</plugins>
 	</build>
 
