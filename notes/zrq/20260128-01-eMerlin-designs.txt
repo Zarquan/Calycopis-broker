@@ -1,0 +1,193 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ideas for eMerlin archive design.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Document to describe the role of the broker 'template'
+
+        software/executable distinction
+        python program for the newton-raphson calculation
+        howto run the python program with one input value
+        howto run the python program with a file of values
+        someone packages the python program in a container
+        howto run the docker container with one input value
+        howto run the docker container with a file of values
+
+        the execution broker execution step is a machine readable equivalent of
+        howto run the docker container with a file of values
+
+        docker image from <here>
+        download data from <there> and put it <here>
+        run with <cores> and <memory>
+
+
+# -----------------------------------------------------
+
+    High level design for the eMerlin archive
+
+        Execution service
+            execution broker
+            software discovery
+
+        Storage service
+            storage
+            transfers
+
+        User interface
+            Need to have some idea of what this will provide
+            Mock ups and power points are a start
+
+
+# -----------------------------------------------------
+
+    Start to build up a set of design documents
+    Confluence or equivalent, simple wiki or md
+    but we need to start service level design
+
+    user interface
+        mockups and wireframes
+
+    data access
+        science data storage
+        user data storage
+        data transfer
+
+    processing
+
+        software discovery
+            metadata
+            describing the params in science terms
+
+        execution broker
+            describing the how in technical terms
+            batch
+            notebooks
+            desktops
+
+    design documents
+
+        sequence diagrams
+            main interactions between the components
+            main use cases
+
+# -----------------------------------------------------
+
+    Mermaid sequence diagrams in GitHub MD pages.
+    https://mermaid.js.org/syntax/sequenceDiagram.html
+    https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams
+
+
+# -----------------------------------------------------
+
+    Data storage, transfer, and access ...
+
+    Significant part of the Execution Broker stack that hasn't been looked at
+    yet is an equivalent to the SRCNet PrepareData service.
+
+    The Execution Broker prototype does not have anything to facilitate
+    data transfers. The broker figures out what needs to be transferred
+    from where, to where, and when, but it needs a separate service to do
+    the actual data transfer.
+
+    Prototype code has a Thread.sleep() to simulate data transfer happening ...
+
+    We need a service that the broker can call to do the data transfers.
+
+    First step is a simple HTTP download to the local filesystem.
+    Needed in order to make the "just run in Docker on your laptop" test system viable.
+
+    Develop a remote access simple download webapp, or find an off-the shelf servce
+    that does what we need.
+
+    CANFAR uses Cavern VOSpace service to do this
+
+    Inputs are a URL to download the data from, an optional size hint,
+    and a local location/name for the result.
+    The service should transfer the data to the local platform asynchronously.
+    Providing an API we can poll to check the transfer status, and/or a callback
+    API that will notify the broker when the state changes.
+
+    Longer term data access plans
+    We need some design documents that look at where the data will be,
+    what shape it is in, and how to move it to the right place.
+
+    Questions about eMerlin archive data - in a local Ceph storage ?
+
+        Is all of the data exposed in the same CephFS share ?
+        How do we grant users access to the data product they asked for
+        How do we prevent users from accessing data products they are not allowed to see
+        What does a resuilt of a TAP query represent ?
+        Is it a single file, or a collection of multiple files, as a single archive (zip ir tar), or as a filesystem directory ?
+        Will users want to work with a single result at a time, or will they want to work with several results at the same time ?
+
+        Is the Ceph storage directly accesible from the compute platform ?
+        If so then we don't have to transfer the data, we just need to control access to it (make the right things visible, the rest not).
+        If the Ceph storage is not directly accesible from the compute platform, then we need to transfer the data somehow.
+        Storage at JBO, compute at JBO, direct local access - eg. CephFS mounts into Kubernetes volumes.
+        Storage at JBO, compute at CAM, additional data transfer to staging area.
+
+        Remote data, we need a transfer service to fetch the data before we can run the execution.
+        Without access to the final Ceph storage system, this is also the simplest first step.
+        Simple assumtion - all the data is available from somewhere via HTTP.
+        Enables us to test with HTTP URLs pointing at data from the existing eMerlin system.
+
+
+    Longer term - VOSpace with 3rd part transfers.
+    CANFAR uses VOSpace API to support users uploading data and downloading results.
+    This provides a well documented API and Python client for users to access their data.
+    The SRCNet PrepareData service integrates with the Cavern service to make the
+    selected science data appear in the right location in Cavern's filesystem
+    so that the executable (batch or notebook) can find it.
+
+    SRCNet are starting from a point where they have the Rucio data lake in place
+    and so their PrepareData service concentrates on accessing/transferring data from
+    the local Rucio endpoint to appropriate place in the compute platform's filesystem.
+
+    In our case, the eventual CephFS system is not available, so it would be better to
+    start with the assumption that all the data is available via HTTP from somewhere.
+    Work on developing a tranfer agent that handle asynchronous HTTP transfers to get
+    the data onto the local compute platform (laptop or cloud).
+
+# -----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
