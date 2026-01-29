@@ -43,8 +43,8 @@
         howto run the docker container with one input value
         howto run the docker container with a file of values
 
-        the execution broker execution step is a machine readable equivalent of
-        howto run the docker container with a file of values
+        the execution broker execution step is a machine readable
+        equivalent of the howto run the docker container instructions
 
         docker image from <here>
         download data from <there> and put it <here>
@@ -55,13 +55,17 @@
 
     High level design for the eMerlin archive
 
-        Execution service
-            execution broker
+        Data processing
             software discovery
+            execution broker
 
-        Storage service
-            storage
+        Data storage
+            local storage
             transfers
+                upload
+                download
+                sync
+                asynch
 
         User interface
             Need to have some idea of what this will provide
@@ -89,7 +93,7 @@
             describing the params in science terms
 
         execution broker
-            describing the how in technical terms
+            describing how to execute in technical terms
             batch
             notebooks
             desktops
@@ -109,74 +113,108 @@
 
 # -----------------------------------------------------
 
-    Data storage, transfer, and access ...
+Data storage, transfer, and access ...
 
-    Significant part of the Execution Broker stack that hasn't been looked at
-    yet is an equivalent to the SRCNet PrepareData service.
+A part of the data processing stack is an equivalent to the SRCNet PrepareData service.
 
-    The Execution Broker prototype does not have anything to facilitate
-    data transfers. The broker figures out what needs to be transferred
-    from where, to where, and when, but it needs a separate service to do
-    the actual data transfer.
+A request to an Execution Broker describes what needs to be transferred
+from where, to where, but the execution broker itself is not able
+to do the data transfers.
+It relies on a separate service to do the actual data transfer.
 
-    Prototype code has a Thread.sleep() to simulate data transfer happening ...
+Immediate first step is a simple HTTP download service that can transfer data
+from <url> with a basic level of progress monitoring, status = [RUNNING, COMPLETED, FAILED].
+The simple "just execute in Docker on your laptop" demonstration system needs something like this
+to be viable.
 
-    We need a service that the broker can call to do the data transfers.
+Longer term we can look at developing it into a more functional API.
 
-    First step is a simple HTTP download to the local filesystem.
-    Needed in order to make the "just run in Docker on your laptop" test system viable.
+Users will want to be able to upload their own data and download their results.
+Users will expect some kind of persistent storage where they
+can stage intermediate results from one step and use them as inputs
+for another step.
 
-    Develop a remote access simple download webapp, or find an off-the shelf servce
-    that does what we need.
+CANFAR provides the Cavern VOSpace service to do this
 
-    CANFAR uses Cavern VOSpace service to do this
+It would be useful to start looking at some use cases now and and identifying what types of data access we want to support.
 
-    Inputs are a URL to download the data from, an optional size hint,
-    and a local location/name for the result.
-    The service should transfer the data to the local platform asynchronously.
-    Providing an API we can poll to check the transfer status, and/or a callback
-    API that will notify the broker when the state changes.
+For data that is in the eMerlin archive:
 
-    Longer term data access plans
-    We need some design documents that look at where the data will be,
-    what shape it is in, and how to move it to the right place.
+What does a identifier from the TAP service look like ?
+How do our services recognise that the data is from the eMerlin archive ?
 
-    Questions about eMerlin archive data - in a local Ceph storage ?
+Does a row in the TAP result point to a single file, or to a collection of files associated with an observation ?
+If the result refers to multiple files, does the TAP result use pointers into the DataLink service to
+refer to the files associated to that observation ?
 
-        Is all of the data exposed in the same CephFS share ?
-        How do we grant users access to the data product they asked for
-        How do we prevent users from accessing data products they are not allowed to see
-        What does a resuilt of a TAP query represent ?
-        Is it a single file, or a collection of multiple files, as a single archive (zip ir tar), or as a filesystem directory ?
-        Will users want to work with a single result at a time, or will they want to work with several results at the same time ?
+If the user identifies a row in the TAP result as an input for a processing step,
+do they want to access all of the assocoated files in one set, or do they want to be able to pick individual files
+from the set.
 
-        Is the Ceph storage directly accesible from the compute platform ?
-        If so then we don't have to transfer the data, we just need to control access to it (make the right things visible, the rest not).
-        If the Ceph storage is not directly accesible from the compute platform, then we need to transfer the data somehow.
-        Storage at JBO, compute at JBO, direct local access - eg. CephFS mounts into Kubernetes volumes.
-        Storage at JBO, compute at CAM, additional data transfer to staging area.
+How do we make the selected data from the science archive available to the execution platform.
 
-        Remote data, we need a transfer service to fetch the data before we can run the execution.
-        Without access to the final Ceph storage system, this is also the simplest first step.
-        Simple assumtion - all the data is available from somewhere via HTTP.
-        Enables us to test with HTTP URLs pointing at data from the existing eMerlin system.
+For data that is in user storage:
+
+How does the user upload data to the user storage area.
+How does the user download data from the user storage area.
+
+How does the user select data in the user storage area.
+How do our services recognise that the selected data is from the user storage ?
+How do we make data from the user storage available to the execution platform.
+
+Will users want to be able to share their data with others, e.g projects and groups.
+
+For data that is in the SRCNet data lake:
+
+Start by treating this as an external 3rd party data provider.
+Use the HTTP download URL from the TAP result and apply a simple transfer.
+
+Longer term we will need an equivalent to the SRCNet PrepareData service,
+that can access data in the SRCNet DataLake and transfer it to a staging
+area at JBO.
+
+For data from external 3rd party providers:
+
+How do our services recognise that the data is from an external provider ?
+How do we make data from 3rd party providers available to the execution platform.
+Start with a basic 3rd party HTTP transfer service and build from there.
 
 
-    Longer term - VOSpace with 3rd part transfers.
-    CANFAR uses VOSpace API to support users uploading data and downloading results.
-    This provides a well documented API and Python client for users to access their data.
-    The SRCNet PrepareData service integrates with the Cavern service to make the
-    selected science data appear in the right location in Cavern's filesystem
-    so that the executable (batch or notebook) can find it.
+Suggested development sequence.
 
-    SRCNet are starting from a point where they have the Rucio data lake in place
-    and so their PrepareData service concentrates on accessing/transferring data from
-    the local Rucio endpoint to appropriate place in the compute platform's filesystem.
+Start by assuming all data is can be accesed via HTTP GET.
+Start with a basic 3rd party HTTP transfer service and build from there.
 
-    In our case, the eventual CephFS system is not available, so it would be better to
-    start with the assumption that all the data is available via HTTP from somewhere.
-    Work on developing a tranfer agent that handle asynchronous HTTP transfers to get
-    the data onto the local compute platform (laptop or cloud).
+Use the HTTP download URL from the TAP result to access data from eMerlin.
+Add customization that recognises eMerlin data and applies local access methods.
+
+Use the HTTP download URL from the TAP result to access data from SRCNet.
+Add customization that recognises SRCNet data and applies appropriate access methods.
+
+
+Longer term - VOSpace with 3rd part transfers.
+
+CANFAR uses VOSpace API to support users uploading data and downloading results.
+
+This provides a well documented API and Python client for users to access their data.
+The SRCNet PrepareData service integrates with the Cavern service to make the
+selected science data appear in the right location in Cavern's filesystem
+so that the processing can access it.
+
+CANFAR uses the posix mapper service to make the data available using
+the user's own unix uid.
+
+
+Longer term - SRCNet data lake data.
+
+SRCNet are starting from a point where they have the Rucio data lake in place
+and so their PrepareData service concentrates on accessing data from
+the local Rucio endpoint to the compute platform's filesystem.
+
+How we implement this will depend on where the SRCNet Rucio
+endpoint is relative to the eMerlin compute platform.
+
+
 
 # -----------------------------------------------------
 
