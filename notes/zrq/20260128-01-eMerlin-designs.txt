@@ -1,0 +1,231 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ideas for eMerlin archive design.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Document to describe the role of the broker 'template'
+
+        software/executable distinction
+        python program for the newton-raphson calculation
+        howto run the python program with one input value
+        howto run the python program with a file of values
+        someone packages the python program in a container
+        howto run the docker container with one input value
+        howto run the docker container with a file of values
+
+        the execution broker execution step is a machine readable
+        equivalent of the howto run the docker container instructions
+
+        docker image from <here>
+        download data from <there> and put it <here>
+        run with <cores> and <memory>
+
+
+# -----------------------------------------------------
+
+    High level design for the eMerlin archive
+
+        Data processing
+            software discovery
+            execution broker
+
+        Data storage
+            local storage
+            transfers
+                upload
+                download
+                sync
+                asynch
+
+        User interface
+            Need to have some idea of what this will provide
+            Mock ups and power points are a start
+
+
+# -----------------------------------------------------
+
+    Start to build up a set of design documents
+    Confluence or equivalent, simple wiki or md
+    but we need to start service level design
+
+    user interface
+        mockups and wireframes
+
+    data access
+        science data storage
+        user data storage
+        data transfer
+
+    processing
+
+        software discovery
+            metadata
+            describing the params in science terms
+
+        execution broker
+            describing how to execute in technical terms
+            batch
+            notebooks
+            desktops
+
+    design documents
+
+        sequence diagrams
+            main interactions between the components
+            main use cases
+
+# -----------------------------------------------------
+
+    Mermaid sequence diagrams in GitHub MD pages.
+    https://mermaid.js.org/syntax/sequenceDiagram.html
+    https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams
+
+
+# -----------------------------------------------------
+
+Data storage, transfer, and access ...
+
+A part of the data processing stack is an equivalent to the SRCNet PrepareData service.
+
+A request to an Execution Broker describes what needs to be transferred
+from where, to where, but the execution broker itself is not able
+to do the data transfers.
+It relies on a separate service to do the actual data transfer.
+
+Immediate first step is a simple HTTP download service that can transfer data
+from <url> with a basic level of progress monitoring, status = [RUNNING, COMPLETED, FAILED].
+The simple "just execute in Docker on your laptop" demonstration system needs something like this
+to be viable.
+
+Longer term we can look at developing it into a more functional API.
+
+Users will want to be able to upload their own data and download their results.
+Users will expect some kind of persistent storage where they
+can stage intermediate results from one step and use them as inputs
+for another step.
+
+CANFAR provides the Cavern VOSpace service to do this
+
+It would be useful to start looking at some use cases now and and identifying what types of data access we want to support.
+
+For data that is in the eMerlin archive:
+
+What does a identifier from the TAP service look like ?
+How do our services recognise that the data is from the eMerlin archive ?
+
+Does a row in the TAP result point to a single file, or to a collection of files associated with an observation ?
+If the result refers to multiple files, does the TAP result use pointers into the DataLink service to
+refer to the files associated to that observation ?
+
+If the user identifies a row in the TAP result as an input for a processing step,
+do they want to access all of the assocoated files in one set, or do they want to be able to pick individual files
+from the set.
+
+How do we make the selected data from the science archive available to the execution platform.
+
+For data that is in user storage:
+
+How does the user upload data to the user storage area.
+How does the user download data from the user storage area.
+
+How does the user select data in the user storage area.
+How do our services recognise that the selected data is from the user storage ?
+How do we make data from the user storage available to the execution platform.
+
+Will users want to be able to share their data with others, e.g projects and groups.
+
+For data that is in the SRCNet data lake:
+
+Start by treating this as an external 3rd party data provider.
+Use the HTTP download URL from the TAP result and apply a simple transfer.
+
+Longer term we will need an equivalent to the SRCNet PrepareData service,
+that can access data in the SRCNet DataLake and transfer it to a staging
+area at JBO.
+
+For data from external 3rd party providers:
+
+How do our services recognise that the data is from an external provider ?
+How do we make data from 3rd party providers available to the execution platform.
+Start with a basic 3rd party HTTP transfer service and build from there.
+
+
+Suggested development sequence.
+
+Start by assuming all data is can be accesed via HTTP GET.
+Start with a basic 3rd party HTTP transfer service and build from there.
+
+Use the HTTP download URL from the TAP result to access data from eMerlin.
+Add customization that recognises eMerlin data and applies local access methods.
+
+Use the HTTP download URL from the TAP result to access data from SRCNet.
+Add customization that recognises SRCNet data and applies appropriate access methods.
+
+
+Longer term - VOSpace with 3rd part transfers.
+
+CANFAR uses VOSpace API to support users uploading data and downloading results.
+
+This provides a well documented API and Python client for users to access their data.
+The SRCNet PrepareData service integrates with the Cavern service to make the
+selected science data appear in the right location in Cavern's filesystem
+so that the processing can access it.
+
+CANFAR uses the posix mapper service to make the data available using
+the user's own unix uid.
+
+
+Longer term - SRCNet data lake data.
+
+SRCNet are starting from a point where they have the Rucio data lake in place
+and so their PrepareData service concentrates on accessing data from
+the local Rucio endpoint to the compute platform's filesystem.
+
+How we implement this will depend on where the SRCNet Rucio
+endpoint is relative to the eMerlin compute platform.
+
+
+
+# -----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
