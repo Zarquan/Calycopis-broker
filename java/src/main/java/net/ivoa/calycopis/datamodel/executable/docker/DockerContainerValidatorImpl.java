@@ -35,14 +35,14 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
-import net.ivoa.calycopis.openapi.model.IvoaDockerExternalPort;
-import net.ivoa.calycopis.openapi.model.IvoaDockerImageSpec;
-import net.ivoa.calycopis.openapi.model.IvoaDockerInternalPort;
-import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkPort;
-import net.ivoa.calycopis.openapi.model.IvoaDockerNetworkSpec;
-import net.ivoa.calycopis.openapi.model.IvoaDockerPlatformSpec;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.spring.model.IvoaDockerContainer;
+import net.ivoa.calycopis.spring.model.IvoaDockerExternalPort;
+import net.ivoa.calycopis.spring.model.IvoaDockerImageSpec;
+import net.ivoa.calycopis.spring.model.IvoaDockerInternalPort;
+import net.ivoa.calycopis.spring.model.IvoaDockerNetworkPort;
+import net.ivoa.calycopis.spring.model.IvoaDockerNetworkSpec;
+import net.ivoa.calycopis.spring.model.IvoaDockerPlatformSpec;
 
 /**
  * A validator implementation to handle DockerContainers.

@@ -37,7 +37,7 @@ import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFa
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 

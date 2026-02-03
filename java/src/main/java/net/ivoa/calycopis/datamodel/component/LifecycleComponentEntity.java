@@ -38,11 +38,11 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
-import net.ivoa.calycopis.openapi.model.IvoaLifecycleSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaLifecycleStartDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaLifecycleStartDurationInterval;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaLifecycleSchedule;
+import net.ivoa.calycopis.spring.model.IvoaLifecycleStartDurationInstant;
+import net.ivoa.calycopis.spring.model.IvoaLifecycleStartDurationInterval;
 
 /**
  * 

@@ -35,9 +35,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityUpdateHandler;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
-import net.ivoa.calycopis.openapi.model.IvoaExecutionSessionResponseFour;
-import net.ivoa.calycopis.openapi.api.SessionsApiDelegate;
+import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.spring.model.IvoaExecutionSessionResponseFour;
+import net.ivoa.calycopis.spring.api.SessionsApiDelegate;
 
 @Service
 public class SessionsApiDelegateImpl

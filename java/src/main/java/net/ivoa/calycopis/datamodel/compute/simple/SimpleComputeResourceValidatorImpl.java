@@ -32,10 +32,10 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
  * A validator implementation to handle simple data resources.

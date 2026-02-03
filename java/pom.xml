@@ -56,7 +56,7 @@
             +-->
         <dependency>
             <groupId>net.ivoa.calycopis</groupId>
-            <artifactId>calycopis-openapi-spring</artifactId>
+            <artifactId>calycopis-spring</artifactId>
         	<version>${project.version}</version>
         </dependency>
 

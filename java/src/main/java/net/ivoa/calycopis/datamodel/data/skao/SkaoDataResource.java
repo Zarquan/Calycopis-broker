@@ -27,7 +27,7 @@ import java.net.URI;
 import java.util.List;
 
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
+import net.ivoa.calycopis.spring.model.IvoaSkaoDataResourceBlock.ObjecttypeEnum;
 
 /**
  * Public interface for an IVOA DataResource.

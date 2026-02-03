@@ -28,8 +28,8 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
 
 /**
  * A Validator implementation to handle simple storage resources.

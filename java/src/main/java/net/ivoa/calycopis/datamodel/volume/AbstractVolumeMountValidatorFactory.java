@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.volume;
 
 import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
 /**
  *

@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.data;
 
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 
 /**
  * Public interface for DataResource validators and results.

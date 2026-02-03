@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
 
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
 
 /**
  * 

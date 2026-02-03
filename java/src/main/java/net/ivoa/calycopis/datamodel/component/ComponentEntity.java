@@ -51,9 +51,9 @@ import net.ivoa.calycopis.datamodel.message.MessageSubject;
 import net.ivoa.calycopis.functional.planning.AbstractPlanningStepEntity;
 import net.ivoa.calycopis.functional.planning.PlanningStep;
 import net.ivoa.calycopis.functional.planning.PlanningStepSequence;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem;
-import net.ivoa.calycopis.openapi.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaMessageItem;
+import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.util.ListWrapper;
 import net.ivoa.calycopis.util.URIBuilder;
 

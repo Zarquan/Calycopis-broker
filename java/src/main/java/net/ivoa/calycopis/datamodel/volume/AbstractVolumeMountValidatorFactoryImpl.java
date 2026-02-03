@@ -30,7 +30,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
 /**
  * A factory for compute resource validators.

@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 
 /**
  * Base class for Validatior implementations.

@@ -32,11 +32,11 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataLinkItem;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataResource;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataResourceBlock;
+import net.ivoa.calycopis.spring.model.IvoaIvoaObsCoreItem;
 
 /**
  * A Validator implementation to handle IvoaDataResources.

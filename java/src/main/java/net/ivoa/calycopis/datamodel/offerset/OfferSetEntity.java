@@ -37,9 +37,9 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutionSession;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse.ResultEnum;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse.ResultEnum;
 import net.ivoa.calycopis.util.ListWrapper;
 import net.ivoa.calycopis.util.URIBuilder;
 

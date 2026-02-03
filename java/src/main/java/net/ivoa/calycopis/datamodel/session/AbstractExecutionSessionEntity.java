@@ -33,7 +33,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutionSession;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**
