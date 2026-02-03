@@ -33,8 +33,8 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleVolumeMount.ModeEnum;
+import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

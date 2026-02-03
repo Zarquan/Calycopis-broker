@@ -29,7 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
 
 /**
  * Service for responding to OfferSet requests.

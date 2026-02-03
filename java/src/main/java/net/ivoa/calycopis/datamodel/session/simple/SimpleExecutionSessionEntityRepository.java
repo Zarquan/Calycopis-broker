@@ -28,7 +28,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * JpaRepository for ExecutionSessionEntity.

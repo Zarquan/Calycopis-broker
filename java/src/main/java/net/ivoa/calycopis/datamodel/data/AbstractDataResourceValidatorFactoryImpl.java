@@ -35,7 +35,7 @@ import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 
 /**
  * A factory implementation for DataResource validators.

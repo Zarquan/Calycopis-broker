@@ -34,11 +34,11 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataLinkItem;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaDataResourceBlock;
-import net.ivoa.calycopis.openapi.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataLinkItem;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataResource;
+import net.ivoa.calycopis.spring.model.IvoaIvoaDataResourceBlock;
+import net.ivoa.calycopis.spring.model.IvoaIvoaObsCoreItem;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

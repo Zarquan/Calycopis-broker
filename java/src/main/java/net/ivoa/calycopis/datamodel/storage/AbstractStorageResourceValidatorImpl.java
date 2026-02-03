@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 
 /**
  * 

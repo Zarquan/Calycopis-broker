@@ -1,0 +1,111 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    #
+    # Build the Spring webapp.
+    # See Calycopis-schema/github-zrq/notes/zrq/20260201-01-gardening.txt
+    #
+    # We can't do the next bits in the action-runner container
+    # because you can't run docker inside docker.
+    #
+    # Have to exit the container and run it from desktop.
+    #
+
+# -----------------------------------------------------
+# Build our Docker image.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        source project.properties
+
+        jarversion=${schemaversion:?}-SNAPSHOT
+        jarfile=calycopis-broker-${jarversion:?}.jar
+
+        buildtag=$(date '+%Y.%m.%d')
+        buildtime=$(date '+%Y-%m-%dT%H:%M:%S')
+
+        podman build \
+            --build-arg "jarfile=${jarfile:?}" \
+            --build-arg "buildtag=${buildtag:?}" \
+            --build-arg "buildtime=${buildtime:?}" \
+            --tag "calycopis/calycopis-broker:latest" \
+            --tag "calycopis/calycopis-broker:${buildtag:?}" \
+            --file "docker/java-runtime/Dockerfile" \
+            "java/target"
+
+    popd
+
+--START--
+....
+....
+Successfully tagged localhost/calycopis/calycopis-broker:2026.02.01
+Successfully tagged localhost/calycopis/calycopis-broker:latest
+54c972690475a444be94a161df37d00271512c4b0f0ce4b16c4725228099fede
+--END--
+
+
+    podman images
+
+--START--
+REPOSITORY                               TAG               IMAGE ID      CREATED         SIZE
+localhost/calycopis/calycopis-broker     2026.02.01        54c972690475  29 seconds ago  388 MB
+localhost/calycopis/calycopis-broker     latest            54c972690475  29 seconds ago  388 MB
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Run our containers using Podman compose.
+#[user@desktop]
+
+    #
+    # Need to create our network manually because podman-compose has issues.
+    podman network \
+        create \
+            --subnet 192.5.0.0/16 \
+            calycopis-network
+
+    source "${HOME:?}/calycopis.env"
+
+    podman-compose \
+        --file "${CALYCOPIS_CODE:?}/docker/compose/calycopis-compose.yml" \
+        up
+
+
+
+

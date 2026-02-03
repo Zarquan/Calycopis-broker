@@ -30,7 +30,7 @@ import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFa
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 
 /**
  * A factory for compute resource validators.

@@ -30,8 +30,8 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaS3DataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaS3DataResource;
 
 /**
  * A validator implementation to handle simple data resources.

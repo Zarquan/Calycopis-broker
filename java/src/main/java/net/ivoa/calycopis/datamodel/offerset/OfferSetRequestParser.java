@@ -4,7 +4,7 @@
 package net.ivoa.calycopis.datamodel.offerset;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
 
 /**
  * 

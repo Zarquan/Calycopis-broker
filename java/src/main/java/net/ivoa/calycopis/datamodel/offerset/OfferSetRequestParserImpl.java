@@ -28,15 +28,15 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleBlock;
-import net.ivoa.calycopis.openapi.model.IvoaRequestedScheduleItem;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
+import net.ivoa.calycopis.spring.model.IvoaRequestedScheduleBlock;
+import net.ivoa.calycopis.spring.model.IvoaRequestedScheduleItem;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
  * 

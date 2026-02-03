@@ -37,10 +37,10 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeMemory;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

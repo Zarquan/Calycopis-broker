@@ -19,12 +19,12 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
 
 /**
  *

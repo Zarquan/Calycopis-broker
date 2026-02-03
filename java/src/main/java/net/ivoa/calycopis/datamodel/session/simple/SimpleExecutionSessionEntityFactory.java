@@ -31,7 +31,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * A Factory for execution sessions.

@@ -29,7 +29,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 
 /**
  * A factory for storage resource validators.

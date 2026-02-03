@@ -25,7 +25,7 @@ package net.ivoa.calycopis.datamodel.executable.docker.podman;
 
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
 import net.ivoa.calycopis.functional.platfom.podman.PodmanPlatform;
-import net.ivoa.calycopis.openapi.model.IvoaDockerContainer;
+import net.ivoa.calycopis.spring.model.IvoaDockerContainer;
 
 /**
  * 

@@ -24,7 +24,7 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 
 /**
  * 

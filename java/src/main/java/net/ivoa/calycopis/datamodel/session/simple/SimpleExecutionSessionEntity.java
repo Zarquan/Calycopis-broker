@@ -53,14 +53,14 @@ import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractOption;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInstant;
-import net.ivoa.calycopis.openapi.model.IvoaScheduleStartDurationInterval;
-import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSchedule;
-import net.ivoa.calycopis.openapi.model.IvoaScheduledExecutionSession;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSession;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleExecutionSessionPhase;
-import net.ivoa.calycopis.openapi.model.IvoaSimpleSessionConnector;
+import net.ivoa.calycopis.spring.model.IvoaAbstractOption;
+import net.ivoa.calycopis.spring.model.IvoaScheduleStartDurationInstant;
+import net.ivoa.calycopis.spring.model.IvoaScheduleStartDurationInterval;
+import net.ivoa.calycopis.spring.model.IvoaScheduledExecutionSchedule;
+import net.ivoa.calycopis.spring.model.IvoaScheduledExecutionSession;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSession;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleSessionConnector;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

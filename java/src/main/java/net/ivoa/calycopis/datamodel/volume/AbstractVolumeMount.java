@@ -38,7 +38,7 @@ public interface AbstractVolumeMount
      * The webapp path for volume mounts.
      * 
      */
-    public static final URI WEBAPP_PATH = URI.create("volume-mounts/"); 
+    public static final URI WEBAPP_PATH = URI.create("volumes/"); 
 
     /**
      * Get the parent Session.

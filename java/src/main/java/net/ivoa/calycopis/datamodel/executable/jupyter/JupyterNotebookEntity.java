@@ -32,7 +32,7 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

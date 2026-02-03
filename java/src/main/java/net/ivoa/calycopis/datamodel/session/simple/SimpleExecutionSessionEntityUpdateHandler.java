@@ -27,7 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
 
 /**
  * 

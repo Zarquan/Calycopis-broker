@@ -32,8 +32,8 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractExecutable;
-import net.ivoa.calycopis.openapi.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
 
 /**
  * A validator implementation to handle JupyterNotebooks.

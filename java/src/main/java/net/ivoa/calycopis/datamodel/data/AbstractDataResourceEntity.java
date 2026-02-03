@@ -43,9 +43,9 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.openapi.model.IvoaAbstractDataResource;
-import net.ivoa.calycopis.openapi.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**

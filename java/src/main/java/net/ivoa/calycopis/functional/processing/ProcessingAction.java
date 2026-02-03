@@ -26,7 +26,7 @@ package net.ivoa.calycopis.functional.processing;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.openapi.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * An external action to be performed outside of any transaction context.
