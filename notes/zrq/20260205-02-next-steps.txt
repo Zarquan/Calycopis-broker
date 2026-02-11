@@ -1,0 +1,124 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Decide what is next ...
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Lots of plates up in the air.
+
+    eMerlin
+
+        Finish the automated build.
+        1) GitHub action to build Python OpenAPI client.
+            - where do we add extra layer
+            - where do we publish it to (PyPi) ?
+
+        2) GitHub action to build Java OpenAPI client.
+            - where do we add extra layer
+
+        3) GitHub action to build our Java broker
+            - needs TestPlatform to be able to test it
+
+        4) GitHub action to build our Docker image
+
+
+        Add Python and Java tests.
+            Based on the examples, point at a service and check the results make sense.
+
+    Broker
+
+        Create GitHub issue about splitting the API
+            Reasons why this isn't a good idea
+                One service would be input only
+                One service would be output only
+                Developing/testing one without the other would mean poking the database.
+                What about the component endpoints ?
+
+        Create GitHub issue for creating a download webapp.
+            Claude ?
+                Start with an OpenAPI schema and ask an agent to build it for me.
+                Claude on Spring
+                Claude on Quarkus
+
+            https://en.wikipedia.org/wiki/Papilio
+            https://en.wikipedia.org/wiki/Papilio_alcmenor
+            https://en.wikipedia.org/wiki/Papilio_machaon
+            https://en.wikipedia.org/wiki/Papilio_polytes
+            https://en.wikipedia.org/wiki/Papilio_rutulus
+
+        Start the discussion about references ?
+        Need to document the model first.
+
+            Why is this a good idea ?
+            Flattens the serialization of the model.
+            Follows pattern established by Kubernetes.
+            + Makes editor services easier to implement.
+
+            - Means we need to create a client ontop of the OpenAPI client.
+            - Means the server side classes are not covered by the model.
+              ... politics are good on this
+
+        Document the model.
+        Sequence diagrams and class hierarchy.
+
+            GitHub markdown mermaid
+            https://mermaid.js.org/
+
+        Create Platform implementations
+
+            Test platform
+                Add params that control the response
+                Deliberate error conditions etc.
+
+            Kube platform
+                Integrates with kubectl API to run a container
+                Run it on DigitalOcean K8 to get on with it
+                Needs authentication
+
+            Docker platform
+                Sounds easy, but depends on how your Docker is setup.
+                Run it on a DigitalOcean VM to get on with it
+                Needs authentication
+
+        User authentication
+            Google
+            SRCNet IAM
+            UK IAM
+
+
+    SRCNet
+        metadata
+            workstep - probably a lost cause.
+
+
+
+
