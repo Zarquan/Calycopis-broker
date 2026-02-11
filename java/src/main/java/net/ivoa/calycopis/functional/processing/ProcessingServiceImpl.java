@@ -117,7 +117,7 @@ implements ProcessingService
                 {
                 log.debug("No requests found for service [{}]", service.getUuid());
                 // Claim the next available request.
-                log.debug("Claiming another request for service [{}]", service.getUuid());
+                log.debug("Checking for requests for service [{}]", service.getUuid());
                 int count = this.requestRepository.updateNextRequest(
                     service.getUuid(),
                     service.getKinds()

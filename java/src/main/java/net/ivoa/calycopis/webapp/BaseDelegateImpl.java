@@ -118,14 +118,7 @@ public class BaseDelegateImpl
         {
         String contextpath = this.getContextPath();
         URI requestURL  = URI.create(this.getRequestURL());
-        URI requestURI  = URI.create(this.getRequestURI());
-        
-        log.debug("URL [{}]", requestURL);
-        log.debug("URI [{}]", requestURI);
-        log.debug("Context [{}]", contextpath);
-
         URI base = requestURL.resolve(contextpath + "/");
-        log.debug("Base    [{}]", base);
         return base;
         }
 
