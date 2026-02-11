@@ -312,16 +312,6 @@ public class DockerContainerEntity
  */
         }
 
-    protected void prepare()
-        {
-        this.getPrepareList().getFirst().execute();
-        }
-
-    protected void release()
-        {
-        this.getReleaseList().getFirst().execute();
-        }
-
     @Override
     public IvoaAbstractExecutable makeBean(final URIBuilder builder)
         {

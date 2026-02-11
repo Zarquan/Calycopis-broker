@@ -27,7 +27,6 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,17 +39,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
 import net.ivoa.calycopis.datamodel.message.MessageSubject;
-import net.ivoa.calycopis.functional.planning.AbstractPlanningStepEntity;
-import net.ivoa.calycopis.functional.planning.PlanningStep;
-import net.ivoa.calycopis.functional.planning.PlanningStepSequence;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
@@ -323,185 +317,6 @@ public abstract class ComponentEntity
                 return new MessageItemBean(
                     inner
                     );
-                }
-            };
-        }
-    
-    /**
-     * A SequenceList of PlanningSteps. 
-     * 
-     */
-    public abstract class PlanningStepSequenceImpl
-    implements PlanningStepSequence
-        {
-        
-        public PlanningStepSequenceImpl()
-            {
-            super();
-            }
-
-        public void addStep(final AbstractPlanningStepEntity step)
-            {
-            log.debug("Add step [{}]", step);
-            if (this.getFirst() == null)
-                {
-                this.setFirst(step);
-                }
-            if (this.getLast() != null)
-                {
-                this.getLast().setNext(
-                    step
-                    );
-                }
-            step.setPrev(
-                this.getLast()
-                );
-            this.setLast(step);
-            }
-        
-        public abstract AbstractPlanningStepEntity getFirst();
-        public abstract void setFirst(final AbstractPlanningStepEntity step);
-
-        public abstract AbstractPlanningStepEntity getLast();
-        public abstract void setLast(final AbstractPlanningStepEntity step);
-
-        public Iterable<PlanningStep> forwards()
-            {
-            return new Iterable<PlanningStep>()
-                {
-                @Override
-                public Iterator<PlanningStep> iterator()
-                    {
-                    return new Iterator<PlanningStep>()
-                        {
-                        private PlanningStep step = getFirst();
-                        
-                        @Override
-                        public boolean hasNext()
-                            {
-                            return (step != null);
-                            }
-
-                        @Override
-                        public PlanningStep next()
-                            {
-                            PlanningStep temp = step;
-                            if (step != null)
-                                {
-                                step = step.getNext();
-                                }
-                            return temp;
-                            }
-                        } ;
-                    }
-                };
-            }
-
-        public Iterable<PlanningStep> backwards()
-            {
-            return new Iterable<PlanningStep>()
-                {
-                @Override
-                public Iterator<PlanningStep> iterator()
-                    {
-                    return new Iterator<PlanningStep>()
-                        {
-                        private PlanningStep step = getLast();
-                        
-                        @Override
-                        public boolean hasNext()
-                            {
-                            return (step != null);
-                            }
-
-                        @Override
-                        public PlanningStep next()
-                            {
-                            PlanningStep temp = step;
-                            if (step != null)
-                                {
-                                step = step.getPrev();
-                                }
-                            return temp;
-                            }
-                        } ;
-                    }
-                };
-            }
-        }
-
-    @JoinColumn(name = "preparefirst", referencedColumnName = "uuid", nullable = true)
-    @OneToOne(fetch = FetchType.LAZY)
-    private AbstractPlanningStepEntity prepareFirst;
-
-    @JoinColumn(name = "preparelast", referencedColumnName = "uuid", nullable = true)
-    @OneToOne(fetch = FetchType.LAZY)
-    private AbstractPlanningStepEntity prepareLast;
-        
-    public PlanningStepSequenceImpl getPrepareList()
-        {
-        return new PlanningStepSequenceImpl()
-            {
-            @Override
-            public AbstractPlanningStepEntity getFirst()
-                {
-                return prepareFirst;
-                }
-
-            @Override
-            public void setFirst(final AbstractPlanningStepEntity step)
-                {
-                prepareFirst = step;
-                }
-
-            @Override
-            public AbstractPlanningStepEntity getLast()
-                {
-                return prepareLast;
-                }
-
-            @Override
-            public void setLast(final AbstractPlanningStepEntity step)
-                {
-                prepareLast = step;
-                }
-            };
-        }
-    
-    @JoinColumn(name = "releasefirst", referencedColumnName = "uuid", nullable = true)
-    @OneToOne(fetch = FetchType.LAZY)
-    private AbstractPlanningStepEntity releaseFirst;
-
-    @JoinColumn(name = "releaselast", referencedColumnName = "uuid", nullable = true)
-    @OneToOne(fetch = FetchType.LAZY)
-    private AbstractPlanningStepEntity releaseLast;
-    
-    public PlanningStepSequenceImpl getReleaseList()
-        {
-        return new PlanningStepSequenceImpl()
-            {
-            @Override
-            public AbstractPlanningStepEntity getFirst()
-                {
-                return releaseFirst;
-                }
-
-            @Override
-            public void setFirst(final AbstractPlanningStepEntity step)
-                {
-                releaseFirst = step;
-                }
-
-            @Override
-            public AbstractPlanningStepEntity getLast()
-                {
-                return releaseLast;
-                }
-
-            @Override
-            public void setLast(final AbstractPlanningStepEntity step)
-                {
-                releaseLast = step;
                 }
             };
         }
