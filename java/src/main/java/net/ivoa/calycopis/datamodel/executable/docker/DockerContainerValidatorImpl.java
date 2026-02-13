@@ -169,6 +169,7 @@ implements DockerContainerValidator
         // Everything is good, create our Result.
         if (success)
             {
+            log.debug("PASS DockerContainer validated [{}]", validated);
             //
             // Create a new validator Result.
             AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
@@ -202,6 +203,7 @@ implements DockerContainerValidator
         //
         // Something wasn't right, fail the validation.
         else {
+            log.debug("FAIL DockerContainer NOT validated [{}]", validated);
             context.valid(false);
             return new ResultBean(
                 Validator.ResultEnum.FAILED
@@ -257,7 +259,7 @@ implements DockerContainerValidator
                 for (String location : requested.getLocations())
                     {
                     // TODO Better checks
-                    success &= badValueCheck(
+                    success &= notBadValueCheck(
                         location,
                         context
                         );
@@ -269,27 +271,35 @@ implements DockerContainerValidator
             else {
                 context.getOfferSetEntity().addWarning(
                     "urn:missig-required-value",
-                    "At least one location required"
+                    "DockerContainer - image location required"
                     );
                 success = false ;
                 }
 
             String digest = requested.getDigest();
-            success &= badValueCheck(
-                digest,
-                context
-                );
             if (digest != null)
                 {
                 result.setDigest(
                     digest
                     );
+                if (isBadValueCheck(digest,context)) 
+                    {
+                    context.getOfferSetEntity().addWarning(
+                        "urn:bad-value",
+                        "DockerContainer - image digest matches badvalue blackist [{}]",
+                        Map.of(
+                            "value",
+                            digest
+                            )
+                        );
+                    success = false ;
+                    }
                 }
             else {
                 // TODO Make this configurable
                 context.getOfferSetEntity().addWarning(
                     "urn:missing-value",
-                    "Image digest is required"
+                    "DockerContainer - image digest is required"
                     );
                 success = false ;
                 }
@@ -307,7 +317,7 @@ implements DockerContainerValidator
         else {
             context.getOfferSetEntity().addWarning(
                 "urn:missing-value",
-                "Container image is required"
+                "DockerContainer - image is required"
                 );
             success = false ;
             }
@@ -350,7 +360,11 @@ implements DockerContainerValidator
                     default:
                         context.getOfferSetEntity().addWarning(
                             "urn:invalied-value",
-                            "Unsupported platform architecture"
+                            "DockerContainer - platform architecture not supported [{}]",
+                            Map.of(
+                                "value",
+                                platformArch
+                                )
                             );
                         success = false ;
                         break ;
@@ -370,7 +384,11 @@ implements DockerContainerValidator
                     default:
                         context.getOfferSetEntity().addWarning(
                             "urn:invalied-value",
-                            "Unsupported platform operating system"
+                            "DockerContainer - platform operating system not supported [{}]",
+                            Map.of(
+                                "value",
+                                platformOs
+                                )
                             );
                         success = false;
                         break ;
@@ -451,7 +469,7 @@ implements DockerContainerValidator
             default:
                 context.getOfferSetEntity().addWarning(
                     "urn:invalid-value",
-                    "Unrecognised network port protocol[{}]",
+                    "DockerContainer - unrecognised network port protocol [{}]",
                     Map.of(
                         "value",
                         protocol
@@ -465,7 +483,7 @@ implements DockerContainerValidator
         result.setPath(
             path
             );
-        success &= badValueCheck(
+        success &= notBadValueCheck(
             path,
             context
             );
@@ -481,7 +499,7 @@ implements DockerContainerValidator
             {
             context.getOfferSetEntity().addWarning(
                 "urn:invalid-value",
-                "Negative network port number not supported [{}]",
+                "DockerContainer - negative network port number not supported [{}]",
                 Map.of(
                     "value",
                     portnum
@@ -494,8 +512,8 @@ implements DockerContainerValidator
         if (external != null)
             {
             context.getOfferSetEntity().addWarning(
-                "urn:invalid-value",
-                "External port details should not be set by client"
+                "urn:not-supported",
+                "DockerContainer - setting external port details not supported"
                 );
             success = false ;
             }
@@ -527,7 +545,7 @@ implements DockerContainerValidator
         if (entrypoint != null)
             {
             // TODO Make this configurable.
-            success &= badValueCheck(
+            success &= notBadValueCheck(
                 entrypoint,
                 context
                 );
@@ -567,8 +585,8 @@ implements DockerContainerValidator
         if ((requested != null) && (requested == true))
             {
             context.getOfferSetEntity().addWarning(
-                "urn:functionality-not-supported",
-                "Privileged execution not supported"
+                "urn:not-supported",
+                "DockerContainer - Privileged execution not supported"
                 );
             success = false ;
             }
@@ -598,19 +616,36 @@ implements DockerContainerValidator
             Map<String, String> hashmap = new HashMap<String, String>();
             for (Map.Entry<String,String> entry : requested.entrySet())
                 {
-                // TODO Add better checks ..
-                boolean notbad = badValueCheck(
-                    entry.getKey(),
-                    context
-                    );
-                if (notbad)
+                if (isBadValueCheck(entry.getKey(),context))
                     {
+                    context.getOfferSetEntity().addWarning(
+                        "urn:bad-value",
+                        "DockerContainer - environment variable name matches badvalue blacklist [{}]",
+                        Map.of(
+                            "value",
+                            entry.getKey()
+                            )
+                        );
+                    success = false ;
+                    }
+                else if (isBadValueCheck(entry.getValue(),context))
+                    {
+                    context.getOfferSetEntity().addWarning(
+                        "urn:bad-value",
+                        "DockerContainer - environment variable value matches badvalue blacklist [{}]",
+                        Map.of(
+                            "value",
+                            entry.getValue()
+                            )
+                        );
+                    success = false ;
+                    }
+                else {
                     hashmap.put(
                         entry.getKey(),
                         entry.getValue()
                         ); 
                     }
-                success &= notbad;
                 }
             //
             // Don't add an empty Map.

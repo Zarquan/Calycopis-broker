@@ -191,7 +191,7 @@ implements JupyterNotebookValidator
             success = false ;
             }
         else {
-            success &= badValueCheck(
+            success &= notBadValueCheck(
                 location,
                 context
                 );
