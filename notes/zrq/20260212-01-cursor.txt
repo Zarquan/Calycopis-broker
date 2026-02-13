@@ -1,0 +1,775 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Work on the Platforms, heading towards different types of platforms
+        * TestPlatform
+        * KubePlatform
+        * DockerPlatform
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Install Cursor in the development container.
+# https://cursor.com/docs/cli/overview#interactive-mode
+#[root@developer-tools]
+
+    Wilbur Pollinador
+    wp@dm92.uk
+    iePhuef4 foo6Eyoh wai7ooHu
+
+
+    curl https://cursor.com/install -fsS | bash
+
+    >   ....
+    >   ....
+
+
+
+    /plan
+    Can you analyse the OpenAPI specification here /trebula/schema/build/execution-broker-1.0.3.yaml                                                                                         │
+
+    >     I'll first load that OpenAPI file to see its structure and contents, then I’ll outline the main endpoints, schemas, and auth model in a concise summary. After that I’ll propose a short
+    >      plan for any deeper analysis (like validation, gaps, or refactors) for you to approve.
+    >   
+    >    ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >    │  Plan (accepted)                                                                                                                                                                         │
+    >    │ ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ ExecutionBroker OpenAPI 1.0.3 – Analysis                                                                                                                                             │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 1. High-level purpose                                                                                                                                                                │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Role of this API: Models an "Execution Broker" that takes an execution request (what to run + required resources), returns a set of offered execution sessions, and lets           │ │
+    >    │ │   clients query/update sessions.                                                                                                                                                     │ │
+    >    │ │ • Main concepts:                                                                                                                                                                     │ │
+    >    │ │   • Offer sets: Possible execution sessions the broker can provide for a given request (OfferSetRequest → OfferSetResponse).                                                         │ │
+    >    │ │   • Execution sessions: Concrete or scheduled executions (SimpleExecutionSession, ScheduledExecutionSession).                                                                        │ │
+    >    │ │   • Resources: Executables, compute, storage, volumes, and data resources (S3, Rucio, IVOA, SKAO).                                                                                   │ │
+    >    │ │   • Lifecycle: Phases and schedules for components and sessions.                                                                                                                     │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 2. API surface – endpoints & behavior                                                                                                                                                │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • `POST /offersets` (OfferSetPost)                                                                                                                                                   │ │
+    >    │ │   • Request body: OfferSetRequest in application/json, application/xml, or application/yaml.                                                                                         │ │
+    >    │ │   • Responses:                                                                                                                                                                       │ │
+    >    │ │     • 303 See Other with required Location header pointing to /offersets/{uuid}.                                                                                                     │ │
+    >    │ │     • 200 OK with OfferSetResponse directly.                                                                                                                                         │ │
+    >    │ │   • Implications:                                                                                                                                                                    │ │
+    >    │ │     • Clients must be prepared for both immediate data (200) and async-style redirect (303) patterns.                                                                                │ │
+    >    │ │     • Good for implementations that might be slow and prefer to hand back a polling URL.                                                                                             │ │
+    >    │ │ • `GET /offersets/{uuid}` (OfferSetGet)                                                                                                                                              │ │
+    >    │ │   • Path param uuid with uuid format.                                                                                                                                                │ │
+    >    │ │   • Returns OfferSetResponse in the same three media types.                                                                                                                          │ │
+    >    │ │   • Represents a stable, queryable resource for a particular offer set.                                                                                                              │ │
+    >    │ │ • `GET /sessions/{uuid}` (ExecutionSessionGet)                                                                                                                                       │ │
+    >    │ │   • Retrieves an execution session by UUID.                                                                                                                                          │ │
+    >    │ │   • Response type is ExecutionSessionResponseFour which is a oneOf of SimpleExecutionSession and ScheduledExecutionSession.                                                          │ │
+    >    │ │   • Design choice: server returns polymorphic session; clients must look at the kind discriminator.                                                                                  │ │
+    >    │ │ • `POST /sessions/{uuid}` (ExecutionSessionPost)                                                                                                                                     │ │
+    >    │ │   • Path param uuid is a session identifier.                                                                                                                                         │ │
+    >    │ │   • Request body: AbstractUpdate (discriminated union of specific update types).                                                                                                     │ │
+    >    │ │   • Response: again ExecutionSessionResponseFour.                                                                                                                                    │ │
+    >    │ │   • Pattern: "patch by update-command" rather than JSON Patch – the kind of update and path decide what to change.                                                                   │ │
+    >    │ │ • Security                                                                                                                                                                           │ │
+    >    │ │   • No securitySchemes defined: spec is transport/auth agnostic right now.                                                                                                           │ │
+    >    │ │   • For production APIs, you’ll likely want to extend components.securitySchemes (e.g. OAuth2 / bearer) and add security blocks on operations.                                       │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 3. Data model – core building blocks                                                                                                                                                 │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Polymorphism via discriminators                                                                                                                                                    │ │
+    >    │ │   • AbstractExecutable → DockerContainer, SingularityContainer, JupyterNotebook (URI kind values as mapping keys).                                                                   │ │
+    >    │ │   • AbstractComputeResource → SimpleComputeResource.                                                                                                                                 │ │
+    >    │ │   • AbstractStorageResource → SimpleStorageResource.                                                                                                                                 │ │
+    >    │ │   • AbstractVolumeMount → SimpleVolumeMount.                                                                                                                                         │ │
+    >    │ │   • AbstractDataResource → SimpleDataResource, S3DataResource, RucioDataResource, IvoaDataResource, SkaoDataResource.                                                                │ │
+    >    │ │   • AbstractExecutionSession → SimpleExecutionSession, ScheduledExecutionSession.                                                                                                    │ │
+    >    │ │   • AbstractOption and AbstractUpdate also use discriminators for option/update variants.                                                                                            │ │
+    >    │ │   • Effect on codegen: Many generators (e.g. OpenAPI Generator, Swagger Codegen) support discriminators, but the use of full URIs as kind may require custom handling or mapping     │ │
+    >    │ │     in some languages.                                                                                                                                                               │ │
+    >    │ │ • Base component model                                                                                                                                                               │ │
+    >    │ │   • AbstractComponent supplies kind (URI) and meta (ComponentMetadata).                                                                                                              │ │
+    >    │ │   • ComponentMetadata adds identifiers, human text, timestamps, messages, and options.                                                                                               │ │
+    >    │ │   • LifecycleComponent embeds phase and schedule for components with state.                                                                                                          │ │
+    >    │ │   • These give a very consistent envelope for all resource-like entities.                                                                                                            │ │
+    >    │ │ • Execution composition                                                                                                                                                              │ │
+    >    │ │   • ExecutionRequestComponents and SimpleExecutionComponents share the same structure:                                                                                               │ │
+    >    │ │     • executable (AbstractExecutable),                                                                                                                                               │ │
+    >    │ │     • compute (AbstractComputeResource),                                                                                                                                             │ │
+    >    │ │     • storage (AbstractStorageResourceList),                                                                                                                                         │ │
+    >    │ │     • volumes (AbstractVolumeMountList),                                                                                                                                             │ │
+    >    │ │     • data (AbstractDataResourceList).                                                                                                                                               │ │
+    >    │ │   • This gives a uniform way to describe what an execution needs vs. what an execution session actually has.                                                                         │ │
+    >    │ │ • Offer sets                                                                                                                                                                         │ │
+    >    │ │   • OfferSetRequest = ExecutionRequestComponents + optional RequestedScheduleBlock.                                                                                                  │ │
+    >    │ │   • OfferSetResponse = AbstractComponent + fields:                                                                                                                                   │ │
+    >    │ │     • result (YES/NO) with semantics about whether the service can handle the request.                                                                                               │ │
+    >    │ │     • Optional description.                                                                                                                                                          │ │
+    >    │ │     • offers: array of AbstractExecutionSession (polymorphic sessions).                                                                                                              │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 4. Scheduling & lifecycle                                                                                                                                                            │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Lifecycle states                                                                                                                                                                   │ │
+    >    │ │   • LifecyclePhase and SimpleExecutionSessionPhase give rich state machines (INITIAL/WAITING/PREPARING/AVAILABLE/RUNNING/RELEASING/COMPLETED/FAILED/CANCELLED etc.).                 │ │
+    >    │ │   • Note: SimpleExecutionSessionPhase includes extra states (e.g. OFFERED, ACCEPTED, REJECTED, EXPIRED) on top of generic lifecycle phases – makes sense for offer lifecycle.        │ │
+    >    │ │ • Lifecycle vs schedule structures                                                                                                                                                   │ │
+    >    │ │   • LifecycleSchedule and ScheduledExecutionSchedule are structurally very similar:                                                                                                  │ │
+    >    │ │     • both have preparing, available, releasing fields referencing _StartDuration types.                                                                                             │ │
+    >    │ │   • _StartDurationInstant and _StartDurationInterval vs their Schedule* counterparts share semantics (start time / interval + duration) but exist as parallel types.                 │ │
+    >    │ │   • Implication: Consistent but somewhat duplicated type hierarchy – may be intentional to keep execution-session schedules distinct from generic component lifecycles.              │ │
+    >    │ │ • Time-related scalar types                                                                                                                                                          │ │
+    >    │ │   • ISO8601Instant, ISO8601Duration, ISO8601Interval are string types with regex patterns enforcing ISO 8601 shapes.                                                                 │ │
+    >    │ │   • ISO8601Interval pattern is long and precise, likely to be:                                                                                                                       │ │
+    >    │ │     • Hard for some validators / codegen tools,                                                                                                                                      │ │
+    >    │ │     • Overkill for many clients, but ensures strict format checking.                                                                                                                 │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 5. Executables & runtime environment                                                                                                                                                 │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • DockerContainer                                                                                                                                                                    │ │
+    >    │ │   • Includes image (DockerImageSpec), privileged, entrypoint, environment (NameValueMap), and network (DockerNetworkSpec).                                                           │ │
+    >    │ │   • DockerImageSpec includes locations array, digest, and platform (DockerPlatformSpec).                                                                                             │ │
+    >    │ │   • DockerNetworkSpec → ports array → DockerNetworkPort (with internal and external ports, protocol, access flag, path).                                                             │ │
+    >    │ │   • Design: Enough to map cleanly onto container runtimes while keeping some platform-agnostic semantics.                                                                            │ │
+    >    │ │ • Other executable types                                                                                                                                                             │ │
+    >    │ │   • SingularityContainer – simple location URL.                                                                                                                                      │ │
+    >    │ │   • JupyterNotebook – location URL; notes that further work is needed to support different notebook references.                                                                      │ │
+    >    │ │   • All reuse AbstractExecutable → consistent kind and lifecycle handling.                                                                                                           │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 6. Compute, storage, volumes, and data                                                                                                                                               │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Compute                                                                                                                                                                            │ │
+    >    │ │   • SimpleComputeResource with nested SimpleComputeCores (min/max) and SimpleComputeMemory (min/max GiB), plus volumes.                                                              │ │
+    >    │ │   • This gives brokers enough flexibility to negotiate between min/max resources.                                                                                                    │ │
+    >    │ │ • Storage & volumes                                                                                                                                                                  │ │
+    >    │ │   • SimpleStorageResource with SimpleStorageSize (min/max GiB) and optional data list.                                                                                               │ │
+    >    │ │   • SimpleVolumeMount uses path, mode (READONLY / READWRITE), cardinality (SINGLE / CONTAINER), resources list.                                                                      │ │
+    >    │ │   • Implication:                                                                                                                                                                     │ │
+    >    │ │     • The API distinguishes between where data lives (AbstractDataResource) and how it is presented to the executable’s filesystem (volume mounts).                                  │ │
+    >    │ │ • Data resources                                                                                                                                                                     │ │
+    >    │ │   • AbstractDataResource includes storage and kind discriminator, branching into:                                                                                                    │ │
+    >    │ │     • SimpleDataResource – single downloadable URL.                                                                                                                                  │ │
+    >    │ │     • S3DataResource – endpoint/template/bucket/object for object storage.                                                                                                           │ │
+    >    │ │     • RucioDataResource – via RucioDataResourceBlock with endpoint/scope/object/type.                                                                                                │ │
+    >    │ │     • IvoaDataResource – IVOA metadata via DID, ObsCore, DataLink.                                                                                                                   │ │
+    >    │ │     • SkaoDataResource – SKAO-specific metadata extending IvoaDataResource with namespace/objectname/objecttype/datasize/checksum/replicas.                                          │ │
+    >    │ │   • Design: Quite extensible; new data backends can be added via new kind URIs.                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 7. Messages, options, and updates                                                                                                                                                    │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Messages                                                                                                                                                                           │ │
+    >    │ │   • MessageItem models log/diagnostic messages (kind/time/level/template/values/message) aligned with Message Templates standard.                                                    │ │
+    >    │ │   • Appears within ComponentMetadata.messages, so every component may carry rich diagnostics.                                                                                        │ │
+    >    │ │ • Options API                                                                                                                                                                        │ │
+    >    │ │   • AbstractOption (discriminated on kind) allows the service to present configurable options for components, each targeting a path.                                                 │ │
+    >    │ │   • Flavours:                                                                                                                                                                        │ │
+    >    │ │     • StringValueOption with optional regex pattern.                                                                                                                                 │ │
+    >    │ │     • EnumValueOption with allowed values.                                                                                                                                           │ │
+    >    │ │     • IntegerValueOption/IntegerDeltaOption with min/max and units.                                                                                                                  │ │
+    >    │ │   • Pattern: server advertises what can be tuned; client chooses values within constraints.                                                                                          │ │
+    >    │ │ • Updates API                                                                                                                                                                        │ │
+    >    │ │   • AbstractUpdate mirrors AbstractOption for making actual changes to those targets.                                                                                                │ │
+    >    │ │   • Flavours:                                                                                                                                                                        │ │
+    >    │ │     • StringValueUpdate, EnumValueUpdate (string payloads).                                                                                                                          │ │
+    >    │ │     • IntegerValueUpdate, IntegerDeltaUpdate (numeric payloads with units).                                                                                                          │ │
+    >    │ │   • Combined with `POST /sessions/{uuid}`: forms a command-style patch system – path+kind+value/delta.                                                                               │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 8. Media types and representation details                                                                                                                                            │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • Supported representations                                                                                                                                                          │ │
+    >    │ │   • All main endpoints support application/json, application/xml, and application/yaml.                                                                                              │ │
+    >    │ │   • Schemas include xml metadata (name, wrapped) for collections and elements, which should make XML representations consistent across tools.                                        │ │
+    >    │ │ • URI formats                                                                                                                                                                        │ │
+    >    │ │   • Many fields (kind, url, ivoid) use format: uri, aligning with general web semantics and IVOA identifiers.                                                                        │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 9. Potential issues, edge cases, and suggestions                                                                                                                                     │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • OpenAPI version 3.1.0                                                                                                                                                              │ │
+    >    │ │   • Some tooling (especially older ones) only fully support 3.0.x – worth checking your target generators/validators.                                                                │ │
+    >    │ │ • Discriminator mapping keys as full URIs                                                                                                                                            │ │
+    >    │ │   • Semantically nice but may be awkward in some languages where enums are preferred.                                                                                                │ │
+    >    │ │   • Be sure your codegen/tooling respects the discriminator.mapping rather than trying to generate enums purely from oneOf names.                                                    │ │
+    >    │ │ • Regex-heavy formats                                                                                                                                                                │ │
+    >    │ │   • ISO8601Instant, ISO8601Duration, ISO8601Interval have complex patterns which may:                                                                                                │ │
+    >    │ │     • Be ignored by some clients, or                                                                                                                                                 │ │
+    >    │ │     • Cause performance issues in some validators.                                                                                                                                   │ │
+    >    │ │   • As long as you’re okay with strict server-side validation, this is fine; just be aware of potential codegen limitations.                                                         │ │
+    >    │ │ • Lack of `400/4xx/5xx` responses                                                                                                                                                    │ │
+    >    │ │   • Only 200/303 are defined; you might want to add explicit error responses (e.g. 400 for invalid requests, 404 for unknown UUID, 500 for internal errors) to improve client        │ │
+    >    │ │     expectations and documentation.                                                                                                                                                  │ │
+    >    │ │ • Security model not specified                                                                                                                                                       │ │
+    >    │ │   • No securitySchemes or per-operation security blocks.                                                                                                                             │ │
+    >    │ │   • If this is for a public or semi-public deployment, defining at least one scheme (e.g. bearer token) will help client libs and documentation.                                     │ │
+    >    │ │ • Minor inconsistencies / typos                                                                                                                                                      │ │
+    >    │ │   • Some description text typos (excution, staus) and small naming inconsistencies (e.g. Title: SingularContainer vs SingularityContainer).                                          │ │
+    >    │ │   • These are cosmetic but might be worth cleaning for a polished 1.0 release.                                                                                                       │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 10. Conceptual diagram (objects & relationships)                                                                                                                                     │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ flowchart TD                                                                                                                                                                         │ │
+    >    │ │   OfferSetRequest --> ExecutionRequestComponents                                                                                                                                     │ │
+    >    │ │   ExecutionRequestComponents --> AbstractExecutable                                                                                                                                  │ │
+    >    │ │   ExecutionRequestComponents --> AbstractComputeResource                                                                                                                             │ │
+    >    │ │   ExecutionRequestComponents --> AbstractStorageResourceList                                                                                                                         │ │
+    >    │ │   ExecutionRequestComponents --> AbstractVolumeMountList                                                                                                                             │ │
+    >    │ │   ExecutionRequestComponents --> AbstractDataResourceList                                                                                                                            │ │
+    >    │ │   OfferSetResponse --> AbstractExecutionSession                                                                                                                                      │ │
+    >    │ │   AbstractExecutionSession --> SimpleExecutionSession                                                                                                                                │ │
+    >    │ │   AbstractExecutionSession --> ScheduledExecutionSession                                                                                                                             │ │
+    >    │ │   AbstractExecutable --> DockerContainer                                                                                                                                             │ │
+    >    │ │   AbstractExecutable --> SingularityContainer                                                                                                                                        │ │
+    >    │ │   AbstractExecutable --> JupyterNotebook                                                                                                                                             │ │
+    >    │ │   AbstractDataResource --> SimpleDataResource                                                                                                                                        │ │
+    >    │ │   AbstractDataResource --> S3DataResource                                                                                                                                            │ │
+    >    │ │   AbstractDataResource --> RucioDataResource                                                                                                                                         │ │
+    >    │ │   AbstractDataResource --> IvoaDataResource                                                                                                                                          │ │
+    >    │ │   IvoaDataResource --> SkaoDataResource                                                                                                                                              │ │
+    >    │ │   SimpleExecutionSession --> SimpleExecutionComponents                                                                                                                               │ │
+    >    │ │   SimpleExecutionComponents --> AbstractExecutable                                                                                                                                   │ │
+    >    │ │   SimpleExecutionComponents --> AbstractComputeResource                                                                                                                              │ │
+    >    │ │   SimpleExecutionComponents --> AbstractStorageResourceList                                                                                                                          │ │
+    >    │ │   SimpleExecutionComponents --> AbstractVolumeMountList                                                                                                                              │ │
+    >    │ │   SimpleExecutionComponents --> AbstractDataResourceList                                                                                                                             │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ 11. How this spec is positioned for implementation/codegen                                                                                                                           │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ │ • For server implementations                                                                                                                                                         │ │
+    >    │ │   • The model is cleanly layered and should map well to domain models in OO languages.                                                                                               │ │
+    >    │ │   • The discriminator-heavy polymorphism will work fine with frameworks that honour oneOf and discriminators (e.g. Springdoc + Java, FastAPI + Pydantic if hand-tuned).              │ │
+    >    │ │ • For client SDK generation                                                                                                                                                          │ │
+    >    │ │   • Codegens that properly support OpenAPI 3.1 and discriminators will give reasonably ergonomic types.                                                                              │ │
+    >    │ │   • Some clients may expose anyOf/oneOf as generic union types or wrapper classes; expect a bit of hand-written helper code to smooth those edges.                                   │ │
+    >    │ │ • For interoperability                                                                                                                                                               │ │
+    >    │ │   • Strong alignment with IVOA/ObsCore/DataLink and container ecosystems makes it suitable for astronomy/science execution platforms, with clear extension points via kind URIs.     │ │
+    >    │ │                                                                                                                                                                                      │ │
+    >    │ └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘ │
+    >    └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+    Can you look at the Python client generated from the OpenAPI specification here /trebula/codegen/python/client/build/
+
+    >   I’ll scan that Python client build directory to see the generated package layout, then open the key modules (API classes, models, config) to understand how the OpenAPI spec has been
+    >     translated. I’ll then summarize structure, any quirks (especially around discriminators/oneOf and the time regex fields), and potential issues or cleanup steps.
+    >   
+    >     ⬢ Globbed, read 1 glob, 4 files
+    >       … 2 earlier items hidden
+    >       Read ...ld/calycopis_client/models/offer_set_request.py
+    >       Read .../calycopis_client/models/abstract_executable.py
+    >       Read codegen/python/client/build/README.md
+    >   
+    >   
+    >     Overview
+    >   
+    >     • Generator & stack: Generated by OpenAPI Generator 7.18.0 (PythonClientCodegen), Python 3.9+, uses pydantic v2 models and a small HTTP client wrapper (ApiClient).
+    >     • Package layout: calycopis_client/ contains:
+    >       • api/default_api.py: all four endpoints.
+    >       • models/*.py: 1:1 with OpenAPI schemas.
+    >       • api_client.py, configuration.py, rest.py, exceptions.py: transport and config.
+    >       • docs/*.md, test/*.py, pyproject.toml, setup.py for packaging/tests.
+    >   
+    >   
+    >     API surface mapping
+    >   
+    >     • Endpoints (as in README):
+    >       • DefaultApi.execution_session_get(uuid: UUID) -> ExecutionSessionResponseFour
+    >       • DefaultApi.execution_session_post(uuid: UUID, abstract_update: AbstractUpdate) -> ExecutionSessionResponseFour
+    >       • DefaultApi.offer_set_get(uuid: UUID) -> OfferSetResponse
+    >       • DefaultApi.offer_set_post(offer_set_request: OfferSetRequest) -> OfferSetResponse
+    >     • Each has three flavors:
+    >       • method(...) → deserialized model.
+    >       • method_with_http_info(...) → ApiResponse[Model] (data + status + headers).
+    >       • method_without_preload_content(...) → raw RESTResponseType.
+    >     • Errors / auth:
+    >       • No auth configured (_auth_settings: []).
+    >       • Exceptions bubble as ApiException from rest.py (standard generator behavior).
+    >   
+    >   
+    >     Models & discriminators
+    >   
+    >     • Pydantic models: Each schema is a BaseModel with:
+    >       • model_config = ConfigDict(populate_by_name=True, validate_assignment=True, protected_namespaces=()).
+    >       • to_str(), to_json(), to_dict(), from_json(), from_dict() helpers.
+    >     • Polymorphic types use explicit discriminator support, e.g. AbstractExecutable:
+    >   
+    >   
+    >      /trebula/codegen/python/client/build/calycopis_client/models/abstract_executable.py lines 12-23
+    >   
+    >         __discriminator_property_name: ClassVar[str] = 'kind'
+    >         __discriminator_value_class_map: ClassVar[Dict[str, str]] = {
+    >             'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0':
+    >     'DockerContainer','https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/jupyter-notebook-1.0':
+    >     'JupyterNotebook','https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/singularity-container-1.0': 'SingularityContainer'
+    >         }
+    >         ...
+    >         @classmethod
+    >         def from_dict(cls, obj: Dict[str, Any]) -> Optional[Union[DockerContainer, JupyterNotebook, SingularityContainer]]:
+    >             object_type = cls.get_discriminator_value(obj)
+    >             if object_type ==  'DockerContainer':
+    >                 return import_module("calycopis_client.models.docker_container").DockerContainer.from_dict(obj)
+    >             ...
+    >             raise ValueError("AbstractExecutable failed to lookup discriminator value from " + json.dumps(obj) + ...
+    >   
+    >     • Similar discriminator plumbing exists for AbstractComputeResource, AbstractStorageResource, AbstractDataResource, AbstractExecutionSession, AbstractOption, AbstractUpdate, etc.
+    >     • Implication:
+    >       • When deserializing, the kind URI in payload is looked up and the right concrete class is instantiated.
+    >       • When creating requests, you should instantiate concrete model classes (DockerContainer, SimpleComputeResource, etc.) directly; their to_dict() produces data with kind set
+    >         appropriately.
+    >   
+    >   
+    >     Key usage patterns
+    >   
+    >     • Creating an offer-set request:
+    >   
+    >   
+    >     from calycopis_client import DefaultApi, Configuration, ApiClient
+    >     from calycopis_client.models import (
+    >         OfferSetRequest, DockerContainer, DockerImageSpec,
+    >         SimpleComputeResource, SimpleComputeCores, SimpleComputeMemory
+    >     )
+    >     cfg = Configuration(host="http://localhost:8080")
+    >     with ApiClient(cfg) as client:
+    >         api = DefaultApi(client)
+    >         executable = DockerContainer(
+    >             kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0",
+    >             image=DockerImageSpec(locations=["ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"])
+    >         )
+    >         compute = SimpleComputeResource(
+    >             kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    >             cores=SimpleComputeCores(min=1, max=4),
+    >             memory=SimpleComputeMemory(min=4, max=8),
+    >         )
+    >         req = OfferSetRequest(executable=executable, compute=compute)
+    >         offers = api.offer_set_post(req)
+    >   
+    >     • Handling execution sessions:
+    >       • ExecutionSessionResponseFour is a Pydantic model that wraps oneOf → in practice you’ll inspect its fields (or nested kind) to determine whether you got a SimpleExecutionSession or
+    >         ScheduledExecutionSession.
+    >   
+    >   
+    >     Observations / quirks
+    >   
+    >     • 303 handling for offer_set_post:
+    >       • _response_types_map includes '303': None; the client will still call response_deserialize. If the server returns 303 with empty body and Location header (as spec says), data will
+    >         likely be None and you’ll need to inspect .status_code and .headers via offer_set_post_with_http_info.
+    >     • Regex-heavy scalar formats (ISO-8601 types) are present in models as str fields with patterns; Pydantic will validate them.
+    >     • Discriminator value mapping is strict:
+    >       • If the server ever emits an unknown kind URI, from_dict will raise ValueError.
+    >       • That’s good for early failure but you may want to catch it in client code.
+    >   
+    >     If you tell me your target use (e.g. “build a small CLI that submits executions” or “integrate into a service”), I can sketch concrete helper functions or a thin wrapper around this
+    >     client tailored to that.
+
+The target use is to develop a Python client module that can submit executions setting their phase and polling their status.
+A library that can be used to build a set of test cases for a service.
+
+    >   
+    >     ⬢ To-do Working on 4 to-dos
+    >       ☐ Design a high-level Python client API for submitting executions, setting phase, and polling status on top of calycopis_client
+    >       ☐ Implement a concrete Python wrapper module using calycopis_client models and DefaultApi to submit executions and poll their status
+    >       ☐ Add helper functions or classes that make it easy to write test cases for an ExecutionBroker service using the new client wrapper
+    >       ☐ Document how to use the new client module for submitting executions and polling status
+    >   
+    >     I’ll design a small, higher-level Python API around the generated client specifically for “submit execution & poll status”, and then we can implement it and add some testing helpers.
+    >   
+    >     ⬢ Read 5 files
+    >       … 2 earlier items hidden
+    >       Read ...uild/calycopis_client/models/abstract_update.py
+    >       Read ...calycopis_client/models/integer_delta_update.py
+    >       Read ...ld/calycopis_client/models/enum_value_update.py
+    >   
+    >   
+    >     Proposed high-level client design
+    >   
+    >     • Module: e.g. calycopis_client/execution_client.py (non-generated wrapper around the generated DefaultApi and models).
+    >     • Core class: ExecutionBrokerClient
+    >       • Initialized with a calycopis_client.Configuration or an existing ApiClient.
+    >   
+    >   
+    >     from uuid import UUID
+    >     from datetime import timedelta, datetime
+    >     from time import sleep
+    >     from calycopis_client import ApiClient, Configuration, DefaultApi
+    >     from calycopis_client.models import (
+    >         OfferSetRequest, OfferSetResponse,
+    >         SimpleExecutionSessionPhase,
+    >         EnumValueUpdate,
+    >     )
+    >     class ExecutionBrokerClient:
+    >         def __init__(self, host: str = "http://localhost:8080", api_client: ApiClient | None = None):
+    >             if api_client is None:
+    >                 cfg = Configuration(host=host)
+    >                 api_client = ApiClient(cfg)
+    >             self._api_client = api_client
+    >             self._api = DefaultApi(api_client)
+    >         # 1) Submit execution and obtain an offerset (optionally follow 303 redirect)
+    >         def submit_execution(
+    >             self,
+    >             offer_set_request: OfferSetRequest,
+    >             follow_redirect: bool = True,
+    >         ) -> OfferSetResponse | UUID:
+    >             resp = self._api.offer_set_post_with_http_info(offer_set_request)
+    >             if resp.status_code == 200:
+    >                 return resp.data  # OfferSetResponse
+    >             if resp.status_code == 303:
+    >                 loc = resp.headers.get("Location")
+    >                 # assume /offersets/{uuid}
+    >                 uuid = UUID(loc.rsplit("/", 1)[-1])
+    >                 if not follow_redirect:
+    >                     return uuid
+    >                 return self._api.offer_set_get(uuid)
+    >             raise RuntimeError(f"Unexpected status {resp.status_code} from offer_set_post")
+    >         # 2) Get session by UUID
+    >         def get_session(self, session_uuid: UUID):
+    >             return self._api.execution_session_get(session_uuid)
+    >         # 3) Set session phase (via AbstractUpdate/EnumValueUpdate)
+    >         def set_session_phase(self, session_uuid: UUID, phase: SimpleExecutionSessionPhase, path: str = "/phase"):
+    >             update = EnumValueUpdate(
+    >                 kind="uri:enum-value-update",
+    >                 path=path,
+    >                 value=phase.value,
+    >             )
+    >             return self._api.execution_session_post(session_uuid, update)
+    >         # 4) Poll for phase
+    >         def wait_for_phase(
+    >             self,
+    >             session_uuid: UUID,
+    >             target_phases: set[SimpleExecutionSessionPhase],
+    >             timeout: float = 300.0,
+    >             interval: float = 2.0,
+    >         ):
+    >             deadline = datetime.utcnow() + timedelta(seconds=timeout)
+    >             last = None
+    >             while datetime.utcnow() < deadline:
+    >                 last = self.get_session(session_uuid)
+    >                 sess = last  # ExecutionSessionResponseFour → Simple/Scheduled
+    >                 phase = getattr(sess, "phase", None)
+    >                 if phase in target_phases:
+    >                     return last
+    >                 sleep(interval)
+    >             raise TimeoutError(f"Session {session_uuid} did not reach {target_phases} in {timeout}s")
+    >         # 5) Wait until terminal (for tests)
+    >         def wait_until_terminal(
+    >             self,
+    >             session_uuid: UUID,
+    >             timeout: float = 900.0,
+    >             interval: float = 5.0,
+    >         ):
+    >             terminals = {
+    >                 SimpleExecutionSessionPhase.COMPLETED,
+    >                 SimpleExecutionSessionPhase.FAILED,
+    >                 SimpleExecutionSessionPhase.CANCELLED,
+    >             }
+    >             return self.wait_for_phase(session_uuid, terminals, timeout, interval)
+    >   
+    >   
+    >     How to use in tests
+    >   
+    >     • Typical test flow:
+    >   
+    >   
+    >     from uuid import uuid4
+    >     from calycopis_client.models import (
+    >         OfferSetRequest,
+    >         DockerContainer, DockerImageSpec,
+    >         SimpleComputeResource, SimpleComputeCores, SimpleComputeMemory,
+    >         SimpleExecutionSessionPhase,
+    >     )
+    >     from execution_client import ExecutionBrokerClient  # your wrapper
+    >     def test_simple_execution_broker_flow():
+    >         client = ExecutionBrokerClient(host="http://localhost:8080")
+    >         # 1. Build OfferSetRequest
+    >         exec_ = DockerContainer(
+    >             kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0",
+    >             image=DockerImageSpec(locations=["ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"]),
+    >         )
+    >         compute = SimpleComputeResource(
+    >             kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    >             cores=SimpleComputeCores(min=1, max=1),
+    >             memory=SimpleComputeMemory(min=1, max=1),
+    >         )
+    >         offer_req = OfferSetRequest(executable=exec_, compute=compute)
+    >         # 2. Submit execution and get offerset
+    >         offerset = client.submit_execution(offer_req)
+    >         assert offerset.result == "YES"
+    >         session = offerset.offers[0]
+    >         session_uuid = session.meta.uuid  # assuming service fills this
+    >         # 3. Set phase (e.g. ACCEPTED) and then poll until RUNNING/COMPLETED
+    >         client.set_session_phase(session_uuid, SimpleExecutionSessionPhase.ACCEPTED)
+    >         final = client.wait_until_terminal(session_uuid, timeout=600)
+    >         assert final.phase in {
+    >             SimpleExecutionSessionPhase.COMPLETED,
+    >             SimpleExecutionSessionPhase.FAILED,
+    >             SimpleExecutionSessionPhase.CANCELLED,
+    >         }
+    >   
+    >     This gives you a small, focused library ideal for test cases: submit execution, flip phase via updates, and poll/wait for status.
+    >     If you’d like, I can now materialize this into a concrete execution_client.py module inside the build tree (or wherever you prefer) and add a couple of pytest-style helper functions.
+
+Yes please go ahead and materialize this into a concrete module in this directory /trebula/cursor/python/client/
+
+    >     I’ll create a new execution_client.py wrapper in the requested directory, wired to the generated client and models, and keep it minimal but test-friendly.
+    >   
+    >     ⬢ Globbed, read 1 glob, 1 file
+    >       Globbed "cursor/python/client/**" in .
+    >       Read .
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ cursor/python/client/execution_client.py +182                                                                                                                                            │
+    >     │                                                                                                                                                                                          │
+    >     │ + from __future__ import annotations                                                                                                                                                     │
+    >     │                                                                                                                                                                                          │
+    >     │ + from datetime import datetime, timedelta                                                                                                                                               │
+    >     │ + from time import sleep                                                                                                                                                                 │
+    >     │ + from typing import Iterable, Optional, Set, Union                                                                                                                                      │
+    >     │ + from uuid import UUID                                                                                                                                                                  │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + from calycopis_client import ApiClient, Configuration, DefaultApi                                                                                                                      │
+    >     │ + from calycopis_client.api_response import ApiResponse                                                                                                                                  │
+    >     │ + from calycopis_client.models import (                                                                                                                                                  │
+    >     │ +     OfferSetRequest,                                                                                                                                                                   │
+    >     │ +     OfferSetResponse,                                                                                                                                                                  │
+    >     │  … truncated (171 more lines) · ctrl+r to review                                                                                                                                         │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Summary
+    >   
+    >     • Added an ExecutionBrokerClient wrapper in execution_client.py under cursor/python/client, built on calycopis_client.
+    >     • It provides helpers to submit executions (submit_execution), get sessions, set session phase, and poll/wait for phases, including a convenience wait_until_terminal.
+    >     • The wrapper is designed specifically to support service test cases with simple, high-level operations over the generated client.
+    >   
+
+Could you give a quick example of how to load the wrapper into an interactive Python session.
+
+    >   
+    >     Minimal interactive example
+    >   
+    >     From the repo root (/trebula), start Python:
+    >   
+    >     cd /trebula
+    >     python
+    >   
+    >     In the Python REPL:
+    >   
+    >     import sys
+    >     from pathlib import Path
+    >     # Add this repo to the import path (if not already installed as a package)
+    >     sys.path.append(str(Path(".").resolve()))
+    >     # Import the wrapper and generated models
+    >     from cursor.python.client.execution_client import ExecutionBrokerClient
+    >     from calycopis_client.models import OfferSetRequest
+    >     # Create a client (defaults to http://localhost:8080)
+    >     client = ExecutionBrokerClient()
+    >     # Now you can use it, e.g.:
+    >     # offerset = client.submit_execution(OfferSetRequest())
+
+
+    Test the example in a separate terminal ...
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+    pip install /trebula/codegen/python/client/build/dist/calycopis_client-1.0.3-py3-none-any.whl
+
+    >   ....
+    >   ....
+    >   Installing collected packages: urllib3, typing-extensions, annotated-types, typing-inspection, pydantic-core, pydantic, calycopis-client
+    >   Successfully installed annotated-types-0.7.0 calycopis-client-1.0.3 pydantic-2.12.5 pydantic-core-2.41.5 typing-extensions-4.15.0 typing-inspection-0.4.2 urllib3-2.6.3
+
+
+    python
+
+from uuid import uuid4
+from calycopis_client.models import (
+  OfferSetRequest,
+  DockerContainer, DockerImageSpec,
+  SimpleComputeResource, SimpleComputeCores, SimpleComputeMemory,
+  SimpleExecutionSessionPhase,
+)
+#from execution_client import ExecutionBrokerClient  # your wrapper
+
+import sys
+from pathlib import Path
+
+# Add this repo to the import path (if not already installed as a package)
+sys.path.append(str(Path(".").resolve()))
+
+# Import the wrapper and generated models
+from trebula.cursor.python.client.execution_client import ExecutionBrokerClient
+from calycopis_client.models import OfferSetRequest
+
+# Create the client
+client = ExecutionBrokerClient(host="http://127.0.0.1:8082")
+
+# 1. Build OfferSetRequest
+executable = DockerContainer(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0",
+    image = DockerImageSpec(
+        locations = [
+            "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+            ]
+        )
+    )
+
+compute = SimpleComputeResource(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    cores = SimpleComputeCores(
+        min=1,
+        max=1
+        ),
+    memory = SimpleComputeMemory(
+        min=1,
+        max=1
+        ),
+    )
+
+offer_request = OfferSetRequest(
+    executable = executable,
+    compute = compute
+    )
+
+# 2. Submit execution and get offerset
+offerset = client.submit_execution(
+    offer_request
+    )
+
+assert offerset.result == "NO"
+assert offerset.meta.messages[0].kind == "urn:missing-value"
+assert offerset.meta.messages[0].template == "DockerContainer - image digest is required"
+assert (offerset.offers == None) or (len(offerset.offers) == 0)
+
+# Set the image digest and try again.
+executable.image.digest = "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+
+# 2. Submit execution and get offerset
+offerset = client.submit_execution(
+    offer_request
+    )
+
+session = offerset.offers[0]
+assert session != None
+assert session.meta != None
+assert session.meta.uuid != None
+
+session_uuid = session.meta.uuid  # assuming service fills this
+
+# 3. Set phase (e.g. ACCEPTED) and then poll until RUNNING/COMPLETED
+client.set_session_phase(session_uuid, SimpleExecutionSessionPhase.ACCEPTED)
+
+
+    >   ....
+    >   Traceback (most recent call last):
+    >     File "<python-input-95>", line 2, in <module>
+    >       client.set_session_phase(session_uuid, SimpleExecutionSessionPhase.ACCEPTED)
+    >       ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    >     File "/trebula/cursor/python/client/execution_client.py", line 121, in set_session_phase
+    >       return self._api.execution_session_post(session_uuid, update)
+    >              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+    >     File "/usr/local/lib/python3.13/site-packages/pydantic/_internal/_validate_call.py", line 39, in wrapper_function
+    >       return wrapper(*args, **kwargs)
+    >     File "/usr/local/lib/python3.13/site-packages/pydantic/_internal/_validate_call.py", line 136, in __call__
+    >       res = self.__pydantic_validator__.validate_python(pydantic_core.ArgsKwargs(args, kwargs))
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/api/default_api.py", line 369, in execution_session_post
+    >       return self.api_client.response_deserialize(
+    >              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+    >           response_data=response_data,
+    >           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    >           response_types_map=_response_types_map,
+    >           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    >       ).data
+    >       ^
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/api_client.py", line 321, in response_deserialize
+    >       return_data = self.deserialize(response_text, response_type, content_type)
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/api_client.py", line 428, in deserialize
+    >       return self.__deserialize(data, response_type)
+    >              ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/api_client.py", line 475, in __deserialize
+    >       return self.__deserialize_model(data, klass)
+    >              ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/api_client.py", line 805, in __deserialize_model
+    >       return klass.from_dict(data)
+    >              ~~~~~~~~~~~~~~~^^^^^^
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/models/execution_session_response_four.py", line 82, in from_dict
+    >       return cls.from_json(json.dumps(obj))
+    >              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+    >     File "/usr/local/lib/python3.13/site-packages/calycopis_client/models/execution_session_response_four.py", line 109, in from_json
+    >       raise ValueError("No match found when deserializing the JSON string into ExecutionSessionResponseFour with oneOf schemas: ScheduledExecutionSession, SimpleExecutionSession. Details: " + ", ".join(error_messages))
+    >   ValueError: No match found when deserializing the JSON string into ExecutionSessionResponseFour with oneOf schemas: ScheduledExecutionSession, SimpleExecutionSession. Details: 1 validation error for ExecutionSessionResponseFour
+    >   actual_instance
+    >     Value error, Multiple matches found when setting `actual_instance` in ExecutionSessionResponseFour with oneOf schemas: ScheduledExecutionSession, SimpleExecutionSession. Details:  [type=value_error, input_value=ScheduledExecutionSession...ors=None, schedule=None), input_type=ScheduledExecutionSession]
+    >       For further information visit https://errors.pydantic.dev/2.12/v/value_error, 1 validation error for ExecutionSessionResponseFour
+    >   actual_instance
+    >     Value error, Multiple matches found when setting `actual_instance` in ExecutionSessionResponseFour with oneOf schemas: ScheduledExecutionSession, SimpleExecutionSession. Details:  [type=value_error, input_value=ScheduledExecutionSession...ors=None, schedule=None), input_type=ScheduledExecutionSession]
+    >       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+    >   >>>
+    >   ....
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+final = client.wait_until_terminal(session_uuid, timeout=600)
+assert final.phase in {
+  SimpleExecutionSessionPhase.COMPLETED,
+  SimpleExecutionSessionPhase.FAILED,
+  SimpleExecutionSessionPhase.CANCELLED,
+}
+
+
+
+
+
+
+
+
+
+

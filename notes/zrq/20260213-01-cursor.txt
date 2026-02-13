@@ -1,0 +1,547 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Iterating with the Curson agent and Python tests
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create a Podman Pod and start our database server.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --expose 8082 \
+        --pod calycopis-pod \
+        --name dev-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+
+# -----------------------------------------------------
+# Generate the client and server packages from the schema.
+# These steps should replicate what the GitHub workflow does.
+#[root@developer-tools]
+
+    source /trebula/bin/buildscripts.sh
+
+    installgenerator
+
+    buildschema
+
+    ls -al /trebula/schema/build
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 44985 Feb 13 13:06 execution-broker-1.0.3.yaml
+
+
+    buildpythonclient
+
+    >   ....
+    >   ....
+    >   adding 'calycopis_client-1.0.3.dist-info/top_level.txt'
+    >   adding 'calycopis_client-1.0.3.dist-info/RECORD'
+    >   removing build/bdist.linux-x86_64/wheel
+    >   Successfully built calycopis_client-1.0.3.tar.gz and calycopis_client-1.0.3-py3-none-any.whl
+
+    ls -al /trebula/codegen/python/client/build/dist
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 129117 Feb 13 13:07 calycopis_client-1.0.3-py3-none-any.whl
+    >   -rw-r--r--. 1 root root  57614 Feb 13 13:07 calycopis_client-1.0.3.tar.gz
+
+
+    buildjavaclient
+
+    >   ....
+    >   ....
+    >   [INFO] --- jar:3.4.1:jar (default-jar) @ calycopis-client ---
+    >   [INFO] Building jar: /trebula/codegen/java/client/target/calycopis-client-1.0.3-SNAPSHOT.jar
+    >   [INFO]
+    >   [INFO] --- install:3.1.2:install (default-install) @ calycopis-client ---
+    >   [INFO] Installing /trebula/codegen/java/client/pom.xml to /root/.m2/repository/net/ivoa/calycopis/calycopis-client/1.0.3-SNAPSHOT/calycopis-client-1.0.3-SNAPSHOT.pom
+    >   [INFO] Installing /trebula/codegen/java/client/target/calycopis-client-1.0.3-SNAPSHOT.jar to /root/.m2/repository/net/ivoa/calycopis/calycopis-client/1.0.3-SNAPSHOT/calycopis-client-1.0.3-SNAPSHOT.jar
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  11.452 s
+    >   [INFO] Finished at: 2026-02-13T13:08:05Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+    buildjavaspring
+
+    >   ....
+    >   ....
+    >   [INFO] --- jar:3.4.2:jar (default-jar) @ calycopis-spring ---
+    >   [INFO] Building jar: /trebula/codegen/java/spring/target/calycopis-spring-1.0.3-SNAPSHOT.jar
+    >   [INFO]
+    >   [INFO] --- install:3.1.4:install (default-install) @ calycopis-spring ---
+    >   [INFO] Installing /trebula/codegen/java/spring/pom.xml to /root/.m2/repository/net/ivoa/calycopis/calycopis-spring/1.0.3-SNAPSHOT/calycopis-spring-1.0.3-SNAPSHOT.pom
+    >   [INFO] Installing /trebula/codegen/java/spring/target/calycopis-spring-1.0.3-SNAPSHOT.jar to /root/.m2/repository/net/ivoa/calycopis/calycopis-spring/1.0.3-SNAPSHOT/calycopis-spring-1.0.3-SNAPSHOT.jar
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  11.535 s
+    >   [INFO] Finished at: 2026-02-13T13:08:40Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+# -----------------------------------------------------
+# Build and run the service.
+#[root@developer-tools]
+
+    pushd /calycopis/java
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Install and run the Cursor agent in a separate terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+        curl https://cursor.com/install -fsS | bash
+
+        pushd /trebula
+        agent
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run our Curl tests in a separate terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "3ffd7c99-b74c-406f-8114-3c39d52e88b3"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/3ffd7c99-b74c-406f-8114-3c39d52e88b3"
+    >     created: "2026-02-13T13:31:40.639872545Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >         created: "2026-02-13T13:31:40.737031120Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >           url: "http://127.0.0.1:8082/executables/8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >           created: "2026-02-13T13:31:40.756401285Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT45S"
+    >           available:
+    >             start: "1970-01-01T00:00:45Z/PT0S"
+    >           releasing:
+    >             duration: "PT1S"
+    >         privileged: false
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >           created: "2026-02-13T13:31:40.778653204Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-02-13T13:34:45Z"
+    >             duration: "PT15S"
+    >           available:
+    >             start: "2026-02-13T13:35:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-02-13T15:35:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       phase: "OFFERED"
+    >       expires: "2026-02-13T13:36:40.639873389Z"
+
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "003-status-00-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >     created: "2026-02-13T13:31:40.737031Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >       url: "http://127.0.0.1:8082/executables/8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >       created: "2026-02-13T13:31:40.756401Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >       created: "2026-02-13T13:31:40.778653Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-02-13T13:34:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-02-13T13:35:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-02-13T15:35:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "OFFERED"
+    >   expires: "2026-02-13T13:36:40.639873Z"
+
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/e850a47c-8f71-4a42-a618-6ec831ddf0a0"
+    >     created: "2026-02-13T13:31:40.737031Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >       url: "http://127.0.0.1:8082/executables/8f8b55a0-a2bf-4414-aa7e-51b272e17dc4"
+    >       created: "2026-02-13T13:31:40.756401Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/2a7ca9bd-dbc1-4eae-a2d0-b02103928e08"
+    >       created: "2026-02-13T13:31:40.778653Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-02-13T13:34:45Z"
+    >         start: "2026-02-13T13:35:00Z/PT0S"
+    >         duration: "PT15S"
+    >       available:
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-02-13T15:35:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "ACCEPTED"
+    >   expires: "2026-02-13T13:36:40.639873Z"
+
+
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run our Python tests in a separate terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+pip install  --editable /trebula/codegen/python/client/build/
+
+python
+
+from uuid import uuid4
+from calycopis_client.models import (
+  OfferSetRequest,
+  DockerContainer,
+  DockerImageSpec,
+  SimpleComputeResource,
+  SimpleComputeCores,
+  SimpleComputeMemory,
+  SimpleExecutionSessionPhase,
+  OfferSetRequest
+)
+from calycopis_client.wrappers import ExecutionBrokerClient
+
+# Create the client
+client = ExecutionBrokerClient(host="http://127.0.0.1:8082")
+
+# 1. Build OfferSetRequest
+executable = DockerContainer(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0",
+    image = DockerImageSpec(
+        locations = [
+            "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+            ],
+        digest = "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+        )
+    )
+
+compute = SimpleComputeResource(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    cores = SimpleComputeCores(
+        min=1,
+        max=1
+        ),
+    memory = SimpleComputeMemory(
+        min=1,
+        max=1
+        ),
+    )
+
+offer_request = OfferSetRequest(
+    executable = executable,
+    compute = compute
+    )
+
+# 2. Submit execution and get offerset
+offerset = client.submit_execution(
+    offer_request
+    )
+
+assert offerset.result == "YES"
+assert len(offerset.offers) > 0
+
+session = offerset.offers[0]
+assert session != None
+assert session.meta != None
+assert session.meta.uuid != None
+
+session_uuid = session.meta.uuid
+
+status = client.get_session(
+    session_uuid
+    )
+
+status = client.set_session_phase(
+    session_uuid,
+    SimpleExecutionSessionPhase.ACCEPTED
+    )
+
+pprint(
+    client.get_session(
+        session_uuid
+        ).model_dump()
+    )
+
+    >   {'compute': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0',
+    >                'meta': {'created': datetime.datetime(2026, 2, 13, 13, 43, 59, 59166, tzinfo=TzInfo(0)),
+    >                         'description': None,
+    >                         'messages': None,
+    >                         'modified': None,
+    >                         'name': None,
+    >                         'options': None,
+    >                         'url': 'http://127.0.0.1:8082/compute/dd76a8d8-4228-494d-af57-1b002db94fb5',
+    >                         'uuid': UUID('dd76a8d8-4228-494d-af57-1b002db94fb5')},
+    >                'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
+    >                'schedule': {'available': {'duration': 'PT2H',
+    >                                           'start': '2026-02-13T13:45:00Z/PT0S'},
+    >                             'preparing': {'duration': 'PT15S',
+    >                                           'start': '2026-02-13T13:44:45Z'},
+    >                             'releasing': {'duration': 'PT10S',
+    >                                           'start': '2026-02-13T15:45:05Z'}}},
+    >    'connectors': None,
+    >    'data': None,
+    >    'executable': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0',
+    >                   'meta': {'created': datetime.datetime(2026, 2, 13, 13, 43, 59, 46149, tzinfo=TzInfo(0)),
+    >                            'description': None,
+    >                            'messages': None,
+    >                            'modified': None,
+    >                            'name': None,
+    >                            'options': None,
+    >                            'url': 'http://127.0.0.1:8082/executables/d7d7ecc6-49eb-4dae-9718-a959c1936e2a',
+    >                            'uuid': UUID('d7d7ecc6-49eb-4dae-9718-a959c1936e2a')},
+    >                   'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
+    >                   'schedule': {'available': {'duration': None,
+    >                                              'start': '1970-01-01T00:00:45Z/PT0S'},
+    >                                'preparing': {'duration': 'PT45S', 'start': None},
+    >                                'releasing': {'duration': 'PT1S', 'start': None}}},
+    >    'expires': datetime.datetime(2026, 2, 13, 13, 48, 59, 1966, tzinfo=TzInfo(0)),
+    >    'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0',
+    >    'meta': {'created': datetime.datetime(2026, 2, 13, 13, 43, 59, 35434, tzinfo=TzInfo(0)),
+    >             'description': None,
+    >             'messages': None,
+    >             'modified': None,
+    >             'name': 'no-name-offer-0',
+    >             'options': None,
+    >             'url': 'http://127.0.0.1:8082/sessions/8bf1968c-ab82-4dd8-b81b-8203d11d87a5',
+    >             'uuid': UUID('8bf1968c-ab82-4dd8-b81b-8203d11d87a5')},
+    >    'phase': <SimpleExecutionSessionPhase.ACCEPTED: 'ACCEPTED'>,
+    >    'schedule': None,
+    >    'storage': None,
+    >    'volumes': None}
+
+pprint(
+    client.get_session(
+        session_uuid
+        ).model_dump()
+    )
+
+
+
