@@ -23,17 +23,14 @@
 
 package net.ivoa.calycopis.functional.processing.component;
 
-import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;

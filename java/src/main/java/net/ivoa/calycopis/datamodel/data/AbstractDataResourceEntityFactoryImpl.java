@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactoryImpl;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResource;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
