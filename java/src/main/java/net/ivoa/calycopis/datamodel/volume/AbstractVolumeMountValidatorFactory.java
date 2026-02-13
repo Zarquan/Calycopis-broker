@@ -23,14 +23,11 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
-
 /**
  *
  */
 public interface AbstractVolumeMountValidatorFactory
-extends ValidatorFactory<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+extends AbstractVolumeMountValidator
     {
 
     }

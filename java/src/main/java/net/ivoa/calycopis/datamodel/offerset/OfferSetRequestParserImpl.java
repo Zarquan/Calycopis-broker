@@ -18,6 +18,7 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFact
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
@@ -28,7 +29,10 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
@@ -147,11 +151,17 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())
                 {
-                storageValidators.validate(
+                // TODO Make the validator set the context result.
+                // No need for the nasty class cast in the validator factory.
+                AbstractStorageResourceValidator.Result result = storageValidators.validate(
                     resource,
                     context
                     );
-                // TODO Check the result ?
+                if (result.getEnum() == Validator.ResultEnum.FAILED)
+                    {
+                    log.warn("Storage resource validation failed [{}]", resource);
+                    context.valid(false);
+                    }
                 }
             }
         //
@@ -161,11 +171,17 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractDataResource resource : offersetRequest.getData())
                 {
-                dataValidators.validate(
+                // TODO Make the validator set the context result.
+                // No need for the nasty class cast in the validator factory.
+                AbstractDataResourceValidator.Result result = dataValidators.validate(
                     resource,
                     context
                     );
-                // TODO Check the result ?
+                if (result.getEnum() == Validator.ResultEnum.FAILED)
+                    {
+                    log.warn("Data resource validation failed [{}]", resource);
+                    context.valid(false);
+                    }
                 }
             }
         //
@@ -175,62 +191,63 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractVolumeMount resource : offersetRequest.getVolumes())
                 {
-                volumeValidators.validate(
+                // TODO Make the validator set the context result.
+                // No need for the nasty class cast in the validator factory.
+                AbstractVolumeMountValidator.Result result = volumeValidators.validate(
                     resource,
                     context
                     );
-                // TODO Check the result ?
+                if (result.getEnum() == Validator.ResultEnum.FAILED)
+                    {
+                    log.warn("Volume mount validation failed [{}]", resource);
+                    context.valid(false);
+                    }
                 }
             }
 
         //
-        // Validate the requested compute resources.
+        // Validate the requested compute resource.
         log.debug("Validating the requested compute resources");
-        if (offersetRequest.getCompute() != null)
+        IvoaAbstractComputeResource computeResource = offersetRequest.getCompute();
+        if (computeResource == null)
             {
-            computeValidators.validate(
-                offersetRequest.getCompute(),
-                context
-                );            
-            // TODO Check the result ?
-            }
-        log.debug("Finished validating the resources");
-        
-        // Exit if errors ..
-        
-        //
-        // If we haven't found a compute resource, add a default.
-        log.debug("Checking for empty compute resource list");
-        if (context.getComputeValidatorResults().isEmpty())
-            {
-            log.debug("Adding a default compute resource");
-            IvoaSimpleComputeResource compute = new IvoaSimpleComputeResource()
+            computeResource = new IvoaSimpleComputeResource()
                 .kind(SimpleComputeResource.TYPE_DISCRIMINATOR)
                 .meta(
                     new IvoaComponentMetadata().name(
                         "Default compute resource"
                         )
-                    );
-            
-            computeValidators.validate(
-                compute,
-                context
-                );
-            // TODO Check the result ?
+                    );            
             }
-
-        // Exit if errors ..
+        // TODO Make the validator set the context result.
+        // No need for the nasty class cast in the validator factory.
+        AbstractComputeResourceValidator.Result computeResult = computeValidators.validate(
+            computeResource,
+            context
+            );            
+        if (computeResult.getEnum() == Validator.ResultEnum.FAILED)
+            {
+            log.warn("ComputeResource validation failed [{}]", computeResource);
+            context.valid(false);
+            }
 
         //
         // Validate the requested executable.
         log.debug("Validating the requested executable");
-        if (offersetRequest.getExecutable() != null)
+        IvoaAbstractExecutable executableResource = offersetRequest.getExecutable();
+        if (executableResource != null)
             {
-            executableValidators.validate(
-                offersetRequest.getExecutable(),
+            // TODO Make the validator set the context result.
+            // No need for the nasty class cast in the validator factory.
+            AbstractExecutableValidator.Result executableResult = executableValidators.validate(
+                executableResource,
                 context
                 );
-            // TODO Check the result ?
+            if (computeResult.getEnum() == Validator.ResultEnum.FAILED)
+                {
+                log.warn("ExecutableResource validation failed [{}]", executableResource);
+                context.valid(false);
+                }
             }
         else {
             log.error("Offerset request has no executable");
@@ -251,20 +268,6 @@ public class OfferSetRequestParserImpl
             offersetRequest.getSchedule(),
             context
             );
-        
-        //
-        // This is specific to the CANMFAR platforms.
-        // Fail if we have found too many compute resources,
-        // Other platforms may be able to support more than one compute resources.
-        if (context.getComputeValidatorResults().size() > 1)
-            {
-            log.warn("Found more than one compute resources");
-            context.getOfferSetEntity().addWarning(
-                "urn:not-supported-message",
-                "Multiple compute resources not supported"
-                );
-            context.valid(false);
-            }
         
         return context;
         }

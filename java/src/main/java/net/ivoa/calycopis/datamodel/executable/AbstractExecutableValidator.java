@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
@@ -48,6 +49,15 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
          */
         public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session);
         }
+
+    /**
+     * Validate a component.
+     *
+     */
+    public Result validate(
+        final IvoaAbstractExecutable requested,
+        final OfferSetRequestParserContext context
+        );
 
     /**
      * Simple Bean implementation of an ExecutableValidator result.

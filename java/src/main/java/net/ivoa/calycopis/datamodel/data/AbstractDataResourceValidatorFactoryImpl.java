@@ -94,4 +94,16 @@ public class AbstractDataResourceValidatorFactoryImpl
             resource.getClass().getName()
             );
         }
+    
+    /**
+     * Nasty class cast :-(
+     * 
+     */
+    @Override
+    public AbstractDataResourceValidator.Result validate(
+        final IvoaAbstractDataResource requested,
+        final OfferSetRequestParserContext context
+        ){
+        return (AbstractDataResourceValidator.Result) super.validate(requested, context);
+        }
     }
