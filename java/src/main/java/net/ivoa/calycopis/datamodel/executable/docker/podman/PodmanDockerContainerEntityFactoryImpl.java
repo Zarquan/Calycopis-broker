@@ -60,8 +60,6 @@ public class PodmanDockerContainerEntityFactoryImpl
                 result
                 )
             );
-        //entity.configure(factory);
-        entity.schedule();
 
         return entity ;
         }
