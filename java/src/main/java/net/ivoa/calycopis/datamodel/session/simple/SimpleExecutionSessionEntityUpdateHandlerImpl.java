@@ -126,7 +126,8 @@ implements SimpleExecutionSessionEntityUpdateHandler
         log.debug("Update [{}][{}]", update.getPath(), update.getValue());
         switch(update.getPath())
             {
-            case "phase" :
+            case "phase"  :
+            case "/phase" :
                 try {
                     IvoaSimpleExecutionSessionPhase newphase = IvoaSimpleExecutionSessionPhase.fromValue(
                         update.getValue()
