@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
@@ -49,6 +50,15 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
         public AbstractVolumeMountEntity build(final SimpleExecutionSessionEntity session);
         }
 
+    /**
+     * Validate a component.
+     *
+     */
+    public Result validate(
+        final IvoaAbstractVolumeMount requested,
+        final OfferSetRequestParserContext context
+        );
+    
     /**
      * Simple Bean implementation of a VolumeMountValidator result.
      *

@@ -681,8 +681,12 @@ extends AbstractValidatorImpl
         log.debug("OfferSetRequestParserContextImpl.getTotalPrepareTime()");
         //
         // Time needed to fetch the container image.
-        Long executablePrepareTime = this.executable.getTotalPreparationTime();
-        log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
+        Long executablePrepareTime = 0L ;
+        if (this.executable != null)
+            {
+            executablePrepareTime = this.executable.getTotalPreparationTime();
+            log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
+            }
         //
         // Time needed to create the storage space and stage the data.
         Long maxStoragePrepareTime = 0L ;

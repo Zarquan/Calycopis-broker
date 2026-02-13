@@ -1,0 +1,148 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Document the current design issues
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    Reference links by UUID in the data model.
+        Need to write this up in a page describing the benefits of flattening the tree.
+        This will cause problems generating the JPA classes from the external data model.
+        The external model doesn't represent the internal structure.
+        We need to be clear why we are doing this
+
+    Intervals as strings
+        Replace with start date and integer range
+
+
+    Flat structure or polys within polys
+    volumes
+    accelerators
+        gpu
+        nup nural
+        fpga
+        ...
+    options
+        we alredy have options and the seem to work
+        * options on the session work, we don't know if they work on the components
+
+    Need to write up rational for executable.
+
+        MD5SUM
+        Package it in a Docker container,
+        with a howto in the README,
+        and then add a calycopis.yaml file.
+
+        Newton Raphson
+        Get AI to write a Python implementation for us.
+        Package it in a Docker container,
+        with a howto in the README,
+        and then add a calycopis.yaml file.
+
+        Source Extractor
+        Package it in a Docker container,
+        with a howto in the README,
+        and then add a calycopis.yaml file.
+
+    Need to write up rational for developer/packager/publisher.
+        Linux examples
+
+            Ubuntu and Debian vs RedHat
+            Same software, different layouts.
+            Not critical, but given the choice using established patterns makes things easier to use.
+
+            https://www.linuxserver.io/
+            https://docs.linuxserver.io/
+            https://docs.linuxserver.io/images-by-category/
+            Common set of packages that 'just work'
+            packager  = https://www.linuxserver.io/
+            publisher = https://www.linuxserver.io/
+
+        Can we find examples from the astronomy world ?
+
+    Need to write up benchmark
+
+        Simple example
+            SourceExtractor with eMerlin data, small, medium, large
+            https://www.astromatic.net/software/sextractor/
+            https://sextractor.readthedocs.io/en/latest/Introduction.html
+
+            kind - uri://minmax-float-value
+            mark - uri://sextractor-emerlin-small
+            value:
+              min: 28.4
+
+
+        Use 'kind' to describe the schema structure (int, float etc), and something else to describe the meaning ?
+        We want users to be able to create their own types of benchmark without changing the model.
+
+        kind - uri://minmax-integer-value
+        mark - uri://project-gpu-performance
+
+
+    Can we get unknown/default types to work
+        I OpenAPI, in JavaJson, and in Python ?
+
+
+    Does volume have a kind, or should we simplify it to a basic part of simple-compute ?
+        If volume is just a part of simple compute, then how do we edit it ?
+        As part of the compute node, or as a separate thing.
+        As long as it has a uuid, then not a problem.
+        THIS
+        simple compute has volumes
+        volumes are a basic type, without kind
+        editing uses uuid to separate endpoint
+
+    Templating language with examples.
+        e.g. memory requirements based on data size
+
+    Requested/offered/actual
+        Is this resolved ?
+        Or do we reset/populate during the run
+
+    People want inputs and outputs
+        How do we link those into the EB model ?
+        Generic data reference, input, output, cardinal
+
+    Why does eMerlin need EB ?
+        If all data is local and all compute is local, then why ?
+        Because it also allows local policies - in which case, that is what we should be concentrating on.
+        Develop an internal API for applying policies.
+        basic examples - white list, black list etc ...
+
+
+
+
+
+
+
+

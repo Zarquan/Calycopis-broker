@@ -24,8 +24,6 @@
 package net.ivoa.calycopis.datamodel.component;
 
 import java.net.URI;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;

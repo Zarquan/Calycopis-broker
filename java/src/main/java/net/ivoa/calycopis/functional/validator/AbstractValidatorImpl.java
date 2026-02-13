@@ -121,11 +121,11 @@ public class AbstractValidatorImpl
      * Check for a bad value.
      * 
      */
-    public boolean badValueCheck(
+    public boolean isBadValueCheck(
         final String requested,
         final OfferSetRequestParserContext context
         ){
-        return badValueCheck(
+        return isBadValueCheck(
             requested,
             BAD_VALUE_TRIGGER,
             context
@@ -134,34 +134,70 @@ public class AbstractValidatorImpl
 
     /**
      * Check for a bad value.
-     * TODO Add the location of the bad value.
      * 
      */
-    public boolean badValueCheck(
+    public boolean notBadValueCheck(
+        final String requested,
+        final OfferSetRequestParserContext context
+        ){
+        return notBadValueCheck(
+            requested,
+            BAD_VALUE_TRIGGER,
+            context
+            );
+        }
+    
+    /**
+     * Check for a bad value.
+     * 
+     */
+    public boolean isBadValueCheck(
+        final String requested,
+        final String trigger,
+        final OfferSetRequestParserContext context
+        ){
+        return ! notBadValueCheck(
+            requested,
+            trigger,
+            context
+            );
+        }
+
+    /**
+     * Check for a bad value.
+     * 
+     */
+    public boolean notBadValueCheck(
         final String requested,
         final String trigger,
         final OfferSetRequestParserContext context
         ){
         boolean success = true ;
 
-        String value = notEmpty(
-            requested
-            );
-
-        if (trigger.equals(value))
+        if (requested == null)
             {
-            context.getOfferSetEntity().addWarning(
-                "urn:test-trigger-failed",
-                "Bad value detected [${value}]",
-                Map.of(
-                    "value",
-                    value
-                    )
-                );
-            success = false ;
+            return true ;
             }
-        
-        return success ;
+        else {
+            String value = notEmpty(
+                requested
+                );
+    
+            if (trigger.equals(value))
+                {
+                context.getOfferSetEntity().addWarning(
+                    "urn:test-trigger-failed",
+                    "Bad value detected [${value}]",
+                    Map.of(
+                        "value",
+                        value
+                        )
+                    );
+                success = false ;
+                }
+            
+            return success ;
+            }
         }
 
     /**

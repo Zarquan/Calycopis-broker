@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.component;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Component;

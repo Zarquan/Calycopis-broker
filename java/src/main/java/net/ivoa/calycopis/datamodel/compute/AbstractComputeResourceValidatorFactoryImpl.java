@@ -72,4 +72,18 @@ public class AbstractComputeResourceValidatorFactoryImpl
                 )
             );
         }
+
+    /**
+     * Nasty class cast :-(
+     * 
+     */
+    @Override
+    public AbstractComputeResourceValidator.Result validate(
+        final IvoaAbstractComputeResource requested,
+        final OfferSetRequestParserContext context
+        ){
+        return (AbstractComputeResourceValidator.Result) super.validate(requested, context);
+        }
+    
+    
     }

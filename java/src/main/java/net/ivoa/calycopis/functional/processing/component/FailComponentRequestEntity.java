@@ -23,8 +23,6 @@
 
 package net.ivoa.calycopis.functional.processing.component;
 
-import java.net.URI;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;

@@ -37,9 +37,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetFactory;
+import net.ivoa.calycopis.spring.api.OffersetsApiDelegate;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
-import net.ivoa.calycopis.spring.api.OffersetsApiDelegate;
 
 @Slf4j
 @Service

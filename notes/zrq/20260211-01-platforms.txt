@@ -1,0 +1,393 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Work on the Platforms, heading towards different types of platforms
+        * TestPlatform
+        * KubePlatform
+        * DockerPlatform
+
+        First step is getting the project to build using the separate schema build steps.
+        Need to add the codegen/java/spring project into Eclipse so that we can see the generated classes.
+
+    Result:
+
+        Success - project works using the schema build steps.
+
+
+# -----------------------------------------------------
+# Create new branches.
+#[user@desktop]
+
+    branchname=platforms
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Create a Podman Pod and start our database server.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --expose 8082 \
+        --pod calycopis-pod \
+        --name developer-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+
+# -----------------------------------------------------
+# Generate the client and server packages from the schema.
+# These steps should replicate what the GitHub workflow does.
+#[root@developer-tools]
+
+    source /trebula/bin/buildscripts.sh
+
+    buildpythonclient
+
+    >   ....
+    >   ....
+    >   adding 'calycopis_client-1.0.3.dist-info/top_level.txt'
+    >   adding 'calycopis_client-1.0.3.dist-info/RECORD'
+    >   removing build/bdist.linux-x86_64/wheel
+    >   Successfully built calycopis_client-1.0.3.tar.gz and calycopis_client-1.0.3-py3-none-any.whl
+
+
+    buildjavaclient
+
+    >   ....
+    >   ....
+    >   [INFO] --- install:3.1.2:install (default-install) @ calycopis-client ---
+    >   [INFO] Installing /trebula/codegen/java/client/pom.xml to /root/.m2/repository/net/ivoa/calycopis/calycopis-client/1.0.3-SNAPSHOT/calycopis-client-1.0.3-SNAPSHOT.pom
+    >   [INFO] Installing /trebula/codegen/java/client/target/calycopis-client-1.0.3-SNAPSHOT.jar to /root/.m2/repository/net/ivoa/calycopis/calycopis-client/1.0.3-SNAPSHOT/calycopis-client-1.0.3-SNAPSHOT.jar
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  15.520 s
+    >   [INFO] Finished at: 2026-02-11T16:17:47Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+    buildjavaspring
+
+    >   ....
+    >   ....
+    >   [INFO] --- jar:3.4.2:jar (default-jar) @ calycopis-spring ---
+    >   [INFO] Building jar: /trebula/codegen/java/spring/target/calycopis-spring-1.0.3-SNAPSHOT.jar
+    >   [INFO]
+    >   [INFO] --- install:3.1.4:install (default-install) @ calycopis-spring ---
+    >   [INFO] Installing /trebula/codegen/java/spring/pom.xml to /root/.m2/repository/net/ivoa/calycopis/calycopis-spring/1.0.3-SNAPSHOT/calycopis-spring-1.0.3-SNAPSHOT.pom
+    >   [INFO] Installing /trebula/codegen/java/spring/target/calycopis-spring-1.0.3-SNAPSHOT.jar to /root/.m2/repository/net/ivoa/calycopis/calycopis-spring/1.0.3-SNAPSHOT/calycopis-spring-1.0.3-SNAPSHOT.jar
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  14.448 s
+    >   [INFO] Finished at: 2026-02-11T16:18:40Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+
+    ls -al /trebula/schema/build
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 45123 Feb 11 16:18 execution-broker-1.0.3.yaml
+
+
+    ls -al /trebula/codegen/python/client/build/dist
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 126771 Feb 11 16:13 calycopis_client-1.0.3-py3-none-any.whl
+    >   -rw-r--r--. 1 root root  56375 Feb 11 16:13 calycopis_client-1.0.3.tar.gz
+
+
+    ls -al /trebula/codegen/java/client/target
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 246994 Feb 11 16:17 calycopis-client-1.0.3-SNAPSHOT.jar
+
+
+    ls -al /trebula/codegen/java/spring/target
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root 186237 Feb 11 16:18 calycopis-spring-1.0.3-SNAPSHOT.jar
+
+
+    ls -al ~/.m2/repository/net/ivoa/calycopis/calycopis-client/1.0.3-SNAPSHOT/
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root root    216 Feb 11 16:17 _remote.repositories
+    >   -rw-r--r--. 1 root root 246994 Feb 11 16:17 calycopis-client-1.0.3-SNAPSHOT.jar
+    >   -rw-r--r--. 1 root root   8952 Feb 10 05:33 calycopis-client-1.0.3-SNAPSHOT.pom
+    >   -rw-r--r--. 1 root root    720 Feb 11 16:17 maven-metadata-local.xml
+
+
+# -----------------------------------------------------
+# Build and run the service.
+#[root@developer-tools]
+
+    pushd /calycopis/java
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+
+    >   ....
+    >   ....
+    >   2026-02-11 17:12:01 INFO main H2ConsoleAutoConfiguration log() H2 console available at '/h2-console'. Database available at 'jdbc:postgresql://postgresql:5432/calycopis'
+    >   2026-02-11 17:12:01 INFO main EndpointLinksResolver <init>() Exposing 1 endpoint beneath base path '/actuator'
+    >   2026-02-11 17:12:01 INFO main Http11NioProtocol () Starting ProtocolHandler ["http-nio-8082"]
+    >   2026-02-11 17:12:01 INFO main TomcatWebServer start() Tomcat started on port 8082 (http) with context path '/'
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run a manual test using curl just to check.
+#[root@developer-tools]
+
+    podman exec \
+        --tty \
+        --interactive \
+        developer-tools \
+            bash
+
+    pushd "$(mktemp --directory)"
+
+    cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+    digest: sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245
+schedule:
+  requested:
+    duration: PT1H
+EOF
+
+    cat > "003-accept-00-request.yaml" << EOF
+kind: uri:enum-value-update
+path: phase
+value: ACCEPTED
+EOF
+
+    #
+    # Request a new offerset and accept the first one.
+    createaccept()
+        {
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        > "002-offerset-response.yaml" \
+
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-accept-00-request.yaml" \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "004-accept-00-response.yaml" \
+        | yq '.'
+        }
+
+    checkstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '.'
+        }
+
+    peekstatus()
+        {
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "005-status-00-response.yaml" \
+        | yq '
+            {
+            "phase": .phase,
+            "executable": {
+                "phase": .executable.phase
+                },
+            "compute": {
+                "phase": .compute.phase
+                }
+            }
+            '
+        }
+
+    createaccept
+
+    peekstatus
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "69c3e724-afb4-4652-906f-f97eb6b6dfc1"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/69c3e724-afb4-4652-906f-f97eb6b6dfc1"
+    >     created: "2026-02-11T17:15:49.228231Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "2bc55d89-7a52-455e-b860-d34254e1b37d"
+    >       url: "http://127.0.0.1:8082/executables/2bc55d89-7a52-455e-b860-d34254e1b37d"
+    >       created: "2026-02-11T17:15:49.250827Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT45S"
+    >       available:
+    >         start: "1970-01-01T00:00:45Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     privileged: false
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "6d88d912-2a00-4a1f-ab2d-1b9a34b39a21"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/6d88d912-2a00-4a1f-ab2d-1b9a34b39a21"
+    >       created: "2026-02-11T17:15:49.274850Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-02-11T17:19:45Z"
+    >         duration: "PT15S"
+    >       available:
+    >         start: "2026-02-11T17:20:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-02-11T19:20:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   phase: "ACCEPTED"
+    >   expires: "2026-02-11T17:20:49.121519Z"
+
+
+    >   phase: "PREPARING"
+    >   executable:
+    >     phase: "PREPARING"
+    >   compute:
+    >     phase: "INITIALIZING"
+
+    >   phase: "PREPARING"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "WAITING"
+
+....
+....
+
+    >   phase: "AVAILABLE"
+    >   executable:
+    >     phase: "AVAILABLE"
+    >   compute:
+    >     phase: "AVAILABLE"
+

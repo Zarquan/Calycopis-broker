@@ -23,6 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -49,6 +50,15 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
         public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer);
 
         }
+
+    /**
+     * Validate a component.
+     *
+     */
+    public Result validate(
+        final IvoaAbstractComputeResource requested,
+        final OfferSetRequestParserContext context
+        );
 
     /**
      * Simple Bean implementation of a ComputeResourceValidator result.

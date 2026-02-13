@@ -64,7 +64,7 @@ implements SimpleComputeResourceValidator
         }
     
     @Override
-    public Validator.Result<IvoaAbstractComputeResource, AbstractComputeResourceEntity> validate(
+    public AbstractComputeResourceValidator.Result validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserContext context
         ){

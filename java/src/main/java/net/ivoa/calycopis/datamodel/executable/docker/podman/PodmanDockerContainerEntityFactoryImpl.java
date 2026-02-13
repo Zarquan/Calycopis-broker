@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.planning.TestExecutionStepEntityFactory;
 
 /**
  *
@@ -26,17 +25,13 @@ public class PodmanDockerContainerEntityFactoryImpl
     {
 
     private final PodmanDockerContainerEntityRepository repository;
-
-    private final TestExecutionStepEntityFactory factory;
     
     @Autowired
     public PodmanDockerContainerEntityFactoryImpl(
-        final PodmanDockerContainerEntityRepository repository,
-        final TestExecutionStepEntityFactory factory        
+        final PodmanDockerContainerEntityRepository repository
         ){
         super();
         this.repository = repository;
-        this.factory = factory;
         }
 
     @Override
@@ -65,8 +60,6 @@ public class PodmanDockerContainerEntityFactoryImpl
                 result
                 )
             );
-        //entity.configure(factory);
-        entity.schedule();
 
         return entity ;
         }

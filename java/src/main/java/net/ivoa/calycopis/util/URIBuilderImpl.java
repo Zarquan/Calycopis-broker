@@ -64,7 +64,6 @@ public class URIBuilderImpl implements URIBuilder
                 .resolve(
                     uuid.toString()
                     );
-        log.debug("URI [{}]", result);;
         return result ;
         }
     }
