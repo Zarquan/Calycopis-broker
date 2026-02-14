@@ -25,11 +25,19 @@ package net.ivoa.calycopis.functional.platfom;
 
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
@@ -41,6 +49,13 @@ import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest
 public interface Platform
 extends FactoryBase
     {
+
+    /**
+     * Initialize the platform.
+     *
+     */
+    public void initialize();
+    
     /**
      * Get the DockerContainerEntityFactory for this platform.
      *
@@ -72,6 +87,7 @@ extends FactoryBase
     public ComponentProcessingRequestFactory getComponentProcessingRequestFactory();
     
     
+    public ComputeResourceOfferFactory             getComputeResourceOfferFactory();
     public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory();
     
     public AbstractDataResourceEntityFactory getDataResourceEntityFactory();
@@ -81,6 +97,12 @@ extends FactoryBase
     public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory();
     
     public AbstractLifecycleComponentEntityFactory getLifecycleComponentEntityFactory();
-    
+
+    public AbstractExecutableValidatorFactory       getExecutableValidators();
+    public AbstractStorageResourceValidatorFactory  getStorageResourceValidators();
+    public AbstractDataResourceValidatorFactory     getDataResourceValidators();
+    public AbstractVolumeMountValidatorFactory      getVolumeMountValidators();
+    public AbstractComputeResourceValidatorFactory  getComputeResourceValidators();
+    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory();
     
     }

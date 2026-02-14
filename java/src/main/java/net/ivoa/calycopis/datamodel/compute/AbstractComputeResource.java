@@ -25,20 +25,11 @@ package net.ivoa.calycopis.datamodel.compute;
 
 import java.net.URI;
 
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 
 /**
  * 
  */
-@Table(
-    name = "computeresources"
-    )
-@Inheritance(
-    strategy = InheritanceType.JOINED
-    )
 public interface AbstractComputeResource
     extends LifecycleComponent
     {

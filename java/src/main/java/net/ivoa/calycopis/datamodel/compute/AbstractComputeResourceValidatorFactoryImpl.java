@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 
 /**
@@ -39,7 +39,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 @Slf4j
 @Component
 public class AbstractComputeResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
+    extends ValidatorFactoryImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     implements AbstractComputeResourceValidatorFactory
     {
 

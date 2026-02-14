@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory;
 import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidatorImpl;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
 /**
@@ -39,7 +39,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 @Slf4j
 @Component
 public class AbstractVolumeMountValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+    extends ValidatorFactoryImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
     implements AbstractVolumeMountValidatorFactory
     {
 

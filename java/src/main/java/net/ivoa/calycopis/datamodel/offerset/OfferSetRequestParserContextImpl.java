@@ -18,10 +18,9 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.functional.validator.ValidatorBase;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
@@ -33,7 +32,7 @@ import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
  */
 @Slf4j
 public class OfferSetRequestParserContextImpl
-extends AbstractValidatorImpl
+extends ValidatorBase
     implements OfferSetRequestParserContext
     {
 

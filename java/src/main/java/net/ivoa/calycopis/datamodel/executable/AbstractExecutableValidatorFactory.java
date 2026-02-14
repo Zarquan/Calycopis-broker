@@ -23,12 +23,15 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
+import net.ivoa.calycopis.functional.validator.ValidatorFactory;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
+
 /**
  * Public interface for an Executable ValidatorFactory.
  * 
  */
 public interface AbstractExecutableValidatorFactory
-extends AbstractExecutableValidator
+extends AbstractExecutableValidator, ValidatorFactory<IvoaAbstractExecutable , AbstractExecutableEntity>
     {
-
+    
     }

@@ -41,7 +41,7 @@ import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
  */
 @Slf4j
 public class JupyterNotebookValidatorImpl
-extends AbstractValidatorImpl
+extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
 implements JupyterNotebookValidator
     {
     

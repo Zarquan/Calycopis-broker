@@ -1,0 +1,174 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Challemge Cursor to implement a major change.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=cursor-challenge-02
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Continuing Cursor session from previous notes.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+        curl https://cursor.com/install -fsS | bash
+
+        agent
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    What do we want to do ?
+    Create two sets of entities.
+
+    TestMock classes
+
+        SimpleComputeResourceEntity becomes abstract
+
+        MockSimpleComputeResourceEntity
+        extends SimpleComputeResourceEntity
+
+            Properties for implementing the tests.
+            Prepare resource waits for n x m loops.
+            e.g. 10 x 1sec
+            getPrepareTime() => 10sec
+
+        SimpleComputeResourceEntityFactory
+        replaced by
+        MockSimpleComputeResourceEntityFactory
+
+
+    SimpleComputeResourceValidatorImpl
+    contains a reference to entity factory
+    final SimpleComputeResourceEntityFactory entityFactory;
+
+
+    AbstractComputeResourceValidatorFactoryImpl
+    has a list of validators in its base class
+
+        protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
+
+    which is autowired in the constructor
+
+        @Autowired
+        public AbstractComputeResourceValidatorFactoryImpl(final SimpleComputeResourceEntityFactory simpleComputeEntityFactory)
+            {
+            super();
+            this.validators.add(
+                new SimpleComputeResourceValidatorImpl(
+                    simpleComputeEntityFactory
+                    )
+                );
+            }
+
+    OfferSetRequestParserImpl has a reference to a validator factory
+
+        private final AbstractComputeResourceValidatorFactory computeValidators;
+
+    which is autowired in the constructor
+
+        @Autowired
+        public OfferSetRequestParserImpl(
+            ....
+            final AbstractComputeResourceValidatorFactory computeValidators,
+            ....
+            ){
+            super();
+            ....
+            this.computeValidators    = computeValidators ;
+            ....
+            }
+
+    solution is to use the Platform rather than individual @Autowired parameters
+
+        @Autowired
+        public OfferSetRequestParserImpl(
+            final Platform platform
+            ){
+            super();
+            ....
+            this.platform = platform ;
+            ....
+            }
+
+    Add a layer of abstraction for SessionEntityFactory
+
+        SimpleExecutionSessionEntity
+        should extend
+        AbstractExecutionSessionEntity
+        already done
+
+        SimpleExecutionSessionEntityFactory
+        should extend
+        AbstractExecutionSessionEntityFactory
+
+        public interface AbstractExecutionSessionEntityFactory<EntityType extends AbstractExecutionSession>
+        extends FactoryBase
+            public Optional<EntityType> select(final UUID uuid);
+            ....
+
+    Platform should provide the validators
+
+        public ComputeResourceOfferFactory             getOfferBlockFactory();
+        public AbstractExecutableValidatorFactory      getExecutableValidators();
+        public AbstractStorageResourceValidatorFactory getStorageValidators();
+        public AbstractDataResourceValidatorFactory    getDataValidators();
+        public AbstractVolumeMountValidatorFactory     getVolumeValidators();
+        public AbstractComputeResourceValidatorFactory getComputeValidators();
+        public AbstractExecutionSessionEntityFactory   getExecutionSessionFactory();
+
+
+

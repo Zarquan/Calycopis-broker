@@ -16,9 +16,9 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  * Base class for validator factories.
  * 
  */
-public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends ComponentEntity>
+public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends ComponentEntity>
     extends FactoryBaseImpl
-    implements Validator<ObjectType, EntityType>
+    implements ValidatorFactory<ObjectType, EntityType>
     {
 
     /**
@@ -27,6 +27,16 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
      */
     protected List<Validator<ObjectType, EntityType>> validators = new ArrayList<Validator<ObjectType, EntityType>>();
 
+    /**
+     * Add a validator to our list.
+     * 
+     */
+    public void addValidator(
+        final Validator<ObjectType, EntityType> validator
+        ){
+        this.validators.add(validator);
+        }
+    
     /**
      * Report an unknown type.
      *

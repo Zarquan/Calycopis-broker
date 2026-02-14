@@ -25,13 +25,14 @@ package net.ivoa.calycopis.datamodel.compute;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 
 /**
  * 
  */
 @Slf4j
 public abstract class AbstractComputeResourceValidatorImpl
-extends AbstractValidatorImpl
+extends AbstractValidatorImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
 implements AbstractComputeResourceValidator
     {
 
