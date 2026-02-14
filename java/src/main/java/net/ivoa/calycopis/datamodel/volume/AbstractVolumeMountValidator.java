@@ -54,7 +54,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
      * Validate a component.
      *
      */
-    public Result validate(
+    public void validate(
         final IvoaAbstractVolumeMount requested,
         final OfferSetRequestParserContext context
         );

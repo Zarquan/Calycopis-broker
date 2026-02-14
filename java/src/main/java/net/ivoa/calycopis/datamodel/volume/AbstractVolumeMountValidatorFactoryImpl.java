@@ -73,17 +73,6 @@ public class AbstractVolumeMountValidatorFactoryImpl
             );
         }
 
-    /**
-     * Nasty class cast :-(
-     * 
-     */
-    @Override
-    public AbstractVolumeMountValidator.Result validate(
-        final IvoaAbstractVolumeMount requested,
-        final OfferSetRequestParserContext context
-        ){
-        return (AbstractVolumeMountValidator.Result) super.validate(requested, context);
-        }
     
     }
 

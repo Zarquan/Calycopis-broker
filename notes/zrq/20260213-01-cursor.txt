@@ -398,9 +398,6 @@ EOF
     >   expires: "2026-02-13T13:36:40.639873Z"
 
 
-
-
-
 # -----------------------------------------------------
 # -----------------------------------------------------
 # Run our Python tests in a separate terminal ...
@@ -412,9 +409,9 @@ EOF
         dev-tools \
             bash
 
-pip install  --editable /trebula/codegen/python/client/build/
+    pip install  --editable /trebula/codegen/python/client/build/
 
-python
+    python
 
 from uuid import uuid4
 from calycopis_client.models import (
@@ -484,7 +481,8 @@ status = client.set_session_phase(
     SimpleExecutionSessionPhase.ACCEPTED
     )
 
-pprint(
+import pprint
+pprint.pprint(
     client.get_session(
         session_uuid
         ).model_dump()
@@ -542,6 +540,16 @@ pprint(
         session_uuid
         ).model_dump()
     )
+
+final = client.wait_until_terminal(session_uuid, timeout=600)
+assert final.phase in {
+  SimpleExecutionSessionPhase.COMPLETED,
+  SimpleExecutionSessionPhase.FAILED,
+  SimpleExecutionSessionPhase.CANCELLED,
+}
+
+
+    >   TimeoutError: Session a20c9b26-7cd6-4b31-9a49-7a92ef775561 did not reach phase in ['CANCELLED', 'COMPLETED', 'FAILED'] within 600 seconds
 
 
 

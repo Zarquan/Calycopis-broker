@@ -1,0 +1,1305 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create new branches.
+#[user@desktop]
+
+    branchname=gardening
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+
+    Deleted the symlinks from the schema directories.
+    https://github.com/ivoa/Calycopis-schema/issues/81
+
+    >   	deleted:    schema/v1.0/Calycopis-broker.yaml
+    >   	deleted:    schema/v1.0/types/compute/simple-compute-resource
+    >   	deleted:    schema/v1.0/types/compute/simple-compute-resource-1.0
+    >   	deleted:    schema/v1.0/types/data/S3-data-resource
+    >   	deleted:    schema/v1.0/types/data/S3-data-resource-1.0
+    >   	deleted:    schema/v1.0/types/data/ivoa-data-resource
+    >   	deleted:    schema/v1.0/types/data/ivoa-data-resource-1.0
+    >   	deleted:    schema/v1.0/types/data/rucio-data-resource
+    >   	deleted:    schema/v1.0/types/data/rucio-data-resource-1.0
+    >   	deleted:    schema/v1.0/types/data/simple-data-resource
+    >   	deleted:    schema/v1.0/types/data/simple-data-resource-1.0
+    >   	deleted:    schema/v1.0/types/data/skao-data-resource
+    >   	deleted:    schema/v1.0/types/data/skao-data-resource-1.0
+    >   	deleted:    schema/v1.0/types/executable/docker-container
+    >   	deleted:    schema/v1.0/types/executable/docker-container-1.0
+    >   	deleted:    schema/v1.0/types/executable/jupyter-notebook
+    >   	deleted:    schema/v1.0/types/executable/jupyter-notebook-1.0
+    >   	deleted:    schema/v1.0/types/executable/singularity-container
+    >   	deleted:    schema/v1.0/types/executable/singularity-container-1.0
+    >   	deleted:    schema/v1.0/types/offerset/offerset-request
+    >   	deleted:    schema/v1.0/types/offerset/offerset-request-1.0
+    >   	deleted:    schema/v1.0/types/offerset/offerset-request-1.0.yaml
+    >   	deleted:    schema/v1.0/types/offerset/offerset-response
+    >   	deleted:    schema/v1.0/types/offerset/offerset-response-1.0
+    >   	deleted:    schema/v1.0/types/offerset/offerset-response-1.0.yaml
+    >   	deleted:    schema/v1.0/types/storage/simple-storage-resource
+    >   	deleted:    schema/v1.0/types/storage/simple-storage-resource-1.0
+    >   	deleted:    schema/v1.0/types/volume/simple-volume-mount
+    >   	deleted:    schema/v1.0/types/volume/simple-volume-mount-1.0
+
+    git add schema
+    git commit -m "Deleted symlinks and unused files"
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    #
+    # Run the local build to check everything works ...
+    # 20260214-02-build-test.txt
+    #
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Install and run the Cursor agent in a separate terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+        curl https://cursor.com/install -fsS | bash
+
+        agent
+
+Please analyse the OpenAPI specification at /trebula/schema/build/execution-broker-1.0.3.yaml
+
+    >     ⬢ Read trebula/schema/build/execution-broker-1.0.3.yaml
+    >
+    >     Here is my analysis of the IVOA ExecutionBroker 1.0.3 OpenAPI specification.
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Overview
+    >
+    >     • OpenAPI version: 3.1.0
+    >     • Title: IVOA ExecutionBroker
+    >     • API version: 1.0
+    >     • Author: Dave Morris (openapi.dev@dm92.uk)
+    >     • License: CC-BY-SA-4.0
+    >     • Server: http://localhost:8080 (development only)
+    >
+    >     This API defines an execution brokering service -- a system where clients submit execution requests (describing what to run and what resources are needed), receive back a set of offers
+    >     from the broker, and then manage execution sessions through a lifecycle.
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Endpoints (3 paths, 4 operations)
+    >
+    >
+    >     ┌────────┬───────────────────┬──────────────────────┬─────────────────────────────────────────────┐
+    >     │ Method │ Path              │ OperationId          │ Description                                 │
+    >     ├────────┼───────────────────┼──────────────────────┼─────────────────────────────────────────────┤
+    >     │ POST   │ /offersets        │ OfferSetPost         │ Submit an execution request; receive offers │
+    >     │ GET    │ /offersets/{uuid} │ OfferSetGet          │ Retrieve a previously created offer set     │
+    >     │ GET    │ /sessions/{uuid}  │ ExecutionSessionGet  │ Retrieve an execution session               │
+    >     │ POST   │ /sessions/{uuid}  │ ExecutionSessionPost │ Update an execution session                 │
+    >     └────────┴───────────────────┴──────────────────────┴─────────────────────────────────────────────┘
+    >
+    >     All endpoints support JSON, XML, and YAML content types for both request and response bodies.
+    >
+    >     Notable response patterns
+    >
+    >     • POST /offersets can return either:
+    >       • 303 (redirect) with a Location header pointing to /offersets/{uuid} (async pattern), or
+    >       • 200 with the OfferSetResponse inline (sync pattern)
+    >     • The session POST endpoint accepts AbstractUpdate objects for modifying session state.
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Schema Architecture (55 schemas)
+    >
+    >     The spec uses a heavily polymorphic, inheritance-based design with allOf composition and discriminator mappings. The kind field (a URI) serves as the discriminator across most abstract
+    >     types.
+    >
+    >     Core Domain Model
+    >
+    >     1. Request/Response flow:
+    >     • OfferSetRequest = ExecutionRequestComponents + RequestedScheduleBlock
+    >     • OfferSetResponse = result (YES/NO) + array of AbstractExecutionSession offers
+    >
+    >     2. Execution Components (ExecutionRequestComponents / SimpleExecutionComponents):
+    >
+    >     ┌────────────┬─────────────────────────────┬─────────────────────────┐
+    >     │ Property   │ Type                        │ Purpose                 │
+    >     ├────────────┼─────────────────────────────┼─────────────────────────┤
+    >     │ executable │ AbstractExecutable          │ What to run             │
+    >     │ compute    │ AbstractComputeResource     │ CPU/memory requirements │
+    >     │ storage    │ AbstractStorageResourceList │ Persistent storage      │
+    >     │ volumes    │ AbstractVolumeMountList     │ Filesystem mounts       │
+    >     │ data       │ AbstractDataResourceList    │ Data inputs             │
+    >     └────────────┴─────────────────────────────┴─────────────────────────┘
+    >
+    >     3. Executable types (discriminated by kind URI):
+    >     • DockerContainer -- OCI/Docker containers with image spec, entrypoint, environment, network ports, privileged mode
+    >     • SingularityContainer -- Singularity containers (URL-based location)
+    >     • JupyterNotebook -- Jupyter notebooks (URL-based location)
+    >
+    >     4. Resource types:
+    >     • Compute: SimpleComputeResource with min/max cores and memory (GiB)
+    >     • Storage: SimpleStorageResource with min/max size (GiB)
+    >     • Volumes: SimpleVolumeMount with path, mode (READONLY/READWRITE), cardinality (SINGLE/CONTAINER)
+    >     • Data: 5 concrete types:
+    >       • SimpleDataResource -- plain URL download
+    >       • S3DataResource -- S3 bucket/object
+    >       • RucioDataResource -- Rucio scientific data management
+    >       • IvoaDataResource -- IVOA registry resources (with ObsCore and DataLink metadata)
+    >       • SkaoDataResource -- extends IvoaDataResource with SKA Observatory data lake metadata
+    >
+    >     5. Session types:
+    >     • SimpleExecutionSession -- phase, expiry, components, connectors
+    >     • ScheduledExecutionSession -- extends Simple with a schedule (preparing/available/releasing intervals)
+    >
+    >     6. Session phases (13 states):
+    >     INITIAL -> OFFERED -> ACCEPTED/REJECTED/EXPIRED -> WAITING -> PREPARING -> AVAILABLE -> RUNNING -> RELEASING -> COMPLETED/FAILED/CANCELLED
+    >     7. Update mechanism (discriminated by kind):
+    >     • StringValueUpdate / EnumValueUpdate / IntegerValueUpdate / IntegerDeltaUpdate
+    >     • Each targets a path within the session to modify
+    >
+    >     8. Options mechanism (mirrors updates, offered by server):
+    >     • StringValueOption / EnumValueOption / IntegerValueOption / IntegerDeltaOption
+    >     • Advertises what the client can change, with constraints (patterns, enums, min/max)
+    >
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Design Patterns & Observations
+    >
+    >     Strengths:
+    >     • Clean separation of concerns -- executables, compute, storage, data, and volumes are all independently polymorphic
+    >     • The options/update mechanism is elegant: the server describes what is negotiable (options), and the client responds with specific changes (updates), both using path-based targeting
+    >     • Good use of ISO 8601 patterns for scheduling (instants, durations, intervals)
+    >     • Multi-format support (JSON/XML/YAML) throughout
+    >     • The SkaoDataResource -> IvoaDataResource hierarchy shows good domain specialization
+    >
+    >     Potential concerns:
+    >     • ExecutionRequestComponents and SimpleExecutionComponents are structurally identical but separate schemas -- this could be consolidated
+    >     • LifecycleStartDurationInstant/LifecycleStartDurationInterval and ScheduleStartDurationInstant/ScheduleStartDurationInterval are duplicated pairs with the same structure
+    >     • The LifecyclePhase enum and SimpleExecutionSessionPhase enum overlap significantly but are separate types with slightly different values (LifecyclePhase has INITIALIZING, session has
+    >        INITIAL/OFFERED/ACCEPTED/REJECTED/EXPIRED)
+    >     • Several description fields contain trailing whitespace/newlines (minor formatting issue)
+    >     • POST /sessions/{uuid} response description is a placeholder: "Required description ..."
+    >     • The ISO8601Instant regex has a possessive quantifier (?>...) which may not be supported in all regex engines
+    >     • No error response schemas are defined (no 4xx/5xx responses specified)
+    >     • No authentication/security schemes are defined
+    >     • The DockerContainer.environment points to NameValueMap (additionalProperties map) which is good, but volumes in SimpleComputeResource is just array[string] (references by name/UUID?)
+    >        -- the linkage mechanism between volumes and compute isn't well documented
+    >     • The JupyterNotebook location field has a TODO comment indicating it's still under design
+    >
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Summary
+    >
+    >     This is a well-structured IVOA standard API for brokering scientific computation execution. The core workflow is: request -> offer set -> accept offer -> session lifecycle management. It
+    >      supports containerized workloads (Docker, Singularity) and Jupyter notebooks, with rich support for scientific data infrastructure (S3, Rucio, IVOA registries, SKAO data lake). The
+    >     polymorphic design allows extensibility via new kind URIs without breaking the schema.
+    >
+
+
+The goal for today is to fix some issues with the code base at that /calycopis/java/ implements this API.
+
+    >   Let me explore the codebase structure first.
+    >   ....
+    >   ....
+    >   Got it. This is a substantial Java codebase (208 source files) implementing the IVOA ExecutionBroker API. It's a Spring Boot application using:
+    >   • OpenAPI code generation (likely via openapi-generator-maven-plugin based on the webapp delegate pattern)
+    >   • JPA/Hibernate entities with repository pattern (Entity, EntityRepository, EntityFactory layers)
+    >   • Discriminator-based polymorphism mirroring the OpenAPI spec's abstract types
+    >   • A domain-driven layout under net.ivoa.calycopis:
+    >   • datamodel/ -- core domain: component, compute, data, executable, offerset, session, storage, volume
+    >   • functional/ -- booking, platform (Podman, CANFAR), processing pipeline, validators
+    >   • webapp/ -- Spring Boot application, API delegate implementations
+    >   • util/ -- URI building, YAML conversion, persistence converters
+    >
+    >   What issues would you like me to fix?
+
+
+    https://github.com/ivoa/Calycopis-broker/issues/340
+
+    >     ⬢ WebFetch https://github.com/ivoa/Calycopis-broker/issues/340
+    >
+    >     Let me read the key files referenced in the issue and understand the current validator pattern.
+    >
+    >     ⬢ Read 4 files
+    >       Read ...a/calycopis/functional/validator/Validator.java
+    >       Read ...functional/validator/AbstractValidatorImpl.java
+    >       Read ...opis/functional/validator/ValidatorFactory.java
+    >       Read ...ctional/validator/ValidatorFactoryBaseImpl.java
+    >
+    >     Now let me read the callers and the specific validator implementations referenced in the issue.
+    >
+    >     ⬢ Read 3 files
+    >       Read ...tamodel/offerset/OfferSetRequestParserImpl.java
+    >       Read ...odel/offerset/OfferSetRequestParserContext.java
+    >       Read ...bstractStorageResourceValidatorFactoryImpl.java
+    >
+    >     Now let me read all the validator interfaces and their concrete implementations to understand the full scope of the refactoring.
+    >
+    >     ⬢ Read 15 files
+    >       … 12 earlier items hidden
+    >       Read ...l/compute/AbstractComputeResourceValidator.java
+    >       Read ...te/AbstractComputeResourceValidatorFactory.java
+    >       Read ...bstractComputeResourceValidatorFactoryImpl.java
+    >
+    >     Now let me read the concrete validator implementations to see how they return results.
+    >
+    >     ⬢ Read 4 files
+    >       Read .../simple/SimpleStorageResourceValidatorImpl.java
+    >       Read .../simple/SimpleComputeResourceValidatorImpl.java
+    >       Read ...lume/simple/SimpleVolumeMountValidatorImpl.java
+    >       Read ...ata/simple/SimpleDataResourceValidatorImpl.java
+    >
+    >     Let me read the remaining validators.
+    >
+    >     ⬢ Read 5 files
+    >       … 2 earlier items hidden
+    >       Read ...el/data/ivoa/IvoaDataResourceValidatorImpl.java
+    >       Read ...el/data/skao/SkaoDataResourceValidatorImpl.java
+    >       Read ...del/data/AbstractDataResourceValidatorImpl.java
+    >
+    >     Let me also read the context implementation.
+    >
+    >     ⬢ Read 4 files
+    >       Read .../offerset/OfferSetRequestParserContextImpl.java
+    >       Read ...orage/AbstractStorageResourceValidatorImpl.java
+    >       Read ...mpute/AbstractComputeResourceValidatorImpl.java
+    >       Read ...el/volume/AbstractVolumeMountValidatorImpl.java
+    >
+    >     Now I have a thorough understanding of the codebase. Let me plan the refactoring carefully.
+    >
+    >     The key challenge is that the ValidatorFactoryBaseImpl.validate() loop uses the return value to determine if a validator handled the object (CONTINUE/ACCEPTED/FAILED). With void
+    >     return, we need an alternative.
+    >
+    >     Let me check one more file before I start.
+    >
+    >     ⬢ Read ...a/amazon/AmazonS3DataResourceValidatorImpl.java
+    >
+    >     I now have a thorough understanding of the full scope. Let me create a task plan and start implementing.
+    >
+    >     ⬢ To-do Working on 9 to-dos
+    >       ☐ Core: Change Validator.validate() return type to void
+    >       ☐ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☐ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☐ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☐ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Starting with the core framework changes. The approach is:
+    >     1. Validator.validate() returns void instead of Validator.Result
+    >     2. A dispatched flag on the context lets the factory loop know when a validator has handled the object (ACCEPTED or FAILED)
+    >     3. All the nasty class casts in factory impls become unnecessary
+    >     4. Caller code simplifies since results are already in the context
+    >
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...a/calycopis/functional/validator/Validator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Validator.Result<ObjectType, EntityType> validate(                                                                                                                          │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final ObjectType requested,                                                                                                                                                    │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 8 to-dos • 1 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☐ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☐ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☐ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☐ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now adding the dispatched flag to the context. This follows the existing valid() / valid(boolean) naming pattern.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...odel/offerset/OfferSetRequestParserContext.java +14                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       /**                                                                                                                                                                                │
+    >     │ +      * Flag to indicate that the last validator call was dispatched.                                                                                                                   │
+    >     │ +      * A dispatched validator is one that recognised the object type                                                                                                                   │
+    >     │ +      * and either accepted or rejected the request.                                                                                                                                    │
+    >     │ +      *                                                                                                                                                                                 │
+    >     │ +      */                                                                                                                                                                                │
+    >     │ +     public boolean dispatched();                                                                                                                                                       │
+    >     │ +                                                                                                                                                                                        │
+    >     │ +     /**                                                                                                                                                                                │
+    >     │ +      * Set the dispatched flag.                                                                                                                                                        │
+    >     │ +      *                                                                                                                                                                                 │
+    >     │  … truncated (6 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../offerset/OfferSetRequestParserContextImpl.java +12                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ +     private boolean dispatched = false ;                                                                                                                                               │
+    >     │ +     @Override                                                                                                                                                                          │
+    >     │ +     public boolean dispatched()                                                                                                                                                        │
+    >     │ +         {                                                                                                                                                                              │
+    >     │ +         return this.dispatched;                                                                                                                                                        │
+    >     │ +         }                                                                                                                                                                              │
+    >     │ +     @Override                                                                                                                                                                          │
+    >     │ +     public void dispatched(boolean value)                                                                                                                                              │
+    >     │ +         {                                                                                                                                                                              │
+    >     │ +         this.dispatched = value;                                                                                                                                                       │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 7 to-dos • 2 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☐ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☐ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☐ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now refactoring the ValidatorFactoryBaseImpl loop to return void and use dispatched().
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ctional/validator/ValidatorFactoryBaseImpl.java +5 -12                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public Validator.Result<ObjectType, EntityType> validate(                                                                                                                          │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final ObjectType requested,                                                                                                                                                    │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           for (Validator<ObjectType, EntityType> validator : validators)                                                                                                                 │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             Result<ObjectType, EntityType> result = validator.validate(                                                                                                                │
+    >     │ +             context.dispatched(false);                                                                                                                                                 │
+    >     │ +             validator.validate(                                                                                                                                                        │
+    >     │  … truncated (23 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 6 to-dos • 3 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☐ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☐ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now updating all 5 abstract validator interfaces to change validate() return type to void.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...del/executable/AbstractExecutableValidator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Result validate(                                                                                                                                                            │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractExecutable requested,                                                                                                                                        │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...l/storage/AbstractStorageResourceValidator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Result validate(                                                                                                                                                            │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractStorageResource requested,                                                                                                                                   │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...tamodel/data/AbstractDataResourceValidator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Result validate(                                                                                                                                                            │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...amodel/volume/AbstractVolumeMountValidator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Result validate(                                                                                                                                                            │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractVolumeMount requested,                                                                                                                                       │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...l/compute/AbstractComputeResourceValidator.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public Result validate(                                                                                                                                                            │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractComputeResource requested,                                                                                                                                   │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 5 to-dos • 4 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☐ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now removing all the "nasty class cast" overrides from the 5 factory implementations. These overrides existed solely to cast Validator.Result<O,E> to the domain-specific Result type,
+    >     which is no longer needed with void return.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ble/AbstractExecutableValidatorFactoryImpl.java -11                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     /**                                                                                                                                                                                │
+    >     │ -      * Nasty class cast :-(                                                                                                                                                            │
+    >     │ -      *                                                                                                                                                                                 │
+    >     │ -      */                                                                                                                                                                                │
+    >     │ -     @Override                                                                                                                                                                          │
+    >     │ -     public AbstractExecutableValidator.Result validate(                                                                                                                                │
+    >     │ -         final IvoaAbstractExecutable requested,                                                                                                                                        │
+    >     │ -         final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │ -         ){                                                                                                                                                                             │
+    >     │ -         return (AbstractExecutableValidator.Result) super.validate(requested, context);                                                                                                │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...bstractStorageResourceValidatorFactoryImpl.java -11                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     /**                                                                                                                                                                                │
+    >     │ -      * Nasty class cast :-(                                                                                                                                                            │
+    >     │ -      *                                                                                                                                                                                 │
+    >     │ -      */                                                                                                                                                                                │
+    >     │ -     @Override                                                                                                                                                                          │
+    >     │ -     public AbstractStorageResourceValidator.Result validate(                                                                                                                           │
+    >     │ -         final IvoaAbstractStorageResource requested,                                                                                                                                   │
+    >     │ -         final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │ -         ){                                                                                                                                                                             │
+    >     │ -         return (AbstractStorageResourceValidator.Result) super.validate(requested, context);                                                                                           │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...a/AbstractDataResourceValidatorFactoryImpl.java +1 -12                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │               );                                                                                                                                                                         │
+    >     │           }                                                                                                                                                                              │
+    >     │ -                                                                                                                                                                                        │
+    >     │ -     /**                                                                                                                                                                                │
+    >     │ -      * Nasty class cast :-(                                                                                                                                                            │
+    >     │ -      *                                                                                                                                                                                 │
+    >     │ -      */                                                                                                                                                                                │
+    >     │ -     @Override                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ -         final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │ -         final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │ -         ){                                                                                                                                                                             │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...me/AbstractVolumeMountValidatorFactoryImpl.java -11                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     /**                                                                                                                                                                                │
+    >     │ -      * Nasty class cast :-(                                                                                                                                                            │
+    >     │ -      *                                                                                                                                                                                 │
+    >     │ -      */                                                                                                                                                                                │
+    >     │ -     @Override                                                                                                                                                                          │
+    >     │ -     public AbstractVolumeMountValidator.Result validate(                                                                                                                               │
+    >     │ -         final IvoaAbstractVolumeMount requested,                                                                                                                                       │
+    >     │ -         final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │ -         ){                                                                                                                                                                             │
+    >     │ -         return (AbstractVolumeMountValidator.Result) super.validate(requested, context);                                                                                               │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...bstractComputeResourceValidatorFactoryImpl.java -12                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     /**                                                                                                                                                                                │
+    >     │ -      * Nasty class cast :-(                                                                                                                                                            │
+    >     │ -      *                                                                                                                                                                                 │
+    >     │ -      */                                                                                                                                                                                │
+    >     │ -     @Override                                                                                                                                                                          │
+    >     │ -     public AbstractComputeResourceValidator.Result validate(                                                                                                                           │
+    >     │ -         final IvoaAbstractComputeResource requested,                                                                                                                                   │
+    >     │ -         final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │ -         ){                                                                                                                                                                             │
+    >     │ -         return (AbstractComputeResourceValidator.Result) super.validate(requested, context);                                                                                           │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 4 to-dos • 5 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☒ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☐ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now updating all 9 concrete validator implementations. Each needs: (1) void return type, (2) call context.dispatched(true) when handling (ACCEPTED or FAILED), (3) do nothing on
+    >     CONTINUE.
+    >     Starting with the executable validators:
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...utable/docker/DockerContainerValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractExecutableValidator.Result validate(                                                                                                                                │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractExecutable requested,                                                                                                                                        │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaDockerContainer)                                                                                                                                  │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaDockerContainer) requested,                                                                                                                                       │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...utable/docker/DockerContainerValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractExecutableValidator.Result validate(                                                                                                                                │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaDockerContainer requested,                                                                                                                                           │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...utable/docker/DockerContainerValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   result                                                                                                                                                                 │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return result;                                                                                                                                                             │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │               log.debug("FAIL DockerContainer NOT validated [{}]", validated);                                                                                                           │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...table/jupyter/JupyterNotebookValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractExecutableValidator.Result validate(                                                                                                                                │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractExecutable requested,                                                                                                                                        │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaJupyterNotebook)                                                                                                                                  │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaJupyterNotebook) requested,                                                                                                                                       │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...table/jupyter/JupyterNotebookValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractExecutableValidator.Result validate(                                                                                                                                │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaJupyterNotebook requested,                                                                                                                                           │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...table/jupyter/JupyterNotebookValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   result                                                                                                                                                                 │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return result;                                                                                                                                                             │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now the storage validator:
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleStorageResourceValidatorImpl.java +7 -8                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractStorageResourceValidator.Result validate(                                                                                                                           │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractStorageResource requested,                                                                                                                                   │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │               {                                                                                                                                                                          │
+    >     │               case IvoaSimpleStorageResource simple:                                                                                                                                     │
+    >     │ -                 return validate(                                                                                                                                                       │
+    >     │ -                         simple,                                                                                                                                                        │
+    >     │ -                         context                                                                                                                                                        │
+    >     │  … truncated (13 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleStorageResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractStorageResourceValidator.Result validate(                                                                                                                           │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaSimpleStorageResource requested,                                                                                                                                     │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleStorageResourceValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   storageResult                                                                                                                                                          │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return storageResult;                                                                                                                                                      │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now the compute validator:
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleComputeResourceValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractComputeResourceValidator.Result validate(                                                                                                                           │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractComputeResource requested,                                                                                                                                   │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaSimpleComputeResource )                                                                                                                           │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaSimpleComputeResource) requested,                                                                                                                                 │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleComputeResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractComputeResourceValidator.Result validate(                                                                                                                           │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaSimpleComputeResource requested,                                                                                                                                     │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../simple/SimpleComputeResourceValidatorImpl.java +2 -5                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   maxmemory                                                                                                                                                              │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -                                                                                                                                                                                        │
+    >     │ -             return result;                                                                                                                                                             │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now the volume mount validator:
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...lume/simple/SimpleVolumeMountValidatorImpl.java +7 -8                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractVolumeMountValidator.Result validate(                                                                                                                               │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractVolumeMount requested,                                                                                                                                       │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │               {                                                                                                                                                                          │
+    >     │               case IvoaSimpleVolumeMount simple:                                                                                                                                         │
+    >     │ -                 return validate(                                                                                                                                                       │
+    >     │ -                         simple,                                                                                                                                                        │
+    >     │ -                         context                                                                                                                                                        │
+    >     │  … truncated (13 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...lume/simple/SimpleVolumeMountValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractVolumeMountValidator.Result validate(                                                                                                                               │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaSimpleVolumeMount requested,                                                                                                                                         │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...lume/simple/SimpleVolumeMountValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   volumeResult                                                                                                                                                           │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return volumeResult;                                                                                                                                                       │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now the data resource validators (Simple, Ivoa, Skao, AmazonS3):
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaSimpleDataResource)                                                                                                                               │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaSimpleDataResource) requested,                                                                                                                                    │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaSimpleDataResource requested,                                                                                                                                        │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   dataResult                                                                                                                                                             │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return dataResult ;                                                                                                                                                        │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaIvoaDataResource)                                                                                                                                 │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaIvoaDataResource) requested,                                                                                                                                      │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaIvoaDataResource requested,                                                                                                                                          │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   dataResult                                                                                                                                                             │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return dataResult ;                                                                                                                                                        │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaSkaoDataResource)                                                                                                                                 │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaSkaoDataResource) requested,                                                                                                                                      │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │           }                                                                                                                                                                              │
+    >     │                                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaSkaoDataResource requested,                                                                                                                                          │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +2 -4                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   dataResult                                                                                                                                                             │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -             return dataResult ;                                                                                                                                                        │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │ -                 );                                                                                                                                                                     │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     And the AmazonS3 validator:
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +2 -7                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @Override                                                                                                                                                                          │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaAbstractDataResource requested,                                                                                                                                      │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           if (requested instanceof IvoaS3DataResource)                                                                                                                                   │
+    >     │               {                                                                                                                                                                          │
+    >     │ -             return validate(                                                                                                                                                           │
+    >     │ +             validate(                                                                                                                                                                  │
+    >     │                   (IvoaS3DataResource) requested,                                                                                                                                        │
+    >     │  … truncated (10 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │        *                                                                                                                                                                                 │
+    >     │        */                                                                                                                                                                                │
+    >     │ -     public AbstractDataResourceValidator.Result validate(                                                                                                                              │
+    >     │ +     public void validate(                                                                                                                                                              │
+    >     │           final IvoaS3DataResource requested,                                                                                                                                            │
+    >     │           final OfferSetRequestParserContext context                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +2 -5                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                   dataResult                                                                                                                                                             │
+    >     │                   );                                                                                                                                                                     │
+    >     │ -                                                                                                                                                                                        │
+    >     │ -             return dataResult ;                                                                                                                                                        │
+    >     │ +             context.dispatched(true);                                                                                                                                                  │
+    >     │               }                                                                                                                                                                          │
+    >     │           //                                                                                                                                                                             │
+    >     │  ...                                                                                                                                                                                     │
+    >     │           else {                                                                                                                                                                         │
+    >     │               context.valid(false);                                                                                                                                                      │
+    >     │ -             return new ResultBean(                                                                                                                                                     │
+    >     │ -                 Validator.ResultEnum.FAILED                                                                                                                                            │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 3 to-dos • 6 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☒ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☒ Concrete validators: Return void, set dispatched (9 files)
+    >       ☐ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now refactoring AbstractDataResourceValidatorImpl.storageCheck() which calls storageValidators.validate() and uses its return value. Since validate() now returns void, we look up the
+    >     result from the context instead.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...del/data/AbstractDataResourceValidatorImpl.java +10 -8                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │               //                                                                                                                                                                         │
+    >     │               // Validate the new StorageResource.                                                                                                                                       │
+    >     │ -             storageResult = storageValidators.validate(                                                                                                                                │
+    >     │ +             storageValidators.validate(                                                                                                                                                │
+    >     │                   storageResource,                                                                                                                                                       │
+    >     │                   context                                                                                                                                                                │
+    >     │  ...                                                                                                                                                                                     │
+    >     │                                                                                                                                                                                          │
+    >     │               //                                                                                                                                                                         │
+    >     │ +             // Find the validation result in the context.                                                                                                                              │
+    >     │ +             storageResult = context.findStorageValidatorResult(                                                                                                                        │
+    >     │ +                 storageResource                                                                                                                                                        │
+    >     │  … truncated (23 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 2 to-dos • 7 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☒ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☒ Concrete validators: Return void, set dispatched (9 files)
+    >       ☒ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☐ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now simplifying OfferSetRequestParserImpl.validate() - the callers no longer need to check the returned Validator.Result since the validators already set context.valid(false) on
+    >     failure.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...tamodel/offerset/OfferSetRequestParserImpl.java +6 -41                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │               for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())                                                                                                  │
+    >     │                   {                                                                                                                                                                      │
+    >     │ -                 // TODO Make the validator set the context result.                                                                                                                     │
+    >     │ -                 // No need for the nasty class cast in the validator factory.                                                                                                          │
+    >     │ -                 AbstractStorageResourceValidator.Result result = storageValidators.validate(                                                                                           │
+    >     │ +                 storageValidators.validate(                                                                                                                                            │
+    >     │                       resource,                                                                                                                                                          │
+    >     │                       context                                                                                                                                                            │
+    >     │                       );                                                                                                                                                                 │
+    >     │ -                 if (result.getEnum() == Validator.ResultEnum.FAILED)                                                                                                                   │
+    >     │ -                     {                                                                                                                                                                  │
+    >     │ -                     log.warn("Storage resource validation failed [{}]", resource);                                                                                                     │
+    >     │  … truncated (73 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now let me also clean up the unused imports in OfferSetRequestParserImpl.java.
+    >
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...tamodel/offerset/OfferSetRequestParserImpl.java -1                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │   import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;                                                                                                      │
+    >     │   import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;                                                                                                                          │
+    >     │ - import net.ivoa.calycopis.functional.validator.Validator;                                                                                                                              │
+    >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;                                                                                                                    │
+    >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;                                                                                                                       │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 1 to-do • 8 done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☒ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☒ Concrete validators: Return void, set dispatched (9 files)
+    >       ☒ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☒ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☐ Build and verify compilation
+    >
+    >     Now let's build and verify the compilation.
+    >
+    >     $ cd /calycopis/java && ./mvnw compile 2>&1 | tail -80 16s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (30 more lines) · ctrl+o to expand
+    >
+    >     Build succeeds. Let me also clean up the now-unused import in OfferSetRequestParserImpl.java.
+    >
+    >     ⬢ Read ...tamodel/offerset/OfferSetRequestParserImpl.java lines 2-46
+    >
+    >     Build succeeds with all 208 source files compiled. Let me also remove unused imports from the files that were cleaned up.
+    >
+    >     ⬢ Read ...ctional/validator/ValidatorFactoryBaseImpl.java lines 2-16
+    >
+    >     Good, that's clean. Let me also check that the concrete validator files don't have dangling Validator imports that are no longer needed.
+    >
+    >     ⬢ Grepped "...is\.functional\.validator\.Validator;" in calycopis/java/src
+    >       Found 14 matches
+    >
+    >     The Validator import is still used in all those files -- they reference Validator.ResultEnum.ACCEPTED when constructing success result beans. The build is clean. Let me verify with a
+    >     full test as well.
+    >
+    >     $ cd /calycopis/java && ./mvnw compile -q 2>&1 | grep -E "ERROR|WARN|BUILD" 14s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (7 more lines) · ctrl+o to expand
+    >
+    >     ⬢ To-do All done
+    >       ☒ Core: Change Validator.validate() return type to void
+    >       ☒ Core: Add dispatched() flag to OfferSetRequestParserContext + Impl
+    >       ☒ Core: Refactor ValidatorFactoryBaseImpl loop to use dispatched flag
+    >       ☒ Abstract validators: Change validate return to void (5 interfaces)
+    >       ☒ Factory impls: Remove nasty class cast overrides (5 files)
+    >       ☒ Concrete validators: Return void, set dispatched (9 files)
+    >       ☒ AbstractDataResourceValidatorImpl.storageCheck: Refactor to use context lookup
+    >       ☒ OfferSetRequestParserImpl: Simplify validation calls
+    >       ☒ Build and verify compilation
+    >
+    >     Clean build, no errors. Here's a summary of the refactoring for issue #340:
+    >
+    >     ────────────────────────────────────────
+    >
+    >     Changes across 24 files:
+    >     1. `Validator.validate()` now returns `void` (Validator.java)
+    >     • The return type changed from Validator.Result<ObjectType, EntityType> to void. Validators add their results directly to the context, so the return value was redundant.
+    >
+    >     2. New `dispatched()` flag on context (OfferSetRequestParserContext.java, OfferSetRequestParserContextImpl.java)
+    >     • Added dispatched(boolean) / dispatched() methods to track whether a validator recognised and handled the object. This replaces the CONTINUE/ACCEPTED/FAILED return-value dispatch
+    >       mechanism.
+    >
+    >     3. Factory loop refactored (ValidatorFactoryBaseImpl.java)
+    >     • The loop now resets context.dispatched(false) before each validator call and checks context.dispatched() after. If dispatched, the factory returns immediately; if no validator
+    >       handles the object, unknown() is called.
+    >
+    >     4. All 5 abstract validator interfaces changed validate() to return void.
+    >     5. All 5 factory impls had their "Nasty class cast :-(" overrides removed entirely. These existed solely to cast Validator.Result<O,E> to the domain-specific Result subtype, which is
+    >     unnecessary with void.
+    >     6. All 9 concrete validators updated:
+    >     • validate() methods return void
+    >     • The CONTINUE case (type mismatch) now simply returns without doing anything
+    >     • The ACCEPTED and FAILED cases call context.dispatched(true) to signal they handled the object
+    >
+    >     7. `AbstractDataResourceValidatorImpl.storageCheck()` refactored to look up the storage result from the context after the void validate call, instead of using the return value.
+    >     8. `OfferSetRequestParserImpl.validate()` significantly simplified -- all the result.getEnum() == FAILED checks and context.valid(false) calls are removed since validators now handle
+    >     this internally. This also fixed a pre-existing bug where computeResult.getEnum() was checked instead of executableResult.getEnum() on line 246.
+    >
+
+    #
+    # WOW - mind blown !!!
+    #
+
+# -----------------------------------------------------
+
+    #
+    # Run the local build to check everything works ...
+    # 20260214-02-build-test.txt
+    #
+
+# -----------------------------------------------------
+
+    #
+    # Run Meld to check the changes look OK ....
+    #
+
+    meld . &
+
+    git status
+
+    >   On branch 20260214-zrq-gardening
+    >   Changes not staged for commit:
+    >     (use "git add <file>..." to update what will be committed)
+    >     (use "git restore <file>..." to discard changes in working directory)
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResourceValidator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/compute/AbstractComputeResourceValidatorFactoryImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/SimpleComputeResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorFactoryImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/data/skao/SkaoDataResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/executable/AbstractExecutableValidatorFactoryImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/executable/jupyter/JupyterNotebookValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContext.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceValidator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/storage/AbstractStorageResourceValidatorFactoryImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/volume/AbstractVolumeMountValidator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/volume/AbstractVolumeMountValidatorFactoryImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/volume/simple/SimpleVolumeMountValidatorImpl.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/functional/validator/Validator.java
+    >   	modified:   java/src/main/java/net/ivoa/calycopis/functional/validator/ValidatorFactoryBaseImpl.java
+    >   	modified:   notes/zrq/20260212-01-cursor.txt
+    >   	modified:   notes/zrq/20260213-01-cursor.txt
+    >
+    >   Untracked files:
+    >     (use "git add <file>..." to include in what will be committed)
+    >   	notes/zrq/20260213-02-notes.txt
+    >   	notes/zrq/20260214-01-gardening.txt
+    >   	notes/zrq/20260214-02-build-test.txt
+
+
+    git add java
+    git commit -m "Cursor (Claude 4.6 Opus) fixed issue #340"
+
+
+# -----------------------------------------------------
+
+    #
+    # Check usage stats for my account.
+    # https://cursor.com/dashboard?tab=usage
+
+    Feb 14, 11:52 AM    pro-free-trial  claude-4.6-opus-high-thinking   9.4M    US$6.43 Included
+    Feb 14, 11:51 AM    pro-free-trial  claude-4.6-opus-high-thinking   104.7K  US$0.24 Included
+    Feb 14, 11:48 AM    pro-free-trial  claude-4.6-opus-high-thinking   38.9K   US$0.16 Included
+
+    #
+    # Looks like that last one used 9.4M tokens, at a cost of US $6.43
+    #
+
+
+
+

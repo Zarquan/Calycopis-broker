@@ -178,14 +178,20 @@ implements AbstractDataResourceValidator
 
             //
             // Validate the new StorageResource.
-            storageResult = storageValidators.validate(
+            storageValidators.validate(
                 storageResource,
                 context
                 );
 
             //
+            // Find the validation result in the context.
+            storageResult = context.findStorageValidatorResult(
+                storageResource
+                );
+
+            //
             // If the new storage was accepted, add a reference to our data resource.
-            if (ResultEnum.ACCEPTED.equals(storageResult.getEnum()))
+            if (storageResult != null)
                 {
                 if (null != storageResult.getObject())
                     {
@@ -202,14 +208,10 @@ implements AbstractDataResourceValidator
                     }
                 }
             else {
-                log.warn("Unexpected storage result state [{}]", storageResult.getEnum());
+                log.warn("Storage validation failed");
                 context.getOfferSetEntity().addWarning(
                     "urn:storage-required",
-                    "Unable to assign storage resource",
-                    Map.of(
-                        "storageref",
-                        requested.getStorage()
-                        )
+                    "Unable to assign storage resource"
                     );
                 success = false ;
                 }

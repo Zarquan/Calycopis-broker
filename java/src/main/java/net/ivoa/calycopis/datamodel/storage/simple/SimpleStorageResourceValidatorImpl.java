@@ -59,7 +59,7 @@ implements SimpleStorageResourceValidator
         }
     
     @Override
-    public AbstractStorageResourceValidator.Result validate(
+    public void validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -68,14 +68,13 @@ implements SimpleStorageResourceValidator
         switch(requested)
             {
             case IvoaSimpleStorageResource simple:
-                return validate(
-                        simple,
-                        context
-                        );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
+                validate(
+                    simple,
+                    context
                     );
+                break;
+            default:
+                break;
             }
         }
 
@@ -83,7 +82,7 @@ implements SimpleStorageResourceValidator
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public AbstractStorageResourceValidator.Result validate(
+    public void validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -153,15 +152,13 @@ implements SimpleStorageResourceValidator
             context.addStorageValidatorResult(
                 storageResult 
                 );
-            return storageResult;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
     }

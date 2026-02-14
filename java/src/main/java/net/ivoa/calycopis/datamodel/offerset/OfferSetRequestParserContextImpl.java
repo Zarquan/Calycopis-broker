@@ -97,6 +97,18 @@ extends AbstractValidatorImpl
         this.valid = false;
         }
 
+    private boolean dispatched = false ;
+    @Override
+    public boolean dispatched()
+        {
+        return this.dispatched;
+        }
+    @Override
+    public void dispatched(boolean value)
+        {
+        this.dispatched = value;
+        }
+
     private AbstractExecutableValidator.Result executable;
     @Override
     public AbstractExecutableValidator.Result getExecutableResult()

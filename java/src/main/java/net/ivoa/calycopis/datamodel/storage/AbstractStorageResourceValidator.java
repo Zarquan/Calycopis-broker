@@ -72,7 +72,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * Validate a component.
      *
      */
-    public Result validate(
+    public void validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserContext context
         );

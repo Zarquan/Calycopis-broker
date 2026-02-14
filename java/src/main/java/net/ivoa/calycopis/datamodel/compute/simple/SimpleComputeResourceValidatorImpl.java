@@ -64,7 +64,7 @@ implements SimpleComputeResourceValidator
         }
     
     @Override
-    public AbstractComputeResourceValidator.Result validate(
+    public void validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -72,14 +72,9 @@ implements SimpleComputeResourceValidator
         log.debug("Resource [{}]", requested);
         if (requested instanceof IvoaSimpleComputeResource )
             {
-            return validate(
+            validate(
                 (IvoaSimpleComputeResource) requested,
                 context
-                );
-            }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
                 );
             }
         }
@@ -116,7 +111,7 @@ implements SimpleComputeResourceValidator
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public AbstractComputeResourceValidator.Result validate(
+    public void validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -137,13 +132,18 @@ implements SimpleComputeResourceValidator
         Long mincores = MIN_CORES_DEFAULT;
         Long maxcores = MIN_CORES_DEFAULT;
 
-        Boolean minimalcores  = false;
-
         if (requested.getCores() != null)
             {
-            mincores = requested.getCores().getMin();
-            maxcores = requested.getCores().getMax();
+            if (requested.getCores().getMin() != null)
+                {
+                mincores = requested.getCores().getMin();
+                }
+            if (requested.getCores().getMax() != null)
+                {
+                maxcores = requested.getCores().getMax();
+                }
             }
+        
         if (mincores > MAX_CORES_LIMIT)
             {
             context.getOfferSetEntity().addWarning(
@@ -328,16 +328,13 @@ implements SimpleComputeResourceValidator
             context.addMaxMemory(
                 maxmemory
                 );
-            
-            return result;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
 
