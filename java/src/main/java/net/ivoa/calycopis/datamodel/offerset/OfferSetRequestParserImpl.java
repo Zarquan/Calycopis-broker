@@ -119,6 +119,9 @@ public class OfferSetRequestParserImpl
             offersetEntity
             );
         //
+        // Register all the resources and assign UUIDs.
+        context.registerResources();
+        //
         // Validate the request.
         validate(
             context

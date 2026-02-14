@@ -107,7 +107,7 @@ implements SimpleDataResourceValidator
             validated,
             context
             );
-        success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
+        success &= (storage != null) && ResultEnum.ACCEPTED.equals(storage.getEnum());
 
         String location = trim(
             requested.getLocation()

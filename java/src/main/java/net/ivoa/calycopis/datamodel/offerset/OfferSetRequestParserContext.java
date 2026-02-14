@@ -61,6 +61,17 @@ public interface OfferSetRequestParserContext
     public void valid(boolean value);
 
     /**
+     * Register all the resources in the request.
+     * This assigns UUIDs to all resources and
+     * pre-registers storage resources in the
+     * context lookup maps, so that cross-references
+     * between resources can be resolved regardless
+     * of validation order.
+     *
+     */
+    public void registerResources();
+
+    /**
      * Flag to indicate that the last validator call was dispatched.
      * A dispatched validator is one that recognised the object type
      * and either accepted or rejected the request.

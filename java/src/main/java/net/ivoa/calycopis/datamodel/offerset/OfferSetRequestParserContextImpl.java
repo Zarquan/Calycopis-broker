@@ -19,7 +19,9 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
+import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
@@ -109,6 +111,115 @@ extends AbstractValidatorImpl
         this.dispatched = value;
         }
 
+    /**
+     * Ensure that a ComponentMetadata block exists and has a UUID.
+     *
+     */
+    private IvoaComponentMetadata ensureUuid(IvoaComponentMetadata meta)
+        {
+        if (meta == null)
+            {
+            meta = new IvoaComponentMetadata();
+            }
+        if (meta.getUuid() == null)
+            {
+            meta.uuid(UUID.randomUUID());
+            }
+        return meta;
+        }
+
+    @Override
+    public void registerResources()
+        {
+        log.debug("registerResources()");
+        //
+        // Register storage resources.
+        // Assigns UUIDs and pre-registers them in the lookup map
+        // so that data resource validators can find them.
+        if (originalRequest.getStorage() != null)
+            {
+            for (IvoaAbstractStorageResource resource : originalRequest.getStorage())
+                {
+                //
+                // Save the original name before assigning a UUID.
+                String name = null;
+                if (resource.getMeta() != null)
+                    {
+                    name = notEmpty(resource.getMeta().getName());
+                    }
+                //
+                // Ensure the resource has a UUID.
+                resource.setMeta(
+                    ensureUuid(resource.getMeta())
+                    );
+                //
+                // Create a preliminary result for cross-reference lookups.
+                AbstractStorageResourceValidator.ResultBean preliminary =
+                    new AbstractStorageResourceValidator.ResultBean(
+                        Validator.ResultEnum.ACCEPTED,
+                        resource
+                        );
+                //
+                // Register by name if available.
+                if (name != null)
+                    {
+                    storageValidatorResultMap.put(
+                        name,
+                        preliminary
+                        );
+                    }
+                //
+                // Register by UUID.
+                storageValidatorResultMap.put(
+                    resource.getMeta().getUuid().toString(),
+                    preliminary
+                    );
+                }
+            }
+        //
+        // Assign UUIDs to data resources.
+        if (originalRequest.getData() != null)
+            {
+            for (IvoaAbstractDataResource resource : originalRequest.getData())
+                {
+                resource.setMeta(
+                    ensureUuid(resource.getMeta())
+                    );
+                }
+            }
+        //
+        // Assign UUIDs to volume mounts.
+        if (originalRequest.getVolumes() != null)
+            {
+            for (IvoaAbstractVolumeMount resource : originalRequest.getVolumes())
+                {
+                resource.setMeta(
+                    ensureUuid(resource.getMeta())
+                    );
+                }
+            }
+        //
+        // Assign UUID to compute resource.
+        if (originalRequest.getCompute() != null)
+            {
+            originalRequest.getCompute().setMeta(
+                ensureUuid(
+                    originalRequest.getCompute().getMeta()
+                    )
+                );
+            }
+        //
+        // Assign UUID to executable.
+        if (originalRequest.getExecutable() != null)
+            {
+            originalRequest.getExecutable().setMeta(
+                ensureUuid(
+                    originalRequest.getExecutable().getMeta()
+                    )
+                );
+            }
+        }
+
     private AbstractExecutableValidator.Result executable;
     @Override
     public AbstractExecutableValidator.Result getExecutableResult()
@@ -187,6 +298,21 @@ extends AbstractValidatorImpl
                 ),
             result
             );
+        //
+        // Also register by name if the primary key is a UUID.
+        // This ensures name-based lookups find the validated result
+        // instead of the preliminary result from registration.
+        if (result.getObject() != null && result.getObject().getMeta() != null)
+            {
+            String name = notEmpty(result.getObject().getMeta().getName());
+            if (name != null)
+                {
+                dataValidatorResultMap.put(
+                    name,
+                    result
+                    );
+                }
+            }
         }
     
     @Override
@@ -387,6 +513,21 @@ extends AbstractValidatorImpl
                 ),
             result
             );
+        //
+        // Also register by name if the primary key is a UUID.
+        // This ensures name-based lookups find the validated result
+        // instead of the preliminary result from registration.
+        if (result.getObject() != null && result.getObject().getMeta() != null)
+            {
+            String name = notEmpty(result.getObject().getMeta().getName());
+            if (name != null)
+                {
+                storageValidatorResultMap.put(
+                    name,
+                    result
+                    );
+                }
+            }
         }
 
     @Override
