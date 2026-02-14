@@ -70,16 +70,5 @@ implements AbstractStorageResourceValidatorFactory
             );
         }
 
-    /**
-     * Nasty class cast :-(
-     * 
-     */
-    @Override
-    public AbstractStorageResourceValidator.Result validate(
-        final IvoaAbstractStorageResource requested,
-        final OfferSetRequestParserContext context
-        ){
-        return (AbstractStorageResourceValidator.Result) super.validate(requested, context);
-        }
     }
 

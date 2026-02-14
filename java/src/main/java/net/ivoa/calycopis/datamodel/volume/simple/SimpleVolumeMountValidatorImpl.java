@@ -58,7 +58,7 @@ implements SimpleVolumeMountValidator
         }
 
     @Override
-    public AbstractVolumeMountValidator.Result validate(
+    public void validate(
         final IvoaAbstractVolumeMount requested,
         final OfferSetRequestParserContext context
         ){
@@ -67,14 +67,13 @@ implements SimpleVolumeMountValidator
         switch(requested)
             {
             case IvoaSimpleVolumeMount simple:
-                return validate(
-                        simple,
-                        context
-                        );
-            default:
-                return new ResultBean(
-                    Validator.ResultEnum.CONTINUE
+                validate(
+                    simple,
+                    context
                     );
+                break;
+            default:
+                break;
             }
         }
 
@@ -82,7 +81,7 @@ implements SimpleVolumeMountValidator
      * Validate an IvoaSimpleVolumeMount.
      *
      */
-    public AbstractVolumeMountValidator.Result validate(
+    public void validate(
         final IvoaSimpleVolumeMount requested,
         final OfferSetRequestParserContext context
         ){
@@ -144,15 +143,13 @@ implements SimpleVolumeMountValidator
             context.addVolumeValidatorResult(
                 volumeResult
                 );
-            return volumeResult;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
     }

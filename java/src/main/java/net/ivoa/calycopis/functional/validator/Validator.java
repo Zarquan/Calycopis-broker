@@ -92,7 +92,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
      * Validate a component.
      *
      */
-    public Validator.Result<ObjectType, EntityType> validate(
+    public void validate(
         final ObjectType requested,
         final OfferSetRequestParserContext context
         );

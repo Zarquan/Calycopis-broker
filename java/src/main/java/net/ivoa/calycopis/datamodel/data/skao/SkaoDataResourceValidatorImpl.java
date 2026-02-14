@@ -85,7 +85,7 @@ implements SkaoDataResourceValidator
         }
 
     @Override
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -93,19 +93,14 @@ implements SkaoDataResourceValidator
         log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
         if (requested instanceof IvoaSkaoDataResource)
             {
-            return validate(
+            validate(
                 (IvoaSkaoDataResource) requested,
                 context
                 );
             }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
-                );
-            }
         }
 
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaSkaoDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -206,15 +201,13 @@ implements SkaoDataResourceValidator
             storage.addDataResourceResult(
                 dataResult
                 );
-            return dataResult ;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
 

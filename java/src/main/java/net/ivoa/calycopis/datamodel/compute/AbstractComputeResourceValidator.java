@@ -55,7 +55,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * Validate a component.
      *
      */
-    public Result validate(
+    public void validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserContext context
         );

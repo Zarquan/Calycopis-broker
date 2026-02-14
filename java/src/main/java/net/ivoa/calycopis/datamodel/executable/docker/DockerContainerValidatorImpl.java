@@ -63,7 +63,7 @@ implements DockerContainerValidator
         }
 
     @Override
-    public AbstractExecutableValidator.Result validate(
+    public void validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         ){
@@ -71,14 +71,9 @@ implements DockerContainerValidator
         log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaDockerContainer)
             {
-            return validate(
+            validate(
                 (IvoaDockerContainer) requested,
                 context
-                );
-            }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
                 );
             }
         }
@@ -87,7 +82,7 @@ implements DockerContainerValidator
      * Validate an IvoaDockerContainer.
      *
      */
-    public AbstractExecutableValidator.Result validate(
+    public void validate(
         final IvoaDockerContainer requested,
         final OfferSetRequestParserContext context
         ){
@@ -198,16 +193,14 @@ implements DockerContainerValidator
             context.setExecutableResult(
                 result
                 );
-            return result;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             log.debug("FAIL DockerContainer NOT validated [{}]", validated);
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
     

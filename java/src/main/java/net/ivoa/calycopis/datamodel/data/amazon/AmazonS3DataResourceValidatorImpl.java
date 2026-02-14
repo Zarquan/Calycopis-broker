@@ -65,7 +65,7 @@ implements AmazonS3DataResourceValidator
         }
 
     @Override
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -73,14 +73,9 @@ implements AmazonS3DataResourceValidator
         log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
         if (requested instanceof IvoaS3DataResource)
             {
-            return validate(
+            validate(
                 (IvoaS3DataResource) requested,
                 context
-                );
-            }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
                 );
             }
         }
@@ -89,7 +84,7 @@ implements AmazonS3DataResourceValidator
      * Validate an S3 data resource.
      *
      */
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaS3DataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -222,16 +217,13 @@ implements AmazonS3DataResourceValidator
             storage.addDataResourceResult(
                 dataResult
                 );
-
-            return dataResult ;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
 

@@ -77,16 +77,5 @@ public class AbstractExecutableValidatorFactoryImpl
             );
         }
 
-    /**
-     * Nasty class cast :-(
-     * 
-     */
-    @Override
-    public AbstractExecutableValidator.Result validate(
-        final IvoaAbstractExecutable requested,
-        final OfferSetRequestParserContext context
-        ){
-        return (AbstractExecutableValidator.Result) super.validate(requested, context);
-        }
     
     }

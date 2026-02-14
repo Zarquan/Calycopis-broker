@@ -59,7 +59,7 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
         }
 
     @Override
-    public Validator.Result<ObjectType, EntityType> validate(
+    public void validate(
         final ObjectType requested,
         final OfferSetRequestParserContext context
         ){
@@ -67,18 +67,14 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
         // Try each of the validators in our list.
         for (Validator<ObjectType, EntityType> validator : validators)
             {
-            Result<ObjectType, EntityType> result = validator.validate(
+            context.dispatched(false);
+            validator.validate(
                 requested,
                 context
                 );
-            switch(result.getEnum())
+            if (context.dispatched())
                 {
-                case ResultEnum.ACCEPTED:
-                    return result ;
-                case ResultEnum.FAILED:
-                    return result ;
-                default:
-                    continue;
+                return;
                 }
             }
         //
@@ -86,9 +82,6 @@ public abstract class ValidatorFactoryBaseImpl<ObjectType, EntityType extends Co
         unknown(
             context,
             requested
-            );
-        return new ResultBean<ObjectType, EntityType>(
-            Validator.ResultEnum.FAILED
             );
         }
     }

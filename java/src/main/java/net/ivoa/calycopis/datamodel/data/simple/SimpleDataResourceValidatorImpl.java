@@ -64,7 +64,7 @@ implements SimpleDataResourceValidator
         }
     
     @Override
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -72,19 +72,14 @@ implements SimpleDataResourceValidator
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaSimpleDataResource)
             {
-            return validate(
+            validate(
                 (IvoaSimpleDataResource) requested,
                 context
                 );
             }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
-                );
-            }
         }
 
-    public AbstractDataResourceValidator.Result validate(
+    public void validate(
         final IvoaSimpleDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -182,15 +177,13 @@ implements SimpleDataResourceValidator
             storage.addDataResourceResult(
                 dataResult
                 );
-            return dataResult ;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
 

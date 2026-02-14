@@ -61,6 +61,20 @@ public interface OfferSetRequestParserContext
     public void valid(boolean value);
 
     /**
+     * Flag to indicate that the last validator call was dispatched.
+     * A dispatched validator is one that recognised the object type
+     * and either accepted or rejected the request.
+     *  
+     */
+    public boolean dispatched();
+
+    /**
+     * Set the dispatched flag.
+     *  
+     */
+    public void dispatched(boolean value);
+
+    /**
      * Get the validated executable.
      * 
      */
@@ -197,7 +211,6 @@ public interface OfferSetRequestParserContext
      * Find a StorageValidatorResult.
      * 
      */
-    @Deprecated
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
     
     /**

@@ -29,7 +29,6 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
@@ -151,17 +150,10 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())
                 {
-                // TODO Make the validator set the context result.
-                // No need for the nasty class cast in the validator factory.
-                AbstractStorageResourceValidator.Result result = storageValidators.validate(
+                storageValidators.validate(
                     resource,
                     context
                     );
-                if (result.getEnum() == Validator.ResultEnum.FAILED)
-                    {
-                    log.warn("Storage resource validation failed [{}]", resource);
-                    context.valid(false);
-                    }
                 }
             }
         //
@@ -171,17 +163,10 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractDataResource resource : offersetRequest.getData())
                 {
-                // TODO Make the validator set the context result.
-                // No need for the nasty class cast in the validator factory.
-                AbstractDataResourceValidator.Result result = dataValidators.validate(
+                dataValidators.validate(
                     resource,
                     context
                     );
-                if (result.getEnum() == Validator.ResultEnum.FAILED)
-                    {
-                    log.warn("Data resource validation failed [{}]", resource);
-                    context.valid(false);
-                    }
                 }
             }
         //
@@ -191,17 +176,10 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractVolumeMount resource : offersetRequest.getVolumes())
                 {
-                // TODO Make the validator set the context result.
-                // No need for the nasty class cast in the validator factory.
-                AbstractVolumeMountValidator.Result result = volumeValidators.validate(
+                volumeValidators.validate(
                     resource,
                     context
                     );
-                if (result.getEnum() == Validator.ResultEnum.FAILED)
-                    {
-                    log.warn("Volume mount validation failed [{}]", resource);
-                    context.valid(false);
-                    }
                 }
             }
 
@@ -219,17 +197,10 @@ public class OfferSetRequestParserImpl
                         )
                     );            
             }
-        // TODO Make the validator set the context result.
-        // No need for the nasty class cast in the validator factory.
-        AbstractComputeResourceValidator.Result computeResult = computeValidators.validate(
+        computeValidators.validate(
             computeResource,
             context
-            );            
-        if (computeResult.getEnum() == Validator.ResultEnum.FAILED)
-            {
-            log.warn("ComputeResource validation failed [{}]", computeResource);
-            context.valid(false);
-            }
+            );
 
         //
         // Validate the requested executable.
@@ -237,17 +208,10 @@ public class OfferSetRequestParserImpl
         IvoaAbstractExecutable executableResource = offersetRequest.getExecutable();
         if (executableResource != null)
             {
-            // TODO Make the validator set the context result.
-            // No need for the nasty class cast in the validator factory.
-            AbstractExecutableValidator.Result executableResult = executableValidators.validate(
+            executableValidators.validate(
                 executableResource,
                 context
                 );
-            if (computeResult.getEnum() == Validator.ResultEnum.FAILED)
-                {
-                log.warn("ExecutableResource validation failed [{}]", executableResource);
-                context.valid(false);
-                }
             }
         else {
             log.error("Offerset request has no executable");

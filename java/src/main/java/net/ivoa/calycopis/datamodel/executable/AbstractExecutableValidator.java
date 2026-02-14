@@ -54,7 +54,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * Validate a component.
      *
      */
-    public Result validate(
+    public void validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         );

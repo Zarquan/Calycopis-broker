@@ -54,7 +54,7 @@ implements JupyterNotebookValidator
         }
     
     @Override
-    public AbstractExecutableValidator.Result validate(
+    public void validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         ){
@@ -62,14 +62,9 @@ implements JupyterNotebookValidator
         log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaJupyterNotebook)
             {
-            return validate(
+            validate(
                 (IvoaJupyterNotebook) requested,
                 context
-                );
-            }
-        else {
-            return new ResultBean(
-                Validator.ResultEnum.CONTINUE
                 );
             }
         }
@@ -78,7 +73,7 @@ implements JupyterNotebookValidator
      * Validate an IvoaJupyterNotebook.
      *
      */
-    public AbstractExecutableValidator.Result validate(
+    public void validate(
         final IvoaJupyterNotebook requested,
         final OfferSetRequestParserContext context
         ){
@@ -153,15 +148,13 @@ implements JupyterNotebookValidator
             context.setExecutableResult(
                 result
                 );
-            return result;
+            context.dispatched(true);
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            return new ResultBean(
-                Validator.ResultEnum.FAILED
-                );
+            context.dispatched(true);
             }
         }
     
