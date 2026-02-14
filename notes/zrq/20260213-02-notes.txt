@@ -1,0 +1,85 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Where next.
+    Things we could ask Cursor to do.
+
+    Fix a specific issue in the server side code.
+
+        Refactor validate() to return void · Issue #340 · ivoa/Calycopis-broker
+        https://github.com/ivoa/Calycopis-broker/issues/340
+
+    Two step validation
+
+        DataResource refers the the StorageResource it is stored on by uuid.
+        StorageResource refers to the DataResources it stores by uuid.
+        VolumeMount refers to DataResource
+        There is the potential for loops in the references preventing the schema from loading.
+        It depends which ones are processed first, storage, data or volumes.
+        Solution is to split the validation into two steps
+        * locate() - locate all of the objects, creating placeholdres for them
+        * validate() - validate the located objects, including linking their references
+
+    Session execution
+
+        This is the missing part.
+        Work on the Platforms, heading towards different types of platforms
+        * TestPlatform
+        * KubePlatform
+        * DockerPlatform
+
+
+    Session scheduling
+
+        In the API we have simple and scheduled sessions.
+        In the JPA entities we only have simple session, which includes scheduling information.
+        In the API scheduled session extends simple session
+        Is there a specific reason to separate them - give that the schedult is optional.
+
+        Revisit AbstractExecutionSession, SimpleExecutionSession and ScheduledExecutionSession · Issue #46 · ivoa/Calycopis-schema
+        https://github.com/ivoa/Calycopis-schema/issues/46
+            Remove ScheduledExecutionSession, put everything in SimpleExecutionSession
+
+        Better to move towards the open ended scheduling.
+        Prepare has a start time, no end time.
+        It will take at least <this long> to prepare the data.
+        Then a batch mode platform will put it in the queue to be executed.
+        Needs thinking about this one.
+
+
+
+
+
+

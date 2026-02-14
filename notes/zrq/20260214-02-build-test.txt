@@ -1,0 +1,272 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Local test sequence.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a Podman Pod and start our database server.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --expose 8082 \
+        --pod calycopis-pod \
+        --name dev-tools \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+        bash
+
+
+# -----------------------------------------------------
+# Generate the client and server packages from the schema.
+# These steps should replicate what the GitHub workflow does.
+#[root@developer-tools]
+
+    source /trebula/bin/buildscripts.sh
+
+    installgenerator
+
+    buildschema
+
+    buildpythonclient
+
+    buildjavaclient
+
+    buildjavaspring
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build and run the service.
+#[root@developer-tools]
+
+    pushd /calycopis/java
+
+        ./mvnw clean spring-boot:run
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Run our Python tests in a separate terminal ...
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        dev-tools \
+            bash
+
+    pip install  --editable /trebula/codegen/python/client/build/
+
+    python
+
+from uuid import uuid4
+from pprint import pprint
+
+from calycopis_client.models import (
+    OfferSetRequest,
+    DockerContainer,
+    DockerImageSpec,
+    SimpleComputeResource,
+    SimpleComputeCores,
+    SimpleComputeMemory,
+    SimpleExecutionSessionPhase,
+    OfferSetRequest
+    )
+
+from calycopis_client.wrappers import (
+    ExecutionBrokerClient
+    )
+
+# Create the client
+client = ExecutionBrokerClient(host="http://127.0.0.1:8082")
+
+# Build our request
+executable = DockerContainer(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0",
+    image = DockerImageSpec(
+        locations = [
+            "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+            ],
+        digest = "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
+        )
+    )
+
+compute = SimpleComputeResource(
+    kind="https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0",
+    cores = SimpleComputeCores(
+        min=1
+        ),
+    memory = SimpleComputeMemory(
+        min=1
+        ),
+    )
+
+request = OfferSetRequest(
+    executable = executable,
+    compute = compute
+    )
+
+# Submit our request and get a set of offers
+offers = client.submit_execution(
+    request
+    )
+
+assert offers.result == "YES"
+assert len(offers.offers) > 0
+
+first = offers.offers[0]
+
+assert first != None
+assert first.meta != None
+assert first.meta.uuid != None
+
+uuid = first.meta.uuid
+
+status = client.get_session(
+    uuid
+    )
+
+pprint(
+    status.model_dump()
+    )
+
+    >   {'compute': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0',
+    >                'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 958041, tzinfo=TzInfo(0)),
+    >                         'description': None,
+    >                         'messages': None,
+    >                         'modified': None,
+    >                         'name': None,
+    >                         'options': None,
+    >                         'url': 'http://127.0.0.1:8082/compute/6d8a1514-527c-4f0f-8bf6-8b1da2dd8e28',
+    >                         'uuid': UUID('6d8a1514-527c-4f0f-8bf6-8b1da2dd8e28')},
+    >                'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
+    >                'schedule': {'available': {'duration': 'PT2H',
+    >                                           'start': '2026-02-14T11:45:00Z/PT0S'},
+    >                             'preparing': {'duration': 'PT15S',
+    >                                           'start': '2026-02-14T11:44:45Z'},
+    >                             'releasing': {'duration': 'PT10S',
+    >                                           'start': '2026-02-14T13:45:05Z'}}},
+    >    'connectors': None,
+    >    'data': None,
+    >    'executable': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0',
+    >                   'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 931032, tzinfo=TzInfo(0)),
+    >                            'description': None,
+    >                            'messages': None,
+    >                            'modified': None,
+    >                            'name': None,
+    >                            'options': None,
+    >                            'url': 'http://127.0.0.1:8082/executables/57276bf6-64e1-40f8-883f-5ef27d14d104',
+    >                            'uuid': UUID('57276bf6-64e1-40f8-883f-5ef27d14d104')},
+    >                   'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
+    >                   'schedule': {'available': {'duration': None,
+    >                                              'start': '1970-01-01T00:00:45Z/PT0S'},
+    >                                'preparing': {'duration': 'PT45S', 'start': None},
+    >                                'releasing': {'duration': 'PT1S', 'start': None}}},
+    >    'expires': datetime.datetime(2026, 2, 14, 11, 44, 5, 785375, tzinfo=TzInfo(0)),
+    >    'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0',
+    >    'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 907550, tzinfo=TzInfo(0)),
+    >             'description': None,
+    >             'messages': None,
+    >             'modified': None,
+    >             'name': 'no-name-offer-0',
+    >             'options': None,
+    >             'url': 'http://127.0.0.1:8082/sessions/2a1c8d69-c49a-47e6-a12d-e0a0a0e5f994',
+    >             'uuid': UUID('2a1c8d69-c49a-47e6-a12d-e0a0a0e5f994')},
+    >    'phase': <SimpleExecutionSessionPhase.OFFERED: 'OFFERED'>,
+    >    'schedule': None,
+    >    'storage': None,
+    >    'volumes': None}
+
+
+status = client.set_session_phase(
+    uuid,
+    SimpleExecutionSessionPhase.ACCEPTED
+    )
+
+pprint(
+    status.model_dump()
+    )
+
+    >   ....
+    >   ....
+
+
+final = client.wait_until_terminal(
+    uuid,
+    timeout=600
+    )
+
+assert final.phase in {
+    SimpleExecutionSessionPhase.COMPLETED,
+    SimpleExecutionSessionPhase.FAILED,
+    SimpleExecutionSessionPhase.CANCELLED,
+    }
+
+
+
+
