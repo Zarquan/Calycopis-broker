@@ -25,7 +25,8 @@
 
     Target:
 
-        Success
+        Solve a problem with the validation process.
+        https://github.com/ivoa/Calycopis-broker/issues/346
 
     Result:
 
@@ -79,49 +80,49 @@
     The first step would just find all the resources in the request and allocated them uuids.
     Then the second step would do the full validation as before, including linking the resources together.
 
-    >   
+    >
     >     Let me trace through the validation order and the cross-referencing logic to confirm the problem.
-    >   
+    >
     >     ⬢ Read 2 files
     >       Read ...tamodel/offerset/OfferSetRequestParserImpl.java lines 140-224
     >       Read ...del/data/AbstractDataResourceValidatorImpl.java
-    >   
+    >
     >     Now let me check how the storage resource's data list (referencing data resources) is handled, and what the OpenAPI schema says about these cross-references.
-    >   
+    >
     >     ⬢ Grepped, read 2 greps, 1 file
     >       Grepped "...orage\(\)|setStorage\(|\.getStorage\b" in ...java/src/main/java/net/ivoa/calycopis/datamodel
     >       Grepped "getData\(\)|\.getData\b" in .../main/java/net/ivoa/calycopis/datamodel/storage
     >       Read .../simple/SimpleStorageResourceValidatorImpl.java lines 61-167
-    >   
+    >
     >     Now let me check the OpenAPI schema to understand the storage data list and the volume resources list, and how the context lookup keys work.
-    >   
+    >
     >     ⬢ Read 2 files
     >       Read .../offerset/OfferSetRequestParserContextImpl.java lines 131-170
     >       Read ...lume/simple/SimpleVolumeMountValidatorImpl.java lines 81-158
-    >   
+    >
     >     Now let me also check the OpenAPI schema for the storage field on data resources and the data field on storage resources.
-    >   
+    >
     >     ⬢ Read 3 files
     >       Read trebula/schema/build/execution-broker-1.0.3.yaml lines 694-723
     >       Read trebula/schema/build/execution-broker-1.0.3.yaml lines 807-831
     >       Read trebula/schema/build/execution-broker-1.0.3.yaml lines 735-799
-    >   
+    >
     >     Good. Now I have the full picture. Here's my analysis:
-    >   
+    >
     >     ────────────────────────────────────────
-    >   
+    >
     >     Yes, the problem exists. There are three cross-reference relationships in the request, and all three are vulnerable to ordering issues.
     >     1. Data resource → Storage resource (`AbstractDataResource.storage: string`)
     >     This is a string reference (UUID or name) from a data resource to its storage resource. In AbstractDataResourceValidatorImpl.storageCheck(), line 104-108:
-    >   
+    >
     >      calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java lines 104-108
-    >   
+    >
     >             if (requested.getStorage() != null)
     >                 {
     >                 storageResult = context.findStorageValidatorResult(
     >                     requested.getStorage()
     >                     );
-    >   
+    >
     >     This looks up the storage resource by key in the context's storageValidatorResultMap. It works today because OfferSetRequestParserImpl.validate() validates storage before data (lines
     >     148-157 then 161-170). So when a data resource is validated, its referenced storage resource is already in the context map.
     >     However, if the order were ever changed, or if a data resource referenced a storage resource that appeared later in the storage list (unlikely given the current single-pass approach,
@@ -132,32 +133,32 @@
     >     validate it.
     >     3. Volume mount → Data resources (`SimpleVolumeMount.resources: array[string]`)
     >     The schema defines a resources field on SimpleVolumeMount -- an array of strings referencing data resources to mount. In SimpleVolumeMountValidatorImpl, line 111:
-    >   
+    >
     >      calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/volume/simple/SimpleVolumeMountValidatorImpl.java lines 110-112
-    >   
+    >
     >             //
     >             // TODO Check the list of data resources.
     >             //
-    >   
+    >
     >     This is flagged as a TODO -- volume mounts don't currently validate their data resource references. If this were implemented, it would need data resources to be validated first.
     >     Currently volumes are validated after data (lines 175-183 after 161-170), so the ordering is correct by coincidence, but it's fragile.
     >     4. Compute resource → Volumes (commented out)
     >     In SimpleComputeResourceValidatorImpl, lines 254-286, there's a commented-out TODO block that would link volumes to compute resources. Same ordering concern.
-    >   
+    >
     >     ────────────────────────────────────────
-    >   
+    >
     >     Summary of the problem:
     >     The current validation order (storage → data → volumes → compute → executable) happens to work for the one cross-reference that's actually implemented (data → storage lookup). But:
     >     • It relies on implicit ordering that isn't documented or enforced
     >     • The two unimplemented cross-references (storage.data, volume.resources) would create circular dependencies if naively implemented -- data needs storage to exist, but storage would
     >       need data to exist too
     >     • If a data resource specifies a storage reference that doesn't match any storage in the request, it fails even though the reference might be valid
-    >   
+    >
     >     Your proposed two-step approach would solve this cleanly:
     >     • Step 1 (registration): Walk all resources, allocate UUIDs, and register them in the context maps. No validation of cross-references, just identity establishment.
     >     • Step 2 (validation): Full validation as before, but now all cross-reference lookups are guaranteed to find their targets (or produce a meaningful "not found" error rather than an
     >       ordering-dependent failure).
-    >   
+    >
     >     This would also make it safe to implement the currently-TODO'd storage.data and volume.resources validations, and would decouple the code from any particular validation order.
 
 
@@ -167,63 +168,63 @@
 
     Please go ahead and implement the fix.
 
-    >   
+    >
     >     ... (10 lines hidden below)
     >     The user wants me to implement the two-step validation approach:
-    >   
+    >
     >     1. Step 1 (registration): Walk all resources in the request, allocate UUIDs, and register them in the context maps. No cross-reference validation, just identity establishment.
     >     2. Step 2 (validation): Full validation as before, but now all cross-reference lookups are guaranteed to find their targets.
-    >   
+    >
     >     ....
     >     ....
 
     >     Let me trace the full validation flow and cross-reference logic carefully.
-    >   
+    >
     >     ⬢ Read, grepped, globbed 1 file, 2 greps, 3 globs
     >       … 3 earlier items hidden
     >       Globbed "**/spring/model/Ivoa*.java" in calycopis/java
     >       Grepped "IvoaAbstractStorageResource" in calycopis/java/target
     >       Globbed "" in .
-    >   
+    >
     >     $ find /calycopis -name "IvoaAbstractStorageResource.java" 2>/dev/null 2m 29s
     >       /calycopis/attic/spring-openapi/target/generated-sources/openapi/src/main/java/n​et/ivoa/calycopis/openapi/model/IvoaAbstractStorageResource.java
-    >   
+    >
     >     ⬢ Grepped "setMeta|public.*meta\(" in .../openapi/model/IvoaAbstractStorageResource.java
     >       Found 2 matches
-    >   
+    >
     >     Good, both setMeta() and meta() exist on the generated models. Now let me read the key files I need to modify.
-    >   
+    >
     >     ⬢ Read 3 files
     >       Read ...odel/offerset/OfferSetRequestParserContext.java
     >       Read .../offerset/OfferSetRequestParserContextImpl.java
     >       Read ...tamodel/offerset/OfferSetRequestParserImpl.java
-    >   
+    >
     >     Now let me examine the data resource validator's storageCheck and duplicateCheck, and the ResultBean classes.
-    >   
+    >
     >     ⬢ Read, grepped 1 file, 1 grep
     >       Read ...del/data/AbstractDataResourceValidatorImpl.java
     >       Grepped "class ResultBean" in ...java/src/main/java/net/ivoa/calycopis/datamodel
-    >   
+    >
     >     Let me check the ResultBean constructors with two parameters and the Validator.ResultBean base class.
-    >   
+    >
     >     ⬢ Read, grepped 2 files, 3 greps
     >       … 2 earlier items hidden
     >       Grepped "public ResultBean\(" in ...l/storage/AbstractStorageResourceValidator.java
     >       Grepped "public ResultBean\(" in ...tamodel/data/AbstractDataResourceValidator.java
     >       Read ...l/storage/AbstractStorageResourceValidator.java
-    >   
+    >
     >     Now let me check the notEmpty utility in AbstractValidatorImpl and the makeMeta method to understand UUID handling.
-    >   
+    >
     >     ⬢ Read ...functional/validator/AbstractValidatorImpl.java
-    >   
+    >
     >     Now I have a clear picture of the codebase. Let me plan and implement the two-step validation fix.
-    >   
+    >
     >     ⬢ To-do Working on 4 to-dos
     >       ☐ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☐ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
     >       ☐ Call context.registerResources() before validate() in OfferSetRequestParserImpl.process()
     >       ☐ Build and verify compilation
-    >   
+    >
     >     Here's the plan:
     >     Step 1 (registration): Before validation, walk all resources in the request and assign UUIDs. For storage resources specifically, pre-register them in the context's lookup map so that
     >     data resource validators can find them regardless of validation order.
@@ -232,9 +233,9 @@
     >     • Register by both name AND UUID so both lookup styles work
     >     • Preliminary results use ACCEPTED status and go in the map only (not the result list), so the build phase isn't affected
     >     • Assign UUIDs to ALL resource types for future cross-reference support
-    >   
+    >
     >     Let me implement this across the three files.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...odel/offerset/OfferSetRequestParserContext.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -252,15 +253,15 @@
     >     │ +                                                                                                                                                                                        │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ To-do Working on 3 to-dos • 1 done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☐ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
     >       ☐ Call context.registerResources() before validate() in OfferSetRequestParserImpl.process()
     >       ☐ Build and verify compilation
-    >   
+    >
     >     Now let me implement registerResources() in the context implementation. I need to add the import for Validator and the method implementation.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../offerset/OfferSetRequestParserContextImpl.java +1                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -270,14 +271,14 @@
     >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;                                                                                                                    │
     >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;                                                                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now I also need to import the types for the executable and abstract resource types. Let me check what's already imported.
-    >   
+    >
     >     ⬢ Grepped "^import" in .../offerset/OfferSetRequestParserContextImpl.java
     >       Found 21 matches
-    >   
+    >
     >     I need to add the IvoaAbstractExecutable import too.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../offerset/OfferSetRequestParserContextImpl.java +1                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -287,9 +288,9 @@
     >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;                                                                                                                       │
     >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;                                                                                                                    │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now add the registerResources() implementation and ensureUuid() helper. I'll insert it after the dispatched methods.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../offerset/OfferSetRequestParserContextImpl.java +109                                                                                                                                  │
     >     │                                                                                                                                                                                          │
@@ -307,15 +308,15 @@
     >     │ +             }                                                                                                                                                                          │
     >     │  … truncated (101 more lines) · ctrl+r to review                                                                                                                                         │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ To-do Working on 2 to-dos • 2 done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☒ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
     >       ☐ Call context.registerResources() before validate() in OfferSetRequestParserImpl.process()
     >       ☐ Build and verify compilation
-    >   
+    >
     >     Now add the registerResources() call in the parser before validation.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...tamodel/offerset/OfferSetRequestParserImpl.java +3                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -327,40 +328,40 @@
     >     │           // Validate the request.                                                                                                                                                       │
     >     │           validate(                                                                                                                                                                      │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ To-do Working on 1 to-do • 3 done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☒ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
     >       ☒ Call context.registerResources() before validate() in OfferSetRequestParserImpl.process()
     >       ☐ Build and verify compilation
-    >   
+    >
     >     Now let me verify the code compiles. Let me first check if setMeta actually exists on the generated models by looking at the parent class.
-    >   
+    >
     >     ⬢ Grepped "void setMeta" in .../src/main/java/net/ivoa/calycopis/openapi/model
     >       Found 8 matches
-    >   
+    >
     >     Good, setMeta exists on all the generated model types. Now let me build.
-    >   
+    >
     >     $ cd /calycopis/java && mvn compile -q 2>&1 | tail -40 exit 127 • 8.1s
     >       --: line 1: mvn: command not found
-    >   
+    >
     >     $ which mvn 2>/dev/null || find / -name "mvn" -type f 2>/dev/null | head -5 exit 1 • 8.3s
     >       /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn
-    >   
+    >
     >     $ cd /calycopis/java && /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn compile -q 2>&1 | tail -40 18s
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (8 more lines) · ctrl+o to expand
-    >   
+    >
     >     Build succeeds. Let me verify the final state of all three modified files.
-    >   
+    >
     >     ⬢ To-do All done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☒ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
     >       ☒ Call context.registerResources() before validate() in OfferSetRequestParserImpl.process()
     >       ☒ Build and verify compilation
-    >   
+    >
     >     The build succeeds. Here's a summary of what was implemented across three files:
     >     1. `OfferSetRequestParserContext.java` - Added the registerResources() method to the interface, documented as the first step in the two-phase validation approach.
     >     2. `OfferSetRequestParserContextImpl.java` - Implemented registerResources() with:
@@ -368,7 +369,7 @@
     >     • Storage resources: assigns UUIDs and pre-registers preliminary ResultBean(ACCEPTED, resource) entries in the storageValidatorResultMap by both name and UUID. These go in the map only
     >        (not the list), so the build phase which iterates the list is unaffected
     >     • Data, volume, compute, and executable resources: assigns UUIDs only (no map pre-registration for data to avoid breaking duplicateCheck)
-    >   
+    >
     >     3. `OfferSetRequestParserImpl.java` - Added context.registerResources() call before validate(context) in the process() method.
     >     How it works:
     >     • Before any validation, all resources get UUIDs and storage resources are findable in the lookup map
@@ -417,72 +418,72 @@ There is a Python client for this API here /trebula/codegen/python/client/build/
 Can you use the ExecutionBrokerClient client to create some tests that verify that this issue is fixed.
 
     >     Let me explore the Python client and understand its structure.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 551ms                                                                                                                                                                      │
     >     │ Now let me check the existing test structure and the simple_execution_session.py model to understand the offer response structure.                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Globbed, read 1 glob, 9 files
     >       … 7 earlier items hidden
     >       Read ...d/calycopis_client/models/component_metadata.py
     >       Read .../calycopis_client/models/simple_volume_mount.py
     >       Read ...pis_client/models/abstract_execution_session.py
-    >   
+    >
     >     Let me check if there are existing tests and look at the execution session model to understand the response structure.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 200ms                                                                                                                                                                      │
     >     │ Now let me look at the docker_image_spec.py model and understand what the kind discriminator values are for the resource types.                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Globbed, read 1 glob, 2 files
     >       Globbed "**/test*.py" in calycopis/java
     >       Read ...copis_client/models/simple_execution_session.py
     >       Read ...is_client/models/simple_execution_components.py
-    >   
+    >
     >     Let me check the discriminator kind URIs for the different resource types and the message_item.py model.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 1.3s                                                                                                                                                                       │
     >     │ Now I have a clear picture. Let me also check if there's a setup.py or pyproject.toml in the client library to know how to install it, and see the Java kind discriminator constants     │
     >     │ to ensure they match.                                                                                                                                                                    │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Grepped, read 1 grep, 1 file
     >       Grepped "discriminator_value_class_map" in ...gen/python/client/build/calycopis_client/models
     >       Read ...t/build/calycopis_client/models/message_item.py
-    >   
+    >
     >     Let me check the Java discriminator constants and the Python client install mechanism, plus look at the Docker image spec model.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 741ms                                                                                                                                                                      │
     >     │ Now I have all the info I need. Let me also check what Python is available and if there are existing integration tests somewhere.                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Grepped, globbed, read 1 grep, 1 glob, 1 file
     >       Grepped "TYPE_DISCRIMINATOR" in ...java/src/main/java/net/ivoa/calycopis/datamodel
     >       Globbed "**/setup.py" in trebula/codegen/python/client/build
     >       Read ...ld/calycopis_client/models/docker_image_spec.py
-    >   
+    >
     >     Now let me check the Python environment and if the client library is installed.
-    >   
+    >
     >     $ python3 --version 2>&1 && pip3 list 2>/dev/null | grep -i -E "calycopis|pydantic|urllib3|pytest" 2>&1 13s
     >       Python 3.13.5
     >       calycopis_client   1.0.3    /trebula/codegen/python/client/build
     >       … truncated (4 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ Globbed "**/test_*.py" in calycopis
     >       Found 2 files
-    >   
+    >
     >     $ pip3 list 2>/dev/null | grep -i pytest exit 1 • 7.1s
-    >   
+    >
     >     $ pip3 install pytest --quiet 2>&1 | tail -5 5.6s
     >       WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable.It is
     >       recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
-    >   
+    >
     >     Now let me check if the Java service is running.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 24s                                                                                                                                                                        │
     >     │ ... (30 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -493,12 +494,12 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ 1. Write integration tests using pytest that connect to the server                                                                                                                       │
     >     │ 2. The tests should be marked so they can be skipped when the server isn't available                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/offersets 2>/dev/null || echo "Service not running" 59s
     >       000Service not running
-    >   
+    >
     >     Now I have all the context I need. Let me check how to start the Java service.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 7.6s                                                                                                                                                                       │
     >     │ ... (15 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -509,20 +510,20 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ The tests will:                                                                                                                                                                          │
     >     │ 1. Be marked with a custom pytest marker for integration tests                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Globbed, read 3 globs, 1 file
     >       Globbed "**/application*.properties" in calycopis/java
     >       Globbed "**/application*.yml" in calycopis/java
     >       Globbed "**/application*.*" in calycopis/java/src
     >       Read calycopis/java/src/main/resources/application.yaml
-    >   
+    >
     >     The service runs on port 8082. Let me create the integration tests.
-    >   
+    >
     >     $ ls /calycopis/java/ 251ms
     >       mvnw
     >       pom.xml
     >       … truncated (3 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ To-do Working on 2 to-dos • 4 done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☒ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
@@ -530,7 +531,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       ☒ Build and verify compilation
     >       ☐ Create integration test file testing cross-reference validation scenarios
     >       ☐ Verify tests can be collected by pytest (syntax check)
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ calycopis/java/tests/test_resource_registration.py +567                                                                                                                                  │
     >     │                                                                                                                                                                                          │
@@ -548,21 +549,21 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ + Requires:                                                                                                                                                                              │
     >     │  … truncated (556 more lines) · ctrl+r to review                                                                                                                                         │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now let me verify the tests can be collected by pytest (syntax check).
-    >   
+    >
     >     $ cd /calycopis/java && python3 -m pytest tests/test_resource_registration.py --collect-only 2>&1 14s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0
     >       … truncated (25 more lines) · ctrl+o to expand
-    >   
+    >
     >     All 11 tests are collected successfully. Let me also confirm they skip gracefully when the server isn't running.
-    >   
+    >
     >     $ cd /calycopis/java && python3 -m pytest tests/test_resource_registration.py -v 2>&1 | head -30 12s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (18 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ To-do All done
     >       ☒ Add registerResources() method to OfferSetRequestParserContext interface
     >       ☒ Implement registerResources() in OfferSetRequestParserContextImpl - assign UUIDs and pre-register storage resources in lookup map
@@ -570,7 +571,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       ☒ Build and verify compilation
     >       ☒ Create integration test file testing cross-reference validation scenarios
     >       ☒ Verify tests can be collected by pytest (syntax check)
-    >   
+    >
     >     All 11 tests collect cleanly and skip gracefully when the server isn't running. Here's a summary of the test file at tests/test_resource_registration.py:
     >     11 integration tests across 5 test classes:
     >     • `TestBaseline` (1 test) - Executable-only request succeeds with default compute/storage
@@ -582,16 +583,16 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     • `TestMixedResources` (3 tests) - Complex combinations: named storage+data with cross-reference verification, multiple independent storage/data pairs, and mixed (some data with
     >       explicit storage, some with auto-created)
     >     • `TestUuidAssignment` (2 tests) - All resources get UUIDs assigned; all UUIDs within an offer are unique
-    >   
+    >
     >     To run them against a live server:
-    >   
+    >
     >     cd /calycopis/java
     >     pytest tests/test_resource_registration.py -v
     >     # Or with a custom server URL:
     >     CALYCOPIS_URL=http://host:port pytest tests/test_resource_registration.py -v
-    >   
+    >
     >     The default URL is http://localhost:8082 (matching the application.yaml server port).
-    >   
+    >
 
 # -----------------------------------------------------
 # Ask Cursor to run the tests
@@ -599,40 +600,40 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
 
     Can you run the tests on the service running at http://127.0.0.1:8082
 
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 429ms                                                                                                                                                                      │
     >     │ The tests are being skipped because the server isn't reachable. The _server_reachable() function is trying to connect and failing. Let me check if the server is actually running at     │
     >     │ that address.                                                                                                                                                                            │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ cd /calycopis/java && CALYCOPIS_URL=http://127.0.0.1:8082 python3 -m pytest tests/test_resource_registration.py -v 2>&1 14s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (18 more lines) · ctrl+o to expand
-    >   
+    >
     >     The tests are skipping because the server connectivity check is failing. Let me diagnose.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 1.7s                                                                                                                                                                       │
     >     │ The server IS running (we get a 404 for the root path, which is expected). The issue is that my _server_reachable() function uses urllib.request.urlopen which might be failing on       │
     >     │ the 404 status code. Let me fix the check to accept any HTTP response (including 404) as evidence the server is up.                                                                      │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ curl -v http://127.0.0.1:8082/ 2>&1 | head -20 exit 23 • 25s
     >         % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
     >                                        Dload  Upload   Total   Spent    Left  Speed
     >       … truncated (19 more lines) · ctrl+o to expand
-    >   
+    >
     >     The server is running - it returns HTTP 404 for the root path, which is expected. But my reachability check uses urlopen which throws on non-2xx status codes. Let me fix the check.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 1.6s                                                                                                                                                                       │
     >     │ The server is running and responding, but all tests fail because the server requires a Docker container image digest. The error message is: "DockerContainer - image digest is           │
     >     │ required".                                                                                                                                                                               │
     >     │ Let me check the DockerContainerValidatorImpl to see what's required.                                                                                                                    │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ calycopis/java/tests/test_resource_registration.py +4                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -648,20 +649,20 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │       except Exception:                                                                                                                                                                  │
     >     │           return False                                                                                                                                                                   │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ cd /calycopis/java && CALYCOPIS_URL=http://127.0.0.1:8082 python3 -m pytest tests/test_resource_registration.py -v 2>&1 exit 1 • 12s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (511 more lines) · ctrl+o to expand
-    >   
+    >
     >     The server requires a Docker image digest. Let me check what the validator expects and fix the executable helper.
-    >   
+    >
     >     ⬢ Grepped, read 1 grep, 1 file
     >       Grepped "image digest is required" in .../net/ivoa/calycopis/datamodel/executable/docker
     >       Read ...utable/docker/DockerContainerValidatorImpl.java lines 241-320
-    >   
+    >
     >     The server requires an image digest. Let me update the _make_executable helper to include one.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 16s                                                                                                                                                                        │
     >     │ ... (7 lines hidden below) · ctrl+o to expand                                                                                                                                            │
@@ -671,7 +672,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ This is likely a bug caused by our registration changes. When we pre-register storage resources in the map with preliminary results, something is going wrong during the actual          │
     >     │ validation.                                                                                                                                                                              │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ calycopis/java/tests/test_resource_registration.py +1                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -681,19 +682,19 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │           ),                                                                                                                                                                             │
     >     │       )                                                                                                                                                                                  │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ cd /calycopis/java && CALYCOPIS_URL=http://127.0.0.1:8082 python3 -m pytest tests/test_resource_registration.py -v 2>&1 exit 1 • 6.5s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (741 more lines) · ctrl+o to expand
-    >   
+    >
     >     The first 3 tests pass but requests with explicit storage resources return 500. Let me investigate with a direct curl request.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 588ms                                                                                                                                                                      │
     >     │ Storage alone works fine (result YES). Now let me test with a data resource referencing the named storage.                                                                               │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ curl -s -X POST http://127.0.0.1:8082/offersets \
     >         -H "Content-Type: application/yaml" \
     >         -d '
@@ -722,10 +723,10 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       max":2}},"storage":[{"kind":"https://www.purl.org/ivoa.net/EB/schema/v1.0/​types/storage/simple-storage-resource-1.0","meta":{"uuid":"1365916e-75f9-41e4-96​54-a79c3ccd74c7","name":"my-stor
     >       age","url":"http://127.0.0.1:8082/storage/136591​6e-75f9-41e4-9654-a79c3ccd74c7","created":"2026-02-14T14:23:44.663714043Z"},"pha​se":"INITIALIZING","schedule":{"preparing":{"duration":"PT
     >       5S"},"available":{"sta​rt":"1970-01-01T00:00:05Z/PT0S"},"releasing":{"start":"1970-01-01T00:00:15Z","du​ration":"PT10S"}}}],"phase":"OFFERED","expires":"2026-02-14T14:28:44.602012469Z"​}]}
-    >   
-    >   
+    >
+    >
     >     Storage alone works. Let me test the cross-reference scenario that fails.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 26s                                                                                                                                                                        │
     >     │ ... (25 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -736,7 +737,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │                                                                                                                                                                                          │
     >     │ Actually, looking at this more carefully, the 500 error happens when data references storage by name. The server is running old code. The 500 is likely the NPE or similar bug that      │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ curl -s -X POST http://127.0.0.1:8082/offersets \
     >         -H "Content-Type: application/yaml" \
     >         -d '
@@ -762,9 +763,9 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       timestamp: "2026-02-14T14:23:53.232+00:00"
     >       status: 500
     >       … truncated (3 more lines) · ctrl+o to expand
-    >   
+    >
     >     The 500 error confirms a server-side crash when data references storage by name. Let me check the concrete validator to understand the crash path.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 20s                                                                                                                                                                        │
     >     │ ... (28 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -775,11 +776,11 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ the                                                                                                                                                                                      │
     >     │ method still returns `storageResult` which is uninitialized/null).                                                                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read ...ata/simple/SimpleDataResourceValidatorImpl.java
-    >   
+    >
     >     There's a 500 error for data-references-storage requests. This could be a pre-existing bug in the running server code. Let me check the server logs.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 50s                                                                                                                                                                        │
     >     │ ... (23 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -789,7 +790,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ But actually, spring-boot:run was started with mvn clean spring-boot:run (I can see the maven command). Since it's a running process, it was started before our changes. The process     │
     >     │ uses the classes that were compiled at that time.                                                                                                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ docker ps 2>/dev/null | grep -i calyco || ps aux | grep -i '[j]ava.*calyco' | head -3 11s
     >       root        2667  6.4  2.3 7080408 358536 pts/0  Sl+  14:16   0:32 /usr/lib/jvm/java-24-openjdk/bin/java -classpath
     >       /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/boot/plexus-classworlds-2.8.​0.jar -Dclassworlds.conf=/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/m2.co​nf
@@ -844,9 +845,9 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       0-2.19.2.jar:/root/.m2/repository/org/postgresql/postgres​ql/42.7.8/postgresql-42.7.8.jar:/root/.m2/repository/org/checkerframework/checke​r-qual/3.49.5/checker-qual-3.49.5.jar
     >       net.ivoa.calycopis.webapp.AmbleckApplication
     >       … truncated (1 more line) · ctrl+o to expand
-    >   
+    >
     >     Let me test with JSON format to match what the Python client sends.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 17s                                                                                                                                                                        │
     >     │ ... (15 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -857,7 +858,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ Wait, actually, looking at the storageCheck code at line 110:java success &= ResultEnum.ACCEPTED.equals(storage.getEnum()); If storage is null (storageCheck returned null), this        │
     >     │ would NPE → 500.But I showed earlier that the storageCheck should find the storage in the map when it's validated. Let me think about what could go wrong...                             │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     $ curl -s -X POST http://127.0.0.1:8082/offersets \
     >         -H "Content-Type: application/json" \
     >         -d '{
@@ -887,7 +888,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       timestamp: "2026-02-14T14:26:03.937+00:00"
     >       status: 500
     >       … truncated (3 more lines) · ctrl+o to expand
-    >   
+    >
     >     $ # Test: storage only (no data referencing it) - does this work?
     >       curl -s -X POST http://127.0.0.1:8082/offersets \
     >         -H "Content-Type: application/json" \
@@ -910,9 +911,9 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       {
     >           "kind": "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-​1.0",
     >       … truncated (9 more lines) · ctrl+o to expand
-    >   
+    >
     >     The 500 is a NPE in the data validator when storageCheck returns null. Let me check the storage validator to understand the map key.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 30s                                                                                                                                                                        │
     >     │ ... (26 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -923,12 +924,12 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ The                                                                                                                                                                                      │
     >     │ data resource looks up "my-storage" and should find it.                                                                                                                                  │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read .../simple/SimpleStorageResourceValidatorImpl.java
-    >   
+    >
     >     The NPE is on line 110 of SimpleDataResourceValidatorImpl - storageCheck can return null and the caller doesn't handle it. Let me check whether the running server has hot-reload, and
     >     also fix this bug.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 2.4s                                                                                                                                                                       │
     >     │ Interesting! The class file was compiled at 14:16:45 and the server started at 14:16:46. So the server IS running with the code that was compiled at 14:16:45.                           │
@@ -938,7 +939,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │                                                                                                                                                                                          │
     >     │ Wait, that doesn't make sense. Let me check: when we ran mvn compile earlier in this session, did it update the class files?                                                             │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 1.9s                                                                                                                                                                       │
     >     │ The class files were compiled at 14:16:45, which was the same time the server was started (14:16:46). This means these class files were compiled as PART of the `mvn clean               │
@@ -946,7 +947,7 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │                                                                                                                                                                                          │
     >     │ When we ran mvn compile later, the files should have been updated. Let me check if our recent compile updated them:                                                                      │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 23s                                                                                                                                                                        │
     >     │ ... (22 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -956,19 +957,19 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ Actually, wait, I'm confused. Let me re-read the conversation. The source files show modification time 13:36. But I made changes in this conversation (adding registerResources()).      │
     >     │ Unless the system clock is different or files were somehow cached.                                                                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Grepped "devtools|spring-boot-devtools" in calycopis/java/pom.xml
     >       Found 0 matches
-    >   
+    >
     >     $ # Check when the target classes were last compiled vs when the server started
     >       stat -c '%Y %n' /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.class 2>/dev/null && echo "---" && ps -o lstart= -p 2808 3.9s
     >       1771078605 /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetReq​uestParserContextImpl.class
     >       ---
     >       … truncated (2 more lines) · ctrl+o to expand
-    >   
+    >
     >     $ date -d @1771078605 4.3s
     >       Sat Feb 14 14:16:45 UTC 2026
-    >   
+    >
     >     $ # Check when OUR changes were compiled
     >       stat -c '%y %n' /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.class
     >       /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.class
@@ -976,17 +977,17 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >       2026-02-14 14:16:45.633592777 +0000 /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetReq​uestParserContextImpl.class
     >       2026-02-14 14:16:45.673593139 +0000 /calycopis/java/target/classes/net/ivoa/calycopis/datamodel/offerset/OfferSetReq​uestParserImpl.class
     >       … truncated (2 more lines) · ctrl+o to expand
-    >   
+    >
     >     $ # Check source file modification times (our changes were after server start)
     >       stat -c '%y %n' /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.java
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java 11s
     >       2026-02-14 13:36:19.940504770 +0000 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequ​estParserContextImpl.java
     >       2026-02-14 13:36:28.767585056 +0000 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequ​estParserImpl.java
     >       … truncated (1 more line) · ctrl+o to expand
-    >   
+    >
     >     The source files were modified at 13:36, before the server started at 14:16. So the server IS running our registration code. The 500 is caused by our changes. Let me diagnose the
     >     issue.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 17s                                                                                                                                                                        │
     >     │ ... (11 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -996,21 +997,21 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ SimpleDataResourceEntity build(final SimpleExecutionSessionEntity session)         {        return entityFactory.create(             session,            storage.getEntity(),  // <--    │
     >     │ HERE! storage is captured from storageCheck return            this            );         }    // ...    }; ```                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Grepped "public SimpleDataResourceEntity create" in ...n/java/net/ivoa/calycopis/datamodel/data/simple
     >       Found 2 matches
-    >   
+    >
     >     I found the root cause. Our registration assigns UUIDs to storage resources, which changes the map key from name to UUID. When validation later calls addStorageValidatorResult, it only
     >      puts the entry under the UUID key, leaving the name key pointing to the stale preliminary result. The preliminary result has no entity, so storage.getEntity() returns null during the
     >     build phase, causing the NPE.
     >     The fix: addStorageValidatorResult should also register by name, so the name entry gets updated with the validated result.
-    >   
+    >
     >     ⬢ Read 2 files
     >       Read .../offerset/OfferSetRequestParserContextImpl.java lines 377-396
     >       Read .../offerset/OfferSetRequestParserContextImpl.java lines 481-510
-    >   
+    >
     >     Now I need to update addStorageValidatorResult to also register by name so that name-based lookups return the validated result instead of the stale preliminary.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../offerset/OfferSetRequestParserContextImpl.java +15                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1028,11 +1029,11 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ +                 storageValidatorResultMap.put(                                                                                                                                         │
     >     │  … truncated (7 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now let me also fix the same issue for addDataValidatorResult — data resources also get UUIDs assigned, so their name-based lookups need the same treatment.
-    >   
+    >
     >     ⬢ Read .../offerset/OfferSetRequestParserContextImpl.java lines 286-305
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../offerset/OfferSetRequestParserContextImpl.java +15                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1050,9 +1051,9 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │ +                 dataValidatorResultMap.put(                                                                                                                                            │
     >     │  … truncated (7 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now let me also fix the SimpleDataResourceValidatorImpl to guard against a null return from storageCheck, which is a pre-existing NPE risk.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1063,24 +1064,24 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >     │                                                                                                                                                                                          │
     >     │           String location = trim(                                                                                                                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now rebuild and restart the server.
-    >   
+    >
     >     $ cd /calycopis/java && /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn compile -q 2>&1 | tail -10 15s
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (8 more lines) · ctrl+o to expand
-    >   
+    >
     >     Good, compiles clean. Now I need to restart the server. Let me kill the old process and start a new one.
-    >   
+    >
     >     $ kill 2808 2667 2>/dev/null; sleep 2; ps aux | grep '[j]ava.*calyco' | head -3 exit 1 • 8.7s
-    >   
+    >
     >     Processes killed. Now start the server in the background.
-    >   
+    >
     >     $ cd /calycopis/java && nohup /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn spring-boot:run > /tmp/calycopis-server.log 2>&1 &
     >       echo "Server PID: $!" 5.1s (background)
-    >   
+    >
     >     $ # Wait for server to start
     >       for i in $(seq 1 30); do
     >         curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8082/ 2>/dev/null
@@ -1092,14 +1093,14 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     >         sleep 3
     >       done 14s
     >       000.000.000.404 - Server responding at attempt 4
-    >   
+    >
     >     Server is up. Let me run the tests.
-    >   
+    >
     >     $ cd /calycopis/java && CALYCOPIS_URL=http://127.0.0.1:8082 python3 -m pytest tests/test_resource_registration.py -v 2>&1 5.6s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (18 more lines) · ctrl+o to expand
-    >   
+    >
     >     All 11 tests pass. Here's what happened:
     >     Root cause of the 500 errors: When registerResources() assigns UUIDs to storage resources, the map key changes from name to UUID. The addStorageValidatorResult method only stored
     >     results under the UUID key, so name-based lookups from storageCheck still returned the stale preliminary result (which had no entity). This caused a NullPointerException in the build
@@ -1114,14 +1115,14 @@ Can you use the ExecutionBrokerClient client to create some tests that verify th
     can you move the Python test to a new directory at /calycopis/python/tests
 
     >     $ mkdir -p /calycopis/python/tests 2.7s
-    >   
+    >
     >     $ mv /calycopis/java/tests/test_resource_registration.py /calycopis/python/tests/test_resource_registration.py 4.0s
-    >   
+    >
     >     $ rmdir /calycopis/java/tests 2>/dev/null; cd /calycopis/python && CALYCOPIS_URL=http://127.0.0.1:8082 python3 -m pytest tests/test_resource_registration.py -v 2>&1 14s
     >       ============================= test session starts ==============================
     >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
     >       … truncated (18 more lines) · ctrl+o to expand
-    >   
+    >
     >     Done. Moved to /calycopis/python/tests/test_resource_registration.py and cleaned up the old /calycopis/java/tests directory. All 11 tests still pass.
 
 

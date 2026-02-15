@@ -34,7 +34,7 @@ import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 
 /**
@@ -43,7 +43,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
  */
 @Component
 public class AbstractDataResourceValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
+    extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
     implements AbstractDataResourceValidatorFactory
     {
 

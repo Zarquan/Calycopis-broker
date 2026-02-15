@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,15 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.functional.platfom.mock;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
+import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
  * 
  */
-public interface PodmanDockerContainer
-extends DockerContainer
+public interface MockPlatform extends Platform
     {
 
     }

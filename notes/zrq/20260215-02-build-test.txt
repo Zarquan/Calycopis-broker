@@ -195,90 +195,33 @@ pprint(
     status.model_dump()
     )
 
-    >   {'compute': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0',
-    >                'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 958041, tzinfo=TzInfo(0)),
-    >                         'description': None,
-    >                         'messages': None,
-    >                         'modified': None,
-    >                         'name': None,
-    >                         'options': None,
-    >                         'url': 'http://127.0.0.1:8082/compute/6d8a1514-527c-4f0f-8bf6-8b1da2dd8e28',
-    >                         'uuid': UUID('6d8a1514-527c-4f0f-8bf6-8b1da2dd8e28')},
-    >                'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
-    >                'schedule': {'available': {'duration': 'PT2H',
-    >                                           'start': '2026-02-14T11:45:00Z/PT0S'},
-    >                             'preparing': {'duration': 'PT15S',
-    >                                           'start': '2026-02-14T11:44:45Z'},
-    >                             'releasing': {'duration': 'PT10S',
-    >                                           'start': '2026-02-14T13:45:05Z'}}},
-    >    'connectors': None,
-    >    'data': None,
-    >    'executable': {'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0',
-    >                   'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 931032, tzinfo=TzInfo(0)),
-    >                            'description': None,
-    >                            'messages': None,
-    >                            'modified': None,
-    >                            'name': None,
-    >                            'options': None,
-    >                            'url': 'http://127.0.0.1:8082/executables/57276bf6-64e1-40f8-883f-5ef27d14d104',
-    >                            'uuid': UUID('57276bf6-64e1-40f8-883f-5ef27d14d104')},
-    >                   'phase': <LifecyclePhase.INITIALIZING: 'INITIALIZING'>,
-    >                   'schedule': {'available': {'duration': None,
-    >                                              'start': '1970-01-01T00:00:45Z/PT0S'},
-    >                                'preparing': {'duration': 'PT45S', 'start': None},
-    >                                'releasing': {'duration': 'PT1S', 'start': None}}},
-    >    'expires': datetime.datetime(2026, 2, 14, 11, 44, 5, 785375, tzinfo=TzInfo(0)),
-    >    'kind': 'https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0',
-    >    'meta': {'created': datetime.datetime(2026, 2, 14, 11, 39, 5, 907550, tzinfo=TzInfo(0)),
-    >             'description': None,
-    >             'messages': None,
-    >             'modified': None,
-    >             'name': 'no-name-offer-0',
-    >             'options': None,
-    >             'url': 'http://127.0.0.1:8082/sessions/2a1c8d69-c49a-47e6-a12d-e0a0a0e5f994',
-    >             'uuid': UUID('2a1c8d69-c49a-47e6-a12d-e0a0a0e5f994')},
-    >    'phase': <SimpleExecutionSessionPhase.OFFERED: 'OFFERED'>,
-    >    'schedule': None,
-    >    'storage': None,
-    >    'volumes': None}
-
-
-status = client.set_session_phase(
-    uuid,
-    SimpleExecutionSessionPhase.ACCEPTED
-    )
-
-pprint(
-    status.model_dump()
-    )
-
     >   ....
     >   ....
 
-status = client.get_session(
-    uuid
-    )
+assert status.compute != None
+assert status.compute.meta != None
+assert status.compute.meta.uuid != None
 
-pprint(
-    status.model_dump()
-    )
+assert status.compute.kind != None
+assert status.compute.kind == "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
 
-    >   ....
-    >   ....
+assert status.compute.cores != None
+assert status.compute.cores.min >= 1
+assert status.compute.cores.max >= 1
+assert status.compute.cores.max >= status.compute.cores.min
 
+assert status.compute.memory.min >= 1
+assert status.compute.memory.max >= 1
+assert status.compute.memory.max >= status.compute.memory.min
 
-
-final = client.wait_until_terminal(
-    uuid,
-    timeout=600
-    )
-
-assert final.phase in {
-    SimpleExecutionSessionPhase.COMPLETED,
-    SimpleExecutionSessionPhase.FAILED,
-    SimpleExecutionSessionPhase.CANCELLED,
-    }
-
-
+assert status.executable != None
+assert status.executable.meta != None
+assert status.executable.meta.uuid != None
+assert status.executable.kind == "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+assert status.executable.image != None
+assert status.executable.image.locations != None
+assert len(status.executable.image.locations) == 1
+assert status.executable.image.locations[0] == "ghcr.io/ivoa/oligia-webtop:ubuntu-2022.01.13"
+assert status.executable.image.digest == "sha256:5d22a47f43b2b5efc433554092de724bd6c3cf01d2c74038f6569770a5dd5245"
 
 

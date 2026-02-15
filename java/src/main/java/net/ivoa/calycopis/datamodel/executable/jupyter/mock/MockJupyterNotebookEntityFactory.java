@@ -21,15 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.canfar;
+package net.ivoa.calycopis.datamodel.executable.jupyter.mock;
 
-import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 
 /**
- *
+ * 
  */
-public interface CanfarPlatform
-extends Platform
+public interface MockJupyterNotebookEntityFactory
+extends JupyterNotebookEntityFactory
     {
-
     }

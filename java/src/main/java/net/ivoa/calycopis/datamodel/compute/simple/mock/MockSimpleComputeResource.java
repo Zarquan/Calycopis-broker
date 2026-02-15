@@ -21,16 +21,17 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.compute.simple.mock;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
 
 /**
- * A SimpleComputeResource Factory.
+ * Public interface for a SimpleComputeResource.
  *
  */
-public interface SimpleComputeResourceEntityFactory
-extends AbstractComputeResourceEntityFactory
+public interface MockSimpleComputeResource
+    extends AbstractComputeResource
     {
+
     }
 

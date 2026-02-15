@@ -3,23 +3,16 @@
  */
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
-import java.util.UUID;
-
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * 
  */
 public interface JupyterNotebookEntityFactory
-    extends FactoryBase
+extends AbstractExecutableEntityFactory
     {
-    /**
-     * Select a JupyterNotebookEntity based on UUID.
-     * 
-     */
-    public JupyterNotebookEntity select(final UUID uuid);
 
     /**
      * Create and save a new JupyterNotebookEntity.

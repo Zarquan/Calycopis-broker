@@ -21,16 +21,28 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.compute.simple.mock;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
- * A SimpleComputeResource Factory.
+ * A MockSimpleComputeResourceEntity Factory.
  *
  */
-public interface SimpleComputeResourceEntityFactory
-extends AbstractComputeResourceEntityFactory
+public interface MockSimpleComputeResourceEntityFactory
+extends SimpleComputeResourceEntityFactory
     {
+
+    /**
+     * Create and save a new MockSimpleComputeResourceEntity based on a template and an offer.
+     *
+     */
+    public MockSimpleComputeResourceEntity create(
+        final SimpleExecutionSessionEntity session,
+        final MockSimpleComputeResourceValidator.Result result,
+        final ComputeResourceOffer offer
+        );
     }
 

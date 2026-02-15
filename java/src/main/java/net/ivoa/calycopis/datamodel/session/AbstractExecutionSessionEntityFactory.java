@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,32 +21,41 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.session.simple;
+package net.ivoa.calycopis.datamodel.session;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
- * A Factory for execution sessions.
- *
+ * 
  */
-public interface SimpleExecutionSessionEntityFactory
-    extends AbstractExecutionSessionEntityFactory<SimpleExecutionSessionEntity>
+public interface AbstractExecutionSessionEntityFactory<EntityType extends AbstractExecutionSessionEntity>
+extends FactoryBase
     {
-    
+
+    /**
+     * Select an ExecutionSessionEntity based on UUID.
+     *
+     */
+    public Optional<EntityType> select(final UUID uuid);
+
+    /**
+     * Select ExecutionSessionEntities based on phase.
+     *
+     */
+    public List<EntityType> select(final IvoaSimpleExecutionSessionPhase phase);
+
     /**
      * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
      *
      */
-    public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
+    public EntityType create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
-    /**
-     * Save an ExecutionSessionEntity.
-     *
-     */
-    public SimpleExecutionSessionEntity save(final SimpleExecutionSessionEntity entity);
-    
     }
-

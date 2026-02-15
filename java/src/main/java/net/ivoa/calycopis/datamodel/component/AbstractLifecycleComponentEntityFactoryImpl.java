@@ -24,17 +24,12 @@
 package net.ivoa.calycopis.datamodel.component;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -47,57 +42,20 @@ extends FactoryBaseImpl
 implements AbstractLifecycleComponentEntityFactory
     {
 
-    final AbstractExecutableEntityFactory      executableEntityFactory;
-    final AbstractComputeResourceEntityFactory computeResourceEntityFactory;
-    final AbstractDataResourceEntityFactory    dataResourceEntityFactory;
-    final AbstractStorageResourceEntityFactory storageResourceEntityFactory;
-    
     /**
      * 
      */
-    public AbstractLifecycleComponentEntityFactoryImpl(
-        final AbstractExecutableEntityFactory      executableEntityFactory,
-        final AbstractComputeResourceEntityFactory computeResourceEntityFactory,
-        final AbstractDataResourceEntityFactory    dataResourceEntityFactory,
-        final AbstractStorageResourceEntityFactory storageResourceEntityFactory
-        ){
-        super();
-        this.executableEntityFactory      = executableEntityFactory;
-        this.computeResourceEntityFactory = computeResourceEntityFactory;
-        this.dataResourceEntityFactory    = dataResourceEntityFactory;
-        this.storageResourceEntityFactory = storageResourceEntityFactory;
-
-        this.registerFactory(this.executableEntityFactory);
-        this.registerFactory(this.computeResourceEntityFactory);
-        this.registerFactory(this.dataResourceEntityFactory);
-        this.registerFactory(this.storageResourceEntityFactory);
-        
-        }
-
-    Map<URI, LifecycleComponentEntityFactory<?>> registry = new HashMap<URI, LifecycleComponentEntityFactory<?>>();
-
-    void registerFactory(
-        final LifecycleComponentEntityFactory<?> factory
-        ){
-        for (final URI kind : factory.getKinds())
-            {
-            this.registry.put(
-                kind,
-                factory
-                );
-            }
-        }
-    
-    @Override
-    public LifecycleComponentEntity select(final URI kind, final UUID uuid)
+    @Autowired
+    public AbstractLifecycleComponentEntityFactoryImpl()
         {
-        LifecycleComponentEntityFactory<?> factory = this.registry.get(kind);
-        if (factory!=null)
-            {
-            return factory.select(uuid).orElse(null);
-            }
-        else {
-            return null;
-            }
+        super();
         }
+
+    @Override
+    public LifecycleComponentEntity select(URI kind, UUID uuid)
+        {
+        // TODO Auto-generated method stub
+        return null;
+        }
+
     }

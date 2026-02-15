@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,15 +21,32 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.datamodel.executable.jupyter;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidator;
+import java.net.URI;
+import java.util.Set;
+
+import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  * 
  */
-public interface PodmanDockerContainerValidator
-extends DockerContainerValidator
+public abstract class JupyterNotebookEntityFactoryImpl
+extends FactoryBaseImpl
+implements JupyterNotebookEntityFactory
     {
+    private static final Set<URI> KINDS = Set.of(
+        JupyterNotebook.TYPE_DISCRIMINATOR
+        );
 
+    @Override
+    public Set<URI> getKinds()
+        {
+        return KINDS;
+        }
+
+    public JupyterNotebookEntityFactoryImpl()
+        {
+        super();
+        }
     }

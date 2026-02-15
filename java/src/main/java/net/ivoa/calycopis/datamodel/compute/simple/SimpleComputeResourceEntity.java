@@ -24,20 +24,17 @@
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
-import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
@@ -55,7 +52,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 @DiscriminatorValue(
     value = "uri:simple-compute-resources"
     )
-public class SimpleComputeResourceEntity
+public abstract class SimpleComputeResourceEntity
     extends AbstractComputeResourceEntity
     implements SimpleComputeResource
     {
@@ -78,7 +75,7 @@ public class SimpleComputeResourceEntity
      * Protected constructor with session, validation result, and offer.
      *
      */
-    public SimpleComputeResourceEntity(
+    protected SimpleComputeResourceEntity(
         final SimpleExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer
@@ -96,7 +93,7 @@ public class SimpleComputeResourceEntity
      * TODO validated can be replaced by Result.getObject()
      * 
      */
-    public SimpleComputeResourceEntity(
+    protected SimpleComputeResourceEntity(
         final SimpleExecutionSessionEntity session,
         final SimpleComputeResourceValidator.Result result,
         final ComputeResourceOffer offer,
@@ -260,112 +257,8 @@ public class SimpleComputeResourceEntity
         return bean;
         }
 
-    // TODO Move this to a Canfar Skaha specific class.
-    @Column(name="skahasessionid")
-    private String skahasessionid;
     @Override
-    public String getSkahaSessionID()
-        {
-        return this.skahasessionid;
-        }
+    public abstract ProcessingAction getPrepareAction(final ComponentProcessingRequest request);
 
-    
-    // TODO Move this to a test specific class.
-    @Column(name="preparecounter")
-    private int preparecounter;
-    public int getPrepareCounter()
-        {
-        return this.preparecounter;
-        }
-
-    @Override
-    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
-        {
-        return new ProcessingAction()
-            {
-
-            int count = SimpleComputeResourceEntity.this.preparecounter ;
-            
-            @Override
-            public boolean process()
-                {
-                log.debug(
-                    "Preparing [{}][{}] count [{}]",
-                    SimpleComputeResourceEntity.this.getUuid(),
-                    SimpleComputeResourceEntity.this.getClass().getSimpleName(),
-                    count
-                    );
-
-                count++;
-                try {
-                    Thread.sleep(1000);
-                    }
-                catch (InterruptedException e)
-                    {
-                    log.error(
-                        "Interrupted while preparing [{}][{}]",
-                        SimpleComputeResourceEntity.this.getUuid(),
-                        SimpleComputeResourceEntity.this.getClass().getSimpleName()
-                        );
-                    }
-
-                return true ;
-                }
-
-            @Override
-            public UUID getRequestUuid()
-                {
-                return request.getUuid();
-                }
-
-            @Override
-            public IvoaLifecyclePhase getNextPhase()
-                {
-                if (count < 4)
-                    {
-                    return IvoaLifecyclePhase.PREPARING ;
-                    }
-                else {
-                    return IvoaLifecyclePhase.AVAILABLE ;
-                    }
-                }
-            
-            @Override
-            public boolean postProcess(final LifecycleComponentEntity component)
-                {
-                log.debug(
-                    "Post processing [{}][{}]",
-                    component.getUuid(),
-                    component.getClass().getSimpleName()
-                    );
-                if (component instanceof SimpleComputeResourceEntity)
-                    {
-                    return postProcess(
-                        (SimpleComputeResourceEntity) component
-                        );
-                    }
-                else {
-                    log.error(  
-                        "Unexpected component type [{}] post processing [{}][{}]",
-                        component.getClass().getSimpleName(),
-                        component.getUuid(),
-                        component.getClass().getSimpleName()
-                        );
-                    return false ;
-                    }
-                }
-                
-            public boolean postProcess(final SimpleComputeResourceEntity component)
-                {
-                log.debug(
-                    "Post processing resource [{}][{}]",
-                    component.getUuid(),
-                    component.getClass().getSimpleName()
-                    );
-                component.preparecounter = this.count ;
-                return true ;
-                }
-            };
-        }
     }
 

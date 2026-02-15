@@ -16,16 +16,17 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
+import net.ivoa.calycopis.functional.validator.ValidatorBase;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
+import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
 
 /**
@@ -33,7 +34,7 @@ import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
  */
 @Slf4j
 public class OfferSetRequestParserContextImpl
-extends AbstractValidatorImpl
+extends ValidatorBase
     implements OfferSetRequestParserContext
     {
 
@@ -880,5 +881,107 @@ extends AbstractValidatorImpl
         log.debug("Total prepare time [{}]", this.totalPrepareTime);
 
         return this.totalPrepareTime ;
+        }
+    @Override
+    public List<MessageEntity> getMessages()
+        {
+        return this.offersetEntity.getMessages();
+        }
+    
+    @Override
+    public void addDebug(String type, String template)
+        {
+        this.offersetEntity.addDebug(
+            type,
+            template
+            );
+        }
+    
+    @Override
+    public void addDebug(String type, String template, Map<String, Object> values)
+        {
+        this.offersetEntity.addDebug(
+            type,
+            template,
+            values
+            );
+        }
+    
+    @Override
+    public void addInfo(String type, String template)
+        {
+        this.offersetEntity.addInfo(
+            type,
+            template
+            );
+        }
+    
+    @Override
+    public void addInfo(String type, String template, Map<String, Object> values)
+        {
+        this.offersetEntity.addInfo(
+            type,
+            template,
+            values
+            );
+        }
+    
+    @Override
+    public void addWarning(String type, String template)
+        {
+        this.offersetEntity.addWarning(
+            type,
+            template
+            );
+        }
+    
+    @Override
+    public void addWarning(String type, String template, Map<String, Object> values)
+        {
+        this.offersetEntity.addWarning(
+            type,
+            template,
+            values
+            );
+        }
+    
+    @Override
+    public void addError(String type, String template)
+        {
+        this.offersetEntity.addError(
+            type,
+            template
+            );
+        }
+    
+    @Override
+    public void addError(String type, String template, Map<String, Object> values)
+        {
+        this.offersetEntity.addError(
+            type,
+            template,
+            values
+            );
+        }
+    
+    @Override
+    public void addMessage(LevelEnum level, String type, String template)
+        {
+        this.offersetEntity.addMessage(
+            level,
+            type,
+            template
+            );
+        }
+    
+    @Override
+    public void addMessage(LevelEnum level, String type, String template, Map<String, Object> values)
+        {
+        this.offersetEntity.addMessage(
+            level,
+            type,
+            template,
+            values
+            );
         }
     }

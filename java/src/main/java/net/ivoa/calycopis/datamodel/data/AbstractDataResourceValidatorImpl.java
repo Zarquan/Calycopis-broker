@@ -41,7 +41,7 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleStorageResource;
  */
 @Slf4j
 public abstract class AbstractDataResourceValidatorImpl
-extends AbstractValidatorImpl
+extends AbstractValidatorImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
 implements AbstractDataResourceValidator
     {
     /**

@@ -31,5 +31,4 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 public interface SimpleComputeResourceValidator
 extends AbstractComputeResourceValidator
     {
-
     }

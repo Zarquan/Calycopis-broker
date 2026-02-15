@@ -98,6 +98,7 @@ extends LifecycleComponentEntity
 
     protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
         {
+        log.debug("FillBean [{}][{}][{}]", this.getUuid(), this.getClass().getSimpleName(), bean.getClass().getSimpleName());
         bean.setKind(
             this.getKind()
             );

@@ -21,33 +21,51 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
+package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
-import java.util.UUID;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 
 /**
  * 
  */
-public interface PodmanJupyterNotebookEntityFactory
-extends JupyterNotebookEntityFactory
+@Slf4j
+@Entity
+@Table(
+    name = "mockdockercontainers"
+    )
+@Inheritance(
+    strategy = InheritanceType.JOINED
+    )
+public class MockDockerContainerEntity
+    extends DockerContainerEntity
+    implements MockDockerContainer
     {
+
     /**
-     * Find a Entity based on UUID.
      * 
      */
-    public PodmanJupyterNotebookEntity select(final UUID uuid);
+    public MockDockerContainerEntity()
+        {
+        super();
+        }
 
     /**
-     * Create a new Entity based on a template.
      *
      */
-    public PodmanJupyterNotebookEntity create(
+    public MockDockerContainerEntity(
         final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
-        );
-
+        ){
+        super(
+            session,
+            result
+            );
+        }
     }

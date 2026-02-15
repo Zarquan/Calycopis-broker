@@ -45,9 +45,7 @@ public class AbstractExecutableEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractExecutableEntityFactory
     {
-
-    private AbstractExecutableEntityRepository repository;
-
+    
     private static final Set<URI> KINDS = Set.of(
         DockerContainer.TYPE_DISCRIMINATOR,
         JupyterNotebook.TYPE_DISCRIMINATOR
@@ -59,6 +57,8 @@ implements AbstractExecutableEntityFactory
         return KINDS ;
         }
 
+    private AbstractExecutableEntityRepository repository;
+
     @Autowired
     public AbstractExecutableEntityFactoryImpl(final AbstractExecutableEntityRepository repository)
         {
@@ -66,10 +66,13 @@ implements AbstractExecutableEntityFactory
         this.repository = repository;
         }
 
+    // TODO This is needed because of the Optional<>.
+    // Get rid of of the Optional<> and this whole class goes away,
+    // because the DockerContainer and JupyterNotebook factories
+    // can implement the AbstractExecutableEntityFactory interface.
     @Override
     public Optional<AbstractExecutableEntity> select(UUID uuid)
         {
         return repository.findById(uuid);
         }
-
     }

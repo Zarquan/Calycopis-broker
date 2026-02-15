@@ -22,14 +22,10 @@
  */
 package net.ivoa.calycopis.datamodel.executable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryBaseImpl;
+import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 
 /**
@@ -38,33 +34,15 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
  */
 @Component
 public class AbstractExecutableValidatorFactoryImpl
-    extends ValidatorFactoryBaseImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
+    extends ValidatorFactoryImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
     implements AbstractExecutableValidatorFactory
     {
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * TODO Make the platform abstract. 
-     * 
-     */
-    @Autowired
-    public AbstractExecutableValidatorFactoryImpl(
-        final Platform platform
-
-        ){
-        super();
-        this.validators.add(
-            new JupyterNotebookValidatorImpl(
-                platform
-                )
-            );
-        this.validators.add(
-            new DockerContainerValidatorImpl(
-                platform
-                )
-            );
-        }
     
+    public AbstractExecutableValidatorFactoryImpl()
+        {
+        super();
+        }
+
     @Override
     public void unknown(
         final OfferSetRequestParserContext context,
@@ -77,5 +55,4 @@ public class AbstractExecutableValidatorFactoryImpl
             );
         }
 
-    
     }

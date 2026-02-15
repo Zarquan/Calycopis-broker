@@ -14,21 +14,14 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
@@ -50,63 +43,16 @@ public class OfferSetRequestParserImpl
     extends FactoryBaseImpl
     implements OfferSetRequestParser
     {
-    /**
-     * Our schedule block factory.
-     * 
-     */
-    private final ComputeResourceOfferFactory computeOfferFactory;
 
-    // TODO Replace this with a builder ..
-    private final SimpleExecutionSessionEntityFactory executionSessionFactory;
-
-    /**
-     * Executable Validators.
-     * 
-     */
-    private final AbstractExecutableValidatorFactory executableValidators;
-
-    /**
-     * Storage resource Validators.
-     * 
-     */
-    private final AbstractStorageResourceValidatorFactory storageValidators;
-
-    /**
-     * Data resource Validators.
-     * 
-     */
-    private final AbstractDataResourceValidatorFactory dataValidators;
-
-    /**
-     * Volume mount Validators.
-     * 
-     */
-    private final AbstractVolumeMountValidatorFactory volumeValidators;
-
-    /**
-     * Compute resource Validators.
-     * 
-     */
-    private final AbstractComputeResourceValidatorFactory computeValidators;
+    private Platform platform ; 
 
     @Autowired
     public OfferSetRequestParserImpl(
-        final ComputeResourceOfferFactory offerBlockFactory, 
-        final AbstractExecutableValidatorFactory executableValidators,
-        final AbstractStorageResourceValidatorFactory storageValidators, 
-        final AbstractDataResourceValidatorFactory dataValidators, 
-        final AbstractVolumeMountValidatorFactory volumeValidators, 
-        final AbstractComputeResourceValidatorFactory computeValidators,
-        final SimpleExecutionSessionEntityFactory executionSessionFactory
+        final Platform platform 
         ){
         super();
-        this.computeOfferFactory  = offerBlockFactory ;
-        this.executableValidators = executableValidators ;
-        this.storageValidators    = storageValidators ;
-        this.dataValidators       = dataValidators ;
-        this.volumeValidators     = volumeValidators ;
-        this.computeValidators    = computeValidators ;
-        this.executionSessionFactory = executionSessionFactory;
+        this.platform = platform;
+        this.platform.initialize();
         }
     
     @Override
@@ -153,7 +99,7 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())
                 {
-                storageValidators.validate(
+                platform.getStorageResourceValidators().validate(
                     resource,
                     context
                     );
@@ -166,7 +112,7 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractDataResource resource : offersetRequest.getData())
                 {
-                dataValidators.validate(
+                platform.getDataResourceValidators().validate(
                     resource,
                     context
                     );
@@ -179,7 +125,7 @@ public class OfferSetRequestParserImpl
             {
             for (IvoaAbstractVolumeMount resource : offersetRequest.getVolumes())
                 {
-                volumeValidators.validate(
+                platform.getVolumeMountValidators().validate(
                     resource,
                     context
                     );
@@ -200,7 +146,8 @@ public class OfferSetRequestParserImpl
                         )
                     );            
             }
-        computeValidators.validate(
+
+        platform.getComputeResourceValidators().validate(
             computeResource,
             context
             );
@@ -211,7 +158,7 @@ public class OfferSetRequestParserImpl
         IvoaAbstractExecutable executableResource = offersetRequest.getExecutable();
         if (executableResource != null)
             {
-            executableValidators.validate(
+            platform.getExecutableValidators().validate(
                 executableResource,
                 context
                 );
@@ -381,10 +328,7 @@ public class OfferSetRequestParserImpl
      */
     public OfferSetRequestParserContext process(final OfferSetRequestParserContext context)
         {
-        log.debug("build(OfferSetRequestParserState)");
-
-        
-        
+        log.debug("process(OfferSetRequestParserContext)");
         
         //
         // Start with NO, and set to YES when we have at least one offer.
@@ -409,7 +353,7 @@ public class OfferSetRequestParserImpl
 
             //
             // Generate a list of offers for our criteria.
-            List<ComputeResourceOffer> computeOffers = computeOfferFactory.generate(
+            List<ComputeResourceOffer> computeOffers =  platform.getComputeResourceOfferFactory().generate(
                 context.getStartInterval(),
                 context.getExecutionDuration(),
                 context.getTotalMinCores(),
@@ -420,7 +364,11 @@ public class OfferSetRequestParserImpl
             for (ComputeResourceOffer computeOffer : computeOffers)
                 {
                 log.debug("OfferBlock [{}]", computeOffer.getStartTime());
-                SimpleExecutionSessionEntity executionSessionEntity = executionSessionFactory.create(
+                // TODO Fix this nasty class cast ....
+                // Needed because the platform returns an AbstractExecutionSessionEntityFactory, which creates an AbstractExecutionSessionEntity.
+                // To make this work we need to go down the rabbit hole and change all the things that use SimpleExecutionSessionEntity to use AbstractExecutionSessionEntity.
+                // TODO Later ...
+                SimpleExecutionSessionEntity executionSessionEntity = (SimpleExecutionSessionEntity) platform.getExecutionSessionFactory().create(
                     context.getOfferSetEntity(),
                     context,
                     computeOffer

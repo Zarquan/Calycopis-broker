@@ -33,4 +33,6 @@ public interface ValidatorFactory<ObjectType, EntityType extends ComponentEntity
     extends FactoryBase, Validator<ObjectType, EntityType>
     {
 
+    public void addValidator(final Validator<ObjectType, EntityType> validator);
+
     }
