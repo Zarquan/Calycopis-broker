@@ -14,20 +14,12 @@ import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
@@ -51,44 +43,6 @@ public class OfferSetRequestParserImpl
     extends FactoryBaseImpl
     implements OfferSetRequestParser
     {
-    /**
-     * Our schedule block factory.
-     * 
-     */
-    //private final ComputeResourceOfferFactory computeOfferFactory;
-
-    // TODO Replace this with a builder ..
-    //private final SimpleExecutionSessionEntityFactory executionSessionFactory;
-
-    /**
-     * Executable Validators.
-     * 
-     */
-    //private final AbstractExecutableValidatorFactory executableValidators;
-
-    /**
-     * Storage resource Validators.
-     * 
-     */
-    //private final AbstractStorageResourceValidatorFactory storageValidators;
-
-    /**
-     * Data resource Validators.
-     * 
-     */
-    //private final AbstractDataResourceValidatorFactory dataValidators;
-
-    /**
-     * Volume mount Validators.
-     * 
-     */
-    //private final AbstractVolumeMountValidatorFactory volumeValidators;
-
-    /**
-     * Compute resource Validators.
-     * 
-     */
-    //private final AbstractComputeResourceValidatorFactory computeValidators;
 
     private Platform platform ; 
 
@@ -374,10 +328,7 @@ public class OfferSetRequestParserImpl
      */
     public OfferSetRequestParserContext process(final OfferSetRequestParserContext context)
         {
-        log.debug("build(OfferSetRequestParserState)");
-
-        
-        
+        log.debug("process(OfferSetRequestParserContext)");
         
         //
         // Start with NO, and set to YES when we have at least one offer.

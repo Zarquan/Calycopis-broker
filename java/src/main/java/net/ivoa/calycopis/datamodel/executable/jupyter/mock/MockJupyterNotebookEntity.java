@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.datamodel.executable.jupyter.mock;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
@@ -29,9 +29,8 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 
 /**
  * 
@@ -39,20 +38,20 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 @Slf4j
 @Entity
 @Table(
-    name = "podmandockercontainers"
+    name = "mockjupyternotebooks"
     )
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class PodmanDockerContainerEntity
-    extends DockerContainerEntity
-    implements PodmanDockerContainer
+public class MockJupyterNotebookEntity
+extends JupyterNotebookEntity
+implements MockJupyterNotebook
     {
 
     /**
      * 
      */
-    public PodmanDockerContainerEntity()
+    public MockJupyterNotebookEntity()
         {
         super();
         }
@@ -60,7 +59,7 @@ public class PodmanDockerContainerEntity
     /**
      *
      */
-    public PodmanDockerContainerEntity(
+    public MockJupyterNotebookEntity(
         final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
         ){
@@ -68,12 +67,5 @@ public class PodmanDockerContainerEntity
             session,
             result
             );
-        }
-
-    @Override
-    protected IvoaAbstractExecutable fillBean(final IvoaAbstractExecutable bean)
-        {
-        super.fillBean(bean);
-        return bean;
         }
     }

@@ -21,33 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.datamodel.compute.simple.mock;
 
-import java.util.UUID;
-
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 
 /**
  * 
  */
-public interface PodmanDockerContainerEntityFactory
-extends DockerContainerEntityFactory
+public interface MockSimpleComputeResourceValidator
+extends AbstractComputeResourceValidator
     {
-    /**
-     * Find a DockerContainerEntity based on UUID.
-     * 
-     */
-    public PodmanDockerContainerEntity select(final UUID uuid);
-
-    /**
-     * Create a new DockerContainerEntity based on a template.
-     *
-     */
-    public PodmanDockerContainerEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractExecutableValidator.Result result
-        );
 
     }

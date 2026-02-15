@@ -22,12 +22,9 @@
  */
 package net.ivoa.calycopis.datamodel.compute;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
@@ -43,20 +40,9 @@ public class AbstractComputeResourceValidatorFactoryImpl
     implements AbstractComputeResourceValidatorFactory
     {
 
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * 
-     */
-    @Autowired
-    public AbstractComputeResourceValidatorFactoryImpl(final SimpleComputeResourceEntityFactory simpleComputeEntityFactory)
+    public AbstractComputeResourceValidatorFactoryImpl()
         {
         super();
-        this.validators.add(
-            new SimpleComputeResourceValidatorImpl(
-                simpleComputeEntityFactory
-                )
-            );
         }
 
     @Override
@@ -72,6 +58,4 @@ public class AbstractComputeResourceValidatorFactoryImpl
                 )
             );
         }
-
-    
     }

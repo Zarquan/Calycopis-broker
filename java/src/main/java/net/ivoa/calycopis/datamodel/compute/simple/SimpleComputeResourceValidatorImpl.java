@@ -22,8 +22,6 @@
  */
 package net.ivoa.calycopis.datamodel.compute.simple;
 
-import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
@@ -31,10 +29,9 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
-import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
@@ -42,25 +39,21 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
  * 
  */
 @Slf4j
-public class SimpleComputeResourceValidatorImpl
+public abstract class SimpleComputeResourceValidatorImpl
 extends AbstractComputeResourceValidatorImpl
 implements SimpleComputeResourceValidator
     {
 
-    /**
-     * Factory for creating Entities.
-     * 
-     */
-    final SimpleComputeResourceEntityFactory entityFactory;
-    
+    private final Platform platform;
+
     /**
      * Public constructor.
      * 
      */
-    public SimpleComputeResourceValidatorImpl(final SimpleComputeResourceEntityFactory entityFactory)
+    public SimpleComputeResourceValidatorImpl(final Platform platform)
         {
         super();
-        this.entityFactory = entityFactory ;
+        this.platform = platform;
         }
     
     @Override
@@ -107,6 +100,18 @@ implements SimpleComputeResourceValidator
      */
     public static final Long MAX_MEMORY_LIMIT   = 16L;
 
+    protected abstract boolean validateCores(
+        final IvoaSimpleComputeResource requested,
+        final IvoaSimpleComputeResource validated,
+        final OfferSetRequestParserContext context
+        );
+
+    protected abstract boolean validateMemory(
+        final IvoaSimpleComputeResource requested,
+        final IvoaSimpleComputeResource validated,
+        final OfferSetRequestParserContext context
+        );
+
     /**
      * Validate an IvoaAbstractComputeResource.
      *
@@ -129,119 +134,17 @@ implements SimpleComputeResourceValidator
                     )
                 );
         
-        Long mincores = MIN_CORES_DEFAULT;
-        Long maxcores = MIN_CORES_DEFAULT;
+        success &= validateCores(
+            requested,
+            validated,
+            context
+            );
 
-        if (requested.getCores() != null)
-            {
-            if (requested.getCores().getMin() != null)
-                {
-                mincores = requested.getCores().getMin();
-                }
-            if (requested.getCores().getMax() != null)
-                {
-                maxcores = requested.getCores().getMax();
-                }
-            }
-        
-        if (mincores > MAX_CORES_LIMIT)
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:resource-limit",
-                "Minimum cores exceeds available resources [${resource}][${cores}][${limit}]",
-                Map.of(
-                    "resource",
-                    requested.getMeta().getName(),
-                    "cores",
-                    mincores,
-                    "limit",
-                    MAX_CORES_LIMIT
-                    )
-                );
-            success = false;
-            }
-        if (maxcores > MAX_CORES_LIMIT)
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:resource-limit",
-                "Maximum cores exceeds available resources [${resource}][${cores}][${limit}]",
-                Map.of(
-                    "resource",
-                    requested.getMeta().getName(),
-                    "cores",
-                    maxcores,
-                    "limit",
-                    MAX_CORES_LIMIT
-                    )
-                );
-            success = false;
-            }
-
-        Long minmemory = MIN_MEMORY_DEFAULT;
-        Long maxmemory = MIN_MEMORY_DEFAULT;
-        Boolean minimalmemory = false;
-        
-        if (requested.getMemory() != null)
-            {
-            if (requested.getMemory().getMin() != null)
-                {
-                minmemory = requested.getMemory().getMin();
-                }
-            if (requested.getMemory().getMax() != null)
-                {
-                maxmemory = requested.getMemory().getMax();
-                }
-            }
-
-        if (minmemory > MAX_MEMORY_LIMIT)
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:resource-limit",
-                "Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
-                Map.of(
-                    "resource",
-                    requested.getMeta().getName(),
-                    "memory",
-                    minmemory,
-                    "limit",
-                    MAX_MEMORY_LIMIT
-                    )
-                );
-            success = false;
-            }
-
-        if (maxmemory > MAX_MEMORY_LIMIT)
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:resource-limit",
-                "Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
-                Map.of(
-                    "resource",
-                    requested.getMeta().getName(),
-                    "memory",
-                    maxmemory,
-                    "limit",
-                    MAX_MEMORY_LIMIT
-                    )
-                );
-            success = false;
-            }
-        
-        //
-        // Process the network ports.
-        // ....
-
-        // Save the results in our IvoaSimpleComputeResource 
-
-        IvoaSimpleComputeCores cores = new IvoaSimpleComputeCores();
-        cores.setMin(mincores);
-        cores.setMax(maxcores);
-        validated.setCores(cores);
-
-        IvoaSimpleComputeMemory memory = new IvoaSimpleComputeMemory();
-        memory.setMin(minmemory);
-        memory.setMax(maxmemory);
-        validated.setMemory(memory);
+        success &= validateMemory(
+            requested,
+            validated,
+            context
+            );
         
         //
         // Process the volume mounts.
@@ -293,7 +196,7 @@ implements SimpleComputeResourceValidator
                 @Override
                 public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
                     {
-                    this.entity = entityFactory.create(
+                    this.entity = platform.getComputeResourceEntityFactory().create(
                         session,
                         this,
                         offer
@@ -304,29 +207,15 @@ implements SimpleComputeResourceValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    // TODO This will be platform dependent.
-                    return DEFAULT_PREPARE_TIME;
+                    return estimatePrepareTime(
+                        validated
+                        );
                     }
                 };
             //
             // Add our Result to our context.
             context.addComputeValidatorResult(
                 result
-                );
-            //
-            // Update the running totals in our context.
-            // TODO Move these to ComputeResourceValidator.Result.
-            context.addMinCores(
-                mincores
-                );
-            context.addMaxCores(
-                maxcores
-                );
-            context.addMinMemory(
-                minmemory
-                );
-            context.addMaxMemory(
-                maxmemory
                 );
             context.dispatched(true);
             }
@@ -338,11 +227,18 @@ implements SimpleComputeResourceValidator
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 15L;
-    @Deprecated
-    private Long predictPrepareTime(final IvoaSimpleComputeResource validated)
-        {
-        log.debug("Predicting prepare time [{}]", validated.getMeta().getUuid());
-        return DEFAULT_PREPARE_TIME;
-        }
+    /**
+     * Predict the time to prepare a DockerContainer for execution.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimatePrepareTime(final IvoaSimpleComputeResource validated);
+
+    /**
+     * Predict the time to release a DockerContainer.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimateReleaseTime(final IvoaSimpleComputeResource validated);
+    
     }

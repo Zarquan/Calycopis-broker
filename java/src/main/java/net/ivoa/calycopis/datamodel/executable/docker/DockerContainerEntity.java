@@ -70,7 +70,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class DockerContainerEntity
+public abstract class DockerContainerEntity
     extends AbstractExecutableEntity
     implements DockerContainer
     {
@@ -85,6 +85,7 @@ public class DockerContainerEntity
         super();
         }
 
+    // TODO Get rid of the class cast.
     protected DockerContainerEntity(
         final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result
@@ -107,9 +108,11 @@ public class DockerContainerEntity
             validated.getMeta()
             );
 
+        log.debug("DockerContainerEntity validated [{}]", validated);
+
         this.privileged = validated.getPrivileged();
         this.entrypoint = validated.getEntrypoint();        
-
+        
         this.image = new ImageImpl(
             validated.getImage()
             );
@@ -273,44 +276,6 @@ public class DockerContainerEntity
                 }
             };
         }
-    
-    // TODO Should this be in a base class ?
-    public void schedule()
-        {
-/*
- * 
-        //
-        // Calculate the start time of each prepare step.
-        // Starting from the session available time and work backwards.
-        Instant time = this.getSession().getAvailableStartInstant();
-        for (PlanningStep step : this.getPrepareList().backwards())
-            {
-            time = time.minus(
-                step.getStepDuration()
-                );
-            step.setStartInstant(
-                time
-                );
-            }
-        
-        //
-        // Calculate the start time of each release step.
-        // Starting from the session completion time and work forwards.
-        time = this.getSession().getAvailableStartInstant().plus(
-            this.getSession().getAvailableDuration()
-            );
-        for (PlanningStep step : this.getReleaseList().forwards())
-            {
-            time = time.minus(
-                step.getStepDuration()
-                );
-            step.setStartInstant(
-                time
-                );
-            }
- * 
- */
-        }
 
     @Override
     public IvoaAbstractExecutable makeBean(final URIBuilder builder)
@@ -324,8 +289,9 @@ public class DockerContainerEntity
             );
         }
 
-    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean, final String baseUrl)
+    protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean)
         {
+        log.debug("FillBean [{}][{}][{}]", this.getUuid(), this.getClass().getSimpleName(), bean.getClass().getSimpleName());
         super.fillBean(
             bean
             );
@@ -344,6 +310,7 @@ public class DockerContainerEntity
                 );
             }
 
+        log.debug("DockerContainerEntity - fillBean - image [{}]", this.image);
         if (this.image != null)
             {
             IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();

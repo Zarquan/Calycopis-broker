@@ -21,34 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
+package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
-import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 
 /**
  * 
  */
-public class PodmanJupyterNotebookValidatorImpl
-extends JupyterNotebookValidatorImpl
-    implements PodmanJupyterNotebookValidator
+public interface MockDockerContainerEntityFactory
+extends DockerContainerEntityFactory
     {
-
-    public PodmanJupyterNotebookValidatorImpl(Platform platform)
-        {
-        super(platform);
-        }
-
-    /*
-     * TODO This will be platform dependent.
-     * 
-     */
-    public static final Long DEFAULT_PREPARE_TIME = 45L;
-    @Deprecated
-    @Override
-    protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
     }

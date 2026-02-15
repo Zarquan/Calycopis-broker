@@ -25,7 +25,8 @@
 
     Target:
 
-        Challemge Cursor to implement a major change.
+        Refactoring to move test code into mock components.
+        https://github.com/ivoa/Calycopis-broker/issues/348
 
     Result:
 
@@ -169,6 +170,95 @@
         public AbstractVolumeMountValidatorFactory     getVolumeValidators();
         public AbstractComputeResourceValidatorFactory getComputeValidators();
         public AbstractExecutionSessionEntityFactory   getExecutionSessionFactory();
+
+
+    #
+    # OK, several rabbit holes later, managed ot make the changes needed to support the change we want.
+    # All the validators come from the Platform interface, and we have a MockPlatform that implements it.
+    # Now we can make SimpleComputeResourceEntity abstract, and MockPlatform creates MockSimpleComputeResourceEntity.
+    # Getting here took ~3hrs and a lot of editing.
+    # My guess is Cursor would have done it in ~3min.
+    # (*) If I could have described what I wanted.
+    # (**) If we actually needed to do this in the first place.
+    # (***) I'll get better at letting go and letting AI do the work.
+    #
+
+    TestMock classes
+
+        SimpleComputeResourceEntity becomes abstract
+
+        MockSimpleComputeResourceEntity
+        extends SimpleComputeResourceEntity
+
+            Properties for implementing the tests.
+            Prepare resource waits for n x m loops.
+            e.g. 10 x 1sec
+            getPrepareTime() => 10sec
+
+        SimpleComputeResourceEntityFactory
+        replaced by
+        MockSimpleComputeResourceEntityFactory
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+
+    Does this mean we need a Mock implementation for all of the Entity classes ?
+    The Mock classes have additional fields, e.g. loop counters, and a different methods.
+    Much like the Podman classes ...
+    So yes.
+
+    Executable
+
+        Each type of Executable has different information about the source.
+        e.g. DockerConatiner and JupyterNotebook
+
+        That gets split into MockDockerConatiner and PodmanDockerConatiner.
+        MockDockerConatiner just uses a loop counter
+        PodmanDockerConatiner checks whether the image is in the local cache.
+        If not, it downloads the image to the local cache during the prepare step.
+
+    ComputeResource
+
+        We only have one type of SimpleComputeResource at the moment.
+        That gets split into MockSimpleComputeResource and PodmanComputeResource.
+        MockSimpleComputeResource just uses a loop counter
+        PodmanComputeResource has additional information about the Pod
+
+
+    StorageResource
+
+        We only have one type of SimpleStorageResource at the moment.
+        That gets split into MockSimpleStorageResource and PodmanSimpleStorageResource.
+        MockSimpleStorageResource just uses a loop during prepare
+        PodmanSimpleStorageResource has additional information about the Podman volume it represents.
+
+    VolumeMount
+
+        We only have one type of SimpleVolumeMount at the moment.
+        That gets split into MockSimpleVolumeMount and PodmanSimpleVolumeMount.
+        MockSimpleVolumeMount just uses a pause during prepare
+        PodmanSimpleVolumeMount doesn't need to do anything itself.
+        PodmanComputeResource manages the volume mounts
+
+
+    DataResource
+
+        Each type of DataResource has a different information about the source.
+        e.g. S3DataResource and RucioDataResource
+
+        Each type of DataResource has a different way of launching/saving/storing the data e.g. Mock and Podman.
+        S3DataResource saves the information about the S3 data source.
+
+        Then MockS3DataResource and PodmanS3DataResource implementations override the orchestration part.
+        MockS3DataResource just uses a loop counter
+        PodmanS3DataResource launches a S3 downloader app in the same Pod with the appropriate volume mount.
+
+
+
+
+
+
 
 
 

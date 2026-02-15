@@ -3,26 +3,19 @@
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
 
-import java.util.UUID;
-
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  *
  */
 public interface DockerContainerEntityFactory
-extends FactoryBase
+extends AbstractExecutableEntityFactory
     {
-    /**
-     * Find a DockerContainerEntity based on UUID.
-     * 
-     */
-    public DockerContainerEntity select(final UUID uuid);
 
     /**
-     * Create a new DockerContainerEntity based on a validation result.
+     * Create a new DockerContainerEntity based on a validator result.
      *
      */
     public DockerContainerEntity create(

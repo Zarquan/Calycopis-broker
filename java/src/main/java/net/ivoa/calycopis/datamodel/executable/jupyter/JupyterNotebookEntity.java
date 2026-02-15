@@ -46,7 +46,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
-public class JupyterNotebookEntity
+public abstract class JupyterNotebookEntity
     extends AbstractExecutableEntity
     implements JupyterNotebook
     {
@@ -61,6 +61,7 @@ public class JupyterNotebookEntity
         super();
         }
 
+    // TODO Get rid of the class cast.    
     protected JupyterNotebookEntity(
         final SimpleExecutionSessionEntity session,
         final AbstractExecutableValidator.Result result

@@ -85,7 +85,7 @@ implements ComponentProcessingRequest
     @Override
     public LifecycleComponentEntity getComponent(final Platform platform)
         {
-        return platform.getLifecycleComponentEntityFactory().select(
+        return platform.select(
             this.componentKind,
             this.componentUuid
             );

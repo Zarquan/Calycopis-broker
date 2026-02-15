@@ -1,7 +1,7 @@
 /**
  *
  */
-package net.ivoa.calycopis.datamodel.executable.docker.podman;
+package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
 import java.util.UUID;
 
@@ -13,8 +13,8 @@ import org.springframework.stereotype.Repository;
  *
  */
 @Repository
-public interface PodmanDockerContainerEntityRepository
-    extends JpaRepository<PodmanDockerContainerEntity, UUID>
+public interface MockDockerContainerEntityRepository
+    extends JpaRepository<MockDockerContainerEntity, UUID>
     {
 
     }

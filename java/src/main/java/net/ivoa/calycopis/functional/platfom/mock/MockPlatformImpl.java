@@ -23,22 +23,29 @@
 
 package net.ivoa.calycopis.functional.platfom.mock;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerValidatorImpl;
+import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
@@ -70,33 +77,141 @@ implements Platform
         {
         log.debug("initialize()");
         this.executableValidatorFactory.addValidator(
-            new JupyterNotebookValidatorImpl(
+            new MockJupyterNotebookValidatorImpl(
                 this
                 )
             );
         this.executableValidatorFactory.addValidator(
-            new DockerContainerValidatorImpl(
+            new MockDockerContainerValidatorImpl(
                 this
                 )
             );
+
+        this.computeResourceValidatorFactory.addValidator(
+            (AbstractComputeResourceValidator) new MockSimpleComputeResourceValidatorImpl(
+                this
+                )
+            );
+
+        
+        this.registerFactory(this.dockerContainerEntityFactory);
+        this.registerFactory(this.jupyterNotebookEntityFactory);
+        this.registerFactory(this.computeResourceEntityFactory);
+        this.registerFactory(this.dataResourceEntityFactory);
+        this.registerFactory(this.storageResourceEntityFactory);
+        
+        }
+
+// Compute    
+    
+    @Autowired
+    private ComputeResourceOfferFactory computeResourceOfferFactory;
+    @Override
+    public ComputeResourceOfferFactory getComputeResourceOfferFactory()
+        {
+        return this.computeResourceOfferFactory;
         }
     
     @Autowired
-    private DockerContainerEntityFactory dockerContainerEntityFactory;  
+    private AbstractComputeResourceEntityFactory computeResourceEntityFactory;
     @Override
-    public DockerContainerEntityFactory getDockerContainerEntityFactory()
+    public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory()
+        {
+        return this.computeResourceEntityFactory;
+        }
+
+    @Autowired
+    private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;
+    @Override
+    public AbstractComputeResourceValidatorFactory getComputeResourceValidators()
+        {
+        return this.computeResourceValidatorFactory;
+        }
+    
+// Data   
+
+    @Autowired
+    private AbstractDataResourceEntityFactory dataResourceEntityFactory;
+    @Override
+    public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
+        {
+        return this.dataResourceEntityFactory;
+        }
+    
+    @Autowired
+    private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
+    @Override
+    public AbstractDataResourceValidatorFactory getDataResourceValidators()
+        {
+        return this.dataResourceValidatorFactory;
+        }
+
+// Executable    
+
+    @Autowired
+    private AbstractExecutableValidatorFactory executableValidatorFactory;
+    @Override
+    public AbstractExecutableValidatorFactory getExecutableValidators()
+        {
+        return this.executableValidatorFactory;
+        }
+    
+    @Autowired
+    private MockDockerContainerEntityFactory dockerContainerEntityFactory;  
+    @Override
+    public MockDockerContainerEntityFactory getDockerContainerEntityFactory()
         {
         return this.dockerContainerEntityFactory;
         }
 
     @Autowired
-    private JupyterNotebookEntityFactory jupyterNotebookEntityFactory;
+    private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
     @Override
-    public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory()
+    public MockJupyterNotebookEntityFactory getJupyterNotebookEntityFactory()
         {
         return this.jupyterNotebookEntityFactory;
         }
+    
+// Storage
+    
+    @Autowired
+    private AbstractStorageResourceEntityFactory storageResourceEntityFactory;
+    @Override
+    public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory()
+        {
+        return this.storageResourceEntityFactory;
+        }
 
+    @Autowired
+    private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory;
+    @Override
+    public AbstractStorageResourceValidatorFactory getStorageResourceValidators()
+        {
+        return this.storageResourceValidatorFactory;
+        }
+
+// Volume
+    
+    @Autowired
+    private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
+    @Override
+    public AbstractVolumeMountValidatorFactory getVolumeMountValidators()
+        {
+        return this.volumeMountValidatorFactory;
+        }
+
+// Session
+    
+    @Autowired
+    private SimpleExecutionSessionEntityFactory executionSessionEntityFactory;
+    @Override
+    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory()
+        {
+        return this.executionSessionEntityFactory;
+        }
+
+// Processing
+    
     @Autowired
     private ProcessingRequestFactory processingRequestFactory;
     @Override
@@ -121,37 +236,8 @@ implements Platform
         return this.componentProcessingRequestFactory;
         }
 
-    @Autowired
-    private AbstractComputeResourceEntityFactory computeResourceEntityFactory;
-    @Override
-    public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory()
-        {
-        return this.computeResourceEntityFactory;
-        }
 
-    @Autowired
-    private AbstractDataResourceEntityFactory dataResourceEntityFactory;
-    @Override
-    public AbstractDataResourceEntityFactory getDataResourceEntityFactory()
-        {
-        return this.dataResourceEntityFactory;
-        }
-
-    @Autowired
-    private AbstractExecutableEntityFactory executableEntityFactory;
-    @Override
-    public AbstractExecutableEntityFactory getExecutableEntityFactory()
-        {
-        return this.executableEntityFactory;
-        }
-
-    @Autowired
-    private AbstractStorageResourceEntityFactory storageResourceEntityFactory;
-    @Override
-    public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory()
-        {
-        return this.storageResourceEntityFactory;
-        }
+// LifecycleComponent
 
     @Autowired
     private AbstractLifecycleComponentEntityFactory lifecycleComponentEntityFactory;
@@ -160,60 +246,31 @@ implements Platform
         {
         return this.lifecycleComponentEntityFactory;
         }
-
-    @Autowired
-    private ComputeResourceOfferFactory computeResourceOfferFactory;
-    @Override
-    public ComputeResourceOfferFactory getComputeResourceOfferFactory()
-        {
-        return this.computeResourceOfferFactory;
+    
+    Map<URI, LifecycleComponentEntityFactory<?>> registry = new HashMap<URI, LifecycleComponentEntityFactory<?>>();
+    
+    void registerFactory(
+        final LifecycleComponentEntityFactory<?> factory
+        ){
+        for (final URI kind : factory.getKinds())
+            {
+            this.registry.put(
+                kind,
+                factory
+                );
+            }
         }
-
-    @Autowired
-    private AbstractExecutableValidatorFactory executableValidatorFactory;
+    
     @Override
-    public AbstractExecutableValidatorFactory getExecutableValidators()
+    public LifecycleComponentEntity select(final URI kind, final UUID uuid)
         {
-        return this.executableValidatorFactory;
-        }
-
-    @Autowired
-    private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory;
-    @Override
-    public AbstractStorageResourceValidatorFactory getStorageResourceValidators()
-        {
-        return this.storageResourceValidatorFactory;
-        }
-
-    @Autowired
-    private AbstractDataResourceValidatorFactory dataResourceValidatorFactory;
-    @Override
-    public AbstractDataResourceValidatorFactory getDataResourceValidators()
-        {
-        return this.dataResourceValidatorFactory;
-        }
-
-    @Autowired
-    private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
-    @Override
-    public AbstractVolumeMountValidatorFactory getVolumeMountValidators()
-        {
-        return this.volumeMountValidatorFactory;
-        }
-
-    @Autowired
-    private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;
-    @Override
-    public AbstractComputeResourceValidatorFactory getComputeResourceValidators()
-        {
-        return this.computeResourceValidatorFactory;
-        }
-
-    @Autowired
-    private SimpleExecutionSessionEntityFactory executionSessionEntityFactory;
-    @Override
-    public AbstractExecutionSessionEntityFactory<?> getExecutionSessionFactory()
-        {
-        return this.executionSessionEntityFactory;
+        LifecycleComponentEntityFactory<?> factory = this.registry.get(kind);
+        if (factory != null)
+            {
+            return factory.select(uuid).orElse(null);
+            }
+        else {
+            return null;
+            }
         }
     }

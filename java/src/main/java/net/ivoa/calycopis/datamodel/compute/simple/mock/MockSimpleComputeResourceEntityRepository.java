@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2024 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,16 +20,15 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.compute.simple.mock;
 
-package net.ivoa.calycopis.datamodel.executable.jupyter.podman;
-
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidator;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityRepository;
 
 /**
- * 
+ * JpaRepository for SimpleComputeResourceEntity.
+ *
  */
-public interface PodmanJupyterNotebookValidator
-extends JupyterNotebookValidator
+public interface MockSimpleComputeResourceEntityRepository
+extends LifecycleComponentEntityRepository<MockSimpleComputeResourceEntity>
     {
-
     }

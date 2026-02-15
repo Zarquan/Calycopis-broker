@@ -23,11 +23,14 @@
 
 package net.ivoa.calycopis.datamodel.compute;
 
+import net.ivoa.calycopis.functional.validator.ValidatorFactory;
+import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+
 /**
  * 
  */
 public interface AbstractComputeResourceValidatorFactory
-extends AbstractComputeResourceValidator
+extends AbstractComputeResourceValidator, ValidatorFactory<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     {
 
     }

@@ -49,7 +49,7 @@ import net.ivoa.calycopis.spring.model.IvoaDockerPlatformSpec;
  *
  */
 @Slf4j
-public class DockerContainerValidatorImpl
+public abstract class DockerContainerValidatorImpl
 extends AbstractExecutableValidatorImpl
 implements DockerContainerValidator
     {
@@ -67,8 +67,7 @@ implements DockerContainerValidator
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaAbstractExecutable)");
-        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
+        log.debug("IvoaAbstractExecutable [{}][{}]", requested.getMeta(), requested.getClass().getName());
         if (requested instanceof IvoaDockerContainer)
             {
             validate(
@@ -86,8 +85,7 @@ implements DockerContainerValidator
         final IvoaDockerContainer requested,
         final OfferSetRequestParserContext context
         ){
-        log.debug("validate(IvoaDockerContainer)");
-        log.debug("Executable [{}][{}]", requested.getMeta(), requested.getClass().getName());
+        log.debug("IvoaDockerContainer [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
         boolean success = true ;
 
@@ -183,7 +181,7 @@ implements DockerContainerValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    return predictPrepareTime(
+                    return estimatePrepareTime(
                         validated
                         );
                     }
@@ -203,32 +201,6 @@ implements DockerContainerValidator
             context.dispatched(true);
             }
         }
-    
-
-    /**
-     * Validate the executable access methods.
-     *
-    public boolean validateAccess(
-        final List<IvoaExecutableAccessMethod> requested,
-        final IvoaDockerContainer validated,
-        final OfferSetRequestParserContext context
-        ){
-        log.debug("validateAccess(....)");
-        log.debug("Requested [{}]", requested);
-
-        boolean success = true ;
-
-        if ((requested != null) && (requested.isEmpty() == false))
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:server-assigned-value",
-                "Access methods should not be set"
-                );
-            success = false ;
-            }
-        return success;
-        }
-     */
 
     /**
      * Validate the container image location.
@@ -246,7 +218,7 @@ implements DockerContainerValidator
 
         if (requested != null)
             {
-            IvoaDockerImageSpec result = new IvoaDockerImageSpec();
+            IvoaDockerImageSpec image = new IvoaDockerImageSpec();
             if ((requested.getLocations() != null) && (requested.getLocations().isEmpty() == false))
                 {
                 for (String location : requested.getLocations())
@@ -256,13 +228,13 @@ implements DockerContainerValidator
                         location,
                         context
                         );
-                    result.addLocationsItem(
+                    image.addLocationsItem(
                         location
                         );
                     }
                 }
             else {
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:missig-required-value",
                     "DockerContainer - image location required"
                     );
@@ -272,12 +244,12 @@ implements DockerContainerValidator
             String digest = requested.getDigest();
             if (digest != null)
                 {
-                result.setDigest(
+                image.setDigest(
                     digest
                     );
                 if (isBadValueCheck(digest,context)) 
                     {
-                    context.getOfferSetEntity().addWarning(
+                    context.addWarning(
                         "urn:bad-value",
                         "DockerContainer - image digest matches badvalue blackist [{}]",
                         Map.of(
@@ -290,7 +262,7 @@ implements DockerContainerValidator
                 }
             else {
                 // TODO Make this configurable
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:missing-value",
                     "DockerContainer - image digest is required"
                     );
@@ -299,16 +271,17 @@ implements DockerContainerValidator
 
             success &= validatePlatform(
                 requested.getPlatform(),
-                result,
+                image,
                 context
                 );
-            
+
+            log.debug("Validated image [{}]", image);
             validated.setImage(
-                result
+                image
                 );
             }
         else {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-value",
                 "DockerContainer - image is required"
                 );
@@ -351,7 +324,7 @@ implements DockerContainerValidator
                         break ;
 
                     default:
-                        context.getOfferSetEntity().addWarning(
+                        context.addWarning(
                             "urn:invalied-value",
                             "DockerContainer - platform architecture not supported [{}]",
                             Map.of(
@@ -375,7 +348,7 @@ implements DockerContainerValidator
                         break ;
 
                     default:
-                        context.getOfferSetEntity().addWarning(
+                        context.addWarning(
                             "urn:invalied-value",
                             "DockerContainer - platform operating system not supported [{}]",
                             Map.of(
@@ -430,6 +403,17 @@ implements DockerContainerValidator
         return success;
         }
 
+    /**
+     * Apply any platform specific validation rules.
+     * 
+     */
+    protected abstract boolean validateNetworkPortPath(final String path, final OfferSetRequestParserContext context);
+
+    /**
+     * Apply any platform specific validation rules.
+     * 
+     */
+    protected abstract boolean validateNetworkPortNumber(final Integer portnum, final OfferSetRequestParserContext context);
 
     /**
      * Validate a container network port.
@@ -460,7 +444,7 @@ implements DockerContainerValidator
                 break ;
 
             default:
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:invalid-value",
                     "DockerContainer - unrecognised network port protocol [{}]",
                     Map.of(
@@ -476,7 +460,7 @@ implements DockerContainerValidator
         result.setPath(
             path
             );
-        success &= notBadValueCheck(
+        success &= validateNetworkPortPath(
             path,
             context
             );
@@ -488,9 +472,15 @@ implements DockerContainerValidator
                 portnum 
                 )
             );
+        success &= validateNetworkPortNumber(
+            portnum,
+            context
+            );
+
+        // Move this to the platform specific implementation, as some platforms may support this.
         if (portnum <= 0)
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:invalid-value",
                 "DockerContainer - negative network port number not supported [{}]",
                 Map.of(
@@ -504,7 +494,7 @@ implements DockerContainerValidator
         IvoaDockerExternalPort external = requested.getExternal();
         if (external != null)
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:not-supported",
                 "DockerContainer - setting external port details not supported"
                 );
@@ -577,7 +567,7 @@ implements DockerContainerValidator
         // TODO Make this configurable. 
         if ((requested != null) && (requested == true))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:not-supported",
                 "DockerContainer - Privileged execution not supported"
                 );
@@ -623,7 +613,7 @@ implements DockerContainerValidator
                     }
                 else if (isBadValueCheck(entry.getValue(),context))
                     {
-                    context.getOfferSetEntity().addWarning(
+                    context.addWarning(
                         "urn:bad-value",
                         "DockerContainer - environment variable value matches badvalue blacklist [{}]",
                         Map.of(
@@ -651,16 +641,19 @@ implements DockerContainerValidator
             }
         return success;
         }
-
-    /*
-     * TODO This will be platform dependent.
+    
+    /**
+     * Predict the time to prepare a DockerContainer for execution.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 45L;
-    @Deprecated
-    protected Long predictPrepareTime(final IvoaDockerContainer validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
-    
+    protected abstract Long estimatePrepareTime(final IvoaDockerContainer validated);
+
+    /**
+     * Predict the time to release a DockerContainer.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimateReleaseTime(final IvoaDockerContainer validated);
+
     }

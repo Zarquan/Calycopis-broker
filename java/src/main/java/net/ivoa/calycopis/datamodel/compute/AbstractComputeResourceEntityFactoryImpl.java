@@ -24,12 +24,7 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
@@ -39,16 +34,13 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  * 
  */
 @Slf4j
-@Component
-public class AbstractComputeResourceEntityFactoryImpl
+public abstract class AbstractComputeResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractComputeResourceEntityFactory
     {
 
-    private AbstractComputeResourceEntityRepository repository;
-
     private static final Set<URI> KINDS = Set.of(
-            SimpleComputeResource.TYPE_DISCRIMINATOR
+        SimpleComputeResource.TYPE_DISCRIMINATOR
         );
     
     @Override
@@ -56,18 +48,4 @@ implements AbstractComputeResourceEntityFactory
         {
         return KINDS ;
         }
-
-    @Autowired
-    public AbstractComputeResourceEntityFactoryImpl(final AbstractComputeResourceEntityRepository repository)
-        {
-        super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<AbstractComputeResourceEntity> select(UUID uuid)
-        {
-        return repository.findById(uuid);
-        }
-
     }

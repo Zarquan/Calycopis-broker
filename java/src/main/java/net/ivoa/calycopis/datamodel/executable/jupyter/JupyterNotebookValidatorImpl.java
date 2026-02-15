@@ -40,7 +40,7 @@ import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
  * 
  */
 @Slf4j
-public class JupyterNotebookValidatorImpl
+public abstract class JupyterNotebookValidatorImpl
 extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
 implements JupyterNotebookValidator
     {
@@ -138,7 +138,7 @@ implements JupyterNotebookValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    return predictPrepareTime(
+                    return estimatePrepareTime(
                         validated
                         );
                     }
@@ -157,7 +157,13 @@ implements JupyterNotebookValidator
             context.dispatched(true);
             }
         }
-    
+
+    /**
+     * Apply any platform specific validation rules.
+     * 
+     */
+    protected abstract boolean validateLocation(final String location, final OfferSetRequestParserContext context);
+
     /**
      * Validate the notebook location.
      * 
@@ -177,42 +183,42 @@ implements JupyterNotebookValidator
             );
         if ((location == null) || (location.isEmpty()))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "uri:missing-required-value",
-                "Notebook location required"
+                "JupyterNotebook - location is required"
                 );
             success = false ;
             }
         else {
-            success &= notBadValueCheck(
+            success &= validateLocation(
                 location,
                 context
                 );
             }
+
         if (success)
             {
             validated.setLocation(
                 location
                 );
             }
-        else {
-            validated.setLocation(
-                null
-                );
-            }
+        
         return success;
         }
 
-    /*
-     * TODO This will be platform dependent.
+    /**
+     * Predict the time to prepare a DockerContainer for execution.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 45L;
-    @Deprecated
-    protected Long predictPrepareTime(final IvoaJupyterNotebook validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
+    protected abstract Long estimatePrepareTime(final IvoaJupyterNotebook validated);
 
+    /**
+     * Predict the time to release a DockerContainer.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimateReleaseTime(final IvoaJupyterNotebook validated);
+    
     }
 

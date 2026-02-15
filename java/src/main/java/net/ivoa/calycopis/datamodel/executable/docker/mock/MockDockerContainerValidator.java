@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,16 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple;
+package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidator;
 
 /**
- * A SimpleComputeResource Factory.
- *
+ * 
  */
-public interface SimpleComputeResourceEntityFactory
-extends AbstractComputeResourceEntityFactory
+public interface MockDockerContainerValidator
+extends DockerContainerValidator
     {
-    }
 
+    }

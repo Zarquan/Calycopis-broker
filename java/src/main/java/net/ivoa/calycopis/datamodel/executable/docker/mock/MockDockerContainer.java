@@ -21,15 +21,15 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.podman;
+package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
-import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 
 /**
- *
+ * 
  */
-public interface PodmanPlatform
-extends Platform
+public interface MockDockerContainer
+extends DockerContainer
     {
 
     }

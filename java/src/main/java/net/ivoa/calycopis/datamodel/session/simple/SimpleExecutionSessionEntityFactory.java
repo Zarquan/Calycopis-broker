@@ -23,15 +23,10 @@
 
 package net.ivoa.calycopis.datamodel.session.simple;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * A Factory for execution sessions.

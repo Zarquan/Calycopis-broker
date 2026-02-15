@@ -23,15 +23,12 @@
 
 package net.ivoa.calycopis.datamodel.compute.simple;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.net.URI;
+import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -40,41 +37,18 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class SimpleComputeResourceEntityFactoryImpl
-    extends FactoryBaseImpl
-    implements SimpleComputeResourceEntityFactory
+public abstract class SimpleComputeResourceEntityFactoryImpl
+extends FactoryBaseImpl
+implements SimpleComputeResourceEntityFactory
     {
-
-    private final SimpleComputeResourceEntityRepository repository;
-
-    @Autowired
-    public SimpleComputeResourceEntityFactoryImpl(final SimpleComputeResourceEntityRepository repository)
-        {
-        super();
-        this.repository = repository;
-        }
+    private static final Set<URI> KINDS = Set.of(
+        SimpleComputeResource.TYPE_DISCRIMINATOR
+        );
 
     @Override
-    public Optional<SimpleComputeResourceEntity> select(UUID uuid)
+    public Set<URI> getKinds()
         {
-        return this.repository.findById(
-            uuid
-            );
-        }
-
-    @Override
-    public SimpleComputeResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final SimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer
-        ){
-        return this.repository.save(
-            new SimpleComputeResourceEntity(
-                session,
-                result,
-                offer
-                )
-            );
+        return KINDS ;
         }
     }
 

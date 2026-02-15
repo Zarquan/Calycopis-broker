@@ -35,7 +35,6 @@ public abstract class AbstractComputeResourceValidatorImpl
 extends AbstractValidatorImpl<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
 implements AbstractComputeResourceValidator
     {
-
     public AbstractComputeResourceValidatorImpl()
         {
         super();

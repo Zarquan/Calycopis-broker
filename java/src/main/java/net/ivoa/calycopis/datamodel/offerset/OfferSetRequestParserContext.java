@@ -11,6 +11,7 @@ import org.threeten.extra.Interval;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.datamodel.message.MessageSubject;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
@@ -23,6 +24,7 @@ import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
  *
  */
 public interface OfferSetRequestParserContext
+extends MessageSubject
     {
     /**
      * Get a reference to the parent parser.

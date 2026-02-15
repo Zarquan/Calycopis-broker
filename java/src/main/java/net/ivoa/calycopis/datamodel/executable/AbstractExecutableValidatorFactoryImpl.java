@@ -22,11 +22,9 @@
  */
 package net.ivoa.calycopis.datamodel.executable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 
@@ -39,13 +37,7 @@ public class AbstractExecutableValidatorFactoryImpl
     extends ValidatorFactoryImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
     implements AbstractExecutableValidatorFactory
     {
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * TODO Make the platform abstract. 
-     * 
-     */
-    @Autowired
+    
     public AbstractExecutableValidatorFactoryImpl()
         {
         super();
