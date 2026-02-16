@@ -45,12 +45,12 @@ extends AbstractValidatorImpl<IvoaAbstractExecutable, AbstractExecutableEntity>
 implements JupyterNotebookValidator
     {
     
-    private final Platform platform;
+    private final JupyterNotebookEntityFactory entityFactory;
 
     @Autowired
-    public JupyterNotebookValidatorImpl(final Platform platform)
+    public JupyterNotebookValidatorImpl(final JupyterNotebookEntityFactory entityFactory)
         {
-        this.platform = platform;
+        this.entityFactory = entityFactory;
         }
     
     @Override
@@ -129,7 +129,7 @@ implements JupyterNotebookValidator
                 @Override
                 public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return platform.getJupyterNotebookEntityFactory().create(
+                    return entityFactory.create(
                         session,
                         this
                         );

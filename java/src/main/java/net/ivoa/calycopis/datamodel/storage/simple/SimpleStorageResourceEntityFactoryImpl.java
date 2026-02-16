@@ -23,15 +23,9 @@
 
 package net.ivoa.calycopis.datamodel.storage.simple;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import java.net.URI;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -39,40 +33,18 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  *
  */
 @Slf4j
-@Component
-public class SimpleStorageResourceEntityFactoryImpl
+public abstract class SimpleStorageResourceEntityFactoryImpl
     extends FactoryBaseImpl
     implements SimpleStorageResourceEntityFactory
     {
 
-    private final SimpleStorageResourceEntityRepository repository;
+    public URI getKind()
+        {
+        return SimpleStorageResource.TYPE_DISCRIMINATOR;
+        }
 
-    @Autowired
-    public SimpleStorageResourceEntityFactoryImpl(
-        final SimpleStorageResourceEntityRepository repository
-        ){
+    public SimpleStorageResourceEntityFactoryImpl()
+        {
         super();
-        this.repository = repository;
-        }
-
-    @Override
-    public Optional<SimpleStorageResourceEntity> select(UUID uuid)
-        {
-        return this.repository.findById(
-            uuid
-            );
-        }
-
-    public SimpleStorageResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceValidator.Result result)
-        {
-        return this.repository.save(
-            new SimpleStorageResourceEntity(
-                session,
-                result
-                )
-            );
         }
     }
-

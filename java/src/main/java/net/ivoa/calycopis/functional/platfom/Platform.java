@@ -112,8 +112,8 @@ extends FactoryBase
     /**
      * Get the ComputeResourceEntityFactory for this platform.
      *
-     */
     public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory();
+     */
     
     /**
      * Get the DataResourceEntityFactory for this platform.
@@ -137,21 +137,21 @@ extends FactoryBase
      * Get the DockerContainerEntityFactory for this platform.
      * TODO Fold this into a generic ExecutableEntityFactory and remove the DockerContainerEntityFactory and JupyterNotebookEntityFactory from the platform interface.
      *
-     */
     public DockerContainerEntityFactory getDockerContainerEntityFactory();
+     */
 
     /**
      * Get the JupyterNotebookEntityFactory for this platform.
      * TODO Fold this into a generic ExecutableEntityFactory and remove the DockerContainerEntityFactory and JupyterNotebookEntityFactory from the platform interface.
      *
-     */
     public JupyterNotebookEntityFactory getJupyterNotebookEntityFactory();
+     */
     
     /**
      * Get the StorageResourceEntityFactory for this platform.
      *
-     */
     public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory();
+     */
 
     /**
      * Get the StorageResourceValidatorFactory for this platform.

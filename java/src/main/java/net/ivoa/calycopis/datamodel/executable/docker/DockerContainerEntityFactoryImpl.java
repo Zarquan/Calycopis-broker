@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.executable.docker;
 
 import java.net.URI;
-import java.util.Set;
 
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -35,14 +34,10 @@ public abstract class DockerContainerEntityFactoryImpl
 extends FactoryBaseImpl
 implements DockerContainerEntityFactory
     {
-    private static final Set<URI> KINDS = Set.of(
-        DockerContainer.TYPE_DISCRIMINATOR
-        );
-
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS;
+        return DockerContainer.TYPE_DISCRIMINATOR;
         }
 
     public DockerContainerEntityFactoryImpl()

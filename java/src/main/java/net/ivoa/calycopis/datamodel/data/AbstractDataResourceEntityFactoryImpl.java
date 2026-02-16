@@ -25,7 +25,6 @@ package net.ivoa.calycopis.datamodel.data;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +46,10 @@ implements AbstractDataResourceEntityFactory
 
     private AbstractDataResourceEntityRepository repository;
 
-    private static final Set<URI> KINDS = Set.of(
-        SimpleDataResource.TYPE_DISCRIMINATOR
-        );
-
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS ;
+        return SimpleDataResource.TYPE_DISCRIMINATOR;
         }
 
     @Autowired

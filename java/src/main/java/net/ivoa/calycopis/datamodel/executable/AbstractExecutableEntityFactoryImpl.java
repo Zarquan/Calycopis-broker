@@ -23,39 +23,22 @@
 
 package net.ivoa.calycopis.datamodel.executable;
 
-import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebook;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
  *
  */
 @Slf4j
-@Component
-public class AbstractExecutableEntityFactoryImpl
+public abstract class AbstractExecutableEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractExecutableEntityFactory
     {
-    
-    private static final Set<URI> KINDS = Set.of(
-        DockerContainer.TYPE_DISCRIMINATOR,
-        JupyterNotebook.TYPE_DISCRIMINATOR
-        );
-
-    @Override
-    public Set<URI> getKinds()
-        {
-        return KINDS ;
-        }
 
     private AbstractExecutableEntityRepository repository;
 

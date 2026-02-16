@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,38 +21,50 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage.simple;
+package net.ivoa.calycopis.datamodel.storage.simple.mock;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
 
 /**
- * A SimpleStorageResource Factory.
- *
+ * 
  */
-public interface SimpleStorageResourceEntityFactory
-extends AbstractStorageResourceEntityFactory
+@Slf4j
+@Entity
+@Table(
+    name = "mocksimplestorageresources"
+    )
+@DiscriminatorValue(
+    value="uri:mock-simple-storage-resource"
+    )
+public class MockSimpleStorageResourceEntity
+    extends SimpleStorageResourceEntity
+    implements MockSimpleStorageResource
     {
 
     /**
-     * Select a SimpleStorageResource based UUID.
-     *
+     * 
      */
-    public Optional<AbstractStorageResourceEntity> select(final UUID uuid);
+    public MockSimpleStorageResourceEntity()
+        {
+        super();
+        }
 
     /**
-     * Create a new SimpleStorageResourceEntity based on a template.
      *
      */
-    public SimpleStorageResourceEntity create(
+    public MockSimpleStorageResourceEntity(
         final SimpleExecutionSessionEntity session,
         final AbstractStorageResourceValidator.Result result
-        );
-
+        ){
+        super(
+            session,
+            result
+            );
+        }
     }
-
