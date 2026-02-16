@@ -54,12 +54,12 @@ extends AbstractExecutableValidatorImpl
 implements DockerContainerValidator
     {
 
-    private final Platform platform;
-
+    private final DockerContainerEntityFactory entityFactory;
+    
     @Autowired
-    public DockerContainerValidatorImpl(final Platform platform)
+    public DockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)
         {
-        this.platform = platform;
+        this.entityFactory = entityFactory;
         }
 
     @Override
@@ -172,7 +172,7 @@ implements DockerContainerValidator
                 @Override
                 public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return platform.getDockerContainerEntityFactory().create(
+                    return entityFactory.create(
                         session,
                         this
                         );

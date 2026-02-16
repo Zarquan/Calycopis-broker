@@ -24,6 +24,7 @@ package net.ivoa.calycopis.datamodel.compute.simple;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -44,16 +45,16 @@ extends AbstractComputeResourceValidatorImpl
 implements SimpleComputeResourceValidator
     {
 
-    private final Platform platform;
+    private final AbstractComputeResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
      * 
      */
-    public SimpleComputeResourceValidatorImpl(final Platform platform)
+    public SimpleComputeResourceValidatorImpl(final AbstractComputeResourceEntityFactory entityFactory)
         {
         super();
-        this.platform = platform;
+        this.entityFactory = entityFactory;
         }
     
     @Override
@@ -71,34 +72,6 @@ implements SimpleComputeResourceValidator
                 );
             }
         }
-
-    /**
-     * Hard coded defaults.
-     * TODO make these configurable.
-     * 
-     */
-    public static final Long MIN_CORES_DEFAULT =  1L ;
-
-    /**
-     * Hard coded defaults.
-     * TODO make these configurable.
-     * 
-     */
-    public static final Long MAX_CORES_LIMIT   = 16L ;
-
-    /**
-     * Hard coded defaults.
-     * TODO make these configurable.
-     * 
-     */
-    public static final Long MIN_MEMORY_DEFAULT =  1L;
-
-    /**
-     * Hard coded defaults.
-     * TODO make these configurable.
-     * 
-     */
-    public static final Long MAX_MEMORY_LIMIT   = 16L;
 
     protected abstract boolean validateCores(
         final IvoaSimpleComputeResource requested,
@@ -196,7 +169,7 @@ implements SimpleComputeResourceValidator
                 @Override
                 public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
                     {
-                    this.entity = platform.getComputeResourceEntityFactory().create(
+                    this.entity = entityFactory.create(
                         session,
                         this,
                         offer

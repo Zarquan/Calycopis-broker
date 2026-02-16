@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -41,14 +40,10 @@ public abstract class SimpleComputeResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements SimpleComputeResourceEntityFactory
     {
-    private static final Set<URI> KINDS = Set.of(
-        SimpleComputeResource.TYPE_DISCRIMINATOR
-        );
-
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS ;
+        return SimpleComputeResource.TYPE_DISCRIMINATOR;
         }
     }
 

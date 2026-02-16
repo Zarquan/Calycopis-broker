@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.executable.docker.mock;
 import java.util.List;
 import java.util.Map;
 
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.platfom.Platform;
@@ -39,9 +40,9 @@ extends DockerContainerValidatorImpl
 implements MockDockerContainerValidator
     {
 
-    public MockDockerContainerValidatorImpl(final Platform platform)
+    public MockDockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)
         {
-        super(platform);
+        super(entityFactory);
         }
 
     public static final Long DEFAULT_PREPARE_TIME = 35L;

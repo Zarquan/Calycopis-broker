@@ -25,6 +25,7 @@ package net.ivoa.calycopis.datamodel.compute.simple.mock;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.platfom.Platform;
@@ -46,9 +47,9 @@ implements MockSimpleComputeResourceValidator
      * Public constructor.
      * 
      */
-    public MockSimpleComputeResourceValidatorImpl(final Platform platform)
+    public MockSimpleComputeResourceValidatorImpl(final AbstractComputeResourceEntityFactory entityFactory)
         {
-        super(platform);
+        super(entityFactory);
         }
     
     public static final Long DEFAULT_PREPARE_TIME = 35L;
@@ -170,7 +171,7 @@ implements MockSimpleComputeResourceValidator
             {
             context.addWarning(
                 "urn:resource-limit",
-                "SimpleComputeResource - Minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                "SimpleComputeResource - Requested minimum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
                     requested.getMeta().getName(),
@@ -188,7 +189,7 @@ implements MockSimpleComputeResourceValidator
             maxmemory = MAX_MEMORY_LIMIT;
             context.addWarning(
                 "urn:resource-limit",
-                "SimpleComputeResource - Maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
+                "SimpleComputeResource - Requested maximum memory exceeds available resources [${resource}][${memory}][${limit}]",
                 Map.of(
                     "resource",
                     requested.getMeta().getName(),

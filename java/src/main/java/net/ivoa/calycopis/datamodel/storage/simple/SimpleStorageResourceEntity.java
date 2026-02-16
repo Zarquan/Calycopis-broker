@@ -47,7 +47,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 @DiscriminatorValue(
     value="uri:simple-storage-resource"
     )
-public class SimpleStorageResourceEntity
+public abstract class SimpleStorageResourceEntity
     extends AbstractStorageResourceEntity
     implements SimpleStorageResource
     {

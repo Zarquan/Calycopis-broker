@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.executable.jupyter;
 
 import java.net.URI;
-import java.util.Set;
 
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -35,14 +34,10 @@ public abstract class JupyterNotebookEntityFactoryImpl
 extends FactoryBaseImpl
 implements JupyterNotebookEntityFactory
     {
-    private static final Set<URI> KINDS = Set.of(
-        JupyterNotebook.TYPE_DISCRIMINATOR
-        );
-
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS;
+        return JupyterNotebook.TYPE_DISCRIMINATOR;
         }
 
     public JupyterNotebookEntityFactoryImpl()

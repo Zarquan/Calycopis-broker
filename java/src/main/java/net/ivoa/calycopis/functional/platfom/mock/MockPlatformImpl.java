@@ -36,8 +36,8 @@ import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFa
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
@@ -48,8 +48,9 @@ import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookE
 import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityFactory;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
@@ -78,22 +79,25 @@ implements Platform
         log.debug("initialize()");
         this.executableValidatorFactory.addValidator(
             new MockJupyterNotebookValidatorImpl(
-                this
+                this.jupyterNotebookEntityFactory
                 )
             );
         this.executableValidatorFactory.addValidator(
             new MockDockerContainerValidatorImpl(
-                this
+                this.dockerContainerEntityFactory
                 )
             );
-
         this.computeResourceValidatorFactory.addValidator(
-            (AbstractComputeResourceValidator) new MockSimpleComputeResourceValidatorImpl(
-                this
+            new MockSimpleComputeResourceValidatorImpl(
+                this.computeResourceEntityFactory
+                )
+            );
+        this.storageResourceValidatorFactory.addValidator(
+            new MockSimpleStorageResourceValidatorImpl(
+                this.storageResourceEntityFactory
                 )
             );
 
-        
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.computeResourceEntityFactory);
@@ -113,12 +117,7 @@ implements Platform
         }
     
     @Autowired
-    private AbstractComputeResourceEntityFactory computeResourceEntityFactory;
-    @Override
-    public AbstractComputeResourceEntityFactory getComputeResourceEntityFactory()
-        {
-        return this.computeResourceEntityFactory;
-        }
+    private MockSimpleComputeResourceEntityFactory computeResourceEntityFactory;
 
     @Autowired
     private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;
@@ -158,29 +157,14 @@ implements Platform
     
     @Autowired
     private MockDockerContainerEntityFactory dockerContainerEntityFactory;  
-    @Override
-    public MockDockerContainerEntityFactory getDockerContainerEntityFactory()
-        {
-        return this.dockerContainerEntityFactory;
-        }
 
     @Autowired
     private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;
-    @Override
-    public MockJupyterNotebookEntityFactory getJupyterNotebookEntityFactory()
-        {
-        return this.jupyterNotebookEntityFactory;
-        }
     
 // Storage
-    
+
     @Autowired
-    private AbstractStorageResourceEntityFactory storageResourceEntityFactory;
-    @Override
-    public AbstractStorageResourceEntityFactory getStorageResourceEntityFactory()
-        {
-        return this.storageResourceEntityFactory;
-        }
+    private MockSimpleStorageResourceEntityFactory storageResourceEntityFactory;
 
     @Autowired
     private AbstractStorageResourceValidatorFactory storageResourceValidatorFactory;
@@ -252,13 +236,10 @@ implements Platform
     void registerFactory(
         final LifecycleComponentEntityFactory<?> factory
         ){
-        for (final URI kind : factory.getKinds())
-            {
-            this.registry.put(
-                kind,
-                factory
-                );
-            }
+        this.registry.put(
+            factory.getKind(),
+            factory
+            );
         }
     
     @Override

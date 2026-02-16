@@ -26,36 +26,35 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaSimpleStorageResource;
+import net.ivoa.calycopis.spring.model.IvoaSimpleStorageSize;
 
 /**
  * A Validator implementation to handle simple storage resources.
  * 
  */
 @Slf4j
-public class SimpleStorageResourceValidatorImpl
+public abstract class SimpleStorageResourceValidatorImpl
 extends AbstractStorageResourceValidatorImpl
 implements SimpleStorageResourceValidator
     {
-    /**
-     * Factory for creating Entities.
-     * 
-     */
-    final SimpleStorageResourceEntityFactory entityFactory;
+
+    final AbstractStorageResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
      * 
      */
-    public SimpleStorageResourceValidatorImpl(
-        final SimpleStorageResourceEntityFactory entityFactory
-        ){
+    public SimpleStorageResourceValidatorImpl(final AbstractStorageResourceEntityFactory entityFactory)
+        {
         super();
-        this.entityFactory = entityFactory ;
+        this.entityFactory = entityFactory;
         }
     
     @Override
@@ -100,8 +99,12 @@ implements SimpleStorageResourceValidator
                 );
         
         //
-        // TODO Check available size.
-        //
+        // Check the requested size.
+        success &= validateSize(
+            requested,
+            validated,
+            context
+            );
         
         //
         // Calculate the preparation time.
@@ -143,8 +146,9 @@ implements SimpleStorageResourceValidator
                 @Override
                 public Long getPreparationTime()    
                     {
-                    // TODO This will be platform dependent.
-                    return DEFAULT_PREPARE_TIME;
+                    return estimatePrepareTime(
+                        validated
+                        );
                     }
                 };
             //
@@ -161,4 +165,30 @@ implements SimpleStorageResourceValidator
             context.dispatched(true);
             }
         }
+
+    /**
+     * Predict the time to prepare the resource.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimatePrepareTime(final IvoaSimpleStorageResource validated);
+
+    /**
+     * Predict the time to release the resource.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract Long estimateReleaseTime(final IvoaSimpleStorageResource validated);
+
+    /**
+     * Validate the requested srorage size.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * 
+     */
+    protected abstract boolean validateSize(
+            final IvoaSimpleStorageResource requested,
+            final IvoaSimpleStorageResource validated,
+            final OfferSetRequestParserContext context
+            );
+    
     }

@@ -24,7 +24,6 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import java.net.URI;
-import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
@@ -39,13 +38,9 @@ extends FactoryBaseImpl
 implements AbstractComputeResourceEntityFactory
     {
 
-    private static final Set<URI> KINDS = Set.of(
-        SimpleComputeResource.TYPE_DISCRIMINATOR
-        );
-    
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS ;
+        return SimpleComputeResource.TYPE_DISCRIMINATOR;
         }
     }

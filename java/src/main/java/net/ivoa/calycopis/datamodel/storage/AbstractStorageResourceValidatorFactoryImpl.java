@@ -22,12 +22,9 @@
  */
 package net.ivoa.calycopis.datamodel.storage;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 
@@ -40,24 +37,12 @@ public class AbstractStorageResourceValidatorFactoryImpl
 extends ValidatorFactoryImpl<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
 implements AbstractStorageResourceValidatorFactory
     {
-    
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * 
-     */
-    @Autowired
-    public AbstractStorageResourceValidatorFactoryImpl(
-        final SimpleStorageResourceEntityFactory storageResourceEntityFactory
-        ){
+
+    public AbstractStorageResourceValidatorFactoryImpl()
+        {
         super();
-        this.validators.add(
-            new SimpleStorageResourceValidatorImpl(
-                storageResourceEntityFactory
-                )
-            );
         }
-    
+
     @Override
     public void unknown(
         final OfferSetRequestParserContext context,
@@ -71,4 +56,3 @@ implements AbstractStorageResourceValidatorFactory
         }
 
     }
-

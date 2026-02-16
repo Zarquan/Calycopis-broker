@@ -26,6 +26,7 @@ package net.ivoa.calycopis.datamodel.executable.jupyter.mock;
 import java.util.List;
 import java.util.Map;
 
+import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.platfom.Platform;
@@ -39,9 +40,9 @@ extends JupyterNotebookValidatorImpl
     implements MockJupyterNotebookValidator
     {
 
-    public MockJupyterNotebookValidatorImpl(Platform platform)
+    public MockJupyterNotebookValidatorImpl(final JupyterNotebookEntityFactory entityFactory)
         {
-        super(platform);
+        super(entityFactory);
         }
 
     public static final List<String> LOCATION_BLACKLIST = List.of(

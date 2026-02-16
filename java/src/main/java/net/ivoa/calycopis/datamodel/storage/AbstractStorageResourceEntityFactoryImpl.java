@@ -25,7 +25,6 @@ package net.ivoa.calycopis.datamodel.storage;
 
 import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,21 +39,17 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class AbstractStorageResourceEntityFactoryImpl
+public abstract class AbstractStorageResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractStorageResourceEntityFactory
     {
 
     private AbstractStorageResourceEntityRepository repository;
 
-    private static final Set<URI> KINDS = Set.of(
-        SimpleStorageResource.TYPE_DISCRIMINATOR
-        );
-
     @Override
-    public Set<URI> getKinds()
+    public URI getKind()
         {
-        return KINDS ;
+        return SimpleStorageResource.TYPE_DISCRIMINATOR;
         }
 
     @Autowired

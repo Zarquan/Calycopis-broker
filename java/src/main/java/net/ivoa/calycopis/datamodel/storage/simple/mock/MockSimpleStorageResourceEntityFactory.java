@@ -21,17 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage;
+package net.ivoa.calycopis.datamodel.storage.simple.mock;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
+import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntityFactory;
 
 /**
- * Public interface for a StorageResource ValidatorFactory.
  * 
  */
-public interface AbstractStorageResourceValidatorFactory
-extends AbstractStorageResourceValidator, ValidatorFactory<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
+public interface MockSimpleStorageResourceEntityFactory
+extends SimpleStorageResourceEntityFactory
     {
-
     }
