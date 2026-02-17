@@ -18,6 +18,17 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 8,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.data.skao;
@@ -52,7 +63,7 @@ import net.ivoa.calycopis.spring.model.IvoaSkaoReplicaItem;
  *
  */
 @Slf4j
-public class SkaoDataResourceValidatorImpl
+public abstract class SkaoDataResourceValidatorImpl
 extends AbstractDataResourceValidatorImpl
 implements SkaoDataResourceValidator
     {
@@ -186,7 +197,7 @@ implements SkaoDataResourceValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    return predictPrepareTime(
+                    return estimatePrepareTime(
                         validated
                         );
                     }
@@ -271,14 +282,21 @@ implements SkaoDataResourceValidator
         return success ;
         }
 
+    /**
+     * Estimate the preparation time for this data resource.
+     * Subclasses must provide a platform-specific implementation.
+     * 
+     */
+    protected abstract Long estimatePrepareTime(final IvoaSkaoDataResource validated);
+
     /*
-     * TODO This will be platform dependent.
+     * Calculate preparation time based on transfer rates from the database.
      * Different PrepareData implementations will have different preparation times.
      * Some will just symlink the Rucio data, others will have an additional copy operation.
      * Alternatively we could offload all of this to the local PrepareData service ? 
      * 
      */
-    private Long predictPrepareTime(final IvoaSkaoDataResource validated)
+    protected Long predictPrepareTime(final IvoaSkaoDataResource validated)
         {
         log.debug("predictPrepareTime()");
 

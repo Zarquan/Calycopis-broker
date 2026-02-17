@@ -20,16 +20,28 @@
 #
 #zrq-notes-indent
 #
-# AIMetrics: []
+# AIMetrics: [
+#     {
+#     "name": "Cursor CLI",
+#     "version": "2026.02.13-41ac335",
+#     "model": "Claude 4.6 Opus (Thinking)",
+#     "contribution": {
+#       "value": 100,
+#       "units": "%"
+#       }
+#     }
+#   ]
 #
 
     Target:
 
-        Success
+        Asking Cursor CLI to fix a GitHub issue.
 
     Result:
 
-        Work in progress ...
+        Success, GitHub issue fixed and PullRequest merged.
+        https://github.com/ivoa/Calycopis-broker/issues/340
+        https://github.com/ivoa/Calycopis-broker/pull/345
 
 
 # -----------------------------------------------------

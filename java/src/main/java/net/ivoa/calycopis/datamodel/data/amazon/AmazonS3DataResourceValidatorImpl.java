@@ -18,6 +18,17 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.data.amazon;
@@ -40,7 +51,7 @@ import net.ivoa.calycopis.spring.model.IvoaS3DataResource;
  * 
  */
 @Slf4j
-public class AmazonS3DataResourceValidatorImpl
+public abstract class AmazonS3DataResourceValidatorImpl
 extends AbstractDataResourceValidatorImpl
 implements AmazonS3DataResourceValidator
     {
@@ -203,8 +214,7 @@ implements AmazonS3DataResourceValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    // TODO This will be platform dependent.
-                    return DEFAULT_PREPARE_TIME;
+                    return estimatePrepareTime(validated);
                     }
                 };
             //
@@ -227,15 +237,10 @@ implements AmazonS3DataResourceValidator
             }
         }
 
-    /*
-     * TODO This will be platform dependent.
+    /**
+     * Estimate the preparation time for this data resource.
+     * Subclasses must provide a platform-specific implementation.
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-    @Deprecated
-    private Long predictPrepareTime(final IvoaS3DataResource validated)
-        {
-        log.debug("predictPrepareTime()");
-        return DEFAULT_PREPARE_TIME;
-        }
+    protected abstract Long estimatePrepareTime(final IvoaS3DataResource validated);
     }

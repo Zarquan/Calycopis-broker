@@ -18,6 +18,17 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.data.simple;
@@ -38,7 +49,7 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
  * 
  */
 @Slf4j
-public class SimpleDataResourceValidatorImpl
+public abstract class SimpleDataResourceValidatorImpl
 extends AbstractDataResourceValidatorImpl
 implements SimpleDataResourceValidator
     {
@@ -163,8 +174,7 @@ implements SimpleDataResourceValidator
                 @Override
                 public Long getPreparationTime()
                     {
-                    // TODO This will be platform dependent.
-                    return DEFAULT_PREPARE_TIME;
+                    return estimatePrepareTime(validated);
                     }
                 };
             //
@@ -187,14 +197,10 @@ implements SimpleDataResourceValidator
             }
         }
 
-    /*
-     * TODO This will be platform dependent.
+    /**
+     * Estimate the preparation time for this data resource.
+     * Subclasses must provide a platform-specific implementation.
      * 
      */
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-    @Deprecated
-    protected Long predictPrepareTime(final IvoaAbstractDataResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
+    protected abstract Long estimatePrepareTime(final IvoaSimpleDataResource validated);
     }

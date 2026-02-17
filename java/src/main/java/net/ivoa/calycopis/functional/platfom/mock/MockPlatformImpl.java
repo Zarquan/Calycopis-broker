@@ -18,6 +18,26 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 8,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 15,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -41,6 +61,14 @@ import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourc
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerValidatorImpl;
@@ -55,6 +83,8 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
+
+import org.springframework.jdbc.core.JdbcTemplate;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
@@ -98,6 +128,32 @@ implements Platform
                 )
             );
 
+        this.dataResourceValidatorFactory.addValidator(
+            new MockSimpleDataResourceValidatorImpl(
+                this.mockSimpleDataResourceEntityFactory,
+                this.storageResourceValidatorFactory
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new MockAmazonS3DataResourceValidatorImpl(
+                this.mockAmazonS3DataResourceEntityFactory,
+                this.storageResourceValidatorFactory
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new MockIvoaDataResourceValidatorImpl(
+                this.mockIvoaDataResourceEntityFactory,
+                this.storageResourceValidatorFactory
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new MockSkaoDataResourceValidatorImpl(
+                this.jdbcTemplate,
+                this.mockSkaoDataResourceEntityFactory,
+                this.storageResourceValidatorFactory
+                )
+            );
+
         this.registerFactory(this.dockerContainerEntityFactory);
         this.registerFactory(this.jupyterNotebookEntityFactory);
         this.registerFactory(this.computeResourceEntityFactory);
@@ -128,6 +184,21 @@ implements Platform
         }
     
 // Data   
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private MockSimpleDataResourceEntityFactory mockSimpleDataResourceEntityFactory;
+
+    @Autowired
+    private MockAmazonS3DataResourceEntityFactory mockAmazonS3DataResourceEntityFactory;
+
+    @Autowired
+    private MockIvoaDataResourceEntityFactory mockIvoaDataResourceEntityFactory;
+
+    @Autowired
+    private MockSkaoDataResourceEntityFactory mockSkaoDataResourceEntityFactory;
 
     @Autowired
     private AbstractDataResourceEntityFactory dataResourceEntityFactory;

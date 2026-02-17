@@ -20,12 +20,22 @@
 #
 #zrq-notes-indent
 #
-# AIMetrics: []
+# AIMetrics: [
+#     {
+#     "name": "Cursor CLI",
+#     "version": "2026.02.13-41ac335",
+#     "model": "Claude 4.6 Opus (Thinking)",
+#     "contribution": {
+#       "value": 10,
+#       "units": "%"
+#       }
+#     }
+#   ]
 #
 
     Target:
 
-        Iterating with the Curson agent and Python tests
+        Iterating with the Cursor agent and Python tests
 
     Result:
 

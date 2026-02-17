@@ -30,7 +30,12 @@
 
     Result:
 
-        Work in progress ...
+        Success. GitHub issue foxed and PullRequest merged.
+        https://github.com/ivoa/Calycopis-broker/issues/348
+        https://github.com/ivoa/Calycopis-broker/pull/353
+
+        BUT it was a slow process.
+        My guess is Cursor would have done it in a fraction of the time.
 
 
 # -----------------------------------------------------

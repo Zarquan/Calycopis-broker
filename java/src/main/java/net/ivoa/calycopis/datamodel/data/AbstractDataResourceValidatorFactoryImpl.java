@@ -18,22 +18,24 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 40,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.data;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceValidatorImpl;
-import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
-import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 
@@ -48,39 +50,13 @@ public class AbstractDataResourceValidatorFactoryImpl
     {
 
     /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable. 
-     * TODO Make this part of Platform. 
+     * Default constructor.
+     * Validators are registered externally by the Platform. 
      * 
      */
-    @Autowired
-    public AbstractDataResourceValidatorFactoryImpl(
-        final JdbcTemplate jdbcTemplate,
-        final SimpleDataResourceEntityFactory simpleDataEntityFactory,
-        final IvoaDataResourceEntityFactory ivoaDataEntityFactory,
-        final SkaoDataResourceEntityFactory skaoDataEntityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
-        ){
+    public AbstractDataResourceValidatorFactoryImpl()
+        {
         super();
-        this.validators.add(
-            new SimpleDataResourceValidatorImpl(
-                simpleDataEntityFactory,
-                storageValidators
-                )
-            );
-        this.validators.add(
-            new SkaoDataResourceValidatorImpl(
-                jdbcTemplate,
-                skaoDataEntityFactory,
-                storageValidators
-                )
-            );
-        this.validators.add(
-            new IvoaDataResourceValidatorImpl(
-                ivoaDataEntityFactory,
-                storageValidators
-                )
-            );
         }
     
     @Override

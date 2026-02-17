@@ -18,17 +18,31 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.data;
+
+import net.ivoa.calycopis.functional.validator.ValidatorFactory;
+import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 
 /**
  * Public interface for a DataResource ValidatorFactory.
  * 
  */
 public interface AbstractDataResourceValidatorFactory
-extends AbstractDataResourceValidator
+extends AbstractDataResourceValidator, ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
     {
 
     }
