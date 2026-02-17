@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.volume.simple;
@@ -58,7 +70,7 @@ implements SimpleVolumeMountValidator
         }
 
     @Override
-    public void validate(
+    public ResultEnum validate(
         final IvoaAbstractVolumeMount requested,
         final OfferSetRequestParserContext context
         ){
@@ -67,13 +79,12 @@ implements SimpleVolumeMountValidator
         switch(requested)
             {
             case IvoaSimpleVolumeMount simple:
-                validate(
+                return validate(
                     simple,
                     context
                     );
-                break;
             default:
-                break;
+                return ResultEnum.CONTINUE;
             }
         }
 
@@ -81,7 +92,7 @@ implements SimpleVolumeMountValidator
      * Validate an IvoaSimpleVolumeMount.
      *
      */
-    public void validate(
+    public ResultEnum validate(
         final IvoaSimpleVolumeMount requested,
         final OfferSetRequestParserContext context
         ){
@@ -143,13 +154,13 @@ implements SimpleVolumeMountValidator
             context.addVolumeValidatorResult(
                 volumeResult
                 );
-            context.dispatched(true);
+            return ResultEnum.ACCEPTED;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            context.dispatched(true);
+            return ResultEnum.FAILED;
             }
         }
     }

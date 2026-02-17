@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,16 @@
  * AIMetrics: [
  *     {
  *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
@@ -70,7 +80,7 @@ implements SimpleComputeResourceValidator
         }
     
     @Override
-    public void validate(
+    public ResultEnum validate(
         final IvoaAbstractComputeResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -83,11 +93,12 @@ implements SimpleComputeResourceValidator
         // that should be handled by a more specific subclass validator.
         if (requested.getClass() == IvoaSimpleComputeResource.class)
             {
-            validate(
+            return validate(
                 (IvoaSimpleComputeResource) requested,
                 context
                 );
             }
+        return ResultEnum.CONTINUE;
         }
 
     protected abstract boolean validateCores(
@@ -106,7 +117,7 @@ implements SimpleComputeResourceValidator
      * Validate an IvoaAbstractComputeResource.
      *
      */
-    public void validate(
+    public ResultEnum validate(
         final IvoaSimpleComputeResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -207,13 +218,13 @@ implements SimpleComputeResourceValidator
             context.addComputeValidatorResult(
                 result
                 );
-            context.dispatched(true);
+            return ResultEnum.ACCEPTED;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            context.dispatched(true);
+            return ResultEnum.FAILED;
             }
         }
 

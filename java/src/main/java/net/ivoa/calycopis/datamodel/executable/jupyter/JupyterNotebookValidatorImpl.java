@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,6 +21,16 @@
  * AIMetrics: [
  *     {
  *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
@@ -66,7 +76,7 @@ implements JupyterNotebookValidator
         }
     
     @Override
-    public void validate(
+    public ResultEnum validate(
         final IvoaAbstractExecutable requested,
         final OfferSetRequestParserContext context
         ){
@@ -79,18 +89,19 @@ implements JupyterNotebookValidator
         // that should be handled by a more specific subclass validator.
         if (requested.getClass() == IvoaJupyterNotebook.class)
             {
-            validate(
+            return validate(
                 (IvoaJupyterNotebook) requested,
                 context
                 );
             }
+        return ResultEnum.CONTINUE;
         }
 
     /**
      * Validate an IvoaJupyterNotebook.
      *
      */
-    public void validate(
+    public ResultEnum validate(
         final IvoaJupyterNotebook requested,
         final OfferSetRequestParserContext context
         ){
@@ -165,13 +176,13 @@ implements JupyterNotebookValidator
             context.setExecutableResult(
                 result
                 );
-            context.dispatched(true);
+            return ResultEnum.ACCEPTED;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            context.dispatched(true);
+            return ResultEnum.FAILED;
             }
         }
 

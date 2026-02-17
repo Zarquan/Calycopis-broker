@@ -1,5 +1,23 @@
 /**
- * 
+ * <meta:header>
+ *   <meta:licence>
+ *     Copyright (C) 2026 University of Manchester.
+ *
+ *     This information is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This information is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   </meta:licence>
+ * </meta:header>
+ *
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
@@ -35,7 +53,7 @@ import net.ivoa.calycopis.spring.model.IvoaRequestedScheduleItem;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
- * 
+ *
  */
 @Slf4j
 @Component
@@ -44,17 +62,17 @@ public class OfferSetRequestParserImpl
     implements OfferSetRequestParser
     {
 
-    private Platform platform ; 
+    private Platform platform ;
 
     @Autowired
     public OfferSetRequestParserImpl(
-        final Platform platform 
+        final Platform platform
         ){
         super();
         this.platform = platform;
         this.platform.initialize();
         }
-    
+
     @Override
     public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
         {
@@ -78,11 +96,11 @@ public class OfferSetRequestParserImpl
             context
             );
         }
-    
+
     /**
      * Validate the request components.
      * TODO Move this into an OfferSetValidator.
-     * 
+     *
      */
     public OfferSetRequestParserContext validate(final OfferSetRequestParserContext context)
         {
@@ -144,7 +162,7 @@ public class OfferSetRequestParserImpl
                     new IvoaComponentMetadata().name(
                         "Default compute resource"
                         )
-                    );            
+                    );
             }
 
         platform.getComputeResourceValidators().validate(
@@ -171,26 +189,26 @@ public class OfferSetRequestParserImpl
                 );
             context.valid(false);
             }
-        
+
         //
         // Calculate the preparation time.
         context.calculateTotalPrepareTime();
-        
+
         //
         // Validate the schedule.
         validate(
             offersetRequest.getSchedule(),
             context
             );
-        
+
         return context;
         }
 
-    
+
 //
 // TODO Move this part to a separate schedule validator.
 //
-    
+
     /**
      * Default session duration, 2 hours.
      *
@@ -219,10 +237,10 @@ public class OfferSetRequestParserImpl
         Instant earliestStartTime = Instant.now().plusSeconds(
             context.getTotalPrepareTime()
             );
-        
+
         log.debug("Total prepare time [{}]",  context.getTotalPrepareTime());
         log.debug("Earliest start time [{}]", earliestStartTime);
-        
+
         if (schedule != null)
             {
             IvoaRequestedScheduleItem requested = schedule.getRequested();
@@ -257,7 +275,7 @@ public class OfferSetRequestParserImpl
                         context.valid(false);
                         }
                     }
-                
+
                 String startString = requested.getStart();
                 if (startString != null)
                     {
@@ -321,15 +339,15 @@ public class OfferSetRequestParserImpl
             }
         return success ;
         }
-    
+
     /**
      * Build the entities from the validated input.
-     *  
+     *
      */
     public OfferSetRequestParserContext process(final OfferSetRequestParserContext context)
         {
         log.debug("process(OfferSetRequestParserContext)");
-        
+
         //
         // Start with NO, and set to YES when we have at least one offer.
         IvoaOfferSetResponse.ResultEnum resultEnum = IvoaOfferSetResponse.ResultEnum.NO;
@@ -344,7 +362,7 @@ public class OfferSetRequestParserImpl
             log.debug("Generating offers ....");
             log.debug("Execution start [{}]", context.getStartInterval());
             log.debug("Execution duration [{}]", context.getExecutionDuration());
-            
+
             log.debug("Min cores [{}]",  context.getTotalMinCores());
             log.debug("Max cores [{}]",  context.getTotalMaxCores());
             log.debug("Min memory [{}]", context.getTotalMinMemory());
@@ -360,7 +378,7 @@ public class OfferSetRequestParserImpl
                 context.getTotalMinMemory()
                 );
             //
-            // Create an ExecutionSession for each offer. 
+            // Create an ExecutionSession for each offer.
             for (ComputeResourceOffer computeOffer : computeOffers)
                 {
                 log.debug("OfferBlock [{}]", computeOffer.getStartTime());
@@ -374,7 +392,7 @@ public class OfferSetRequestParserImpl
                     computeOffer
                     );
                 log.debug("ExecutionEntity [{}]", executionSessionEntity);
-                
+
                 //
                 // Build a new ExecutableEntity and add it to our SessionEntity.
                 executionSessionEntity.setExecutable(
@@ -382,7 +400,7 @@ public class OfferSetRequestParserImpl
                         executionSessionEntity
                         )
                     );
-                
+
                 //
                 // Add our compute resources
                 for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
@@ -416,7 +434,7 @@ public class OfferSetRequestParserImpl
                         executionSessionEntity
                         );
                     }
-                
+
                 //
                 // Confirm we have at least one result.
                 resultEnum = IvoaOfferSetResponse.ResultEnum.YES;
