@@ -20,11 +20,22 @@
  *
  * AIMetrics: [
  *     {
+ *     "timestamp": "2026-02-14T15:30:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 8,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 2,
  *       "units": "%"
  *       }
  *     }
@@ -102,7 +113,10 @@ implements SkaoDataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", context.makeDataValidatorResultKey(requested), requested.getClass().getName());
-        if (requested instanceof IvoaSkaoDataResource)
+        //
+        // Use exact class matching rather than instanceof to ensure each
+        // validator only handles its specific type, not parent or sibling types.
+        if (requested.getClass() == IvoaSkaoDataResource.class)
             {
             validate(
                 (IvoaSkaoDataResource) requested,
@@ -222,10 +236,15 @@ implements SkaoDataResourceValidator
             }
         }
 
-    // Inherit this from Ivoa validator ?
+    /**
+     * Validate the IvoaDataResourceBlock within a SkaoDataResource.
+     * Note: IvoaSkaoDataResource extends IvoaAbstractDataResource directly
+     * (not IvoaIvoaDataResource), so this method accepts IvoaSkaoDataResource
+     * rather than IvoaIvoaDataResource.
+     */
     public boolean validate(
         final IvoaIvoaDataResourceBlock requested,
-        final IvoaIvoaDataResource validated,
+        final IvoaSkaoDataResource validated,
         final OfferSetRequestParserContext context
         ){
         boolean success = true ;
@@ -261,8 +280,17 @@ implements SkaoDataResourceValidator
             {
             IvoaSkaoDataResourceBlock block = new IvoaSkaoDataResourceBlock();
             validated.setSkao(block);
-            // TODO Validate the values.
-            block.setNamespace(requested.getNamespace());
+            String namespace = requested.getNamespace();
+            if (namespace != null && !namespace.isEmpty())
+                {
+                if (validateNamespace(namespace, context))
+                    {
+                    block.setNamespace(namespace);
+                    }
+                else {
+                    success = false;
+                    }
+                }
             block.setObjectname(requested.getObjectname());
             block.setObjecttype(requested.getObjecttype());
             block.setDatasize(requested.getDatasize());
@@ -281,6 +309,12 @@ implements SkaoDataResourceValidator
             }
         return success ;
         }
+
+    /**
+     * Apply any platform specific validation rules to the SKAO namespace.
+     * 
+     */
+    protected abstract boolean validateNamespace(final String namespace, final OfferSetRequestParserContext context);
 
     /**
      * Estimate the preparation time for this data resource.

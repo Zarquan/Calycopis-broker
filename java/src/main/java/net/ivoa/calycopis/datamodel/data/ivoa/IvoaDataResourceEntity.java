@@ -50,6 +50,7 @@ import net.ivoa.calycopis.spring.model.IvoaIvoaDataLinkItem;
 import net.ivoa.calycopis.spring.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.spring.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.spring.model.IvoaIvoaObsCoreItem;
+import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
 import net.ivoa.calycopis.util.URIBuilder;
 
 /**
@@ -108,6 +109,40 @@ public abstract class IvoaDataResourceEntity
         final AbstractStorageResourceEntity storage,
         final AbstractDataResourceValidator.Result result,
         final IvoaIvoaDataResource validated
+        ){
+        super(
+            session,
+            storage,
+            result,
+            validated.getMeta()
+            );
+
+        IvoaIvoaDataResourceBlock ivoa = validated.getIvoa();
+        if (null != ivoa)
+            {
+            this.ivoid = ivoa.getIvoid();
+            this.obsCoreImpl = new ObsCoreImpl(
+                ivoa.getObscore()
+                ); 
+            this.dataLinkImpl = new DataLinkImpl(
+                ivoa.getDatalink()
+                );
+            }
+        }
+
+    /**
+     * Protected constructor for SkaoDataResource, which now extends
+     * AbstractDataResource directly rather than IvoaDataResource.
+     * Both IvoaSkaoDataResource and IvoaIvoaDataResource share the
+     * same ivoa block type, so we can initialize the IVOA fields
+     * from either.
+     *
+     */
+    protected IvoaDataResourceEntity(
+        final SimpleExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result,
+        final IvoaSkaoDataResource validated
         ){
         super(
             session,
@@ -394,7 +429,32 @@ public abstract class IvoaDataResourceEntity
     protected IvoaIvoaDataResource fillBean(final IvoaIvoaDataResource bean)
         {
         super.fillBean(bean);
+        fillIvoaBlock(bean);
+        return bean;
+        }
 
+    /**
+     * Fill the ivoa block on a SkaoDataResource bean.
+     * IvoaSkaoDataResource is now a sibling of IvoaIvoaDataResource
+     * (both extend IvoaAbstractDataResource), so it needs its own
+     * fillBean overload.
+     *
+     */
+    protected IvoaSkaoDataResource fillBean(final IvoaSkaoDataResource bean)
+        {
+        super.fillBean(bean);
+        fillIvoaBlock(bean);
+        return bean;
+        }
+
+    /**
+     * Shared helper to populate the ivoa block on any data resource
+     * that has setIvoa(IvoaIvoaDataResourceBlock).
+     * Both IvoaIvoaDataResource and IvoaSkaoDataResource have this method.
+     *
+     */
+    private void fillIvoaBlock(final IvoaIvoaDataResource bean)
+        {
         IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
         bean.setIvoa(
             block
@@ -414,7 +474,29 @@ public abstract class IvoaDataResourceEntity
                 this.getDataLink().getIvoaBean()
                 );
             }
-        return bean;
+        }
+
+    private void fillIvoaBlock(final IvoaSkaoDataResource bean)
+        {
+        IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
+        bean.setIvoa(
+            block
+            );
+        block.setIvoid(
+            this.getIvoid()
+            );
+        if (null != this.getObsCore())
+            {
+            block.setObscore(
+                this.getObsCore().getIvoaBean()
+                );
+            }
+        if (null != this.getDataLink())
+            {
+            block.setDatalink(
+                this.getDataLink().getIvoaBean()
+                );
+            }
         }
     }
 

@@ -272,7 +272,7 @@
     >    │   • Images/files: [Image] and [File: filename]                                                                                                                                           │
     >    │                                                                                                                                                                                          │
     >    └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
 
 # -----------------------------------------------------
 # Ask Cursor to estimate the percent changed in each of the files it created or edited.
@@ -291,9 +291,9 @@
     >     │                                                                                                                                                                                          │
     >     │ New Files Created:                                                                                                                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Let me check the actual files to give you accurate percentage estimates.
-    >   
+    >
     >     $ wc -l /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/mock/MockSimpleStorageResource.java
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/mock/MockSimpleStorageResourceEntity.java
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/mock/MockSimpleStorageResourceEntityFactory.java
@@ -304,7 +304,7 @@
     >          35 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/mock/M​ockSimpleStorageResource.java
     >          70 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/mock/M​ockSimpleStorageResourceEntity.java
     >       … truncated (7 more lines) · ctrl+o to expand
-    >   
+    >
     >     $ wc -l /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntity.java
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceEntityFactoryImpl.java
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/SimpleStorageResourceValidatorImpl.java
@@ -322,13 +322,13 @@
     >         126 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/Simple​StorageResourceEntity.java
     >          50 /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/storage/simple/Simple​StorageResourceEntityFactoryImpl.java
     >       … truncated (14 more lines) · ctrl+o to expand
-    >   
+    >
     >     Here's the full list:
-    >   
-    >   
+    >
+    >
     >     New Files Created (7 files, 380 lines total)
-    >   
-    >   
+    >
+    >
     >     ┌─────────────────────────────────────────────────────────────────────────┬───────┐
     >     │ File                                                                    │ Lines │
     >     ├─────────────────────────────────────────────────────────────────────────┼───────┤
@@ -340,12 +340,12 @@
     >     │ .../storage/simple/mock/MockSimpleStorageResourceValidator.java         │ 35    │
     >     │ .../storage/simple/mock/MockSimpleStorageResourceValidatorImpl.java     │ 132   │
     >     └─────────────────────────────────────────────────────────────────────────┴───────┘
-    >   
-    >   
-    >   
+    >
+    >
+    >
     >     Modified Files (14 files)
-    >   
-    >   
+    >
+    >
     >     ┌───────────────────────────────────────────────────────────┬──────┬──────────────┬────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ File                                                      │ Line │ Est. %       │ Nature of Changes                                                                                      │
     >     │                                                           │ s    │ Changed      │                                                                                                        │
@@ -371,9 +371,9 @@
     >     │ .../compute/AbstractComputeResourceEntityFactoryImpl.java │ 46   │ ~15%         │ getKinds() -> getKind(), removed Set/KINDS                                                             │
     >     │ .../data/AbstractDataResourceEntityFactoryImpl.java       │ 68   │ ~15%         │ getKinds() -> getKind(), removed Set/KINDS                                                             │
     >     └───────────────────────────────────────────────────────────┴──────┴──────────────┴────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Totals: 7 new files (380 lines), 14 modified files (~1,159 lines total, with varying degrees of change).
-    >   
+    >
 
     Each of the files in the project should have a small JSON fragment in the file header comment that lists the percentage contributed to the file by an AI agent.
     A file that has no AI contributions should have this in the header:
@@ -407,8 +407,8 @@
 
     Can you update the AI contribution metrics in the headers of the files that you mopdified or created.
 
-    >   
-    >   
+    >
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 4.7s                                                                                                                                                                       │
     >     │ The user wants me to add AIMetrics JSON fragments to the header comments of all files I created or modified. Since these are Java files, the comment syntax will use // or /* */         │
@@ -418,14 +418,14 @@
     >     │                                                                                                                                                                                          │
     >     │ Let me read a few files to understand the header comment style.                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ To-do Working on 3 to-dos
     >       ☐ Read headers of all 21 files (7 new + 14 modified) to understand existing comment style
     >       ☐ Add AIMetrics with 100% to 7 new mock files
     >       ☐ Add AIMetrics with appropriate % to 14 modified files
-    >   
+    >
     >     Let me read the headers of all the files to understand the existing comment style.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 24s                                                                                                                                                                        │
     >     │ ... (29 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -436,20 +436,20 @@
     >     │                                                                                                                                                                                          │
     >     │ /*                                                                                                                                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read 21 files
     >       … 18 earlier items hidden
     >       Read ...ple/SimpleComputeResourceEntityFactoryImpl.java
     >       Read ...e/AbstractComputeResourceEntityFactoryImpl.java
     >       Read ...data/AbstractDataResourceEntityFactoryImpl.java
-    >   
+    >
     >     Now I have a clear picture of all headers. These are Java files, so I'll adapt the # comment syntax to * inside the existing block comment headers. Let me start updating all 21 files.
-    >   
+    >
     >     ⬢ To-do Working on 2 to-dos • 1 done
     >       ☒ Read headers of all 21 files (7 new + 14 modified) to understand existing comment style
     >       ☐ Add AIMetrics with 100% to 7 new mock files
     >       ☐ Add AIMetrics with appropriate % to 14 modified files
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...rage/simple/mock/MockSimpleStorageResource.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -467,7 +467,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...imple/mock/MockSimpleStorageResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -485,7 +485,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ock/MockSimpleStorageResourceEntityFactory.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -503,7 +503,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...MockSimpleStorageResourceEntityFactoryImpl.java +13 -1                                                                                                                                │
     >     │                                                                                                                                                                                          │
@@ -521,7 +521,7 @@
     >     │ +  *       }                                                                                                                                                                             │
     >     │  … truncated (5 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../MockSimpleStorageResourceEntityRepository.java +13 -1                                                                                                                                │
     >     │                                                                                                                                                                                          │
@@ -539,7 +539,7 @@
     >     │ +  *       }                                                                                                                                                                             │
     >     │  … truncated (5 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...le/mock/MockSimpleStorageResourceValidator.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -557,7 +557,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ock/MockSimpleStorageResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -575,14 +575,14 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     All 7 new files updated with 100%. Now updating the 14 modified files with their estimated contribution percentages.
-    >   
+    >
     >     ⬢ To-do Working on 1 to-do • 2 done
     >       ☒ Read headers of all 21 files (7 new + 14 modified) to understand existing comment style
     >       ☒ Add AIMetrics with 100% to 7 new mock files
     >       ☐ Add AIMetrics with appropriate % to 14 modified files
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...storage/simple/SimpleStorageResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -600,7 +600,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ple/SimpleStorageResourceEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -618,7 +618,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../simple/SimpleStorageResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -636,7 +636,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...bstractStorageResourceValidatorFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -654,7 +654,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ge/AbstractStorageResourceValidatorFactory.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -672,7 +672,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -690,7 +690,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...utable/AbstractExecutableEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -708,7 +708,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../component/LifecycleComponentEntityFactory.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -726,7 +726,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...e/AbstractStorageResourceEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -744,7 +744,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...e/jupyter/JupyterNotebookEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -762,7 +762,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...le/docker/DockerContainerEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -780,7 +780,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ple/SimpleComputeResourceEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -798,7 +798,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...e/AbstractComputeResourceEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -816,7 +816,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...data/AbstractDataResourceEntityFactoryImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -834,28 +834,28 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now let me verify a couple of files to make sure everything looks correct, and then compile.
-    >   
+    >
     >     ⬢ Read 4 files
     >       Read ...rage/simple/mock/MockSimpleStorageResource.java
     >       Read .../MockSimpleStorageResourceEntityRepository.java
     >       Read ...ple/SimpleStorageResourceEntityFactoryImpl.java
     >       Read ...e/AbstractComputeResourceEntityFactoryImpl.java
-    >   
+    >
     >     All headers look correct. Let me verify the project still compiles.
-    >   
+    >
     >     $ /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn compile -q 2>&1 | tail -20 14s in calycopis/java
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (8 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ To-do All done
     >       ☒ Read headers of all 21 files (7 new + 14 modified) to understand existing comment style
     >       ☒ Add AIMetrics with 100% to 7 new mock files
     >       ☒ Add AIMetrics with appropriate % to 14 modified files
-    >   
+    >
     >     All done. The project compiles cleanly. Here's a summary of the AIMetrics added to all 21 files:
     >     New files (100% contribution):
     >     • MockSimpleStorageResource.java - 100%
@@ -865,7 +865,7 @@
     >     • MockSimpleStorageResourceEntityRepository.java - 100%
     >     • MockSimpleStorageResourceValidator.java - 100%
     >     • MockSimpleStorageResourceValidatorImpl.java - 100%
-    >   
+    >
     >     Modified files (estimated contribution):
     >     • SimpleStorageResourceEntity.java - 2%
     >     • SimpleStorageResourceEntityFactoryImpl.java - 50%
@@ -881,10 +881,10 @@
     >     • SimpleComputeResourceEntityFactoryImpl.java - 15%
     >     • AbstractComputeResourceEntityFactoryImpl.java - 15%
     >     • AbstractDataResourceEntityFactoryImpl.java - 15%
-    >   
+    >
     >     The AIMetrics block is placed inside the existing /* */ header comment, after the </meta:header> tag (or at the top of files that lacked a meta:header block), using * line prefixes
     >     consistent with the Java block comment style.
-    >   
+    >
 
     If I wanted you to automatically update the AIMetrics block in every
     file that you modify from now on, what should I write and where should
@@ -900,11 +900,11 @@
     >     │                                                                                                                                                                                          │
     >     │ 1. `.cursorrules` - A file in the project root that contains instructions for the AI agent. This is the older approach.                                                                  │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     There are two main places Cursor picks up persistent instructions:
     >     Option 1: Project-level rules (recommended)
     >     Create a file at .cursor/rules/ai-metrics.mdc in your project root. The .mdc format has a frontmatter section that controls when the rule is applied:
-    >   
+    >
     >     ---
     >     description: Update AIMetrics block in file headers for all modified or created files
     >     alwaysApply: true
@@ -929,11 +929,11 @@
     >     Place the block after the `</meta:header>` tag and before the closing `*/`.
     >     For files with no AIMetrics or AI contribution, the block should be:
     >      * AIMetrics: []
-    >   
+    >
     >     Option 2: Global rules
     >     If you want this to apply across all your projects (not just this one), go to Cursor Settings > General > Rules for AI and paste the same instructions there.
     >     Key differences:
-    >   
+    >
     >     ┌────────────────────────────────┬───────────────────────────────────────────────┬─────────────────────────────┐
     >     │ Location                       │ Scope                                         │ File                        │
     >     ├────────────────────────────────┼───────────────────────────────────────────────┼─────────────────────────────┤
@@ -941,22 +941,22 @@
     >     │ .cursorrules                   │ This project only (older format, same effect) │ Single file in project root │
     >     │ Cursor Settings > Rules for AI │ All projects globally                         │ Not in version control      │
     >     └────────────────────────────────┴───────────────────────────────────────────────┴─────────────────────────────┘
-    >   
+    >
     >     The .cursor/rules/ai-metrics.mdc approach is the best choice because:
     >     • It lives in the repo so other team members get it too
     >     • The alwaysApply: true frontmatter means it activates on every agent invocation without needing to be referenced
     >     • You can version-control it alongside the codebase
     >     • You can add other rules as separate .mdc files without cluttering a single file
-    >   
+    >
     >     Would you like me to create the .cursor/rules/ai-metrics.mdc file for this project?
 
   yes, please add the .cursor/rules/ai-metrics.mdc file to this project.
 
     >     $ ls /calycopis/java/.cursor/rules/ 2>/dev/null || echo "directory does not exist" 18s
     >       directory does not exist
-    >   
+    >
     >     $ mkdir -p /calycopis/java/.cursor/rules 4.4s
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ calycopis/java/.cursor/rules/ai-metrics.mdc +34                                                                                                                                          │
     >     │                                                                                                                                                                                          │
@@ -974,27 +974,27 @@
     >     │ +                                                                                                                                                                                        │
     >     │  … truncated (23 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Created /calycopis/java/.cursor/rules/ai-metrics.mdc. With alwaysApply: true in the frontmatter, this rule will be automatically picked up on every agent invocation in this project --
     >     no need to reference it explicitly. Future sessions will see the instruction to update AIMetrics headers whenever files are created or modified.
-    >   
+    >
 
     Would it have the same effect if I placed the file in the .cursor directory in my home directory ?
 
     >     No, placing it in ~/.cursor/rules/ would not have the same effect. Here's how the different locations work:
-    >   
+    >
     >     ┌──────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ Location                                     │ Effect                                                                                                                    │
     >     ├──────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
     >     │ /calycopis/java/.cursor/rules/ai-metrics.mdc │ Applies to this project only. Version-controllable. Shared with collaborators via git.                                    │
     >     │ ~/.cursor/rules/ai-metrics.mdc               │ Applies to all your projects globally. Not version-controlled with any repo. Only for you, not shared with collaborators. │
     >     └──────────────────────────────────────────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     So placing it in your home directory would work, but with two differences:
     >     1. Broader scope -- it would apply the AIMetrics rule to every project you open in Cursor, not just this one. That might be what you want if you'd like AI metrics tracking everywhere,
     >        but it could be unwanted if some projects don't use this header convention.
     >     2. Not in version control -- collaborators working on this repo wouldn't get the rule automatically. With the project-level file, anyone who clones the repo gets the same instruction.
-    >   
+    >
     >     If you want it to apply everywhere for just you, ~/.cursor/rules/ is the right place. If you want it scoped to this project and shared with the team, keep it where it is now at
     >     /calycopis/java/.cursor/rules/.
 
@@ -1017,14 +1017,14 @@
     >     │                                                                                                                                                                                          │
     >     │ Let me start by exploring the data resource directory structure and reading the relevant files.                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Let me start by exploring the data resource directory structure and understanding the existing code before applying the pattern.
-    >   
+    >
     >     ⬢ Globbed 3 globs
     >       Globbed "**/datamodel/data/**/*.java" in calycopis/java/src/main/java
     >       Globbed "**/datamodel/storage/simple/mock/*.java" in calycopis/java/src/main/java
     >       Globbed "**/executable/docker/mock/*.java" in calycopis/java/src/main/java
-    >   
+    >
     >     ⬢ To-do Working on 8 to-dos
     >       ☐ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☐ Create mock classes for SimpleDataResource (7 files) + make entity/factory/validator abstract
@@ -1034,32 +1034,32 @@
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Update AbstractDataResourceValidatorFactoryImpl (remove hardcoded validators)
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     Let me read all the relevant source files to understand the existing structure.
-    >   
+    >
     >     ⬢ Read 7 files
     >       … 4 earlier items hidden
     >       Read .../simple/SimpleDataResourceEntityRepository.java
     >       Read ...el/data/simple/SimpleDataResourceValidator.java
     >       Read ...ata/simple/SimpleDataResourceValidatorImpl.java
-    >   
+    >
     >     Now let me read the Amazon, IVOA, and SKAO data resource files, plus the existing mock pattern and platform files.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 2.0s                                                                                                                                                                       │
     >     │ Now let me also read the remaining abstract-level data resource files, the existing mock pattern for reference, and MockPlatformImpl.                                                    │
     >     │                                                                                                                                                                                          │
     >     │ Let me read the AbstractDataResourceValidatorFactoryImpl and the existing mock pattern for storage (as reference).                                                                       │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read 21 files
     >       … 18 earlier items hidden
     >       Read ...data/skao/SkaoDataResourceEntityRepository.java
     >       Read ...amodel/data/skao/SkaoDataResourceValidator.java
     >       Read ...el/data/skao/SkaoDataResourceValidatorImpl.java
-    >   
+    >
     >     Now let me read the remaining key files - the abstract data resource files and MockPlatformImpl.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 12s                                                                                                                                                                        │
     >     │ ... (17 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -1070,15 +1070,15 @@
     >     │ • MockSimpleStorageResourceEntity.java                                                                                                                                                   │
     >     │ • MockSimpleStorageResourceEntityFactoryImpl.java                                                                                                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read 6 files
     >       … 3 earlier items hidden
     >       Read ...del/data/AbstractDataResourceValidatorImpl.java
     >       Read ...tamodel/data/AbstractDataResourceValidator.java
     >       Read ...s/functional/platfom/mock/MockPlatformImpl.java
-    >   
+    >
     >     Let me also read the existing Docker mock validator for reference, since SkaoDataResource has extra dependencies.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 46s                                                                                                                                                                        │
     >     │ ... (39 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -1089,15 +1089,15 @@
     >     │ 1. Make the Entity class abstract (e.g., SimpleDataResourceEntity -> abstract class)                                                                                                     │
     >     │ 2. Make the EntityFactoryImpl abstract, remove @Component, strip out repository/constructor/select/create                                                                                │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read 7 files
     >       … 4 earlier items hidden
     >       Read ...imple/mock/MockSimpleStorageResourceEntity.java
     >       Read ...MockSimpleStorageResourceEntityFactoryImpl.java
     >       Read ...opis/functional/validator/ValidatorFactory.java
-    >   
+    >
     >     Let me read a few more key files I need.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ … Thought for 2m 13s                                                                                                                                                                     │
     >     │ ... (81 lines hidden below) · ctrl+o to expand                                                                                                                                           │
@@ -1107,15 +1107,15 @@
     >     │ SimpleDataResourceEntityRepository extends JpaRepository<SimpleDataResourceEntity, UUID>), NOT LifecycleComponentEntityRepository. And they have their own specific factory              │
     >     │ interfaces (e.g., SimpleDataResourceEntityFactory extends FactoryBase), NOT LifecycleComponentEntityFactory.                                                                             │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ⬢ Read 4 files
     >       Read ...del/data/AbstractDataResourceEntityFactory.java
     >       Read ...data/AbstractDataResourceEntityFactoryImpl.java
     >       Read .../datamodel/data/AbstractDataResourceEntity.java
     >       Read ...mponent/LifecycleComponentEntityRepository.java
-    >   
+    >
     >     I now have a thorough understanding of the codebase. This is a large task - 28 new mock files plus modifications to ~18 existing files. Let me start implementing.
-    >   
+    >
     >     ⬢ To-do Working on 10 to-dos • 1 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☐ Make 4 data resource entity classes abstract
@@ -1128,9 +1128,9 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     Step 1: Make entity classes abstract
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...model/data/simple/SimpleDataResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1141,7 +1141,7 @@
     >     │       extends AbstractDataResourceEntity                                                                                                                                                 │
     >     │       implements SimpleDataResource                                                                                                                                                      │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...del/data/amazon/AmazonS3DataResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1152,7 +1152,7 @@
     >     │       extends AbstractDataResourceEntity                                                                                                                                                 │
     >     │       implements AmazonS3DataResource                                                                                                                                                    │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...datamodel/data/ivoa/IvoaDataResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1163,7 +1163,7 @@
     >     │       extends AbstractDataResourceEntity                                                                                                                                                 │
     >     │       implements IvoaDataResource                                                                                                                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...datamodel/data/skao/SkaoDataResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1174,9 +1174,9 @@
     >     │       extends IvoaDataResourceEntity                                                                                                                                                     │
     >     │       implements SkaoDataResource                                                                                                                                                        │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 2: Make factory impls abstract, remove @Component, strip concrete bits
-    >   
+    >
     >     ⬢ To-do Working on 9 to-dos • 2 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1189,7 +1189,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...simple/SimpleDataResourceEntityFactoryImpl.java +13 -42                                                                                                                               │
     >     │                                                                                                                                                                                          │
@@ -1207,7 +1207,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (65 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...azon/AmazonS3DataResourceEntityFactoryImpl.java +15 -43                                                                                                                               │
     >     │                                                                                                                                                                                          │
@@ -1225,7 +1225,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (67 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/ivoa/IvoaDataResourceEntityFactoryImpl.java +15 -43                                                                                                                               │
     >     │                                                                                                                                                                                          │
@@ -1243,7 +1243,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (67 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/skao/SkaoDataResourceEntityFactoryImpl.java +15 -46                                                                                                                               │
     >     │                                                                                                                                                                                          │
@@ -1261,9 +1261,9 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (70 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 3: Make validator impls abstract, add `estimatePrepareTime()`
-    >   
+    >
     >     ⬢ To-do Working on 8 to-dos • 3 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1276,7 +1276,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1287,7 +1287,7 @@
     >     │   extends AbstractDataResourceValidatorImpl                                                                                                                                              │
     >     │   implements SimpleDataResourceValidator                                                                                                                                                 │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +1 -2                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1299,7 +1299,7 @@
     >     │                       }                                                                                                                                                                  │
     >     │                   };                                                                                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +4 -8                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1317,7 +1317,7 @@
     >     │ -     protected Long predictPrepareTime(final IvoaAbstractDataResource validated)                                                                                                        │
     >     │  … truncated (5 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1328,7 +1328,7 @@
     >     │   extends AbstractDataResourceValidatorImpl                                                                                                                                              │
     >     │   implements AmazonS3DataResourceValidator                                                                                                                                               │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1339,7 +1339,7 @@
     >     │   extends AbstractDataResourceValidatorImpl                                                                                                                                              │
     >     │   implements IvoaDataResourceValidator                                                                                                                                                   │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +1 -2                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1351,7 +1351,7 @@
     >     │                       }                                                                                                                                                                  │
     >     │                   };                                                                                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +1 -2                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1363,7 +1363,7 @@
     >     │                       }                                                                                                                                                                  │
     >     │                   };                                                                                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +4 -9                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1381,7 +1381,7 @@
     >     │ -     private Long predictPrepareTime(final IvoaS3DataResource validated)                                                                                                                │
     >     │  … truncated (6 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +4 -9                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1399,10 +1399,10 @@
     >     │ -     private Long predictPrepareTime(final IvoaIvoaDataResource validated)                                                                                                              │
     >     │  … truncated (6 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now the Skao validator - it has a more complex predictPrepareTime() that does DB queries. I'll make it abstract and add estimatePrepareTime(), keeping the DB logic as a protected
     >     method for future real implementations.
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1413,7 +1413,7 @@
     >     │   extends AbstractDataResourceValidatorImpl                                                                                                                                              │
     >     │   implements SkaoDataResourceValidator                                                                                                                                                   │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1424,7 +1424,7 @@
     >     │                           validated                                                                                                                                                      │
     >     │                           );                                                                                                                                                             │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +9 -2                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1442,9 +1442,9 @@
     >     │ +      * Calculate preparation time based on transfer rates from the database.                                                                                                           │
     >     │  … truncated (9 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 4: Update AbstractDataResourceValidatorFactory and FactoryImpl
-    >   
+    >
     >     ⬢ To-do Working on 7 to-dos • 4 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1457,7 +1457,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../data/AbstractDataResourceValidatorFactory.java +4 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -1475,7 +1475,7 @@
     >     │ + extends AbstractDataResourceValidator, ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>                                                                          │
     >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/AbstractDataResourceValidatorFactoryImpl.java +15 -39                                                                                                                               │
     >     │                                                                                                                                                                                          │
@@ -1493,9 +1493,9 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (61 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 5: Create mock files for SimpleDataResource
-    >   
+    >
     >     ⬢ To-do Working on 6 to-dos • 5 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1508,10 +1508,10 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     $ mkdir -p /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/data/simple/mock /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/mock
     >       /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/mock /calycopis/java/src/main/java/net/ivoa/calycopis/datamodel/data/skao/mock 6.7s
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/simple/mock/MockSimpleDataResource.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1529,7 +1529,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/simple/mock/MockSimpleDataResourceEntity.java +77                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1547,7 +1547,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (66 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...e/mock/MockSimpleDataResourceEntityFactory.java +44                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1565,7 +1565,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (33 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ck/MockSimpleDataResourceEntityFactoryImpl.java +90                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1583,7 +1583,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (79 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ock/MockSimpleDataResourceEntityRepository.java +46                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1601,7 +1601,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (35 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...imple/mock/MockSimpleDataResourceValidator.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1619,7 +1619,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...e/mock/MockSimpleDataResourceValidatorImpl.java +66                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1637,9 +1637,9 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (55 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 6: Create mock files for AmazonS3DataResource
-    >   
+    >
     >     ⬢ To-do Working on 5 to-dos • 6 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1652,7 +1652,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../data/amazon/mock/MockAmazonS3DataResource.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1670,7 +1670,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...amazon/mock/MockAmazonS3DataResourceEntity.java +77                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1688,7 +1688,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (66 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...mock/MockAmazonS3DataResourceEntityFactory.java +44                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1706,7 +1706,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (33 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../MockAmazonS3DataResourceEntityFactoryImpl.java +90                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1724,7 +1724,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (79 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...k/MockAmazonS3DataResourceEntityRepository.java +46                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1742,7 +1742,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (35 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...zon/mock/MockAmazonS3DataResourceValidator.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1760,7 +1760,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...mock/MockAmazonS3DataResourceValidatorImpl.java +66                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1778,9 +1778,9 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (55 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 7: Create mock files for IvoaDataResource
-    >   
+    >
     >     ⬢ To-do Working on 4 to-dos • 7 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1793,7 +1793,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...amodel/data/ivoa/mock/MockIvoaDataResource.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1811,7 +1811,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../data/ivoa/mock/MockIvoaDataResourceEntity.java +77                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1829,7 +1829,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (66 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...voa/mock/MockIvoaDataResourceEntityFactory.java +44                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1847,7 +1847,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (33 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...mock/MockIvoaDataResourceEntityFactoryImpl.java +90                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1865,7 +1865,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (79 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../mock/MockIvoaDataResourceEntityRepository.java +46                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1883,7 +1883,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (35 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ta/ivoa/mock/MockIvoaDataResourceValidator.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1901,7 +1901,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...voa/mock/MockIvoaDataResourceValidatorImpl.java +66                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1919,9 +1919,9 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (55 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 8: Create mock files for SkaoDataResource
-    >   
+    >
     >     ⬢ To-do Working on 3 to-dos • 8 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -1934,7 +1934,7 @@
     >       ☐ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...amodel/data/skao/mock/MockSkaoDataResource.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1952,7 +1952,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../data/skao/mock/MockSkaoDataResourceEntity.java +77                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1970,7 +1970,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (66 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...kao/mock/MockSkaoDataResourceEntityFactory.java +44                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -1988,7 +1988,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (33 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...mock/MockSkaoDataResourceEntityFactoryImpl.java +90                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2006,7 +2006,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (79 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../mock/MockSkaoDataResourceEntityRepository.java +46                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2024,7 +2024,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (35 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ta/skao/mock/MockSkaoDataResourceValidator.java +45                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2042,7 +2042,7 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (34 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...kao/mock/MockSkaoDataResourceValidatorImpl.java +70                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2060,9 +2060,9 @@
     >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                                                                  │
     >     │  … truncated (59 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 9: Update MockPlatformImpl
-    >   
+    >
     >     ⬢ To-do Working on 2 to-dos • 9 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -2075,7 +2075,7 @@
     >       ☒ Create 7 mock files for SkaoDataResource
     >       ☐ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +8                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -2092,7 +2092,7 @@
     >     │   import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;                                                                                                     │
     >     │   import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerEntityFactory;                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +2                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -2103,7 +2103,7 @@
     >     │   import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;                                                                                                              │
     >     │   import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +26                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2121,7 +2121,7 @@
     >     │ +                 this.storageResourceValidatorFactory                                                                                                                                   │
     >     │  … truncated (18 more lines) · ctrl+r to review                                                                                                                                          │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +15                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2139,9 +2139,9 @@
     >     │ +     private MockIvoaDataResourceEntityFactory mockIvoaDataResourceEntityFactory;                                                                                                       │
     >     │  … truncated (7 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Step 10: Compile and fix errors
-    >   
+    >
     >     ⬢ To-do Working on 1 to-do • 10 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -2154,15 +2154,15 @@
     >       ☒ Create 7 mock files for SkaoDataResource
     >       ☒ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☐ Compile and fix any errors
-    >   
+    >
     >     $ /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn compile 2>&1 | tail -80 4m 22s in calycopis/java
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (30 more lines) · ctrl+o to expand
-    >   
+    >
     >     The project compiles cleanly. Now let me update the AIMetrics in the modified files that don't already have them.
-    >   
+    >
     >     ⬢ To-do Working on 1 to-do • 11 done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -2176,9 +2176,9 @@
     >       ☒ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☒ Compile and fix any errors
     >       ☐ Add AIMetrics to modified files that need them
-    >   
+    >
     >     Now let me add AIMetrics to the modified files that don't already have them (entities, validators, validator factory interface, and MockPlatformImpl).
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...model/data/simple/SimpleDataResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2196,7 +2196,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...del/data/amazon/AmazonS3DataResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2214,7 +2214,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...datamodel/data/ivoa/IvoaDataResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2232,7 +2232,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...datamodel/data/skao/SkaoDataResourceEntity.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2250,7 +2250,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...ata/simple/SimpleDataResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2268,7 +2268,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...a/amazon/AmazonS3DataResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2286,7 +2286,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/ivoa/IvoaDataResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2304,7 +2304,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...el/data/skao/SkaoDataResourceValidatorImpl.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2322,7 +2322,7 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../data/AbstractDataResourceValidatorFactory.java +11                                                                                                                                   │
     >     │                                                                                                                                                                                          │
@@ -2340,9 +2340,9 @@
     >     │ +  *     }                                                                                                                                                                               │
     >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                                                           │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Now update the AIMetrics in MockPlatformImpl (it already has an entry from before, so I need to add a new entry to the array).
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...s/functional/platfom/mock/MockPlatformImpl.java +9                                                                                                                                    │
     >     │                                                                                                                                                                                          │
@@ -2360,15 +2360,15 @@
     >     │    *     }                                                                                                                                                                               │
     >     │  … truncated (1 more line) · ctrl+r to review                                                                                                                                            │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Let me verify the build still compiles after the AIMetrics changes.
-    >   
+    >
     >     $ /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/mvn compile -q 2>&1 | tail -20 16s in calycopis/java
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (8 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ To-do All done
     >       ☒ Read all data resource entities, factories, validators, and existing mock pattern files
     >       ☒ Make 4 data resource entity classes abstract
@@ -2382,18 +2382,18 @@
     >       ☒ Update MockPlatformImpl to register all 4 new mock data resource factories and validators
     >       ☒ Compile and fix any errors
     >       ☒ Add AIMetrics to modified files that need them
-    >   
+    >
     >     Everything compiles successfully. Here's a summary of the changes:
-    >   
-    >   
+    >
+    >
     >     Summary
-    >   
-    >   
-    >   
+    >
+    >
+    >
     >     New files created (28 files)
-    >   
+    >
     >     For each of the 4 data resource types (SimpleDataResource, AmazonS3DataResource, IvoaDataResource, SkaoDataResource), 7 mock files were created in a mock/ subdirectory:
-    >   
+    >
     >     ┌───────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ Type          │ Files                                                                                                                                                                    │
     >     ├───────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
@@ -2406,37 +2406,33 @@
     >     │ SkaoDataResou │ Same pattern with MockSkaoDataResource*                                                                                                                                  │
     >     │ rce           │                                                                                                                                                                          │
     >     └───────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Modified files (14 files)
-    >   
+    >
     >     Entity classes made abstract (4):
     >     • SimpleDataResourceEntity.java - class -> abstract class
     >     • AmazonS3DataResourceEntity.java - class -> abstract class
     >     • IvoaDataResourceEntity.java - class -> abstract class
     >     • SkaoDataResourceEntity.java - class -> abstract class
-    >   
+    >
     >     Factory impls made abstract (4):
     >     • SimpleDataResourceEntityFactoryImpl.java - abstract, removed @Component, stripped repository/constructor/select/create
     >     • AmazonS3DataResourceEntityFactoryImpl.java - same
     >     • IvoaDataResourceEntityFactoryImpl.java - same
     >     • SkaoDataResourceEntityFactoryImpl.java - same
-    >   
+    >
     >     Validator impls made abstract (4):
     >     • SimpleDataResourceValidatorImpl.java - abstract, added abstract estimatePrepareTime(IvoaSimpleDataResource)
     >     • AmazonS3DataResourceValidatorImpl.java - abstract, added abstract estimatePrepareTime(IvoaS3DataResource)
     >     • IvoaDataResourceValidatorImpl.java - abstract, added abstract estimatePrepareTime(IvoaIvoaDataResource)
     >     • SkaoDataResourceValidatorImpl.java - abstract, added abstract estimatePrepareTime(IvoaSkaoDataResource), kept predictPrepareTime() as protected for future real implementations
-    >   
+    >
     >     Validator factory (2):
     >     • AbstractDataResourceValidatorFactory.java - added ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity> to extends clause
     >     • AbstractDataResourceValidatorFactoryImpl.java - removed hardcoded validator creation, added default constructor
-    >   
+    >
     >     Platform (1):
     >     • MockPlatformImpl.java - added @Autowired fields for 4 mock entity factories and JdbcTemplate, registered 4 mock validators in initialize()
-    >   
-
-
-/calycopis/tests/python/
-
+    >
 
 

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,16 @@
  *       "value": 100,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-14T19:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 40,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -34,8 +44,13 @@
 
 package net.ivoa.calycopis.datamodel.data.ivoa.mock;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaIvoaDataResource;
 
@@ -55,6 +70,31 @@ implements MockIvoaDataResourceValidator
             entityFactory,
             storageValidators
             );
+        }
+
+    public static final List<URI> IVOID_BLACKLIST = List.of(
+        URI.create("ivo://example.com/blacklisted"),
+        URI.create("ivo://example.com/forbidden")
+        );
+
+    @Override
+    protected boolean validateIvoid(URI ivoid, OfferSetRequestParserContext context)
+        {
+        if (IVOID_BLACKLIST.contains(ivoid))
+            {
+            context.addWarning(
+                "urn:invalid-value",
+                "IvoaDataResource - ivoid is blacklisted [${value}]",
+                Map.of(
+                    "value",
+                    ivoid.toString()
+                    )
+                );
+            return false;
+            }
+        else {
+            return true;
+            }
         }
 
     public static final Long DEFAULT_PREPARE_TIME = 5L;

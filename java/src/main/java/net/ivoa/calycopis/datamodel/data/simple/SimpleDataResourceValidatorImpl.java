@@ -20,11 +20,22 @@
  *
  * AIMetrics: [
  *     {
+ *     "timestamp": "2026-02-14T15:30:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
  *       "units": "%"
  *       }
  *     }
@@ -81,7 +92,10 @@ implements SimpleDataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
-        if (requested instanceof IvoaSimpleDataResource)
+        //
+        // Use exact class matching rather than instanceof to ensure each
+        // validator only handles its specific type, not parent or sibling types.
+        if (requested.getClass() == IvoaSimpleDataResource.class)
             {
             validate(
                 (IvoaSimpleDataResource) requested,
@@ -120,18 +134,11 @@ implements SimpleDataResourceValidator
             );
         success &= (storage != null) && ResultEnum.ACCEPTED.equals(storage.getEnum());
 
-        String location = trim(
-            requested.getLocation()
+        success &= validateLocation(
+            requested.getLocation(),
+            validated,
+            context
             );
-        validated.setLocation(location);
-        if ((location == null) || (location.isEmpty()))
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "Data location required"
-                );
-            success = false ;
-            }
 
         //
         // Calculate the preparation time.
@@ -195,6 +202,52 @@ implements SimpleDataResourceValidator
             context.valid(false);
             context.dispatched(true);
             }
+        }
+
+    /**
+     * Apply any platform specific validation rules to the data location.
+     * 
+     */
+    protected abstract boolean validateLocation(final String location, final OfferSetRequestParserContext context);
+
+    /**
+     * Validate the data resource location.
+     * 
+     */
+    public boolean validateLocation(
+        final String requested,
+        final IvoaSimpleDataResource validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateLocation(String ...)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+
+        String location = trim(
+            requested
+            );
+        if ((location == null) || (location.isEmpty()))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "Data location required"
+                );
+            success = false ;
+            }
+        else {
+            success &= validateLocation(
+                location,
+                context
+                );
+            }
+
+        if (success)
+            {
+            validated.setLocation(location);
+            }
+        
+        return success;
         }
 
     /**

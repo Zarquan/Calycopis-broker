@@ -20,11 +20,22 @@
  *
  * AIMetrics: [
  *     {
+ *     "timestamp": "2026-02-14T15:30:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
  *       "units": "%"
  *       }
  *     }
@@ -86,7 +97,12 @@ implements IvoaDataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
-        if (requested instanceof IvoaIvoaDataResource)
+        //
+        // Use exact class matching rather than instanceof to prevent this
+        // validator from intercepting subclass types (e.g. IvoaSkaoDataResource
+        // extends IvoaIvoaDataResource). Each subclass has its own validator
+        // that should handle its specific type.
+        if (requested.getClass() == IvoaIvoaDataResource.class)
             {
             validate(
                 (IvoaIvoaDataResource) requested,
@@ -206,13 +222,18 @@ implements IvoaDataResourceValidator
             {
             IvoaIvoaDataResourceBlock block = new IvoaIvoaDataResourceBlock();
             validated.setIvoa(block);
-            // TODO validate the URI
             URI ivoid = requested.getIvoid();
             if (null != ivoid)
                 {
-                block.setIvoid(
-                    ivoid
-                    );
+                if (validateIvoid(ivoid, context))
+                    {
+                    block.setIvoid(
+                        ivoid
+                        );
+                    }
+                else {
+                    success = false ;
+                    }
                 }
             else {
                 context.getOfferSetEntity().addWarning(
@@ -246,6 +267,12 @@ implements IvoaDataResourceValidator
         return success ;
         }
     
+    /**
+     * Apply any platform specific validation rules to the ivoid.
+     * 
+     */
+    protected abstract boolean validateIvoid(final URI ivoid, final OfferSetRequestParserContext context);
+
     /**
      * Estimate the preparation time for this data resource.
      * Subclasses must provide a platform-specific implementation.

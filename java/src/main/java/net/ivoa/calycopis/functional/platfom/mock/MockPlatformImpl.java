@@ -20,6 +20,7 @@
  *
  * AIMetrics: [
  *     {
+ *     "timestamp": "2026-02-14T12:00:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
@@ -29,11 +30,22 @@
  *       }
  *     },
  *     {
+ *     "timestamp": "2026-02-14T15:30:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 15,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
  *       "units": "%"
  *       }
  *     }
@@ -128,15 +140,21 @@ implements Platform
                 )
             );
 
+        //
+        // Register data resource validators with the most specific types first.
+        // The validator factory iterates through validators in registration order
+        // and stops at the first one that sets dispatched(true). Although each
+        // validator now uses exact class matching (getClass() ==) rather than
+        // instanceof, registering specific subtypes before their parent types
+        // provides defence in depth against future regressions.
+        //
+        // SkaoDataResource extends IvoaDataResource in the type hierarchy,
+        // so the SKAO validator must be registered before the IVOA validator.
+        //
         this.dataResourceValidatorFactory.addValidator(
-            new MockSimpleDataResourceValidatorImpl(
-                this.mockSimpleDataResourceEntityFactory,
-                this.storageResourceValidatorFactory
-                )
-            );
-        this.dataResourceValidatorFactory.addValidator(
-            new MockAmazonS3DataResourceValidatorImpl(
-                this.mockAmazonS3DataResourceEntityFactory,
+            new MockSkaoDataResourceValidatorImpl(
+                this.jdbcTemplate,
+                this.mockSkaoDataResourceEntityFactory,
                 this.storageResourceValidatorFactory
                 )
             );
@@ -147,9 +165,14 @@ implements Platform
                 )
             );
         this.dataResourceValidatorFactory.addValidator(
-            new MockSkaoDataResourceValidatorImpl(
-                this.jdbcTemplate,
-                this.mockSkaoDataResourceEntityFactory,
+            new MockAmazonS3DataResourceValidatorImpl(
+                this.mockAmazonS3DataResourceEntityFactory,
+                this.storageResourceValidatorFactory
+                )
+            );
+        this.dataResourceValidatorFactory.addValidator(
+            new MockSimpleDataResourceValidatorImpl(
+                this.mockSimpleDataResourceEntityFactory,
                 this.storageResourceValidatorFactory
                 )
             );

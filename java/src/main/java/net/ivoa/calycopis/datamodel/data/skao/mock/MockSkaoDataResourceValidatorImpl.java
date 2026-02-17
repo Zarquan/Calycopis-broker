@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -27,6 +27,16 @@
  *       "value": 100,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-14T19:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 40,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -34,10 +44,14 @@
 
 package net.ivoa.calycopis.datamodel.data.skao.mock;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
 
@@ -59,6 +73,31 @@ implements MockSkaoDataResourceValidator
             entityFactory,
             storageValidators
             );
+        }
+
+    public static final List<String> NAMESPACE_BLACKLIST = List.of(
+        "blacklisted-namespace",
+        "forbidden-namespace"
+        );
+
+    @Override
+    protected boolean validateNamespace(String namespace, OfferSetRequestParserContext context)
+        {
+        if (NAMESPACE_BLACKLIST.contains(namespace))
+            {
+            context.addWarning(
+                "urn:invalid-value",
+                "SkaoDataResource - namespace is blacklisted [${value}]",
+                Map.of(
+                    "value",
+                    namespace
+                    )
+                );
+            return false;
+            }
+        else {
+            return true;
+            }
         }
 
     public static final Long DEFAULT_PREPARE_TIME = 5L;
