@@ -1,4 +1,35 @@
 /**
+ * <meta:header>
+ *   <meta:licence>
+ *     Copyright (C) 2026 University of Manchester.
+ *
+ *     This information is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This information is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   </meta:licence>
+ * </meta:header>
+ *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 2,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.offerset;
@@ -28,37 +59,37 @@ extends MessageSubject
     {
     /**
      * Get a reference to the parent parser.
-     *  
+     *
      */
     public OfferSetRequestParser getParser();
-    
+
     /**
      * Get the original OfferSet request.
-     *  
+     *
      */
     public IvoaOfferSetRequest getOriginalOfferSetRequest();
 
     /**
      * Get the validated OfferSet request.
-     *  
+     *
      */
     public IvoaOfferSetRequest getValidatedOfferSetRequest();
-    
+
     /**
      * Get the OfferSet entity we are creating.
-     *  
+     *
      */
     public OfferSetEntity getOfferSetEntity();
 
     /**
      * Flag to indicate that the parser hasn't encountered any errors.
-     *  
+     *
      */
     public boolean valid();
 
     /**
      * Set the valid flag.
-     *  
+     *
      */
     public void valid(boolean value);
 
@@ -74,161 +105,147 @@ extends MessageSubject
     public void registerResources();
 
     /**
-     * Flag to indicate that the last validator call was dispatched.
-     * A dispatched validator is one that recognised the object type
-     * and either accepted or rejected the request.
-     *  
-     */
-    public boolean dispatched();
-
-    /**
-     * Set the dispatched flag.
-     *  
-     */
-    public void dispatched(boolean value);
-
-    /**
      * Get the validated executable.
-     * 
+     *
      */
     public AbstractExecutableValidator.Result getExecutableResult();
 
     /**
      * Set the validated executable.
-     * 
+     *
      */
     public void setExecutableResult(final AbstractExecutableValidator.Result result);
 
     /**
      * List the DataValidatorResults.
-     * 
+     *
      */
     public List<AbstractDataResourceValidator.Result> getDataResourceValidatorResults();
 
     /**
      * Generate a DataValidatorResult key.
-     *  
+     *
      */
     public String makeDataValidatorResultKey(final AbstractDataResourceValidator.Result result);
 
     /**
      * Generate a DataResource key.
-     *  
+     *
      */
     public String makeDataValidatorResultKey(final IvoaAbstractDataResource resource);
 
     /**
      * Add a DataValidatorResult.
-     * 
+     *
      */
     public void addDataValidatorResult(final AbstractDataResourceValidator.Result result);
 
     /**
      * Find a DataValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractDataResourceValidator.Result findDataValidatorResult(final AbstractDataResourceValidator.Result result);
 
     /**
      * Find a DataValidatorResult.
-     * 
+     *
      */
     public AbstractDataResourceValidator.Result findDataValidatorResult(final IvoaAbstractDataResource resource);
-    
+
     /**
      * Find a DataValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractDataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**
      * List the ComputeValidatorResults.
-     * 
+     *
      */
     public List<AbstractComputeResourceValidator.Result> getComputeValidatorResults();
 
     /**
      * Generate a ComputeValidatorResult key.
-     *  
+     *
      */
     public String makeComputeValidatorResultKey(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Generate a ComputeResource key.
-     *  
+     *
      */
     public String makeComputeValidatorResultKey(final IvoaAbstractComputeResource resource);
-    
+
     /**
      * Add a ComputeValidatorResult.
-     * 
+     *
      */
     public void addComputeValidatorResult(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Find a ComputeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final AbstractComputeResourceValidator.Result result);
 
     /**
      * Find a ComputeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final IvoaAbstractComputeResource resource);
-    
+
     /**
      * Find a ComputeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final String key);
 
     /**
      * List the StorageValidatorResults.
-     * 
+     *
      */
     public List<AbstractStorageResourceValidator.Result> getStorageValidatorResults();
-    
+
     /**
      * Generate a StorageValidatorResult key.
-     *  
+     *
      */
     @Deprecated
     public String makeStorageValidatorResultKey(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Generate a StorageResource key.
-     *  
+     *
      */
     public String makeStorageValidatorResultKey(final IvoaAbstractStorageResource resource);
-    
+
     /**
      * Add a StorageValidatorResult.
-     * 
+     *
      */
     public void addStorageValidatorResult(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Find a StorageValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final AbstractStorageResourceValidator.Result result);
 
     /**
      * Find a StorageValidatorResult.
-     * 
+     *
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final IvoaAbstractStorageResource resource);
-    
+
     /**
      * Find a StorageValidatorResult.
-     * 
+     *
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
 
@@ -236,7 +253,7 @@ extends MessageSubject
      * Add a DataValidatorResult and StorageValidatorResult pair.
     public void addDataStorageResult(final IvoaAbstractDataResource dataResource, final AbstractStorageResourceValidator.Result storageResult);
      */
-    
+
     /*
      * Add a DataValidatorResult and StorageValidatorResult pair.
     @Deprecated
@@ -257,51 +274,51 @@ extends MessageSubject
 
     /**
      * List the VolumeValidatorResults.
-     * 
+     *
      */
     public List<AbstractVolumeMountValidator.Result> getVolumeValidatorResults();
-    
+
     /**
      * Generate a VolumeValidatorResult key.
-     *  
+     *
      */
     @Deprecated
     public String makeVolumeValidatorResultKey(final AbstractVolumeMountValidator.Result result);
 
     /**
      * Generate a VolumeMount key.
-     *  
+     *
      */
     @Deprecated
     public String makeVolumeValidatorResultKey(final IvoaAbstractVolumeMount resource);
-    
+
     /**
      * Add a VolumeValidatorResult.
-     * 
+     *
      */
     public void addVolumeValidatorResult(final AbstractVolumeMountValidator.Result result);
 
     /**
      * Find a VolumeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final AbstractVolumeMountValidator.Result result);
 
     /**
      * Find a VolumeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final IvoaAbstractVolumeMount resource);
-    
+
     /**
      * Find a VolumeValidatorResult.
-     * 
+     *
      */
     @Deprecated
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key);
-    
+
     /**
      * Get the start interval.
      *
@@ -329,56 +346,56 @@ extends MessageSubject
     /**
      * Add a core count to the running total.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     void addMinCores(long delta);
 
     /**
      * Add a core count to the running total.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     void addMaxCores(long delta);
-    
+
     /**
      * Get the running total of minimum cores.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public long getTotalMinCores();
 
     /**
      * Get the running total of maximum cores.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public long getTotalMaxCores();
 
     /**
      * Get the running total of minimum memory.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public long getTotalMinMemory();
 
     /**
      * Get the running total of maximum memory.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public long getTotalMaxMemory();
 
     /**
      * Add a memory count to the running total.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public void addMinMemory(long delta);
 
     /**
      * Add a memory count to the running total.
      * TODO Do we need this if we only have one compute resource ?
-     * 
+     *
      */
     public void addMaxMemory(long delta);
 
@@ -389,14 +406,14 @@ extends MessageSubject
 
     /**
      * Get the total staging time.
-     * 
+     *
      */
     public Long getTotalStagingTime();
 
     /**
      * Get the total preparation time.
-     * 
+     *
      */
     public Long getTotalPrepareTime();
-    
+
     }

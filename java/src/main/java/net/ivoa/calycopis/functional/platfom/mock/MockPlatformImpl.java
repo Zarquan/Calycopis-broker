@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -46,6 +46,16 @@
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 5,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 1,
  *       "units": "%"
  *       }
  *     }
@@ -143,10 +153,10 @@ implements Platform
         //
         // Register data resource validators with the most specific types first.
         // The validator factory iterates through validators in registration order
-        // and stops at the first one that sets dispatched(true). Although each
-        // validator now uses exact class matching (getClass() ==) rather than
-        // instanceof, registering specific subtypes before their parent types
-        // provides defence in depth against future regressions.
+        // and stops at the first one that returns ACCEPTED or FAILED. Although
+        // each validator now uses exact class matching (getClass() ==) rather
+        // than instanceof, registering specific subtypes before their parent
+        // types provides defence in depth against future regressions.
         //
         // SkaoDataResource extends IvoaDataResource in the type hierarchy,
         // so the SKAO validator must be registered before the IVOA validator.

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -31,6 +31,16 @@
  *     },
  *     {
  *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 2,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
@@ -107,7 +117,7 @@ implements SkaoDataResourceValidator
         }
 
     @Override
-    public void validate(
+    public ResultEnum validate(
         final IvoaAbstractDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -118,14 +128,15 @@ implements SkaoDataResourceValidator
         // validator only handles its specific type, not parent or sibling types.
         if (requested.getClass() == IvoaSkaoDataResource.class)
             {
-            validate(
+            return validate(
                 (IvoaSkaoDataResource) requested,
                 context
                 );
             }
+        return ResultEnum.CONTINUE;
         }
 
-    public void validate(
+    public ResultEnum validate(
         final IvoaSkaoDataResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -226,13 +237,13 @@ implements SkaoDataResourceValidator
             storage.addDataResourceResult(
                 dataResult
                 );
-            context.dispatched(true);
+            return ResultEnum.ACCEPTED;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            context.dispatched(true);
+            return ResultEnum.FAILED;
             }
         }
 

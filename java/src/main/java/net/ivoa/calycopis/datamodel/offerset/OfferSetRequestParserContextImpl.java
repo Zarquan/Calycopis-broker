@@ -1,4 +1,35 @@
 /**
+ * <meta:header>
+ *   <meta:licence>
+ *     Copyright (C) 2026 University of Manchester.
+ *
+ *     This information is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This information is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   </meta:licence>
+ * </meta:header>
+ *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 1,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.offerset;
@@ -40,7 +71,7 @@ extends ValidatorBase
 
     /**
      * Public constructor.
-     * 
+     *
      */
     public OfferSetRequestParserContextImpl(
         final OfferSetRequestParser parser,
@@ -55,7 +86,7 @@ extends ValidatorBase
 
     /**
      * Get a reference to the parent parser.
-     *  
+     *
      */
     private final OfferSetRequestParser parser;
     public OfferSetRequestParser getParser()
@@ -98,18 +129,6 @@ extends ValidatorBase
     public void fail()
         {
         this.valid = false;
-        }
-
-    private boolean dispatched = false ;
-    @Override
-    public boolean dispatched()
-        {
-        return this.dispatched;
-        }
-    @Override
-    public void dispatched(boolean value)
-        {
-        this.dispatched = value;
         }
 
     /**
@@ -231,10 +250,10 @@ extends ValidatorBase
         {
         this.executable = executable;
         }
-    
+
     /**
      * Our List of DataValidator results.
-     * 
+     *
      */
     private List<AbstractDataResourceValidator.Result> dataValidatorResultList = new ArrayList<AbstractDataResourceValidator.Result> ();
 
@@ -246,7 +265,7 @@ extends ValidatorBase
 
     /**
      * Our Map of DataValidator results.
-     * 
+     *
      */
     private Map<String, AbstractDataResourceValidator.Result> dataValidatorResultMap = new HashMap<String, AbstractDataResourceValidator.Result>();
 
@@ -259,7 +278,7 @@ extends ValidatorBase
             result.getObject()
             );
         }
-    
+
     @Override
     public String makeDataValidatorResultKey(final IvoaAbstractDataResource resource)
         {
@@ -315,7 +334,7 @@ extends ValidatorBase
                 }
             }
         }
-    
+
     @Override
     public AbstractDataResourceValidator.Result findDataValidatorResult(final AbstractDataResourceValidator.Result result)
         {
@@ -348,7 +367,7 @@ extends ValidatorBase
 
     /**
      * Our List of ComputeValidator results.
-     * 
+     *
      */
     private List<AbstractComputeResourceValidator.Result> compValidatorResultList = new ArrayList<AbstractComputeResourceValidator.Result>();
 
@@ -360,7 +379,7 @@ extends ValidatorBase
 
     /**
      * Our Map of ComputeValidator results.
-     * 
+     *
      */
     private Map<String, AbstractComputeResourceValidator.Result> compValidatorResultMap = new HashMap<String, AbstractComputeResourceValidator.Result>();
 
@@ -373,7 +392,7 @@ extends ValidatorBase
             result.getObject()
             );
         }
-    
+
     @Override
     public String makeComputeValidatorResultKey(final IvoaAbstractComputeResource resource)
         {
@@ -414,7 +433,7 @@ extends ValidatorBase
             result
             );
         }
-    
+
     @Override
     public AbstractComputeResourceValidator.Result findComputeValidatorResult(final AbstractComputeResourceValidator.Result result)
         {
@@ -449,7 +468,7 @@ extends ValidatorBase
 
     /**
      * Our List of StorageValidator results.
-     * 
+     *
      */
     private List<AbstractStorageResourceValidator.Result> storageValidatorResultList = new ArrayList<AbstractStorageResourceValidator.Result>();
 
@@ -458,10 +477,10 @@ extends ValidatorBase
         {
         return storageValidatorResultList;
         }
-    
+
     /**
      * Our Map of StorageValidator results.
-     * 
+     *
      */
     private Map<String, AbstractStorageResourceValidator.Result> storageValidatorResultMap = new HashMap<String, AbstractStorageResourceValidator.Result>();
 
@@ -474,7 +493,7 @@ extends ValidatorBase
             result.getObject()
             );
         }
-    
+
     @Override
     public String makeStorageValidatorResultKey(final IvoaAbstractStorageResource resource)
         {
@@ -499,7 +518,7 @@ extends ValidatorBase
         log.debug("Key [{}]", key);
         return key ;
         }
-    
+
     @Override
     public void addStorageValidatorResult(final AbstractStorageResourceValidator.Result result)
         {
@@ -554,7 +573,7 @@ extends ValidatorBase
                 )
             );
         }
-    
+
     @Override
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key)
         {
@@ -565,7 +584,7 @@ extends ValidatorBase
 
     /**
      * Our List of VolumeMountValidator results.
-     * 
+     *
      */
     private List<AbstractVolumeMountValidator.Result> volumeValidatorResultList = new ArrayList<AbstractVolumeMountValidator.Result>();
 
@@ -577,7 +596,7 @@ extends ValidatorBase
 
     /**
      * Our Map of VolumeMountValidator results.
-     * 
+     *
      */
     private Map<String, AbstractVolumeMountValidator.Result> volumeValidatorResultMap = new HashMap<String, AbstractVolumeMountValidator.Result>();
 
@@ -590,7 +609,7 @@ extends ValidatorBase
             result.getObject()
             );
         }
-    
+
     @Override
     public String makeVolumeValidatorResultKey(final IvoaAbstractVolumeMount resource)
         {
@@ -615,7 +634,7 @@ extends ValidatorBase
         log.debug("Key [{}]", key);
         return key ;
         }
-    
+
     @Override
     public void addVolumeValidatorResult(final AbstractVolumeMountValidator.Result result)
         {
@@ -655,7 +674,7 @@ extends ValidatorBase
                 )
             );
         }
-    
+
     @Override
     public AbstractVolumeMountValidator.Result findVolumeValidatorResult(final String key)
         {
@@ -663,7 +682,7 @@ extends ValidatorBase
         log.debug("Key [{}]", key);
         return volumeValidatorResultMap.get(key);
         }
-    
+
     /*
      * A Map linking DataValidator results to StorageValidator results.
      *
@@ -716,7 +735,7 @@ extends ValidatorBase
                 )
             );
         }
-    
+
     @Override
     public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce)
         {
@@ -728,9 +747,9 @@ extends ValidatorBase
                 )
             );
         }
-     * 
+     *
      */
-    
+
     /**
      * The requested start Interval.
      *
@@ -746,7 +765,7 @@ extends ValidatorBase
         {
         this.startInterval = interval;
         }
-    
+
     /**
      * The requested execution duration.
      *
@@ -824,14 +843,14 @@ extends ValidatorBase
         {
         return totalPrepareTime;
         }
-    
+
     @Override
     public Long calculateTotalPrepareTime()
         {
         // TODO Split this into the method to calculate and the method to get the value.
         // The calculation method should only be called once, after all of the request has been validated.
         // Then the get method should just return the stored value.
-        
+
         log.debug("OfferSetRequestParserContextImpl.getTotalPrepareTime()");
         //
         // Time needed to fetch the container image.
@@ -853,7 +872,7 @@ extends ValidatorBase
                 maxStoragePrepareTime = storagePrepareTime;
                 }
             }
-        
+
         //
         // Time needed to allocate the compute resources and mount the volumes.
         Long maxComputePrepareTime = 0L ;
@@ -866,7 +885,7 @@ extends ValidatorBase
                 maxComputePrepareTime = computePrepareTime;
                 }
             }
-        
+
         //
         // Assuming staging can happen in parallel.
         this.totalStagingTime = (executablePrepareTime > maxStoragePrepareTime) ? executablePrepareTime : maxStoragePrepareTime ;
@@ -887,7 +906,7 @@ extends ValidatorBase
         {
         return this.offersetEntity.getMessages();
         }
-    
+
     @Override
     public void addDebug(String type, String template)
         {
@@ -896,7 +915,7 @@ extends ValidatorBase
             template
             );
         }
-    
+
     @Override
     public void addDebug(String type, String template, Map<String, Object> values)
         {
@@ -906,7 +925,7 @@ extends ValidatorBase
             values
             );
         }
-    
+
     @Override
     public void addInfo(String type, String template)
         {
@@ -915,7 +934,7 @@ extends ValidatorBase
             template
             );
         }
-    
+
     @Override
     public void addInfo(String type, String template, Map<String, Object> values)
         {
@@ -925,7 +944,7 @@ extends ValidatorBase
             values
             );
         }
-    
+
     @Override
     public void addWarning(String type, String template)
         {
@@ -934,7 +953,7 @@ extends ValidatorBase
             template
             );
         }
-    
+
     @Override
     public void addWarning(String type, String template, Map<String, Object> values)
         {
@@ -944,7 +963,7 @@ extends ValidatorBase
             values
             );
         }
-    
+
     @Override
     public void addError(String type, String template)
         {
@@ -953,7 +972,7 @@ extends ValidatorBase
             template
             );
         }
-    
+
     @Override
     public void addError(String type, String template, Map<String, Object> values)
         {
@@ -963,7 +982,7 @@ extends ValidatorBase
             values
             );
         }
-    
+
     @Override
     public void addMessage(LevelEnum level, String type, String template)
         {
@@ -973,7 +992,7 @@ extends ValidatorBase
             template
             );
         }
-    
+
     @Override
     public void addMessage(LevelEnum level, String type, String template, Map<String, Object> values)
         {

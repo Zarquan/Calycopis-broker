@@ -9,6 +9,16 @@
  *       "value": 8,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -81,29 +91,33 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
         }
 
     @Override
-    public void validate(
+    public ResultEnum validate(
         final ObjectType requested,
         final OfferSetRequestParserContext context
         ){
         //
         // Try each of the validators in our list.
-        // Validators are tried in registration order and the first one to set
-        // dispatched(true) wins. Because of this, validators that handle more
-        // specific subtypes (e.g. SkaoDataResource) must be registered before
-        // validators that handle their parent types (e.g. IvoaDataResource).
+        // Validators are tried in registration order and the first one to
+        // return ACCEPTED or FAILED wins. Because of this, validators that
+        // handle more specific subtypes (e.g. SkaoDataResource) must be
+        // registered before validators that handle their parent types
+        // (e.g. IvoaDataResource).
         // Each validator should also use exact class matching (getClass() ==)
         // rather than instanceof, to prevent a parent type's validator from
         // accidentally intercepting subclass instances.
         for (Validator<ObjectType, EntityType> validator : validators)
             {
-            context.dispatched(false);
-            validator.validate(
+            ResultEnum result = validator.validate(
                 requested,
                 context
                 );
-            if (context.dispatched())
+            switch(result)
                 {
-                return;
+                case CONTINUE:
+                    break;
+                case ACCEPTED:
+                case FAILED:
+                    return result;
                 }
             }
         //
@@ -112,5 +126,6 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
             context,
             requested
             );
+        return ResultEnum.FAILED;
         }
     }

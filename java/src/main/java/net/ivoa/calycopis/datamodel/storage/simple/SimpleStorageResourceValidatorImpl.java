@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -25,6 +25,16 @@
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T13:20:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 4,
  *       "units": "%"
  *       }
  *     }
@@ -69,7 +79,7 @@ implements SimpleStorageResourceValidator
         }
     
     @Override
-    public void validate(
+    public ResultEnum validate(
         final IvoaAbstractStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -78,13 +88,12 @@ implements SimpleStorageResourceValidator
         switch(requested)
             {
             case IvoaSimpleStorageResource simple:
-                validate(
+                return validate(
                     simple,
                     context
                     );
-                break;
             default:
-                break;
+                return ResultEnum.CONTINUE;
             }
         }
 
@@ -92,7 +101,7 @@ implements SimpleStorageResourceValidator
      * Validate an IvoaSimpleStorageResource.
      *
      */
-    public void validate(
+    public ResultEnum validate(
         final IvoaSimpleStorageResource requested,
         final OfferSetRequestParserContext context
         ){
@@ -167,13 +176,13 @@ implements SimpleStorageResourceValidator
             context.addStorageValidatorResult(
                 storageResult 
                 );
-            context.dispatched(true);
+            return ResultEnum.ACCEPTED;
             }
         //
         // Something wasn't right, fail the validation.
         else {
             context.valid(false);
-            context.dispatched(true);
+            return ResultEnum.FAILED;
             }
         }
 
