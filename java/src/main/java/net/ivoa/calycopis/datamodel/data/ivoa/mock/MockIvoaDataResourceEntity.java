@@ -24,7 +24,7 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 10,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
@@ -32,17 +32,47 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.data;
+package net.ivoa.calycopis.datamodel.data.ivoa.mock;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
- * Public interface for a DataResource ValidatorFactory.
  * 
  */
-public interface AbstractDataResourceValidatorFactory
-extends AbstractDataResourceValidator, ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
+@Entity
+@Table(
+    name = "mockivoadataresources"
+    )
+public class MockIvoaDataResourceEntity
+    extends IvoaDataResourceEntity
+    implements MockIvoaDataResource
     {
 
+    /**
+     * 
+     */
+    public MockIvoaDataResourceEntity()
+        {
+        super();
+        }
+
+    /**
+     *
+     */
+    public MockIvoaDataResourceEntity(
+        final SimpleExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        ){
+        super(
+            session,
+            storage,
+            result
+            );
+        }
     }

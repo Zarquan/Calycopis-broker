@@ -24,7 +24,7 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 10,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
@@ -32,17 +32,36 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.data;
+package net.ivoa.calycopis.datamodel.data.amazon.mock;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.spring.model.IvoaS3DataResource;
 
 /**
- * Public interface for a DataResource ValidatorFactory.
  * 
  */
-public interface AbstractDataResourceValidatorFactory
-extends AbstractDataResourceValidator, ValidatorFactory<IvoaAbstractDataResource, AbstractDataResourceEntity>
+public class MockAmazonS3DataResourceValidatorImpl
+extends AmazonS3DataResourceValidatorImpl
+implements MockAmazonS3DataResourceValidator
     {
 
+    public MockAmazonS3DataResourceValidatorImpl(
+        final AmazonS3DataResourceEntityFactory entityFactory,
+        final AbstractStorageResourceValidatorFactory storageValidators
+        ){
+        super(
+            entityFactory,
+            storageValidators
+            );
+        }
+
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    @Override
+    protected Long estimatePrepareTime(final IvoaS3DataResource validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
     }

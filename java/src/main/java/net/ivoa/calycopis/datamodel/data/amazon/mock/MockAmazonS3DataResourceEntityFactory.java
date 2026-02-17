@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 50,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
@@ -32,23 +32,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.data.skao;
+package net.ivoa.calycopis.datamodel.data.amazon.mock;
 
-import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
+import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceEntityFactory;
 
 /**
- * A SkaoDataResource Factory implementation.
- *
+ * 
  */
-@Slf4j
-public abstract class SkaoDataResourceEntityFactoryImpl
-    extends AbstractDataResourceFactoryImpl
-    implements SkaoDataResourceEntityFactory
+public interface MockAmazonS3DataResourceEntityFactory
+extends AmazonS3DataResourceEntityFactory
     {
-
-    public SkaoDataResourceEntityFactoryImpl()
-        {
-        super();
-        }
     }

@@ -18,65 +18,37 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 50,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.data.amazon;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
- * A SimpleDataResource Factory implementation.
+ * An AmazonS3DataResource Factory implementation.
  *
  */
 @Slf4j
-@Component
-public class AmazonS3DataResourceEntityFactoryImpl
+public abstract class AmazonS3DataResourceEntityFactoryImpl
     extends AbstractDataResourceFactoryImpl
     implements AmazonS3DataResourceEntityFactory
     {
 
-    private final AmazonS3DataResourceEntityRepository entityRepository;
-
-    @Autowired
-    public AmazonS3DataResourceEntityFactoryImpl(
-        final AmazonS3DataResourceEntityRepository entityRepository
-        ){
-        super();
-        this.entityRepository = entityRepository;
-        }
-
-    @Override
-    public Optional<AmazonS3DataResourceEntity> select(UUID uuid)
+    public AmazonS3DataResourceEntityFactoryImpl()
         {
-        return this.entityRepository.findById(
-            uuid
-            );
-        }
-
-    @Override
-    public AmazonS3DataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
-        final AbstractDataResourceValidator.Result result
-        ){
-        return this.entityRepository.save(
-            new AmazonS3DataResourceEntity(
-                session,
-                storage,
-                result
-                )
-            );
+        super();
         }
     }
-

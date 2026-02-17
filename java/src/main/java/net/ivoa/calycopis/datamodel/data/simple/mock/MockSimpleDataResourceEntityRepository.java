@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2025 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -24,31 +24,24 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 50,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
  *   ]
  *
  */
+package net.ivoa.calycopis.datamodel.data.simple.mock;
 
-package net.ivoa.calycopis.datamodel.data.skao;
+import java.util.UUID;
 
-import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
- * A SkaoDataResource Factory implementation.
+ * JpaRepository for MockSimpleDataResourceEntity.
  *
  */
-@Slf4j
-public abstract class SkaoDataResourceEntityFactoryImpl
-    extends AbstractDataResourceFactoryImpl
-    implements SkaoDataResourceEntityFactory
+public interface MockSimpleDataResourceEntityRepository
+extends JpaRepository<MockSimpleDataResourceEntity, UUID>
     {
-
-    public SkaoDataResourceEntityFactoryImpl()
-        {
-        super();
-        }
     }

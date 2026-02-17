@@ -24,51 +24,55 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 40,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
  *   ]
  *
  */
-package net.ivoa.calycopis.datamodel.data;
 
-import org.springframework.stereotype.Component;
+package net.ivoa.calycopis.datamodel.data.amazon.mock;
 
-import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
+import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceEntity;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
- * A factory implementation for DataResource validators.
  * 
  */
-@Component
-public class AbstractDataResourceValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements AbstractDataResourceValidatorFactory
+@Entity
+@Table(
+    name = "mockamazons3dataresources"
+    )
+public class MockAmazonS3DataResourceEntity
+    extends AmazonS3DataResourceEntity
+    implements MockAmazonS3DataResource
     {
 
     /**
-     * Default constructor.
-     * Validators are registered externally by the Platform. 
      * 
      */
-    public AbstractDataResourceValidatorFactoryImpl()
+    public MockAmazonS3DataResourceEntity()
         {
         super();
         }
-    
-    @Override
-    public void unknown(
-        final OfferSetRequestParserContext context,
-        final IvoaAbstractDataResource resource
+
+    /**
+     *
+     */
+    public MockAmazonS3DataResourceEntity(
+        final SimpleExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
         ){
-        unknown(
-            context,
-            resource.getKind(),
-            resource.getClass().getName()
+        super(
+            session,
+            storage,
+            result
             );
         }
-
     }

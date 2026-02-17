@@ -24,51 +24,48 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 40,
+ *       "value": 100,
  *       "units": "%"
  *       }
  *     }
  *   ]
  *
  */
-package net.ivoa.calycopis.datamodel.data;
 
-import org.springframework.stereotype.Component;
+package net.ivoa.calycopis.datamodel.data.skao.mock;
 
-import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
+import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
 
 /**
- * A factory implementation for DataResource validators.
  * 
  */
-@Component
-public class AbstractDataResourceValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractDataResource, AbstractDataResourceEntity>
-    implements AbstractDataResourceValidatorFactory
+public class MockSkaoDataResourceValidatorImpl
+extends SkaoDataResourceValidatorImpl
+implements MockSkaoDataResourceValidator
     {
 
-    /**
-     * Default constructor.
-     * Validators are registered externally by the Platform. 
-     * 
-     */
-    public AbstractDataResourceValidatorFactoryImpl()
-        {
-        super();
-        }
-    
-    @Override
-    public void unknown(
-        final OfferSetRequestParserContext context,
-        final IvoaAbstractDataResource resource
+    public MockSkaoDataResourceValidatorImpl(
+        final JdbcTemplate jdbcTemplate,
+        final SkaoDataResourceEntityFactory entityFactory,
+        final AbstractStorageResourceValidatorFactory storageValidators
         ){
-        unknown(
-            context,
-            resource.getKind(),
-            resource.getClass().getName()
+        super(
+            jdbcTemplate,
+            entityFactory,
+            storageValidators
             );
         }
 
+    public static final Long DEFAULT_PREPARE_TIME = 5L;
+
+    @Override
+    protected Long estimatePrepareTime(final IvoaSkaoDataResource validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
     }

@@ -18,65 +18,37 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 50,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.data.ivoa;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceFactoryImpl;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
- * A IvoaDataResource Factory implementation.
+ * An IvoaDataResource Factory implementation.
  *
  */
 @Slf4j
-@Component
-public class IvoaDataResourceEntityFactoryImpl
+public abstract class IvoaDataResourceEntityFactoryImpl
     extends AbstractDataResourceFactoryImpl
     implements IvoaDataResourceEntityFactory
     {
 
-    private final IvoaDataResourceEntityRepository entityRepository;
-
-    @Autowired
-    public IvoaDataResourceEntityFactoryImpl(
-        final IvoaDataResourceEntityRepository entityRepository
-        ){
-        super();
-        this.entityRepository = entityRepository;
-        }
-
-    @Override
-    public Optional<IvoaDataResourceEntity> select(UUID uuid)
+    public IvoaDataResourceEntityFactoryImpl()
         {
-        return this.entityRepository.findById(
-            uuid
-            );
-        }
-
-    @Override
-    public IvoaDataResourceEntity create(
-        final SimpleExecutionSessionEntity session,
-        final AbstractStorageResourceEntity storage,
-        final AbstractDataResourceValidator.Result result
-        ){
-        return this.entityRepository.save(
-            new IvoaDataResourceEntity(
-                session,
-                storage,
-                result
-                )
-            );
+        super();
         }
     }
-

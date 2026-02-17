@@ -18,6 +18,17 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 2,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -56,7 +67,7 @@ import net.ivoa.calycopis.util.URIBuilder;
 @Table(
     name = "skaodataresources"
     )
-public class SkaoDataResourceEntity
+public abstract class SkaoDataResourceEntity
     extends IvoaDataResourceEntity
     implements SkaoDataResource
     {
