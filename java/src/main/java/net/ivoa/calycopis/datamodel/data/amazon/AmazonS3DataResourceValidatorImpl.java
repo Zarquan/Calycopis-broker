@@ -20,11 +20,22 @@
  *
  * AIMetrics: [
  *     {
+ *     "timestamp": "2026-02-14T15:30:00",
  *     "name": "Cursor CLI",
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
  *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
  *       "units": "%"
  *       }
  *     }
@@ -82,7 +93,10 @@ implements AmazonS3DataResourceValidator
         ){
         log.debug("validate(IvoaAbstractDataResource)");
         log.debug("Resource [{}][{}]", requested.getMeta().getName(), requested.getClass().getName());
-        if (requested instanceof IvoaS3DataResource)
+        //
+        // Use exact class matching rather than instanceof to ensure each
+        // validator only handles its specific type, not parent or sibling types.
+        if (requested.getClass() == IvoaS3DataResource.class)
             {
             validate(
                 (IvoaS3DataResource) requested,
@@ -125,54 +139,11 @@ implements AmazonS3DataResourceValidator
             );
         success &= ResultEnum.ACCEPTED.equals(storage.getEnum());
         
-        String endpoint = trim(
-            requested.getEndpoint()
+        success &= validateS3Fields(
+            requested,
+            validated,
+            context
             );
-        String template = trim(
-                requested.getTemplate()
-            );
-        String bucket = trim(
-                requested.getBucket()
-            );
-        String object = trim(
-                requested.getObject()
-            );
-
-        if ((endpoint == null) || (endpoint.isEmpty()))
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "S3 service endpoint required"
-                );
-            success = false;
-            }
-
-        if ((template == null) || (template.isEmpty()))
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "S3 service template required"
-                );
-            success = false;
-            }
-
-        if ((bucket == null) || (bucket.isEmpty()))
-            {
-            context.getOfferSetEntity().addWarning(
-                "urn:missing-required-value",
-                "S3 bucket name required"
-                );
-            success = false;
-            }
-
-        //
-        // Accumulate state and return the fail here.
-        //
-
-        validated.setEndpoint(endpoint);
-        validated.setTemplate(template);
-        validated.setBucket(bucket);
-        validated.setObject(object);
 
         //
         // Calculate the preparation time.
@@ -235,6 +206,82 @@ implements AmazonS3DataResourceValidator
             context.valid(false);
             context.dispatched(true);
             }
+        }
+
+    /**
+     * Apply any platform specific validation rules to the S3 endpoint.
+     * 
+     */
+    protected abstract boolean validateEndpoint(final String endpoint, final OfferSetRequestParserContext context);
+
+    /**
+     * Validate the S3 data resource fields.
+     * 
+     */
+    public boolean validateS3Fields(
+        final IvoaS3DataResource requested,
+        final IvoaS3DataResource validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateS3Fields(IvoaS3DataResource ...)");
+
+        boolean success = true ;
+
+        String endpoint = trim(
+            requested.getEndpoint()
+            );
+        String template = trim(
+            requested.getTemplate()
+            );
+        String bucket = trim(
+            requested.getBucket()
+            );
+        String object = trim(
+            requested.getObject()
+            );
+
+        if ((endpoint == null) || (endpoint.isEmpty()))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "S3 service endpoint required"
+                );
+            success = false;
+            }
+        else {
+            success &= validateEndpoint(
+                endpoint,
+                context
+                );
+            }
+
+        if ((template == null) || (template.isEmpty()))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "S3 service template required"
+                );
+            success = false;
+            }
+
+        if ((bucket == null) || (bucket.isEmpty()))
+            {
+            context.getOfferSetEntity().addWarning(
+                "urn:missing-required-value",
+                "S3 bucket name required"
+                );
+            success = false;
+            }
+
+        if (success)
+            {
+            validated.setEndpoint(endpoint);
+            validated.setTemplate(template);
+            validated.setBucket(bucket);
+            validated.setObject(object);
+            }
+
+        return success;
         }
 
     /**

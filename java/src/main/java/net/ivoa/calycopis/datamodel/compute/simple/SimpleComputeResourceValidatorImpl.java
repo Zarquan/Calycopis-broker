@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.compute.simple;
@@ -64,7 +76,12 @@ implements SimpleComputeResourceValidator
         ){
         log.debug("validate(IvoaAbstractComputeResource)");
         log.debug("Resource [{}]", requested);
-        if (requested instanceof IvoaSimpleComputeResource )
+        //
+        // Use exact class matching rather than instanceof to ensure each
+        // validator only handles its specific type, not subclass types.
+        // This prevents a parent type's validator from intercepting requests
+        // that should be handled by a more specific subclass validator.
+        if (requested.getClass() == IvoaSimpleComputeResource.class)
             {
             validate(
                 (IvoaSimpleComputeResource) requested,

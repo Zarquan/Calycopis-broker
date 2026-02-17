@@ -117,7 +117,8 @@ public abstract class SkaoDataResourceEntity
         super(
             session,
             storage,
-            result
+            result,
+            validated
             );
 
         IvoaSkaoDataResourceBlock block = validated.getSkao();
@@ -273,7 +274,8 @@ public abstract class SkaoDataResourceEntity
             );
         }
 
-    protected IvoaAbstractDataResource fillBean(final IvoaSkaoDataResource bean)
+    @Override
+    protected IvoaSkaoDataResource fillBean(final IvoaSkaoDataResource bean)
         {
         super.fillBean(bean);
         

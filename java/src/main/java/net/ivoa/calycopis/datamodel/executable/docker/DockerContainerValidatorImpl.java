@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-02-17T07:10:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 1,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.executable.docker;
@@ -68,7 +80,12 @@ implements DockerContainerValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("IvoaAbstractExecutable [{}][{}]", requested.getMeta(), requested.getClass().getName());
-        if (requested instanceof IvoaDockerContainer)
+        //
+        // Use exact class matching rather than instanceof to ensure each
+        // validator only handles its specific type, not subclass types.
+        // This prevents a parent type's validator from intercepting requests
+        // that should be handled by a more specific subclass validator.
+        if (requested.getClass() == IvoaDockerContainer.class)
             {
             validate(
                 (IvoaDockerContainer) requested,
