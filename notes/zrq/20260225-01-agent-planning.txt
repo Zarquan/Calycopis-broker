@@ -1,0 +1,173 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Planning what we want our agents to do.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    1) First pass at PodmanPlatform capable of running MD5 on a local file
+
+        ComputeResource  - check we have the image, check resources
+        StorageResource  - placeholder for the host filesystem
+        DataResource     - file:// reference on the host - check the file exists ?
+        VolumeMount      - Add a volume mount when the container is run
+        ExecutionSession - run the container on the host
+
+        Need to split this into steps we can implement.
+
+        Do we need to move volume mount to compute resource first ?
+
+        Start with a different container, one that doesn't need any input.
+
+        New project
+        https://species.wikimedia.org/wiki/Heliophorus_cantliei
+
+            A docker container used for testing that accepts an integer input parameter and simply waits for that number of seconds before exiting.
+
+                docker run cantliei 10
+
+            would run the cantliei container, which waits for 10 seconds and then exits.
+
+        That gets us ComputeResource and ExcutionSession
+
+    2) Functionality testing
+
+    3) Refactoing / cleaning pass
+       Pick one change to the project that would make it easier to understand.
+       Pick one change to the project that would make it simpler.
+
+    4) Code coverage testing
+       Work towards 100% code coverage.
+
+
+# -----------------------------------------------------
+
+    I would like to create a set of identities for my agents.
+    Create a new GitHub account for the agents to use.
+    Create a new ssh key for the agents to use.
+    Mounted home directory on desktop
+    Run agents in containers and mount the home directory
+    Agents would be able to commit to their fork of my GitHub projects.
+
+
+
+# -----------------------------------------------------
+
+    From today's Turin Post
+
+        After reading Guo’s post I came up with the following repeatable pattern that might help while engineering:
+
+        * **Agent-first by default:** stop opening the editor as step one. If you can write the task in 5–10 bullet requirements, hand it to an agent first. The agent drafts the plan and the PR; you focus on approving the plan and reviewing the diff.
+
+        * **Architecture as guardrails:** constrain the solution space with strict boundaries and allowed dependency paths, enforced automatically with structural checks.
+
+        **Tools as foundation + feedback:** expose internal tools via CLI/MCP; run CI, lint, and tests with error messages that tell the agent exactly how to fix the failure.
+
+        * **Memory that compounds:** treat AGENTS.md as the repo’s scar tissue. Every time an agent fails, write down what went wrong and how to avoid it; share the fixes as reusable templates, scripts, and tool configs across teams.
+
+        * **Plan-first discipline:** don’t let the agent write code as the first move. Make it draft a plan, review it, approve it, then let it execute.
+
+        * **No slop policy:** keep the merge bar unchanged. Every PR has a human owner, and reviewers understand what they’re signing off on.
+
+        * **Agent ops layer:** run agents like production systems. Track their runs, centralize tool access, and turn recurring failures into harness improvements.
+
+        It’s both a workflow hygiene and an executable infrastructure. The agent is the worker. The harness is the factory. Your job is whatever the factory still can’t do: judgment, taste, accountability.
+
+
+# -----------------------------------------------------
+
+    The Emerging "Harness Engineering" Playbook
+    https://www.ignorance.ai/p/the-emerging-harness-engineering
+
+    Create AGENTS.md for all of our projects.
+
+    Write agent first.
+    Plan development tasks in text, then pass it to the agents.
+
+    Planning is the new coding.
+    https://www.ignorance.ai/i/188778904/planning-is-the-new-coding
+
+
+# -----------------------------------------------------
+
+    Architecture as Guardrails
+    https://www.ignorance.ai/i/188778904/architecture-as-guardrails
+        Define interfaces
+
+# -----------------------------------------------------
+
+    AI Is Forcing Us To Write Good Code - by Steve Krenzel
+    https://bits.logic.inc/p/ai-is-forcing-us-to-write-good-code
+
+    The most controversial guideline we have is our most valuable:
+    We require 100% code coverage2.
+
+    OK- so how do we implement that in our webapp ?
+
+# -----------------------------------------------------
+
+    Greg Brockman (OpenAI) on X:
+    https://x.com/gdb/status/2019566641491963946
+
+    Software development is undergoing a renaissance in front of our eyes.
+    If you haven't used the tools recently, you likely are underestimating
+    what you're missing. Since December, there's been a step function
+    improvement in what tools like Codex can do.
+
+    (1) For any technical task, the tool of first resort for humans is
+        interacting with an agent rather than using an editor or terminal.
+
+    (2) The default way humans utilize agents is explicitly evaluated as
+        safe, but also productive enough that most workflows do not need
+        additional permissions.
+
+# -----------------------------------------------------
+
+    Minions: Stripe’s one-shot, end-to-end coding agents | Stripe Dot Dev Blog
+    https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents
+
+        A typical minion run starts in a Slack message and ends in a pull request
+        which passes CI and is ready for human review, with no interaction in between.
+        We frequently see engineers spinning up multiple minions in parallel,
+        to enable them to parallelize the completion of many different tasks.
+
+
+        Minions have already reimagined what it’s like to code at Stripe.
+        The industry is still exploring what the future of agentic coding will look
+        like, but we’re sure that the unattended code agent use case will remain
+        among the most exciting applications of agents.
+
+    Minions: Stripe’s one-shot, end-to-end coding agents—Part 2 | Stripe Dot Dev Blog
+    https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents-part-2
+
+
+
+

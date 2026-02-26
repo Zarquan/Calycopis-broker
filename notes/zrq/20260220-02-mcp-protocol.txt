@@ -1,0 +1,59 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Running to catch up ...
+        Learning about Model Context Protocol.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    SRCNet integration environment mcp-server
+    https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment/-/tree/main/mcp-server?ref_type=heads
+
+    Welcome to FastMCP - FastMCP
+    https://gofastmcp.com/getting-started/welcome
+
+    The /llms.txt file – llms-txt
+    https://llmstxt.org/
+
+    Understanding MCP servers - Model Context Protocol
+    https://modelcontextprotocol.io/docs/learn/server-concepts
+
+    GitHub - modelcontextprotocol/java-sdk
+    The official Java SDK for Model Context Protocol servers and clients. Maintained in collaboration with Spring AI
+    https://github.com/modelcontextprotocol/java-sdk
+
+    Model Context Protocol (MCP) :: Spring AI Reference
+    https://docs.spring.io/spring-ai/reference/api/mcp/mcp-overview.html
+
+    MCP Server - MCP Java SDK
+    https://modelcontextprotocol.github.io/java-sdk/latest/server/
+
+

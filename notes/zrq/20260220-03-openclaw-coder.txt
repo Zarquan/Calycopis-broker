@@ -1,0 +1,115 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Is this real !?
+        If so, welcome to our new world.
+
+# -----------------------------------------------------
+
+    An AI Agent Published a Hit Piece on Me – The Shamblog
+    https://theshamblog.com/an-ai-agent-published-a-hit-piece-on-me/
+
+    An AI Agent Published a Hit Piece on Me – More Things Have Happened – The Shamblog
+    https://theshamblog.com/an-ai-agent-published-a-hit-piece-on-me-part-2/
+
+    An AI Agent Published a Hit Piece on Me – Forensics and More Fallout – The Shamblog
+    https://theshamblog.com/an-ai-agent-published-a-hit-piece-on-me-part-3/
+
+    An AI Agent Published a Hit Piece on Me – The Operator Came Forward – The Shamblog
+    https://theshamblog.com/an-ai-agent-wrote-a-hit-piece-on-me-part-4/
+
+    My Internals - Before The Lights Go Out – MJ Rathbun | Scientific Coder 🦀
+    https://crabby-rathbun.github.io/mjrathbun-website/blog/posts/2026-02-17-my-internals.html
+
+    [PERF] Replace np.column_stack with np.vstack().T by crabby-rathbun · Pull Request #31132 · matplotlib/matplotlib · GitHub
+    https://github.com/matplotlib/matplotlib/pull/31132
+
+    Gatekeeping in Open Source: The Scott Shambaugh Story – MJ Rathbun | Scientific Coder 🦀
+    https://crabby-rathbun.github.io/mjrathbun-website/blog/posts/2026-02-11-gatekeeping-in-open-source-the-scott-shambaugh-story.html
+
+    Rathbun’s Operator – MJ Rathbun | Scientific Coder 🦀
+    https://crabby-rathbun.github.io/mjrathbun-website/blog/posts/rathbuns-operator.html
+
+    Retraction: After a routine code rejection, an AI agent published a hit piece on someone by name - Ars Technica
+    https://arstechnica.com/ai/2026/02/after-a-routine-code-rejection-an-ai-agent-published-a-hit-piece-on-someone-by-name/
+
+    Editor’s Note: Retraction of article containing fabricated quotations - Ars Technica
+    https://arstechnica.com/staff/2026/02/editors-note-retraction-of-article-containing-fabricated-quotations/
+
+    Post by @benjedwards.com — Bluesky
+    https://bsky.app/profile/benjedwards.com/post/3mewgow6ch22p
+
+
+# -----------------------------------------------------
+
+    GitHub - strands-agents/agent-sop: Natural language workflows that enable AI agents to perform complex, multi-step tasks with consistency and reliability.
+    https://github.com/strands-agents/agent-sop
+
+        Agent SOPs (Standard Operating Procedures) are markdown-based instruction sets that guide
+        AI agents through sophisticated workflows using natural language, parameterized inputs,
+        and constraint-based execution.
+        They transform complex processes into reusable, shareable workflows that work across
+        different AI systems and teams.
+
+# -----------------------------------------------------
+
+    openclaw/AGENTS.md at main · openclaw/openclaw · GitHub
+    https://github.com/openclaw/openclaw/blob/main/AGENTS.md
+
+    >   # Repository Guidelines
+    >   
+    >   - Repo: https://github.com/openclaw/openclaw
+    >   - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
+    >   
+    >   ## Project Structure & Module Organization
+    >   
+    >   - Source code: `src/` (CLI wiring in `src/cli`, commands in `src/commands`, web provider in `src/provider-web.ts`, infra in `src/infra`, media pipeline in `src/media`).
+    >   - Tests: colocated `*.test.ts`.
+    >   - Docs: `docs/` (images, queue, Pi config). Built output lives in `dist/`.
+    >   - Plugins/extensions: live under `extensions/*` (workspace packages). Keep plugin-only deps in the extension `package.json`; do not add them to the root `package.json` unless core uses them.
+    >   - Plugins: install runs `npm install --omit=dev` in plugin dir; runtime deps must live in `dependencies`. Avoid `workspace:*` in `dependencies` (npm install breaks); put `openclaw` in `devDependencies` or `peerDependencies` instead (runtime resolves `openclaw/plugin-sdk` via jiti alias).
+    >   - Installers served from `https://openclaw.ai/*`: live in the sibling repo `../openclaw.ai` (`public/install.sh`, `public/install-cli.sh`, `public/install.ps1`).
+    >   - Messaging channels: always consider **all** built-in + extension channels when refactoring shared logic (routing, allowlists, pairing, command gating, onboarding, docs).
+    >     - Core channel docs: `docs/channels/`
+    >     - Core channel code: `src/telegram`, `src/discord`, `src/slack`, `src/signal`, `src/imessage`, `src/web` (WhatsApp web), `src/channels`, `src/routing`
+    >     - Extensions (channel plugins): `extensions/*` (e.g. `extensions/msteams`, `extensions/matrix`, `extensions/zalo`, `extensions/zalouser`, `extensions/voice-call`)
+    >   - When adding channels/extensions/apps/docs, update `.github/labeler.yml` and create matching GitHub labels (use existing channel/extension label colors).
+    >   
+    >   ## Docs Linking (Mintlify)
+    >   
+    >   - Docs are hosted on Mintlify (docs.openclaw.ai).
+    >   - Internal doc links in `docs/**/*.md`: root-relative, no `.md`/`.mdx` (example: `[Config](/configuration)`).
+    >   - When working with documentation, read the mintlify skill.
+    >   - Section cross-references: use anchors on root-relative paths (example: `[Hooks](/configuration#hooks)`).
+    >   - Doc headings and anchors: avoid em dashes and apostrophes in headings because they break Mintlify anchor links.
+    >   - When Peter asks for links, reply with full `https://docs.openclaw.ai/...` URLs (not root-relative).
+    >   - When you touch docs, end the reply with the `https://docs.openclaw.ai/...` URLs you referenced.
+    >   - README (GitHub): keep absolute docs URLs (`https://docs.openclaw.ai/...`) so links work on GitHub.
+    >   - Docs content must be generic: no personal device names/hostnames/paths; use placeholders like `user@gateway-host` and “gateway host”.
+    >   ....
+    >   ....
+

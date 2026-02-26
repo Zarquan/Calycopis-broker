@@ -1,0 +1,831 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Start work on Docker/Podman platform.
+
+        Note - Cursor settings are in a hidden .cursor directory
+        inside the project, which is ignored by git.
+
+    Result:
+
+        Work in progress ...
+
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Create a new branch.
+#[user@desktop]
+
+    branchname=podman-platform
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Start a local Podman service.
+# https://docs.podman.io/en/latest/markdown/podman-system-service.1.html
+#[user@desktop]
+
+    systemctl --user start podman.socket
+
+    ls /run/user/$(id -u)/podman/
+
+    >   podman.sock
+
+
+# -----------------------------------------------------
+# Create a Podman Pod and start our database server.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+# Note the volume mount for our podman socket
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --expose 8082 \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        --volume "/run/user/$(id -u)/podman/podman.sock:/run/podman/podman.sock:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# See if we can access the podman socket from inside the container.
+#[root@calycopis-dev]
+
+    dnf install -y podman
+
+    CONTAINER_HOST=unix:///run/podman/podman.sock
+
+    podman ps
+
+    >   WARN[0000] Using rootless single mapping into the namespace. This might break some images. Check /etc/subuid and /etc/subgid for adding sub*ids if not using a network user
+    >   CONTAINER ID  IMAGE       COMMAND     CREATED     STATUS      PORTS       NAMES
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        fedora:latest \
+            bash
+
+    >   Resolved "fedora" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+    >   Trying to pull registry.fedoraproject.org/fedora:latest...
+    >   Getting image source signatures
+    >   Copying blob 039d73523248 done   |
+    >   Error: unable to copy from source docker://registry.fedoraproject.org/fedora:latest: copying system image from manifest list: writing blob: adding layer with blob "sha256:039d73523248fb695f93fb858661f1d14c51d50347283ec7cb816c959fc0bf6a"/""/"sha256:2c03444112a38cede92ca51f9d2d93fc6853869e2b0f6319a4e3535f52e48789": unpacking failed (error: exit status 1; output: potentially insufficient UIDs or GIDs available in user namespace (requested 0:12 for /var/spool/mail): Check /etc/subuid and /etc/subgid if configured locally and run "podman system migrate": lchown /var/spool/mail: invalid argument)
+
+    #
+    # Before I try debugging this one, try running podman service as root on the host.
+    #
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a root Podman service.
+# https://docs.podman.io/en/latest/markdown/podman-system-service.1.html
+#[user@desktop]
+
+    sudo systemctl stop podman.socket
+
+    sudo systemctl start podman.socket
+
+    sudo systemctl status podman.socket
+
+    >   ● podman.socket - Podman API Socket
+    >        Loaded: loaded (/usr/lib/systemd/system/podman.socket; disabled; preset: disabled)
+    >        Active: active (listening) since Wed 2026-02-18 13:18:52 GMT; 9s ago
+    >      Triggers: ● podman.service
+    >          Docs: man:podman-system-service(1)
+    >        Listen: /run/podman/podman.sock (Stream)
+    >        CGroup: /system.slice/podman.socket
+    >   
+    >   Feb 18 13:18:52 methionine systemd[1]: Listening on podman.socket - Podman API Socket.
+
+
+    ls -alZ /run/podman/podman.sock
+
+    >   ls: cannot open directory '/run/podman/': Permission denied
+
+
+    sudo ls -alZ /run/podman/podman.sock
+
+    >   srw-rw----. 1 root root system_u:object_r:var_run_t:s0 0 Feb 18 13:18 /run/podman/podman.sock
+
+
+
+# -----------------------------------------------------
+# Create a new Podman Pod.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+# Note the volume mount for our podman socket
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --expose 8082 \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --volume "${TREBULA_CODE}:/trebula:rw,z" \
+        --volume "${CALYCOPIS_CODE}:/calycopis:rw,z" \
+        --volume "${HOME}/.m2:/root/.m2:rw,z" \
+        --security-opt label:type:container_runtime_t \
+        --volume "/run/podman/podman.sock:/run/podman/podman.sock:rw,z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+    >   Error: statfs /run/podman/podman.sock: permission denied
+
+    #
+    # This probably isn't worth it.
+    # If we are running the Podman service as root we might as well just use Docker.
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a local Podman service.
+# https://docs.podman.io/en/latest/markdown/podman-system-service.1.html
+#[user@desktop]
+
+    # Shutdown the root level service
+    sudo systemctl stop podman.socket
+
+    # Enable Podman as a user level service
+    systemctl --user enable --now podman.socket
+
+    >   Created symlink /home/Zarquan/.config/systemd/user/sockets.target.wants/podman.socket → /usr/lib/systemd/user/podman.socket.
+
+    systemctl --user status podman.socket
+
+    >   ● podman.socket - Podman API Socket
+    >        Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; preset: disabled)
+    >        Active: active (listening) since Wed 2026-02-18 12:37:04 GMT; 2h 10min ago
+    >      Triggers: ● podman.service
+    >          Docs: man:podman-system-service(1)
+    >        Listen: /run/user/1000/podman/podman.sock (Stream)
+    >        CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/podman.socket
+    >   
+    >   Feb 18 12:37:04 methionine systemd[1751]: Listening on podman.socket - Podman API Socket.
+
+
+    ls -alZ ${XDG_RUNTIME_DIR}/podman
+
+    >   ....
+    >   ....
+    >   srw-rw----.  1 Zarquan Zarquan system_u:object_r:container_file_t:s0   0 Feb 18 12:37 podman.sock
+
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+# Note the volume mount for our podman socket
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# See if we can access the podman socket from inside the container.
+#[root@calycopis-dev]
+
+    ls -alZ /run/podman/podman.sock
+
+    >   srw-rw----. 1 root root system_u:object_r:container_file_t:s0:c127,c415 0 Feb 18 12:37 /run/podman/podman.sock
+
+    echo "${CONTAINER_HOST}"
+
+    >   unix:///run/podman/podman.sock
+
+
+    dnf install -y podman
+
+    podman ps
+
+    >   Cannot connect to Podman. Please verify your connection to the Linux system using `podman system connection list`, or try `podman machine init` and `podman machine start` to manage a new Linux VM
+    >   Error: unable to connect to Podman socket: Get "http://d/v5.7.1/libpod/_ping": dial unix /run/podman/podman.sock: connect: permission denied: unix:///run/podman/podman.sock
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Try again with rw,Z permissions on the mount.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+#[root@calycopis-dev]
+
+    ls -alZ /run/podman/podman.sock
+
+    >   srw-rw----. 1 root root system_u:object_r:container_file_t:s0:c347,c635 0 Feb 18 12:37 /run/podman/podman.sock
+
+    echo $CONTAINER_HOST
+
+    >   unix:///run/podman/podman.sock
+
+
+    dnf install -y podman
+
+    podman ps
+
+    >   Cannot connect to Podman. Please verify your connection to the Linux system using `podman system connection list`, or try `podman machine init` and `podman machine start` to manage a new Linux VM
+    >   Error: unable to connect to Podman socket: Get "http://d/v5.7.1/libpod/_ping": dial unix /run/podman/podman.sock: connect: permission denied: unix:///run/podman/podman.sock
+
+    #
+    # Getting SELinx alerts of the host machine.
+    # SETroubleshoot details as follows:
+
+    >   SELinux is preventing podman from connectto access on the unix_stream_socket /run/user/1000/podman/podman.sock.
+    >   
+    >   *****  Plugin catchall (100. confidence) suggests   **************************
+    >   
+    >   If you believe that podman should be allowed connectto access on the podman.sock unix_stream_socket by default.
+    >   Then you should report this as a bug.
+    >   You can generate a local policy module to allow this access.
+    >   Do
+    >   allow this access for now by executing:
+    >   # ausearch -c 'podman' --raw | audit2allow -M my-podman
+    >   # semodule -X 300 -i my-podman.pp
+    >   
+    >   Additional Information:
+    >   Source Context                system_u:system_r:container_t:s0:c347,c635
+    >   Target Context                unconfined_u:unconfined_r:container_runtime_t:s0-
+    >                                 s0:c0.c1023
+    >   Target Objects                /run/user/1000/podman/podman.sock [
+    >                                 unix_stream_socket ]
+    >   Source                        podman
+    >   Source Path                   podman
+    >   Port                          <Unknown>
+    >   Host                          methionine
+    >   Source RPM Packages
+    >   Target RPM Packages
+    >   SELinux Policy RPM            selinux-policy-targeted-40.30-1.fc40.noarch
+    >   Local Policy RPM              selinux-policy-targeted-40.30-1.fc40.noarch
+    >   Selinux Enabled               True
+    >   Policy Type                   targeted
+    >   Enforcing Mode                Enforcing
+    >   Host Name                     methionine
+    >   Platform                      Linux methionine 6.14.5-100.fc40.x86_64 #1 SMP
+    >                                 PREEMPT_DYNAMIC Fri May  2 14:22:13 UTC 2025
+    >                                 x86_64
+    >   Alert Count                   12
+    >   First Seen                    2026-02-18 14:56:48 GMT
+    >   Last Seen                     2026-02-18 15:04:31 GMT
+    >   Local ID                      a2336f6e-0630-47a6-91f7-241871b7f1a2
+    >   
+    >   Raw Audit Messages
+    >   type=AVC msg=audit(1771427071.822:29815): avc:  denied  { connectto } for  pid=578241 comm="podman" path="/run/user/1000/podman/podman.sock" scontext=system_u:system_r:container_t:s0:c347,c635 tcontext=unconfined_u:unconfined_r:container_runtime_t:s0-s0:c0.c1023 tclass=unix_stream_socket permissive=0
+    >   
+    >   
+    >   Hash: podman,container_t,container_runtime_t,unix_stream_socket,connectto
+
+    #
+    # Ran the suggested policy modified on the host machine.
+    #
+
+#[user@desktop]
+
+    sudo ausearch -c 'podman' --raw | audit2allow -M my-podman
+    sudo semodule -i my-podman.pp
+
+#[root@calycopis-dev]
+
+    podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS         PORTS       NAMES
+    >   3e3af79ba189  localhost/podman-pause:5.4.2-1743552000                        10 minutes ago  Up 10 minutes              57fb2386b0db-infra
+    >   3333b053ec79  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        4 minutes ago   Up 4 minutes               calycopis-dev
+
+    #
+    # Yay - we can connect.
+    # Try running a container ...
+    #
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        fedora:latest \
+            bash
+
+        cat /etc/redhat-release
+
+    >   Fedora release 43 (Forty Three)
+
+        #
+        # Yay - we can run things.
+        # Fedora 43 container, launched from inside Fedora 42 container, running on a Fedora 40 host :-)
+        #
+
+# List the containers running on the host.
+#[user@desktop]
+
+    podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS                    PORTS       NAMES
+    >   3e3af79ba189  localhost/podman-pause:5.4.2-1743552000                        19 minutes ago  Up 18 minutes                         57fb2386b0db-infra
+    >   3333b053ec79  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        12 minutes ago  Up 12 minutes                         calycopis-dev
+    >   e76583847253  registry.fedoraproject.org/fedora:latest           bash        12 seconds ago  Up 13 seconds (starting)              intelligent_wozniak
+
+
+# -----------------------------------------------------
+# Run MD5SUM on the host machine.
+#
+
+    time md5sum /data/eMerlin/CY3229_L_002_20160111.tar
+
+    >   80b5a31b81bb156d14456f0bbe134e3d  /data/eMerlin/CY3229_L_002_20160111.tar
+    >   
+    >   real 0m20.185s
+    >   user 0m12.010s
+    >   sys  0m6.985s
+
+# -----------------------------------------------------
+# Run MD5SUM in a container.
+#
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --volume "/data:/data:ro" \
+        fedora:latest \
+            bash
+
+    time md5sum /data/eMerlin/CY3229_L_002_20160111.tar
+
+    #
+    # Ran into a lot of permission issues.
+    # TL;DR; needed to set the SELinux type to container_file_t
+    #
+
+# -----------------------------------------------------
+# Make the data accessible to containers.
+#[user@desktop]
+
+    sudo chcon -R -t container_file_t /data/eMerlin/
+
+# -----------------------------------------------------
+# Try again with rw,Z permissions on the mount.
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        --volume "/data/eMerlin:/data/eMerlin:ro" \
+        fedora:latest \
+            bash
+
+        ls -alZ /data/eMerlin/
+
+    >   ....
+    >   ....
+    >   -rw-r--r--. 1 root   root   unconfined_u:object_r:container_file_t:s0       9.7G Jan 30 10:18 CY3229_L_002_20160111.tar
+
+
+        time md5sum /data/eMerlin/CY3229_L_002_20160111.tar
+
+    >   80b5a31b81bb156d14456f0bbe134e3d  /data/eMerlin/CY3229_L_002_20160111.tar
+
+    >   real 0m20.233s
+    >   user 0m11.686s
+    >   sys  0m7.507s
+
+
+# -----------------------------------------------------
+# Try running md5sum as the command in the outer container.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        --volume "/data/eMerlin:/archive:ro" \
+        fedora:latest \
+            md5sum /archive/CY3229_L_002_20160111.tar
+
+    >   80b5a31b81bb156d14456f0bbe134e3d  /archive/CY3229_L_002_20160111.tar
+
+
+# -----------------------------------------------------
+# Try running md5sum as the command in the inner container.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        fedora:latest \
+            bash
+
+            dnf install -y podman
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-worker \
+                --volume "/data/eMerlin:/archive:ro" \
+                fedora:latest \
+                    md5sum /archive/CY3229_L_002_20160111.tar
+
+# Check what is running on the host.
+#[user@desktop]
+
+    podman ps
+
+    >   CONTAINER ID  IMAGE                                     COMMAND               CREATED         STATUS                   PORTS       NAMES
+    >   01889986ac2f  localhost/podman-pause:5.4.2-1743552000                         12 minutes ago  Up 12 minutes                        063c7473ce3f-infra
+    >   1278f53be835  registry.fedoraproject.org/fedora:latest  bash                  2 minutes ago   Up 2 minutes                         calycopis-dev
+    >   e0371b3e4a20  registry.fedoraproject.org/fedora:latest  md5sum /archive/C...  3 seconds ago   Up 4 seconds (starting)              calycopis-worker
+
+
+# -----------------------------------------------------
+# Try passing TARGET_PATH and TARGET_DATA as environment variables.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        fedora:latest \
+            bash
+
+            dnf install -y podman
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-worker \
+                --env "TARGET_PATH=/archive" \
+                --env "TARGET_FILE=CY3229_L_002_20160111.tar" \
+                --volume "/data/eMerlin:/archive:ro" \
+                fedora:latest \
+                    sh -c 'md5sum ${TARGET_PATH}/${TARGET_FILE}'
+
+    >   80b5a31b81bb156d14456f0bbe134e3d  /archive/CY3229_L_002_20160111.tar
+
+    #
+    # Yay
+    # OK, try limiting the number of cpus and memory allowed.
+    #
+
+            podman run \
+                --rm \
+                --tty \
+                --cpus 1 \
+                --memory 1g \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-worker \
+                --env "TARGET_PATH=/archive" \
+                --env "TARGET_FILE=CY3229_L_002_20160111.tar" \
+                --volume "/data/eMerlin:/archive:ro" \
+                fedora:latest \
+                    sh -c 'md5sum ${TARGET_PATH}/${TARGET_FILE}'
+
+    #
+    # Yay :-)
+    #
+
+
+# -----------------------------------------------------
+# Try creating a intial container with the volume mount and then adding another with volumes-from.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        fedora:latest \
+            bash
+
+            dnf install -y podman
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-archive \
+                --volume "/data/eMerlin:/archive:ro" \
+                fedora:latest \
+                    bash
+
+
+# -----------------------------------------------------
+# Run another container using volumes-from.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-worker \
+                --volumes-from calycopis-archive:ro \
+                fedora:latest \
+                    bash
+
+    #
+    # Yep, that works.
+    #
+
+
+# -----------------------------------------------------
+# Create a volume and attach it to a container.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+            podman volume \
+                create download-volume-01
+
+    >   download-volume-01
+
+            #
+            # Run a container to download a jar from the Maven repository.
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-download-01 \
+                --volume download-volume-01:/download-mount-01:rw \
+                    fedora:latest \
+                        bash
+
+                    dnf install -y wget
+
+                    openapiGeneratorName=openapi-generator-cli
+                    openapiGeneratorVersion=7.18.0
+                    openapiGeneratorFileName=${openapiGeneratorName}-${openapiGeneratorVersion}.jar
+
+                    wget \
+                        https://repo1.maven.org/maven2/org/openapitools/${openapiGeneratorName}/${openapiGeneratorVersion}/${openapiGeneratorFileName} \
+                        --output-file "/download-mount-01/logfile" \
+                        --output-document "/download-mount-01/${openapiGeneratorFileName}"
+
+                    df -h /download-mount-01/
+
+    >   Filesystem                                             Size  Used Avail Use% Mounted on
+    >   /dev/mapper/luks-be2ff1d6-f01f-4a45-94b5-1bd45748f161  932G  824G  108G  89% /download-mount-01
+
+
+                    du -h /download-mount-01/
+
+    >   30M	/download-mount-01/openapi-generator
+    >   30M	/download-mount-01/
+
+
+                    ls -alh //download-mount-01/openapi-generator/
+
+    >   -rw-r--r--. 1 root root 30M Dec 22 09:44 openapi-generator-cli-7.18.0.jar
+
+
+# -----------------------------------------------------
+# Run a worker container with the other two volumes mounted.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-worker \
+                --volumes-from calycopis-archive:ro \
+                --volume download-volume-01:/download-mount-01:ro \
+                    fedora:latest \
+                        bash
+
+            ls -al /archive/
+
+    >   -rw-r--r--. 1 root   root   10398411724 Jan 30 10:18 CY3229_L_002_20160111.tar
+
+            rm /archive/CY3229_L_002_20160111.tar
+
+    >   rm: cannot remove '/archive/CY3229_L_002_20160111.tar': Read-only file system
+
+
+            ls -al /download-mount-01/openapi-generator/
+
+    >   -rw-r--r--. 1 root root 31056909 Dec 22 09:44 openapi-generator-cli-7.18.0.jar
+
+
+            rm /download-mount-01/openapi-generator/openapi-generator-cli-7.18.0.jar
+
+    >   rm: cannot remove '/download-mount-01/openapi-generator/openapi-generator-cli-7.18.0.jar': Read-only file system
+
+
+    #
+    # We can create volumes to store downloaded data.
+    # We can run wget or curl in separate containers to download the data.
+    # We can mount the volumes into the worker container.
+    # We can mount volumes from other containers into the worker container.
+    #
+
+
+# -----------------------------------------------------
+# What output does curl give us ?
+#[user@desktop]
+
+            # Run a container to download a jar from the Maven repository.
+            podman run \
+                --rm \
+                --tty \
+                --interactive \
+                --pod  calycopis-pod \
+                --name calycopis-download-01 \
+                --volume download-volume-01:/download-mount-01:rw \
+                    fedora:latest \
+                        bash
+
+                    dnf install -y curl
+
+                    openapiGeneratorName=openapi-generator-cli
+                    openapiGeneratorVersion=7.18.0
+                    openapiGeneratorFileName=${openapiGeneratorName}-${openapiGeneratorVersion}.jar
+
+                    curl \
+                        --head \
+                        "https://repo1.maven.org/maven2/org/openapitools/${openapiGeneratorName}/${openapiGeneratorVersion}/${openapiGeneratorFileName}"
+
+    >   HTTP/2 200
+    >   date: Wed, 18 Feb 2026 20:43:03 GMT
+    >   content-type: application/java-archive
+    >   content-length: 31056909
+    >   cf-cache-status: HIT
+    >   accept-ranges: bytes
+    >   age: 16789
+    >   etag: "ac35c9e3e4e43bf68c93f6341f6d4f97"
+    >   last-modified: Mon, 22 Dec 2025 09:44:43 GMT
+    >   x-checksum-md5: ac35c9e3e4e43bf68c93f6341f6d4f97
+    >   x-checksum-sha1: 8bd615a50b15ebf5be30e612af112526a6e81ac4
+    >   server: cloudflare
+    >   cf-ray: 9d005ac2ccaf6517-LHR
+
+
+                    curl \
+                        --output "/download-mount-01/${openapiGeneratorFileName}" \
+                        "https://repo1.maven.org/maven2/org/openapitools/${openapiGeneratorName}/${openapiGeneratorVersion}/${openapiGeneratorFileName}"
+
+

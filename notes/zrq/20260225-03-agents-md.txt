@@ -1,0 +1,194 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ask Cursor to create the PodmanPlatform
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Ask Cursor to look at the /calycopis project
+#[root@calycopis-dev]
+
+    ?   The next set of tasks will involve the Java project at /calycopis/Calycopis-broker/github-zrq/
+    ?   Please analyse the AGENTS.md file and provide your feedback.
+
+    >     Here's my analysis of the AGENTS.md file.
+    >     What it does well:
+    >     • The high-level overview is solid — it clearly explains the broker's purpose, the offer-set negotiation pattern, and the async 303/200 response strategy.
+    >     • The API surface section is thorough: endpoints, request/response types, media types, and the polymorphic discriminator pattern are all well documented.
+    >     • The data model section is comprehensive — it covers the full type hierarchy (executables, compute, storage, volumes, data), the options/updates command pattern, and lifecycle states.
+    >     • Pointing to the OpenAPI schema location at /calycopis/Calycopis-schema/github-zrq/schema/v1.0/execution-broker.yaml is very helpful.
+    >   
+    >     What's missing or could be improved:
+    >     1. No build instructions. The project uses Maven (java/pom.xml, mvnw wrapper) but the AGENTS.md doesn't mention how to build it. An agent needs to know to run ./mvnw package (or
+    >        similar) from the java/ directory.
+    >     2. No project directory layout. There are important top-level directories — java/, docker/, python/, tests/, attic/, skaha/, docs/, notes/ — none of which are described. An agent won't
+    >        know where to find or put things.
+    >     3. The `calycopis-spring` dependency is unexplained. The pom.xml depends on net.ivoa.calycopis:calycopis-spring:1.0.3-SNAPSHOT, which contains generated Spring Boot classes from the
+    >        schema. The AGENTS.md doesn't explain this relationship, where those classes come from, or how to obtain/rebuild them. This is critical context — without it, an agent wouldn't
+    >        understand what interfaces it's implementing.
+    >     4. The pervasive Entity/Factory/Validator/Repository pattern isn't documented. Looking at the Java source, every domain concept follows a consistent pattern: Abstract* interface,
+    >        *Entity (JPA), *EntityFactory/*EntityFactoryImpl (creation), *EntityRepository (persistence), *Validator/*ValidatorImpl (validation), plus mock/Mock* variants. This is the single
+    >        most important architectural pattern in the codebase and it's not mentioned at all. An agent asked to add a new resource type would have no idea how many files to create or what
+    >        conventions to follow.
+    >     5. No mention of key dependencies and their roles. Lombok (used throughout for boilerplate reduction), H2 (embedded database for development), PostgreSQL (production), ThreeTen Extra
+    >        (time handling), Jackson YAML/XML (multi-format serialization) — these all affect how an agent should write code.
+    >     6. No coding conventions. The codebase has clear patterns (e.g., Impl suffix for implementations, mock sub-packages, JPA over Spring-specific annotations as briefly mentioned) but these
+    >         aren't enumerated as rules an agent should follow.
+    >     7. No testing guidance. The java/tests/ and tests/ directories exist but there's no mention of how to run tests, what framework is used, or what test coverage expectations exist.
+    >     8. The Docker/Podman section lacks application context. It explains the socket mount mechanics but doesn't explain why — presumably the broker itself needs to launch containers on the
+    >        host as part of executing sessions. That's a key architectural detail.
+    >     9. `project.properties` contains schemaversion=1.0.2 but isn't referenced anywhere in the AGENTS.md.
+    >     10. Minor: trailing blank lines at the end of the file.
+    >   
+    >     Summary: The AGENTS.md is strong on what the API looks like from the outside (endpoints, data model, schema) but weak on how to work with the codebase from the inside (build process,
+    >     directory layout, architectural patterns, dependencies, conventions). An agent given a coding task today would understand the domain well but struggle with where to put files, what
+    >     patterns to follow, and how to build/test changes.
+
+    ?   I have addressed some of the concerns you outlined.
+    ?   Can you provide some suggestions on how to describe the Entity/Factory/Validator/Repository pattern in a way that agents would understand.
+
+    >     Good, I can see you've added sections on project structure, build instructions, dependencies, and testing. Now let me look at some representative files from the codebase to ground my
+    >     suggestion for the design patterns section in concrete examples.
+    >   
+    >     ⬢ Read 13 files
+    >       … 10 earlier items hidden
+    >       Read ...ple/SimpleComputeResourceEntityFactoryImpl.java
+    >       Read ...pute/simple/SimpleComputeResourceValidator.java
+    >       Read .../simple/SimpleComputeResourceValidatorImpl.java
+    >   
+    >     Now let me look at the mock layer to understand the full three-tier pattern.
+    >   
+    >     $ ls /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/mock/ 182ms
+    >       MockSimpleComputeResource.java
+    >       MockSimpleComputeResourceEntity.java
+    >       … truncated (6 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ Read 4 files
+    >       Read ...imple/mock/MockSimpleComputeResourceEntity.java
+    >       Read ...ock/MockSimpleComputeResourceEntityFactory.java
+    >       Read ...MockSimpleComputeResourceEntityFactoryImpl.java
+    >       Read ...le/mock/MockSimpleComputeResourceValidator.java
+    >   
+    >     Now let me check the ValidatorFactory and the base Validator interface to understand the chain-of-responsibility wiring.
+    >   
+    >     ⬢ Read 4 files
+    >       Read ...a/calycopis/functional/validator/Validator.java
+    >       Read ...te/AbstractComputeResourceValidatorFactory.java
+    >       Read ...bstractComputeResourceValidatorFactoryImpl.java
+    >       Read .../functional/validator/ValidatorFactoryImpl.java
+    >   
+    >     Now I have a thorough understanding of the full pattern. Here's my suggested text for the "Design patterns" section of AGENTS.md:
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     The codebase uses a three-tier inheritance hierarchy for every domain concept. Each tier has a consistent set of roles (interface, entity, factory, validator, repository), and the
+    >     tiers correspond to the levels of abstraction in the data model.
+    >     I'd suggest writing it like this:
+    >   
+    >     ## Design patterns
+    >     ### Three-tier Entity/Factory/Validator/Repository pattern
+    >     Every domain concept (compute, storage, data, executable, volume, session) follows a
+    >     three-tier inheritance pattern with consistent file roles at each tier. The tiers map
+    >     to the package structure under `net.ivoa.calycopis.datamodel.<concept>/`:
+    >   
+    >     <concept>/                          ← Tier 1: Abstract base
+    >     <concept>/simple/                   ← Tier 2: Schema type (e.g. SimpleComputeResource)
+    >     <concept>/simple/mock/              ← Tier 3: Platform-specific implementation
+    >   
+    >     **Tier 1 – Abstract base** (`<concept>/`)
+    >     Defines the polymorphic root for a family of types. Files:
+    >     | File | Role |
+    >     |------|------|
+    >     | `Abstract<Concept>.java` | Public interface extending `LifecycleComponent`. Defines `WEBAPP_PATH` and domain-specific getters. |
+    >     | `Abstract<Concept>Entity.java` | JPA `@Entity` with `@Inheritance(JOINED)`. Abstract base class holding the session reference and common persistence fields. |
+    >     | `Abstract<Concept>EntityFactory.java` | Factory interface for creating entities from validation results. |
+    >     | `Abstract<Concept>EntityFactoryImpl.java` | Abstract factory implementation (extends `FactoryBaseImpl`). |
+    >     | `Abstract<Concept>EntityRepository.java` | Spring `@Repository` interface extending `LifecycleComponentEntityRepository`. |
+    >     | `Abstract<Concept>Validator.java` | Validator interface extending `Validator<IvoaType, EntityType>`. Contains a nested `Result` interface and `ResultBean` class. |
+    >     | `Abstract<Concept>ValidatorImpl.java` | Abstract validator implementation (extends `AbstractValidatorImpl`). |
+    >     | `Abstract<Concept>ValidatorFactory.java` | Combines `Validator` and `ValidatorFactory` — acts as a chain-of-responsibility dispatcher. |
+    >     | `Abstract<Concept>ValidatorFactoryImpl.java` | Spring `@Component` that iterates registered validators and dispatches to the first one that returns `ACCEPTED` or `FAILED`. |
+    >     **Tier 2 – Schema type** (`<concept>/simple/`)
+    >     A concrete type from the OpenAPI schema (e.g. `SimpleComputeResource`). Files:
+    >     | File | Role |
+    >     |------|------|
+    >     | `Simple<Concept>.java` | Interface extending `Abstract<Concept>`. Defines `TYPE_DISCRIMINATOR` URI and type-specific getters. |
+    >     | `Simple<Concept>Entity.java` | JPA `@Entity` with `@DiscriminatorValue`. Adds type-specific `@Column` fields. Still abstract — leaves platform-specific methods (like
+    >     `getPrepareAction`) unimplemented. |
+    >     | `Simple<Concept>EntityFactory.java` | Factory interface extending the abstract factory. |
+    >     | `Simple<Concept>EntityFactoryImpl.java` | Abstract factory implementation. |
+    >     | `Simple<Concept>Validator.java` | Validator interface extending the abstract validator. |
+    >     | `Simple<Concept>ValidatorImpl.java` | Validates the specific Ivoa type using exact class matching (`getClass() ==`, not `instanceof`). Creates a `ResultBean` with a `build()` method
+    >     that delegates to the entity factory. |
+    >     **Tier 3 – Platform implementation** (`<concept>/simple/mock/`)
+    >     A concrete, instantiable implementation for a specific platform (currently `mock`).
+    >     This is the tier where classes become non-abstract. Files:
+    >     | File | Role |
+    >     |------|------|
+    >     | `Mock<Concept>.java` | Interface extending `Simple<Concept>`. |
+    >     | `Mock<Concept>Entity.java` | Concrete JPA `@Entity`. Implements platform-specific behavior (e.g. `getPrepareAction`). |
+    >     | `Mock<Concept>EntityFactory.java` | Factory interface with a `create()` method taking the mock-specific validator result. |
+    >     | `Mock<Concept>EntityFactoryImpl.java` | Concrete `@Component` factory. Receives the `@Repository` via `@Autowired` and calls `repository.save(new MockEntity(...))`. |
+    >     | `Mock<Concept>EntityRepository.java` | Concrete `@Repository` for the mock entity. |
+    >     | `Mock<Concept>Validator.java` | Validator interface extending the schema-type validator. |
+    >     | `Mock<Concept>ValidatorImpl.java` | Concrete `@Component` validator. Registered with the `ValidatorFactory` at startup. |
+    >     ### How the pieces connect at runtime
+    >     1. **Request arrives** → `OfferSetRequestParser` extracts each component (executable, compute, storage, etc.)
+    >     2. **Validation** → For each component, the parser calls the corresponding `ValidatorFactory.validate()`. The factory iterates its registered validators (chain-of-responsibility). Each
+    >      validator uses exact class matching to decide if it handles the request; it returns `CONTINUE` if not, `ACCEPTED` or `FAILED` if it does.
+    >     3. **Result accumulation** → Accepted validators produce a `Result` object (containing the validated Ivoa bean) and add it to the `OfferSetRequestParserContext`.
+    >     4. **Entity creation** → When an offer is built, `Result.build(session, offer)` is called, which delegates to the entity factory's `create()` method. The factory constructs the entity
+    >     and persists it via the repository.
+    >     5. **Serialization** → Entities implement `makeBean(URIBuilder)` to convert back to Ivoa beans for the API response.
+    >     ### Adding a new platform implementation
+    >     To add a new platform (e.g. `kubernetes` for compute resources):
+    >     1. Create package `datamodel/compute/simple/kubernetes/`.
+    >     2. Create the 7 files following the mock pattern: interface, entity, factory interface, factory impl, repository, validator interface, validator impl.
+    >     3. The entity class is the only non-trivial one — implement `getPrepareAction()` with real Kubernetes logic.
+    >     4. The factory impl is a `@Component` that `@Autowired` receives the repository and calls `repository.save()`.
+    >     5. The validator impl is a `@Component` that registers itself with the `ValidatorFactory` at startup.
+    >     ### Adding a new resource type
+    >     To add an entirely new resource type (e.g. `gpu`):
+    >     1. Create package `datamodel/gpu/`.
+    >     2. Create the abstract tier files following the compute pattern.
+    >     3. Create `datamodel/gpu/simple/` with the schema-type tier.
+    >     4. Create `datamodel/gpu/simple/mock/` with the platform tier.
+    >     5. Add a corresponding `ValidatorFactory` and wire it into `OfferSetRequestParser`.
+    >     6. Add the new component to `ExecutionRequestComponents` / `SimpleExecutionComponents` in the schema.
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     A few notes on why I structured it this way:
+    >     • Tables over prose. Agents parse structured lists and tables much more reliably than paragraphs. The table format makes it unambiguous which file serves which role.
+    >     • Concrete naming conventions. Using <Concept> as a placeholder with a real example (compute) makes it easy for an agent to mechanically derive the file list for any concept.
+    >     • The runtime flow section connects the static structure to dynamic behavior — without this, an agent knows what to create but not why each piece exists.
+    >     • The "how to add" recipes are the most actionable part. An agent given a task like "add Kubernetes support for compute" can follow the checklist directly.
+
+
