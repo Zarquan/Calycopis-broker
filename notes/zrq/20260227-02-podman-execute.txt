@@ -1,0 +1,94 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ask Cursor to create the PodmanPlatform
+
+    Result:
+
+        Work in progress ...
+
+
+
+
+
+
+
+
+    ?   following the pattern of
+    ?   PrepareComponentRequestEntity
+    ?   which calls the
+    ?   getPrepareAction()
+    ?   on
+    ?   LifecycleComponent
+    ?   
+    ?   can you create
+    ?   MonitorComponentRequestEntity
+    ?   which calls
+    ?   getMonitorAction()
+    ?   on
+    ?   LifecycleComponent
+    ?   
+    ?   can you add an implementation of
+    ?   getMonitorAction()
+    ?   to
+    ?   DockerSimpleComputeResourceEntity
+    ?   that polls the status of the running container
+    ?   and updates
+    ?   the phase of the execution session
+    ?   with the corresponding value, RUNNING, COMPLETED, or FAILED.
+
+
+    ?   Can you add new functionality to the DockerContainerEntity
+    ?   estimatePrepareTime() method
+    ?   to check to see if the requested container image
+    ?   is already available in the local Docker service.
+    ?   If the image is already available, and the checksum is correct,
+    ?   then adjust the estimated prepare time to take this
+    ?   into account.
+
+
+
+
+
+
+
+    ?   Extend pause container to add an optional error code.
+    ?   Use this to test transition to FAILED status.
+
+
+    ?   Curl container that returns JSON for HEAD and GET
+
+
+
+
+MonitorComponentRequestEntity
+
+
+
+
+    ?   Based on what we have done in this session can you suggest any changes to the AGENTS.md file that would make implementing tasks like this easier in the future.
+
