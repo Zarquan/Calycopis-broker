@@ -26,7 +26,9 @@ public interface DockerContainer
     public boolean getPrivileged();
 
     public String getEntrypoint();
-    
+
+    public List<String> getCommand();
+
     public Map<String, String> getEnvironment();
     
     public DockerNetwork getNetwork();    

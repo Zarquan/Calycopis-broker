@@ -214,13 +214,13 @@ and persists it via the repository.
 To add a new platform (e.g. `docker`):
 1. Create package `functional.platfom.docker/`.
 2. Create the 2 files following the mock pattern for the interface and the implementation.
-3. The implementation starts as a copy of the mock platform, using Mock validators and factories.
-
-1. Create package `datamodel/compute/simple/docker/`.
-2. Create the 7 files following the mock pattern: interface, entity, factory interface, factory impl, repository, validator interface, validator impl.
-3. The entity class is the only non-trivial one — implement `getPrepareAction()` with real logic to connect to the Docker platform.
-4. The factory impl is a `@Component` that `@Autowired` receives the repository and calls `repository.save()`.
-5. The validator impl is a `@Component` that registers itself with the `ValidatorFactory` at startup.
+3. The implementation starts as a copy of the mock platform, with DockerPlatform and DockerPlatformImpl using the same validators and factories as the Mock platform.
+4. Then create the package `datamodel/compute/simple/docker/`.
+5. Create the 7 files following the mock pattern: interface, entity, factory interface, factory impl, repository, validator interface, validator impl.
+6. The entity class is the only non-trivial one — implement `getPrepareAction()` with real logic to connect to the Docker platform and run a container.
+7. The factory impl is a `@Component` that `@Autowired` receives the repository and calls `repository.save()`.
+8. The validator impl is a `@Component` that registers itself with the `ValidatorFactory` at startup.
+9. Update the DockerPlatform and DockerPlatformImpl to register and use the new classes from `datamodel/compute/simple/docker/`.
 
 ### Adding a new resource type
 To add an entirely new resource type (e.g. `gpu`):
@@ -301,6 +301,7 @@ To add an entirely new resource type (e.g. `gpu`):
 ```
 podman run \
   ....
+  --env "DOCKER_HOST=unix:///run/podman/podman.sock" \
   --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
   --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:Z" \
   ....
@@ -328,6 +329,36 @@ podman run \
   * curl/ - A set of examples using `curl` to check the service behaviour.
   * python/ - A set of Python tests using the Python client module generated from the OpenAPI schema.
 
+### Database service
+
+The broker requires a PostgreSQL database to be running before the service can start.
+The database credentials are configured in `java/src/main/resources/application.yaml`.
+
+If the `developer-tools` container was launched inside a Podman pod (e.g. `calycopis-pod`),
+you can start a PostgreSQL instance inside the same pod using:
+
+```
+podman run \
+    --rm \
+    --detach \
+    --replace \
+    --name postgresql \
+    --pod calycopis-pod \
+    --expose 5432 \
+    --env "POSTGRES_DB=calycopis" \
+    --env "POSTGRES_USER=albert" \
+    --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+    docker.io/library/postgres:latest
+```
+
+Running inside the same pod means the PostgreSQL service is accessible at `postgresql:5432`
+from within the `developer-tools` container, matching the datasource URL in `application.yaml`.
+
+You can verify the database is ready using:
+```
+python3 -c "import socket; s=socket.socket(); s.settimeout(5); s.connect(('postgresql',5432)); print('PostgreSQL is ready'); s.close()"
+```
+
 ### Maven build
 
 The project can be built from the `java` directory using the following Maven command
@@ -335,9 +366,15 @@ The project can be built from the `java` directory using the following Maven com
 ./mvnw clean compile
 ```
 
-The service can be run from the `java`  directory using the following Maven command
+The service can be run from the `java` directory using the following Maven command
 ```
 ./mvnw clean spring-boot:run
+```
+
+When running the broker with a specific platform implementation, set the Spring profile
+using the `SPRING_PROFILES_ACTIVE` environment variable:
+```
+SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run
 ```
 
 ### External dependencies

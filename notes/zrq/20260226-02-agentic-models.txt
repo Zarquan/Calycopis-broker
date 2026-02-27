@@ -1,0 +1,56 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Toughts on this video.
+        https://www.youtube.com/watch?v=PctlBxRh0p4
+
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+YES to all of this.
+Yes, I have concerns about privacy and ethics, but not adopting it is not an option.
+
+I have more privacy concerns about using the Microsoft integrated solution that the University have negotiated than using agentic systems themselves.
+If I configure and run the agents myself, I can control what they see.
+
+Cost wise I am paying around £100 per month for subscriptions to OpenAI (£20), Claude (£20), and Cursor (£60).
+
+The new skills we need to learn are how to analyse a complex architecture and guide the agentic system.
+
+Given the current squeeze on funding, pivoting our team towards designing services that compatible with AI agents will put us at an advantage.
+
+Starting with [Model Context Protocol](https://modelcontextprotocol.io/docs/getting-started/intro) might be the way to go.
+
+Some of the people in SRCNet are already heading in this direction.
+https://gitlab.com/ska-telescope/src/src-api/ska-src-api-integration-environment/-/tree/main/mcp-server?ref_type=heads
+
+
+

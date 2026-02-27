@@ -18,52 +18,10 @@
  *   </meta:licence>
  * </meta:header>
  *
- * AIMetrics: [
- *     {
- *     "timestamp": "2026-02-14T12:00:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 8,
- *       "units": "%"
- *       }
- *     },
- *     {
- *     "timestamp": "2026-02-14T15:30:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 15,
- *       "units": "%"
- *       }
- *     },
- *     {
- *     "timestamp": "2026-02-17T07:10:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 5,
- *       "units": "%"
- *       }
- *     },
- *     {
- *     "timestamp": "2026-02-17T13:20:00",
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 1,
- *       "units": "%"
- *       }
- *     }
- *   ]
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.mock;
+package net.ivoa.calycopis.functional.platfom.docker;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -78,10 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
-import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.compute.simple.docker.DockerSimpleComputeResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.compute.simple.docker.DockerSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
@@ -117,13 +74,13 @@ import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest
  */
 @Slf4j
 @Component
-@Profile("mock")
-public class MockPlatformImpl
+@Profile("docker")
+public class DockerPlatformImpl
 extends FactoryBaseImpl
 implements Platform
     {
 
-    public MockPlatformImpl()
+    public DockerPlatformImpl()
         {
         super();
         }
@@ -142,7 +99,7 @@ implements Platform
                 )
             );
         this.computeResourceValidatorFactory.addValidator(
-            new MockSimpleComputeResourceValidatorImpl(
+            new DockerSimpleComputeResourceValidatorImpl(
                 this.computeResourceEntityFactory
                 )
             );
@@ -208,7 +165,7 @@ implements Platform
         }
     
     @Autowired
-    private MockSimpleComputeResourceEntityFactory computeResourceEntityFactory;
+    private DockerSimpleComputeResourceEntityFactory computeResourceEntityFactory;
 
     @Autowired
     private AbstractComputeResourceValidatorFactory computeResourceValidatorFactory;

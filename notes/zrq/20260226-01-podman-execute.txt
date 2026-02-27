@@ -25,11 +25,122 @@
 
     Target:
 
-        Success
+        Ask Cursor to create the PodmanPlatform
 
     Result:
 
         Work in progress ...
 
+
 # -----------------------------------------------------
+# Add the command parameter to the docker container schema.
+#[user@desktop]
+
+    branchname=docker-command
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        pluma schema/v1.0/types/executable/docker-container-1.0.yaml
+
+        +   command:
+        +     type: string
+        +     description: >-
+        +       The command line arguments to pass to the container.
+
+        git add \
+            schema/v1.0/types/executable/docker-container-1.0.yaml
+
+        git commit \
+            -m "Added 'command' to the schema for DockerContainer" \
+            schema/v1.0/types/executable/docker-container-1.0.yaml
+
+        git push \
+            --set-upstream origin "${newbranch:?}"
+
+    popd
+
+    #
+    # Create and merge a pull request on GitHub
+    # ....
+    #
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git checkout main
+
+        git fetch upstream
+
+        git merge upstream/main
+
+        git push
+
+        git branch -d "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Add the ivoa-execution.yaml description to the heliophorus-cantliei repository.
+#[user@desktop]
+
+    branchname=ivoa-execution
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/heliophorus.env"
+    pushd "${CANTLIEI_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+cat > ivoa-execution.yaml << EOF
+#
+# A simple Docker container that waits for a number of seconds and then exits.
+name: cantliei-test
+executable:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:"
+    digest: ""
+  # A single parameter, the number of seconds to wait.
+  command: "<seconds>"
+EOF
+
+        git add \
+            ivoa-execution.yaml
+
+        git commit \
+            -m "Added 'ivoa-execution.yaml' to describe the execution requirements" \
+            ivoa-execution.yaml
+
+        git push \
+            --set-upstream origin "${newbranch:?}"
+
+    popd
+
+    #
+    # Create and merge a pull request on GitHub
+    # ....
+    #
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE:?}"
+
+        git checkout main
+
+        git pull
+
+        git branch -d "${newbranch:?}"
+
+    popd
+
+
 

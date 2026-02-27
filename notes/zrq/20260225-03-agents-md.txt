@@ -25,7 +25,7 @@
 
     Target:
 
-        Ask Cursor to create the PodmanPlatform
+        Learning how to write an AGENTS.md file.
 
     Result:
 
@@ -44,7 +44,7 @@
     >     • The API surface section is thorough: endpoints, request/response types, media types, and the polymorphic discriminator pattern are all well documented.
     >     • The data model section is comprehensive — it covers the full type hierarchy (executables, compute, storage, volumes, data), the options/updates command pattern, and lifecycle states.
     >     • Pointing to the OpenAPI schema location at /calycopis/Calycopis-schema/github-zrq/schema/v1.0/execution-broker.yaml is very helpful.
-    >   
+    >
     >     What's missing or could be improved:
     >     1. No build instructions. The project uses Maven (java/pom.xml, mvnw wrapper) but the AGENTS.md doesn't mention how to build it. An agent needs to know to run ./mvnw package (or
     >        similar) from the java/ directory.
@@ -66,7 +66,7 @@
     >        host as part of executing sessions. That's a key architectural detail.
     >     9. `project.properties` contains schemaversion=1.0.2 but isn't referenced anywhere in the AGENTS.md.
     >     10. Minor: trailing blank lines at the end of the file.
-    >   
+    >
     >     Summary: The AGENTS.md is strong on what the API looks like from the outside (endpoints, data model, schema) but weak on how to work with the codebase from the inside (build process,
     >     directory layout, architectural patterns, dependencies, conventions). An agent given a coding task today would understand the domain well but struggle with where to put files, what
     >     patterns to follow, and how to build/test changes.
@@ -76,52 +76,52 @@
 
     >     Good, I can see you've added sections on project structure, build instructions, dependencies, and testing. Now let me look at some representative files from the codebase to ground my
     >     suggestion for the design patterns section in concrete examples.
-    >   
+    >
     >     ⬢ Read 13 files
     >       … 10 earlier items hidden
     >       Read ...ple/SimpleComputeResourceEntityFactoryImpl.java
     >       Read ...pute/simple/SimpleComputeResourceValidator.java
     >       Read .../simple/SimpleComputeResourceValidatorImpl.java
-    >   
+    >
     >     Now let me look at the mock layer to understand the full three-tier pattern.
-    >   
+    >
     >     $ ls /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/compute/simple/mock/ 182ms
     >       MockSimpleComputeResource.java
     >       MockSimpleComputeResourceEntity.java
     >       … truncated (6 more lines) · ctrl+o to expand
-    >   
+    >
     >     ⬢ Read 4 files
     >       Read ...imple/mock/MockSimpleComputeResourceEntity.java
     >       Read ...ock/MockSimpleComputeResourceEntityFactory.java
     >       Read ...MockSimpleComputeResourceEntityFactoryImpl.java
     >       Read ...le/mock/MockSimpleComputeResourceValidator.java
-    >   
+    >
     >     Now let me check the ValidatorFactory and the base Validator interface to understand the chain-of-responsibility wiring.
-    >   
+    >
     >     ⬢ Read 4 files
     >       Read ...a/calycopis/functional/validator/Validator.java
     >       Read ...te/AbstractComputeResourceValidatorFactory.java
     >       Read ...bstractComputeResourceValidatorFactoryImpl.java
     >       Read .../functional/validator/ValidatorFactoryImpl.java
-    >   
+    >
     >     Now I have a thorough understanding of the full pattern. Here's my suggested text for the "Design patterns" section of AGENTS.md:
-    >   
+    >
     >     ────────────────────────────────────────
-    >   
+    >
     >     The codebase uses a three-tier inheritance hierarchy for every domain concept. Each tier has a consistent set of roles (interface, entity, factory, validator, repository), and the
     >     tiers correspond to the levels of abstraction in the data model.
     >     I'd suggest writing it like this:
-    >   
+    >
     >     ## Design patterns
     >     ### Three-tier Entity/Factory/Validator/Repository pattern
     >     Every domain concept (compute, storage, data, executable, volume, session) follows a
     >     three-tier inheritance pattern with consistent file roles at each tier. The tiers map
     >     to the package structure under `net.ivoa.calycopis.datamodel.<concept>/`:
-    >   
+    >
     >     <concept>/                          ← Tier 1: Abstract base
     >     <concept>/simple/                   ← Tier 2: Schema type (e.g. SimpleComputeResource)
     >     <concept>/simple/mock/              ← Tier 3: Platform-specific implementation
-    >   
+    >
     >     **Tier 1 – Abstract base** (`<concept>/`)
     >     Defines the polymorphic root for a family of types. Files:
     >     | File | Role |
@@ -182,9 +182,9 @@
     >     4. Create `datamodel/gpu/simple/mock/` with the platform tier.
     >     5. Add a corresponding `ValidatorFactory` and wire it into `OfferSetRequestParser`.
     >     6. Add the new component to `ExecutionRequestComponents` / `SimpleExecutionComponents` in the schema.
-    >   
+    >
     >     ────────────────────────────────────────
-    >   
+    >
     >     A few notes on why I structured it this way:
     >     • Tables over prose. Agents parse structured lists and tables much more reliably than paragraphs. The table format makes it unambiguous which file serves which role.
     >     • Concrete naming conventions. Using <Concept> as a placeholder with a real example (compute) makes it easy for an agent to mechanically derive the file list for any concept.
