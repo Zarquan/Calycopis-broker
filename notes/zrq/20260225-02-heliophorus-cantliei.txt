@@ -1,0 +1,430 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Ask Cursor to create the pause container we will use for testing.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    1) First pass at PodmanPlatform capable of running MD5 on a local file
+
+        ComputeResource  - check we have the image, check resources
+        StorageResource  - placeholder for the host filesystem
+        DataResource     - file:// reference on the host - check the file exists ?
+        VolumeMount      - Add a volume mount when the container is run
+        ExecutionSession - run the container on the host
+
+        Need to split this into steps we can implement.
+
+        Do we need to move volume mount to compute resource first ?
+
+        Start with a different container, one that doesn't need any input.
+
+        New project
+        https://species.wikimedia.org/wiki/Heliophorus_cantliei
+
+            A docker container used for testing that accepts an integer input parameter and simply waits for that number of seconds before exiting.
+
+                docker run cantliei 10
+
+            would run the cantliei container, which waits for 10 seconds and then exits.
+
+        That gets us ComputeResource and ExcutionSession
+
+    2) Functionality testing
+
+    3) Refactoing / cleaning pass
+       Pick one change to the project that would make it easier to understand.
+       Pick one change to the project that would make it simpler.
+
+    4) Code coverage testing
+       Work towards 100% code coverage.
+
+
+# -----------------------------------------------------
+# Create our project env file.
+#[user@desktop]
+
+    cat > "${HOME:?}/heliophorus.env" << 'EOF'
+source "${HOME:?}/projects.env"
+HELIOPHORUS_ROOT="${PROJECTS_ROOT}/IVOA/ivoa/Heliophorus"
+
+ANDROCLES_REPO='git@github.com:Zarquan/Heliophorus-androcles.git'
+ANDROCLES_HOME="${HELIOPHORUS_ROOT}/Heliophorus-androcles"
+ANDROCLES_CODE="${ANDROCLES_HOME:?}/github-zrq"
+
+CANTLIEI_REPO='git@github.com:Zarquan/Heliophorus-cantliei.git'
+CANTLIEI_HOME="${HELIOPHORUS_ROOT}/Heliophorus-cantliei"
+CANTLIEI_CODE="${CANTLIEI_HOME:?}/github-zrq"
+EOF
+
+
+# -----------------------------------------------------
+# Run Cursor CLI in an instance of our developer tools.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,z" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+        curl https://cursor.com/install -fsS | bash
+
+        agent
+
+
+# -----------------------------------------------------
+# Ask Cursor to look at the /heliophorus project
+#[root@calycopis-dev]
+
+    ?   Can you take a look at the project in /heliophorus/Heliophorus-cantliei/github-zrq and come up with a plan for how you would implement this.
+
+    >     $ ls -la /heliophorus/Heliophorus-cantliei/github-zrq 202ms
+    >       total 40
+    >       drwxr-xr-x. 1 root root    40 Feb 25 13:18 .
+    >       … truncated (5 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ Globbed, read 1 glob, 1 file
+    >       Globbed "**/*" in heliophorus/Heliophorus-cantliei/github-zrq
+    >       Read ...horus/Heliophorus-cantliei/github-zrq/README.md
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git log --oneline --all -30 3.5s
+    >       f56d826 Fix typo in README.md link formatting
+    >       fd1714b Update README with usage example and description
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git branch -a 4.0s
+    >       * main
+    >         remotes/origin/HEAD -> origin/main
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ Read ...ophorus/Heliophorus-cantliei/github-zrq/LICENSE
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git remote -v 2.9s
+    >       origin  git@github.com:Zarquan/Heliophorus-cantliei.git (fetch)
+    >       origin  git@github.com:Zarquan/Heliophorus-cantliei.git (push)
+    >       … truncated (1 more line) · ctrl+o to expand
+    >   
+    >     Here's what I see. The project is essentially an empty repo — just a README.md and a LICENSE (GPL v3). The goal described in the README is straightforward:
+    >       A Docker container that simply waits for a number of seconds and then exits.
+    >     Usage: docker run cantliei 10 waits 10 seconds then exits.
+    >     Here's how I'd implement it:
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     Plan
+    >     1. Create an entrypoint script (entrypoint.sh)
+    >       • Accept a single argument: the number of seconds to wait.
+    >       • Validate the input — check it's provided and is a positive number. Print a usage message and exit with a non-zero code if invalid.
+    >       • Use sleep to wait the specified number of seconds, then exit cleanly.
+    >     2. Create a `Dockerfile`
+    >       • Use a minimal base image like alpine (tiny footprint, sleep is built-in via BusyBox).
+    >       • Copy in the entrypoint script.
+    >       • Set it as the ENTRYPOINT so the seconds argument is passed directly as a command argument (matching the docker run cantliei 10 usage pattern).
+    >     3. Add a `.dockerignore`
+    >       • Exclude .git, LICENSE, README.md, etc. from the build context to keep it clean.
+    >     4. Update the `README.md`
+    >       • Add build instructions (docker build -t cantliei .).
+    >       • Document the exit codes and input validation behavior.
+    >   
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     The whole implementation is minimal — roughly a ~10-line shell script and a ~10-line Dockerfile. Want me to go ahead and build it?
+
+    ?   Yes please, go ahead and implement it.
+
+    >     ⬢ To-do Working on 5 to-dos
+    >       ☐ Create entrypoint.sh script
+    >       ☐ Create Dockerfile
+    >       ☐ Create .dockerignore
+    >       ☐ Update README.md with build/run instructions
+    >       ☐ Test the Docker build and run
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...s/Heliophorus-cantliei/github-zrq/entrypoint.sh +17                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │ + #!/bin/sh                                                                                                                                                                              │
+    >     │ + set -e                                                                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │ + if [ -z "$1" ]; then                                                                                                                                                                   │
+    >     │ +     echo "Usage: docker run cantliei <seconds>"                                                                                                                                        │
+    >     │ +     exit 1                                                                                                                                                                             │
+    >     │ + fi                                                                                                                                                                                     │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + case "$1" in                                                                                                                                                                           │
+    >     │ +     ''|*[!0-9.]*)                                                                                                                                                                      │
+    >     │ +         echo "Error: '$1' is not a valid number of seconds"                                                                                                                            │
+    >     │ +         exit 1                                                                                                                                                                         │
+    >     │  … truncated (6 more lines) · ctrl+r to review                                                                                                                                           │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do Working on 4 to-dos • 1 done
+    >       ☒ Create entrypoint.sh script
+    >       ☐ Create Dockerfile
+    >       ☐ Create .dockerignore
+    >       ☐ Update README.md with build/run instructions
+    >       ☐ Test the Docker build and run
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...s/Heliophorus-cantliei/github-zrq/.dockerignore +3 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │ -                                                                                                                                                                                        │
+    >     │ + .git                                                                                                                                                                                   │
+    >     │ + LICENSE                                                                                                                                                                                │
+    >     │ + README.md                                                                                                                                                                              │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...orus/Heliophorus-cantliei/github-zrq/Dockerfile +4                                                                                                                                    │
+    >     │                                                                                                                                                                                          │
+    >     │ + FROM alpine:3                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │ + COPY entrypoint.sh /entrypoint.sh                                                                                                                                                      │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + ENTRYPOINT ["/entrypoint.sh"]                                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     $ chmod +x /heliophorus/Heliophorus-cantliei/github-zrq/entrypoint.sh 5.5s
+    >   
+    >     ⬢ To-do Working on 2 to-dos • 3 done
+    >       ☒ Create entrypoint.sh script
+    >       ☒ Create Dockerfile
+    >       ☒ Create .dockerignore
+    >       ☐ Update README.md with build/run instructions
+    >       ☐ Test the Docker build and run
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...horus/Heliophorus-cantliei/github-zrq/README.md +16 -2                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │   A docker container that simply waits for a number of seconds and then exits.                                                                                                           │
+    >     │                                                                                                                                                                                          │
+    >     │ + This project is named after the [Heliophorus cantliei](https://species.wikimedia.org/wiki/Heliophorus_cantliei) butterfly.                                                             │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + ## Build                                                                                                                                                                               │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + ```                                                                                                                                                                                    │
+    >     │ + docker build -t cantliei .                                                                                                                                                             │
+    >     │ + ```                                                                                                                                                                                    │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + ## Usage                                                                                                                                                                               │
+    >     │ +                                                                                                                                                                                        │
+    >     │  … truncated (13 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me build and test the container.
+    >   
+    >     ⬢ To-do Working on 1 to-do • 4 done
+    >       ☒ Create entrypoint.sh script
+    >       ☒ Create Dockerfile
+    >       ☒ Create .dockerignore
+    >       ☒ Update README.md with build/run instructions
+    >       ☐ Test the Docker build and run
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && docker build -t cantliei . exit 127 • 22s
+    >       --: line 1: docker: command not found
+    >   
+    >     Docker isn't available in this environment, so I can't build/test here. Let me at least verify the script logic works standalone.
+
+    ?   You are running in a Fedora system, can you install Podman and use that for building and testing the container.
+
+    >     $ dnf install -y podman 24s
+    >       Package                       Arch   Version                    Repository      Size
+    >       Installing:
+    >       … truncated (153 more lines) · ctrl+o to expand
+    >   
+    >     Podman is installed. Now let me build and test the container.
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && podman build -t cantliei . 4.5s
+    >       STEP 1/3: FROM alpine:3
+    >       Resolved "alpine" as an alias (/etc/containers/registries.conf.d/000-shortnames.conf)
+    >       … truncated (13 more lines) · ctrl+o to expand
+    >   
+    >     Build succeeded. Now let me run the tests.
+    >   
+    >     $ echo "--- Test: no argument ---" && podman run --rm cantliei 2>&1; echo "exit: $?" 5.4s
+    >       --- Test: no argument ---
+    >       Usage: docker run cantliei <seconds>
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     $ echo "--- Test: invalid argument ---" && podman run --rm cantliei abc 2>&1; echo "exit: $?" 4.9s
+    >       --- Test: invalid argument ---
+    >       Error: 'abc' is not a valid number of seconds
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     $ echo "--- Test: valid argument (3 seconds) ---" && time podman run --rm cantliei 3 2>&1; echo "exit: $?" 3.9s
+    >       --- Test: valid argument (3 seconds) ---
+    >       Waiting for 3 seconds ...
+    >       … truncated (8 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ To-do All done
+    >       ☒ Create entrypoint.sh script
+    >       ☒ Create Dockerfile
+    >       ☒ Create .dockerignore
+    >       ☒ Update README.md with build/run instructions
+    >       ☒ Test the Docker build and run
+    >   
+    >     All tests pass:
+    >     • No argument — prints usage message, exits with code 1
+    >     • Invalid argument (`abc`) — prints error message, exits with code 1
+    >     • Valid argument (`3`) — prints "Waiting for 3 seconds ...", sleeps ~3s, prints "Done.", exits with code 0
+    >   
+    >     The image is tiny (based on alpine:3) and everything is working as described in the README.
+
+    ?   Can you also create a GitHub workflow script that will build and publish the container image
+
+    >     Let me check the repo details to set up the workflow correctly.
+    >   
+    >     $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git remote -v 118ms
+    >       origin  git@github.com:Zarquan/Heliophorus-cantliei.git (fetch)
+    >       origin  git@github.com:Zarquan/Heliophorus-cantliei.git (push)
+    >       … truncated (1 more line) · ctrl+o to expand
+    >   
+    >     $ ls -la /heliophorus/Heliophorus-cantliei/github-zrq/.github 2>/dev/null; echo "---"; ls /heliophorus/Heliophorus-cantliei/github-zrq/ 183ms
+    >       ---
+    >       Dockerfile
+    >       … truncated (4 more lines) · ctrl+o to expand
+    >   
+    >     $ mkdir -p /heliophorus/Heliophorus-cantliei/github-zrq/.github/workflows 145ms
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../github-zrq/.github/workflows/build-publish.yml +50                                                                                                                                   │
+    >     │                                                                                                                                                                                          │
+    >     │ + name: Build and publish container image                                                                                                                                                │
+    >     │                                                                                                                                                                                          │
+    >     │ + on:                                                                                                                                                                                    │
+    >     │ +   push:                                                                                                                                                                                │
+    >     │ +     branches: [main]                                                                                                                                                                   │
+    >     │ +     tags: ['v*']                                                                                                                                                                       │
+    >     │ +   pull_request:                                                                                                                                                                        │
+    >     │ +     branches: [main]                                                                                                                                                                   │
+    >     │ +                                                                                                                                                                                        │
+    >     │ + env:                                                                                                                                                                                   │
+    >     │ +   REGISTRY: ghcr.io                                                                                                                                                                    │
+    >     │ +   IMAGE_NAME: ${{ github.repository }}                                                                                                                                                 │
+    >     │  … truncated (39 more lines) · ctrl+r to review                                                                                                                                          │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Done. The workflow is at .github/workflows/build-publish.yml. Here's what it does:
+    >     Triggers:
+    >     • Push to `main` — builds and publishes to ghcr.io
+    >     • Version tags (v*) — builds and publishes with semver tags
+    >     • Pull requests to `main` — builds only (no push), to verify the image still builds
+    >   
+    >     Image registry: GitHub Container Registry (ghcr.io/zarquan/heliophorus-cantliei)
+    >     Tagging strategy (via docker/metadata-action):
+    >     • Branch name (e.g. main)
+    >     • Semantic version from git tags (e.g. 1.0.0, 1.0)
+    >     • Short SHA for traceability
+    >   
+    >     Permissions: Uses the built-in GITHUB_TOKEN — no secrets to configure. The repo just needs to have GitHub Packages / Container Registry enabled (it is by default).
+    >   
+
+
+# -----------------------------------------------------
+# Checkout a branch and commit the changes.
+#[user@desktop]
+
+    branchname=cursor-task
+    newbranch=$(date '+%Y%m%d-%H%M%S')-zrq-${branchname:?}
+
+    source "${HOME:?}/heliophorus.env"
+    pushd "${CANTLIEI_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+        git add .
+
+        git commit -m "Initial implementation"
+
+        git push --set-upstream origin "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Create and merge a pull request on GitHub.
+#[user@desktop]
+
+    ....
+    ....
+
+    Workflow run on PR merge
+    https://github.com/Zarquan/Heliophorus-cantliei/actions
+
+    Container image created
+    https://github.com/Zarquan/Heliophorus-cantliei/pkgs/container/heliophorus-cantliei
+
+    Added a v1.0.0 tag
+    https://github.com/Zarquan/Heliophorus-cantliei/releases/tag/v1.0.0
+
+
+# -----------------------------------------------------
+# Test the container does what we want.
+#[user@desktop]
+
+    podman run \
+        --rm \
+        ghcr.io/zarquan/heliophorus-cantliei \
+            20
+
+    >   Trying to pull ghcr.io/zarquan/heliophorus-cantliei:latest...
+    >   Getting image source signatures
+    >   Copying blob 5f501b6f22d0 done   |
+    >   Copying blob 589002ba0eae skipped: already exists
+    >   Copying config e606249426 done   |
+    >   Writing manifest to image destination
+    >   Waiting for 20 seconds ...
+    >   Done.
+
+    #
+    # Does what it says on the tin :-)
+    #
+
+
+
+
+

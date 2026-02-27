@@ -1,0 +1,91 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Start work on Docker/Podman platform.
+        Can we implement basic Podman actions in Java ?
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Quick Google search suggests this is a fairly good library to use.
+    https://github.com/docker-java/docker-java
+    https://github.com/docker-java/docker-java/blob/main/docs/getting_started.md
+
+    3td party documentation
+    https://www.baeldung.com/docker-java-api
+
+    Latest version was November 2025
+    https://mvnrepository.com/artifact/com.github.docker-java/docker-java
+
+# -----------------------------------------------------
+
+    We need to setup some packaged docker applications to test with.
+    Heliophorus seems to have a good set of names and images.
+    https://en.wikipedia.org/wiki/Heliophorus
+
+
+Heliophorus-androcles
+
+A simple docker container to calculate checksums.
+
+This project is named after the Heliophorus androcles butterfly.
+https://en.wikipedia.org/wiki/Heliophorus_androcles
+
+A wrapper script around some of the coreutils tools, with JC to provide JSON output.
+https://www.gnu.org/software/coreutils/
+https://www.gnu.org/software/coreutils/manual/html_node/Summarizing-files.html
+
+
+        sum
+        cksum
+        md5sum
+        b2sum
+        sha1sum
+        sha224sum
+        sha256sum
+        sha384sum
+        sha512su
+
+https://kellyjonbrazil.github.io/jc/docs/parsers/hashsum
+
+        parameters
+            HASH   - type of hash [sum, md5sum, shasum, sha256sum, sha512sum]
+            TARGET - file path in the container, defaults to /target
+            FORMAT - native, json
+
+
+
+
+
+
+# -----------------------------------------------------
+
+
+

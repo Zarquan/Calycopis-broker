@@ -268,6 +268,21 @@
             <version>42.7.8</version>
         </dependency>
 
+        <!--+
+            | Docker Java client library.
+            | https://github.com/docker-java/docker-java
+            +-->
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-zerodep</artifactId>
+            <version>3.4.1</version>
+        </dependency>
+
 	</dependencies>
 
 	<build>

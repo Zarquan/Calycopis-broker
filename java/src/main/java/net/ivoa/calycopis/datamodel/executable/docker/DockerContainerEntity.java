@@ -111,8 +111,15 @@ public abstract class DockerContainerEntity
         log.debug("DockerContainerEntity validated [{}]", validated);
 
         this.privileged = validated.getPrivileged();
-        this.entrypoint = validated.getEntrypoint();        
-        
+        this.entrypoint = validated.getEntrypoint();
+        this.command = new ArrayList<String>();
+        if (validated.getCommand() != null)
+            {
+            this.command.addAll(
+                validated.getCommand()
+                );
+            }
+
         this.image = new ImageImpl(
             validated.getImage()
             );
@@ -234,6 +241,22 @@ public abstract class DockerContainerEntity
         }
 
     @ElementCollection
+    @CollectionTable(
+        name="dockercommandargs",
+        joinColumns=@JoinColumn(
+            name="parent",
+            referencedColumnName = "uuid"
+            )
+        )
+    @Column(name="arg")
+    private List<String> command = new ArrayList<String>();
+    @Override
+    public List<String> getCommand()
+        {
+        return this.command;
+        }
+
+    @ElementCollection
     @Column(name="envvalue")
     @MapKeyColumn(name="envkey")
     @CollectionTable(
@@ -302,6 +325,12 @@ public abstract class DockerContainerEntity
         bean.setEntrypoint(
             this.entrypoint
             );
+        if ((this.command != null) && (this.command.isEmpty() == false))
+            {
+            bean.setCommand(
+                this.command
+                );
+            }
 
         if ((this.environment != null) && (this.environment.isEmpty() == false))
             {
