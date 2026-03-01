@@ -124,9 +124,12 @@ public abstract class DockerContainerEntity
             validated.getImage()
             );
         this.environment = new HashMap<String, String>();
-        this.environment.putAll(
-            validated.getEnvironment()
-            );
+        if (validated.getEnvironment() != null)
+            {
+            this.environment.putAll(
+                validated.getEnvironment()
+                );
+            }
         
         IvoaDockerNetworkSpec ivoaNetwork = validated.getNetwork() ; 
         if (ivoaNetwork != null)

@@ -41,6 +41,7 @@ Usage:
 """
 
 import os
+import time
 
 import pytest
 
@@ -262,11 +263,12 @@ class TestDockerPlatformOffers:
 class TestDockerPlatformSessionLifecycle:
     """
     Tests for the full session lifecycle on the Docker platform:
-    OFFERED -> ACCEPTED -> PREPARING -> AVAILABLE -> ...
+    OFFERED -> ACCEPTED -> PREPARING -> AVAILABLE -> RUNNING -> COMPLETED
 
-    These tests accept an offer and verify the session transitions
-    through the expected phases as the Docker container is prepared
-    and started.
+    These tests accept an offer, pass a specific pause duration to the
+    cantliei container via the command property, and verify that the
+    session transitions through the expected phases and completes at
+    approximately the expected time.
     """
 
     def test_accept_offer(self, client):
@@ -300,7 +302,7 @@ class TestDockerPlatformSessionLifecycle:
         as the broker begins to prepare the Docker container.
         """
         request = OfferSetRequest(
-            executable=_make_cantliei_executable("cantliei-preparing", pause_seconds=10),
+            executable=_make_cantliei_executable("cantliei-preparing", pause_seconds=30),
         )
         response = _submit(client, request)
         _assert_accepted(response)
@@ -318,6 +320,7 @@ class TestDockerPlatformSessionLifecycle:
             target_phases=[
                 SimpleExecutionSessionPhase.PREPARING,
                 SimpleExecutionSessionPhase.AVAILABLE,
+                SimpleExecutionSessionPhase.RUNNING,
                 SimpleExecutionSessionPhase.COMPLETED,
                 SimpleExecutionSessionPhase.FAILED,
             ],
@@ -327,6 +330,7 @@ class TestDockerPlatformSessionLifecycle:
         assert session.phase in (
             SimpleExecutionSessionPhase.PREPARING,
             SimpleExecutionSessionPhase.AVAILABLE,
+            SimpleExecutionSessionPhase.RUNNING,
             SimpleExecutionSessionPhase.COMPLETED,
         ), (
             f"Session should reach PREPARING or beyond, got {session.phase}"
@@ -338,7 +342,7 @@ class TestDockerPlatformSessionLifecycle:
         meaning the Docker container has been created and started.
         """
         request = OfferSetRequest(
-            executable=_make_cantliei_executable("cantliei-available", pause_seconds=10),
+            executable=_make_cantliei_executable("cantliei-available", pause_seconds=30),
         )
         response = _submit(client, request)
         _assert_accepted(response)
@@ -355,6 +359,7 @@ class TestDockerPlatformSessionLifecycle:
             session_uuid,
             target_phases=[
                 SimpleExecutionSessionPhase.AVAILABLE,
+                SimpleExecutionSessionPhase.RUNNING,
                 SimpleExecutionSessionPhase.COMPLETED,
                 SimpleExecutionSessionPhase.FAILED,
             ],
@@ -363,48 +368,167 @@ class TestDockerPlatformSessionLifecycle:
         )
         assert session.phase in (
             SimpleExecutionSessionPhase.AVAILABLE,
+            SimpleExecutionSessionPhase.RUNNING,
             SimpleExecutionSessionPhase.COMPLETED,
-        ), (
-            f"Session should reach AVAILABLE or COMPLETED, got {session.phase}"
-        )
-
-    def test_session_completes(self, client):
-        """
-        The cantliei container should eventually reach AVAILABLE (Docker
-        container created and started), or a terminal phase if the broker
-        supports automatic session completion.
-        """
-        request = OfferSetRequest(
-            executable=_make_cantliei_executable("cantliei-complete", pause_seconds=10),
-        )
-        response = _submit(client, request)
-        _assert_accepted(response)
-
-        offer = response.offers[0]
-        session_uuid = offer.meta.uuid
-
-        client.set_session_phase(
-            session_uuid,
-            SimpleExecutionSessionPhase.ACCEPTED,
-        )
-
-        session = client.wait_for_phase(
-            session_uuid,
-            target_phases=[
-                SimpleExecutionSessionPhase.AVAILABLE,
-                SimpleExecutionSessionPhase.COMPLETED,
-                SimpleExecutionSessionPhase.RELEASING,
-                SimpleExecutionSessionPhase.FAILED,
-            ],
-            timeout=600.0,
-            interval=5.0,
-        )
-        assert session.phase in (
-            SimpleExecutionSessionPhase.AVAILABLE,
-            SimpleExecutionSessionPhase.COMPLETED,
-            SimpleExecutionSessionPhase.RELEASING,
         ), (
             f"Session should reach AVAILABLE or beyond, got {session.phase}"
+        )
+
+    def test_session_completes_with_timed_container(self, client):
+        """
+        Run the cantliei container for a known duration and verify that
+        the time from RUNNING to COMPLETED is consistent with the
+        requested pause, independent of scheduling delays.
+
+        The test waits (with a generous timeout) for the session to
+        reach AVAILABLE or RUNNING -- which signals that the container
+        has actually started -- and only then begins the timing check.
+        """
+        pause_seconds = 20
+        # Generous budget for broker scheduling / image pulls before
+        # the container starts.
+        scheduling_timeout = 600.0
+        # Overhead on top of pause_seconds for monitor poll intervals,
+        # container startup/teardown and session state propagation.
+        completion_overhead = 60.0
+
+        request = OfferSetRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-timed-complete",
+                pause_seconds=pause_seconds,
+            ),
+        )
+        response = _submit(client, request)
+        _assert_accepted(response)
+
+        offer = response.offers[0]
+        session_uuid = offer.meta.uuid
+
+        client.set_session_phase(
+            session_uuid,
+            SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        # Phase 1 -- wait for the container to actually start.
+        session = client.wait_for_phase(
+            session_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.AVAILABLE,
+                SimpleExecutionSessionPhase.RUNNING,
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=scheduling_timeout,
+            interval=5.0,
+        )
+        assert session.phase in (
+            SimpleExecutionSessionPhase.AVAILABLE,
+            SimpleExecutionSessionPhase.RUNNING,
+            SimpleExecutionSessionPhase.COMPLETED,
+        ), (
+            f"Session should reach AVAILABLE/RUNNING, got {session.phase}"
+        )
+
+        # Phase 2 -- the container is running; start the clock.
+        running_time = time.monotonic()
+
+        session = client.wait_for_phase(
+            session_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=float(pause_seconds + completion_overhead),
+            interval=5.0,
+        )
+        elapsed = time.monotonic() - running_time
+
+        assert session.phase == SimpleExecutionSessionPhase.COMPLETED, (
+            f"Session should reach COMPLETED, got {session.phase}"
+        )
+
+        assert elapsed >= pause_seconds, (
+            f"Session completed too quickly ({elapsed:.1f}s) for a "
+            f"{pause_seconds}s container"
+        )
+        assert elapsed <= pause_seconds + completion_overhead, (
+            f"Session took too long ({elapsed:.1f}s) for a "
+            f"{pause_seconds}s container (max allowed "
+            f"{pause_seconds + completion_overhead}s)"
+        )
+
+    def test_short_and_long_containers(self, client):
+        """
+        Run two containers with different pause durations and verify
+        the shorter one completes before the longer one.
+        """
+        short_pause = 10
+        long_pause = 30
+        wait_timeout = 600.0
+
+        short_request = OfferSetRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-short",
+                pause_seconds=short_pause,
+            ),
+        )
+        long_request = OfferSetRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-long",
+                pause_seconds=long_pause,
+            ),
+        )
+
+        short_response = _submit(client, short_request)
+        long_response = _submit(client, long_request)
+        _assert_accepted(short_response)
+        _assert_accepted(long_response)
+
+        short_uuid = short_response.offers[0].meta.uuid
+        long_uuid = long_response.offers[0].meta.uuid
+
+        client.set_session_phase(
+            short_uuid, SimpleExecutionSessionPhase.ACCEPTED,
+        )
+        client.set_session_phase(
+            long_uuid, SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        short_start = time.monotonic()
+
+        short_session = client.wait_for_phase(
+            short_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=wait_timeout,
+            interval=5.0,
+        )
+        short_elapsed = time.monotonic() - short_start
+
+        long_session = client.wait_for_phase(
+            long_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=wait_timeout,
+            interval=5.0,
+        )
+        long_elapsed = time.monotonic() - short_start
+
+        assert short_session.phase == SimpleExecutionSessionPhase.COMPLETED, (
+            f"Short session should reach COMPLETED, got {short_session.phase}"
+        )
+        assert long_session.phase == SimpleExecutionSessionPhase.COMPLETED, (
+            f"Long session should reach COMPLETED, got {long_session.phase}"
+        )
+
+        assert short_elapsed < long_elapsed, (
+            f"Short container ({short_pause}s, elapsed {short_elapsed:.1f}s) "
+            f"should complete before long container "
+            f"({long_pause}s, elapsed {long_elapsed:.1f}s)"
         )
 
 

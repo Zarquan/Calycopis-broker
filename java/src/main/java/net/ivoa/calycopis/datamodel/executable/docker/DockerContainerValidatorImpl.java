@@ -146,6 +146,14 @@ implements DockerContainerValidator
             );
 
         //
+        // Validate the command arguments.
+        success &= validateCommand(
+            requested.getCommand(),
+            validated,
+            context
+            );
+
+        //
         // Validate the requested entrypoint.
         success &= validateEntrypoint(
             requested.getEntrypoint(),
@@ -536,6 +544,49 @@ implements DockerContainerValidator
         return success;
         }
     
+    /**
+     * Validate the command arguments.
+     *
+     */
+    public boolean validateCommand(
+        final java.util.List<String> requested,
+        final IvoaDockerContainer validated,
+        final OfferSetRequestParserContext context
+        ){
+        log.debug("validateCommand(...)");
+        log.debug("Requested [{}]", requested);
+
+        boolean success = true ;
+
+        if (requested != null && !requested.isEmpty())
+            {
+            java.util.List<String> result = new java.util.ArrayList<String>();
+            for (String arg : requested)
+                {
+                if (isBadValueCheck(arg, context))
+                    {
+                    context.addWarning(
+                        "urn:bad-value",
+                        "DockerContainer - command argument matches badvalue blacklist [{}]",
+                        Map.of(
+                            "value",
+                            arg
+                            )
+                        );
+                    success = false ;
+                    }
+                else {
+                    result.add(arg);
+                    }
+                }
+            if (success)
+                {
+                validated.setCommand(result);
+                }
+            }
+        return success;
+        }
+
     /**
      * Validate the container entrypoint.
      * 

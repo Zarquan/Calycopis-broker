@@ -197,7 +197,18 @@ implements ComponentProcessingRequest
                         }
                     }
                 else {
-                    this.activate(DEFAULT_POLL_INTERVAL);
+                    log.debug(
+                        "No monitor action for component [{}][{}], marking as COMPLETED",
+                        component.getUuid(),
+                        component.getClass().getSimpleName()
+                        );
+                    component.setPhase(
+                        IvoaLifecyclePhase.COMPLETED
+                        );
+                    platform.getSessionProcessingRequestFactory().createMonitorSessionRequest(
+                        component.getSession()
+                        );
+                    this.done(platform);
                     }
                 break;
 

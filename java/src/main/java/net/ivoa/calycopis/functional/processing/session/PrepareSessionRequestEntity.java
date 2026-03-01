@@ -309,12 +309,12 @@ implements SessionProcessingRequest
             // If the component is ready.
             case IvoaLifecyclePhase.AVAILABLE:
             case IvoaLifecyclePhase.RUNNING:
+            case IvoaLifecyclePhase.COMPLETED:
                 return true ;
 
             //
             // Anything else is an error.
             case IvoaLifecyclePhase.RELEASING:
-            case IvoaLifecyclePhase.COMPLETED:
             case IvoaLifecyclePhase.CANCELLED:
             case IvoaLifecyclePhase.FAILED:
             default:
@@ -402,6 +402,8 @@ implements SessionProcessingRequest
                 break;
             //
             // The phase has moved beyond PREPARING.
+            case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+            case IvoaSimpleExecutionSessionPhase.RUNNING:
             case IvoaSimpleExecutionSessionPhase.RELEASING:
             case IvoaSimpleExecutionSessionPhase.COMPLETED:
             case IvoaSimpleExecutionSessionPhase.CANCELLED:

@@ -61,13 +61,14 @@ implements ComponentProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        // TODO Auto-generated method stub
+        // TODO Implement component release logic
         return null;
         }
 
     @Override
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
-        // TODO Auto-generated method stub
+        // TODO Implement component release post-processing
+        this.done(platform);
         }
     }
