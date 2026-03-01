@@ -55,6 +55,16 @@ implements ComponentProcessingRequestFactory
         }
 
     @Override
+    public ComponentProcessingRequestEntity createMonitorComponentRequest(LifecycleComponentEntity component)
+        {
+        return repository.save(
+            new MonitorComponentRequestEntity(
+                component
+                )
+            );
+        }
+
+    @Override
     public ComponentProcessingRequestEntity createReleaseComponentRequest(LifecycleComponentEntity component)
         {
         return repository.save(

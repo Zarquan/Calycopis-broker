@@ -138,6 +138,12 @@ extends Component
    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request);
    
    /**
+    * Return a ProcessingAction to monitor this Component.
+    * 
+    */
+   public ProcessingAction getMonitorAction(final ComponentProcessingRequest request);
+
+   /**
     * Return a ProcessingAction to release this Component.
     * 
     */

@@ -25,50 +25,398 @@
 
     Target:
 
-        Ask Cursor to create the PodmanPlatform
+        Continue work on the DockerPlatform
 
     Result:
 
         Work in progress ...
 
 
+# -----------------------------------------------------
+# Create a new branch.
+# (not given the agent access to my ssh keys yet)
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        branchname=monitor-docker
+        newbranch=$(date '+%Y%m%d-%H%M%S')-zrq-${branchname:?}
+
+        git checkout \
+            -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Ask Cursor to add MonitorComponentRequestEntity.
+#[root@calycopis-dev]
+
+==START==
+Building on the pattern of PrepareComponentRequestEntity which calls the getPrepareAction() on LifecycleComponent,
+can you create MonitorComponentRequestEntity which calls getMonitorAction() on LifecycleComponent
+and add an implementation of getMonitorAction() to DockerSimpleComputeResourceEntity
+that returns a ProcessingAction that polls the status of the container running in Docker and updates the phase
+of the execution session with the corresponding value, RUNNING, COMPLETED, or FAILED.
+==END==
+
+--START--
+  Let me start by examining the existing PrepareComponentRequestEntity and related classes to understand the pattern I need to follow.
+
+  ⬢ Globbed, read 3 globs, 3 files
+    … 3 earlier items hidden
+    Read ...ng/component/PrepareComponentRequestEntity.java
+    Read ...pis/datamodel/component/LifecycleComponent.java
+    Read ...pis/functional/processing/ProcessingAction.java
+
+  Now let me examine the existing entity hierarchy, the factory, and how PrepareComponentRequestEntity gets created and scheduled.
+
+  ⬢ Read 3 files
+    Read ...component/ComponentProcessingRequestEntity.java
+    Read ...omponent/ComponentProcessingRequestFactory.java
+    Read ...nent/ComponentProcessingRequestFactoryImpl.java
+
+  Now let me see how the PrepareComponentRequestEntity triggers the session-level monitor request, and look at the session-level monitor for
+  reference.
+
+  ⬢ Read 2 files
+    Read ...essing/session/MonitorSessionRequestEntity.java
+    Read ...essing/session/PrepareSessionRequestEntity.java
+
+  Now let me see the base ProcessingRequestEntity (for activate and done methods), and check how the PrepareComponentRequestEntity.postProcess
+  schedules the session-level request after transitioning to AVAILABLE.
+
+  ⬢ Read 2 files
+    Read ...ctional/processing/ProcessingRequestEntity.java
+    Read ...tamodel/component/LifecycleComponentEntity.java
+
+  Now let me check the current DockerSimpleComputeResourceEntity and the SessionProcessingRequestFactory to see how requests are created.
+
+  ⬢ Read 3 files
+    Read ...ng/session/SessionProcessingRequestFactory.java
+    Read ...ession/SessionProcessingRequestFactoryImpl.java
+    Read ...e/docker/DockerSimpleComputeResourceEntity.java
+
+  Now let me check how the InspectContainerResponse works in docker-java for container state inspection.
+
+  ⬢ Grepped, read 1 grep, 1 file
+    Grepped "InspectContainer" in calycopis/Calycopis-broker/github-zrq/java
+    Read ...ssing/component/ComponentProcessingRequest.java
+
+  Now I have a complete understanding of the pattern. Let me create the plan.
+
+  ⬢ To-do Working on 7 to-dos
+    ☐ Add getMonitorAction() to LifecycleComponent interface
+    ☐ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☐ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☐ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☐ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☐ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 1 & 2: Add getMonitorAction() to the interface and a default implementation in the entity.
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...pis/datamodel/component/LifecycleComponent.java +6                                                                                         │
+  │                                                                                                                                               │
+  │                                                                                                                                               │
+  │      /**                                                                                                                                      │
+  │ +     * Return a ProcessingAction to monitor this Component.                                                                                  │
+  │ +     *                                                                                                                                       │
+  │ +     */                                                                                                                                      │
+  │ +    public ProcessingAction getMonitorAction(final ComponentProcessingRequest request);                                                      │
+  │ +                                                                                                                                             │
+  │ +    /**                                                                                                                                      │
+  │       * Return a ProcessingAction to release this Component.                                                                                  │
+  │       *                                                                                                                                       │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...tamodel/component/LifecycleComponentEntity.java +6                                                                                         │
+  │                                                                                                                                               │
+  │                                                                                                                                               │
+  │       @Override                                                                                                                               │
+  │ +     public ProcessingAction getMonitorAction(final ComponentProcessingRequest request)                                                      │
+  │ +         {                                                                                                                                   │
+  │ +         return ProcessingAction.NO_ACTION;                                                                                                  │
+  │ +         }                                                                                                                                   │
+  │ +                                                                                                                                             │
+  │ +     @Override                                                                                                                               │
+  │       public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)                                                      │
+  │           {                                                                                                                                   │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 5 to-dos • 2 done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☐ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☐ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☐ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☐ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 3: Create MonitorComponentRequestEntity.
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...ng/component/MonitorComponentRequestEntity.java +221                                                                                       │
+  │                                                                                                                                               │
+  │ + /*                                                                                                                                          │
+  │ +  * <meta:header>                                                                                                                            │
+  │ +  *   <meta:licence>                                                                                                                         │
+  │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+  │ +  *                                                                                                                                          │
+  │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+  │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+  │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+  │ +  *     (at your option) any later version.                                                                                                  │
+  │ +  *                                                                                                                                          │
+  │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+  │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+  │  … truncated (210 more lines) · ctrl+r to review                                                                                              │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 4 to-dos • 3 done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☒ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☐ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☐ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☐ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 4: Add the factory method to ComponentProcessingRequestFactory and its implementation.
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...omponent/ComponentProcessingRequestFactory.java +2                                                                                         │
+  │                                                                                                                                               │
+  │       public ComponentProcessingRequestEntity createPrepareComponentRequest(final LifecycleComponentEntity component);                        │
+  │                                                                                                                                               │
+  │ +     public ComponentProcessingRequestEntity createMonitorComponentRequest(final LifecycleComponentEntity component);                        │
+  │ +                                                                                                                                             │
+  │       public ComponentProcessingRequestEntity createReleaseComponentRequest(final LifecycleComponentEntity component);                        │
+  │                                                                                                                                               │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...nent/ComponentProcessingRequestFactoryImpl.java +10                                                                                        │
+  │                                                                                                                                               │
+  │                                                                                                                                               │
+  │       @Override                                                                                                                               │
+  │ +     public ComponentProcessingRequestEntity createMonitorComponentRequest(LifecycleComponentEntity component)                               │
+  │ +         {                                                                                                                                   │
+  │ +         return repository.save(                                                                                                             │
+  │ +             new MonitorComponentRequestEntity(                                                                                              │
+  │ +                 component                                                                                                                   │
+  │ +                 )                                                                                                                           │
+  │ +             );                                                                                                                              │
+  │ +         }                                                                                                                                   │
+  │ +                                                                                                                                             │
+  │ +     @Override                                                                                                                               │
+  │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 3 to-dos • 4 done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☒ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☒ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☐ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☐ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 5: In PrepareComponentRequestEntity.postProcess, when a component reaches AVAILABLE, schedule a monitor request for it.
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...ng/component/PrepareComponentRequestEntity.java +4                                                                                         │
+  │                                                                                                                                               │
+  │                                   component.getSession()                                                                                      │
+  │                                   );                                                                                                          │
+  │ +                             // Schedule a monitor request for this component.                                                               │
+  │ +                             platform.getComponentProcessingRequestFactory().createMonitorComponentRequest(                                  │
+  │ +                                 component                                                                                                   │
+  │ +                                 );                                                                                                          │
+  │                               // Done.                                                                                                        │
+  │                               this.done(platform);                                                                                            │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 2 to-dos • 5 done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☒ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☒ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☒ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☐ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 6: Implement getMonitorAction() in DockerSimpleComputeResourceEntity. This needs to connect to Docker, inspect the container, and map
+  the container state to a lifecycle phase.
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...e/docker/DockerSimpleComputeResourceEntity.java +1                                                                                         │
+  │                                                                                                                                               │
+  │   import com.github.dockerjava.api.DockerClient;                                                                                              │
+  │   import com.github.dockerjava.api.command.CreateContainerResponse;                                                                           │
+  │ + import com.github.dockerjava.api.command.InspectContainerResponse;                                                                          │
+  │   import com.github.dockerjava.api.command.PullImageResultCallback;                                                                           │
+  │   import com.github.dockerjava.api.model.HostConfig;                                                                                          │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Now add the getMonitorAction() method. I'll add it after the getPrepareAction() method, before the closing brace of the class.
+
+  ⬢ Read ...e/docker/DockerSimpleComputeResourceEntity.java line 351
+
+  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...e/docker/DockerSimpleComputeResourceEntity.java +139                                                                                       │
+  │                                                                                                                                               │
+  │               };                                                                                                                              │
+  │           }                                                                                                                                   │
+  │ +                                                                                                                                             │
+  │ +     /**                                                                                                                                     │
+  │ +      * Build a DockerClient from the CONTAINER_HOST / DOCKER_HOST environment.                                                              │
+  │ +      */                                                                                                                                     │
+  │ +     private static DockerClient buildDockerClient()                                                                                         │
+  │ +         {                                                                                                                                   │
+  │ +         String containerHost = System.getenv("CONTAINER_HOST");                                                                             │
+  │ +         if (containerHost == null || containerHost.isEmpty())                                                                               │
+  │ +             {                                                                                                                               │
+  │ +             containerHost = System.getProperty("CONTAINER_HOST");                                                                           │
+  │  … truncated (130 more lines) · ctrl+r to review                                                                                              │
+  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 1 to-do • 6 done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☒ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☒ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☒ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☒ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☐ Compile and verify
+
+  Step 7: Compile and verify.
+
+  $ ./mvnw clean compile 2>&1 | tail -25 17s in calycopis/Calycopis-broker/github-zrq/java
+    [INFO] Scanning for projects...
+    [INFO]
+    … truncated (24 more lines) · ctrl+o to expand
+
+  ⬢ To-do All done
+    ☒ Add getMonitorAction() to LifecycleComponent interface
+    ☒ Add default NO_ACTION getMonitorAction() to LifecycleComponentEntity
+    ☒ Create MonitorComponentRequestEntity following PrepareComponentRequestEntity pattern
+    ☒ Add createMonitorComponentRequest to ComponentProcessingRequestFactory + impl
+    ☒ Wire: PrepareComponentRequestEntity.postProcess schedules monitor on AVAILABLE
+    ☒ Implement getMonitorAction() in DockerSimpleComputeResourceEntity
+    ☒ Compile and verify
+
+  Build succeeds cleanly. Here's a summary of all the changes:
+
+
+  1. `LifecycleComponent.java` — new interface method
+
+  Added getMonitorAction(ComponentProcessingRequest) alongside the existing getPrepareAction, getReleaseAction, etc.
+
+
+  2. `LifecycleComponentEntity.java` — default implementation
+
+  Added a default getMonitorAction() returning NO_ACTION, so existing components (mock, executables, storage, data) are unaffected.
+
+
+  3. `MonitorComponentRequestEntity.java` — new file
+
+  Follows the exact same pattern as PrepareComponentRequestEntity:
+  • `preProcess`: Resolves the component via the platform, checks the phase is AVAILABLE or RUNNING, and calls
+    component.getMonitorAction(this).
+  • `postProcess`: Based on the action's getNextPhase():
+    • RUNNING → sets phase to RUNNING, reschedules itself with a 10-second poll interval.
+    • COMPLETED → sets phase to COMPLETED, notifies the session via createMonitorSessionRequest, marks itself done.
+    • FAILED → fails the component and session.
+
+
+
+  4. `ComponentProcessingRequestFactory` + `Impl` — new factory method
+
+  Added createMonitorComponentRequest(component) to create and persist a MonitorComponentRequestEntity.
+
+
+  5. `PrepareComponentRequestEntity.java` — wiring
+
+  When a component's prepare action finishes with AVAILABLE, the post-process now also schedules a createMonitorComponentRequest for that
+  component, kicking off the monitoring loop.
+
+
+  6. `DockerSimpleComputeResourceEntity.java` — monitor implementation
+
+  • Extracted buildDockerClient() as a static helper (reusable by both prepare and monitor).
+  • getMonitorAction() eagerly captures the dockerContainerId, then returns a ProcessingAction that:
+    • Calls dockerClient.inspectContainerCmd(containerId).exec() to get the container state.
+    • If state.getRunning() is true → nextPhase = RUNNING.
+    • If not running and exitCode == 0 → nextPhase = COMPLETED.
+    • If not running and exitCode != 0 → nextPhase = FAILED.
+
+  This creates a polling loop: once the container is started (AVAILABLE), the monitor checks every 10 seconds, transitions through RUNNING, and
+   eventually reaches COMPLETED or FAILED when the container exits.
+--END--
+
+==START==
+Can you update the Python tests for the docker platform to pass in a specific number of seconds as a command line parameter to the test container
+and then check that the container exits and the execution phase changes to COMPLETED at the specified time.
+==END==
+
+
+
+
+==START==
+Can you add a new phase, STOPPED, to LifecycleComponent, which indicates that the component was stopped by the system.
+==END==
+
+
+
+
+==START==
+Building on the pattern of PrepareComponentRequestEntity which calls getPrepareAction() on LifecycleComponent,
+can you create ReleaseComponentRequestEntity which calls getReleaseAction() on LifecycleComponent
+and add an implementation of getReleaseAction() to DockerSimpleComputeResourceEntity
+that returns a ProcessingAction that stops the container running in Docker and updates the phase
+of the execution session with the corresponding value, RUNNING, COMPLETED, or FAILED.
+==END==
+
+--START--
+....
+....
+--END--
+
+
+
+
+==START==
+Given that getAvailableDurationSeconds means that we know how long a LifecycleComponent should be available for,
+can you update the ProcessingAction created by MonitorComponentRequestEntity to schedule a ReleaseComponentRequestEntity
+request for the component when it reaches its available duration.
+==END==
+
+--START--
+....
+....
+--END--
 
 
 
 
 
 
-    ?   following the pattern of
-    ?   PrepareComponentRequestEntity
-    ?   which calls the
-    ?   getPrepareAction()
-    ?   on
-    ?   LifecycleComponent
-    ?   
-    ?   can you create
-    ?   MonitorComponentRequestEntity
-    ?   which calls
-    ?   getMonitorAction()
-    ?   on
-    ?   LifecycleComponent
-    ?   
-    ?   can you add an implementation of
-    ?   getMonitorAction()
-    ?   to
-    ?   DockerSimpleComputeResourceEntity
-    ?   that polls the status of the running container
-    ?   and updates
-    ?   the phase of the execution session
-    ?   with the corresponding value, RUNNING, COMPLETED, or FAILED.
 
 
-    ?   Can you add new functionality to the DockerContainerEntity
-    ?   estimatePrepareTime() method
-    ?   to check to see if the requested container image
-    ?   is already available in the local Docker service.
-    ?   If the image is already available, and the checksum is correct,
-    ?   then adjust the estimated prepare time to take this
-    ?   into account.
+
+
+
+Can you add new functionality to the DockerContainerEntity
+estimatePrepareTime() method
+to check to see if the requested container image
+is already available in the local Docker service.
+If the image is already available, and the checksum is correct,
+then adjust the estimated prepare time to take this
+into account.
 
 
 
@@ -76,11 +424,11 @@
 
 
 
-    ?   Extend pause container to add an optional error code.
-    ?   Use this to test transition to FAILED status.
+Extend pause container to add an optional error code.
+Use this to test transition to FAILED status.
 
 
-    ?   Curl container that returns JSON for HEAD and GET
+Curl container that returns JSON for HEAD and GET
 
 
 
@@ -90,5 +438,5 @@ MonitorComponentRequestEntity
 
 
 
-    ?   Based on what we have done in this session can you suggest any changes to the AGENTS.md file that would make implementing tasks like this easier in the future.
+Based on what we have done in this session can you suggest any changes to the AGENTS.md file that would make implementing tasks like this easier in the future.
 

@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.model.HostConfig;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -350,6 +351,145 @@ implements DockerSimpleComputeResource
                     this.containerId
                     );
                 component.dockerContainerId = this.containerId;
+                return true;
+                }
+            };
+        }
+
+    /**
+     * Build a DockerClient from the CONTAINER_HOST / DOCKER_HOST environment.
+     */
+    private static DockerClient buildDockerClient()
+        {
+        String containerHost = System.getenv("CONTAINER_HOST");
+        if (containerHost == null || containerHost.isEmpty())
+            {
+            containerHost = System.getProperty("CONTAINER_HOST");
+            }
+        if (containerHost == null || containerHost.isEmpty())
+            {
+            containerHost = System.getenv("DOCKER_HOST");
+            }
+        if (containerHost == null || containerHost.isEmpty())
+            {
+            return null;
+            }
+        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
+            .withDockerHost(containerHost)
+            .build();
+        DockerHttpClient httpClient = new ZerodepDockerHttpClient.Builder()
+            .dockerHost(config.getDockerHost())
+            .build();
+        return DockerClientImpl.getInstance(config, httpClient);
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(final ComponentProcessingRequest request)
+        {
+        final UUID resourceUuid = this.getUuid();
+        final String resourceClassName = this.getClass().getSimpleName();
+        final String containerId = this.dockerContainerId;
+
+        if (containerId == null || containerId.isEmpty())
+            {
+            log.error(
+                "No Docker container ID for resource [{}][{}]",
+                resourceUuid,
+                resourceClassName
+                );
+            return ProcessingAction.NO_ACTION;
+            }
+
+        return new ProcessingAction()
+            {
+            private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.RUNNING;
+
+            @Override
+            public boolean process()
+                {
+                log.debug(
+                    "Monitoring Docker container [{}] for resource [{}][{}]",
+                    containerId,
+                    resourceUuid,
+                    resourceClassName
+                    );
+                try {
+                    DockerClient dockerClient = buildDockerClient();
+                    if (dockerClient == null)
+                        {
+                        log.error(
+                            "CONTAINER_HOST / DOCKER_HOST environment variable is not set"
+                            );
+                        this.nextPhase = IvoaLifecyclePhase.FAILED;
+                        return false;
+                        }
+
+                    InspectContainerResponse inspection = dockerClient.inspectContainerCmd(containerId).exec();
+                    InspectContainerResponse.ContainerState state = inspection.getState();
+
+                    log.debug(
+                        "Container [{}] state: status=[{}] running=[{}] exitCode=[{}]",
+                        containerId,
+                        state.getStatus(),
+                        state.getRunning(),
+                        state.getExitCode()
+                        );
+
+                    if (Boolean.TRUE.equals(state.getRunning()))
+                        {
+                        this.nextPhase = IvoaLifecyclePhase.RUNNING;
+                        }
+                    else {
+                        Integer exitCode = state.getExitCode();
+                        if (exitCode != null && exitCode == 0)
+                            {
+                            this.nextPhase = IvoaLifecyclePhase.COMPLETED;
+                            }
+                        else {
+                            log.error(
+                                "Container [{}] exited with non-zero code [{}]",
+                                containerId,
+                                exitCode
+                                );
+                            this.nextPhase = IvoaLifecyclePhase.FAILED;
+                            }
+                        }
+                    return true;
+                    }
+                catch (Exception e)
+                    {
+                    log.error(
+                        "Failed to inspect Docker container [{}] for resource [{}]",
+                        containerId,
+                        resourceUuid,
+                        e
+                        );
+                    this.nextPhase = IvoaLifecyclePhase.FAILED;
+                    return false;
+                    }
+                }
+
+            @Override
+            public UUID getRequestUuid()
+                {
+                return request.getUuid();
+                }
+
+            @Override
+            public IvoaLifecyclePhase getNextPhase()
+                {
+                return this.nextPhase;
+                }
+
+            @Override
+            public boolean postProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Monitor post-processing [{}][{}] next phase [{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    this.nextPhase
+                    );
                 return true;
                 }
             };

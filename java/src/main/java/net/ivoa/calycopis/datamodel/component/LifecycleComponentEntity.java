@@ -391,6 +391,12 @@ implements LifecycleComponent
      */
     
     @Override
+    public ProcessingAction getMonitorAction(final ComponentProcessingRequest request)
+        {
+        return ProcessingAction.NO_ACTION;
+        }
+
+    @Override
     public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;

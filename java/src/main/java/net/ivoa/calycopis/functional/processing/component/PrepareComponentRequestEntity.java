@@ -262,6 +262,10 @@ implements ComponentProcessingRequest
                             platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
                                 component.getSession()
                                 );
+                            // Schedule a monitor request for this component.
+                            platform.getComponentProcessingRequestFactory().createMonitorComponentRequest(
+                                component
+                                );
                             // Done.
                             this.done(platform);
                             break;
