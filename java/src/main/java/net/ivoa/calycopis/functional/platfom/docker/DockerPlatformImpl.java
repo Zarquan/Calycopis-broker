@@ -50,8 +50,9 @@ import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceValid
 import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerValidatorImpl;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.docker.DockerDockerContainerEntityFactory;
+import net.ivoa.calycopis.datamodel.executable.docker.docker.DockerDockerContainerValidatorImpl;
 import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
@@ -62,7 +63,6 @@ import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourc
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.platfom.Platform;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
@@ -77,7 +77,7 @@ import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest
 @Profile("docker")
 public class DockerPlatformImpl
 extends FactoryBaseImpl
-implements Platform
+implements DockerPlatform
     {
 
     public DockerPlatformImpl()
@@ -94,8 +94,8 @@ implements Platform
                 )
             );
         this.executableValidatorFactory.addValidator(
-            new MockDockerContainerValidatorImpl(
-                this.dockerContainerEntityFactory
+            new DockerDockerContainerValidatorImpl(
+                this
                 )
             );
         this.computeResourceValidatorFactory.addValidator(
@@ -152,6 +152,16 @@ implements Platform
         this.registerFactory(this.dataResourceEntityFactory);
         this.registerFactory(this.storageResourceEntityFactory);
         
+        }
+
+// Docker client
+
+    @Autowired
+    private DockerClientFactory dockerClientFactory;
+    @Override
+    public DockerClientFactory getDockerClientFactory()
+        {
+        return this.dockerClientFactory;
         }
 
 // Compute    
@@ -219,7 +229,12 @@ implements Platform
         }
     
     @Autowired
-    private MockDockerContainerEntityFactory dockerContainerEntityFactory;  
+    private DockerDockerContainerEntityFactory dockerContainerEntityFactory;  
+    @Override
+    public DockerContainerEntityFactory getDockerContainerEntityFactory()
+        {
+        return this.dockerContainerEntityFactory;
+        }
 
     @Autowired
     private MockJupyterNotebookEntityFactory jupyterNotebookEntityFactory;

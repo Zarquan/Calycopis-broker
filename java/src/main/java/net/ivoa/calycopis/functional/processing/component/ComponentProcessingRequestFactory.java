@@ -35,6 +35,8 @@ extends FactoryBase
 
     public ComponentProcessingRequestEntity createPrepareComponentRequest(final LifecycleComponentEntity component);
 
+    public ComponentProcessingRequestEntity createMonitorComponentRequest(final LifecycleComponentEntity component);
+
     public ComponentProcessingRequestEntity createReleaseComponentRequest(final LifecycleComponentEntity component);
 
     public ComponentProcessingRequestEntity createCancelComponentRequest(final LifecycleComponentEntity component);

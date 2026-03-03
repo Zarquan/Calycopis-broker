@@ -1,0 +1,1562 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Continue work on the DockerPlatform
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    ?   Continuing our work on the Calycopis-broker project at `/calycopis/Calycopis-broker/github-zrq/`
+    ?   Can you move the existing getPrepareAction() implementation from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity.
+    ?   Then add a new package `net.ivoa.calycopis.datamodel.executable.docker.docker` and a new set of classes that implement a Docker version of DockerContainer for the DockerPlatform :
+    ?   * DockerDockerContainer
+    ?   * DockerDockerContainerEntity
+    ?   * DockerDockerContainerEntityFactory
+    ?   * DockerDockerContainerEntityFactoryImpl
+    ?   * DockerDockerContainerValidator
+    ?   * DockerDockerContainerValidatorImpl
+    ?   Two key parts to the implementation
+    ?   * DockerDockerContainerValidatorImpl.estimatePrepareTime() should check to see if the the requested container image is in the local Docker image cache.
+    ?       * If the image is already available in the local Docker service, and the checksum is correct, then return a token value of 10 seconds for the preparation time.
+    ?       * If the image is already available in the local Docker service, but the checksum is not correct, then fail the preparation step, and fail the parent session.
+    ?       * If the image is not already in the local Docker service, then adjust the estimated prepare time to take this into account, initially just using a fixed estimate for the time needed to download the container image to this platform.
+    ?   * DockerDockerContainerEntity.getPrepareAction() should return a ProcessingAction that calls the local Docker service to download the container image if it is needed.
+    ?       * The ProcessingAction.process() method should check to see if the image is already available in the local Docker service, and if the checksum is correct.
+    ?       * If it the image is available in the local Docker service, and the checksum is correct, then set the phase to AVAILABLE and return.
+    ?       * If it the image is available, but the checksum is not correct, then fail the preparation step, and fail the parent session.
+    ?       * If the image is not available, then call the local Docker service to download the image from the remote repository.
+    ?       * Add a property to DockerDockerContainerEntity to keep track of how long it took the local Docker service to download the image.
+
+    >
+    >
+    >     ⬢ To-do Working on 6 to-dos
+    >       ☐ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☐ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☐ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☐ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☐ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☐ Compile and verify
+    >
+    >     Let me first understand the existing class hierarchy and the mock implementations.
+    >
+    >     ⬢ Read, globbed 1 file, 2 globs
+    >       Read ...amodel/executable/AbstractExecutableEntity.java
+    >       Globbed "**/executable/docker/mock/*.java" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Globbed "**/executable/jupyter/mock/*.java" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >
+    >     ⬢ 1 agent completed
+    >       Read mock entity files
+    >       ✓ Done
+    >
+    >     Now let me also check the parent classes and related interfaces.
+    >
+    >     ⬢ Read 3 files
+    >       Read ...utable/docker/DockerContainerEntityFactory.java
+    >       Read ...le/docker/DockerContainerEntityFactoryImpl.java
+    >       Read ...r/mock/MockDockerContainerEntityRepository.java
+    >
+    >     Now let me also look at the DockerSimpleComputeResourceEntity to understand how it builds the Docker client, since the new entity will need
+    >     similar functionality.
+    >
+    >     ⬢ Read 2 files
+    >       Read ...atamodel/executable/docker/DockerContainer.java
+    >       Read ...el/executable/docker/DockerContainerEntity.java lines 2-81
+    >
+    >     ⬢ To-do Working on 5 to-dos • 1 done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☐ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☐ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☐ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☐ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☐ Compile and verify
+    >
+    >     Now I'll move the getPrepareAction() and its related preparecounter field from AbstractExecutableEntity to MockDockerContainerEntity and
+    >     MockJupyterNotebookEntity, and make AbstractExecutableEntity abstract for that method.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...amodel/executable/AbstractExecutableEntity.java -98                                                                                        │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ -     // TODO Move this to a test specific class.                                                                                             │
+    >     │ -     @Column(name="preparecounter")                                                                                                          │
+    >     │ -     private int preparecounter;                                                                                                             │
+    >     │ -     public int getPrepareCounter()                                                                                                          │
+    >     │ -         {                                                                                                                                   │
+    >     │ -         return this.preparecounter;                                                                                                         │
+    >     │ -         }                                                                                                                                   │
+    >     │ -                                                                                                                                             │
+    >     │ -     // Generic prepare action - move to the real Entities later.                                                                            │
+    >     │ -     @Override                                                                                                                               │
+    >     │  … truncated (89 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now remove the unused imports from AbstractExecutableEntity.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...amodel/executable/AbstractExecutableEntity.java -6                                                                                         │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │   import java.net.URI;                                                                                                                        │
+    >     │ - import java.util.UUID;                                                                                                                      │
+    >     │                                                                                                                                               │
+    >     │ - import jakarta.persistence.Column;                                                                                                          │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │   import jakarta.persistence.FetchType;                                                                                                       │
+    >     │  ...                                                                                                                                          │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │ - import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │  … truncated (7 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the getPrepareAction() to MockDockerContainerEntity.
+    >
+    >     ⬢ Read ...el/executable/docker/DockerContainerEntity.java
+    >
+    >     Now let me also check what DockerSimpleComputeResourceEntity looks like, specifically the buildDockerClient method.
+    >
+    >     ⬢ Read 2 files
+    >       Read ...e/docker/DockerSimpleComputeResourceEntity.java
+    >       Read ...utable/docker/DockerContainerValidatorImpl.java
+    >
+    >     Now let me also check the ProcessingAction interface and the LifecycleComponentEntity to see the interface for getPrepareAction.
+    >
+    >     ⬢ Read 3 files
+    >       Read ...pis/functional/processing/ProcessingAction.java
+    >       Read ...tamodel/component/LifecycleComponentEntity.java
+    >       Read ...pis/datamodel/component/LifecycleComponent.java
+    >
+    >     Let me check the JupyterNotebookEntity parent class as well.
+    >
+    >     ⬢ Read 2 files
+    >       Read ...l/executable/jupyter/JupyterNotebookEntity.java
+    >       Read ...executable/docker/DockerContainerValidator.java
+    >
+    >     Good, I now have a complete picture. Let me also check if there's a docker platform configuration file to see how Spring profiles wire things
+    >      together.
+    >
+    >     ⬢ Globbed, read 1 glob, 1 file
+    >       Globbed "**/platfom/docker/*.java" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Read ...nctional/platfom/docker/DockerPlatformImpl.java
+    >
+    >     Now I have a complete understanding of the codebase. Let me implement all the changes. I'll start by adding the mock getPrepareAction() to
+    >     both mock entities, then create the new Docker package.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...able/docker/mock/MockDockerContainerEntity.java +80                                                                                        │
+    >     │                                                                                                                                               │
+    >     │   package net.ivoa.calycopis.datamodel.executable.docker.mock;                                                                                │
+    >     │                                                                                                                                               │
+    >     │ + import java.util.UUID;                                                                                                                      │
+    >     │ +                                                                                                                                             │
+    >     │ + import jakarta.persistence.Column;                                                                                                          │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │   import jakarta.persistence.Inheritance;                                                                                                     │
+    >     │  ...                                                                                                                                          │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │ + import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │ + import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;                                                                    │
+    >     │  … truncated (84 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the same to MockJupyterNotebookEntity.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ble/jupyter/mock/MockJupyterNotebookEntity.java +79                                                                                        │
+    >     │                                                                                                                                               │
+    >     │   package net.ivoa.calycopis.datamodel.executable.jupyter.mock;                                                                               │
+    >     │                                                                                                                                               │
+    >     │ + import java.util.UUID;                                                                                                                      │
+    >     │ +                                                                                                                                             │
+    >     │ + import jakarta.persistence.Column;                                                                                                          │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │   import jakarta.persistence.Inheritance;                                                                                                     │
+    >     │  ...                                                                                                                                          │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │ + import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │   import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;                                                                 │
+    >     │  … truncated (83 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 4 to-dos • 2 done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☒ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☐ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☐ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☐ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☐ Compile and verify
+    >
+    >     Now let me create all the new classes in the docker.docker package. I'll create the directory first.
+    >
+    >     $ mkdir -p /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/docker 275ms
+    >
+    >     Now let me create all the files. I'll create the simpler ones first, then the complex ones.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...utable/docker/docker/DockerDockerContainer.java +42                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (31 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerEntityFactory.java +35                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (24 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...cker/DockerDockerContainerEntityRepository.java +39                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (28 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...cker/docker/DockerDockerContainerValidator.java +35                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (24 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now create the factory implementation.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ker/DockerDockerContainerEntityFactoryImpl.java +79                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (68 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 3 to-dos • 3 done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☒ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☒ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☐ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☐ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☐ Compile and verify
+    >
+    >     Now create the validator implementation with Docker image cache checking. Let me first understand what buildDockerClient looks like so I can
+    >     reuse a similar pattern, and check what Docker Java API is available for image inspection.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +207                                                                                       │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (196 more lines) · ctrl+r to review                                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now let me check how OfferSetRequestParserContext works to properly handle the digest mismatch failure case.
+    >
+    >     ⬢ Grepped 2 greps
+    >       Grepped "getExecutableResult" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Grepped "getExecutableResult|setExecutableResult" in ...odel/offerset/OfferSetRequestParserContext.java
+    >
+    >     Good. Now I need to refine the validator to handle the digest mismatch case properly by overriding validate(). Let me update the validator
+    >     implementation.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +83 -16                                                                                    │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     │    * Docker platform specific validator for DockerContainer executables.                                                                      │
+    >     │ -  * Checks the local Docker image cache to estimate preparation time.                                                                        │
+    >     │ +  * Checks the local Docker image cache to estimate preparation time                                                                         │
+    >     │ +  * and validates image digest integrity.                                                                                                    │
+    >     │    *                                                                                                                                          │
+    >     │    */                                                                                                                                         │
+    >     │  ...                                                                                                                                          │
+    >     │       public static final Long DEFAULT_RELEASE_TIME = 1L;                                                                                     │
+    >     │                                                                                                                                               │
+    >     │ -     @Override                                                                                                                               │
+    >     │ -     protected Long estimatePrepareTime(final IvoaDockerContainer validated)                                                                 │
+    >     │  … truncated (140 more lines) · ctrl+r to review                                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 2 to-dos • 4 done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☒ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☒ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☒ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☐ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☐ Compile and verify
+    >
+    >     Now create the DockerDockerContainerEntity with the getPrepareAction() that handles Docker image downloading.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +328                                                                                       │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (317 more lines) · ctrl+r to review                                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now I need to update the DockerPlatformImpl to use the new Docker-specific classes instead of the Mock ones for Docker containers.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +2 -2                                                                                      │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceValidatorImpl;                                                       │
+    >     │   import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;                                                          │
+    >     │ - import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerEntityFactory;                                                │
+    >     │ - import net.ivoa.calycopis.datamodel.executable.docker.mock.MockDockerContainerValidatorImpl;                                                │
+    >     │ + import net.ivoa.calycopis.datamodel.executable.docker.docker.DockerDockerContainerEntityFactory;                                            │
+    >     │ + import net.ivoa.calycopis.datamodel.executable.docker.docker.DockerDockerContainerValidatorImpl;                                            │
+    >     │   import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookEntityFactory;                                               │
+    >     │   import net.ivoa.calycopis.datamodel.executable.jupyter.mock.MockJupyterNotebookValidatorImpl;                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │               );                                                                                                                              │
+    >     │           this.executableValidatorFactory.addValidator(                                                                                       │
+    >     │ -             new MockDockerContainerValidatorImpl(                                                                                           │
+    >     │ +             new DockerDockerContainerValidatorImpl(                                                                                         │
+    >     │                   this.dockerContainerEntityFactory                                                                                           │
+    >     │                   )                                                                                                                           │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │       @Autowired                                                                                                                              │
+    >     │ -     private MockDockerContainerEntityFactory dockerContainerEntityFactory;                                                                  │
+    >     │ +     private DockerDockerContainerEntityFactory dockerContainerEntityFactory;                                                                │
+    >     │                                                                                                                                               │
+    >     │       @Autowired                                                                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 1 to-do • 6 done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☒ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☒ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☒ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☒ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☒ Update DockerPlatformImpl to wire DockerDockerContainer classes
+    >       ☐ Compile and verify
+    >
+    >     Now let me compile to check for errors.
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && mvn compile -pl . 2>&1 | tail -80 exit 127 • 504ms
+    >       --: line 1: mvn: command not found
+    >
+    >     $ which mvn 2>/dev/null || ls /usr/local/bin/mvn 2>/dev/null || ls /opt/maven/bin/mvn 2>/dev/null || echo "Maven not found in standard locations"
+    >        173ms
+    >       Maven not found in standard locations
+    >
+    >     $ ls /calycopis/Calycopis-broker/github-zrq/java/mvnw 2>/dev/null && echo "found" || echo "not found" 142ms
+    >       /calycopis/Calycopis-broker/github-zrq/java/mvnw
+    >       found
+    >       … truncated (1 more line) · ctrl+o to expand
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -pl . 2>&1 | tail -100 exit 1 • 12s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (49 more lines) · ctrl+o to expand
+    >
+    >     I removed the import for LifecycleComponentEntity but it's still used in the class. Let me check.
+    >
+    >     ⬢ Read ...amodel/executable/AbstractExecutableEntity.java
+    >
+    >     The class extends LifecycleComponentEntity but I removed its import. Let me add it back.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...amodel/executable/AbstractExecutableEntity.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │ + import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │   import jakarta.persistence.FetchType;                                                                                                       │
+    >     │   import jakarta.persistence.Inheritance;                                                                                                     │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Wait, I need to be more careful about the import order - it has to come after the jakarta imports. Let me fix the import properly.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...amodel/executable/AbstractExecutableEntity.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │ - import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │   import jakarta.persistence.FetchType;                                                                                                       │
+    >     │   import jakarta.persistence.Inheritance;                                                                                                     │
+    >     │  ...                                                                                                                                          │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │ + import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │   import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -pl . 2>&1 | tail -50 exit 1 • 15s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (49 more lines) · ctrl+o to expand
+    >
+    >     The issue is that DockerContainer in DockerDockerContainerEntity refers to the inner interface DockerContainer.DockerImage but it's shadowed
+    >     by the class itself or needs a proper import. Let me fix the reference.
+    >
+    >     ⬢ Read .../docker/docker/DockerDockerContainerEntity.java lines 101-115
+    >
+    >     The issue is that DockerContainer is both the parent interface name and the package has docker.docker.DockerDockerContainerEntity. The
+    >     reference DockerContainer.DockerImage is ambiguous because DockerDockerContainerEntity implements DockerDockerContainer extends
+    >     DockerContainer. I need to use the fully qualified name.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │           final String entityClassName = this.getClass().getSimpleName();                                                                     │
+    >     │                                                                                                                                               │
+    >     │ -         final DockerContainer.DockerImage dockerImage = this.getImage();                                                                    │
+    >     │ +         final net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.DockerImage dockerImage = this.getImage();                     │
+    >     │           final String imageName;                                                                                                             │
+    >     │           final String requestedDigest;                                                                                                       │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -pl . 2>&1 | tail -30 15s
+    >       WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >
+    >     Build successful. Let me also run the tests to make sure we haven't broken anything.
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw test -pl . 2>&1 | tail -40 6.0s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (38 more lines) · ctrl+o to expand
+    >
+    >     ⬢ To-do All done
+    >       ☒ Understand existing getPrepareAction() in AbstractExecutableEntity and related classes
+    >       ☒ Move getPrepareAction() from AbstractExecutableEntity to MockDockerContainerEntity and MockJupyterNotebookEntity
+    >       ☒ Create new package net.ivoa.calycopis.datamodel.executable.docker.docker with DockerDockerContainer* classes
+    >       ☒ Implement DockerDockerContainerValidatorImpl with image cache checking and estimatePrepareTime()
+    >       ☒ Implement DockerDockerContainerEntity.getPrepareAction() with Docker image download logic
+    >       ☒ Compile and verify
+    >       ☒ Update DockerPlatformImpl to wire DockerDockerContainer classes
+    >
+    >     Everything compiles and tests pass. Here's a summary of the changes:
+    >     1. Moved `getPrepareAction()` from `AbstractExecutableEntity` to mock entities:
+    >     • Removed the preparecounter field, getPrepareCounter() method, and getPrepareAction() implementation from AbstractExecutableEntity (lines
+    >       120-217 removed), along with now-unused imports.
+    >     • Added the mock preparecounter field and getPrepareAction() implementation to both MockDockerContainerEntity and MockJupyterNotebookEntity,
+    >       preserving the original counter-based retry logic.
+    >
+    >     2. Created the new `net.ivoa.calycopis.datamodel.executable.docker.docker` package with 7 files:
+    >     • `DockerDockerContainer` - Interface extending DockerContainer, adding getImageDownloadMillis() to track download time.
+    >     • `DockerDockerContainerEntity` - JPA entity with getPrepareAction() that:
+    >       • Checks if the image is in the local Docker cache via inspectImageCmd()
+    >       • Verifies the digest matches (if provided) - fails the preparation if mismatched
+    >       • Pulls the image if not cached, timing the download
+    >       • Stores the download time in the imageDownloadMillis column via postProcess()
+    >     • `DockerDockerContainerEntityFactory` / `DockerDockerContainerEntityFactoryImpl` - Factory interface and Spring @Component implementation.
+    >     • `DockerDockerContainerEntityRepository` - JPA repository.
+    >     • `DockerDockerContainerValidator` / `DockerDockerContainerValidatorImpl` - Validator that overrides validate() to check the Docker image
+    >       cache during validation:
+    >       • Cached + digest matches: returns 10s preparation time
+    >       • Cached + digest mismatch: fails validation immediately
+    >       • Not cached: returns 120s estimated download time
+    >       • Uses buildDockerClient() (same pattern as DockerSimpleComputeResourceEntity)
+    >
+    >     3. Updated `DockerPlatformImpl` to use the new Docker-specific classes (DockerDockerContainerEntityFactory and
+    >     DockerDockerContainerValidatorImpl) instead of the mock versions for the Docker platform profile.
+
+
+    ?   Can you add a rule to the AGENTS.md file to avoid using the ?: conditional operator wherever possible and use an expanded if/else instead.
+    ?   So this
+    ?   ```
+    ?   imageName = (locations != null && !locations.isEmpty())
+    ?       ? locations.get(0)
+    ?       : null;
+    ?   ```
+    ?   would become
+    ?   ```
+    ?   if (locations != null && !locations.isEmpty())
+    ?       {
+    ?       imageName = locations.get(0);
+    ?       }
+    ?   else {
+    ?       imageName = null;
+    ?       }
+    ?   ```
+
+    >     Let me find and update the AGENTS.md file, and also fix the instances in the code I just wrote.
+    >
+    >     ⬢ Read calycopis/Calycopis-broker/github-zrq/AGENTS.md
+    >
+    >     Now I can see there's already a coding conventions section that touches on this topic. Let me add an explicit rule about the ternary
+    >     operator, and also fix the instances in the code I just wrote.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ calycopis/Calycopis-broker/github-zrq/AGENTS.md +20 -2                                                                                        │
+    >     │                                                                                                                                               │
+    >     │    * Where possible generic [Java Persistence API](https://en.wikipedia.org/wiki/Jakarta_Persistence) (JPA) annotations should be used rather │
+    >     │   than Spring framework specific ones, to make it easier to port the project to a different framework in the future.                          │
+    >     │    * The code style should favour clarity over brevity.                                                                                       │
+    >     │ +  * Do NOT use the `?:` ternary conditional operator. Always use an expanded `if/else` block instead.                                        │
+    >     │                                                                                                                                               │
+    >     │ -     This works                                                                                                                              │
+    >     │ +     For example, this:                                                                                                                      │
+    >     │       ```                                                                                                                                     │
+    >     │ +     imageName = (locations != null && !locations.isEmpty())                                                                                 │
+    >     │ +         ? locations.get(0)                                                                                                                  │
+    >     │ +         : null;                                                                                                                             │
+    >     │ +     ```                                                                                                                                     │
+    >     │ +     should be written as:                                                                                                                   │
+    >     │  … truncated (18 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now let me fix the ternary operators in the code I just wrote. Let me search for them.
+    >
+    >     ⬢ Grepped 2 greps
+    >       Grepped "\? .+ : " in ...oa/calycopis/datamodel/executable/docker/docker
+    >       Grepped "\?" in ...oa/calycopis/datamodel/executable/docker/docker
+    >
+    >     Found 3 instances. Let me fix them all.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +7 -3                                                                                      │
+    >     │                                                                                                                                               │
+    >     │               {                                                                                                                               │
+    >     │               List<String> locations = dockerImage.getLocations();                                                                            │
+    >     │ -             imageName = (locations != null && !locations.isEmpty())                                                                         │
+    >     │ -                 ? locations.get(0)                                                                                                          │
+    >     │ -                 : null;                                                                                                                     │
+    >     │ +             if (locations != null && !locations.isEmpty())                                                                                  │
+    >     │ +                 {                                                                                                                           │
+    >     │ +                 imageName = locations.get(0);                                                                                               │
+    >     │ +                 }                                                                                                                           │
+    >     │ +             else {                                                                                                                          │
+    >     │ +                 imageName = null;                                                                                                           │
+    >     │ +                 }                                                                                                                           │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +7 -3                                                                                      │
+    >     │                                                                                                                                               │
+    >     │               public IvoaLifecyclePhase getNextPhase()                                                                                        │
+    >     │                   {                                                                                                                           │
+    >     │ -                 return this.processSucceeded                                                                                                │
+    >     │ -                     ? IvoaLifecyclePhase.AVAILABLE                                                                                          │
+    >     │ -                     : IvoaLifecyclePhase.FAILED;                                                                                            │
+    >     │ +                 if (this.processSucceeded)                                                                                                  │
+    >     │ +                     {                                                                                                                       │
+    >     │ +                     return IvoaLifecyclePhase.AVAILABLE;                                                                                    │
+    >     │ +                     }                                                                                                                       │
+    >     │ +                 else {                                                                                                                      │
+    >     │ +                     return IvoaLifecyclePhase.FAILED;                                                                                       │
+    >     │ +                     }                                                                                                                       │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +8 -3                                                                                      │
+    >     │                                                                                                                                               │
+    >     │               if (this.imageCacheStatus == ImageCacheStatus.DIGEST_MISMATCH)                                                                  │
+    >     │                   {                                                                                                                           │
+    >     │ -                 String imageName = (requested.getImage().getLocations() != null                                                             │
+    >     │ +                 String imageName;                                                                                                           │
+    >     │ +                 if (requested.getImage().getLocations() != null                                                                             │
+    >     │                       && !requested.getImage().getLocations().isEmpty())                                                                      │
+    >     │ -                     ? requested.getImage().getLocations().get(0)                                                                            │
+    >     │ -                     : "unknown";                                                                                                            │
+    >     │ +                     {                                                                                                                       │
+    >     │ +                     imageName = requested.getImage().getLocations().get(0);                                                                 │
+    >     │ +                     }                                                                                                                       │
+    >     │ +                 else {                                                                                                                      │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Let me verify the build still compiles.
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -pl . 2>&1 | tail -15 14s
+    >       [INFO] --- resources:3.3.1:resources (default-resources) @ calycopis-broker ---
+    >       [INFO] Copying 1 resource from src/main/resources to target/classes
+    >       … truncated (14 more lines) · ctrl+o to expand
+    >
+    >     Build succeeds. I've added the rule to AGENTS.md and fixed all 3 ternary operator instances in the new code:
+    >     • `AGENTS.md`: Updated the "Coding conventions" section with an explicit rule: "Do NOT use the ?: ternary conditional operator. Always use an
+    >        expanded if/else block instead." Added two examples showing the before/after transformation.
+    >     • `DockerDockerContainerEntity.java`: Fixed 2 ternary expressions (image name resolution and next phase return).
+    >     • `DockerDockerContainerValidatorImpl.java`: Fixed 1 ternary expression (image name for warning message).
+
+    ?   Thank you. Using the expanded if/else form higlights the places where we will need to come back later
+    ?   and add messages to the oferset response describing why the validation failed.
+
+    >     That's a great point - the expanded if/else blocks make those failure paths clearly visible as places to add diagnostic messages later. Each
+    >     else branch that currently just sets a default or returns a failure is a natural hook for a future context.addWarning(...) or similar call,
+    >     which would be much easier to overlook if it were buried in a ternary expression.
+
+    ?   There are a couple of places where we create a DockerClient using different blocks of code.
+    ?   DockerDockerContainerEntity.getPrepareAction(), DockerSimpleComputeResourceEntity.getPrepareAction() and DockerDockerContainerValidatorImpl.
+    ?   Can we extract those into a separate factory interface and implementation class provided by the DockerPlatform.
+
+    >     Good idea - let me find all the buildDockerClient instances and then create a proper factory.
+    >
+    >     ⬢ Grepped 2 greps
+    >       Grepped "...rClientConfig|ZerodepDockerHttpClient" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Grepped "...HttpClient|CONTAINER_HOST|DOCKER_HOST" in .../docker/DockerDockerContainerValidatorImpl.java
+    >
+    >     Now let me read the full files that need modification and the Platform interface to understand how to wire this in.
+    >
+    >     ⬢ Read 2 files
+    >       Read ...ivoa/calycopis/functional/platfom/Platform.java
+    >       Read ...s/functional/platfom/docker/DockerPlatform.java
+    >
+    >     Now let me read the full DockerSimpleComputeResourceEntity and DockerDockerContainerEntity to see all the Docker client usage.
+    >
+    >     ⬢ Read 3 files
+    >       Read ...e/docker/DockerSimpleComputeResourceEntity.java
+    >       Read .../docker/docker/DockerDockerContainerEntity.java
+    >       Read .../docker/DockerDockerContainerValidatorImpl.java
+    >
+    >     Now I have the full picture. Let me also check the DockerPlatformImpl for context on how it wires things.
+    >
+    >     ⬢ Read ...nctional/platfom/docker/DockerPlatformImpl.java
+    >
+    >     ⬢ To-do Working on 8 to-dos
+    >       ☐ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☐ Create DockerClientFactoryImpl Spring component
+    >       ☐ Add DockerClientFactory to DockerPlatform interface
+    >       ☐ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☐ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☐ Update DockerDockerContainerEntity to use factory
+    >       ☐ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ctional/platfom/docker/DockerClientFactory.java +43                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (32 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 7 to-dos • 1 done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☐ Create DockerClientFactoryImpl Spring component
+    >       ☐ Add DockerClientFactory to DockerPlatform interface
+    >       ☐ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☐ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☐ Update DockerDockerContainerEntity to use factory
+    >       ☐ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nal/platfom/docker/DockerClientFactoryImpl.java +78                                                                                        │
+    >     │                                                                                                                                               │
+    >     │ + /*                                                                                                                                          │
+    >     │ +  * <meta:header>                                                                                                                            │
+    >     │ +  *   <meta:licence>                                                                                                                         │
+    >     │ +  *     Copyright (C) 2026 University of Manchester.                                                                                         │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is free software: you can redistribute it and/or modify                                                             │
+    >     │ +  *     it under the terms of the GNU General Public License as published by                                                                 │
+    >     │ +  *     the Free Software Foundation, either version 3 of the License, or                                                                    │
+    >     │ +  *     (at your option) any later version.                                                                                                  │
+    >     │ +  *                                                                                                                                          │
+    >     │ +  *     This information is distributed in the hope that it will be useful,                                                                  │
+    >     │ +  *     but WITHOUT ANY WARRANTY; without even the implied warranty of                                                                       │
+    >     │  … truncated (67 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add getDockerClientFactory() to the DockerPlatform interface and wire it in DockerPlatformImpl.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...s/functional/platfom/docker/DockerPlatform.java +8                                                                                         │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     │ +  * Docker platform interface, extending the base Platform                                                                                   │
+    >     │ +  * with Docker-specific services.                                                                                                           │
+    >     │    *                                                                                                                                          │
+    >     │    */                                                                                                                                         │
+    >     │  ...                                                                                                                                          │
+    >     │       {                                                                                                                                       │
+    >     │                                                                                                                                               │
+    >     │ +     /**                                                                                                                                     │
+    >     │ +      * Get the DockerClientFactory for this platform.                                                                                       │
+    >     │ +      *                                                                                                                                      │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now update DockerPlatformImpl to implement DockerPlatform (not just Platform) and wire the factory.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java -1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;                                                           │
+    >     │   import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;                                                                               │
+    >     │ - import net.ivoa.calycopis.functional.platfom.Platform;                                                                                      │
+    >     │                                                                                                                                               │
+    >     │   import org.springframework.jdbc.core.JdbcTemplate;                                                                                          │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │   public class DockerPlatformImpl                                                                                                             │
+    >     │   extends FactoryBaseImpl                                                                                                                     │
+    >     │ - implements Platform                                                                                                                         │
+    >     │ + implements DockerPlatform                                                                                                                   │
+    >     │       {                                                                                                                                       │
+    >     │                                                                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the DockerClientFactory field and getter. I'll put it near the top with the other infrastructure fields.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +10                                                                                        │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ + // Docker client                                                                                                                            │
+    >     │ +                                                                                                                                             │
+    >     │ +     @Autowired                                                                                                                              │
+    >     │ +     private DockerClientFactory dockerClientFactory;                                                                                        │
+    >     │ +     @Override                                                                                                                               │
+    >     │ +     public DockerClientFactory getDockerClientFactory()                                                                                     │
+    >     │ +         {                                                                                                                                   │
+    >     │ +         return this.dockerClientFactory;                                                                                                    │
+    >     │ +         }                                                                                                                                   │
+    >     │ +                                                                                                                                             │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now pass the factory to the validator and update it to accept it. The validator is created manually in initialize(), so I need to pass the
+    >     factory in the constructor.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...nctional/platfom/docker/DockerPlatformImpl.java +2 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │           this.executableValidatorFactory.addValidator(                                                                                       │
+    >     │               new DockerDockerContainerValidatorImpl(                                                                                         │
+    >     │ -                 this.dockerContainerEntityFactory                                                                                           │
+    >     │ +                 this.dockerContainerEntityFactory,                                                                                          │
+    >     │ +                 this.dockerClientFactory                                                                                                    │
+    >     │                   )                                                                                                                           │
+    >     │               );                                                                                                                              │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 4 to-dos • 4 done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☒ Create DockerClientFactoryImpl Spring component
+    >       ☒ Add DockerClientFactory to DockerPlatform interface
+    >       ☒ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☐ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☐ Update DockerDockerContainerEntity to use factory
+    >       ☐ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     Now update DockerDockerContainerValidatorImpl to accept and use the factory instead of the static buildDockerClient() method.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +1 -5                                                                                      │
+    >     │                                                                                                                                               │
+    >     │   import com.github.dockerjava.api.command.InspectImageResponse;                                                                              │
+    >     │   import com.github.dockerjava.api.exception.NotFoundException;                                                                               │
+    >     │ - import com.github.dockerjava.core.DefaultDockerClientConfig;                                                                                │
+    >     │ - import com.github.dockerjava.core.DockerClientConfig;                                                                                       │
+    >     │ - import com.github.dockerjava.core.DockerClientImpl;                                                                                         │
+    >     │ - import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;                                                                               │
+    >     │ - import com.github.dockerjava.transport.DockerHttpClient;                                                                                    │
+    >     │                                                                                                                                               │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │  ...                                                                                                                                          │
+    >     │   import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;                                                         │
+    >     │   import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;                                                                  │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now update the constructor and replace the static method usage.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +7 -2                                                                                      │
+    >     │                                                                                                                                               │
+    >     │       {                                                                                                                                       │
+    >     │                                                                                                                                               │
+    >     │ -     public DockerDockerContainerValidatorImpl(final DockerContainerEntityFactory entityFactory)                                             │
+    >     │ -         {                                                                                                                                   │
+    >     │ +     private final DockerClientFactory dockerClientFactory;                                                                                  │
+    >     │ +                                                                                                                                             │
+    >     │ +     public DockerDockerContainerValidatorImpl(                                                                                              │
+    >     │ +         final DockerContainerEntityFactory entityFactory,                                                                                   │
+    >     │ +         final DockerClientFactory dockerClientFactory                                                                                       │
+    >     │ +         ){                                                                                                                                  │
+    >     │           super(entityFactory);                                                                                                               │
+    >     │ +         this.dockerClientFactory = dockerClientFactory;                                                                                     │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now replace the buildDockerClient() call in checkImageCache and remove the static method.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │           try {                                                                                                                               │
+    >     │ -             DockerClient dockerClient = buildDockerClient();                                                                                │
+    >     │ +             DockerClient dockerClient = this.dockerClientFactory.getDockerClient();                                                         │
+    >     │               if (dockerClient == null)                                                                                                       │
+    >     │                   {                                                                                                                           │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now remove the static buildDockerClient() method from the bottom of the file.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/DockerDockerContainerValidatorImpl.java -26                                                                                        │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ -     /**                                                                                                                                     │
+    >     │ -      * Build a DockerClient from the CONTAINER_HOST / DOCKER_HOST environment.                                                              │
+    >     │ -      */                                                                                                                                     │
+    >     │ -     static DockerClient buildDockerClient()                                                                                                 │
+    >     │ -         {                                                                                                                                   │
+    >     │ -         String containerHost = System.getenv("CONTAINER_HOST");                                                                             │
+    >     │ -         if (containerHost == null || containerHost.isEmpty())                                                                               │
+    >     │ -             {                                                                                                                               │
+    >     │ -             containerHost = System.getProperty("CONTAINER_HOST");                                                                           │
+    >     │ -             }                                                                                                                               │
+    >     │  … truncated (17 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 3 to-dos • 5 done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☒ Create DockerClientFactoryImpl Spring component
+    >       ☒ Add DockerClientFactory to DockerPlatform interface
+    >       ☒ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☒ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☐ Update DockerDockerContainerEntity to use factory
+    >       ☐ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     Now update DockerDockerContainerEntity. The entity's getPrepareAction() previously called
+    >     DockerDockerContainerValidatorImpl.buildDockerClient() directly. Since entities aren't Spring-managed beans, the factory needs to be passed
+    >     in. The ProcessingAction runs outside a transaction, so I need to eagerly capture a reference to the factory inside getPrepareAction().
+    >     The challenge is: how does the entity get the DockerClientFactory? Looking at the pattern, the getPrepareAction() is called from a
+    >     PrepareComponentRequestEntity which has access to the Platform. Let me check how getPrepareAction is called.
+    >
+    >     ⬢ Read ...ng/component/PrepareComponentRequestEntity.java
+    >
+    >     Let me check how the compute resource entity factory works, since I need to understand how entities get loaded.
+    >
+    >     ⬢ Read 2 files
+    >       Read ...r/DockerSimpleComputeResourceEntityFactory.java
+    >       Read ...ckerSimpleComputeResourceEntityFactoryImpl.java
+    >
+    >     Good. Both factories have create() and select() methods. I'll add a transient DockerClientFactory field to each entity and have the factories
+    >      inject it. Let me implement this.
+    >     First, update DockerDockerContainerEntity to use a transient factory field.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +2                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import jakarta.persistence.InheritanceType;                                                                                                 │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │ + import jakarta.persistence.Transient;                                                                                                       │
+    >     │   import lombok.extern.slf4j.Slf4j;                                                                                                           │
+    >     │   import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;                                                                     │
+    >     │  ...                                                                                                                                          │
+    >     │   import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;                                                                │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │ + import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │   import net.ivoa.calycopis.functional.processing.ProcessingAction;                                                                           │
+    >     │   import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;                                                       │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the transient field and setter after the constructors.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +7                                                                                         │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ +     @Transient                                                                                                                              │
+    >     │ +     private DockerClientFactory dockerClientFactory;                                                                                        │
+    >     │ +     public void setDockerClientFactory(final DockerClientFactory dockerClientFactory)                                                       │
+    >     │ +         {                                                                                                                                   │
+    >     │ +         this.dockerClientFactory = dockerClientFactory;                                                                                     │
+    >     │ +         }                                                                                                                                   │
+    >     │ +                                                                                                                                             │
+    >     │       @Column(name="imagedownloadmillis")                                                                                                     │
+    >     │       private Long imageDownloadMillis;                                                                                                       │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now replace the DockerDockerContainerValidatorImpl.buildDockerClient() call in getPrepareAction().
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │                   try {                                                                                                                       │
+    >     │ -                     DockerClient dockerClient = DockerDockerContainerValidatorImpl.buildDockerClient();                                     │
+    >     │ +                     DockerClient dockerClient = dockerClientFactory.getDockerClient();                                                      │
+    >     │                       if (dockerClient == null)                                                                                               │
+    >     │                           {                                                                                                                   │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Wait - the dockerClientFactory reference is captured from the entity inside getPrepareAction(), so it needs to be eagerly captured into a
+    >     final local just like the other fields. Let me fix this properly.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │           final UUID entityUuid = this.getUuid();                                                                                             │
+    >     │           final String entityClassName = this.getClass().getSimpleName();                                                                     │
+    >     │ +         final DockerClientFactory clientFactory = this.dockerClientFactory;                                                                 │
+    >     │                                                                                                                                               │
+    >     │           final net.ivoa.calycopis.datamodel.executable.docker.DockerContainer.DockerImage dockerImage = this.getImage();                     │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../docker/docker/DockerDockerContainerEntity.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │                   try {                                                                                                                       │
+    >     │ -                     DockerClient dockerClient = dockerClientFactory.getDockerClient();                                                      │
+    >     │ +                     DockerClient dockerClient = clientFactory.getDockerClient();                                                            │
+    >     │                       if (dockerClient == null)                                                                                               │
+    >     │                           {                                                                                                                   │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now update DockerDockerContainerEntityFactoryImpl to inject and set the factory on entities.
+    >
+    >     ⬢ Read ...ker/DockerDockerContainerEntityFactoryImpl.java
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ker/DockerDockerContainerEntityFactoryImpl.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactoryImpl;                                                     │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │ + import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ker/DockerDockerContainerEntityFactoryImpl.java +17 -4                                                                                     │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │       private final DockerDockerContainerEntityRepository repository;                                                                         │
+    >     │ +     private final DockerClientFactory dockerClientFactory;                                                                                  │
+    >     │                                                                                                                                               │
+    >     │       @Autowired                                                                                                                              │
+    >     │       public DockerDockerContainerEntityFactoryImpl(                                                                                          │
+    >     │ -         final DockerDockerContainerEntityRepository repository                                                                              │
+    >     │ +         final DockerDockerContainerEntityRepository repository,                                                                             │
+    >     │ +         final DockerClientFactory dockerClientFactory                                                                                       │
+    >     │           ){                                                                                                                                  │
+    >     │           super();                                                                                                                            │
+    >     │           this.repository = repository;                                                                                                       │
+    >     │  … truncated (29 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 2 to-dos • 6 done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☒ Create DockerClientFactoryImpl Spring component
+    >       ☒ Add DockerClientFactory to DockerPlatform interface
+    >       ☒ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☒ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☒ Update DockerDockerContainerEntity to use factory
+    >       ☐ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     Now update DockerSimpleComputeResourceEntity the same way - add a transient field, update getPrepareAction() and getMonitorAction(), and
+    >     update the factory.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +1 -5                                                                                      │
+    >     │                                                                                                                                               │
+    >     │   import com.github.dockerjava.api.command.PullImageResultCallback;                                                                           │
+    >     │   import com.github.dockerjava.api.model.HostConfig;                                                                                          │
+    >     │ - import com.github.dockerjava.core.DefaultDockerClientConfig;                                                                                │
+    >     │ - import com.github.dockerjava.core.DockerClientConfig;                                                                                       │
+    >     │ - import com.github.dockerjava.core.DockerClientImpl;                                                                                         │
+    >     │ - import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;                                                                               │
+    >     │ - import com.github.dockerjava.transport.DockerHttpClient;                                                                                    │
+    >     │                                                                                                                                               │
+    >     │   import jakarta.persistence.Column;                                                                                                          │
+    >     │  ...                                                                                                                                          │
+    >     │   import jakarta.persistence.Entity;                                                                                                          │
+    >     │   import jakarta.persistence.Table;                                                                                                           │
+    >     │  … truncated (3 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the import for DockerClientFactory and the transient field.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │   import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;                                                                  │
+    >     │ + import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │   import net.ivoa.calycopis.functional.processing.ProcessingAction;                                                                           │
+    >     │   import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;                                                       │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now add the transient field after the dockerContainerId field.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +7                                                                                         │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ +     @Transient                                                                                                                              │
+    >     │ +     private DockerClientFactory dockerClientFactory;                                                                                        │
+    >     │ +     public void setDockerClientFactory(final DockerClientFactory dockerClientFactory)                                                       │
+    >     │ +         {                                                                                                                                   │
+    >     │ +         this.dockerClientFactory = dockerClientFactory;                                                                                     │
+    >     │ +         }                                                                                                                                   │
+    >     │ +                                                                                                                                             │
+    >     │       @Column(name="dockercontainerid")                                                                                                       │
+    >     │       private String dockerContainerId;                                                                                                       │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now replace the inline Docker client construction in getPrepareAction() with the factory. I need to eagerly capture it and replace the big
+    >     inline block.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │           final Long maxCores = this.getMaxOfferedCores();                                                                                    │
+    >     │           final Long maxMemory = this.getMaxOfferedMemory();                                                                                  │
+    >     │ +         final DockerClientFactory clientFactory = this.dockerClientFactory;                                                                 │
+    >     │                                                                                                                                               │
+    >     │           final AbstractExecutableEntity executable = this.session.getExecutable();                                                           │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now replace the inline Docker client construction block in process().
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +3 -22                                                                                     │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │                   try {                                                                                                                       │
+    >     │ -                     //                                                                                                                      │
+    >     │ -                     // Connect to the Docker/Podman service using the CONTAINER_HOST environment variable                                   │
+    >     │ -                     // or system property, falling back to DOCKER_HOST.                                                                     │
+    >     │ -                     String containerHost = System.getenv("CONTAINER_HOST");                                                                 │
+    >     │ -                     if (containerHost == null || containerHost.isEmpty())                                                                   │
+    >     │ +                     DockerClient dockerClient = clientFactory.getDockerClient();                                                            │
+    >     │ +                     if (dockerClient == null)                                                                                               │
+    >     │                           {                                                                                                                   │
+    >     │ -                         containerHost = System.getProperty("CONTAINER_HOST");                                                               │
+    >     │ -                         }                                                                                                                   │
+    >     │  … truncated (24 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now remove the static buildDockerClient() method and update getMonitorAction() to use the factory.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +1 -27                                                                                     │
+    >     │                                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     │ -     /**                                                                                                                                     │
+    >     │ -      * Build a DockerClient from the CONTAINER_HOST / DOCKER_HOST environment.                                                              │
+    >     │ -      */                                                                                                                                     │
+    >     │ -     private static DockerClient buildDockerClient()                                                                                         │
+    >     │ -         {                                                                                                                                   │
+    >     │ -         String containerHost = System.getenv("CONTAINER_HOST");                                                                             │
+    >     │ -         if (containerHost == null || containerHost.isEmpty())                                                                               │
+    >     │ -             {                                                                                                                               │
+    >     │ -             containerHost = System.getProperty("CONTAINER_HOST");                                                                           │
+    >     │ -             }                                                                                                                               │
+    >     │  … truncated (25 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now update the getMonitorAction() body to use clientFactory instead of buildDockerClient().
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +1 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                       );                                                                                                                      │
+    >     │                   try {                                                                                                                       │
+    >     │ -                     DockerClient dockerClient = buildDockerClient();                                                                        │
+    >     │ +                     DockerClient dockerClient = clientFactory.getDockerClient();                                                            │
+    >     │                       if (dockerClient == null)                                                                                               │
+    >     │                           {                                                                                                                   │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now update DockerSimpleComputeResourceEntityFactoryImpl to inject and set the factory.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ckerSimpleComputeResourceEntityFactoryImpl.java +1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │   import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;                                                                  │
+    >     │ + import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ckerSimpleComputeResourceEntityFactoryImpl.java +20 -5                                                                                     │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │       private final DockerSimpleComputeResourceEntityRepository repository;                                                                   │
+    >     │ +     private final DockerClientFactory dockerClientFactory;                                                                                  │
+    >     │                                                                                                                                               │
+    >     │       @Autowired                                                                                                                              │
+    >     │ -     public DockerSimpleComputeResourceEntityFactoryImpl(final DockerSimpleComputeResourceEntityRepository repository)                       │
+    >     │ -         {                                                                                                                                   │
+    >     │ +     public DockerSimpleComputeResourceEntityFactoryImpl(                                                                                    │
+    >     │ +         final DockerSimpleComputeResourceEntityRepository repository,                                                                       │
+    >     │ +         final DockerClientFactory dockerClientFactory                                                                                       │
+    >     │ +         ){                                                                                                                                  │
+    >     │           super();                                                                                                                            │
+    >     │  … truncated (36 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Now let me also fix the ternary operator I noticed in DockerSimpleComputeResourceEntity.getPrepareAction() while I was reading it.
+    >
+    >     ⬢ Grepped 2 greps
+    >       Grepped "\?"" in ...e/docker/DockerSimpleComputeResourceEntity.java
+    >       Grepped "\? " in ...e/docker/DockerSimpleComputeResourceEntity.java
+    >
+    >     Let me fix both.
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +9 -1                                                                                      │
+    >     │                                                                                                                                               │
+    >     │                   if (!(executable instanceof DockerContainerEntity))                                                                         │
+    >     │                       {                                                                                                                       │
+    >     │ +                     String executableType;                                                                                                  │
+    >     │ +                     if (executable != null)                                                                                                 │
+    >     │ +                         {                                                                                                                   │
+    >     │ +                         executableType = executable.getClass().getSimpleName();                                                             │
+    >     │ +                         }                                                                                                                   │
+    >     │ +                     else {                                                                                                                  │
+    >     │ +                         executableType = "null";                                                                                            │
+    >     │ +                         }                                                                                                                   │
+    >     │                       log.error(                                                                                                              │
+    >     │                           "Session executable is not a DockerContainerEntity [{}]",                                                           │
+    >     │  … truncated (4 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...e/docker/DockerSimpleComputeResourceEntity.java +7 -3                                                                                      │
+    >     │                                                                                                                                               │
+    >     │               public IvoaLifecyclePhase getNextPhase()                                                                                        │
+    >     │                   {                                                                                                                           │
+    >     │ -                 return this.processSucceeded                                                                                                │
+    >     │ -                     ? IvoaLifecyclePhase.AVAILABLE                                                                                          │
+    >     │ -                     : IvoaLifecyclePhase.FAILED;                                                                                            │
+    >     │ +                 if (this.processSucceeded)                                                                                                  │
+    >     │ +                     {                                                                                                                       │
+    >     │ +                     return IvoaLifecyclePhase.AVAILABLE;                                                                                    │
+    >     │ +                     }                                                                                                                       │
+    >     │ +                 else {                                                                                                                      │
+    >     │ +                     return IvoaLifecyclePhase.FAILED;                                                                                       │
+    >     │ +                     }                                                                                                                       │
+    >     │  … truncated (2 more lines) · ctrl+r to review                                                                                                │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     ⬢ To-do Working on 1 to-do • 7 done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☒ Create DockerClientFactoryImpl Spring component
+    >       ☒ Add DockerClientFactory to DockerPlatform interface
+    >       ☒ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☒ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☒ Update DockerDockerContainerEntity to use factory
+    >       ☒ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☐ Compile and verify
+    >
+    >     Now let's compile and verify.
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw compile -pl . 2>&1 | tail -30 14s
+    >       WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >
+    >     Build successful. Let me also run the tests.
+    >
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw test -pl . 2>&1 | tail -15 5.8s
+    >       [INFO] Nothing to compile - all classes are up to date.
+    >       [INFO]
+    >       … truncated (14 more lines) · ctrl+o to expand
+    >
+    >     Let me also verify there are no remaining buildDockerClient references or direct DefaultDockerClientConfig usage outside the factory.
+    >
+    >     ⬢ Grepped "...pClient|DockerClientImpl\.getInstance" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Found 1 matches
+    >
+    >     All Docker client construction is now consolidated in the single DockerClientFactoryImpl class.
+    >
+    >     ⬢ To-do All done
+    >       ☒ Create DockerClientFactory interface in functional.platfom.docker
+    >       ☒ Create DockerClientFactoryImpl Spring component
+    >       ☒ Add DockerClientFactory to DockerPlatform interface
+    >       ☒ Wire DockerClientFactory into DockerPlatformImpl
+    >       ☒ Update DockerDockerContainerValidatorImpl to use factory
+    >       ☒ Update DockerDockerContainerEntity to use factory
+    >       ☒ Update DockerSimpleComputeResourceEntity to use factory
+    >       ☒ Compile and verify
+    >
+    >     Everything compiles and tests pass. Here's a summary of the changes:
+    >     New files:
+    >     • `DockerClientFactory` (functional.platfom.docker) - Interface with a single getDockerClient() method that returns a configured DockerClient
+    >        or null if the host is not configured.
+    >     • `DockerClientFactoryImpl` (functional.platfom.docker) - Spring @Component (@Profile("docker")) implementation that resolves the Docker host
+    >        from CONTAINER_HOST (env/system property) then DOCKER_HOST (env), and builds the client using ZerodepDockerHttpClient. This is the only
+    >       place in the codebase that references DefaultDockerClientConfig, ZerodepDockerHttpClient, or DockerClientImpl.getInstance.
+    >
+    >     Modified files:
+    >     • `DockerPlatform` - Added getDockerClientFactory() method to the interface.
+    >     • `DockerPlatformImpl` - Added @Autowired DockerClientFactory field, getter, and passes it to DockerDockerContainerValidatorImpl's
+    >       constructor.
+    >     • `DockerDockerContainerValidatorImpl` - Constructor now takes DockerClientFactory; uses this.dockerClientFactory.getDockerClient() instead
+    >       of the removed static buildDockerClient() method.
+    >     • `DockerDockerContainerEntity` - Added @Transient DockerClientFactory field with setter; getPrepareAction() captures the factory reference
+    >       and uses it in the ProcessingAction.
+    >     • `DockerDockerContainerEntityFactoryImpl` - Constructor now takes DockerClientFactory via @Autowired; sets it on entities via an
+    >       initEntity() helper called from both create() and select().
+    >     • `DockerSimpleComputeResourceEntity` - Same transient field pattern; both getPrepareAction() and getMonitorAction() use the factory. Also
+    >       fixed 2 ternary operators.
+    >     • `DockerSimpleComputeResourceEntityFactoryImpl` - Same @Autowired + initEntity() pattern.
+
+    ?   Using a @Transient property and initEntity() helper is a fragile pattern because initEntity() might not be called if the Entity is loaded via a reference from another Entity.
+    ?   I have refactored the code to remove the @Transient DockerClientFactory property and initEntity() method and added a Platform parameter to LifecycleComponent.getPrepareAction(), getMonitorAction(), getReleaseAction() etc.
+    ?   Then added an instanceof check in the DockerSimpleComputeResourceEntity and DockerDockerContainerEntity implementations to check that the Platform is a DockerPlatform.
+    ?   ```
+    ?   if (platform instanceof DockerPlatform)
+    ?       {
+    ?       clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+    ?       }
+    ?   ```
+    ?   Hopefully this pattern is less fragile than relying on a transient DockerClientFactory property.
+    ?   It will also give us a pattern for handling different types of platforms in the future.
+
+    >     That's a much cleaner approach - passing the Platform through the method signature guarantees the factory is always available regardless of
+    >     how the entity was loaded, and the instanceof DockerPlatform check gives a natural extension point for future platform types. Good
+    >     refactoring.
+
+    ?   Can you suggest something we could add to the AGENTS.md file to say that if solving a user request requires something
+    ?   as fragile as a @Transient property and initEntity() helper, you should pause and ask the user for confirmation
+    ?   before implementing the solution.
+
+    >     Good idea. Let me find the right place in the AGENTS.md to add this.
+    >
+    >     ⬢ Read calycopis/Calycopis-broker/github-zrq/AGENTS.md lines 235-264
+    >
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ calycopis/Calycopis-broker/github-zrq/AGENTS.md +7                                                                                            │
+    >     │                                                                                                                                               │
+    >     │    * The implementation is based on the [Spring Boot](https://spring.io/projects/spring-boot) framework.                                      │
+    >     │    * Where possible generic [Java Persistence API](https://en.wikipedia.org/wiki/Jakarta_Persistence) (JPA) annotations should be used rather │
+    >     │   than Spring framework specific ones, to make it easier to port the project to a different framework in the future.                          │
+    >     │ +  * Avoid fragile patterns. If your proposed solution requires workarounds such as `@Transient` fields                                       │
+    >     │ +    with `initEntity()` helpers, static singletons, `ApplicationContextAware` lookups, or any other                                          │
+    >     │ +    mechanism that bypasses the normal dependency injection and entity lifecycle, **stop and ask the user                                    │
+    >     │ +    for confirmation before implementing it**. These patterns are fragile because they rely on specific                                      │
+    >     │ +    call paths and break when entities are loaded indirectly (e.g. via a Hibernate reference from another                                    │
+    >     │ +    entity). There is usually a cleaner alternative, such as passing the required dependency through a                                       │
+    >     │ +    method parameter.                                                                                                                        │
+    >     │    * The code style should favour clarity over brevity.                                                                                       │
+    >     │    * Do NOT use the `?:` ternary conditional operator. Always use an expanded `if/else` block instead.                                        │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >
+    >     Added a new coding convention that instructs agents to stop and ask the user before implementing fragile patterns like @Transient fields with
+    >      initEntity() helpers, static singletons, or ApplicationContextAware lookups, noting that there is usually a cleaner alternative such as
+    >     passing the dependency through a method parameter.
+
+
+    ?   Can you rebuild everything, restart the service and then run all the Python tests to check everything still works as expected.
+
+    >     ⬢ To-do Working on 3 to-dos
+    >       ☐ Build the Java project
+    >       ☐ Stop any existing service and restart
+    >       ☐ Run all Python tests
+    >   
+    >     Let me first check for any running service, then build and restart.
+    >   
+    >     $ ls /root/.cursor/projects/terminals/ 447ms
+    >       121531.txt
+    >       128468.txt
+    >       … truncated (22 more lines) · ctrl+o to expand
+    >   
+    >     $ head -n 10 /root/.cursor/projects/terminals/*.txt 2>/dev/null | grep -E '(==>|last_command|pid:)' | head -40 206ms
+    >       ==> /root/.cursor/projects/terminals/121531.txt <==
+    >       pid: 15004
+    >       … truncated (39 more lines) · ctrl+o to expand
+    >   
+    >     $ ps aux | grep -E 'spring-boot|mvnw|java.*calycopis' | grep -v grep 286ms
+    >       root       19987  0.0  0.0   4820  2120 ?        S    Mar01   0:00 /usr/bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s
+    >       extglob && builtin eval -- "$snap" && { builtin set +u 2>/dev/null || true; builtin eval "${__CURSOR_SANDBOX_ENV_RESTORE:-}" 2>/dev/null;
+    >       builtin export PWD="$(builtin pwd)"; builtin shopt -s expand_aliases 2>/dev/null; alias sudo='sudo -A'; builtin eval "$1" < /dev/null; };
+    >       COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- cd /calycopis/Calycopis-broker/github-zrq/java &&
+    >       SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker.log 2>&1 & echo "Broker PID: $!"
+    >       root       19988  0.1  1.8 7080408 286412 ?      Sl   Mar01   2:28 /usr/lib/jvm/java-24-openjdk/bin/java -classpath
+    >       /root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/boot/plexus-classworlds-2.8.​0.jar
+    >       -Dclassworlds.conf=/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/bin/m2.co​nf
+    >       -Dmaven.home=/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1
+    >       -Dlibrary.jansi.path=/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jan​si-native
+    >       -Dmaven.multiModuleProjectDirectory=/calycopis/Calycopis-broker/github-zrq/java org.codehaus.plexus.classworlds.launcher.Launcher
+    >       spring-boot:run
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     There's an existing broker running. Let me stop it, rebuild, and restart.
+    >   
+    >     $ kill 20170 19988 2>/dev/null; sleep 2; ps aux | grep 'java.*calycopis' | grep -v grep | wc -l exit 1 • 2.2s
+    >       0
+    >   
+    >     Good, the old service is stopped. Now build and restart.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile 2>&1 | tail -20 exit 1 • 13s
+    >       [INFO] 1 error
+    >       [INFO] -------------------------------------------------------------
+    >       … truncated (19 more lines) · ctrl+o to expand
+    >   
+    >     The user mentioned they refactored to remove the @Transient and initEntity() patterns, but the factory still has the old code. Let me check
+    >     the current state of the entity and factory files to see what the user changed and what still needs cleaning up.
+    >   
+    >     ⬢ Grepped "...erClientFactory|initEntity|@Transient" in .../Calycopis-broker/github-zrq/java/src/main/java
+    >       Found 1 matches
+    >   
+    >     So the user already removed the @Transient fields and setDockerClientFactory methods from the entities, but the factory still has the old
+    >     initEntity() code. Let me check both factory files.
+    >   
+    >     ⬢ Read 2 files
+    >       Read ...ker/DockerDockerContainerEntityFactoryImpl.java
+    >       Read ...ckerSimpleComputeResourceEntityFactoryImpl.java
+    >   
+    >     The user already cleaned up DockerSimpleComputeResourceEntityFactoryImpl but DockerDockerContainerEntityFactoryImpl still has the old
+    >     initEntity and DockerClientFactory code. Let me clean it up.
+    >   
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ker/DockerDockerContainerEntityFactoryImpl.java -1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactoryImpl;                                                     │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │ - import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ker/DockerDockerContainerEntityFactoryImpl.java +4 -17                                                                                     │
+    >     │                                                                                                                                               │
+    >     │                                                                                                                                               │
+    >     │       private final DockerDockerContainerEntityRepository repository;                                                                         │
+    >     │ -     private final DockerClientFactory dockerClientFactory;                                                                                  │
+    >     │                                                                                                                                               │
+    >     │       @Autowired                                                                                                                              │
+    >     │       public DockerDockerContainerEntityFactoryImpl(                                                                                          │
+    >     │ -         final DockerDockerContainerEntityRepository repository,                                                                             │
+    >     │ -         final DockerClientFactory dockerClientFactory                                                                                       │
+    >     │ +         final DockerDockerContainerEntityRepository repository                                                                              │
+    >     │           ){                                                                                                                                  │
+    >     │           super();                                                                                                                            │
+    >     │           this.repository = repository;                                                                                                       │
+    >     │  … truncated (29 more lines) · ctrl+r to review                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me also check the compute factory still has no leftover DockerClientFactory import.
+    >   
+    >     ⬢ Grepped "DockerClientFactory" in ...ckerSimpleComputeResourceEntityFactoryImpl.java
+    >       Found 1 matches
+    >   
+    >     There's a stale import. Let me remove it.
+    >   
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...ckerSimpleComputeResourceEntityFactoryImpl.java -1                                                                                         │
+    >     │                                                                                                                                               │
+    >     │   import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;                                                            │
+    >     │   import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;                                                                  │
+    >     │ - import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;                                                                    │
+    >     │                                                                                                                                               │
+    >     │   /**                                                                                                                                         │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Now let me rebuild.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile 2>&1 | tail -20 14s
+    >       [WARNING] net.ivoa.calycopis:calycopis-spring:1.0.3-SNAPSHOT/maven-metadata.xml failed to transfer from https://maven.pkg.github.com/ivoa/*
+    >       during a previous attempt. This failure was cached in the local repository and resolution will not be reattempted until the update interval
+    >       of github-ivoa has elapsed or updates are forced. Original error: Could not transfer metadata
+    >       net.ivoa.calycopis:calycopis-spring:1.0.3-SNAPSHOT/maven-metadata.xml from/to github-ivoa (https://maven.pkg.github.com/ivoa/*): status code:
+    >        401, reason phrase: Unauthorized (401)
+    >       [INFO]
+    >       … truncated (19 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ To-do Working on 2 to-dos • 1 done
+    >       ☒ Build the Java project
+    >       ☐ Stop any existing service and restart
+    >       ☐ Run all Python tests
+    >   
+    >     Build successful. Now start the service in the background.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker.log 2>&1 & echo "Broker
+    >       PID: $!" 5.1s (background)
+    >   
+    >     $ sleep 30 && grep -c 'Started AmbleckApplication' /tmp/broker.log 30s
+    >       1
+    >   
+    >     Service is up. Now let me run the Python tests.
+    >   
+    >     ⬢ To-do Working on 1 to-do • 2 done
+    >       ☒ Build the Java project
+    >       ☒ Stop any existing service and restart
+    >       ☐ Run all Python tests
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/tests/python && python -m pytest test_docker_platform.py -v 2>&1 10m in
+    >       calycopis/Calycopis-broker/github-zrq/java
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python
+    >       … truncated (14 more lines) · ctrl+o to expand
+    >   
+    >     The test timed out at the 10-minute mark but most tests have already passed. Let me check the current output to see how far it got.
+    >   
+    >     $ tail -30 /root/.cursor/projects/terminals/398765.txt 765ms
+    >       ---
+    >       pid: 24736
+    >       … truncated (21 more lines) · ctrl+o to expand
+    >   
+    >     The test_short_and_long_containers test is still running (it's test 10/14 and involves waiting for container completion). Let me wait for it
+    >     to finish.
+    >   
+    >     $ sleep 120 && tail -30 /root/.cursor/projects/terminals/398765.txt 2m
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reache​s_available PASSED [ 57%]
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_comple​tes_with_timed_container PASSED [ 64%]
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >   
+    >     All 14 tests passed.
+    >   
+    >     ⬢ To-do All done
+    >       ☒ Build the Java project
+    >       ☒ Stop any existing service and restart
+    >       ☒ Run all Python tests
+    >   
+    >     All 14 tests passed in 11 minutes 13 seconds:
+    >     • 5 offer tests (basic, compute, limits, image, UUID)
+    >     • 4 session lifecycle tests (accept, preparing, available, timed completion)
+    >     • 1 multi-container test (short and long)
+    >     • 2 cancellation tests
+    >     • 2 multiple-offer tests
+    >   
+    >     I also cleaned up two leftover artifacts from the @Transient/initEntity() pattern that your refactoring had already removed from the
+    >     entities: the initEntity() method and DockerClientFactory dependency in DockerDockerContainerEntityFactoryImpl, and a stale
+    >     DockerClientFactory import in DockerSimpleComputeResourceEntityFactoryImpl.
+

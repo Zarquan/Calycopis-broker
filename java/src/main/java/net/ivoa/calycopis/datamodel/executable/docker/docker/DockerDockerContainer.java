@@ -21,29 +21,23 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.docker;
+package net.ivoa.calycopis.datamodel.executable.docker.docker;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 
 /**
- * Docker platform interface, extending the base Platform
- * with Docker-specific services.
+ * Docker platform specific DockerContainer interface.
  * 
  */
-public interface DockerPlatform extends Platform
+public interface DockerDockerContainer
+extends DockerContainer
     {
 
     /**
-     * Get the DockerClientFactory for this platform.
-     *
+     * Get the time it took to download the container image (in milliseconds).
+     * Returns null if the image was already cached locally.
+     * 
      */
-    public DockerClientFactory getDockerClientFactory();
+    public Long getImageDownloadMillis();
 
-    /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
-     */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();    
-    
     }

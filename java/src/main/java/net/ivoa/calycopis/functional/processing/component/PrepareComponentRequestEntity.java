@@ -122,6 +122,7 @@ implements ComponentProcessingRequest
                         );
                     // Start the prepare action.
                     return component.getPrepareAction(
+                        platform,
                         this
                         );            
                     }
@@ -129,6 +130,7 @@ implements ComponentProcessingRequest
             case PREPARING:
                 // Continue the prepare action.
                 return component.getPrepareAction(
+                    platform,
                     this
                     );
 
@@ -261,6 +263,10 @@ implements ComponentProcessingRequest
                             // Schedule an update for our session.
                             platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
                                 component.getSession()
+                                );
+                            // Schedule a monitor request for this component.
+                            platform.getComponentProcessingRequestFactory().createMonitorComponentRequest(
+                                component
                                 );
                             // Done.
                             this.done(platform);

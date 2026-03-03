@@ -235,13 +235,38 @@ To add an entirely new resource type (e.g. `gpu`):
 
  * The implementation is based on the [Spring Boot](https://spring.io/projects/spring-boot) framework.
  * Where possible generic [Java Persistence API](https://en.wikipedia.org/wiki/Jakarta_Persistence) (JPA) annotations should be used rather than Spring framework specific ones, to make it easier to port the project to a different framework in the future.
+ * Avoid fragile patterns. If your proposed solution requires workarounds such as `@Transient` fields
+   with `initEntity()` helpers, static singletons, `ApplicationContextAware` lookups, or any other
+   mechanism that bypasses the normal dependency injection and entity lifecycle, **stop and ask the user
+   for confirmation before implementing it**. These patterns are fragile because they rely on specific
+   call paths and break when entities are loaded indirectly (e.g. via a Hibernate reference from another
+   entity). There is usually a cleaner alternative, such as passing the required dependency through a
+   method parameter.
  * The code style should favour clarity over brevity.
+ * Do NOT use the `?:` ternary conditional operator. Always use an expanded `if/else` block instead.
 
-    This works
+    For example, this:
+    ```
+    imageName = (locations != null && !locations.isEmpty())
+        ? locations.get(0)
+        : null;
+    ```
+    should be written as:
+    ```
+    if (locations != null && !locations.isEmpty())
+        {
+        imageName = locations.get(0);
+        }
+    else {
+        imageName = null;
+        }
+    ```
+
+    Similarly, this:
     ```
     x=y>27?y-27:y;
     ```
-    but this is clearer and more maintainable:
+    should be written as:
     ```
     if (y > 27)
         {
@@ -251,6 +276,7 @@ To add an entirely new resource type (e.g. `gpu`):
         x = y ;
         }
     ```
+* An exeception to this rule is that `?:` ternary conditional operators are allowed when passing values to logging messages.
 
 ## Development platform
 

@@ -39,6 +39,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
@@ -172,7 +173,7 @@ implements AbstractDataResource
 
     // Generic prepare action - move to the real Entities later.
     @Override
-    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return new ProcessingAction()
             {

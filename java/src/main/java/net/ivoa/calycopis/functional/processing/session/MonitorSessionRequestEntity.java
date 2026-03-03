@@ -28,12 +28,16 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
- * 
+ * A session-level processing request that checks whether all components
+ * have completed (or failed) and transitions the session phase accordingly.
  */
 @Slf4j
 @Entity
@@ -64,18 +68,113 @@ implements SessionProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug("pre-processing session [{}]", session.getUuid());
-        //
-        // Action needed to monitor session.
-        return ProcessingAction.NO_ACTION ;
+        log.debug(
+            "Pre-processing monitor for session [{}][{}] with phase [{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName(),
+            this.session.getPhase()
+            );
+
+        switch(this.session.getPhase())
+            {
+            case IvoaSimpleExecutionSessionPhase.AVAILABLE:
+            case IvoaSimpleExecutionSessionPhase.RUNNING:
+                checkComponents(platform);
+                break;
+
+            case IvoaSimpleExecutionSessionPhase.COMPLETED:
+            case IvoaSimpleExecutionSessionPhase.FAILED:
+            case IvoaSimpleExecutionSessionPhase.CANCELLED:
+            case IvoaSimpleExecutionSessionPhase.RELEASING:
+                break;
+
+            default:
+                log.debug(
+                    "Session [{}] phase [{}] not relevant for monitoring",
+                    this.session.getUuid(),
+                    this.session.getPhase()
+                    );
+                break;
+            }
+        return ProcessingAction.NO_ACTION;
+        }
+
+    protected void checkComponents(final Platform platform)
+        {
+        boolean allCompleted = true;
+        boolean anyFailed = false;
+
+        allCompleted &= checkComponent(this.session.getExecutable());
+        anyFailed |= isComponentFailed(this.session.getExecutable());
+
+        allCompleted &= checkComponent(this.session.getComputeResource());
+        anyFailed |= isComponentFailed(this.session.getComputeResource());
+
+        if (anyFailed)
+            {
+            log.debug(
+                "One or more components FAILED for session [{}], setting session to FAILED",
+                this.session.getUuid()
+                );
+            this.session.setPhase(
+                IvoaSimpleExecutionSessionPhase.FAILED
+                );
+            }
+        else if (allCompleted)
+            {
+            log.debug(
+                "All components COMPLETED for session [{}], setting session to COMPLETED",
+                this.session.getUuid()
+                );
+            this.session.setPhase(
+                IvoaSimpleExecutionSessionPhase.COMPLETED
+                );
+            }
+        else {
+            log.debug(
+                "Components still running for session [{}], setting session to RUNNING",
+                this.session.getUuid()
+                );
+            this.session.setPhase(
+                IvoaSimpleExecutionSessionPhase.RUNNING
+                );
+            }
+        }
+
+    private boolean checkComponent(final LifecycleComponentEntity component)
+        {
+        if (component == null)
+            {
+            return true;
+            }
+        IvoaLifecyclePhase phase = component.getPhase();
+        log.debug(
+            "Monitor checking component [{}][{}] phase [{}]",
+            component.getUuid(),
+            component.getClass().getSimpleName(),
+            phase
+            );
+        return phase == IvoaLifecyclePhase.COMPLETED;
+        }
+
+    private boolean isComponentFailed(final LifecycleComponentEntity component)
+        {
+        if (component == null)
+            {
+            return false;
+            }
+        return component.getPhase() == IvoaLifecyclePhase.FAILED;
         }
 
     @Override
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
-        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
-        this.done(
-            platform
+        log.debug(
+            "Post-processing monitor for session [{}][{}] with phase [{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName(),
+            this.session.getPhase()
             );
+        this.done(platform);
         }
     }

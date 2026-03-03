@@ -29,6 +29,7 @@ import java.time.Instant;
 import org.threeten.extra.Interval;
 
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -135,24 +136,30 @@ extends Component
     * Return a ProcessingAction to prepare this Component.
     * 
     */
-   public ProcessingAction getPrepareAction(final ComponentProcessingRequest request);
+   public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request);
    
+   /**
+    * Return a ProcessingAction to monitor this Component.
+    * 
+    */
+   public ProcessingAction getMonitorAction(final Platform platform, final ComponentProcessingRequest request);
+
    /**
     * Return a ProcessingAction to release this Component.
     * 
     */
-   public ProcessingAction getReleaseAction(final ComponentProcessingRequest request);
+   public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request);
    
    /**
     * Return a ProcessingAction to cancel this Component.
     * 
     */
-   public ProcessingAction getCancelAction(final ComponentProcessingRequest request);
+   public ProcessingAction getCancelAction(final Platform platform, final ComponentProcessingRequest request);
 
    /**
     * Return a ProcessingAction to fail this Component.
     * 
     */
-   public ProcessingAction getFailAction(final ComponentProcessingRequest request);
+   public ProcessingAction getFailAction(final Platform platform, final ComponentProcessingRequest request);
    
     }

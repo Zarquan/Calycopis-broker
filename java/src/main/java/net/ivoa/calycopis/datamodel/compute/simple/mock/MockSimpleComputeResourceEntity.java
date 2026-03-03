@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -110,7 +111,7 @@ implements MockSimpleComputeResource
         }
 
     @Override
-    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return new ProcessingAction()
             {
