@@ -36,6 +36,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
@@ -391,25 +392,25 @@ implements LifecycleComponent
      */
     
     @Override
-    public ProcessingAction getMonitorAction(final ComponentProcessingRequest request)
+    public ProcessingAction getMonitorAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
         }
 
     @Override
-    public ProcessingAction getReleaseAction(final ComponentProcessingRequest request)
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
         }
     
     @Override
-    public ProcessingAction getCancelAction(final ComponentProcessingRequest request)
+    public ProcessingAction getCancelAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
         }
 
     @Override
-    public ProcessingAction getFailAction(final ComponentProcessingRequest request)
+    public ProcessingAction getFailAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
         }

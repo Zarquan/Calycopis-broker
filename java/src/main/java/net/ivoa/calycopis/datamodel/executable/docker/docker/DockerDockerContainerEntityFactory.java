@@ -21,29 +21,16 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.docker;
+package net.ivoa.calycopis.datamodel.executable.docker.docker;
 
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.functional.platfom.Platform;
 
 /**
- * Docker platform interface, extending the base Platform
- * with Docker-specific services.
+ * Factory for DockerDockerContainerEntity instances.
  * 
  */
-public interface DockerPlatform extends Platform
+public interface DockerDockerContainerEntityFactory
+extends DockerContainerEntityFactory
     {
 
-    /**
-     * Get the DockerClientFactory for this platform.
-     *
-     */
-    public DockerClientFactory getDockerClientFactory();
-
-    /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
-     */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();    
-    
     }

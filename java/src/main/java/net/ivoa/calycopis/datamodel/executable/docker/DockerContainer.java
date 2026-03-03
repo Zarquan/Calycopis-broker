@@ -21,7 +21,7 @@ public interface DockerContainer
      */
     public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0") ;
 
-    public DockerImage getImage();
+    public DockerContainerImage getImage();
     
     public boolean getPrivileged();
 
@@ -33,16 +33,16 @@ public interface DockerContainer
     
     public DockerNetwork getNetwork();    
     
-    public static interface DockerImage
+    public static interface DockerContainerImage
         {
         public String getDigest();
 
         public List<String> getLocations();
         
-        public DockerPlatform getPlatform();
+        public DockerImagePlatform getImagePlatform();
         }
 
-    public static interface DockerPlatform
+    public static interface DockerImagePlatform
         {
         public String getArchitecture();
     

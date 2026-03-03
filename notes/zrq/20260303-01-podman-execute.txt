@@ -1,0 +1,94 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Continue work on the DockerPlatform
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+
+
+    ?   The other components should not go directly from PREPARING to COMPLETED.
+    ?   They should all remain AVAILABLE while the session is executing.
+    ?   When the Docker compute resource finishes (because it completes, or because it is stopped)
+    ?   it should update its parent session to RELEASING which should schedule a ReleaseComponentRequest
+    ?   for all of the components which will guide each of the components through a RELEASING phase
+    ?   before end at COMPLETED.
+    ?   The default RELEASING phase a component can simply be a 10 second wait for now.
+    ?   Enough time for our tests to check that the components are going through a
+    ?   RELEASING phase before they end up as COMPLETED.
+
+
+
+    ?   Building on the pattern of PrepareComponentRequestEntity which calls getPrepareAction() on LifecycleComponent,
+    ?   can you create ReleaseComponentRequestEntity which calls getReleaseAction() on LifecycleComponent
+    ?   and add an implementation of getReleaseAction() to DockerSimpleComputeResourceEntity
+    ?   that returns a ProcessingAction that stops the container running in Docker and updates the phase
+    ?   of the execution session with the corresponding value, RUNNING, COMPLETED, or FAILED.
+
+    >   ....
+    >   ....
+
+    ?   Given that getAvailableDurationSeconds means that we know how long a LifecycleComponent should be available for,
+    ?   can you update the ProcessingAction created by MonitorComponentRequestEntity to schedule a ReleaseComponentRequestEntity
+    ?   request for the component when it reaches its available duration.
+
+    >   ....
+    >   ....
+
+
+    ?   Can you add new functionality to the DockerContainerEntity estimatePrepareTime() method to check to see if the requested container image
+    ?   is already available in the local Docker service.
+    ?   If the image is already available, and the checksum is correct, then adjust the estimated prepare time to take this into account.
+    ?   If the image is not already in the local Docker service, then adjust the estimated prepare time to take this into account
+    ?   using a fixed estimate for the time neede to download the container image to this platform.
+
+    >   ....
+    >   ....
+
+
+
+
+
+
+
+
+
+
+
+Extend pause container to add an optional error code. Use this to test transition to FAILED status.
+
+
+Curl container that returns JSON for HEAD and GET
+
+
+Based on what we have done in this session can you suggest any changes to the AGENTS.md file that would make implementing tasks like this easier in the future.
+

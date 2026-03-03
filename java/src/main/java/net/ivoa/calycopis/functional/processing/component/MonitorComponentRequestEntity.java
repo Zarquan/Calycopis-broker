@@ -101,6 +101,7 @@ implements ComponentProcessingRequest
             case AVAILABLE:
             case RUNNING:
                 return component.getMonitorAction(
+                    platform,
                     this
                     );
 

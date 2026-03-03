@@ -122,6 +122,7 @@ implements ComponentProcessingRequest
                         );
                     // Start the prepare action.
                     return component.getPrepareAction(
+                        platform,
                         this
                         );            
                     }
@@ -129,6 +130,7 @@ implements ComponentProcessingRequest
             case PREPARING:
                 // Continue the prepare action.
                 return component.getPrepareAction(
+                    platform,
                     this
                     );
 

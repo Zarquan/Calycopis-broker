@@ -21,7 +21,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.compute.simple.docker;
+package net.ivoa.calycopis.datamodel.executable.docker.docker;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,51 +30,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntityFactoryImpl;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
+import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
+import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactoryImpl;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
- * A DockerSimpleComputeResource Factory implementation.
+ * Factory implementation for DockerDockerContainerEntity.
  *
  */
 @Slf4j
 @Component
-public class DockerSimpleComputeResourceEntityFactoryImpl
-extends SimpleComputeResourceEntityFactoryImpl
-implements DockerSimpleComputeResourceEntityFactory
+public class DockerDockerContainerEntityFactoryImpl
+extends DockerContainerEntityFactoryImpl
+implements DockerDockerContainerEntityFactory
     {
 
-    private final DockerSimpleComputeResourceEntityRepository repository;
+    private final DockerDockerContainerEntityRepository repository;
 
     @Autowired
-    public DockerSimpleComputeResourceEntityFactoryImpl(
-        final DockerSimpleComputeResourceEntityRepository repository
+    public DockerDockerContainerEntityFactoryImpl(
+        final DockerDockerContainerEntityRepository repository
         ){
         super();
         this.repository = repository;
         }
 
     @Override
-    public Optional<AbstractComputeResourceEntity> select(UUID uuid)
+    public Optional<AbstractExecutableEntity> select(final UUID uuid)
         {
         return Optional.of(
-            repository.findById(uuid).get()
+            this.repository.findById(uuid).get()
             );
         }
 
     @Override
-    public DockerSimpleComputeResourceEntity create(
+    public DockerDockerContainerEntity create(
         final SimpleExecutionSessionEntity session,
-        final DockerSimpleComputeResourceValidator.Result result,
-        final ComputeResourceOffer offer
+        final AbstractExecutableValidator.Result result
         ){
-        DockerSimpleComputeResourceEntity entity = this.repository.save(
-            new DockerSimpleComputeResourceEntity(
+        DockerDockerContainerEntity entity = this.repository.save(
+            new DockerDockerContainerEntity(
                 session,
-                result,
-                offer
+                result
                 )
             );
         return entity;

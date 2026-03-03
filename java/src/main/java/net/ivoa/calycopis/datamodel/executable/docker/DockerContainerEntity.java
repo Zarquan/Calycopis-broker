@@ -148,7 +148,7 @@ public abstract class DockerContainerEntity
 
     @Embeddable
     public static class ImageImpl
-    implements DockerImage
+    implements DockerContainerImage
         {
 
         public ImageImpl()
@@ -202,9 +202,9 @@ public abstract class DockerContainerEntity
         private String platformArch;
         private String platformOs;
         @Override
-        public DockerPlatform getPlatform()
+        public DockerImagePlatform getImagePlatform()
             {
-            return new DockerPlatform()
+            return new DockerImagePlatform()
                 {
                 @Override
                 public String getArchitecture()
@@ -357,14 +357,14 @@ public abstract class DockerContainerEntity
                 this.image.getDigest()
                 );
 
-            if (this.image.getPlatform() != null)
+            if (this.image.getImagePlatform() != null)
                 {
                 IvoaDockerPlatformSpec ivoaPlatform = new IvoaDockerPlatformSpec();
                 ivoaPlatform.setArchitecture(
-                    this.image.getPlatform().getArchitecture()
+                    this.image.getImagePlatform().getArchitecture()
                     );
                 ivoaPlatform.setOs(
-                    this.image.getPlatform().getOs()
+                    this.image.getImagePlatform().getOs()
                     );
                 ivoaImage.setPlatform(
                     ivoaPlatform

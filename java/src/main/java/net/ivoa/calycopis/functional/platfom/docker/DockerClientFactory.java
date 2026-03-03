@@ -23,27 +23,22 @@
 
 package net.ivoa.calycopis.functional.platfom.docker;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.functional.platfom.Platform;
+import com.github.dockerjava.api.DockerClient;
 
 /**
- * Docker platform interface, extending the base Platform
- * with Docker-specific services.
+ * Factory interface for creating DockerClient instances
+ * configured for the local Docker/Podman service.
  * 
  */
-public interface DockerPlatform extends Platform
+public interface DockerClientFactory
     {
 
     /**
-     * Get the DockerClientFactory for this platform.
-     *
+     * Create a DockerClient configured to connect to the local
+     * Docker/Podman service.
+     * Returns null if the Docker host is not configured.
+     * 
      */
-    public DockerClientFactory getDockerClientFactory();
+    public DockerClient getDockerClient();
 
-    /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
-     */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();    
-    
     }

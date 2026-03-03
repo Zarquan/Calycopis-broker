@@ -41,7 +41,9 @@ Usage:
 """
 
 import os
+import re
 import time
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -154,6 +156,45 @@ def _assert_rejected(response: OfferSetResponse, msg: str = ""):
         f"Expected NO, got {response.result}. {msg} "
         f"Messages: {response.meta.messages if response.meta else 'none'}"
     )
+
+
+def _parse_iso8601_interval(interval_str: str):
+    """Parse an ISO 8601 interval string into (start_datetime, end_datetime).
+
+    Supports two forms:
+      - <datetime>/<duration>  e.g. '2026-03-01T19:50:00Z/PT35S'
+      - <duration>/<datetime>  e.g. 'PT35S/2026-03-01T19:50:00Z'
+
+    Returns:
+        Tuple of (start: datetime, end: datetime) in UTC.
+    """
+    left, right = interval_str.split("/", 1)
+
+    def _parse_dt(s):
+        s = s.replace("Z", "+00:00")
+        return datetime.fromisoformat(s)
+
+    def _parse_duration(s):
+        m = re.match(
+            r"^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$",
+            s,
+        )
+        if not m:
+            raise ValueError(f"Cannot parse ISO 8601 duration: {s}")
+        days = int(m.group(1) or 0)
+        hours = int(m.group(2) or 0)
+        minutes = int(m.group(3) or 0)
+        seconds = float(m.group(4) or 0)
+        return timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+
+    if left.startswith("P"):
+        dur = _parse_duration(left)
+        end = _parse_dt(right)
+        return (end - dur, end)
+    else:
+        start = _parse_dt(left)
+        dur = _parse_duration(right)
+        return (start, start + dur)
 
 
 # ===========================================================================
@@ -377,20 +418,31 @@ class TestDockerPlatformSessionLifecycle:
     def test_session_completes_with_timed_container(self, client):
         """
         Run the cantliei container for a known duration and verify that
-        the time from RUNNING to COMPLETED is consistent with the
-        requested pause, independent of scheduling delays.
+        the time from AVAILABLE/RUNNING to COMPLETED matches the
+        requested pause, using the broker's published schedule to
+        minimise unnecessary polling.
 
-        The test waits (with a generous timeout) for the session to
-        reach AVAILABLE or RUNNING -- which signals that the container
-        has actually started -- and only then begins the timing check.
+        The offer includes a compute-resource schedule with
+        ``preparing.start`` (when preparation begins) and
+        ``available.start`` (an ISO 8601 interval for when the session
+        should become AVAILABLE).  The test:
+
+        1. Sleeps until just before ``preparing.start`` and asserts
+           the session phase is still less than AVAILABLE (preparation
+           has not begun yet, so the container cannot be running).
+        2. Polls from that point, using the ``available.start``
+           interval to bound the timeout, and verifies the session
+           reaches AVAILABLE/RUNNING.
+        3. Times the AVAILABLE/RUNNING → COMPLETED transition and
+           checks it matches the requested container duration.
         """
         pause_seconds = 20
-        # Generous budget for broker scheduling / image pulls before
-        # the container starts.
-        scheduling_timeout = 600.0
         # Overhead on top of pause_seconds for monitor poll intervals,
         # container startup/teardown and session state propagation.
         completion_overhead = 60.0
+        # Safety margin: seconds before preparing.start to perform
+        # the pre-AVAILABLE check.
+        pre_check_margin = 5.0
 
         request = OfferSetRequest(
             executable=_make_cantliei_executable(
@@ -404,12 +456,72 @@ class TestDockerPlatformSessionLifecycle:
         offer = response.offers[0]
         session_uuid = offer.meta.uuid
 
+        # ---- extract schedule from the offer ----
+        compute_schedule = offer.compute.schedule
+        assert compute_schedule is not None, (
+            "Offer compute resource should include a schedule"
+        )
+        assert compute_schedule.preparing is not None, (
+            "Compute schedule should include a preparing entry"
+        )
+        assert compute_schedule.available is not None, (
+            "Compute schedule should include an available interval"
+        )
+        assert compute_schedule.available.start is not None, (
+            "Compute schedule available should include a start interval"
+        )
+
+        prepare_start_str = compute_schedule.preparing.start
+        assert prepare_start_str is not None, (
+            "Compute schedule preparing should include a start time"
+        )
+        prepare_start = datetime.fromisoformat(
+            prepare_start_str.replace("Z", "+00:00")
+        )
+
+        avail_start, avail_end = _parse_iso8601_interval(
+            compute_schedule.available.start
+        )
+        # If the interval has zero duration, give a small window for
+        # the phase transition to propagate.
+        if avail_end <= avail_start:
+            avail_end = avail_start + timedelta(seconds=60)
+
+        # ---- accept the session ----
         client.set_session_phase(
             session_uuid,
             SimpleExecutionSessionPhase.ACCEPTED,
         )
 
-        # Phase 1 -- wait for the container to actually start.
+        # ---- Phase 1: sleep until just before preparation begins ----
+        now = datetime.now(timezone.utc)
+        check_time = prepare_start - timedelta(seconds=pre_check_margin)
+        if check_time > now:
+            time.sleep((check_time - now).total_seconds())
+
+        # Preparation has not started, so the session must still be
+        # before AVAILABLE.
+        session = client.get_session(session_uuid)
+        pre_phase = session.phase
+        assert pre_phase not in (
+            SimpleExecutionSessionPhase.AVAILABLE,
+            SimpleExecutionSessionPhase.RUNNING,
+            SimpleExecutionSessionPhase.COMPLETED,
+        ), (
+            f"Session should still be before AVAILABLE at "
+            f"{pre_check_margin}s before preparing.start "
+            f"({prepare_start_str}), got {pre_phase}"
+        )
+
+        # ---- Phase 2: poll until AVAILABLE/RUNNING ----
+        # Timeout: from now until the end of the available window
+        # plus overhead for image pulls and scheduling jitter.
+        phase2_timeout = (
+            (avail_end - datetime.now(timezone.utc)).total_seconds()
+            + completion_overhead
+        )
+        phase2_timeout = max(phase2_timeout, 60.0)
+
         session = client.wait_for_phase(
             session_uuid,
             target_phases=[
@@ -418,7 +530,7 @@ class TestDockerPlatformSessionLifecycle:
                 SimpleExecutionSessionPhase.COMPLETED,
                 SimpleExecutionSessionPhase.FAILED,
             ],
-            timeout=scheduling_timeout,
+            timeout=phase2_timeout,
             interval=5.0,
         )
         assert session.phase in (
@@ -426,10 +538,11 @@ class TestDockerPlatformSessionLifecycle:
             SimpleExecutionSessionPhase.RUNNING,
             SimpleExecutionSessionPhase.COMPLETED,
         ), (
-            f"Session should reach AVAILABLE/RUNNING, got {session.phase}"
+            f"Session should reach AVAILABLE/RUNNING within the "
+            f"scheduled window, got {session.phase}"
         )
 
-        # Phase 2 -- the container is running; start the clock.
+        # ---- Phase 3: time the AVAILABLE/RUNNING → COMPLETED step ----
         running_time = time.monotonic()
 
         session = client.wait_for_phase(

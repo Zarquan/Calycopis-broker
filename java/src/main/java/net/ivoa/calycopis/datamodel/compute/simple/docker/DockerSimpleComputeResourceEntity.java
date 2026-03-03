@@ -33,11 +33,6 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.PullImageResultCallback;
 import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.core.DefaultDockerClientConfig;
-import com.github.dockerjava.core.DockerClientConfig;
-import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
-import com.github.dockerjava.transport.DockerHttpClient;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
@@ -52,6 +47,9 @@ import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
+import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -126,7 +124,7 @@ implements DockerSimpleComputeResource
         }
 
     @Override
-    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
         // Eagerly resolve all data from the Hibernate session while still inside the transaction.
         final UUID resourceUuid = this.getUuid();
@@ -142,7 +140,8 @@ implements DockerSimpleComputeResource
         if (executable instanceof DockerContainerEntity)
             {
             DockerContainerEntity dockerExecutable = (DockerContainerEntity) executable;
-            DockerContainer.DockerImage image = dockerExecutable.getImage();
+            DockerContainer.DockerContainerImage image = dockerExecutable.getImage();
+            // TODO We should iterate the list rather than just taking the first one.
             if (image != null && image.getLocations() != null && !image.getLocations().isEmpty())
                 {
                 imageName = image.getLocations().get(0);
@@ -150,6 +149,8 @@ implements DockerSimpleComputeResource
             else
                 {
                 imageName = null;
+                // TODO fail the prepare step
+                return ProcessingAction.NO_ACTION;
                 }
             Map<String, String> environment = dockerExecutable.getEnvironment();
             if (environment != null)
@@ -168,8 +169,25 @@ implements DockerSimpleComputeResource
         else
             {
             imageName = null;
+            // TODO fail the prepare step
+            return ProcessingAction.NO_ACTION;
             }
 
+        final DockerClientFactory clientFactory ;
+        if (platform instanceof DockerPlatform)
+            {
+            clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+            }
+        else {
+            clientFactory = null;
+            log.error(
+                "Unexpected platform type [{}] expected [DockerPlatform]",
+                platform.getClass().getSimpleName()
+                );
+            // TODO fail the prepare step
+            return ProcessingAction.NO_ACTION;
+            }
+        
         return new ProcessingAction()
             {
 
@@ -187,9 +205,17 @@ implements DockerSimpleComputeResource
 
                 if (!(executable instanceof DockerContainerEntity))
                     {
+                    String executableType;
+                    if (executable != null)
+                        {
+                        executableType = executable.getClass().getSimpleName();
+                        }
+                    else {
+                        executableType = "null";
+                        }
                     log.error(
                         "Session executable is not a DockerContainerEntity [{}]",
-                        (executable != null) ? executable.getClass().getSimpleName() : "null"
+                        executableType
                         );
                     this.processSucceeded = false;
                     return false;
@@ -206,34 +232,15 @@ implements DockerSimpleComputeResource
                     }
 
                 try {
-                    //
-                    // Connect to the Docker/Podman service using the CONTAINER_HOST environment variable
-                    // or system property, falling back to DOCKER_HOST.
-                    String containerHost = System.getenv("CONTAINER_HOST");
-                    if (containerHost == null || containerHost.isEmpty())
-                        {
-                        containerHost = System.getProperty("CONTAINER_HOST");
-                        }
-                    if (containerHost == null || containerHost.isEmpty())
-                        {
-                        containerHost = System.getenv("DOCKER_HOST");
-                        }
-                    if (containerHost == null || containerHost.isEmpty())
+                    DockerClient dockerClient = clientFactory.getDockerClient();
+                    if (dockerClient == null)
                         {
                         log.error(
                             "CONTAINER_HOST / DOCKER_HOST environment variable is not set"
                             );
+                        this.processSucceeded = false;
                         return false;
                         }
-                    log.debug("Using container host [{}]", containerHost);
-
-                    DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                        .withDockerHost(containerHost)
-                        .build();
-                    DockerHttpClient httpClient = new ZerodepDockerHttpClient.Builder()
-                        .dockerHost(config.getDockerHost())
-                        .build();
-                    DockerClient dockerClient = DockerClientImpl.getInstance(config, httpClient);
 
                     //
                     // Pull the Docker image.
@@ -247,6 +254,7 @@ implements DockerSimpleComputeResource
 
                     //
                     // Configure host resource limits based on offered cores and memory.
+                    // TODO also check the minCores and MinMemory.
                     HostConfig hostConfig = HostConfig.newHostConfig();
                     if (maxCores != null)
                         {
@@ -312,9 +320,13 @@ implements DockerSimpleComputeResource
             @Override
             public IvoaLifecyclePhase getNextPhase()
                 {
-                return this.processSucceeded
-                    ? IvoaLifecyclePhase.AVAILABLE
-                    : IvoaLifecyclePhase.FAILED;
+                if (this.processSucceeded)
+                    {
+                    return IvoaLifecyclePhase.AVAILABLE;
+                    }
+                else {
+                    return IvoaLifecyclePhase.FAILED;
+                    }
                 }
             
             @Override
@@ -356,35 +368,8 @@ implements DockerSimpleComputeResource
             };
         }
 
-    /**
-     * Build a DockerClient from the CONTAINER_HOST / DOCKER_HOST environment.
-     */
-    private static DockerClient buildDockerClient()
-        {
-        String containerHost = System.getenv("CONTAINER_HOST");
-        if (containerHost == null || containerHost.isEmpty())
-            {
-            containerHost = System.getProperty("CONTAINER_HOST");
-            }
-        if (containerHost == null || containerHost.isEmpty())
-            {
-            containerHost = System.getenv("DOCKER_HOST");
-            }
-        if (containerHost == null || containerHost.isEmpty())
-            {
-            return null;
-            }
-        DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-            .withDockerHost(containerHost)
-            .build();
-        DockerHttpClient httpClient = new ZerodepDockerHttpClient.Builder()
-            .dockerHost(config.getDockerHost())
-            .build();
-        return DockerClientImpl.getInstance(config, httpClient);
-        }
-
     @Override
-    public ProcessingAction getMonitorAction(final ComponentProcessingRequest request)
+    public ProcessingAction getMonitorAction(final Platform platform, final ComponentProcessingRequest request)
         {
         final UUID resourceUuid = this.getUuid();
         final String resourceClassName = this.getClass().getSimpleName();
@@ -397,9 +382,25 @@ implements DockerSimpleComputeResource
                 resourceUuid,
                 resourceClassName
                 );
+            // TODO fail the prepare step
             return ProcessingAction.NO_ACTION;
             }
 
+        final DockerClientFactory clientFactory ;
+        if (platform instanceof DockerPlatform)
+            {
+            clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+            }
+        else {
+            clientFactory = null;
+            log.error(
+                "Unexpected platform type [{}] expected [DockerPlatform]",
+                platform.getClass().getSimpleName()
+                );
+            // TODO fail the prepare step
+            return ProcessingAction.NO_ACTION;
+            }
+        
         return new ProcessingAction()
             {
             private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.RUNNING;
@@ -414,7 +415,7 @@ implements DockerSimpleComputeResource
                     resourceClassName
                     );
                 try {
-                    DockerClient dockerClient = buildDockerClient();
+                    DockerClient dockerClient = clientFactory.getDockerClient();
                     if (dockerClient == null)
                         {
                         log.error(

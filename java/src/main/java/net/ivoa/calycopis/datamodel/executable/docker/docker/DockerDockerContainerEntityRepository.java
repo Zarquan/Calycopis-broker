@@ -21,29 +21,20 @@
  *
  */
 
-package net.ivoa.calycopis.functional.platfom.docker;
+package net.ivoa.calycopis.datamodel.executable.docker.docker;
 
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.functional.platfom.Platform;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 /**
- * Docker platform interface, extending the base Platform
- * with Docker-specific services.
- * 
+ * JpaRepository for DockerDockerContainerEntity.
+ *
  */
-public interface DockerPlatform extends Platform
+@Repository
+public interface DockerDockerContainerEntityRepository
+    extends JpaRepository<DockerDockerContainerEntity, UUID>
     {
 
-    /**
-     * Get the DockerClientFactory for this platform.
-     *
-     */
-    public DockerClientFactory getDockerClientFactory();
-
-    /**
-     * Get the DockerContainerEntityFactory for this platform.
-     *
-     */
-    public DockerContainerEntityFactory getDockerContainerEntityFactory();    
-    
     }
