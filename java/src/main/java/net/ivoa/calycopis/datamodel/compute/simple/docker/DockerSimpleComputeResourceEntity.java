@@ -123,6 +123,13 @@ implements DockerSimpleComputeResource
         return this.dockerContainerId;
         }
 
+    @Column(name="dockercontainerexitcode")
+    private Integer dockerContainerExitCode;
+    public Integer getDockerContainerExitCode()
+        {
+        return this.dockerContainerExitCode;
+        }
+
     @Override
     public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
@@ -248,6 +255,8 @@ implements DockerSimpleComputeResource
                         "Pulling Docker image [{}]",
                         imageName
                         );
+                    // TODO The image should already have been pulled into the local cache by the DockerDockerContainerEntity prepare phase.
+                    // TODO We should check that the image has already been cached and issue a warning if it hasn't.
                     dockerClient.pullImageCmd(imageName)
                         .exec(new PullImageResultCallback())
                         .awaitCompletion();
@@ -404,6 +413,7 @@ implements DockerSimpleComputeResource
         return new ProcessingAction()
             {
             private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.RUNNING;
+            private Integer exitCode;
 
             @Override
             public boolean process()
@@ -441,16 +451,16 @@ implements DockerSimpleComputeResource
                         this.nextPhase = IvoaLifecyclePhase.RUNNING;
                         }
                     else {
-                        Integer exitCode = state.getExitCode();
-                        if (exitCode != null && exitCode == 0)
+                        this.exitCode = state.getExitCode();
+                        if (this.exitCode != null && this.exitCode == 0)
                             {
-                            this.nextPhase = IvoaLifecyclePhase.COMPLETED;
+                            this.nextPhase = IvoaLifecyclePhase.RELEASING;
                             }
                         else {
-                            log.error(
+                            log.warn(
                                 "Container [{}] exited with non-zero code [{}]",
                                 containerId,
-                                exitCode
+                                this.exitCode
                                 );
                             this.nextPhase = IvoaLifecyclePhase.FAILED;
                             }
@@ -486,11 +496,16 @@ implements DockerSimpleComputeResource
             public boolean postProcess(final LifecycleComponentEntity component)
                 {
                 log.debug(
-                    "Monitor post-processing [{}][{}] next phase [{}]",
+                    "Monitor post-processing [{}][{}] next phase [{}] exit code [{}]",
                     component.getUuid(),
                     component.getClass().getSimpleName(),
-                    this.nextPhase
+                    this.nextPhase,
+                    this.exitCode
                     );
+                if (component instanceof DockerSimpleComputeResourceEntity)
+                    {
+                    ((DockerSimpleComputeResourceEntity) component).dockerContainerExitCode = this.exitCode;
+                    }
                 return true;
                 }
             };

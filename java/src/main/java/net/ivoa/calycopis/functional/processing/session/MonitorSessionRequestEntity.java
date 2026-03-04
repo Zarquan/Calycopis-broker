@@ -79,13 +79,13 @@ implements SessionProcessingRequest
             {
             case IvoaSimpleExecutionSessionPhase.AVAILABLE:
             case IvoaSimpleExecutionSessionPhase.RUNNING:
+            case IvoaSimpleExecutionSessionPhase.RELEASING:
                 checkComponents(platform);
                 break;
 
             case IvoaSimpleExecutionSessionPhase.COMPLETED:
             case IvoaSimpleExecutionSessionPhase.FAILED:
             case IvoaSimpleExecutionSessionPhase.CANCELLED:
-            case IvoaSimpleExecutionSessionPhase.RELEASING:
                 break;
 
             default:
@@ -128,6 +128,13 @@ implements SessionProcessingRequest
                 );
             this.session.setPhase(
                 IvoaSimpleExecutionSessionPhase.COMPLETED
+                );
+            }
+        else if (this.session.getPhase() == IvoaSimpleExecutionSessionPhase.RELEASING)
+            {
+            log.debug(
+                "Components still releasing for session [{}], keeping session in RELEASING",
+                this.session.getUuid()
                 );
             }
         else {
