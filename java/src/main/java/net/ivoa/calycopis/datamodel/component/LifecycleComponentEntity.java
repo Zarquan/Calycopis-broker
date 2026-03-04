@@ -25,6 +25,7 @@ package net.ivoa.calycopis.datamodel.component;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 import org.threeten.extra.Interval;
 
@@ -397,10 +398,65 @@ implements LifecycleComponent
         return ProcessingAction.NO_ACTION;
         }
 
+    public static final long DEFAULT_RELEASE_DELAY_SECONDS = 20;
+
     @Override
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return ProcessingAction.NO_ACTION;
+        final UUID componentUuid = this.getUuid();
+        final String componentClassName = this.getClass().getSimpleName();
+
+        return new ProcessingAction()
+            {
+            @Override
+            public boolean process()
+                {
+                log.debug(
+                    "Releasing component [{}][{}], waiting [{}] seconds",
+                    componentUuid,
+                    componentClassName,
+                    DEFAULT_RELEASE_DELAY_SECONDS
+                    );
+                try {
+                    Thread.sleep(
+                        DEFAULT_RELEASE_DELAY_SECONDS * 1000L
+                        );
+                    }
+                catch (InterruptedException e)
+                    {
+                    Thread.currentThread().interrupt();
+                    log.warn(
+                        "Release delay interrupted for component [{}][{}]",
+                        componentUuid,
+                        componentClassName
+                        );
+                    }
+                return true;
+                }
+
+            @Override
+            public UUID getRequestUuid()
+                {
+                return request.getUuid();
+                }
+
+            @Override
+            public IvoaLifecyclePhase getNextPhase()
+                {
+                return IvoaLifecyclePhase.COMPLETED;
+                }
+
+            @Override
+            public boolean postProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Release post-processing [{}][{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                return true;
+                }
+            };
         }
     
     @Override

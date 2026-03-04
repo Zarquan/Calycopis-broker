@@ -182,6 +182,16 @@ implements ComponentProcessingRequest
                             this.done(platform);
                             break;
 
+                        case RELEASING:
+                            component.setPhase(
+                                IvoaLifecyclePhase.RELEASING
+                                );
+                            platform.getSessionProcessingRequestFactory().createReleaseSessionRequest(
+                                component.getSession()
+                                );
+                            this.done(platform);
+                            break;
+
                         case FAILED:
                             this.fail(platform, component);
                             break;

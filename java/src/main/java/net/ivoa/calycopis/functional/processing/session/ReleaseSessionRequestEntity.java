@@ -28,12 +28,18 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
- * 
+ * A session-level processing request that schedules release requests
+ * for all active components in the session.
  */
 @Slf4j
 @Entity
@@ -64,16 +70,100 @@ implements SessionProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug("pre-processing session [{}]", session.getUuid());
-        //
-        // Action required to release the session.
-        return ProcessingAction.NO_ACTION ;
+        log.debug(
+            "Pre-processing release for session [{}][{}] with phase [{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName(),
+            this.session.getPhase()
+            );
+
+        this.session.setPhase(
+            IvoaSimpleExecutionSessionPhase.RELEASING
+            );
+
+        scheduleReleaseIfActive(
+            platform,
+            this.session.getExecutable()
+            );
+
+        scheduleReleaseIfActive(
+            platform,
+            this.session.getComputeResource()
+            );
+
+        for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
+            {
+            scheduleReleaseIfActive(
+                platform,
+                storageResource
+                );
+            }
+
+        for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
+            {
+            scheduleReleaseIfActive(
+                platform,
+                dataResource
+                );
+            }
+
+        return ProcessingAction.NO_ACTION;
+        }
+
+    protected void scheduleReleaseIfActive(final Platform platform, final LifecycleComponentEntity component)
+        {
+        if (component == null)
+            {
+            return;
+            }
+        IvoaLifecyclePhase phase = component.getPhase();
+        switch (phase)
+            {
+            case AVAILABLE:
+            case RUNNING:
+            case RELEASING:
+                log.debug(
+                    "Scheduling release request for component [{}][{}] in phase [{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+                    component
+                    );
+                break;
+
+            case COMPLETED:
+            case FAILED:
+            case CANCELLED:
+                log.debug(
+                    "Component [{}][{}] already in terminal phase [{}], skipping release",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                break;
+
+            default:
+                log.debug(
+                    "Component [{}][{}] in phase [{}], skipping release",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                break;
+            }
         }
 
     @Override
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
-        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        log.debug(
+            "Post-processing release for session [{}][{}] with phase [{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName(),
+            this.session.getPhase()
+            );
         this.done(
             platform
             );

@@ -233,6 +233,11 @@ To add an entirely new resource type (e.g. `gpu`):
 
 ## Coding conventions
 
+ * Detailed rules for handling file headers are defined in the `agents/` directory:
+   * [`agents/licence-header.mdc`](agents/licence-header.mdc) — GPL licence header that must be added to all new source files.
+   * [`agents/copyright-year.mdc`](agents/copyright-year.mdc) — Copyright year in the licence header must be updated to the current year when a file is modified.
+   * [`agents/ai-metrics.mdc`](agents/ai-metrics.mdc) — AIMetrics block must be added or updated in file headers for all created or modified files.
+
  * The implementation is based on the [Spring Boot](https://spring.io/projects/spring-boot) framework.
  * Where possible generic [Java Persistence API](https://en.wikipedia.org/wiki/Jakarta_Persistence) (JPA) annotations should be used rather than Spring framework specific ones, to make it easier to port the project to a different framework in the future.
  * Avoid fragile patterns. If your proposed solution requires workarounds such as `@Transient` fields
