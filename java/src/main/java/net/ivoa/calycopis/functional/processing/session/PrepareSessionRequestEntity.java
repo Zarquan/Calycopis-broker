@@ -31,13 +31,11 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -72,7 +70,11 @@ implements SessionProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug("pre-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        log.debug(
+            "Pre-processing [PREPARE] for session [{}][{}]",
+            this.session.getUuid(),
+            this.session.getPhase()
+            );
 
         switch (this.session.getPhase())
             {
@@ -81,8 +83,9 @@ implements SessionProcessingRequest
             case IvoaSimpleExecutionSessionPhase.REJECTED:
             case IvoaSimpleExecutionSessionPhase.EXPIRED:
                 log.error(
-                    "[${}] shouldn't get called if phase is stll [${}]",
-                    this.getClass().getSimpleName(),
+                    "[PREPARE] shouldn't be called for [{}][{}] because phase is stll [{}]",
+                    this.session.getUuid(),
+                    this.session.getPhase(),
                     session.getPhase()
                     );
                 return failSession(
@@ -96,11 +99,10 @@ implements SessionProcessingRequest
                     platform
                     );
             //
-            // Check if we are done.
+            // Phase is already PREPARING, no further Action required.
             case IvoaSimpleExecutionSessionPhase.PREPARING:
-                return finishPreparing(
-                    platform
-                    );
+                return ProcessingAction.NO_ACTION ;
+
             //
             // Phase is past PREPARING, no further Action required.
             case IvoaSimpleExecutionSessionPhase.AVAILABLE:
@@ -112,7 +114,12 @@ implements SessionProcessingRequest
                 return ProcessingAction.NO_ACTION ;
             
             default:
-                log.error("Unexpected phase [{}] for session [{}][{}]", this.session.getPhase(), this.session.getUuid(), this.session.getClass().getSimpleName());
+                log.error(
+                    "Unexpected phase [{}] for session [{}][{}]",
+                    this.session.getPhase(),
+                    this.session.getUuid(),
+                    this.session.getClass().getSimpleName()
+                    );
                 return ProcessingAction.NO_ACTION ;
             }
         }
@@ -120,21 +127,13 @@ implements SessionProcessingRequest
     protected ProcessingAction beginPreparing(final Platform platform)
         {
         log.debug(
-            "Begin preparing Session [{}][{}] with phase [{}]",
+            "Begin preparing session [{}][{}]",
             this.session.getUuid(),
-            this.session.getClass().getSimpleName(),
-            this.session.getPhase()
+            this.session.getClass().getSimpleName()
             );
         // If we don't need to start preparing yet.
         if (session.getPrepareStartInstant() != null)
             {
-            log.debug(
-                "Session [{}][{}] prepare start time is set to [{}]",
-                this.session.getUuid(),
-                this.session.getClass().getSimpleName(),
-                this.session.getPrepareStartInstant()
-                );
-    
             if (session.getPrepareStartInstant().isAfter(Instant.now()))
                 {
                 log.debug(
@@ -143,6 +142,7 @@ implements SessionProcessingRequest
                     this.session.getClass().getSimpleName(),
                     this.session.getPrepareStartInstant()
                     );
+                //
                 // Set the session phase to WAITING.
                 this.session.setPhase(
                     IvoaSimpleExecutionSessionPhase.WAITING
@@ -155,7 +155,7 @@ implements SessionProcessingRequest
         //
         // Set the session phase to PREPARING and prepare the session components.
         log.debug(
-            "Setting session [{}][{}] phase to PREPARING and scheduling prepare requests for the components",
+            "Setting session [{}][{}] phase to [PREPARING]",
             this.session.getUuid(),
             this.session.getClass().getSimpleName()
             );
@@ -164,9 +164,7 @@ implements SessionProcessingRequest
             );
 
         log.debug(
-            "Scheduling prepare request for session [{}][{}] executable [{}][{}]",
-            this.session.getUuid(),
-            this.session.getClass().getSimpleName(),
+            "Scheduling [PREPARE] request for executable [{}][{}]",
             this.session.getExecutable().getUuid(),
             this.session.getExecutable().getClass().getSimpleName()
             );
@@ -175,9 +173,7 @@ implements SessionProcessingRequest
             );
 
         log.debug(
-            "Scheduling prepare request for session [{}][{}] compute resource [{}][{}]",
-            this.session.getUuid(),
-            this.session.getClass().getSimpleName(),
+            "Scheduling [PREPARE] request for compute resource [{}][{}]",
             this.session.getComputeResource().getUuid(),
             this.session.getComputeResource().getClass().getSimpleName()
             );
@@ -188,9 +184,7 @@ implements SessionProcessingRequest
         for(AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
             {
             log.debug(
-                "Scheduling prepare request for session [{}][{}] storage resource [{}][{}]",
-                this.session.getUuid(),
-                this.session.getClass().getSimpleName(),
+                "Scheduling [PREPARE] request for storage resource [{}][{}]",
                 storageResource.getUuid(),
                 storageResource.getClass().getSimpleName()
                 );
@@ -202,9 +196,7 @@ implements SessionProcessingRequest
         for(AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
             log.debug(
-                "Scheduling prepare request for session [{}][{}] data resource [{}][{}]",
-                this.session.getUuid(),
-                this.session.getClass().getSimpleName(),
+                "Scheduling [PREPARE] request for data resource [{}][{}]",
                 dataResource.getUuid(),
                 dataResource.getClass().getSimpleName()
                 );
@@ -217,128 +209,17 @@ implements SessionProcessingRequest
         return ProcessingAction.NO_ACTION;
         }
 
-    protected ProcessingAction finishPreparing(final Platform platform)
-        {
-        log.debug(
-            "Finish preparing Session [{}][{}] with phase [{}]",
-            this.session.getUuid(),
-            this.session.getClass().getSimpleName(),
-            this.session.getPhase()
-            );
-        //
-        // Check if all the components are ready.
-        boolean ready = true ;
-        
-        ready &= checkComponent(
-            platform,
-            this.session.getExecutable()
-            );
-
-        ready &= checkComponent(
-            platform,
-            this.session.getComputeResource()
-            );
-        
-        for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
-            {
-            ready &= checkComponent(
-                platform,
-                storageResource
-                );
-            }
-
-        for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
-            {
-            ready &= checkComponent(
-                platform,
-                dataResource
-                );
-            }
-
-        //
-        // If the phase is still PREPARING.
-        if (this.session.getPhase() == IvoaSimpleExecutionSessionPhase.PREPARING)
-            {
-            // 
-            // If all the components are ready, set the session phase to AVAILABLE.
-            if (ready)
-                {
-                log.debug(
-                    "All the session components are ready, setting phase to [AVAILABLE]"
-                    );
-                this.session.setPhase( 
-                    IvoaSimpleExecutionSessionPhase.AVAILABLE
-                    );
-                }
-            else {
-                log.debug(
-                    "Some components are not [AVAILABLE] yet, leaving phase as [PREPARING]"
-                    );
-                }
-            return ProcessingAction.NO_ACTION ;
-            }
-        else {
-            log.debug(
-                "Session [{}][{}] phase is no longer PREPARING [{}], done finishing prepare",
-                this.session.getUuid(),
-                this.session.getClass().getSimpleName(),
-                this.session.getPhase()
-                );
-            return ProcessingAction.NO_ACTION ;
-            }
-        }
-    
-    protected boolean checkComponent(final Platform platform, final LifecycleComponentEntity component)
-        {
-        log.debug(
-            "Checking component [{}][{}] phase [{}]",
-            component.getUuid(),
-            component.getClass().getSimpleName(),
-            component.getPhase()
-            );
-        switch(component.getPhase())
-            {
-            //
-            // If the component isn't ready yet.
-            case IvoaLifecyclePhase.INITIALIZING:
-            case IvoaLifecyclePhase.WAITING:
-            case IvoaLifecyclePhase.PREPARING:
-                return false ;
-
-            //
-            // If the component is ready.
-            case IvoaLifecyclePhase.AVAILABLE:
-            case IvoaLifecyclePhase.RUNNING:
-            case IvoaLifecyclePhase.COMPLETED:
-                return true ;
-
-            //
-            // Anything else is an error.
-            case IvoaLifecyclePhase.RELEASING:
-            case IvoaLifecyclePhase.CANCELLED:
-            case IvoaLifecyclePhase.FAILED:
-            default:
-                log.error(
-                    "Unexpected component phase [{}][{}][{}] during prepare session [{}][{}]",
-                    component.getPhase(),
-                    component.getUuid(),
-                    component.getClass().getSimpleName(),
-                    this.session.getUuid(),
-                    this.session.getClass().getSimpleName()
-                    );
-                this.failSession(
-                    platform
-                    );
-                return false ;
-            }
-        }
-    
     public static final Duration DEFAULT_WAITING_DELAY = Duration.ofSeconds(30);
     
     @Override
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
-        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        log.debug(
+            "Post-processing [PREPARE] for session [{}][{}]",
+            this.session.getUuid(),
+            this.session.getPhase()
+            );
+
         switch(this.session.getPhase())
             {
             case IvoaSimpleExecutionSessionPhase.INITIAL:
@@ -346,10 +227,10 @@ implements SessionProcessingRequest
             case IvoaSimpleExecutionSessionPhase.REJECTED:
             case IvoaSimpleExecutionSessionPhase.EXPIRED:
                 log.error(
-                    "Request [{}][{}] shouldn't get called if phase is stll [{}]",
-                    this.getUuid(),
-                    this.getClass().getSimpleName(),
-                    this.session.getPhase()
+                    "[PREPARE] shouldn't be called for [{}][{}] because phase is stll [${}]",
+                    this.session.getUuid(),
+                    this.session.getPhase(),
+                    session.getPhase()
                     );
                 this.done(
                     platform
@@ -383,7 +264,7 @@ implements SessionProcessingRequest
             // Phase is PREPARING, wait until the components are ready.
             case IvoaSimpleExecutionSessionPhase.PREPARING:
                 log.debug(
-                    "Session [{}][{}] phase is [{}], waiting for components to become [AVAILABLE], no further action required",
+                    "Session [{}][{}] phase is [{}], waiting for components to become [AVAILABLE]",
                     this.session.getUuid(),
                     this.session.getClass().getSimpleName(),
                     this.session.getPhase()

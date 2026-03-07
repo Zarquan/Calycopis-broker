@@ -23,21 +23,17 @@
 
 package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
-import java.util.UUID;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
@@ -78,75 +74,25 @@ public class MockDockerContainerEntity
             );
         }
 
-    @Column(name="preparecounter")
-    private int preparecounter;
-
     @Override
     public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new ProcessingAction()
-            {
-            int count = MockDockerContainerEntity.this.preparecounter ;
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.PREPARING,
+            IvoaLifecyclePhase.AVAILABLE,
+            30_000
+            );
+        }
 
-            @Override
-            public boolean process()
-                {
-                log.debug(
-                    "** Preparing [{}][{}] count [{}]",
-                    MockDockerContainerEntity.this.getUuid(),
-                    MockDockerContainerEntity.this.getClass().getSimpleName(),
-                    count
-                    );
-                count++;
-                try {
-                    Thread.sleep(1000);
-                    }
-                catch (InterruptedException e)
-                    {
-                    log.error(
-                        "Interrupted while preparing [{}][{}]",
-                        MockDockerContainerEntity.this.getUuid(),
-                        MockDockerContainerEntity.this.getClass().getSimpleName()
-                        );
-                    }
-                return true ;
-                }
-
-            @Override
-            public UUID getRequestUuid()
-                {
-                return request.getUuid();
-                }
-
-            @Override
-            public IvoaLifecyclePhase getNextPhase()
-                {
-                if (count < 4)
-                    {
-                    return IvoaLifecyclePhase.PREPARING ;
-                    }
-                else {
-                    return IvoaLifecyclePhase.AVAILABLE ;
-                    }
-                }
-
-            @Override
-            public boolean postProcess(final LifecycleComponentEntity component)
-                {
-                if (component instanceof MockDockerContainerEntity)
-                    {
-                    ((MockDockerContainerEntity) component).preparecounter = this.count ;
-                    return true ;
-                    }
-                else {
-                    log.error(
-                        "Unexpected component type [{}] post processing [{}]",
-                        component.getClass().getSimpleName(),
-                        component.getUuid()
-                        );
-                    return false ;
-                    }
-                }
-            };
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.RELEASING,
+            IvoaLifecyclePhase.COMPLETED,
+            30_000
+            );
         }
     }

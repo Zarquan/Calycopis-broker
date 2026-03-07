@@ -65,7 +65,7 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ComponentProcessingAction action)
         {
         // TODO Auto-generated method stub
         }

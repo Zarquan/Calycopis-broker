@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -63,8 +64,6 @@ import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourc
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-
-import org.springframework.jdbc.core.JdbcTemplate;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;

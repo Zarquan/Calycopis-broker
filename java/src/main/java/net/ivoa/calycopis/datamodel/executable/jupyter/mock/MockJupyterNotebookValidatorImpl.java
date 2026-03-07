@@ -29,7 +29,6 @@ import java.util.Map;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.spring.model.IvoaJupyterNotebook;
 
 /**

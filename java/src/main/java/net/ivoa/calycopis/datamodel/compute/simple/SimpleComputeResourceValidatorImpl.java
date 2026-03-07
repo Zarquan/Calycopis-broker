@@ -52,7 +52,6 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;

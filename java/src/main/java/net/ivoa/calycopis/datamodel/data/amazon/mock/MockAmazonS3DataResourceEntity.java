@@ -40,6 +40,11 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -73,6 +78,29 @@ public class MockAmazonS3DataResourceEntity
             session,
             storage,
             result
+            );
+        }
+
+    
+    @Override
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.PREPARING,
+            IvoaLifecyclePhase.AVAILABLE,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.RELEASING,
+            IvoaLifecyclePhase.COMPLETED,
+            30_000
             );
         }
     }

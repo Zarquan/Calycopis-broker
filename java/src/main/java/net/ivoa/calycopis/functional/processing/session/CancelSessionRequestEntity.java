@@ -67,74 +67,96 @@ implements SessionProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug("pre-processing session [{}]", session.getUuid());
+        log.debug(
+            "Pre-processing [CANCEL] for session [{}][{}][{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName(),
+            this.session.getPhase()
+            );
         //
         // Check the current phase.
-        log.debug("Session [{}][{}] phase is [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
         switch (this.session.getPhase())
             {
+            //
+            // If the session hasn't reached a terminal phase yet. 
             case IvoaSimpleExecutionSessionPhase.INITIAL:
             case IvoaSimpleExecutionSessionPhase.OFFERED:
-                break;
-
             case IvoaSimpleExecutionSessionPhase.ACCEPTED:
             case IvoaSimpleExecutionSessionPhase.WAITING:
             case IvoaSimpleExecutionSessionPhase.PREPARING:
             case IvoaSimpleExecutionSessionPhase.AVAILABLE:
-                break;
-            
             case IvoaSimpleExecutionSessionPhase.RUNNING:
             case IvoaSimpleExecutionSessionPhase.RELEASING:
+                //
+                // Set the session phase to CANCELLED.
+                log.debug(
+                    "Setting session phase to [{}][CANCELLED]",
+                    this.session.getUuid()
+                    );
+                this.session.setPhase(
+                    IvoaSimpleExecutionSessionPhase.CANCELLED
+                    );
                 break;
-            
+
+            //
+            // If the session is already in a terminal phase, then nothing more to do.
             case IvoaSimpleExecutionSessionPhase.REJECTED:
             case IvoaSimpleExecutionSessionPhase.EXPIRED:
             case IvoaSimpleExecutionSessionPhase.CANCELLED:
             case IvoaSimpleExecutionSessionPhase.COMPLETED:
             case IvoaSimpleExecutionSessionPhase.FAILED:
-                log.debug("Skipping CANCEL for session [{}][{}], phase is already [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
-                // Nothing more required.
-                return ProcessingAction.NO_ACTION ;
+                log.debug(
+                    "Skipping [CANCEL] for session [{}][{}], phase is already [{}]",
+                    this.session.getUuid(),
+                    this.session.getClass().getSimpleName(),
+                    this.session.getPhase()
+                    );
+                break;
                 
             default:
-                log.error("Unexpected phase [{}] for session [{}][{}]", this.session.getPhase(), this.session.getUuid(), this.session.getClass().getSimpleName());
-                // Nothing more required.
-                return ProcessingAction.NO_ACTION ;
+                log.error(
+                    "Unexpected phase [{}] for session [{}][{}]",
+                    this.session.getPhase(),
+                    this.session.getUuid(),
+                    this.session.getClass().getSimpleName()
+                    );
+                break;
             }
         //
-        // Set the session phase to CANCELLED.
-        this.session.setPhase(
-            IvoaSimpleExecutionSessionPhase.CANCELLED
-            );
-        //
-        // Schedule the release of the session components.
-        platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+        // Cancel all of the components.
+        scheduleCancelIfActive(
+            platform,
             this.session.getExecutable()
             );
-        platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+        scheduleCancelIfActive(
+            platform,
             this.session.getComputeResource()
             );
-        for(AbstractDataResourceEntity dataResource : this.session.getDataResources())
+        for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
-            platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+            scheduleCancelIfActive(
+                platform,
                 dataResource
                 );
             }
-        for(AbstractStorageResourceEntity storageResource : session.getStorageResources())
+        for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
             {
-            platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+            scheduleCancelIfActive(
+                platform,
                 storageResource
                 );
             }
-        //
-        // No further Action required.
         return ProcessingAction.NO_ACTION ;
         }
 
     @Override
     public void postProcess(final Platform platform, final ProcessingAction action)
         {
-        log.debug("post-processing Session [{}][{}] with phase [{}]", this.session.getUuid(), this.session.getClass().getSimpleName(), this.session.getPhase());
+        log.debug(
+            "Post-processing [CANCEL] for session [{}][{}]",
+            this.session.getUuid(),
+            this.session.getClass().getSimpleName()
+            );
         this.done(
             platform
             );

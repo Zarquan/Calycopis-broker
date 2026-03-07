@@ -1,0 +1,155 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a local Podman service.
+# https://docs.podman.io/en/latest/markdown/podman-system-service.1.html
+#[user@desktop]
+
+    # Shutdown the root level service
+    sudo systemctl stop podman.socket
+
+    # Enable Podman as a user level service
+    systemctl --user enable --now podman.socket
+
+    systemctl --user status podman.socket
+
+--START--
+● podman.socket - Podman API Socket
+     Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; preset: disabled)
+     Active: active (listening) since Sat 2026-03-07 08:38:49 GMT; 3min 44s ago
+   Triggers: ● podman.service
+       Docs: man:podman-system-service(1)
+     Listen: /run/user/1000/podman/podman.sock (Stream)
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/podman.socket
+
+Mar 07 08:38:49 methionine systemd[1801]: Listening on podman.socket - Podman API Socket.
+--END--
+
+
+    ls -alZ ${XDG_RUNTIME_DIR}/podman
+
+--START--
+....
+srw-rw----.  1 Zarquan Zarquan unconfined_u:object_r:user_tmp_t:s0   0 Mar  7 08:38 podman.sock
+--END--
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+# Note the volume mount for our podman socket
+#[user@desktop]
+
+    #
+    # Create a new Pod
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+--START--
+e13542bc9b5270ffdb054f3c9cdcbdcd0ff64c221e00b83ffe2d032345436509
+--END--
+
+
+    source "${HOME:?}/calycopis.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+
+
+    ls -alZ /run/podman/podman.sock
+
+--START--
+srw-rw----. 1 root root system_u:object_r:container_file_t:s0:c702,c845 0 Mar  7 08:38 /run/podman/podman.sock
+--END--
+
+
+    echo $CONTAINER_HOST
+
+--START--
+unix:///run/podman/podman.sock
+--END--
+
+
+    dnf install -y podman
+
+--START--
+....
+....
+--END--
+
+
+    podman ps
+
+--START--
+CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
+8ebfa441ab3e  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              e13542bc9b52-infra
+be8b618c4e23  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
+--END--
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        fedora:latest \
+            cat /etc/redhat-release
+
+--START--
+Fedora release 43 (Forty Three)
+--END--
+
+    #
+    # OK, Podman is working agin ....
+    #
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Install and run Cursor.
+#[root@calycopis-dev]
+
+    curl https://cursor.com/install -fsS | bash
+
+        agent
+
+
+

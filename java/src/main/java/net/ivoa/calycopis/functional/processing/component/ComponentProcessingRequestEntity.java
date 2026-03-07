@@ -33,7 +33,9 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -50,6 +52,31 @@ public abstract class ComponentProcessingRequestEntity
 extends ProcessingRequestEntity
 implements ComponentProcessingRequest
     {
+
+    public static class ComponentNotFoundException
+    extends RuntimeException
+        {
+        private static final long serialVersionUID = -4591107759829303303L;
+        protected URI componentKind;
+        protected UUID componentUuid;
+
+        public ComponentNotFoundException(final ComponentProcessingRequestEntity request)
+            {
+            super(message(request));
+            this.componentKind = request.componentKind;
+            this.componentUuid = request.componentUuid;
+            }
+
+        public static String message(final ComponentProcessingRequestEntity request)
+            {
+            return String.format(
+                "Unable to find component [%s][%s] for processing request [%s]",
+                request.componentUuid,
+                request.componentKind,
+                request.getUuid().toString()
+                );
+            }
+        }
 
     protected ComponentProcessingRequestEntity()
         {
@@ -73,29 +100,54 @@ implements ComponentProcessingRequest
 
     protected URI componentKind;
     protected UUID componentUuid;
+    protected IvoaLifecyclePhase prevPhase ;
+    protected IvoaLifecyclePhase nextPhase ;
     
-    /*
-     *
-    @JoinColumn(name = "component", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    protected LifecycleComponentEntity component;
-     *
-     */
-
     @Override
     public LifecycleComponentEntity getComponent(final Platform platform)
         {
-        return platform.select(
+        LifecycleComponentEntity component = platform.select(
             this.componentKind,
             this.componentUuid
             );
+        if (component == null)
+            {
+            log.error(
+                "Unable to find component for pre-processng [{}][{}]",
+                this.componentUuid,
+                this.componentKind
+                );
+            throw new ComponentNotFoundException(this);
+            }
+        return component;
         }
-        
+
+    @Override
+    public void postProcess(final Platform platform, final ProcessingAction action)
+        {
+        if (action instanceof ComponentProcessingAction)
+            {
+            this.postProcess(
+                platform,
+                (ComponentProcessingAction) action
+                );
+            }
+        else {
+            this.postProcess(
+                platform,
+                (ComponentProcessingAction) null
+                );
+            }
+        }
+    
+    @Deprecated
     protected void fail(final Platform platform)
         {
         this.fail(
             platform,
-            this.getComponent(platform)
+            this.getComponent(
+                platform
+                )
             );
         }
 
@@ -106,10 +158,23 @@ implements ComponentProcessingRequest
             this.getUuid(),
             this.getClass().getSimpleName()
             );
-        platform.getSessionProcessingRequestFactory().createFailSessionRequest(
-            component.getSession()
-            );
+        if (component != null)
+            {
+            component.setPhase(
+                IvoaLifecyclePhase.FAILED
+                );
+            updateSession(
+                platform,
+                component
+                );
+            }
         this.done(platform);
         }
-        
+    
+    protected void updateSession(final Platform platform, final LifecycleComponentEntity component)
+        {
+        platform.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+            component.getSession()
+            );
+        }
     }

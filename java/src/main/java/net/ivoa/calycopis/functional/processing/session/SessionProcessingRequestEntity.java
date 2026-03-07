@@ -33,10 +33,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -92,7 +96,141 @@ implements SessionProcessingRequest
         else {
             log.debug("No session to fail");
             }
-        // FailSessionRequest issued, no further Action required.
         return ProcessingAction.NO_ACTION ;
+        }
+
+    
+    protected void scheduleCancelIfActive(final Platform platform, final LifecycleComponentEntity component)
+        {
+        if (component == null)
+            {
+            return;
+            }
+
+        IvoaLifecyclePhase phase = component.getPhase();
+
+        log.debug(
+            "Scheduling [CANCEL] for [{}][{}][{}]",
+            component.getUuid(),
+            component.getClass().getSimpleName(),
+            phase
+            );
+
+        switch (phase)
+            {
+            case AVAILABLE:
+            case RUNNING:
+            case RELEASING:
+                log.debug(
+                    "Component [{}][{}] phase is [{}], requesting [CANCEL]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                platform.getComponentProcessingRequestFactory().createCancelComponentRequest(
+                    component
+                    );
+                break;
+
+            case COMPLETED:
+            case FAILED:
+            case CANCELLED:
+                log.debug(
+                    "Component [{}][{}] phase is already [{}], skipping [CANCEL]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                break;
+
+            default:
+                log.debug(
+                    "Unexpected phase [{}] for component [{}][{}], skipping [CANCEL]",
+                    phase,
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                break;
+            }
+        }
+
+    protected void scheduleReleaseAll(final Platform platform)
+        {
+        scheduleReleaseIfActive(
+            platform,
+            this.session.getExecutable()
+            );
+        scheduleReleaseIfActive(
+            platform,
+            this.session.getComputeResource()
+            );
+        for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
+            {
+            scheduleReleaseIfActive(
+                platform,
+                dataResource
+                );
+            }
+        for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
+            {
+            scheduleReleaseIfActive(
+                platform,
+                storageResource
+                );
+            }
+        }
+    
+    protected void scheduleReleaseIfActive(final Platform platform, final LifecycleComponentEntity component)
+        {
+        if (component == null)
+            {
+            return;
+            }
+        
+        IvoaLifecyclePhase phase = component.getPhase();
+
+        log.debug(
+            "Scheduling [RELEASE] for [{}][{}][{}]",
+            component.getUuid(),
+            component.getClass().getSimpleName(),
+            phase
+            );
+        
+        switch (phase)
+            {
+            case AVAILABLE:
+            case RUNNING:
+                log.debug(
+                    "Component [{}][{}] phase is [{}], requesting [RELEASE]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+                    component
+                    );
+                break;
+
+            case RELEASING:
+            case COMPLETED:
+            case FAILED:
+            case CANCELLED:
+                log.debug(
+                    "Component [{}][{}] phase is already [{}], skipping [RELEASE]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName(),
+                    phase
+                    );
+                break;
+
+            default:
+                log.debug(
+                    "Unexpected phase [{}] for component [{}][{}], skipping [RELEASE]",
+                    phase,
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                break;
+            }
         }
     }

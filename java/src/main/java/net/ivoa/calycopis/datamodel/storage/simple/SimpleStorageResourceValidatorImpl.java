@@ -50,11 +50,9 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorImpl;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaSimpleStorageResource;
-import net.ivoa.calycopis.spring.model.IvoaSimpleStorageSize;
 
 /**
  * A Validator implementation to handle simple storage resources.

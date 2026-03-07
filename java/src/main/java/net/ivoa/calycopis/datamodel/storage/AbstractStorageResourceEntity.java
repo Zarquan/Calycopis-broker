@@ -26,10 +26,8 @@ package net.ivoa.calycopis.datamodel.storage;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
@@ -42,12 +40,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
-import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.util.ListWrapper;
 import net.ivoa.calycopis.util.URIBuilder;
 
@@ -175,102 +169,4 @@ implements AbstractStorageResource
         return AbstractStorageResource.WEBAPP_PATH;
         }
 
-    // TODO Move this to a test specific class.
-    @Column(name="preparecounter")
-    private int preparecounter;
-    public int getPrepareCounter()
-        {
-        return this.preparecounter;
-        }
-
-    // Generic prepare action - move to the real Entities later.
-    @Override
-    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
-        {
-        return new ProcessingAction()
-            {
-
-            int count = AbstractStorageResourceEntity.this.preparecounter ;
-            
-            @Override
-            public boolean process()
-                {
-                log.debug(
-                    "Preparing [{}][{}] count [{}]",
-                    AbstractStorageResourceEntity.this.getUuid(),
-                    AbstractStorageResourceEntity.this.getClass().getSimpleName(),
-                    count
-                    );
-    
-                count++;
-                try {
-                    Thread.sleep(1000);
-                    }
-                catch (InterruptedException e)
-                    {
-                    log.error(
-                        "Interrupted while preparing [{}][{}]",
-                        AbstractStorageResourceEntity.this.getUuid(),
-                        AbstractStorageResourceEntity.this.getClass().getSimpleName()
-                        );
-                    }
-    
-                return true ;
-                }
-    
-            @Override
-            public UUID getRequestUuid()
-                {
-                return request.getUuid();
-                }
-    
-            @Override
-            public IvoaLifecyclePhase getNextPhase()
-                {
-                if (count < 4)
-                    {
-                    return IvoaLifecyclePhase.PREPARING ;
-                    }
-                else {
-                    return IvoaLifecyclePhase.AVAILABLE ;
-                    }
-                }
-            
-            @Override
-            public boolean postProcess(final LifecycleComponentEntity component)
-                {
-                log.debug(
-                    "Post processing [{}][{}]",
-                    component.getUuid(),
-                    component.getClass().getSimpleName()
-                    );
-                if (component instanceof AbstractStorageResourceEntity)
-                    {
-                    return postProcess(
-                        (AbstractStorageResourceEntity) component
-                        );
-                    }
-                else {
-                    log.error(  
-                        "Unexpected component type [{}] post processing [{}][{}]",
-                        component.getClass().getSimpleName(),
-                        component.getUuid(),
-                        component.getClass().getSimpleName()
-                        );
-                    return false ;
-                    }
-                }
-                
-            public boolean postProcess(final AbstractStorageResourceEntity component)
-                {
-                log.debug(
-                    "Post processing [{}][{}]",
-                    component.getUuid(),
-                    component.getClass().getSimpleName()
-                    );
-                component.preparecounter = this.count ;
-                return true ;
-                }
-            };
-        }
     }

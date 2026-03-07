@@ -23,6 +23,8 @@
 
 package net.ivoa.calycopis.functional.processing.component;
 
+import java.time.Duration;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
@@ -50,6 +52,7 @@ extends ComponentProcessingRequestEntity
 implements ComponentProcessingRequest
     {
 
+    public static final Duration DEFAULT_RELEASE_LOOP_INTERVAL = Duration.ofSeconds(10);
     public static final long DEFAULT_RELEASE_DELAY_SECONDS = 20;
 
     protected ReleaseComponentRequestEntity()
@@ -65,100 +68,119 @@ implements ComponentProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug(
-            "Pre-processing release for component [{}][{}]",
-            this.componentUuid,
-            this.componentKind
-            );
-
         LifecycleComponentEntity component = this.getComponent(
             platform
             );
-
-        if (component == null)
-            {
-            log.error(
-                "Unable to find component in factory [{}][{}]",
-                this.componentUuid,
-                this.componentKind
-                );
-            return ProcessingAction.NO_ACTION;
-            }
-
-        IvoaLifecyclePhase phase = component.getPhase();
-        if (phase == IvoaLifecyclePhase.COMPLETED
-            || phase == IvoaLifecyclePhase.FAILED
-            || phase == IvoaLifecyclePhase.CANCELLED)
-            {
-            log.debug(
-                "Component [{}][{}] already in terminal phase [{}], nothing to release",
-                component.getUuid(),
-                component.getClass().getSimpleName(),
-                phase
-                );
-            return ProcessingAction.NO_ACTION;
-            }
-
-        component.setPhase(
-            IvoaLifecyclePhase.RELEASING
+        log.debug(
+            "Pre-processing component [{}][{}][{}]",
+            component.getUuid(),
+            component.getKind(),
+            component.getClass().getSimpleName()
             );
 
-        return component.getReleaseAction(
-            platform,
-            this
-            );
-        }
+        prevPhase = component.getPhase();
+
+        switch(prevPhase)
+            {
+            case INITIALIZING:
+            case WAITING:
+            case PREPARING:
+            case AVAILABLE:
+            case RUNNING:
+                //
+                // Set the phase to RELEASING and start the release process.
+                component.setPhase(
+                    IvoaLifecyclePhase.RELEASING
+                    );
+                return component.getReleaseAction(
+                    platform,
+                    this
+                    );            
+    
+            //
+            // Component is already RELEASING, continue the release process.
+            case RELEASING:
+                return component.getReleaseAction(
+                    platform,
+                    this
+                    );
+    
+            //
+            // Phase is past RELEASING, no action needed.
+            case COMPLETED:
+            case CANCELLED:
+            case FAILED:
+                return ProcessingAction.NO_ACTION;
+    
+            default:
+                log.error(
+                    "Unexpected phase [{}] for pre-processing component [{}][{}]",
+                    component.getPhase(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                this.fail(platform, component);
+                return ProcessingAction.NO_ACTION;
+                }
+            }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ComponentProcessingAction action)
         {
-        log.debug(
-            "Post-processing release for component [{}][{}]",
-            this.componentUuid,
-            this.componentKind
-            );
-
         LifecycleComponentEntity component = this.getComponent(
             platform
             );
-
-        if (component == null)
-            {
-            log.error(
-                "Unable to find component in factory [{}][{}]",
-                this.componentUuid,
-                this.componentKind
-                );
-            this.done(platform);
-            return;
-            }
+        log.debug(
+            "Post-processing component [{}][{}][{}]",
+            component.getUuid(),
+            component.getKind(),
+            component.getClass().getSimpleName()
+            );
 
         if (action != null)
             {
             action.postProcess(
                 component
                 );
-            component.setPhase(
-                action.getNextPhase()
+            }
+        nextPhase = component.getPhase();
+
+        if (prevPhase != nextPhase)
+            {
+            platform.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+                component.getSession()
                 );
             }
-        else {
-            component.setPhase(
-                IvoaLifecyclePhase.COMPLETED
-                );
+
+        switch(nextPhase)
+            {
+            //
+            // If the component is still RELEASING, update the activation time and wait.
+            // TODO Ask the component how long to wait.
+            case RELEASING:
+                this.activate(
+                    DEFAULT_RELEASE_LOOP_INTERVAL
+                    );  
+                break;
+
+            //
+            // Phase is past RELEASING, we are done.
+            case COMPLETED:
+            case CANCELLED:
+            case FAILED:
+                this.done(platform);
+                break;
+
+            default:
+                log.error(
+                    "Unexpected phase [{}] for post-processing component [{}][{}]",
+                    component.getPhase(),
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                this.fail(platform, component);
+                break;
+
             }
-
-        log.debug(
-            "Component [{}][{}] release complete, phase now [{}]",
-            component.getUuid(),
-            component.getClass().getSimpleName(),
-            component.getPhase()
-            );
-
-        platform.getSessionProcessingRequestFactory().createMonitorSessionRequest(
-            component.getSession()
-            );
-
-        this.done(platform);
         }
     }

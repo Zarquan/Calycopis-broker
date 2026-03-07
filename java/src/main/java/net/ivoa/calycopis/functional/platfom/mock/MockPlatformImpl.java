@@ -72,13 +72,13 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
@@ -106,8 +106,6 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
-
-import org.springframework.jdbc.core.JdbcTemplate;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;

@@ -135,6 +135,7 @@ implements ProcessingRequest
         this.activation = Instant.now().plus(delay);
         }
     
+    // TODO https://github.com/ivoa/Calycopis-broker/issues/363
     protected void done(final Platform platform)
         {        
         log.debug("ProcessingRequest [{}][{}] done", this.getUuid(), this.getClass().getSimpleName());

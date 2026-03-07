@@ -39,6 +39,7 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -381,18 +382,9 @@ implements LifecycleComponent
             return null ;
             }
         }
-
-    /*
-     * 
-    @Override
-    public ProcessingAction getPrepareAction(final ComponentProcessingRequest request)
-        {
-        return ProcessingAction.NO_ACTION;
-        }
-     * 
-     */
     
     @Override
+    // TODO Remove this once all of our components have implemented it.
     public ProcessingAction getMonitorAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return ProcessingAction.NO_ACTION;
@@ -401,15 +393,26 @@ implements LifecycleComponent
     public static final long DEFAULT_RELEASE_DELAY_SECONDS = 20;
 
     @Override
+    // TODO Remove this once all of our components have implemented it.
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
         final UUID componentUuid = this.getUuid();
         final String componentClassName = this.getClass().getSimpleName();
 
-        return new ProcessingAction()
+        return new ComponentProcessingAction()
             {
             @Override
-            public boolean process()
+            public void preProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Pre-processing component [{}][{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                }
+
+            @Override
+            public void process()
                 {
                 log.debug(
                     "Releasing component [{}][{}], waiting [{}] seconds",
@@ -431,30 +434,16 @@ implements LifecycleComponent
                         componentClassName
                         );
                     }
-                return true;
                 }
 
             @Override
-            public UUID getRequestUuid()
-                {
-                return request.getUuid();
-                }
-
-            @Override
-            public IvoaLifecyclePhase getNextPhase()
-                {
-                return IvoaLifecyclePhase.COMPLETED;
-                }
-
-            @Override
-            public boolean postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponentEntity component)
                 {
                 log.debug(
-                    "Release post-processing [{}][{}]",
+                    "Post-processing component [{}][{}]",
                     component.getUuid(),
                     component.getClass().getSimpleName()
                     );
-                return true;
                 }
             };
         }
