@@ -36,46 +36,38 @@
 #
 #[user@cursor]
 
-==START==
-I am about to reboot the host computer.
-Can you check that the current session state is saved.
-==END==
+    ?   I am about to reboot the host computer.
+    ?   Can you check that the current session state is saved.
 
---START--
-  Let me verify everything is saved and clean up running processes.
+    >     Let me verify everything is saved and clean up running processes.
+    >   
+    >     $ pkill -f 'spring-boot:run' 2>/dev/null; echo "Service stopped" 537ms
+    >   
+    >     $ podman ps -a --filter "ancestor=ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0" --format
+    >       "{{.ID}}" 2>/dev/null | xargs -r podman rm -f 2>/dev/null; echo "Containers cleaned" 669ms
+    >       457f23de2105
+    >       b817287e01ee
+    >       … truncated (14 more lines) · ctrl+o to expand
+    >   
+    >     Now let me verify the three modified files are saved correctly on disk.
+    >   
+    >     ⬢ Grepped 3 greps
+    >       Grepped "public void setService" in ...ctional/processing/ProcessingRequestEntity.java
+    >       Grepped "request\.setService\(null\)" in ...unctional/processing/ProcessingServiceImpl.java
+    >       Grepped "getReleaseAction|case RELEASING"" in
+    >       ...ng/component/MonitorComponentRequestEntity.java
+    >   
+    >     All three files are saved on disk with the correct changes:
+    >     1. `ProcessingRequestEntity.java` — setService() method present (line 89)
+    >     2. `ProcessingServiceImpl.java` — request.setService(null) present (line 179)
+    >     3. `MonitorComponentRequestEntity.java` — getReleaseAction() for RELEASING case present (line
+    >        96)
+    >   
+    >     The service and test containers have been stopped and cleaned up. You're good to reboot.
 
-  $ pkill -f 'spring-boot:run' 2>/dev/null; echo "Service stopped" 537ms
+    ?   /quit
 
-  $ podman ps -a --filter "ancestor=ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0" --format
-    "{{.ID}}" 2>/dev/null | xargs -r podman rm -f 2>/dev/null; echo "Containers cleaned" 669ms
-    457f23de2105
-    b817287e01ee
-    … truncated (14 more lines) · ctrl+o to expand
-
-  Now let me verify the three modified files are saved correctly on disk.
-
-  ⬢ Grepped 3 greps
-    Grepped "public void setService" in ...ctional/processing/ProcessingRequestEntity.java
-    Grepped "request\.setService\(null\)" in ...unctional/processing/ProcessingServiceImpl.java
-    Grepped "getReleaseAction|case RELEASING"" in
-    ...ng/component/MonitorComponentRequestEntity.java
-
-  All three files are saved on disk with the correct changes:
-  1. `ProcessingRequestEntity.java` — setService() method present (line 89)
-  2. `ProcessingServiceImpl.java` — request.setService(null) present (line 179)
-  3. `MonitorComponentRequestEntity.java` — getReleaseAction() for RELEASING case present (line
-     96)
-
-  The service and test containers have been stopped and cleaned up. You're good to reboot.
---END--
-
-==START==
-/quit
-==END==
-
---START--
-  To resume this session: agent --resume=ca1e2c48-3c1b-40d5-975a-427539fa5de5
---END--
+    >     To resume this session: agent --resume=ca1e2c48-3c1b-40d5-975a-427539fa5de5
 
 
 # -----------------------------------------------------
@@ -84,10 +76,8 @@ Can you check that the current session state is saved.
 
     sudo reboot
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -102,12 +92,10 @@ Can you check that the current session state is saved.
 
     popd
 
---START--
-....
-....
-drwx------  4 h15033dm h15033dm  4096 Mar  8 05:29 containers
-drwx------  3 h15033dm h15033dm  4096 Mar  8 05:24 containers-old
---END--
+    >   ....
+    >   ....
+    >   drwx------  4 h15033dm h15033dm  4096 Mar  8 05:29 containers
+    >   drwx------  3 h15033dm h15033dm  4096 Mar  8 05:24 containers-old
 
 
 # -----------------------------------------------------
@@ -117,26 +105,22 @@ drwx------  3 h15033dm h15033dm  4096 Mar  8 05:24 containers-old
 
     systemctl --user status podman.socket
 
---START--
-● podman.socket - Podman API Socket
-     Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; vendor preset: enabled)
-     Active: active (listening) since Mon 2026-03-09 10:17:36 GMT; 5min ago
-   Triggers: ● podman.service
-       Docs: man:podman-system-service(1)
-     Listen: /run/user/1001/podman/podman.sock (Stream)
-     CGroup: /user.slice/user-1001.slice/user@1001.service/app.slice/podman.socket
-
-Mar 09 10:17:36 laptop-19 systemd[2840]: Listening on Podman API Socket.
---END--
+    >   ● podman.socket - Podman API Socket
+    >        Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; vendor preset: enabled)
+    >        Active: active (listening) since Mon 2026-03-09 10:17:36 GMT; 5min ago
+    >      Triggers: ● podman.service
+    >          Docs: man:podman-system-service(1)
+    >        Listen: /run/user/1001/podman/podman.sock (Stream)
+    >        CGroup: /user.slice/user-1001.slice/user@1001.service/app.slice/podman.socket
+    >   
+    >   Mar 09 10:17:36 laptop-19 systemd[2840]: Listening on Podman API Socket.
 
 
     podman pod create \
         --replace \
         --name calycopis-pod
 
---START--
-be032a511c5eb73c736d2d38197a8e8e449f007b476b7464aee8ea5c0121bb40
---END--
+    >   be032a511c5eb73c736d2d38197a8e8e449f007b476b7464aee8ea5c0121bb40
 
 
     source "${HOME:?}/calycopis.env"
@@ -155,27 +139,21 @@ be032a511c5eb73c736d2d38197a8e8e449f007b476b7464aee8ea5c0121bb40
         ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
             bash
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     dnf install -y podman
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     podman ps
 
---START--
-CONTAINER ID  IMAGE                                              COMMAND     CREATED        STATUS        PORTS       NAMES
-9fa9a9d24085  localhost/podman-pause:4.3.1-0                                 5 minutes ago  Up 3 minutes              be032a511c5e-infra
-88c515b30208  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        3 minutes ago  Up 3 minutes              calycopis-dev
---END--
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED        STATUS        PORTS       NAMES
+    >   9fa9a9d24085  localhost/podman-pause:4.3.1-0                                 5 minutes ago  Up 3 minutes              be032a511c5e-infra
+    >   88c515b30208  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        3 minutes ago  Up 3 minutes              calycopis-dev
 
 
     podman run \
@@ -185,9 +163,7 @@ CONTAINER ID  IMAGE                                              COMMAND     CRE
         fedora:latest \
             cat /etc/redhat-release
 
---START--
-Fedora release 43 (Forty Three)
---END--
+    >   Fedora release 43 (Forty Three)
 
 
 # -----------------------------------------------------

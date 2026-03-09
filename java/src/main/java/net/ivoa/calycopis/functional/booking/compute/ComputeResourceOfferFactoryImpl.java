@@ -64,8 +64,8 @@ public class ComputeResourceOfferFactoryImpl
      * TODO make this configurable.
      *
      */
-    public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
-    //public static final Long BLOCK_STEP_SECONDS  = 60L ;
+    //public static final Long BLOCK_STEP_SECONDS  = 60L * 5L ;
+    public static final Long BLOCK_STEP_SECONDS  = 60L ;
 
     /**
      * How far to look ahead.
