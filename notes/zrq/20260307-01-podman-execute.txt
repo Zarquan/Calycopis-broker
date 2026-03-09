@@ -37,402 +37,390 @@
 
 # -----------------------------------------------------
 
-==START==
-I have refactored a lot of the business logic behind the ProcessingRequests and ProcessingActions.
-Can you re-run the tests, find if any of the them fail and identify why.
-No changes to the code yet, just identify the causes.
-==END==
-
---START--
-  $ pkill -f 'spring-boot:run' 2>/dev/null; sleep 3; echo "Stopped" 549ms
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -30 16s
-    WARNING: A restricted method in java.lang.System has been called
-    WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
-    (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
-    … truncated (8 more lines) · ctrl+o to expand
-
-  Build succeeded. Now let me start the service and run the tests.
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/java && SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker-service.log 2>&1 27s
-    (background)
-
-  $ for i in $(seq 1 30); do if curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/offersets 2>/dev/null | grep -q '405'; then echo
-    "Service ready after ${i}s"; exit 0; fi; sleep 2; done; echo "Service did not start"; exit 1 21s
-    Service ready after 11s
-
-  Service is up. Now let me run the Python tests.
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/tests/python && python -m pytest test_docker_platform.py -v 2>&1 10m in
-    calycopis/Calycopis-broker/github-zrq/java
-    ============================= test session starts ==============================
-    platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python
-    … truncated (12 more lines) · ctrl+o to expand
-
-  $ sleep 120 && tail -40 /root/.cursor/projects/terminals/598372.txt 2m 1s
-    ---
-    pid: 31343
-    … truncated (20 more lines) · ctrl+o to expand
-
-  test_session_reaches_available has FAILED. Let me wait for the remaining tests to finish.
-
-  $ sleep 180 && tail -80 /root/.cursor/projects/terminals/598372.txt 3m
-    ---
-    pid: 31343
-    … truncated (21 more lines) · ctrl+o to expand
-
-  Two failures so far. Let me wait for the remaining tests.
-
-  $ sleep 300 && tail -120 /root/.cursor/projects/terminals/598372.txt 5m 1s
-    ---
-    pid: 31343
-    … truncated (21 more lines) · ctrl+o to expand
-
-  The test_short_and_long_containers is still running. Let me wait more.
-
-  $ sleep 300 && tail -120 /root/.cursor/projects/terminals/598372.txt 5m 1s
-    client = <calycopis_client.wrappers.execution_client.ExecutionBrokerClient object at 0x7ff9b262aa50>
-    … truncated (119 more lines) · ctrl+o to expand
-
-  3 tests failed, 11 passed. Now let me examine the failure details and the service logs to understand the root causes. Let me get the full
-  failure output and the relevant service logs.
-
-  ⬢ Grepped "...ertionError|TimeoutError|assert |got " in root/.cursor/projects/terminals/598372.txt
-    Found 31 matches
-
-  All three failures are TimeoutError — sessions are stuck and never reaching the expected phases. Let me look at the service logs to
-  understand where the sessions are getting stuck.
-
-  $ wc -l /tmp/broker-service.log 1.2s
-    2655084 /tmp/broker-service.log
-
-  $ rg -n "e345ec27-0fa3-434a-9902-e1a01014e173" /tmp/broker-service.log | head -30 exit 127 • 304ms
-    --: line 1: rg: command not found
-
-  ⬢ Grepped 3 greps
-    Grepped "e345ec27-0fa3-434a-9902-e1a01014e173" in tmp/broker-service.log
-    Grepped "e345ec27-0fa3-434a-9902-e1a01014e173" in tmp/broker-service.log
-    Grepped "bba94fa4-2781-4764-9553-c99a62f295db" in tmp/broker-service.log
-
-  The prepare request was created but never picked up. Let me check what the processing loop is doing around that time.
-
-  ⬢ Grepped "...xt|No requests found|requests claimed" in tmp/broker-service.log
-    Found 10000 matches  (truncated)
-
-  The early tests processed fine. Let me look specifically at what happened to the stuck session e345ec27 from the
-  test_session_reaches_available test.
-
-  $ grep -c "e345ec27" /tmp/broker-service.log 950ms
-    9
-
-  $ grep "e345ec27" /tmp/broker-service.log 727ms
-    2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl update() UUID
-    [e345ec27-0fa3-434a-9902-e1a01014e173]
-    2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl update() Entity
-    [e345ec27-0fa3-434a-9902-e1a01014e173]
-    … truncated (8 more lines) · ctrl+o to expand
-
-  The PrepareSessionRequest bba94fa4 was created but never processed. Let me check whether the processing loop is stuck on something else.
-
-  $ grep "bba94fa4" /tmp/broker-service.log 730ms
-    2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl accept() Created prepare request
-    [bba94fa4-2781-4764-9553-c99a62f295db] for session [e345ec27-0fa3-434a-9902-e1a01014e173]
-
-  The prepare request was created but never picked up by the processing loop. Let me check what the processing loop was doing at that time - it
-   may be blocked on another request.
-
-  $ grep -n "processing loop\|Releasing component\|waiting \[20\]\|process()\|ERROR\|FAILED\|Exception\|Stuck\|blocked" /tmp/broker-service.log |
-    head -80 exit 141 • 805ms
-    4:WARNING: Restricted methods will be blocked in a future release unless native access is enabled
-    90:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
-    … truncated (79 more lines) · ctrl+o to expand
-
-  Let me focus on what happened around the time the processing loop was running and whether it got stuck.
-
-  $ grep -n "Exiting processing loop\|Starting processing loop\|Releasing component.*waiting" /tmp/broker-service.log | tail -30 1.4s
-    90:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
-    96:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Exiting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
-    … truncated (2 more lines) · ctrl+o to expand
-
-  The processing loop started at 07:13:39 and never exited. It's stuck. Let me look at what happened from that point.
-
-  ⬢ Read tmp/broker-service.log lines 3059-3158
-
-  I can see the root cause. The processing loop is spinning infinitely on the same PrepareComponentRequestEntity. Let me read the refactored
-  code to confirm.
-
-  ⬢ Read ...ng/component/PrepareComponentRequestEntity.java
-
-  Now I need to understand why the request isn't being rescheduled. Let me check the ProcessingServiceImpl and the method signature chain.
-
-  ⬢ Globbed, read, grepped 2 globs, 3 files, 1 grep
-    … 3 earlier items hidden
-    Read ...unctional/processing/ProcessingServiceImpl.java
-    Read ...ctional/processing/ProcessingRequestEntity.java
-    Grepped "postProcess|preProcess" in ...is/functional/processing/ProcessingRequest.java
-
-  Now I have the complete picture. Let me also quickly check MonitorComponentRequestEntity and ReleaseComponentRequestEntity to see if they
-  were refactored similarly.
-
-  ⬢ Read 3 files
-    Read ...ng/component/MonitorComponentRequestEntity.java
-    Read ...ng/component/ReleaseComponentRequestEntity.java
-    Read ...component/ComponentProcessingRequestEntity.java
-
-  Now I have the complete picture. Here is my analysis:
-
-  ────────────────────────────────────────
-
-  3 tests failed, 11 passed.
-  All three failures are TimeoutError — sessions never reaching their expected phases. The root cause is the same bug affecting all three.
-
-  ────────────────────────────────────────
-
-  Root cause: `ComponentProcessingRequestEntity.postProcess()` silently drops calls when action is `null`
-  The refactored ComponentProcessingRequestEntity added a bridge method at line 126:
-
-   /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/processing/component/ComponentProcessingRequestEntity.j
-  ava lines 126-136
-
-      @Override
-      public void postProcess(final Platform platform, final ProcessingAction action)
-          {
-          if (action instanceof ComponentProcessingAction)
-              {
-              this.postProcess(
-                  platform,
-                  (ComponentProcessingAction) action
-                  );
-              }
-          }
-
-  This method is called by ProcessingServiceImpl with the ProcessingAction returned by preProcess(). When preProcess() returns
-  ProcessingAction.NO_ACTION (which is null), the instanceof check fails and the method returns immediately — the subclass's postProcess(Platform,
-   ComponentProcessingAction) is never called.
-  The consequences:
-  1. PrepareComponentRequestEntity.preProcess() detects that the compute resource's prepareStartInstant is in the future and returns NO_ACTION:
-
-
-   /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/processing/component/PrepareComponentRequestEntity.java
-   lines 88-95
-
-                  if ((component.getPrepareStartInstant() != null) && (component.getPrepareStartInstant().isAfter(Instant.now())))
-                      {
-                      // ...
-                      component.setPhase(
-                          IvoaLifecyclePhase.WAITING
-                          );
-                      return ProcessingAction.NO_ACTION;
-                      }
-
-  2. Because postProcess() is never called on the subclass, the request is never rescheduled via this.activate(delay) (line 194) and never
-     deleted via this.done(). It stays in the queue permanently.
-  3. On the next getNext() call, the same request is found again, creating an infinite spin loop on the scheduling-1 thread. This is visible in
-     the logs — the same request 2336abbc is processed over and over at lines 3146→3157→3146:
-
-
-  3151: PrepareComponentRequestEntity preProcess() Component [...] prepare start is in the future [2026-03-07T07:14:25Z]
-  3155: ProcessingServiceImpl postProcess() outer post-processing request [2336abbc][PrepareComponentRequestEntity]
-  3157: ProcessingServiceImpl getNext() Found request [2336abbc]  ← same request again immediately
-
-  4. Since the processing loop uses a single thread (scheduling-1), the infinite spin blocks ALL other requests from being processed — including
-      the PrepareSessionRequest for session e345ec27 (test_session_reaches_available) and all subsequent sessions.
-
-  Why each test fails:
-  • `test_session_reaches_available` — Session e345ec27's PrepareSessionRequest is created but never processed because the processing loop is
-    stuck spinning on the earlier compute resource prepare request.
-  • `test_session_completes_with_timed_container` — Same reason: session 9d27299c is blocked behind the stuck request.
-  • `test_short_and_long_containers` — Same reason: sessions 780f0ec4 and the other are blocked.
-
-  Why the earlier tests pass:
-  • The 5 offer tests don't need the processing loop at all.
-  • test_accept_offer only checks that the session reaches ACCEPTED/PREPARING, which happens synchronously.
-  • test_session_reaches_preparing passes because the session's phase is set to PREPARING in beginPreparing() before the compute resource's
-    prepare request enters the spin loop.
-
-  The fix would be to update the bridge method in ComponentProcessingRequestEntity.postProcess() to also delegate when action is null, so the
-  subclass's postProcess() is always called and can reschedule or clean up the request.
---END--
-
-
-==START==
-Go ahead and make the suggested change and then re-run the tests.
-==END==
-
---START--
-  ⬢ To-do Working on 2 to-dos
-    ☐ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
-    ☐ Rebuild, restart service, and run tests
-
-  ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
-  │ ...component/ComponentProcessingRequestEntity.java +6                                                                                         │
-  │                                                                                                                                               │
-  │                   );                                                                                                                          │
-  │               }                                                                                                                               │
-  │ +         else {                                                                                                                              │
-  │ +             this.postProcess(                                                                                                               │
-  │ +                 platform,                                                                                                                   │
-  │ +                 (ComponentProcessingAction) null                                                                                            │
-  │ +                 );                                                                                                                          │
-  │ +             }                                                                                                                               │
-  │           }                                                                                                                                   │
-  │                                                                                                                                               │
-  └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-
-  ⬢ To-do Working on 1 to-do • 1 done
-    ☒ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
-    ☐ Rebuild, restart service, and run tests
-
-  $ pkill -f 'spring-boot:run' 2>/dev/null; sleep 3; echo "Stopped" 727ms
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -20 30s
-    WARNING: A restricted method in java.lang.System has been called
-    WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
-    (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
-    … truncated (8 more lines) · ctrl+o to expand
-
-  Build succeeded. Starting the service.
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/java && SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker-service.log 2>&1 28s
-    (background)
-
-  $ for i in $(seq 1 30); do if curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/offersets 2>/dev/null | grep -q '405'; then echo
-    "Service ready after ${i}s"; exit 0; fi; sleep 2; done; echo "Service did not start"; exit 1 23s
-    Service ready after 12s
-
-  Service is up. Running the tests.
-
-  $ cd /calycopis/Calycopis-broker/github-zrq/tests/python && python -m pytest test_docker_platform.py -v 2>&1 10m in
-    calycopis/Calycopis-broker/github-zrq/java
-    ============================= test session starts ==============================
-    platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python
-    … truncated (14 more lines) · ctrl+o to expand
-
-  Two tests still failing. Let me check the logs to see what's different now.
-
-  $ grep -c "Exiting processing loop\|Starting processing loop" /tmp/broker-service.log 865ms
-    17
-
-  $ grep -n "Exiting processing loop\|Starting processing loop" /tmp/broker-service.log 235ms
-    90:2026-03-07 07:48:03 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [f8241f60-19f9-11f1-95d1-29a372338761]
-    96:2026-03-07 07:48:03 DEBUG scheduling-1 ProcessingServiceImpl loop() Exiting processing loop [f8241f60-19f9-11f1-95d1-29a372338761]
-    … truncated (16 more lines) · ctrl+o to expand
-
-  Good - the loop is no longer stuck, it's cycling properly every 10 seconds. But test_session_reaches_available still failed. Let me check
-  what happened to that session.
-
-  $ grep "FAILED\|AssertionError\|TimeoutError\|assert.*got" /root/.cursor/projects/terminals/725129.txt 2>/dev/null | head -20 217ms
-    test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reache​s_available FAILED [ 57%]
-    test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_comple​tes_with_timed_container FAILED [ 64%]
-    … truncated (1 more line) · ctrl+o to expand
-
-  The test is still running. Let me look at the failure details from the first completed output and also check the service logs for the
-  specific session.
-
-  $ grep "test_session_reaches_available" -A 40 /root/.cursor/projects/terminals/725129.txt 2>/dev/null | head -50 180ms
-    test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reache​s_available FAILED [ 57%]
-    test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_comple​tes_with_timed_container FAILED [ 64%]
-    … truncated (2 more lines) · ctrl+o to expand
-
-  The detailed failure output isn't available yet since the test run hasn't completed. Let me look in the service logs for the specific
-  sessions to understand what's happening.
-
-  $ grep -n "AVAILABLE\|COMPLETED\|RELEASING\|RUNNING\|FAILED\|phase" /tmp/broker-service.log | grep -i "session.*phase\|setting session" | head
-    -30 183ms
-    305:        SimpleExecutionSessions.phase AS BlockPhase,
-    321:        SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
-    … truncated (29 more lines) · ctrl+o to expand
-
-  Let me check what happens when the prepare start time arrives and whether the compute resource actually progresses.
-
-  $ grep -n "AVAILABLE\|Docker container started\|Starting Docker\|Creating Docker\|Pulling Docker\|prepare start" /tmp/broker-service.log | head
-    -30 246ms
-    3078:2026-03-07 07:48:13 DEBUG scheduling-1 PrepareSessionRequestEntity postProcess() Session
-    [1816d804-16ac-469b-8193-ff5cc21781b6][SimpleExecutionSessionEntity$HibernatePro​xy] phase is [PREPARING], waiting for components to become
-    [AVAILABLE]
-    3100:2026-03-07 07:48:13 DEBUG scheduling-1 PrepareSessionRequestEntity postProcess() Session
-    [f8bac002-a504-483a-af8e-4574e8a468e2][SimpleExecutionSessionEntity$HibernatePro​xy] phase is [PREPARING], waiting for components to become
-    [AVAILABLE]
-    … truncated (23 more lines) · ctrl+o to expand
-
-  ⬢ Globbed, read 1 glob, 1 file
-    Globbed "**/UpdateSessionRequestEntity.java" in calycopis/Calycopis-broker/github-zrq/java
-    Read ...cessing/session/UpdateSessionRequestEntity.java
-
-  Let me wait for the tests to finish and then look at the detailed failure output.
-
-  $ sleep 120 && tail -50 /root/.cursor/projects/terminals/725129.txt 2m
-    ---
-    pid: 32311
-    … truncated (21 more lines) · ctrl+o to expand
-
-  $ sleep 300 && tail -120 /root/.cursor/projects/terminals/725129.txt 5m
-    client = <calycopis_client.wrappers.execution_client.ExecutionBrokerClient object at 0x7fea9670aa50>
-    … truncated (119 more lines) · ctrl+o to expand
-
-  Same 3 failures. The bridge method fix resolved the infinite spin loop but there are additional issues. Let me trace through the service logs
-   to understand the remaining problems.
-
-  $ grep -n "Setting session.*AVAILABLE\|Setting session.*RUNNING\|Setting session.*COMPLETED\|Setting session.*RELEASING\|Setting session.*FAILED"
-     /tmp/broker-service.log | head -20 915ms
-    4415:2026-03-07 07:49:26 DEBUG scheduling-1 UpdateSessionRequestEntity preProcess() Setting session
-    [1816d804-16ac-469b-8193-ff5cc21781b6][SimpleExecutionSessionEntity$HibernatePro​xy] phase to [FAILED]
-    4438:2026-03-07 07:49:26 DEBUG scheduling-1 UpdateSessionRequestEntity preProcess() Setting session
-    [f8bac002-a504-483a-af8e-4574e8a468e2][SimpleExecutionSessionEntity$HibernatePro​xy] phase to [FAILED]
-    … truncated (2 more lines) · ctrl+o to expand
-
-  All three sessions are being set to FAILED. Let me see why.
-
-  ⬢ Read tmp/broker-service.log lines 4391-4480
-
-  The compute resources are FAILED. Let me find out why they're being set to FAILED.
-
-  ⬢ Read tmp/broker-service.log lines 4271-4330
-
-  The root cause of the remaining failures is not a code bug — it's an infrastructure issue. The Docker/Podman service is returning "read-only
-  file system" errors when trying to pull images:
-
-  Status 500: {"message":"read-only file system"}
-
-  This causes all three DockerSimpleComputeResourceEntity.process() calls to fail, setting the compute resources to FAILED, which then cascades
-   to set all sessions to FAILED.
-  The bridge method fix is correct and working — the processing loop is no longer stuck. The remaining 3 test failures are caused by the
-  Podman/Docker service's filesystem becoming read-only, which prevents image pulls from succeeding. This is an environment issue, not a code
-  issue.
-
-  ⬢ To-do All done
-    ☒ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
-    ☒ Rebuild, restart service, and run tests
-
-  Here's the summary:
-  The bridge method fix is working correctly — the infinite spin loop from the first run is resolved. The processing loop now cycles normally
-  (start → exit every ~10 seconds).
-  The 3 remaining test failures are caused by a Podman infrastructure error, not a code bug. When DockerSimpleComputeResourceEntity.process()
-  tries to pull the Docker image, Podman returns:
-
-  Status 500: {"message":"read-only file system"}
-
-  This causes all three compute resources to fail their prepare step, which cascades: compute → FAILED → UpdateSessionRequestEntity detects a
-  failed component → session set to FAILED → tests timeout waiting for AVAILABLE/COMPLETED.
-  The Podman storage filesystem has likely filled up or been remounted read-only. This would need to be resolved at the infrastructure level
-  (e.g. checking disk space, restarting Podman, or clearing stale containers/images).
---END--
-
-
-==START==
-Can you save the current conversation state so that we can resume it later
-==END==
-
---START--
-  The conversation state has already been automatically saved. You can resume this conversation later by referencing the transcript at:
-  /root/.cursor/projects/agent-transcripts/
-  The key context to resume with:
-  • Project: /calycopis/Calycopis-broker/github-zrq/
-  • Fix applied: ComponentProcessingRequestEntity.postProcess() bridge method now delegates to the subclass even when action is null
-  • Status: 11 of 14 Python tests pass. The 3 remaining failures (test_session_reaches_available, test_session_completes_with_timed_container,
-    test_short_and_long_containers) are caused by a Podman "read-only file system" infrastructure error, not a code bug
-  • Pending: Once the Podman storage issue is resolved, re-run the tests to confirm all 14 pass
---END--
+    ?   I have refactored a lot of the business logic behind the ProcessingRequests and ProcessingActions.
+    ?   Can you re-run the tests, find if any of the them fail and identify why.
+    ?   No changes to the code yet, just identify the causes.
+
+    >     $ pkill -f 'spring-boot:run' 2>/dev/null; sleep 3; echo "Stopped" 549ms
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -30 16s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (8 more lines) · ctrl+o to expand
+    >   
+    >     Build succeeded. Now let me start the service and run the tests.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker-service.log 2>&1 27s
+    >       (background)
+    >   
+    >     $ for i in $(seq 1 30); do if curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/offersets 2>/dev/null | grep -q '405'; then echo
+    >       "Service ready after ${i}s"; exit 0; fi; sleep 2; done; echo "Service did not start"; exit 1 21s
+    >       Service ready after 11s
+    >   
+    >     Service is up. Now let me run the Python tests.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/tests/python && python -m pytest test_docker_platform.py -v 2>&1 10m in
+    >       calycopis/Calycopis-broker/github-zrq/java
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python
+    >       … truncated (12 more lines) · ctrl+o to expand
+    >   
+    >     $ sleep 120 && tail -40 /root/.cursor/projects/terminals/598372.txt 2m 1s
+    >       ---
+    >       pid: 31343
+    >       … truncated (20 more lines) · ctrl+o to expand
+    >   
+    >     test_session_reaches_available has FAILED. Let me wait for the remaining tests to finish.
+    >   
+    >     $ sleep 180 && tail -80 /root/.cursor/projects/terminals/598372.txt 3m
+    >       ---
+    >       pid: 31343
+    >       … truncated (21 more lines) · ctrl+o to expand
+    >   
+    >     Two failures so far. Let me wait for the remaining tests.
+    >   
+    >     $ sleep 300 && tail -120 /root/.cursor/projects/terminals/598372.txt 5m 1s
+    >       ---
+    >       pid: 31343
+    >       … truncated (21 more lines) · ctrl+o to expand
+    >   
+    >     The test_short_and_long_containers is still running. Let me wait more.
+    >   
+    >     $ sleep 300 && tail -120 /root/.cursor/projects/terminals/598372.txt 5m 1s
+    >       client = <calycopis_client.wrappers.execution_client.ExecutionBrokerClient object at 0x7ff9b262aa50>
+    >       … truncated (119 more lines) · ctrl+o to expand
+    >   
+    >     3 tests failed, 11 passed. Now let me examine the failure details and the service logs to understand the root causes. Let me get the full
+    >     failure output and the relevant service logs.
+    >   
+    >     ⬢ Grepped "...ertionError|TimeoutError|assert |got " in root/.cursor/projects/terminals/598372.txt
+    >       Found 31 matches
+    >   
+    >     All three failures are TimeoutError — sessions are stuck and never reaching the expected phases. Let me look at the service logs to
+    >     understand where the sessions are getting stuck.
+    >   
+    >     $ wc -l /tmp/broker-service.log 1.2s
+    >       2655084 /tmp/broker-service.log
+    >   
+    >     $ rg -n "e345ec27-0fa3-434a-9902-e1a01014e173" /tmp/broker-service.log | head -30 exit 127 • 304ms
+    >       --: line 1: rg: command not found
+    >   
+    >     ⬢ Grepped 3 greps
+    >       Grepped "e345ec27-0fa3-434a-9902-e1a01014e173" in tmp/broker-service.log
+    >       Grepped "e345ec27-0fa3-434a-9902-e1a01014e173" in tmp/broker-service.log
+    >       Grepped "bba94fa4-2781-4764-9553-c99a62f295db" in tmp/broker-service.log
+    >   
+    >     The prepare request was created but never picked up. Let me check what the processing loop is doing around that time.
+    >   
+    >     ⬢ Grepped "...xt|No requests found|requests claimed" in tmp/broker-service.log
+    >       Found 10000 matches  (truncated)
+    >   
+    >     The early tests processed fine. Let me look specifically at what happened to the stuck session e345ec27 from the
+    >     test_session_reaches_available test.
+    >   
+    >     $ grep -c "e345ec27" /tmp/broker-service.log 950ms
+    >       9
+    >   
+    >     $ grep "e345ec27" /tmp/broker-service.log 727ms
+    >       2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl update() UUID
+    >       [e345ec27-0fa3-434a-9902-e1a01014e173]
+    >       2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl update() Entity
+    >       [e345ec27-0fa3-434a-9902-e1a01014e173]
+    >       … truncated (8 more lines) · ctrl+o to expand
+    >   
+    >     The PrepareSessionRequest bba94fa4 was created but never processed. Let me check whether the processing loop is stuck on something else.
+    >   
+    >     $ grep "bba94fa4" /tmp/broker-service.log 730ms
+    >       2026-03-07 07:13:41 DEBUG http-nio-8082-exec-10 SimpleExecutionSessionEntityUpdateHandlerImpl accept() Created prepare request
+    >       [bba94fa4-2781-4764-9553-c99a62f295db] for session [e345ec27-0fa3-434a-9902-e1a01014e173]
+    >   
+    >     The prepare request was created but never picked up by the processing loop. Let me check what the processing loop was doing at that time - it
+    >      may be blocked on another request.
+    >   
+    >     $ grep -n "processing loop\|Releasing component\|waiting \[20\]\|process()\|ERROR\|FAILED\|Exception\|Stuck\|blocked" /tmp/broker-service.log |
+    >       head -80 exit 141 • 805ms
+    >       4:WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+    >       90:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
+    >       … truncated (79 more lines) · ctrl+o to expand
+    >   
+    >     Let me focus on what happened around the time the processing loop was running and whether it got stuck.
+    >   
+    >     $ grep -n "Exiting processing loop\|Starting processing loop\|Releasing component.*waiting" /tmp/broker-service.log | tail -30 1.4s
+    >       90:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
+    >       96:2026-03-07 07:13:29 DEBUG scheduling-1 ProcessingServiceImpl loop() Exiting processing loop [23b69971-19f5-11f1-8c1f-4d4e925b380c]
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     The processing loop started at 07:13:39 and never exited. It's stuck. Let me look at what happened from that point.
+    >   
+    >     ⬢ Read tmp/broker-service.log lines 3059-3158
+    >   
+    >     I can see the root cause. The processing loop is spinning infinitely on the same PrepareComponentRequestEntity. Let me read the refactored
+    >     code to confirm.
+    >   
+    >     ⬢ Read ...ng/component/PrepareComponentRequestEntity.java
+    >   
+    >     Now I need to understand why the request isn't being rescheduled. Let me check the ProcessingServiceImpl and the method signature chain.
+    >   
+    >     ⬢ Globbed, read, grepped 2 globs, 3 files, 1 grep
+    >       … 3 earlier items hidden
+    >       Read ...unctional/processing/ProcessingServiceImpl.java
+    >       Read ...ctional/processing/ProcessingRequestEntity.java
+    >       Grepped "postProcess|preProcess" in ...is/functional/processing/ProcessingRequest.java
+    >   
+    >     Now I have the complete picture. Let me also quickly check MonitorComponentRequestEntity and ReleaseComponentRequestEntity to see if they
+    >     were refactored similarly.
+    >   
+    >     ⬢ Read 3 files
+    >       Read ...ng/component/MonitorComponentRequestEntity.java
+    >       Read ...ng/component/ReleaseComponentRequestEntity.java
+    >       Read ...component/ComponentProcessingRequestEntity.java
+    >   
+    >     Now I have the complete picture. Here is my analysis:
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     3 tests failed, 11 passed.
+    >     All three failures are TimeoutError — sessions never reaching their expected phases. The root cause is the same bug affecting all three.
+    >   
+    >     ────────────────────────────────────────
+    >   
+    >     Root cause: `ComponentProcessingRequestEntity.postProcess()` silently drops calls when action is `null`
+    >     The refactored ComponentProcessingRequestEntity added a bridge method at line 126:
+    >   
+    >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/processing/component/ComponentProcessingRequestEntity.j
+    >     ava lines 126-136
+    >   
+    >         @Override
+    >         public void postProcess(final Platform platform, final ProcessingAction action)
+    >             {
+    >             if (action instanceof ComponentProcessingAction)
+    >                 {
+    >                 this.postProcess(
+    >                     platform,
+    >                     (ComponentProcessingAction) action
+    >                     );
+    >                 }
+    >             }
+    >   
+    >     This method is called by ProcessingServiceImpl with the ProcessingAction returned by preProcess(). When preProcess() returns
+    >     ProcessingAction.NO_ACTION (which is null), the instanceof check fails and the method returns immediately — the subclass's postProcess(Platform,
+    >      ComponentProcessingAction) is never called.
+    >     The consequences:
+    >     1. PrepareComponentRequestEntity.preProcess() detects that the compute resource's prepareStartInstant is in the future and returns NO_ACTION:
+    >   
+    >   
+    >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/functional/processing/component/PrepareComponentRequestEntity.java
+    >      lines 88-95
+    >   
+    >                     if ((component.getPrepareStartInstant() != null) && (component.getPrepareStartInstant().isAfter(Instant.now())))
+    >                         {
+    >                         // ...
+    >                         component.setPhase(
+    >                             IvoaLifecyclePhase.WAITING
+    >                             );
+    >                         return ProcessingAction.NO_ACTION;
+    >                         }
+    >   
+    >     2. Because postProcess() is never called on the subclass, the request is never rescheduled via this.activate(delay) (line 194) and never
+    >        deleted via this.done(). It stays in the queue permanently.
+    >     3. On the next getNext() call, the same request is found again, creating an infinite spin loop on the scheduling-1 thread. This is visible in
+    >        the logs — the same request 2336abbc is processed over and over at lines 3146→3157→3146:
+    >   
+    >   
+    >     3151: PrepareComponentRequestEntity preProcess() Component [...] prepare start is in the future [2026-03-07T07:14:25Z]
+    >     3155: ProcessingServiceImpl postProcess() outer post-processing request [2336abbc][PrepareComponentRequestEntity]
+    >     3157: ProcessingServiceImpl getNext() Found request [2336abbc]  ← same request again immediately
+    >   
+    >     4. Since the processing loop uses a single thread (scheduling-1), the infinite spin blocks ALL other requests from being processed — including
+    >         the PrepareSessionRequest for session e345ec27 (test_session_reaches_available) and all subsequent sessions.
+    >   
+    >     Why each test fails:
+    >     • `test_session_reaches_available` — Session e345ec27's PrepareSessionRequest is created but never processed because the processing loop is
+    >       stuck spinning on the earlier compute resource prepare request.
+    >     • `test_session_completes_with_timed_container` — Same reason: session 9d27299c is blocked behind the stuck request.
+    >     • `test_short_and_long_containers` — Same reason: sessions 780f0ec4 and the other are blocked.
+    >   
+    >     Why the earlier tests pass:
+    >     • The 5 offer tests don't need the processing loop at all.
+    >     • test_accept_offer only checks that the session reaches ACCEPTED/PREPARING, which happens synchronously.
+    >     • test_session_reaches_preparing passes because the session's phase is set to PREPARING in beginPreparing() before the compute resource's
+    >       prepare request enters the spin loop.
+    >   
+    >     The fix would be to update the bridge method in ComponentProcessingRequestEntity.postProcess() to also delegate when action is null, so the
+    >     subclass's postProcess() is always called and can reschedule or clean up the request.
+
+
+    ?   Go ahead and make the suggested change and then re-run the tests.
+
+    >     ⬢ To-do Working on 2 to-dos
+    >       ☐ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
+    >       ☐ Rebuild, restart service, and run tests
+    >   
+    >     ┌───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...component/ComponentProcessingRequestEntity.java +6                                                                                         │
+    >     │                                                                                                                                               │
+    >     │                   );                                                                                                                          │
+    >     │               }                                                                                                                               │
+    >     │ +         else {                                                                                                                              │
+    >     │ +             this.postProcess(                                                                                                               │
+    >     │ +                 platform,                                                                                                                   │
+    >     │ +                 (ComponentProcessingAction) null                                                                                            │
+    >     │ +                 );                                                                                                                          │
+    >     │ +             }                                                                                                                               │
+    >     │           }                                                                                                                                   │
+    >     │                                                                                                                                               │
+    >     └───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     ⬢ To-do Working on 1 to-do • 1 done
+    >       ☒ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
+    >       ☐ Rebuild, restart service, and run tests
+    >   
+    >     $ pkill -f 'spring-boot:run' 2>/dev/null; sleep 3; echo "Stopped" 727ms
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -20 30s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (8 more lines) · ctrl+o to expand
+    >   
+    >     Build succeeded. Starting the service.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run > /tmp/broker-service.log 2>&1 28s
+    >       (background)
+    >   
+    >     $ for i in $(seq 1 30); do if curl -s -o /dev/null -w "%{http_code}" http://localhost:8082/offersets 2>/dev/null | grep -q '405'; then echo
+    >       "Service ready after ${i}s"; exit 0; fi; sleep 2; done; echo "Service did not start"; exit 1 23s
+    >       Service ready after 12s
+    >   
+    >     Service is up. Running the tests.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/tests/python && python -m pytest test_docker_platform.py -v 2>&1 10m in
+    >       calycopis/Calycopis-broker/github-zrq/java
+    >       ============================= test session starts ==============================
+    >       platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python
+    >       … truncated (14 more lines) · ctrl+o to expand
+    >   
+    >     Two tests still failing. Let me check the logs to see what's different now.
+    >   
+    >     $ grep -c "Exiting processing loop\|Starting processing loop" /tmp/broker-service.log 865ms
+    >       17
+    >   
+    >     $ grep -n "Exiting processing loop\|Starting processing loop" /tmp/broker-service.log 235ms
+    >       90:2026-03-07 07:48:03 DEBUG scheduling-1 ProcessingServiceImpl loop() Starting processing loop [f8241f60-19f9-11f1-95d1-29a372338761]
+    >       96:2026-03-07 07:48:03 DEBUG scheduling-1 ProcessingServiceImpl loop() Exiting processing loop [f8241f60-19f9-11f1-95d1-29a372338761]
+    >       … truncated (16 more lines) · ctrl+o to expand
+    >   
+    >     Good - the loop is no longer stuck, it's cycling properly every 10 seconds. But test_session_reaches_available still failed. Let me check
+    >     what happened to that session.
+    >   
+    >     $ grep "FAILED\|AssertionError\|TimeoutError\|assert.*got" /root/.cursor/projects/terminals/725129.txt 2>/dev/null | head -20 217ms
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reache​s_available FAILED [ 57%]
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_comple​tes_with_timed_container FAILED [ 64%]
+    >       … truncated (1 more line) · ctrl+o to expand
+    >   
+    >     The test is still running. Let me look at the failure details from the first completed output and also check the service logs for the
+    >     specific session.
+    >   
+    >     $ grep "test_session_reaches_available" -A 40 /root/.cursor/projects/terminals/725129.txt 2>/dev/null | head -50 180ms
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reache​s_available FAILED [ 57%]
+    >       test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_comple​tes_with_timed_container FAILED [ 64%]
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     The detailed failure output isn't available yet since the test run hasn't completed. Let me look in the service logs for the specific
+    >     sessions to understand what's happening.
+    >   
+    >     $ grep -n "AVAILABLE\|COMPLETED\|RELEASING\|RUNNING\|FAILED\|phase" /tmp/broker-service.log | grep -i "session.*phase\|setting session" | head
+    >       -30 183ms
+    >       305:        SimpleExecutionSessions.phase AS BlockPhase,
+    >       321:        SimpleExecutionSessions.phase IN ('OFFERED', 'PREPARING', 'WAITING', 'RUNNING', 'RELEASING')
+    >       … truncated (29 more lines) · ctrl+o to expand
+    >   
+    >     Let me check what happens when the prepare start time arrives and whether the compute resource actually progresses.
+    >   
+    >     $ grep -n "AVAILABLE\|Docker container started\|Starting Docker\|Creating Docker\|Pulling Docker\|prepare start" /tmp/broker-service.log | head
+    >       -30 246ms
+    >       3078:2026-03-07 07:48:13 DEBUG scheduling-1 PrepareSessionRequestEntity postProcess() Session
+    >       [1816d804-16ac-469b-8193-ff5cc21781b6][SimpleExecutionSessionEntity$HibernatePro​xy] phase is [PREPARING], waiting for components to become
+    >       [AVAILABLE]
+    >       3100:2026-03-07 07:48:13 DEBUG scheduling-1 PrepareSessionRequestEntity postProcess() Session
+    >       [f8bac002-a504-483a-af8e-4574e8a468e2][SimpleExecutionSessionEntity$HibernatePro​xy] phase is [PREPARING], waiting for components to become
+    >       [AVAILABLE]
+    >       … truncated (23 more lines) · ctrl+o to expand
+    >   
+    >     ⬢ Globbed, read 1 glob, 1 file
+    >       Globbed "**/UpdateSessionRequestEntity.java" in calycopis/Calycopis-broker/github-zrq/java
+    >       Read ...cessing/session/UpdateSessionRequestEntity.java
+    >   
+    >     Let me wait for the tests to finish and then look at the detailed failure output.
+    >   
+    >     $ sleep 120 && tail -50 /root/.cursor/projects/terminals/725129.txt 2m
+    >       ---
+    >       pid: 32311
+    >       … truncated (21 more lines) · ctrl+o to expand
+    >   
+    >     $ sleep 300 && tail -120 /root/.cursor/projects/terminals/725129.txt 5m
+    >       client = <calycopis_client.wrappers.execution_client.ExecutionBrokerClient object at 0x7fea9670aa50>
+    >       … truncated (119 more lines) · ctrl+o to expand
+    >   
+    >     Same 3 failures. The bridge method fix resolved the infinite spin loop but there are additional issues. Let me trace through the service logs
+    >      to understand the remaining problems.
+    >   
+    >     $ grep -n "Setting session.*AVAILABLE\|Setting session.*RUNNING\|Setting session.*COMPLETED\|Setting session.*RELEASING\|Setting session.*FAILED"
+    >        /tmp/broker-service.log | head -20 915ms
+    >       4415:2026-03-07 07:49:26 DEBUG scheduling-1 UpdateSessionRequestEntity preProcess() Setting session
+    >       [1816d804-16ac-469b-8193-ff5cc21781b6][SimpleExecutionSessionEntity$HibernatePro​xy] phase to [FAILED]
+    >       4438:2026-03-07 07:49:26 DEBUG scheduling-1 UpdateSessionRequestEntity preProcess() Setting session
+    >       [f8bac002-a504-483a-af8e-4574e8a468e2][SimpleExecutionSessionEntity$HibernatePro​xy] phase to [FAILED]
+    >       … truncated (2 more lines) · ctrl+o to expand
+    >   
+    >     All three sessions are being set to FAILED. Let me see why.
+    >   
+    >     ⬢ Read tmp/broker-service.log lines 4391-4480
+    >   
+    >     The compute resources are FAILED. Let me find out why they're being set to FAILED.
+    >   
+    >     ⬢ Read tmp/broker-service.log lines 4271-4330
+    >   
+    >     The root cause of the remaining failures is not a code bug — it's an infrastructure issue. The Docker/Podman service is returning "read-only
+    >     file system" errors when trying to pull images:
+    >   
+    >     Status 500: {"message":"read-only file system"}
+    >   
+    >     This causes all three DockerSimpleComputeResourceEntity.process() calls to fail, setting the compute resources to FAILED, which then cascades
+    >      to set all sessions to FAILED.
+    >     The bridge method fix is correct and working — the processing loop is no longer stuck. The remaining 3 test failures are caused by the
+    >     Podman/Docker service's filesystem becoming read-only, which prevents image pulls from succeeding. This is an environment issue, not a code
+    >     issue.
+    >   
+    >     ⬢ To-do All done
+    >       ☒ Fix ComponentProcessingRequestEntity.postProcess() bridge method to delegate when action is null
+    >       ☒ Rebuild, restart service, and run tests
+    >   
+    >     Here's the summary:
+    >     The bridge method fix is working correctly — the infinite spin loop from the first run is resolved. The processing loop now cycles normally
+    >     (start → exit every ~10 seconds).
+    >     The 3 remaining test failures are caused by a Podman infrastructure error, not a code bug. When DockerSimpleComputeResourceEntity.process()
+    >     tries to pull the Docker image, Podman returns:
+    >   
+    >     Status 500: {"message":"read-only file system"}
+    >   
+    >     This causes all three compute resources to fail their prepare step, which cascades: compute → FAILED → UpdateSessionRequestEntity detects a
+    >     failed component → session set to FAILED → tests timeout waiting for AVAILABLE/COMPLETED.
+    >     The Podman storage filesystem has likely filled up or been remounted read-only. This would need to be resolved at the infrastructure level
+    >     (e.g. checking disk space, restarting Podman, or clearing stale containers/images).
+
+
+    ?   Can you save the current conversation state so that we can resume it later
+
+    >     The conversation state has already been automatically saved. You can resume this conversation later by referencing the transcript at:
+    >     /root/.cursor/projects/agent-transcripts/
+    >     The key context to resume with:
+    >     • Project: /calycopis/Calycopis-broker/github-zrq/
+    >     • Fix applied: ComponentProcessingRequestEntity.postProcess() bridge method now delegates to the subclass even when action is null
+    >     • Status: 11 of 14 Python tests pass. The 3 remaining failures (test_session_reaches_available, test_session_completes_with_timed_container,
+    >       test_short_and_long_containers) are caused by a Podman "read-only file system" infrastructure error, not a code bug
+    >     • Pending: Once the Podman storage issue is resolved, re-run the tests to confirm all 14 pass
 
 # -----------------------------------------------------
 # -----------------------------------------------------

@@ -176,6 +176,7 @@ implements ProcessingService
                 request,
                 action
                 );
+            request.setService(null);
             }
         }
 

@@ -36,7 +36,6 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -260,7 +259,46 @@ implements SessionProcessingRequest
                     break;
                 }
             }
-            
+
+        //
+        // If ANY of the components are RELEASING
+        else if (releasingList.size() > 0)
+            {
+            log.debug(
+                "[{}] components marked as [RELEASING]",
+                releasingList.size()
+                );
+            switch (this.session.getPhase())
+                {
+                case RELEASING:
+                case COMPLETED:
+                case CANCELLED:
+                case FAILED:
+                    log.debug(
+                        "Skipping change to [RELEASING] for session [{}][{}], phase is already [{}]",
+                        this.session.getUuid(),
+                        this.session.getClass().getSimpleName(),
+                        this.session.getPhase()
+                        );
+                    break;
+
+                default:
+                    log.debug(
+                        "Setting session [{}][{}] phase to [RELEASING]",
+                        this.session.getUuid(),
+                        this.session.getClass().getSimpleName(),
+                        this.session.getPhase()
+                        );
+                    this.session.setPhase(
+                        IvoaSimpleExecutionSessionPhase.RELEASING
+                        );
+                    this.scheduleReleaseAll(
+                        platform
+                        );
+                    break;
+                }
+            }
+
         //
         // If ALL of the components are AVAILABLE
         else if (availableList.size() >= count.get())

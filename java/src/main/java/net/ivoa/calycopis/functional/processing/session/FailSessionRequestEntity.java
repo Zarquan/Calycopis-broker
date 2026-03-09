@@ -46,6 +46,7 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 @Inheritance(
     strategy = InheritanceType.JOINED
     )
+@Deprecated
 public class FailSessionRequestEntity
 extends SessionProcessingRequestEntity
 implements SessionProcessingRequest

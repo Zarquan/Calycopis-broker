@@ -45,25 +45,21 @@
 
     systemctl --user status podman.socket
 
---START--
-● podman.socket - Podman API Socket
-     Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; preset: disabled)
-     Active: active (listening) since Sat 2026-03-07 08:38:49 GMT; 3min 44s ago
-   Triggers: ● podman.service
-       Docs: man:podman-system-service(1)
-     Listen: /run/user/1000/podman/podman.sock (Stream)
-     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/podman.socket
-
-Mar 07 08:38:49 methionine systemd[1801]: Listening on podman.socket - Podman API Socket.
---END--
+    >   ● podman.socket - Podman API Socket
+    >        Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; preset: disabled)
+    >        Active: active (listening) since Sat 2026-03-07 08:38:49 GMT; 3min 44s ago
+    >      Triggers: ● podman.service
+    >          Docs: man:podman-system-service(1)
+    >        Listen: /run/user/1000/podman/podman.sock (Stream)
+    >        CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/podman.socket
+    >   
+    >   Mar 07 08:38:49 methionine systemd[1801]: Listening on podman.socket - Podman API Socket.
 
 
     ls -alZ ${XDG_RUNTIME_DIR}/podman
 
---START--
-....
-srw-rw----.  1 Zarquan Zarquan unconfined_u:object_r:user_tmp_t:s0   0 Mar  7 08:38 podman.sock
---END--
+    >   ....
+    >   srw-rw----.  1 Zarquan Zarquan unconfined_u:object_r:user_tmp_t:s0   0 Mar  7 08:38 podman.sock
 
 # -----------------------------------------------------
 # Run an instance of our developer tools.
@@ -76,9 +72,7 @@ srw-rw----.  1 Zarquan Zarquan unconfined_u:object_r:user_tmp_t:s0   0 Mar  7 08
         --replace \
         --name calycopis-pod
 
---START--
-e13542bc9b5270ffdb054f3c9cdcbdcd0ff64c221e00b83ffe2d032345436509
---END--
+    >   e13542bc9b5270ffdb054f3c9cdcbdcd0ff64c221e00b83ffe2d032345436509
 
 
     source "${HOME:?}/calycopis.env"
@@ -97,33 +91,25 @@ e13542bc9b5270ffdb054f3c9cdcbdcd0ff64c221e00b83ffe2d032345436509
 
     ls -alZ /run/podman/podman.sock
 
---START--
-srw-rw----. 1 root root system_u:object_r:container_file_t:s0:c702,c845 0 Mar  7 08:38 /run/podman/podman.sock
---END--
+    >   srw-rw----. 1 root root system_u:object_r:container_file_t:s0:c702,c845 0 Mar  7 08:38 /run/podman/podman.sock
 
 
     echo $CONTAINER_HOST
 
---START--
-unix:///run/podman/podman.sock
---END--
+    >   unix:///run/podman/podman.sock
 
 
     dnf install -y podman
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
     podman ps
 
---START--
-CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
-8ebfa441ab3e  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              e13542bc9b52-infra
-be8b618c4e23  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
---END--
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
+    >   8ebfa441ab3e  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              e13542bc9b52-infra
+    >   be8b618c4e23  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
 
 
     podman run \
@@ -133,9 +119,7 @@ be8b618c4e23  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        Abo
         fedora:latest \
             cat /etc/redhat-release
 
---START--
-Fedora release 43 (Forty Three)
---END--
+    >   Fedora release 43 (Forty Three)
 
     #
     # OK, Podman is working agin ....

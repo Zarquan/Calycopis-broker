@@ -86,6 +86,10 @@ implements ProcessingRequest
         {
         return this.service;
         }
+    public void setService(final UUID service)
+        {
+        this.service = service;
+        }
 
     private Instant created;
     @Override

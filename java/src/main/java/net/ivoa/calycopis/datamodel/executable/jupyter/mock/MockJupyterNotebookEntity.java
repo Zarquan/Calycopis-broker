@@ -33,9 +33,10 @@ import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.SimpleMonitorAction;
+import net.ivoa.calycopis.functional.processing.SimplePrepareAction;
+import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -71,10 +72,17 @@ implements MockJupyterNotebook
     @Override
     public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleDelayAction(
+        return new SimplePrepareAction(
             this,
-            IvoaLifecyclePhase.PREPARING,
-            IvoaLifecyclePhase.AVAILABLE,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleMonitorAction(
+            this,
             30_000
             );
         }
@@ -82,10 +90,8 @@ implements MockJupyterNotebook
     @Override
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleDelayAction(
+        return new SimpleReleaseAction(
             this,
-            IvoaLifecyclePhase.RELEASING,
-            IvoaLifecyclePhase.COMPLETED,
             30_000
             );
         }

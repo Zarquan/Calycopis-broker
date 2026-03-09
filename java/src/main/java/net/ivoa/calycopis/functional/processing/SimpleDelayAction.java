@@ -50,7 +50,17 @@ implements ComponentProcessingAction
     /**
      * 
      */
-    public SimpleDelayAction(LifecycleComponentEntity component, IvoaLifecyclePhase waitPhase, IvoaLifecyclePhase donePhase, int delay)
+    public SimpleDelayAction(final LifecycleComponentEntity component, int delay)
+        {
+        this.componentUuid  = component.getUuid();
+        this.componentClass = component.getClass().getSimpleName();
+        this.loopDelay = delay ;
+        }
+
+    /**
+     * 
+     */
+    public SimpleDelayAction(final LifecycleComponentEntity component, IvoaLifecyclePhase waitPhase, IvoaLifecyclePhase donePhase, int delay)
         {
         this.componentUuid  = component.getUuid();
         this.componentClass = component.getClass().getSimpleName();
@@ -67,11 +77,15 @@ implements ComponentProcessingAction
             componentUuid,
             componentClass
             );
-        component.setPhase(
-            waitPhase
-            );
+        if (waitPhase != null)
+            {
+            component.setPhase(
+                waitPhase
+                );
+            }
         }
 
+    
     @Override
     public void process()
         {
@@ -80,19 +94,21 @@ implements ComponentProcessingAction
             componentUuid,
             componentClass
             );
-
-        try {
-            Thread.sleep(
-                this.loopDelay
-                );
-            }
-        catch (InterruptedException e)
+        if (loopDelay > 0)
             {
-            log.error(
-                "Interrupted while processing [{}][{}]",
-                componentUuid,
-                componentClass
-                );
+            try {
+                Thread.sleep(
+                    this.loopDelay
+                    );
+                }
+            catch (InterruptedException e)
+                {
+                log.error(
+                    "Interrupted while processing [{}][{}]",
+                    componentUuid,
+                    componentClass
+                    );
+                }
             }
         }
 
@@ -104,9 +120,11 @@ implements ComponentProcessingAction
             componentUuid,
             componentClass
             );
-
-        component.setPhase(
-            donePhase
-            );
+        if (donePhase != null)
+            {
+            component.setPhase(
+                donePhase
+                );
+            }
         }
     }

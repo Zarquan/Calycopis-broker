@@ -91,8 +91,15 @@ implements ComponentProcessingRequest
                     );
 
             //
-            // The phase is already beyond active, no action required.
+            // The component is releasing, return the component's release action.
             case RELEASING:
+                return component.getReleaseAction(
+                    platform,
+                    this
+                    );
+
+            //
+            // The phase is already beyond active, no action required.
             case COMPLETED:
             case CANCELLED:
             case FAILED:
@@ -142,12 +149,12 @@ implements ComponentProcessingRequest
             {
             case AVAILABLE:
             case RUNNING:
+            case RELEASING:
                 // TODO Ask the component for the poll interval.
                 // https://github.com/ivoa/Calycopis-broker/issues/365
                 this.activate(DEFAULT_POLL_INTERVAL);
                 break;
 
-            case RELEASING:
             case COMPLETED:
             case CANCELLED:
             case FAILED:

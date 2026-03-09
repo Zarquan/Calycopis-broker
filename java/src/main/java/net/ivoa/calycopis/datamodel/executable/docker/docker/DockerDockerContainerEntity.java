@@ -45,6 +45,8 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -361,5 +363,23 @@ public class DockerDockerContainerEntity
                     );
                 }
             };
+        }
+
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleReleaseAction(
+            this,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            30_000
+            );
         }
     }

@@ -51,6 +51,7 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -249,47 +250,60 @@ implements DockerSimpleComputeResource
                     // Configure host resource limits based on offered cores and memory.
                     // TODO also check the minCores and MinMemory.
                     HostConfig hostConfig = HostConfig.newHostConfig();
+                    boolean hasResourceLimits = false;
                     if (maxCores != null)
                         {
                         long nanoCpus = maxCores * 1_000_000_000L;
                         hostConfig.withNanoCPUs(nanoCpus);
+                        hasResourceLimits = true;
                         }
                     if (maxMemory != null)
                         {
                         long memoryBytes = maxMemory * 1_073_741_824L;
                         hostConfig.withMemory(memoryBytes);
+                        hasResourceLimits = true;
                         }
 
                     //
-                    // Create the container.
-                    log.debug(
-                        "Creating Docker container from image [{}]",
-                        imageName
-                        );
-                    var createCmd = dockerClient.createContainerCmd(imageName)
-                        .withEnv(envList)
-                        .withHostConfig(hostConfig);
-                    if (!cmdList.isEmpty())
-                        {
-                        createCmd.withCmd(cmdList);
-                        }
-                    CreateContainerResponse container = createCmd.exec();
-                    this.containerId = container.getId();
-
-                    //
-                    // Start the container.
-                    log.debug(
-                        "Starting Docker container [{}]",
-                        this.containerId
-                        );
-                    dockerClient.startContainerCmd(this.containerId).exec();
-
-                    log.debug(
-                        "Docker container started [{}] for resource [{}]",
-                        this.containerId,
+                    // Create and start the container, retrying without resource limits
+                    // if the cgroup controllers are not available (e.g. nested containers).
+                    this.containerId = createAndStartContainer(
+                        dockerClient,
+                        imageName,
+                        envList,
+                        cmdList,
+                        hostConfig,
                         resourceUuid
                         );
-                    nextPhase = IvoaLifecyclePhase.AVAILABLE;
+                    if (this.containerId == null && hasResourceLimits)
+                        {
+                        log.warn(
+                            "Retrying without resource limits for [{}]",
+                            resourceUuid
+                            );
+                        this.containerId = createAndStartContainer(
+                            dockerClient,
+                            imageName,
+                            envList,
+                            cmdList,
+                            HostConfig.newHostConfig(),
+                            resourceUuid
+                            );
+                        }
+
+                    if (this.containerId != null)
+                        {
+                        log.debug(
+                            "Docker container started [{}] for resource [{}]",
+                            this.containerId,
+                            resourceUuid
+                            );
+                        nextPhase = IvoaLifecyclePhase.AVAILABLE;
+                        }
+                    else
+                        {
+                        nextPhase = IvoaLifecyclePhase.FAILED;
+                        }
                     }
                 catch (Exception e)
                     {
@@ -299,7 +313,6 @@ implements DockerSimpleComputeResource
                         e
                         );
                     nextPhase = IvoaLifecyclePhase.FAILED;
-                    // TODO Add some messages to explain why.
                     }
                 }
 
@@ -343,6 +356,51 @@ implements DockerSimpleComputeResource
                     );
                 }
             };
+        }
+
+    /**
+     * Create and start a Docker container, returning the container ID on success or null on failure.
+     */
+    private String createAndStartContainer(
+        final DockerClient dockerClient,
+        final String imageName,
+        final List<String> envList,
+        final List<String> cmdList,
+        final HostConfig hostConfig,
+        final UUID resourceUuid
+        )
+        {
+        try {
+            log.debug(
+                "Creating Docker container from image [{}]",
+                imageName
+                );
+            var createCmd = dockerClient.createContainerCmd(imageName)
+                .withEnv(envList)
+                .withHostConfig(hostConfig);
+            if (!cmdList.isEmpty())
+                {
+                createCmd.withCmd(cmdList);
+                }
+            CreateContainerResponse container = createCmd.exec();
+            String id = container.getId();
+
+            log.debug(
+                "Starting Docker container [{}]",
+                id
+                );
+            dockerClient.startContainerCmd(id).exec();
+            return id;
+            }
+        catch (Exception e)
+            {
+            log.warn(
+                "Failed to create/start Docker container for [{}]: {}",
+                resourceUuid,
+                e.getMessage()
+                );
+            return null;
+            }
         }
 
     @Override
@@ -496,5 +554,14 @@ implements DockerSimpleComputeResource
                     );
                 }
             };
+        }
+
+    @Override
+    public ProcessingAction getReleaseAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleReleaseAction(
+            this,
+            10_000
+            );
         }
     }

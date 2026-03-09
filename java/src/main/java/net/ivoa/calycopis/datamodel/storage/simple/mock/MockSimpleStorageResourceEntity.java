@@ -96,6 +96,15 @@ public class MockSimpleStorageResourceEntity
         }
 
     @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            30_000
+            );
+        }
+    
+    @Override
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
         return new SimpleDelayAction(
