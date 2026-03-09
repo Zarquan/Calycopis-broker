@@ -61,11 +61,11 @@ implements SessionProcessingRequestFactory
         }
 
     @Override
-    public MonitorSessionRequestEntity createMonitorSessionRequest(final SimpleExecutionSessionEntity session)
+    public UpdateSessionRequestEntity createUpdateSessionRequest(final SimpleExecutionSessionEntity session)
         {
         log.debug("Creating MonitorSessionRequest for session [{}]", session.getUuid());
         return repository.save(
-            new MonitorSessionRequestEntity(
+            new UpdateSessionRequestEntity(
                 session
                 )
             );

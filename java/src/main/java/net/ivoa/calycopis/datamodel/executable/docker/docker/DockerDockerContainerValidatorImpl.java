@@ -31,10 +31,8 @@ import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.exception.NotFoundException;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.spring.model.IvoaDockerContainer;
 import net.ivoa.calycopis.spring.model.IvoaDockerImageSpec;

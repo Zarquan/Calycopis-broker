@@ -41,6 +41,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
 import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * 
@@ -76,6 +81,37 @@ public class MockSimpleStorageResourceEntity
         super(
             session,
             result
+            );
+        }
+
+    @Override
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.PREPARING,
+            IvoaLifecyclePhase.AVAILABLE,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            30_000
+            );
+        }
+    
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            IvoaLifecyclePhase.RELEASING,
+            IvoaLifecyclePhase.COMPLETED,
+            30_000
             );
         }
     }

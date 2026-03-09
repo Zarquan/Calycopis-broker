@@ -40,6 +40,12 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.ivoa.IvoaDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.SimplePrepareAction;
+import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 
 /**
  * 
@@ -73,6 +79,33 @@ public class MockIvoaDataResourceEntity
             session,
             storage,
             result
+            );
+        }
+
+    @Override
+    public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimplePrepareAction(
+            this,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleReleaseAction(
+            this,
+            30_000
             );
         }
     }

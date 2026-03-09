@@ -72,7 +72,6 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFact
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaIvoaDataLinkItem;
-import net.ivoa.calycopis.spring.model.IvoaIvoaDataResource;
 import net.ivoa.calycopis.spring.model.IvoaIvoaDataResourceBlock;
 import net.ivoa.calycopis.spring.model.IvoaIvoaObsCoreItem;
 import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;

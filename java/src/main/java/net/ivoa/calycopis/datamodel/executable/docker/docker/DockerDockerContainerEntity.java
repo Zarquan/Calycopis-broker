@@ -36,16 +36,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
+import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
+import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
@@ -143,13 +145,23 @@ public class DockerDockerContainerEntity
             return ProcessingAction.NO_ACTION;
             }
         
-        return new ProcessingAction()
+        return new ComponentProcessingAction()
             {
-            private boolean processSucceeded = false;
+            private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.PREPARING;
             private long downloadTimeMillis = 0L;
+
+            @Override
+            public void preProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Pre-processing component [{}][{}]",
+                    component.getUuid(),
+                    component.getClass().getSimpleName()
+                    );
+                }
             
             @Override
-            public boolean process()
+            public void process()
                 {
                 log.debug(
                     "Preparing DockerDockerContainer [{}][{}] image [{}]",
@@ -164,8 +176,9 @@ public class DockerDockerContainerEntity
                         "No image location for DockerDockerContainer [{}]",
                         entityUuid
                         );
-                    this.processSucceeded = false;
-                    return false;
+                    // TODO Add a message explaining why it failed.
+                    this.nextPhase = IvoaLifecyclePhase.FAILED;
+                    return;
                     }
 
                 try {
@@ -175,8 +188,9 @@ public class DockerDockerContainerEntity
                         log.error(
                             "CONTAINER_HOST / DOCKER_HOST environment variable is not set"
                             );
-                        this.processSucceeded = false;
-                        return false;
+                        // TODO Add a message explaining why it failed.
+                        this.nextPhase = IvoaLifecyclePhase.FAILED;
+                        return;
                         }
 
                     // Check if the image is already in the local cache.
@@ -206,14 +220,14 @@ public class DockerDockerContainerEntity
                                 }
                             else {
                                 log.error(
-                                    "Image [{}] found in local cache but digest does not match. "
-                                    + "Requested [{}], local id [{}]",
+                                    "Image [{}] found in local cache but digest does not match [{}][{}]",
                                     imageName,
                                     requestedDigest,
                                     imageInfo.getId()
                                     );
-                                this.processSucceeded = false;
-                                return false;
+                                // TODO Add a message explaining why it failed.
+                                this.nextPhase = IvoaLifecyclePhase.FAILED;
+                                return;
                                 }
                             }
                         else {
@@ -263,14 +277,12 @@ public class DockerDockerContainerEntity
                                     requestedDigest,
                                     downloadedImage.getId()
                                     );
-                                this.processSucceeded = false;
-                                return false;
+                                // TODO Add a message explaining why it failed.
+                                this.nextPhase = IvoaLifecyclePhase.FAILED;
+                                return;
                                 }
                             }
                         }
-
-                    this.processSucceeded = true;
-                    return true;
                     }
                 catch (Exception e)
                     {
@@ -280,9 +292,12 @@ public class DockerDockerContainerEntity
                         entityUuid,
                         e
                         );
-                    this.processSucceeded = false;
-                    return false;
+                    // TODO Add a message explaining why it failed.
+                    this.nextPhase = IvoaLifecyclePhase.FAILED;
+                    return;
                     }
+                // If we got this far, the image is available.
+                this.nextPhase = IvoaLifecyclePhase.AVAILABLE;
                 }
 
             private boolean checkDigest(
@@ -309,49 +324,62 @@ public class DockerDockerContainerEntity
                 }
 
             @Override
-            public UUID getRequestUuid()
-                {
-                return request.getUuid();
-                }
-
-            @Override
-            public IvoaLifecyclePhase getNextPhase()
-                {
-                if (this.processSucceeded)
-                    {
-                    return IvoaLifecyclePhase.AVAILABLE;
-                    }
-                else {
-                    return IvoaLifecyclePhase.FAILED;
-                    }
-                }
-
-            @Override
-            public boolean postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponentEntity component)
                 {
                 log.debug(
-                    "Post processing [{}][{}]",
+                    "Post-processing component [{}][{}] next phase [{}]",
                     component.getUuid(),
-                    component.getClass().getSimpleName()
+                    component.getClass().getSimpleName(),
+                    this.nextPhase
                     );
                 if (component instanceof DockerDockerContainerEntity)
                     {
-                    DockerDockerContainerEntity entity = (DockerDockerContainerEntity) component;
-                    if (this.downloadTimeMillis > 0)
-                        {
-                        entity.imageDownloadMillis = this.downloadTimeMillis;
-                        }
-                    return true;
+                    this.postProcess(
+                        (DockerDockerContainerEntity) component
+                        );
                     }
                 else {
-                    log.error(
-                        "Unexpected component type [{}] post processing [{}]",
+                    log.error(  
+                        "Unexpected type [{}] for post processing component [{}][{}]",
                         component.getClass().getSimpleName(),
-                        component.getUuid()
+                        component.getUuid(),
+                        component.getClass().getSimpleName()
                         );
-                    return false;
+                    component.addError(
+                        "uri:internal-error",
+                        "Unexpected component type, see logs for details"
+                        );
+                    component.setPhase(
+                        IvoaLifecyclePhase.FAILED
+                        );
                     }
                 }
+
+            public void postProcess(final DockerDockerContainerEntity component)
+                {
+                component.imageDownloadMillis = this.downloadTimeMillis;
+                component.setPhase(
+                    this.nextPhase
+                    );
+                }
             };
+        }
+
+    @Override
+    public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
+        {
+        return new SimpleReleaseAction(
+            this,
+            30_000
+            );
+        }
+
+    @Override
+    public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
+        {
+        return new SimpleDelayAction(
+            this,
+            30_000
+            );
         }
     }

@@ -1,0 +1,96 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Continue work on the DockerPlatform
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    MonitorSessionRequestEntity has some dubious code in it.
+
+        It works, but it is fragile.
+
+        The if statemenets in checkComponents()
+            anyFailed - good
+            allCompleted - good
+            else if - fragile
+            else - fragile
+
+        checkComponent is actually isComponentCompleted
+
+
+    ReleaseComponentRequestEntity
+
+        Comment says it implements a delay, but that code that implements the delay is actually in
+        LifecycleComponentEntity.getReleaseAction()
+
+        preProcess() would be better to use a switch statement
+        but it has some good logic to decide what to do
+        we should put the same code in PrepareComponentRequestEntity
+
+
+    LifecycleComponentEntity
+
+        Is LifecycleComponentEntity a useful place to have the default action ?
+        If so, then should we also have a similar default for getPrepareAction() ?
+
+
+    ReleaseSessionRequestEntity
+
+        scheduleReleaseIfActive - nice idea
+            No need to schedule a release if already RELEASING
+
+
+    MonitorComponentRequestEntity
+
+        switch (action.getNextPhase())
+
+            case COMPLETED
+
+                Should this schedule a CompleteSessionRequest rather than a MonitorSessionRequest
+                platform.getSessionProcessingRequestFactory().createCompleteSessionRequest(
+                    component.getSession()
+                    );
+
+                CompleteSessionRequest is a one off check and doesn't loop.
+
+# -----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+

@@ -39,4 +39,6 @@ extends ProcessingRequest
     
     public LifecycleComponent getComponent(final Platform platform);
 
+    public void postProcess(final Platform platform, final ComponentProcessingAction action);
+
     }

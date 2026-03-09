@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
  * A processing request that monitors a component by polling its status
@@ -68,36 +67,22 @@ implements ComponentProcessingRequest
     @Override
     public ProcessingAction preProcess(final Platform platform)
         {
-        log.debug(
-            "Pre-processing monitor for component [{}][{}]",
-            this.componentUuid,
-            this.componentKind
-            );
-
         LifecycleComponentEntity component = this.getComponent(
             platform
             );
+        log.debug(
+            "Pre-processing component [{}][{}][{}]",
+            component.getUuid(),
+            component.getKind(),
+            component.getClass().getSimpleName()
+            );
 
-        if (component != null)
+        prevPhase = component.getPhase();
+        
+        switch(prevPhase)
             {
-            log.debug(
-                "Component found [{}][{}][{}]",
-                component.getUuid(),
-                component.getPhase(),
-                component.getClass().getSimpleName()
-                );
-            }
-        else {
-            log.error(
-                "Unable to find component in factory [{}][{}]",
-                this.componentUuid,
-                this.componentKind
-                );
-            return ProcessingAction.NO_ACTION;
-            }
-
-        switch(component.getPhase())
-            {
+            //
+            // The component is active, return the component's monitor action.
             case AVAILABLE:
             case RUNNING:
                 return component.getMonitorAction(
@@ -105,139 +90,85 @@ implements ComponentProcessingRequest
                     this
                     );
 
-            case COMPLETED:
-            case FAILED:
-            case CANCELLED:
+            //
+            // The component is releasing, return the component's release action.
             case RELEASING:
+                return component.getReleaseAction(
+                    platform,
+                    this
+                    );
+
+            //
+            // The phase is already beyond active, no action required.
+            case COMPLETED:
+            case CANCELLED:
+            case FAILED:
                 return ProcessingAction.NO_ACTION;
 
             default:
                 log.error(
-                    "Unexpected phase [{}] for monitored component [{}][{}]",
+                    "Unexpected phase [{}] for pre-processing component [{}][{}]",
                     component.getPhase(),
                     component.getUuid(),
                     component.getClass().getSimpleName()
                     );
+                this.fail(platform, component);
                 return ProcessingAction.NO_ACTION;
             }
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final Platform platform, final ComponentProcessingAction action)
         {
-        log.debug(
-            "Post-processing monitor for component [{}][{}]",
-            this.componentUuid,
-            this.componentKind
-            );
-
         LifecycleComponentEntity component = this.getComponent(
             platform
             );
+        log.debug(
+            "Post-processing component [{}][{}][{}]",
+            component.getUuid(),
+            component.getKind(),
+            component.getClass().getSimpleName()
+            );
 
-        if (component != null)
+        if (action != null)
             {
-            log.debug(
-                "Component found [{}][{}][{}]",
-                component.getUuid(),
-                component.getPhase(),
-                component.getClass().getSimpleName()
+            action.postProcess(
+                component
                 );
             }
-        else {
-            log.error(
-                "Unable to find component in factory [{}][{}]",
-                this.componentUuid,
-                this.componentKind
-                );
-            return ;
-            }
+        nextPhase = component.getPhase();
 
-        switch(component.getPhase())
+        if (prevPhase != nextPhase)
+            {
+            platform.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+                component.getSession()
+                );
+            }
+        
+        switch(nextPhase)
             {
             case AVAILABLE:
             case RUNNING:
-                if (action != null)
-                    {
-                    action.postProcess(
-                        component
-                        );
-
-                    switch (action.getNextPhase())
-                        {
-                        case RUNNING:
-                            component.setPhase(
-                                IvoaLifecyclePhase.RUNNING
-                                );
-                            this.activate(DEFAULT_POLL_INTERVAL);
-                            break;
-
-                        case COMPLETED:
-                            component.setPhase(
-                                IvoaLifecyclePhase.COMPLETED
-                                );
-                            platform.getSessionProcessingRequestFactory().createMonitorSessionRequest(
-                                component.getSession()
-                                );
-                            this.done(platform);
-                            break;
-
-                        case RELEASING:
-                            component.setPhase(
-                                IvoaLifecyclePhase.RELEASING
-                                );
-                            platform.getSessionProcessingRequestFactory().createReleaseSessionRequest(
-                                component.getSession()
-                                );
-                            this.done(platform);
-                            break;
-
-                        case FAILED:
-                            this.fail(platform, component);
-                            break;
-
-                        default:
-                            log.error(
-                                "Unexpected next phase [{}] from monitor action for component [{}][{}]",
-                                action.getNextPhase(),
-                                component.getUuid(),
-                                component.getClass().getSimpleName()
-                                );
-                            this.fail(platform);
-                            break;
-                        }
-                    }
-                else {
-                    log.debug(
-                        "No monitor action for component [{}][{}], marking as COMPLETED",
-                        component.getUuid(),
-                        component.getClass().getSimpleName()
-                        );
-                    component.setPhase(
-                        IvoaLifecyclePhase.COMPLETED
-                        );
-                    platform.getSessionProcessingRequestFactory().createMonitorSessionRequest(
-                        component.getSession()
-                        );
-                    this.done(platform);
-                    }
+            case RELEASING:
+                // TODO Ask the component for the poll interval.
+                // https://github.com/ivoa/Calycopis-broker/issues/365
+                this.activate(DEFAULT_POLL_INTERVAL);
                 break;
 
             case COMPLETED:
-            case FAILED:
             case CANCELLED:
-            case RELEASING:
+            case FAILED:
                 this.done(platform);
                 break;
 
             default:
                 log.error(
-                    "Unexpected phase [{}] for monitored component [{}][{}]",
-                    component.getPhase(),
+                    "Unexpected phase [{}] for post-processing component [{}][{}]",
+                    nextPhase.toString(),
                     component.getUuid(),
                     component.getClass().getSimpleName()
                     );
-                this.fail(platform);
+                this.fail(platform, component);
                 break;
             }
         }

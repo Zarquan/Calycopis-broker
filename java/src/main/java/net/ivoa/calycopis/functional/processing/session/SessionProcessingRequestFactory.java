@@ -35,7 +35,7 @@ extends FactoryBase
 
     public SessionProcessingRequest  createPrepareSessionRequest(final SimpleExecutionSessionEntity session);
 
-    public SessionProcessingRequest  createMonitorSessionRequest(final SimpleExecutionSessionEntity session);
+    public SessionProcessingRequest  createUpdateSessionRequest(final SimpleExecutionSessionEntity session);
 
     public SessionProcessingRequest  createReleaseSessionRequest(final SimpleExecutionSessionEntity session);
 

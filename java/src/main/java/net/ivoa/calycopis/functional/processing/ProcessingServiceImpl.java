@@ -68,10 +68,10 @@ implements ProcessingService
             if (action != null)
                 {
                 log.debug("Processing action [{}] for request [{}]", action.getClass().getSimpleName(), requestId);
-                boolean post = action.process();
+                action.process();
                 }
             else {
-                log.debug("No action required for request [{}]", requestId);
+                log.debug("No action for request [{}]", requestId);
                 }
 
             log.debug("Post-processing request [{}]", requestId);
@@ -88,8 +88,8 @@ implements ProcessingService
         }
     
     /**
-     * Need to have a separate class that is loaded as a Spring Service
-     * so that the @Transactional annotations are triggered.
+     * Inner class marked as @Service so that the @Transactional annotations are processed
+     * when it is loaded by the Spring framework.
      * 
      */
     @Service
@@ -103,6 +103,10 @@ implements ProcessingService
             super();
             }
         
+        /**
+         * Inner method to get the next request in a transaction.
+         * 
+         */
         @Transactional(propagation = Propagation.REQUIRES_NEW)
         protected UUID getNext(final ProcessingService service)
             {
@@ -145,7 +149,7 @@ implements ProcessingService
             return found ;
             }
         
-        /*
+        /**
          * Inner method to pre-process the request in a transaction.
          * 
          */
@@ -159,7 +163,7 @@ implements ProcessingService
                 );
             }
 
-        /*
+        /**
          * Inner method to post-process the request in a transaction.
          * 
          */
@@ -172,10 +176,11 @@ implements ProcessingService
                 request,
                 action
                 );
+            request.setService(null);
             }
         }
 
-    /*
+    /**
      * Outer pre-process method that can be overridden if needed.
      * 
      */
@@ -187,7 +192,7 @@ implements ProcessingService
             );
         }
 
-    /*
+    /**
      * Outer post-process method that can be overridden if needed.
      * 
      */

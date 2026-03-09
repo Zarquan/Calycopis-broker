@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -21,30 +21,29 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing;
+package net.ivoa.calycopis.functional.processing.component;
+
+import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingAction;
 
 /**
- * An external action to be performed outside of any transaction context.
  * 
  */
-public interface ProcessingAction
+public interface ComponentProcessingAction
+extends ProcessingAction
     {
-    
-    /**
-     * Perform the action outside any transaction context.
-     * 
-     */
-    public void process();
 
     /**
-     * Perform no action.
+     * Prepare the Component, performed in a Transaction before processing.
      * 
      */
-    public static final ProcessingAction NO_ACTION = new ProcessingAction()
-        {
-        @Override
-        public void process()
-            {
-            }
-        };
+    public void preProcess(final LifecycleComponentEntity component);
+
+    /**
+     * Post-process the Component, performed in a Transaction after processing.
+     *
+     */
+    public void postProcess(final LifecycleComponentEntity component);
+    
+
     }

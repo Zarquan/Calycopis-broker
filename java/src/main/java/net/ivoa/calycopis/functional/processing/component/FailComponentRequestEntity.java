@@ -70,4 +70,10 @@ implements ComponentProcessingRequest
         {
         // TODO Auto-generated method stub
         }
+
+    @Override
+    public void postProcess(Platform platform, ComponentProcessingAction action)
+        {
+        // TODO Auto-generated method stub
+        }
     }

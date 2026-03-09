@@ -28,7 +28,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;

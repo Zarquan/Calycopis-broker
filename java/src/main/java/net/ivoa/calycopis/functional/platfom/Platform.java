@@ -28,15 +28,11 @@ import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.component.AbstractLifecycleComponentEntityFactory;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidatorFactory;
-import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntityFactory;
-import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntityFactory;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
