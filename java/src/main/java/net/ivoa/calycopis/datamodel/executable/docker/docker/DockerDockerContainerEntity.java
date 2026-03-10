@@ -370,7 +370,7 @@ public class DockerDockerContainerEntity
         {
         return new SimpleReleaseAction(
             this,
-            5_000
+            0
             );
         }
 
@@ -379,7 +379,7 @@ public class DockerDockerContainerEntity
         {
         return new SimpleDelayAction(
             this,
-            5_000
+            0
             );
         }
     }
