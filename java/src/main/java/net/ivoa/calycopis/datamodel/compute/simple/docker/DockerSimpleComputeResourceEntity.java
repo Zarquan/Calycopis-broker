@@ -51,7 +51,6 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
@@ -370,6 +369,7 @@ implements DockerSimpleComputeResource
         final UUID resourceUuid
         )
         {
+        String id = null;
         try {
             log.debug(
                 "Creating Docker container from image [{}]",
@@ -383,7 +383,7 @@ implements DockerSimpleComputeResource
                 createCmd.withCmd(cmdList);
                 }
             CreateContainerResponse container = createCmd.exec();
-            String id = container.getId();
+            id = container.getId();
 
             log.debug(
                 "Starting Docker container [{}]",
@@ -399,6 +399,28 @@ implements DockerSimpleComputeResource
                 resourceUuid,
                 e.getMessage()
                 );
+            if (id != null)
+                {
+                try {
+                    log.debug(
+                        "Removing failed Docker container [{}] for resource [{}]",
+                        id,
+                        resourceUuid
+                        );
+                    dockerClient.removeContainerCmd(id)
+                        .withForce(true)
+                        .exec();
+                    }
+                catch (Exception removeEx)
+                    {
+                    log.warn(
+                        "Failed to remove Docker container [{}] for resource [{}]: {}",
+                        id,
+                        resourceUuid,
+                        removeEx.getMessage()
+                        );
+                    }
+                }
             return null;
             }
         }
@@ -559,9 +581,103 @@ implements DockerSimpleComputeResource
     @Override
     public ProcessingAction getReleaseAction(Platform platform, ComponentProcessingRequest request)
         {
-        return new SimpleReleaseAction(
-            this,
-            10_000
-            );
+        final UUID resourceUuid = this.getUuid();
+        final String resourceClassName = this.getClass().getSimpleName();
+        final String containerId = this.dockerContainerId;
+
+        final DockerClientFactory clientFactory;
+        if (platform instanceof DockerPlatform)
+            {
+            clientFactory = ((DockerPlatform) platform).getDockerClientFactory();
+            }
+        else {
+            clientFactory = null;
+            log.error(
+                "Unexpected platform type [{}] expected [DockerPlatform]",
+                platform.getClass().getSimpleName()
+                );
+            return ProcessingAction.NO_ACTION;
+            }
+
+        return new ComponentProcessingAction()
+            {
+            @Override
+            public void preProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Releasing Docker compute resource [{}][{}] container [{}]",
+                    resourceUuid,
+                    resourceClassName,
+                    containerId
+                    );
+                component.setPhase(
+                    IvoaLifecyclePhase.RELEASING
+                    );
+                }
+
+            @Override
+            public void process()
+                {
+                if (containerId == null || containerId.isEmpty())
+                    {
+                    log.warn(
+                        "No Docker container ID to remove for resource [{}][{}]",
+                        resourceUuid,
+                        resourceClassName
+                        );
+                    return;
+                    }
+                try {
+                    DockerClient dockerClient = clientFactory.getDockerClient();
+                    if (dockerClient == null)
+                        {
+                        log.error(
+                            "Unable to create Docker client for release of [{}][{}]",
+                            resourceUuid,
+                            resourceClassName
+                            );
+                        return;
+                        }
+                    log.debug(
+                        "Removing Docker container [{}] for resource [{}][{}]",
+                        containerId,
+                        resourceUuid,
+                        resourceClassName
+                        );
+                    dockerClient.removeContainerCmd(containerId)
+                        .withForce(true)
+                        .exec();
+                    log.debug(
+                        "Docker container [{}] removed for resource [{}][{}]",
+                        containerId,
+                        resourceUuid,
+                        resourceClassName
+                        );
+                    }
+                catch (Exception e)
+                    {
+                    log.warn(
+                        "Failed to remove Docker container [{}] for resource [{}][{}]: {}",
+                        containerId,
+                        resourceUuid,
+                        resourceClassName,
+                        e.getMessage()
+                        );
+                    }
+                }
+
+            @Override
+            public void postProcess(final LifecycleComponentEntity component)
+                {
+                log.debug(
+                    "Release complete for Docker compute resource [{}][{}], setting phase to COMPLETED",
+                    resourceUuid,
+                    resourceClassName
+                    );
+                component.setPhase(
+                    IvoaLifecyclePhase.COMPLETED
+                    );
+                }
+            };
         }
     }
