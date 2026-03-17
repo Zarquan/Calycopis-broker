@@ -1,0 +1,789 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2025, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Continue implementing the Docker components.
+        Catching a fail and cleaning up the rrsources.
+
+    Result:
+
+        Work in progress ...
+
+
+
+# -----------------------------------------------------
+# Create a new branch to work in.
+#[user@laptop]
+
+    branchname=podman-fail
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/heliophorus.env"
+    pushd "${CANTLIEI_CODE:?}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of our developer tools.
+# Note the volume mount for our podman socket
+#[user@laptop]
+
+    systemctl --user status podman.socket
+
+--START--
+● podman.socket - Podman API Socket
+     Loaded: loaded (/usr/lib/systemd/user/podman.socket; enabled; vendor prese>
+     Active: active (listening) since Wed 2026-03-11 09:55:39 GMT; 31min ago
+   Triggers: ● podman.service
+       Docs: man:podman-system-service(1)
+     Listen: /run/user/1001/podman/podman.sock (Stream)
+     CGroup: /user.slice/user-1001.slice/user@1001.service/app.slice/podman.soc>
+
+Mar 11 09:55:39 laptop-19 systemd[3780]: Listening on Podman API Socket.
+--END--
+
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+--START--
+6954aef77ae45f922d01d8a4477ecaf50a44792dde8bccee5dd0704d74926564
+--END--
+
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+    >   ....
+    >   ....
+
+
+    dnf install -y podman
+
+    >   ....
+    >   ....
+
+
+    podman ps
+
+--START--
+CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS         PORTS       NAMES
+1a1e03fc2b06  localhost/podman-pause:4.3.1-0                                 7 minutes ago   Up 34 seconds              6954aef77ae4-infra
+8cf583dac26a  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        40 seconds ago  Up 34 seconds              calycopis-dev
+--END--
+
+
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        fedora:latest \
+            cat /etc/redhat-release
+
+--START--
+Fedora release 43 (Forty Three)
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Install Cursor and continue with our session.
+#[root@calycopis-dev]
+
+    curl https://cursor.com/install -fsS | bash
+
+    agent
+
+==START==
+Plase take a look at the test container project at /heliophorus/Heliophorus-cantliei/github-zrq/
+==END==
+
+==START==
+I would like to add a second paramenter to set the exit code that the container returns,
+which will be used in other projects to test failure modes.
+Can you describe the steps needed to acheive this
+==END==
+
+--START--
+  Cursor Agent v2026.02.27-e7d2ef6
+  /
+  (cwd is not a git repository, cursor rules and ignore files don't apply)
+
+
+  Plase take a look at the test container project at
+  /heliophorus/Heliophorus-cantliei/github-zrq/
+
+
+  Let me explore that project directory.
+
+  $ ls -la /heliophorus/Heliophorus-cantliei/github-zrq/ 174ms
+    total 80
+    drwxr-xr-x 4 root root  4096 Feb 27 11:03 .
+    … truncated (12 more lines) · ctrl+o to expand
+
+  $ find /heliophorus/Heliophorus-cantliei/github-zrq/ -maxdepth 3 -type f |
+    head -80 13s
+    /heliophorus/Heliophorus-cantliei/github-zrq/README.md
+    /heliophorus/Heliophorus-cantliei/github-zrq/entrypoint.sh
+    … truncated (32 more lines) · ctrl+o to expand
+
+  Let me read the key project files.
+
+  ⬢ Read 6 files
+    … 3 earlier items hidden
+    Read ...ophorus-cantliei/github-zrq/ivoa-execution.yaml
+    Read .../github-zrq/.github/workflows/build-publish.yml
+    Read ...s/Heliophorus-cantliei/github-zrq/.dockerignore
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq log --oneline -20 2m 9s
+    1358c0b Merge pull request #3 from Zarquan/20260227-zrq-ivoa-execution
+    e057bf4 Added sha checksums
+    … truncated (8 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq remote -v 2m 8s
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (fetch)
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (push)
+    … truncated (1 more line) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq branch -a 2m 8s
+    * 20260311-zrq-podman-fail
+      main
+    … truncated (6 more lines) · ctrl+o to expand
+
+  Here's a summary of the project at
+  /heliophorus/Heliophorus-cantliei/github-zrq/:
+  Heliophorus-cantliei — A minimal test container that simply waits for a
+  given number of seconds and then exits. Named after the Heliophorus cantliei
+   (​https://species.wikimedia.org/wiki/Heliophorus_cantliei​) butterfly.
+  Key files:
+  • `Dockerfile` — Based on alpine:3, copies in the entrypoint script.
+  • `entrypoint.sh` — Validates that a numeric argument (seconds) is
+    provided, then runs sleep for that duration.
+  • `ivoa-execution.yaml` — An IVOA execution descriptor that references the
+     published container image at
+    ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0 with a SHA256 digest,
+    and declares a single <seconds> parameter.
+  • `.github/workflows/build-publish.yml` — A GitHub Actions CI workflow
+    that builds and pushes the Docker image to GHCR on pushes to main or
+    version tags. On PRs it only builds (no push). Tags include branch ref,
+    semver, and short SHA.
+
+  Git state:
+  • Remote: git@github.com:Zarquan/Heliophorus-cantliei.git
+  • Current branch: 20260311-zrq-podman-fail (checked out locally, based on
+    main at commit 1358c0b)
+  • The branch name suggests this is related to a Podman failure
+    investigation.
+
+  Usage:
+
+  docker build -t cantliei .
+  docker run cantliei 10    # waits 10 seconds, then exits
+
+  What would you like to do with this project?
+
+  Cursor Agent v2026.02.27-e7d2ef6
+  /
+  (cwd is not a git repository, cursor rules and ignore files don't apply)
+
+
+  Plase take a look at the test container project at
+  /heliophorus/Heliophorus-cantliei/github-zrq/
+
+
+  Let me explore that project directory.
+
+  $ ls -la /heliophorus/Heliophorus-cantliei/github-zrq/ 174ms
+    total 80
+    drwxr-xr-x 4 root root  4096 Feb 27 11:03 .
+    … truncated (12 more lines) · ctrl+o to expand
+
+  $ find /heliophorus/Heliophorus-cantliei/github-zrq/ -maxdepth 3 -type f | head -80 13s
+    /heliophorus/Heliophorus-cantliei/github-zrq/README.md
+    /heliophorus/Heliophorus-cantliei/github-zrq/entrypoint.sh
+    … truncated (32 more lines) · ctrl+o to expand
+
+  Let me read the key project files.
+
+  ⬢ Read 6 files
+    … 3 earlier items hidden
+    Read ...ophorus-cantliei/github-zrq/ivoa-execution.yaml
+    Read .../github-zrq/.github/workflows/build-publish.yml
+    Read ...s/Heliophorus-cantliei/github-zrq/.dockerignore
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq log --oneline -20 2m 9s
+    1358c0b Merge pull request #3 from Zarquan/20260227-zrq-ivoa-execution
+    e057bf4 Added sha checksums
+    … truncated (8 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq remote -v 2m 8s
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (fetch)
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (push)
+    … truncated (1 more line) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq branch -a 2m 8s
+    * 20260311-zrq-podman-fail
+      main
+    … truncated (6 more lines) · ctrl+o to expand
+
+  Here's a summary of the project at /heliophorus/Heliophorus-cantliei/github-zrq/:
+  Heliophorus-cantliei — A minimal test container that simply waits for a given number of seconds and
+  then exits. Named after the Heliophorus cantliei
+  (​https://species.wikimedia.org/wiki/Heliophorus_cantliei​) butterfly.
+  Key files:
+  • `Dockerfile` — Based on alpine:3, copies in the entrypoint script.
+  • `entrypoint.sh` — Validates that a numeric argument (seconds) is provided, then runs sleep for
+    that duration.
+  • `ivoa-execution.yaml` — An IVOA execution descriptor that references the published container
+    image at ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0 with a SHA256 digest, and declares a
+    single <seconds> parameter.
+  • `.github/workflows/build-publish.yml` — A GitHub Actions CI workflow that builds and pushes the
+    Docker image to GHCR on pushes to main or version tags. On PRs it only builds (no push). Tags
+    include branch ref, semver, and short SHA.
+
+  Git state:
+  • Remote: git@github.com:Zarquan/Heliophorus-cantliei.git
+  • Current branch: 20260311-zrq-podman-fail (checked out locally, based on main at commit 1358c0b)
+  • The branch name suggests this is related to a Podman failure investigation.
+
+  Usage:
+
+  docker build -t cantliei .
+  docker run cantliei 10    # waits 10 seconds, then exits
+
+  What would you like to do with this project?
+
+
+  Cursor Agent v2026.02.27-e7d2ef6
+  /
+  (cwd is not a git repository, cursor rules and ignore files don't apply)
+
+
+  Plase take a look at the test container project at
+  /heliophorus/Heliophorus-cantliei/github-zrq/
+
+
+  Let me explore that project directory.
+
+  $ ls -la /heliophorus/Heliophorus-cantliei/github-zrq/ 174ms
+    total 80
+    drwxr-xr-x 4 root root  4096 Feb 27 11:03 .
+    … truncated (12 more lines) · ctrl+o to expand
+
+  $ find /heliophorus/Heliophorus-cantliei/github-zrq/ -maxdepth 3 -type f | head -80 13s
+    /heliophorus/Heliophorus-cantliei/github-zrq/README.md
+    /heliophorus/Heliophorus-cantliei/github-zrq/entrypoint.sh
+    … truncated (32 more lines) · ctrl+o to expand
+
+  Let me read the key project files.
+
+  ⬢ Read 6 files
+    … 3 earlier items hidden
+    Read ...ophorus-cantliei/github-zrq/ivoa-execution.yaml
+    Read .../github-zrq/.github/workflows/build-publish.yml
+    Read ...s/Heliophorus-cantliei/github-zrq/.dockerignore
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq log --oneline -20 2m 9s
+    1358c0b Merge pull request #3 from Zarquan/20260227-zrq-ivoa-execution
+    e057bf4 Added sha checksums
+    … truncated (8 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq remote -v 2m 8s
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (fetch)
+    origin  git@github.com:Zarquan/Heliophorus-cantliei.git (push)
+    … truncated (1 more line) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq branch -a 2m 8s
+    * 20260311-zrq-podman-fail
+      main
+    … truncated (6 more lines) · ctrl+o to expand
+
+  Here's a summary of the project at /heliophorus/Heliophorus-cantliei/github-zrq/:
+  Heliophorus-cantliei — A minimal test container that simply waits for a given number of seconds and
+  then exits. Named after the Heliophorus cantliei
+  (​https://species.wikimedia.org/wiki/Heliophorus_cantliei​) butterfly.
+  Key files:
+  • `Dockerfile` — Based on alpine:3, copies in the entrypoint script.
+  • `entrypoint.sh` — Validates that a numeric argument (seconds) is provided, then runs sleep for
+    that duration.
+  • `ivoa-execution.yaml` — An IVOA execution descriptor that references the published container
+    image at ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0 with a SHA256 digest, and declares a
+    single <seconds> parameter.
+  • `.github/workflows/build-publish.yml` — A GitHub Actions CI workflow that builds and pushes the
+    Docker image to GHCR on pushes to main or version tags. On PRs it only builds (no push). Tags
+    include branch ref, semver, and short SHA.
+
+  Git state:
+  • Remote: git@github.com:Zarquan/Heliophorus-cantliei.git
+  • Current branch: 20260311-zrq-podman-fail (checked out locally, based on main at commit 1358c0b)
+  • The branch name suggests this is related to a Podman failure investigation.
+
+  Usage:
+
+  docker build -t cantliei .
+  docker run cantliei 10    # waits 10 seconds, then exits
+
+  What would you like to do with this project?
+
+
+  I would like to add a second paramenter to set the exit code that the container returns,
+  which will be used in other projects to test failure modes.
+  Can you describe the steps needed to acheive this
+
+
+
+  Here are the steps needed to add a configurable exit code parameter:
+  1. Update `entrypoint.sh` — Accept an optional second argument for the exit code. This means:
+    • Keep $1 (seconds) as the required first argument.
+    • Add $2 (exit code) as an optional second argument, defaulting to 0 if not provided.
+    • Validate that $2 is a non-negative integer when supplied.
+    • After the sleep completes, exit with the specified code instead of the implicit 0.
+    • Update the usage message to reflect the new parameter.
+  2. Update `Dockerfile` — No changes strictly needed, since the Dockerfile just copies and sets the
+     entrypoint. However, if you wanted to document default behavior via CMD, you could add a CMD
+     ["0", "0"] default (optional).
+  3. Update `README.md` — Document the new parameter in the usage section, e.g.:
+
+
+     docker run cantliei <seconds> [exit-code]
+
+     Add an example showing a non-zero exit, such as docker run cantliei 5 1.
+  4. Update `ivoa-execution.yaml` — Update the command template and description to reflect the second
+     parameter, e.g.:
+
+
+     command: "<seconds> <exit-code>"
+
+  5. Rebuild and test — Verify the three main cases:
+    • docker run cantliei 5 — waits 5 seconds, exits 0 (backward compatible).
+    • docker run cantliei 5 1 — waits 5 seconds, exits 1.
+    • docker run cantliei 5 abc — prints a validation error.
+  6. Commit, push, and let CI publish — Once merged to main, the GitHub Actions workflow will build
+     and push a new image to GHCR. After that, update the image.locations tag and digest in
+     ivoa-execution.yaml to reference the newly published image.
+
+  The key design decision is whether the exit code should be optional (defaulting to 0 for backward
+  compatibility) or required. Making it optional is the safer choice since existing users won't need to
+  change anything.
+  Want me to go ahead and implement these changes?
+
+
+  bear in mind you are on a Fedora platform with Podman rather than Docker
+
+
+  Good point. The updated steps with Podman on Fedora in mind:
+  1. Update `entrypoint.sh` — Accept an optional second argument for the exit code:
+    • Keep $1 (seconds) as the required first argument.
+    • Add $2 (exit code) as an optional second argument, defaulting to 0.
+    • Validate that $2 is a non-negative integer when supplied.
+    • After the sleep completes, exit with the specified code.
+    • Update the usage message.
+  2. Update `README.md` — Document the new parameter and update examples to use podman instead of
+     docker:
+
+
+     podman build -t cantliei .
+     podman run cantliei <seconds> [exit-code]
+
+  3. Update `ivoa-execution.yaml` — Update the command template to include the second parameter.
+  4. Build and test with Podman — Verify locally:
+    • podman build -t cantliei .
+    • podman run cantliei 5 — waits 5 seconds, exits 0 (backward compatible).
+    • podman run cantliei 5 1 — waits 5 seconds, exits 1.
+    • podman run cantliei 5 abc — prints a validation error.
+  5. No changes needed to the CI workflow — The GitHub Actions workflow uses docker/build-push-action,
+      which is fine since CI runs on ubuntu-latest, not your local Fedora box. The Dockerfile and
+     entrypoint.sh are container-runtime agnostic — they work the same under both Docker and Podman.
+  6. Commit, push, and update `ivoa-execution.yaml` — After CI publishes the new image, update the
+     image tag and digest.
+
+  The Dockerfile itself needs no changes — COPY and ENTRYPOINT work identically under Podman's podman
+  build (which is OCI-compatible). The only local difference is using podman commands instead of docker
+  for building and testing.
+  Want me to implement these changes?
+
+
+  yes
+
+
+  ⬢ To-do Working on 4 to-dos
+    ☐ Update entrypoint.sh with optional exit code parameter
+    ☐ Update README.md with new parameter and podman usage
+    ☐ Update ivoa-execution.yaml command template
+    ☐ Build and test with Podman
+
+  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...s/Heliophorus-cantliei/github-zrq/entrypoint.sh +14 -2                                           │
+  │                                                                                                     │
+  │                                                                                                     │
+  │   if [ -z "$1" ]; then                                                                              │
+  │ -     echo "Usage: docker run cantliei <seconds>"                                                   │
+  │ +     echo "Usage: cantliei <seconds> [exit-code]"                                                  │
+  │ +     echo "  seconds   - number of seconds to wait"                                                │
+  │ +     echo "  exit-code - exit code to return (default: 0)"                                         │
+  │       exit 1                                                                                        │
+  │   fi                                                                                                │
+  │  ...                                                                                                │
+  │   esac                                                                                              │
+  │                                                                                                     │
+  │ + exitcode="${2:-0}"                                                                                │
+  │  … truncated (13 more lines) · ctrl+r to review                                                     │
+  └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 3 to-dos • 1 done
+    ☒ Update entrypoint.sh with optional exit code parameter
+    ☐ Update README.md with new parameter and podman usage
+    ☐ Update ivoa-execution.yaml command template
+    ☐ Build and test with Podman
+
+  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...horus/Heliophorus-cantliei/github-zrq/README.md +15 -6                                           │
+  │                                                                                                     │
+  │   # Heliophorus-cantliei                                                                            │
+  │ - A docker container that simply waits for a number of seconds and then exits.                      │
+  │ + A container that waits for a number of seconds and then exits with a configurable exit code.      │
+  │                                                                                                     │
+  │   This project is named after the [Heliophorus                                                      │
+  │  cantliei](https://species.wikimedia.org/wiki/Heliophorus_cantliei) butterfly.                      │
+  │  ...                                                                                                │
+  │                                                                                                     │
+  │   ```                                                                                               │
+  │ - docker build -t cantliei .                                                                        │
+  │ + podman build -t cantliei .                                                                        │
+  │   ```                                                                                               │
+  │                                                                                                     │
+  │  … truncated (26 more lines) · ctrl+r to review                                                     │
+  └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ⬢ To-do Working on 2 to-dos • 2 done
+    ☒ Update entrypoint.sh with optional exit code parameter
+    ☒ Update README.md with new parameter and podman usage
+    ☐ Update ivoa-execution.yaml command template
+    ☐ Build and test with Podman
+
+  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...ophorus-cantliei/github-zrq/ivoa-execution.yaml +4 -3                                            │
+  │                                                                                                     │
+  │     type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0             │
+  │     description: >-                                                                                 │
+  │ -     A simple Docker container that waits for a number of seconds and then exits.                  │
+  │ +     A simple container that waits for a number of seconds and then exits with a configurable exit │
+  │    code.                                                                                            │
+  │       https://github.com/Zarquan/Heliophorus-cantliei                                               │
+  │     image:                                                                                          │
+  │  ...                                                                                                │
+  │         - "ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0"                                        │
+  │       digest: "sha256:4911760109f78976d2a95a6491a8d8c77bfee9fd1498b9a4b7dd5b7515826689"             │
+  │ -   # A single parameter, the number of seconds to wait.                                            │
+  │ -   command: "<seconds>"                                                                            │
+  │ +   # First parameter: the number of seconds to wait.                                               │
+  │  … truncated (2 more lines) · ctrl+r to review                                                      │
+  └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Now let me build and test with Podman.
+
+  ⬢ To-do Working on 1 to-do • 3 done
+    ☒ Update entrypoint.sh with optional exit code parameter
+    ☒ Update README.md with new parameter and podman usage
+    ☒ Update ivoa-execution.yaml command template
+    ☐ Build and test with Podman
+
+  $ podman build -t cantliei /heliophorus/Heliophorus-cantliei/github-zrq/ 3.1s
+    STEP 1/3: FROM alpine:3
+    Resolved "alpine" as an alias (/etc/containers/registries.conf.d/shortnames.conf)
+    … truncated (14 more lines) · ctrl+o to expand
+
+  Build succeeded. Now let me run the three test cases.
+
+  $ echo "=== Test 1: Default exit code (should exit 0) ===" && podman run --rm cantliei 2 ; echo "Exit
+    code: $?" 2.9s
+    === Test 1: Default exit code (should exit 0) ===
+    Waiting for 2 seconds ...
+    … truncated (3 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 2: Exit code 1 (should exit 1) ===" && podman run --rm cantliei 2 1 ; echo "Exit code:
+     $?" 2.6s
+    === Test 2: Exit code 1 (should exit 1) ===
+    Waiting for 2 seconds ...
+    … truncated (3 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 3: Invalid exit code ===" && podman run --rm cantliei 2 abc ; echo "Exit code: $?"
+    756ms
+    === Test 3: Invalid exit code ===
+    Error: 'abc' is not a valid exit code
+    … truncated (2 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 4: No arguments (usage) ===" && podman run --rm cantliei ; echo "Exit code: $?" 777ms
+    === Test 4: No arguments (usage) ===
+    Usage: cantliei <seconds> [exit-code]
+    … truncated (4 more lines) · ctrl+o to expand
+
+  ⬢ To-do All done
+    ☒ Update entrypoint.sh with optional exit code parameter
+    ☒ Update README.md with new parameter and podman usage
+    ☒ Update ivoa-execution.yaml command template
+    ☒ Build and test with Podman
+
+  All four tests pass:
+
+  ┌───────────────────────────────┬─────────────────────────────────────────┐
+  │ Test                          │ Result                                  │
+  ├───────────────────────────────┼─────────────────────────────────────────┤
+  │ podman run cantliei 2         │ Waits 2s, exits 0 (backward compatible) │
+  │ podman run cantliei 2 1       │ Waits 2s, exits 1 (failure mode)        │
+  │ podman run cantliei 2 abc     │ Rejects invalid exit code, exits 1      │
+  │ podman run cantliei (no args) │ Shows usage message, exits 1            │
+  └───────────────────────────────┴─────────────────────────────────────────┘
+
+  Here's a summary of what was changed:
+  • `entrypoint.sh` — Added optional $2 parameter for exit code (defaults to 0), with validation and
+    updated usage message.
+  • `README.md` — Updated description, switched examples to podman, documented the new [exit-code]
+    parameter with examples.
+  • `ivoa-execution.yaml` — Updated description and command template to include <exit-code>.
+
+  The image tag and digest in ivoa-execution.yaml still reference the old build — those should be
+  updated after the changes are merged to main and CI publishes a new image. Would you like me to
+  commit these changes?
+
+
+ ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │ → Add a follow-up                                                                                   │
+ └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+  ▶︎ Auto-run all commands (shift+tab to turn off)
+
+  Claude 4.6 Opus (Thinking) · 11.9% · 3 files edited
+  / commands · @ files · ! shell · ctrl+r to review edits
+
+
+--END--
+
+==START==
+Yes please, go ahead and commit the changes.
+I will have to do the push and pull request on the host computer.
+==END==
+
+--START--
+
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq status 270ms
+    On branch 20260311-zrq-podman-fail
+    Changes not staged for commit:
+    … truncated (8 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq diff 162ms
+    diff --git a/README.md b/README.md
+    index 106bb69..a87117e 100644
+    … truncated (96 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq log --oneline -5 200ms
+    1358c0b Merge pull request #3 from Zarquan/20260227-zrq-ivoa-execution
+    e057bf4 Added sha checksums
+    … truncated (4 more lines) · ctrl+o to expand
+
+  $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git add entrypoint.sh README.md
+    ivoa-execution.yaml && git commit --trailer "Made-with: Cursor" -m "$(cat <<'EOF'
+    Added configurable exit code parameter for testing failure modes
+
+    The container now accepts an optional second argument to set the exit
+    code (defaults to 0 for backward compatibility). Updated README and
+    ivoa-execution.yaml to document the new parameter.
+    EOF
+    )" 355ms
+    [20260311-zrq-podman-fail 6df7f4b] Added configurable exit code parameter for testing failure modes
+     3 files changed, 33 insertions(+), 11 deletions(-)
+    … truncated (1 more line) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq status 237ms
+    On branch 20260311-zrq-podman-fail
+    nothing to commit, working tree clean
+    … truncated (1 more line) · ctrl+o to expand
+
+  Commit 6df7f4b is done on branch 20260311-zrq-podman-fail. The working tree is clean. You can push
+  and create the pull request from your host machine when ready.
+
+
+  I've merged the pull request, can you test the published container
+
+
+  Let me pull the latest published image and run the tests.
+
+  $ podman pull ghcr.io/zarquan/heliophorus-cantliei:main 5.7s
+    9725886b87f82fc0dc05a12a7209ec2005a473d02479bc94e4ae63e70512bee8
+    … truncated (8 more lines) · ctrl+o to expand
+
+  Image pulled. Now let me run all four test cases.
+
+  $ echo "=== Test 1: Default exit code (should exit 0) ===" && podman run --rm
+    ghcr.io/zarquan/heliophorus-cantliei:main 2 ; echo "Exit code: $?" 2.8s
+    === Test 1: Default exit code (should exit 0) ===
+    Waiting for 2 seconds ...
+    … truncated (3 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 2: Exit code 1 (should exit 1) ===" && podman run --rm
+    ghcr.io/zarquan/heliophorus-cantliei:main 2 1 ; echo "Exit code: $?" 2.8s
+    === Test 2: Exit code 1 (should exit 1) ===
+    Waiting for 2 seconds ...
+    … truncated (3 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 3: Invalid exit code ===" && podman run --rm ghcr.io/zarquan/heliophorus-cantliei:main
+     2 abc ; echo "Exit code: $?" 782ms
+    === Test 3: Invalid exit code ===
+    Error: 'abc' is not a valid exit code
+    … truncated (2 more lines) · ctrl+o to expand
+
+  $ echo "=== Test 4: No arguments (usage) ===" && podman run --rm
+    ghcr.io/zarquan/heliophorus-cantliei:main ; echo "Exit code: $?" 910ms
+    === Test 4: No arguments (usage) ===
+    Usage: cantliei <seconds> [exit-code]
+    … truncated (4 more lines) · ctrl+o to expand
+
+  All four tests pass against the published image at ghcr.io/zarquan/heliophorus-cantliei:main:
+
+  ┌────────────────────┬─────────────────┬───────────┐
+  │ Test               │ Output          │ Exit Code │
+  ├────────────────────┼─────────────────┼───────────┤
+  │ 2 (default exit)   │ Waits 2s, exits │ 0         │
+  │ 2 1 (failure mode) │ Waits 2s, exits │ 1         │
+  │ 2 abc (invalid)    │ Rejects input   │ 1         │
+  │ (no args)          │ Shows usage     │ 1         │
+  └────────────────────┴─────────────────┴───────────┘
+
+  The published container is working correctly. You may want to update the image tag and digest in
+  ivoa-execution.yaml to reference this new build — shall I do that?
+--END--
+
+==START==
+Please update the image tag and digest
+==END==
+
+--START--
+  Let me get the image digest and SHA tag from the published image.
+
+  $ podman inspect ghcr.io/zarquan/heliophorus-cantliei:main --format '{{.Digest}}' 3.9s
+    sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq log --oneline -5 3.3s
+    831ee57 Merge pull request #4 from Zarquan/20260311-zrq-podman-fail
+    6df7f4b Added configurable exit code parameter for testing failure modes
+    … truncated (4 more lines) · ctrl+o to expand
+
+  Let me verify that the SHA-tagged image exists and matches.
+
+  $ podman pull ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57 2>&1 1.0s
+    Trying to pull ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57...
+    Getting image source signatures
+    … truncated (7 more lines) · ctrl+o to expand
+
+  Good, the SHA tag matches. Now let me read the current file and update it.
+
+  ⬢ Read ...ophorus-cantliei/github-zrq/ivoa-execution.yaml
+
+  ┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ...ophorus-cantliei/github-zrq/ivoa-execution.yaml +2 -2                                            │
+  │                                                                                                     │
+  │     image:                                                                                          │
+  │       locations:                                                                                    │
+  │ -       - "ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0"                                        │
+  │ -     digest: "sha256:4911760109f78976d2a95a6491a8d8c77bfee9fd1498b9a4b7dd5b7515826689"             │
+  │ +       - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"                                        │
+  │ +     digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"             │
+  │     # First parameter: the number of seconds to wait.                                               │
+  │     # Second parameter: the exit code to return (default: 0).                                       │
+  └─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Updated ivoa-execution.yaml with:
+  • Tag: sha-c9572b0 → sha-831ee57
+  • Digest: updated to sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526
+
+  Would you like me to commit this change?
+--END--
+
+==START==
+yes
+==END==
+
+--START--
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq status 138ms
+    On branch main
+    Your branch is up to date with 'origin/main'.
+    … truncated (8 more lines) · ctrl+o to expand
+
+  $ git -C /heliophorus/Heliophorus-cantliei/github-zrq diff 194ms
+    diff --git a/ivoa-execution.yaml b/ivoa-execution.yaml
+    index 6fec088..8e47718 100644
+    … truncated (14 more lines) · ctrl+o to expand
+
+  $ cd /heliophorus/Heliophorus-cantliei/github-zrq && git add ivoa-execution.yaml && git commit
+    --trailer "Made-with: Cursor" -m "$(cat <<'EOF'
+    Updated image tag and digest for latest published build
+    EOF
+    )" 109ms
+    [main 06c8996] Updated image tag and digest for latest published build
+     1 file changed, 2 insertions(+), 2 deletions(-)
+    … truncated (1 more line) · ctrl+o to expand
+
+  Committed as 06c8996 on main. Ready for you to push from the host.
+
+
+  To resume this session: agent --resume=0bba8310-93eb-4769-b0ce-22b400bb266a
+--END--
+
+
+
+
+
+
+
+
