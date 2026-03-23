@@ -1,0 +1,508 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Add the direct execute method to the API.
+
+    Result:
+
+        Work in progress ...
+
+
+# -----------------------------------------------------
+# Create a new branch to work in.
+#[user@desktop]
+
+    branchname=direct-execute
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Add the new method to the OpenAPI schema.
+#[user@desktop]
+
+--START--
+....
+....
+--END--
+
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+            dnf install -y podman
+
+            podman ps
+
+--START--
+CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS         PORTS       NAMES
+22387534fc89  localhost/podman-pause:5.4.2-1743552000                        55 seconds ago  Up 37 seconds              2ab777e79966-infra
+5979331944c5  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        36 seconds ago  Up 35 seconds              calycopis-dev
+--END--
+
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    #
+    # Run our database server.
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Build the schema components.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-schema/github-zrq/
+
+        source bin/buildscripts.sh
+
+        installgenerator
+
+--START--
+....
+....
+--END--
+
+
+        buildschema
+
+--START--
+....
+....
+Inlining from discriminator mapping: IntegerValueUpdate
+Inlining from discriminator mapping: IntegerDeltaUpdate
+✅ All references processed and saved.
+--END--
+
+
+        buildpythonclient
+
+--START--
+....
+....
+adding 'calycopis_client-1.0.3.dist-info/top_level.txt'
+adding 'calycopis_client-1.0.3.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built calycopis_client-1.0.3.tar.gz and calycopis_client-1.0.3-py3-none-any.whl
+--END--
+
+
+        buildjavaclient
+
+--START--
+....
+....
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  12.040 s
+[INFO] Finished at: 2026-03-22T19:58:52Z
+[INFO] ------------------------------------------------------------------------
+--END--
+
+
+        buildjavaspring
+
+--START--
+....
+....
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.883 s
+[INFO] Finished at: 2026-03-22T19:59:44Z
+[INFO] ------------------------------------------------------------------------
+--END--
+
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update the serverside code in Eclipse.
+#[user@desktop]
+
+    * With Offersets we always get the same entity in the response.
+    * With Executions, we get a redirect or an object.
+
+    So we need to split the validating and building parts of OfferSetRequestParserImpl
+
+    At the moment OfferSetRequestParserImpl is given an OfferSetEntity to add the session offers to.
+
+        public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
+
+    Split that into the validating stage, which returns the context.
+
+        public OfferSetRequestParserContext stageOne(final IvoaExecutionRequest executionRequest)
+
+    and then a building stage that uses the context to populate a new OfferSetEntity
+
+        public OfferSetEntity stageTwo(final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext)
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Build and run our service.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=mock
+
+    popd
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Login via another terminal.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+        calycopis-dev \
+            bash
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Run our Python tests
+#[root@calycopis-dev]
+
+    pip install \
+        --editable \
+        /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/
+
+    pip install pytest
+
+    pushd /calycopis/Calycopis-broker/github-zrq/tests/python
+
+        pytest test_resource_registration.py -v
+
+    popd
+
+--START--
+==================================================================================== test session starts =====================================================================================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /calycopis/Calycopis-broker/github-zrq/tests/python
+collected 11 items
+
+test_resource_registration.py::TestBaseline::test_executable_only PASSED                                                                                                               [  9%]
+test_resource_registration.py::TestDataWithDefaultStorage::test_single_data_no_storage PASSED                                                                                          [ 18%]
+test_resource_registration.py::TestDataWithDefaultStorage::test_multiple_data_no_storage PASSED                                                                                        [ 27%]
+test_resource_registration.py::TestDataReferencingNamedStorage::test_data_references_named_storage PASSED                                                                              [ 36%]
+test_resource_registration.py::TestDataReferencingNamedStorage::test_multiple_data_same_named_storage PASSED                                                                           [ 45%]
+test_resource_registration.py::TestDataReferencingNamedStorage::test_data_references_nonexistent_storage PASSED                                                                        [ 54%]
+test_resource_registration.py::TestMixedResources::test_storage_and_data_with_names PASSED                                                                                             [ 63%]
+test_resource_registration.py::TestMixedResources::test_multiple_storage_multiple_data PASSED                                                                                          [ 72%]
+test_resource_registration.py::TestMixedResources::test_mixed_data_with_and_without_storage_ref PASSED                                                                                 [ 81%]
+test_resource_registration.py::TestUuidAssignment::test_all_resources_get_uuids PASSED                                                                                                 [ 90%]
+test_resource_registration.py::TestUuidAssignment::test_uuids_are_unique PASSED                                                                                                        [100%]
+
+===================================================================================== 11 passed in 2.65s =====================================================================================
+--END--
+
+
+    pushd /calycopis/Calycopis-broker/github-zrq/tests/python
+
+        pytest test_mock_validators.py -v
+
+    popd
+
+--START--
+==================================================================================== test session starts =====================================================================================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /calycopis/Calycopis-broker/github-zrq/tests/python
+collected 38 items
+
+test_mock_validators.py::TestDockerContainerValidation::test_valid_docker_with_network PASSED                                                                                          [  2%]
+test_mock_validators.py::TestDockerContainerValidation::test_blacklisted_port_path PASSED                                                                                              [  5%]
+test_mock_validators.py::TestDockerContainerValidation::test_blacklisted_port_path_also PASSED                                                                                         [  7%]
+test_mock_validators.py::TestDockerContainerValidation::test_blacklisted_port_number PASSED                                                                                            [ 10%]
+test_mock_validators.py::TestDockerContainerValidation::test_blacklisted_port_number_5678 PASSED                                                                                       [ 13%]
+test_mock_validators.py::TestDockerContainerValidation::test_privileged_execution_rejected PASSED                                                                                      [ 15%]
+test_mock_validators.py::TestDockerContainerValidation::test_unsupported_protocol_rejected PASSED                                                                                      [ 18%]
+test_mock_validators.py::TestDockerContainerValidation::test_negative_port_number_rejected PASSED                                                                                      [ 21%]
+test_mock_validators.py::TestJupyterNotebookValidation::test_valid_notebook_location PASSED                                                                                            [ 23%]
+test_mock_validators.py::TestJupyterNotebookValidation::test_blacklisted_notebook_location PASSED                                                                                      [ 26%]
+test_mock_validators.py::TestJupyterNotebookValidation::test_missing_notebook_location PASSED                                                                                          [ 28%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_valid_compute_within_limits PASSED                                                                                  [ 31%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_default_compute_no_explicit PASSED                                                                                  [ 34%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_min_cores_exceeds_limit PASSED                                                                                      [ 36%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_max_cores_exceeds_limit_capped PASSED                                                                               [ 39%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_min_memory_exceeds_limit PASSED                                                                                     [ 42%]
+test_mock_validators.py::TestSimpleComputeResourceValidation::test_max_memory_exceeds_limit_capped PASSED                                                                              [ 44%]
+test_mock_validators.py::TestSimpleStorageResourceValidation::test_valid_storage_within_limits PASSED                                                                                  [ 47%]
+test_mock_validators.py::TestSimpleStorageResourceValidation::test_min_size_exceeds_limit PASSED                                                                                       [ 50%]
+test_mock_validators.py::TestSimpleStorageResourceValidation::test_max_size_exceeds_limit_capped PASSED                                                                                [ 52%]
+test_mock_validators.py::TestSimpleDataResourceValidation::test_valid_data_location PASSED                                                                                             [ 55%]
+test_mock_validators.py::TestSimpleDataResourceValidation::test_blacklisted_data_location PASSED                                                                                       [ 57%]
+test_mock_validators.py::TestSimpleDataResourceValidation::test_blacklisted_data_location_forbidden PASSED                                                                             [ 60%]
+test_mock_validators.py::TestSimpleDataResourceValidation::test_missing_data_location PASSED                                                                                           [ 63%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_valid_s3_data_resource PASSED                                                                                        [ 65%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_blacklisted_s3_endpoint PASSED                                                                                       [ 68%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_blacklisted_s3_endpoint_forbidden PASSED                                                                             [ 71%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_missing_s3_endpoint PASSED                                                                                           [ 73%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_missing_s3_template PASSED                                                                                           [ 76%]
+test_mock_validators.py::TestAmazonS3DataResourceValidation::test_missing_s3_bucket PASSED                                                                                             [ 78%]
+test_mock_validators.py::TestIvoaDataResourceValidation::test_valid_ivoa_data_resource PASSED                                                                                          [ 81%]
+test_mock_validators.py::TestIvoaDataResourceValidation::test_blacklisted_ivoid PASSED                                                                                                 [ 84%]
+test_mock_validators.py::TestIvoaDataResourceValidation::test_blacklisted_ivoid_forbidden PASSED                                                                                       [ 86%]
+test_mock_validators.py::TestIvoaDataResourceValidation::test_missing_ivoid PASSED                                                                                                     [ 89%]
+test_mock_validators.py::TestIvoaDataResourceValidation::test_missing_ivoa_block PASSED                                                                                                [ 92%]
+test_mock_validators.py::TestSkaoDataResourceValidation::test_valid_skao_data_resource PASSED                                                                                          [ 94%]
+test_mock_validators.py::TestSkaoDataResourceValidation::test_blacklisted_namespace PASSED                                                                                             [ 97%]
+test_mock_validators.py::TestSkaoDataResourceValidation::test_blacklisted_namespace_forbidden PASSED                                                                                   [100%]
+
+===================================================================================== 38 passed in 3.28s =====================================================================================
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Restart our service with the `docker` platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=docker
+
+    popd
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run our Python tests
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq/tests/python
+
+        pytest test_docker_platform.py -v
+
+    popd
+
+--START--
+==================================================================================== test session starts =====================================================================================
+platform linux -- Python 3.13.5, pytest-9.0.2, pluggy-1.6.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /calycopis/Calycopis-broker/github-zrq/tests/python
+collected 14 items
+
+test_docker_platform.py::TestDockerPlatformOffers::test_cantliei_basic_offer PASSED                                                                                                    [  7%]
+test_docker_platform.py::TestDockerPlatformOffers::test_cantliei_with_compute PASSED                                                                                                   [ 14%]
+test_docker_platform.py::TestDockerPlatformOffers::test_cantliei_compute_over_limit_rejected PASSED                                                                                    [ 21%]
+test_docker_platform.py::TestDockerPlatformOffers::test_cantliei_offer_has_executable_image PASSED                                                                                     [ 28%]
+test_docker_platform.py::TestDockerPlatformOffers::test_cantliei_offer_has_session_uuid PASSED                                                                                         [ 35%]
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_accept_offer PASSED                                                                                                  [ 42%]
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reaches_preparing PASSED                                                                                     [ 50%]
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reaches_available PASSED                                                                                     [ 57%]
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_completes_with_timed_container PASSED                                                                        [ 64%]
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_short_and_long_containers PASSED                                                                                     [ 71%]
+test_docker_platform.py::TestDockerPlatformCancellation::test_cancel_offered_session PASSED                                                                                            [ 78%]
+test_docker_platform.py::TestDockerPlatformCancellation::test_cancel_accepted_session PASSED                                                                                           [ 85%]
+test_docker_platform.py::TestDockerPlatformMultipleOffers::test_independent_sessions PASSED                                                                                            [ 92%]
+test_docker_platform.py::TestDockerPlatformMultipleOffers::test_accept_one_reject_other PASSED                                                                                         [100%]
+
+====================================================================================== warnings summary ======================================================================================
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reaches_preparing
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_reaches_available
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_completes_with_timed_container
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_session_completes_with_timed_container
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_short_and_long_containers
+test_docker_platform.py::TestDockerPlatformSessionLifecycle::test_short_and_long_containers
+  /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/calycopis_client/wrappers/execution_client.py:178: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    deadline = datetime.utcnow() + timedelta(seconds=timeout)
+
+test_docker_platform.py: 41 warnings
+  /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/calycopis_client/wrappers/execution_client.py:181: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    while datetime.utcnow() < deadline:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================================================================== 14 passed, 47 warnings in 205.66s (0:03:25) =========================================================================
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Review the changes and commit to GitHub.
+#[user@desktop]
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        meld . &
+
+        git add \
+            AGENTS.md \
+            java/src/main/resources/application.yaml
+        git commit \
+            -m "Added calycopis-platform selection property" \
+            AGENTS.md \
+            java/src/main/resources/application.yaml
+
+        git add \
+            java/src/main/java/net/ivoa/calycopis/datamodel/component/ComponentEntity.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/message/MessageEntity.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/message/MessageSubject.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetEntity.java \
+            java/src/main/java/net/ivoa/calycopis/functional/validator/ValidatorBase.java \
+            java/src/main/java/net/ivoa/calycopis/functional/validator/ValidatorFactoryImpl.java
+        git commit \
+            -m "Moved message methods to MessageSubject and ParserContext" \
+            java/src/main/java/net/ivoa/calycopis/datamodel/component/ComponentEntity.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/amazon/AmazonS3DataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/ivoa/IvoaDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/data/simple/SimpleDataResourceValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/executable/docker/DockerContainerValidatorImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/message/MessageEntity.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/message/MessageSubject.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetEntity.java \
+            java/src/main/java/net/ivoa/calycopis/functional/validator/ValidatorBase.java \
+            java/src/main/java/net/ivoa/calycopis/functional/validator/ValidatorFactoryImpl.java
+
+        meld . &
+
+        git add \
+
+
+        git commit \
+            -m "Change IvoaOfferSetRequest to IvoaExecutionRequest" \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetFactory.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContext.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.java \
+            java/src/main/java/net/ivoa/calycopis/webapp/OffersetsApiDelegateImpl.java \
+            tests/python/test_docker_platform.py \
+            tests/python/test_mock_validators.py \
+            tests/python/test_resource_registration.py
+
+        git commit \
+            -m "Split validation and construction into two stages" \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetFactoryImpl.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParser.java \
+            java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java
+
+        git commit \
+            -m "Added direct execution method stub" \
+            java/src/main/java/net/ivoa/calycopis/webapp/SessionsApiDelegateImpl.java
+
+
+
+        notes/zrq/20260322-01-direct-execute.txt
+
+
+
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        meld . &
+
+    popd
+
+
