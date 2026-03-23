@@ -77,7 +77,7 @@ public abstract class ValidatorFactoryImpl<ObjectType, EntityType extends Compon
         final URI    typeName,
         final String className
         ){
-        context.getOfferSetEntity().addWarning(
+        context.addWarning(
             "uri:unknown-type",
             "Unknown type [${type}][${class}]",
             Map.of(

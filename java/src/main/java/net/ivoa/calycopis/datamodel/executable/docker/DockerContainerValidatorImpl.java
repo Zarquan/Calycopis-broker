@@ -679,7 +679,7 @@ implements DockerContainerValidator
                 {
                 if (isBadValueCheck(entry.getKey(),context))
                     {
-                    context.getOfferSetEntity().addWarning(
+                    context.addWarning(
                         "urn:bad-value",
                         "DockerContainer - environment variable name matches badvalue blacklist [{}]",
                         Map.of(

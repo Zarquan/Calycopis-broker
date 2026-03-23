@@ -185,7 +185,7 @@ public abstract class ValidatorBase
     
             if (trigger.equals(value))
                 {
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:test-trigger-failed",
                     "Bad value detected [${value}]",
                     Map.of(

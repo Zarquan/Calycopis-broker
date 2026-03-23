@@ -247,7 +247,7 @@ implements IvoaDataResourceValidator
                     }
                 }
             else {
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:missing-required-value",
                     "Ivoa ID (ivoid) required"
                     );
@@ -269,7 +269,7 @@ implements IvoaDataResourceValidator
                 }
             }
         else {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-required-value",
                 "Ivoa metadata required"
                 );

@@ -22,6 +22,7 @@
  */
 package net.ivoa.calycopis.datamodel.message;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -40,63 +41,134 @@ public interface MessageSubject
     public List<MessageEntity> getMessages();
 
     /**
-     * Add a debug message.
-     * 
-     */
-    public void addDebug(final String type, final String template);
-
-    /**
-     * Add a debug message.
-     * 
-     */
-    public void addDebug(final String type, final String template, final Map<String, Object> values);
-
-    /**
-     * Add an information message.
-     * 
-     */
-    public void addInfo(final String type, final String template);
-
-    /**
-     * Add an information message.
-     * 
-     */
-    public void addInfo(final String type, final String template, final Map<String, Object> values);
-    
-    /**
-     * Add a warning message.
-     * 
-     */
-    public void addWarning(final String type, final String template);
-
-    /**
-     * Add a warning message.
-     * 
-     */
-    public void addWarning(final String type, final String template, final Map<String, Object> values);
-
-    /**
-     * Add an error message.
-     * 
-     */
-    public void addError(final String type, final String template);
-
-    /**
-     * Add an error message.
-     * 
-     */
-    public void addError(final String type, final String template, final Map<String, Object> values);
-
-    /**
-     * Add a message.
-     * 
-     */
-    public void addMessage(final LevelEnum level, final String type, final String template);
-
-    /**
-     * Add a message.
+     * Add a message with a value map.
      * 
      */
     public void addMessage(final LevelEnum level, final String type, final String template, final Map<String, Object> values);
 
+    /**
+     * Add a simple message with no value map .
+     * 
+     */
+    default void addMessage(final LevelEnum level, final String type, final String template)
+        {
+        this.addMessage(
+            level,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+    
+    /**
+     * Add a DEBUG message.
+     * 
+     */
+    default void addDebug(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.DEBUG,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    /**
+     * Add a DEBUG message.
+     * 
+     */
+    default void addDebug(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.DEBUG,
+            type,
+            template,
+            values
+            );
+        }
+
+    /**
+     * Add an INFO message.
+     * 
+     */
+    default void addInfo(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.INFO,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    /**
+     * Add an INFO message.
+     * 
+     */
+    default void addInfo(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.INFO,
+            type,
+            template,
+            values
+            );
+        }
+    
+    /**
+     * Add a WARN message.
+     * 
+     */
+    default void addWarning(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.WARN,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    /**
+     * Add a WARN message.
+     * 
+     */
+    default void addWarning(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.WARN,
+            type,
+            template,
+            values
+            );
+        }
+
+    /**
+     * Add an ERROR message.
+     * 
+     */
+    default void addError(final String type, final String template)
+        {
+        this.addMessage(
+            LevelEnum.ERROR,
+            type,
+            template,
+            Collections.emptyMap()
+            );
+        }
+
+    /**
+     * Add an ERROR message.
+     * 
+     */
+    default void addError(final String type, final String template, final Map<String, Object> values)
+        {
+        this.addMessage(
+            LevelEnum.ERROR,
+            type,
+            template,
+            values
+            );
+        }
     }
