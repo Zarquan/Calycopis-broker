@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,8 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntityU
 import net.ivoa.calycopis.spring.api.SessionsApiDelegate;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
+import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
 
 @Service
 public class SessionsApiDelegateImpl
@@ -53,8 +56,7 @@ public class SessionsApiDelegateImpl
         NativeWebRequest request,
         SimpleExecutionSessionEntityFactory sessionFactory,
         SimpleExecutionSessionEntityUpdateHandler updateHandler
-        )
-        {
+        ){
         super(request);
         this.sessionFactory = sessionFactory ;
         this.updateHandler = updateHandler ;
@@ -63,7 +65,7 @@ public class SessionsApiDelegateImpl
     @Override
     public ResponseEntity<IvoaAbstractExecutionSession> executionSessionGet(
         final UUID uuid
-        ) {
+        ){
         final Optional<SimpleExecutionSessionEntity> found = sessionFactory.select(
             uuid
             );
@@ -84,10 +86,10 @@ public class SessionsApiDelegateImpl
         }
 
     @Override
-    public ResponseEntity<IvoaAbstractExecutionSession> executionSessionPost(
+    public ResponseEntity<IvoaAbstractExecutionSession> executionUpdatePost(
         final UUID uuid,
         final IvoaAbstractUpdate request
-        ) {
+        ){
        final Optional<SimpleExecutionSessionEntity> found = updateHandler.update(
             uuid,
             request
@@ -106,6 +108,29 @@ public class SessionsApiDelegateImpl
                 HttpStatus.NOT_FOUND
                 );
             }
+        }
+
+    @Override
+    public ResponseEntity<IvoaAbstractExecutionSession> directExecutionPost(
+        IvoaExecutionRequest ivoaDirectExecutionRequest
+        ){
+
+        //
+        // Process the request, create a new session and return a redirect URL to the session details.
+        //
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(
+            this.getURIBuilder().buildURI(
+                this.getBaseUri(),
+                new UUID(0L, 0L)
+                )
+            );
+        return new ResponseEntity<IvoaAbstractExecutionSession>(
+            null,
+            headers,
+            HttpStatus.SEE_OTHER
+            );
         }
     }
 
