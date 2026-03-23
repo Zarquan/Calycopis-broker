@@ -58,7 +58,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 
 /**
  *
@@ -74,45 +74,24 @@ extends ValidatorBase
      *
      */
     public OfferSetRequestParserContextImpl(
-        final OfferSetRequestParser parser,
-        final IvoaOfferSetRequest offersetRequest,
-        final OfferSetEntity offersetEntity
+        final IvoaExecutionRequest originalRequest
         ){
-        this.parser = parser;
-        this.originalRequest  = offersetRequest;
-        this.validatedRequest = new IvoaOfferSetRequest();
-        this.offersetEntity   = offersetEntity;
+        this.originalRequest  = originalRequest;
+        this.validatedRequest = new IvoaExecutionRequest();
         }
 
-    /**
-     * Get a reference to the parent parser.
-     *
-     */
-    private final OfferSetRequestParser parser;
-    public OfferSetRequestParser getParser()
-        {
-        return this.parser;
-        }
-
-    private final IvoaOfferSetRequest originalRequest;
+    private final IvoaExecutionRequest originalRequest;
     @Override
-    public IvoaOfferSetRequest getOriginalOfferSetRequest()
+    public IvoaExecutionRequest getOriginalOfferSetRequest()
         {
         return this.originalRequest;
         }
 
-    private IvoaOfferSetRequest validatedRequest;
+    private IvoaExecutionRequest validatedRequest;
     @Override
-    public IvoaOfferSetRequest getValidatedOfferSetRequest()
+    public IvoaExecutionRequest getValidatedOfferSetRequest()
         {
         return this.validatedRequest;
-        }
-
-    private final OfferSetEntity offersetEntity;
-    @Override
-    public OfferSetEntity getOfferSetEntity()
-        {
-        return this.offersetEntity;
         }
 
     private boolean valid = true ;
@@ -901,106 +880,26 @@ extends ValidatorBase
 
         return this.totalPrepareTime ;
         }
+
+    private List<MessageEntity> messages = new ArrayList<MessageEntity>();
+    
     @Override
     public List<MessageEntity> getMessages()
         {
-        return this.offersetEntity.getMessages();
-        }
-
-    @Override
-    public void addDebug(String type, String template)
-        {
-        this.offersetEntity.addDebug(
-            type,
-            template
-            );
-        }
-
-    @Override
-    public void addDebug(String type, String template, Map<String, Object> values)
-        {
-        this.offersetEntity.addDebug(
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addInfo(String type, String template)
-        {
-        this.offersetEntity.addInfo(
-            type,
-            template
-            );
-        }
-
-    @Override
-    public void addInfo(String type, String template, Map<String, Object> values)
-        {
-        this.offersetEntity.addInfo(
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addWarning(String type, String template)
-        {
-        this.offersetEntity.addWarning(
-            type,
-            template
-            );
-        }
-
-    @Override
-    public void addWarning(String type, String template, Map<String, Object> values)
-        {
-        this.offersetEntity.addWarning(
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addError(String type, String template)
-        {
-        this.offersetEntity.addError(
-            type,
-            template
-            );
-        }
-
-    @Override
-    public void addError(String type, String template, Map<String, Object> values)
-        {
-        this.offersetEntity.addError(
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addMessage(LevelEnum level, String type, String template)
-        {
-        this.offersetEntity.addMessage(
-            level,
-            type,
-            template
-            );
+        return this.messages;
         }
 
     @Override
     public void addMessage(LevelEnum level, String type, String template, Map<String, Object> values)
         {
-        this.offersetEntity.addMessage(
-            level,
-            type,
-            template,
-            values
+        this.messages.add(
+            new MessageEntity(
+                null,
+                level,
+                type,
+                template,
+                values
+                )
             );
         }
     }

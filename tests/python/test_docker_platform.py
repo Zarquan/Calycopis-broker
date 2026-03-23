@@ -49,7 +49,7 @@ import pytest
 
 from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
 from calycopis_client.models import (
-    OfferSetRequest,
+    ExecutionRequest,
     OfferSetResponse,
     SimpleExecutionSessionPhase,
 )
@@ -130,7 +130,7 @@ def _make_cantliei_executable(name: str = "cantliei-test", pause_seconds: int = 
     )
 
 
-def _submit(client: ExecutionBrokerClient, request: OfferSetRequest) -> OfferSetResponse:
+def _submit(client: ExecutionBrokerClient, request: ExecutionRequest) -> OfferSetResponse:
     """Submit a request and return the OfferSetResponse."""
     response = client.submit_execution(request, follow_redirect=True)
     assert isinstance(response, OfferSetResponse), (
@@ -212,7 +212,7 @@ class TestDockerPlatformOffers:
         Submitting the cantliei container with no explicit compute
         should produce a YES response with at least one offer.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-basic", pause_seconds=5),
         )
         response = _submit(client, request)
@@ -228,7 +228,7 @@ class TestDockerPlatformOffers:
         Submitting the cantliei container with explicit compute resource
         limits should produce a YES response.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-with-compute", pause_seconds=5),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -250,7 +250,7 @@ class TestDockerPlatformOffers:
         Requesting compute resources that exceed the Docker platform
         limits (min cores > 16) should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-over-limit", pause_seconds=5),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -266,7 +266,7 @@ class TestDockerPlatformOffers:
         The offer's executable should preserve the Docker image details
         from the request.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-image-check", pause_seconds=5),
         )
         response = _submit(client, request)
@@ -286,7 +286,7 @@ class TestDockerPlatformOffers:
         """
         Each offer should have a session UUID assigned in its metadata.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-uuid-check", pause_seconds=5),
         )
         response = _submit(client, request)
@@ -316,7 +316,7 @@ class TestDockerPlatformSessionLifecycle:
         """
         Accepting an offered session should transition it to ACCEPTED.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-accept", pause_seconds=10),
         )
         response = _submit(client, request)
@@ -342,7 +342,7 @@ class TestDockerPlatformSessionLifecycle:
         After accepting, the session should eventually reach PREPARING
         as the broker begins to prepare the Docker container.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-preparing", pause_seconds=30),
         )
         response = _submit(client, request)
@@ -382,7 +382,7 @@ class TestDockerPlatformSessionLifecycle:
         After preparation completes, the session should reach AVAILABLE,
         meaning the Docker container has been created and started.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-available", pause_seconds=30),
         )
         response = _submit(client, request)
@@ -444,7 +444,7 @@ class TestDockerPlatformSessionLifecycle:
         # the pre-AVAILABLE check.
         pre_check_margin = 5.0
 
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable(
                 "cantliei-timed-complete",
                 pause_seconds=pause_seconds,
@@ -579,13 +579,13 @@ class TestDockerPlatformSessionLifecycle:
         long_pause = 30
         wait_timeout = 600.0
 
-        short_request = OfferSetRequest(
+        short_request = ExecutionRequest(
             executable=_make_cantliei_executable(
                 "cantliei-short",
                 pause_seconds=short_pause,
             ),
         )
-        long_request = OfferSetRequest(
+        long_request = ExecutionRequest(
             executable=_make_cantliei_executable(
                 "cantliei-long",
                 pause_seconds=long_pause,
@@ -658,7 +658,7 @@ class TestDockerPlatformCancellation:
         """
         Rejecting an offered session should transition it to REJECTED.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-reject", pause_seconds=5),
         )
         response = _submit(client, request)
@@ -679,7 +679,7 @@ class TestDockerPlatformCancellation:
         """
         Cancelling an accepted session should transition it to CANCELLED.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-cancel", pause_seconds=5),
         )
         response = _submit(client, request)
@@ -717,10 +717,10 @@ class TestDockerPlatformMultipleOffers:
         Two independent offer requests should produce independent sessions
         with distinct UUIDs.
         """
-        request_a = OfferSetRequest(
+        request_a = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-session-a", pause_seconds=5),
         )
-        request_b = OfferSetRequest(
+        request_b = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-session-b", pause_seconds=5),
         )
         response_a = _submit(client, request_a)
@@ -741,7 +741,7 @@ class TestDockerPlatformMultipleOffers:
         From two offers, accepting one and rejecting the other should
         produce independent outcomes.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-dual", pause_seconds=10),
         )
         response = _submit(client, request)
@@ -761,7 +761,7 @@ class TestDockerPlatformMultipleOffers:
         )
 
         # Submit a second request and reject it.
-        request2 = OfferSetRequest(
+        request2 = ExecutionRequest(
             executable=_make_cantliei_executable("cantliei-dual-reject", pause_seconds=5),
         )
         response2 = _submit(client, request2)
