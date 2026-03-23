@@ -45,9 +45,15 @@ logging:
 spring:
     application:
         name: Ambleck
+
+    # https://stackoverflow.com/a/55679297
     mvc:
-        # https://stackoverflow.com/a/55679297
         log-request-details: true
+
+    # https://stackoverflow.com/a/55436560
+    profiles:
+        active: "@calycopis-platform@"
+
     # https://www.baeldung.com/spring-boot-h2-database
     # https://stackoverflow.com/a/38047021
     datasource:
