@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 
 /**
  * Service for responding to OfferSet requests.
@@ -74,8 +74,15 @@ public class OfferSetFactoryImpl
 		}
 
     @Override
-    public OfferSetEntity create(final IvoaOfferSetRequest offersetRequest)
+    public OfferSetEntity create(final IvoaExecutionRequest offersetRequest)
     	{
+        //
+        // Validate the request. 
+        OfferSetRequestParserContext offersetContext = offersetRequestParser.stageOne(
+            offersetRequest
+            );
+        //
+        // Create a new OfferSetEntity.
     	OfferSetEntity offersetEntity = new OfferSetEntity(
     	    // tempfix    
 	        // offersetRequest.getName(),
@@ -88,18 +95,18 @@ public class OfferSetFactoryImpl
                 )
 	        );
     	//
-    	// Save the OfferSet before we add session offers.
+    	// Save the OfferSet before we add any offers.
         this.offersetRepository.save(
-                offersetEntity
-                );
-    	//
-    	// Process the request and generate some session offers.
-        offersetRequestParser.process(
-	        offersetRequest,
-	        offersetEntity
-	        );
+            offersetEntity
+            );
         //
-        // Save the OfferSet in the database.
+        // Add the offers to the OfferSetEntity.
+        offersetRequestParser.stageTwo(
+            offersetEntity,
+            offersetContext
+            );
+        //
+        // Save the OfferSet and the offers.
         return this.offersetRepository.save(
             offersetEntity
             );
