@@ -33,8 +33,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse.ResultEnum;
+import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
  * Service for responding to OfferSet requests.
@@ -47,16 +52,26 @@ public class OfferSetFactoryImpl
     implements OfferSetFactory
     {
 
+    private final Platform platform;
     private final OfferSetRequestParser offersetRequestParser;
     
     private final OfferSetRepository offersetRepository;
 
+    private final ProcessingRequestFactory processingRequestFactory;
+    
     @Autowired
-    public OfferSetFactoryImpl(final OfferSetRepository offersetRepository, final OfferSetRequestParser offersetParser)
-        {
+    public OfferSetFactoryImpl(
+        final Platform platform,
+        final OfferSetRepository offersetRepository,
+        final OfferSetRequestParser offersetParser,
+        final ProcessingRequestFactory processingRequestFactory
+        ){
         super();
+        this.platform = platform;
+        this.platform.initialize();
         this.offersetRepository = offersetRepository;
         this.offersetRequestParser = offersetParser;
+        this.processingRequestFactory = processingRequestFactory;
         }
 
     /**
@@ -79,8 +94,20 @@ public class OfferSetFactoryImpl
         //
         // Validate the request. 
         OfferSetRequestParserContext offersetContext = offersetRequestParser.stageOne(
+            platform,
             offersetRequest
             );
+        //
+        // Create the OfferSetEntity from the context.
+        return this.create(
+            offersetContext,
+            0
+            );
+    	}
+
+    @Override
+    public OfferSetEntity create(final OfferSetRequestParserContext offersetContext, int offerCount)
+    	{
         //
         // Create a new OfferSetEntity.
     	OfferSetEntity offersetEntity = new OfferSetEntity(
@@ -102,8 +129,10 @@ public class OfferSetFactoryImpl
         //
         // Add the offers to the OfferSetEntity.
         offersetRequestParser.stageTwo(
+            platform,
             offersetEntity,
-            offersetContext
+            offersetContext,
+            offerCount
             );
         //
         // Save the OfferSet and the offers.
@@ -111,5 +140,57 @@ public class OfferSetFactoryImpl
             offersetEntity
             );
     	}
+
+    @Override
+    public SimpleExecutionSessionEntity direct(final IvoaExecutionRequest executionRequest)
+        {
+        //
+        // Validate the request.
+        OfferSetRequestParserContext offersetContext = offersetRequestParser.stageOne(
+            platform,
+            executionRequest
+            );
+
+        //
+        // If the request is valid, create a new OfferSetEntity and return the first offer.
+        if (offersetContext.valid())
+            {
+            OfferSetEntity offerSetEntity = this.create(
+                offersetContext,
+                1
+                );
+            //
+            // If the OfferSetEntity is valid.
+            if (offerSetEntity.getResult() == ResultEnum.YES)
+                {
+                //
+                // If the OfferSetEntity has at least one offer.
+                if (offerSetEntity.getOffers().size() > 0)
+                    {
+                    // TODO Get rid of the nasty class casts.
+                    SimpleExecutionSessionEntity offer = (SimpleExecutionSessionEntity) offerSetEntity.getOffers().getFirst();
+                    //
+                    // Set the phase to ACCEPTED and schedule a PrepareSessionRequest for the offer.
+                    offer.setPhase(
+                        IvoaSimpleExecutionSessionPhase.ACCEPTED
+                        );
+                    processingRequestFactory.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                        offer
+                        );
+                    return offer;
+                    }
+                }
+            }
+        //
+        // If the request is not valid, return a FAILED ExecutionSessionEntity. 
+        SimpleExecutionSessionEntity failed = new SimpleExecutionSessionEntity();
+        failed.setPhase(
+            IvoaSimpleExecutionSessionPhase.FAILED
+            );
+        failed.claimMessages(
+            offersetContext.getMessages()
+            );
+        return failed;
+        }
     }
 
