@@ -200,7 +200,7 @@ Successfully built calycopis_client-1.0.3.tar.gz and calycopis_client-1.0.3-py3-
 
 # -----------------------------------------------------
 # -----------------------------------------------------
-# Update the serverside code in Eclipse.
+# Update the server code in Eclipse.
 #[user@desktop]
 
     * With Offersets we always get the same entity in the response.
@@ -466,8 +466,7 @@ test_docker_platform.py: 41 warnings
 
         meld . &
 
-        git add \
-
+        git add .
 
         git commit \
             -m "Change IvoaOfferSetRequest to IvoaExecutionRequest" \
@@ -489,12 +488,9 @@ test_docker_platform.py: 41 warnings
             -m "Added direct execution method stub" \
             java/src/main/java/net/ivoa/calycopis/webapp/SessionsApiDelegateImpl.java
 
-
-
-        notes/zrq/20260322-01-direct-execute.txt
-
-
-
+        git commit \
+            -m "Notes ...." \
+            notes/zrq/20260322-01-direct-execute.txt
 
     popd
 
@@ -503,6 +499,72 @@ test_docker_platform.py: 41 warnings
 
         meld . &
 
+        git add .
+
+        git commit \
+            -m "Change IvoaOfferSetRequest to IvoaExecutionRequest" \
+            codegen/python/client/wrappers/execution_client.py \
+            schema/v1.0/components.yaml
+
+        git commit \
+            -m "Added direct execution method" \
+            schema/v1.0/execution-broker.yaml
+
     popd
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update the server code in Eclipse.
+#[user@desktop]
+
+
+
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Review the changes and commit to GitHub.
+#[user@desktop]
+
+
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/component/ComponentEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetFactory.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetFactoryImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParser.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserContextImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/offerset/OfferSetRequestParserImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/session/AbstractExecutionSessionEntityFactory.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityFactory.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityFactoryImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/datamodel/session/simple/SimpleExecutionSessionEntityUpdateHandlerImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/booking/compute/ComputeResourceOfferFactory.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/booking/compute/ComputeResourceOfferFactoryImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/platfom/Platform.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/platfom/docker/DockerPlatformImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/platfom/mock/MockPlatformImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequest.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactory.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingRequestFactoryImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/ProcessingServiceImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/CancelComponentRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/ComponentProcessingRequest.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/ComponentProcessingRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/FailComponentRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/MonitorComponentRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/PrepareComponentRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/component/ReleaseComponentRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/CancelSessionRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/FailSessionRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/PrepareSessionRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/ReleaseSessionRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/SessionProcessingRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/session/UpdateSessionRequestEntity.java
+	modified:   java/src/main/java/net/ivoa/calycopis/functional/processing/test/TestProcessingSerivceImpl.java
+	modified:   java/src/main/java/net/ivoa/calycopis/webapp/SessionsApiDelegateImpl.java
+	modified:   notes/zrq/20260322-01-direct-execute.txt
+
 
 

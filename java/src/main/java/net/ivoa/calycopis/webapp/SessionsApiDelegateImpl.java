@@ -40,7 +40,6 @@ import net.ivoa.calycopis.spring.api.SessionsApiDelegate;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
 
 @Service
 public class SessionsApiDelegateImpl
