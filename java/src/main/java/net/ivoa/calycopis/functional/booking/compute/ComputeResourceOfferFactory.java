@@ -33,6 +33,6 @@ public interface ComputeResourceOfferFactory
      * Generate a list of offers.
      *  
      */
-    public List<ComputeResourceOffer> generate(final Interval requeststart, final Duration requestduration, final Long requestcores, final Long requestmemory);
+    public List<ComputeResourceOffer> generate(final Interval requeststart, final Duration requestduration, final Long requestcores, final Long requestmemory, int offerCount);
 
     }
