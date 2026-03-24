@@ -33,6 +33,7 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -66,7 +67,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final Platform platform)
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         log.debug(
             "Pre-processing [FAIL] for session [{}][{}][{}]",
@@ -127,16 +128,19 @@ implements SessionProcessingRequest
         //
         // Cancel all of the components.
         scheduleCancelIfActive(
+            processing,
             platform,
             this.session.getExecutable()
             );
         scheduleCancelIfActive(
+            processing,
             platform,
             this.session.getComputeResource()
             );
         for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
             scheduleCancelIfActive(
+                processing,
                 platform,
                 dataResource
                 );
@@ -144,6 +148,7 @@ implements SessionProcessingRequest
         for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
             {
             scheduleCancelIfActive(
+                processing,
                 platform,
                 storageResource
                 );
@@ -153,7 +158,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing [FAIL] for session [{}][{}]",

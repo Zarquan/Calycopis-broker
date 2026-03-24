@@ -22,6 +22,7 @@
 package net.ivoa.calycopis.datamodel.offerset;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 
 /**
@@ -30,16 +31,17 @@ import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 public interface OfferSetRequestParser
     extends FactoryBase
     {
+    
     /**
      * Validate a Request and populate a ParserContext.
      *
      */
-    public OfferSetRequestParserContext stageOne(final IvoaExecutionRequest offersetRequest);
+    public OfferSetRequestParserContext stageOne(final Platform platform, final IvoaExecutionRequest offersetRequest);
 
     /**
      * Populate an OfferSetEntity based on the contents of a ParserContext.
      *
      */
-    public OfferSetEntity stageTwo(final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext);
+    public OfferSetEntity stageTwo(final Platform platform, final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount);
     
     }

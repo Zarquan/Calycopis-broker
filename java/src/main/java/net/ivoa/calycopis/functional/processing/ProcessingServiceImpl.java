@@ -44,10 +44,15 @@ extends FactoryBaseImpl
 implements ProcessingService
     {
 
+    private final Platform platform;
+    private final ProcessingRequestFactory processing;     
+
     // TODO Pass the inner component in via constructor.
-    protected ProcessingServiceImpl()
+    protected ProcessingServiceImpl(final ProcessingRequestFactory processing, final Platform platform)
         {
         super();
+        this.processing = processing;
+        this.platform = platform;
         }
 
     @Autowired
@@ -188,7 +193,8 @@ implements ProcessingService
         {
         log.debug("Service [{}] outer pre-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         return request.preProcess(
-            this.getPlatform()
+            this.processing,
+            this.platform
             );
         }
 
@@ -200,11 +206,9 @@ implements ProcessingService
         {
         log.debug("Service [{}] outer post-processing request [{}][{}]", this.getUuid(), request.getUuid(), request.getClass().getSimpleName());
         request.postProcess(
-            this.getPlatform(),
+            this.processing,
+            this.platform,
             action
             );
         }
-
-    protected abstract Platform getPlatform();
-    
     }

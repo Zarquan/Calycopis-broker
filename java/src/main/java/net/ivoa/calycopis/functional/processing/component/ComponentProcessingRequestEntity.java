@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
@@ -123,17 +124,19 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
         {
         if (action instanceof ComponentProcessingAction)
             {
             this.postProcess(
+                processing,
                 platform,
                 (ComponentProcessingAction) action
                 );
             }
         else {
             this.postProcess(
+                processing,
                 platform,
                 (ComponentProcessingAction) null
                 );
@@ -141,9 +144,10 @@ implements ComponentProcessingRequest
         }
     
     @Deprecated
-    protected void fail(final Platform platform)
+    protected void fail(final ProcessingRequestFactory processing, final Platform platform)
         {
         this.fail(
+            processing,
             platform,
             this.getComponent(
                 platform
@@ -151,7 +155,7 @@ implements ComponentProcessingRequest
             );
         }
 
-    protected void fail(final Platform platform, final LifecycleComponentEntity component)
+    protected void fail(final ProcessingRequestFactory processing, final Platform platform, final LifecycleComponentEntity component)
         {
         log.debug(
             "ProcessingRequest [{}][{}] failed",
@@ -164,16 +168,16 @@ implements ComponentProcessingRequest
                 IvoaLifecyclePhase.FAILED
                 );
             updateSession(
-                platform,
+                processing,
                 component
                 );
             }
         this.done(platform);
         }
     
-    protected void updateSession(final Platform platform, final LifecycleComponentEntity component)
+    protected void updateSession(final ProcessingRequestFactory processing, final LifecycleComponentEntity component)
         {
-        platform.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+        processing.getSessionProcessingRequestFactory().createUpdateSessionRequest(
             component.getSession()
             );
         }

@@ -36,6 +36,7 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -69,7 +70,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final Platform platform)
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         log.debug(
             "Pre-processing [UPDATE] for session [{}][{}][{}]",
@@ -180,6 +181,7 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.FAILED
                         );
                     this.scheduleReleaseAll(
+                        processing,
                         platform
                         );
                     break;
@@ -217,6 +219,7 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.CANCELLED
                         );
                     this.scheduleReleaseAll(
+                        processing,
                         platform
                         );
                     break;
@@ -293,6 +296,7 @@ implements SessionProcessingRequest
                         IvoaSimpleExecutionSessionPhase.RELEASING
                         );
                     this.scheduleReleaseAll(
+                        processing,
                         platform
                         );
                     break;
@@ -383,7 +387,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing monitor for session [{}][{}] with phase [{}]",

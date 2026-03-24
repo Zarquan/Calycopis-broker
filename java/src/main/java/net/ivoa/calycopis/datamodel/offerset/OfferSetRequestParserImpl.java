@@ -62,27 +62,30 @@ public class OfferSetRequestParserImpl
     implements OfferSetRequestParser
     {
 
-    private Platform platform ;
+    //private final Platform platform ;
 
     @Autowired
     public OfferSetRequestParserImpl(
-        final Platform platform
+        //final Platform platform
         ){
         super();
-        this.platform = platform;
-        this.platform.initialize();
+        //this.platform = platform;
+        //this.platform.initialize();
         }
 
     @Override
-    public OfferSetRequestParserContext stageOne(final IvoaExecutionRequest executionRequest)
+    public OfferSetRequestParserContext stageOne(final Platform platform, final IvoaExecutionRequest executionRequest)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
         OfferSetRequestParserContext offersetContext = new OfferSetRequestParserContextImpl(
             executionRequest
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
+
         //
         // Register all the resources and assign UUIDs.
         offersetContext.registerResources();
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested storage resources.
@@ -97,6 +100,7 @@ public class OfferSetRequestParserImpl
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
         //
         // Validate the requested data resources.
         log.debug("Validating the requested data resources");
@@ -110,6 +114,8 @@ public class OfferSetRequestParserImpl
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
+
         //
         // Validate the requested volume mounts.
         log.debug("Validating the requested volume mounts");
@@ -123,6 +129,7 @@ public class OfferSetRequestParserImpl
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested compute resource.
@@ -139,10 +146,12 @@ public class OfferSetRequestParserImpl
                     );
             }
 
+        log.debug("Context valid [{}]", offersetContext.valid());
         platform.getComputeResourceValidators().validate(
             computeResource,
             offersetContext
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested executable.
@@ -163,6 +172,7 @@ public class OfferSetRequestParserImpl
                 );
             offersetContext.valid(false);
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Calculate the preparation time.
@@ -174,6 +184,7 @@ public class OfferSetRequestParserImpl
             executionRequest.getSchedule(),
             offersetContext
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         return offersetContext;
         }
@@ -315,9 +326,10 @@ public class OfferSetRequestParserImpl
 
     
     @Override
-    public OfferSetEntity stageTwo(final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext)
+    public OfferSetEntity stageTwo(final Platform platform, final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount)
         {
-        log.debug("stageTwo(OfferSetEntity, OfferSetRequestParserContext)");
+        log.debug("stageTwo(Platform , OfferSetEntity, OfferSetRequestParserContext)");
+        log.debug("Context valid [{}]", offersetContext.valid());
         
         //
         // Start with NO, and set to YES when we have at least one offer.
@@ -331,6 +343,7 @@ public class OfferSetRequestParserImpl
             );
         //
         // If everything is OK.
+        log.debug("Context valid [{}]", offersetContext.valid());
         if (offersetContext.valid())
             {
             //
@@ -352,7 +365,8 @@ public class OfferSetRequestParserImpl
                 offersetContext.getStartInterval(),
                 offersetContext.getExecutionDuration(),
                 offersetContext.getTotalMinCores(),
-                offersetContext.getTotalMinMemory()
+                offersetContext.getTotalMinMemory(),
+                offerCount
                 );
             //
             // Create an ExecutionSession for each offer.

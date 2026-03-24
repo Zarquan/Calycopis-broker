@@ -47,8 +47,8 @@ public interface ProcessingRequest
 
     public Instant getActivationTime();
     
-    public ProcessingAction preProcess(final Platform platform);
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform);
 
-    public void postProcess(final Platform platform, final ProcessingAction action);
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action);
     
     }

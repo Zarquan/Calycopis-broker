@@ -40,6 +40,7 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestEntity;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
@@ -81,7 +82,7 @@ implements SessionProcessingRequest
         return this.session;
         }
 
-    protected ProcessingAction failSession(final Platform platform)
+    protected ProcessingAction failSession(final ProcessingRequestFactory processing, final Platform platform)
         {
         if (this.session != null)
             {
@@ -89,7 +90,7 @@ implements SessionProcessingRequest
             this.session.setPhase(
                 IvoaSimpleExecutionSessionPhase.FAILED
                 );
-            platform.getSessionProcessingRequestFactory().createFailSessionRequest(
+            processing.getSessionProcessingRequestFactory().createFailSessionRequest(
                 this.session
                 );            
             }
@@ -100,7 +101,7 @@ implements SessionProcessingRequest
         }
 
     
-    protected void scheduleCancelIfActive(final Platform platform, final LifecycleComponentEntity component)
+    protected void scheduleCancelIfActive(final ProcessingRequestFactory processing, final Platform platform, final LifecycleComponentEntity component)
         {
         if (component == null)
             {
@@ -127,7 +128,7 @@ implements SessionProcessingRequest
                     component.getClass().getSimpleName(),
                     phase
                     );
-                platform.getComponentProcessingRequestFactory().createCancelComponentRequest(
+                processing.getComponentProcessingRequestFactory().createCancelComponentRequest(
                     component
                     );
                 break;
@@ -154,19 +155,22 @@ implements SessionProcessingRequest
             }
         }
 
-    protected void scheduleReleaseAll(final Platform platform)
+    protected void scheduleReleaseAll(final ProcessingRequestFactory processing, final Platform platform)
         {
         scheduleReleaseIfActive(
+            processing,
             platform,
             this.session.getExecutable()
             );
         scheduleReleaseIfActive(
+            processing,
             platform,
             this.session.getComputeResource()
             );
         for (AbstractDataResourceEntity dataResource : this.session.getDataResources())
             {
             scheduleReleaseIfActive(
+                processing,
                 platform,
                 dataResource
                 );
@@ -174,13 +178,14 @@ implements SessionProcessingRequest
         for (AbstractStorageResourceEntity storageResource : this.session.getStorageResources())
             {
             scheduleReleaseIfActive(
+                processing,
                 platform,
                 storageResource
                 );
             }
         }
     
-    protected void scheduleReleaseIfActive(final Platform platform, final LifecycleComponentEntity component)
+    protected void scheduleReleaseIfActive(final ProcessingRequestFactory processing, final Platform platform, final LifecycleComponentEntity component)
         {
         if (component == null)
             {
@@ -206,7 +211,7 @@ implements SessionProcessingRequest
                     component.getClass().getSimpleName(),
                     phase
                     );
-                platform.getComponentProcessingRequestFactory().createReleaseComponentRequest(
+                processing.getComponentProcessingRequestFactory().createReleaseComponentRequest(
                     component
                     );
                 break;

@@ -65,8 +65,6 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
 
 /**
  * 
@@ -280,23 +278,6 @@ implements DockerPlatform
         {
         return this.processingRequestFactory;
         }
-
-    @Autowired
-    private SessionProcessingRequestFactory sessionProcessingRequestFactory;
-    @Override
-    public SessionProcessingRequestFactory getSessionProcessingRequestFactory()
-        {
-        return this.sessionProcessingRequestFactory;
-        }
-    
-    @Autowired
-    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
-    @Override
-    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory()
-        {
-        return this.componentProcessingRequestFactory;
-        }
-
 
 // LifecycleComponent
 

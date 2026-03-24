@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
@@ -66,7 +67,7 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final Platform platform)
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         LifecycleComponentEntity component = this.getComponent(
             platform
@@ -134,13 +135,17 @@ implements ComponentProcessingRequest
                     component.getUuid(),
                     component.getClass().getSimpleName()
                     );
-                this.fail(platform,component);
+                this.fail(
+                    processing,
+                    platform,
+                    component
+                    );
                 return ProcessingAction.NO_ACTION;
             }
         }
 
     @Override
-    public void postProcess(final Platform platform, final ComponentProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action)
         {
         LifecycleComponentEntity component = this.getComponent(
             platform
@@ -162,7 +167,7 @@ implements ComponentProcessingRequest
 
         if (prevPhase != nextPhase)
             {
-            platform.getSessionProcessingRequestFactory().createUpdateSessionRequest(
+            processing.getSessionProcessingRequestFactory().createUpdateSessionRequest(
                 component.getSession()
                 );
             }
@@ -209,7 +214,7 @@ implements ComponentProcessingRequest
             case RUNNING:
                 if (prevPhase != nextPhase)
                     {
-                    platform.getComponentProcessingRequestFactory().createMonitorComponentRequest(
+                    processing.getComponentProcessingRequestFactory().createMonitorComponentRequest(
                         component
                         );
                     }
@@ -232,7 +237,11 @@ implements ComponentProcessingRequest
                     component.getUuid(),
                     component.getClass().getSimpleName()
                     );
-                this.fail(platform, component);
+                this.fail(
+                    processing,
+                    platform,
+                    component
+                    );
                 break;
             }
         }

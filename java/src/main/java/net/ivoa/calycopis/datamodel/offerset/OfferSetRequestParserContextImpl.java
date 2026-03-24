@@ -57,8 +57,8 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
+import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
 
 /**
  *
