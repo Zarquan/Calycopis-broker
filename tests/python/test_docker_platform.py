@@ -18,6 +18,19 @@
 #   </meta:licence>
 # </meta:header>
 #
+# AIMetrics: [
+#     {
+#     "timestamp": "2026-03-24T14:00:00",
+#     "name": "Cursor CLI",
+#     "version": "2026.02.13-41ac335",
+#     "model": "Claude 4.6 Opus (Thinking)",
+#     "contribution": {
+#       "value": 30,
+#       "units": "%"
+#       }
+#     }
+#   ]
+#
 
 """
 Integration tests for the Docker platform implementation.
@@ -26,7 +39,8 @@ These tests verify the broker can create offers, accept sessions,
 and execute Docker containers via the Docker/Podman platform.
 
 The test container is Heliophorus-cantliei, a simple Alpine container
-that waits for a configurable number of seconds and then exits.
+that waits for a configurable number of seconds and then exits with
+a configurable exit code.
 https://github.com/Zarquan/Heliophorus-cantliei
 
 Requires:
@@ -74,9 +88,10 @@ SIMPLE_COMPUTE_KIND = (
     "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
 )
 
-# Heliophorus-cantliei test container: waits N seconds then exits.
-CANTLIEI_IMAGE = "ghcr.io/zarquan/heliophorus-cantliei:sha-c9572b0"
-CANTLIEI_DIGEST = "sha256:4911760109f78976d2a95a6491a8d8c77bfee9fd1498b9a4b7dd5b7515826689"
+# Heliophorus-cantliei test container: waits N seconds then exits
+# with a configurable exit code.
+CANTLIEI_IMAGE = "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+CANTLIEI_DIGEST = "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
 
 
 # ---------------------------------------------------------------------------
@@ -112,12 +127,13 @@ def client() -> ExecutionBrokerClient:
 # Helper functions
 # ---------------------------------------------------------------------------
 
-def _make_cantliei_executable(name: str = "cantliei-test", pause_seconds: int = 10) -> DockerContainer:
+def _make_cantliei_executable(name: str = "cantliei-test", pause_seconds: int = 10, exit_code: int = 0) -> DockerContainer:
     """Create a Heliophorus-cantliei DockerContainer executable.
 
     Args:
         name: Human-readable name for the executable.
         pause_seconds: Number of seconds the container should pause before exiting.
+        exit_code: Exit code the container should return (default: 0).
     """
     return DockerContainer(
         kind=DOCKER_CONTAINER_KIND,
@@ -126,7 +142,7 @@ def _make_cantliei_executable(name: str = "cantliei-test", pause_seconds: int = 
             locations=[CANTLIEI_IMAGE],
             digest=CANTLIEI_DIGEST,
         ),
-        command=[str(pause_seconds)],
+        command=[str(pause_seconds), str(exit_code)],
     )
 
 
@@ -778,4 +794,193 @@ class TestDockerPlatformMultipleOffers:
         session1_check = client.get_session(session_uuid)
         assert session1_check.phase != SimpleExecutionSessionPhase.REJECTED, (
             "First session should not be affected by rejecting the second"
+        )
+
+
+# ===========================================================================
+# Non-zero exit code tests
+# ===========================================================================
+
+class TestDockerPlatformNonZeroExitCode:
+    """
+    Tests for Docker sessions where the container exits with a non-zero
+    exit code. The broker should transition these sessions to FAILED.
+
+    Uses the Heliophorus-cantliei container's second command parameter
+    to control the exit code.
+    """
+
+    def test_nonzero_exit_code_reaches_failed(self, client):
+        """
+        A container that exits with a non-zero exit code should cause
+        the session to reach FAILED rather than COMPLETED.
+        """
+        request = ExecutionRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-nonzero-exit",
+                pause_seconds=5,
+                exit_code=1,
+            ),
+        )
+        response = _submit(client, request)
+        _assert_accepted(response)
+
+        offer = response.offers[0]
+        session_uuid = offer.meta.uuid
+
+        client.set_session_phase(
+            session_uuid,
+            SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        session = client.wait_for_phase(
+            session_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=600.0,
+            interval=5.0,
+        )
+        assert session.phase == SimpleExecutionSessionPhase.FAILED, (
+            f"Session with non-zero exit code should reach FAILED, "
+            f"got {session.phase}"
+        )
+
+    def test_zero_exit_code_reaches_completed(self, client):
+        """
+        A container that exits with exit code 0 (using the explicit
+        two-parameter command format) should reach COMPLETED.
+        """
+        request = ExecutionRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-zero-exit",
+                pause_seconds=5,
+                exit_code=0,
+            ),
+        )
+        response = _submit(client, request)
+        _assert_accepted(response)
+
+        offer = response.offers[0]
+        session_uuid = offer.meta.uuid
+
+        client.set_session_phase(
+            session_uuid,
+            SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        session = client.wait_for_phase(
+            session_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=600.0,
+            interval=5.0,
+        )
+        assert session.phase == SimpleExecutionSessionPhase.COMPLETED, (
+            f"Session with exit code 0 should reach COMPLETED, "
+            f"got {session.phase}"
+        )
+
+    def test_nonzero_exit_code_with_large_code(self, client):
+        """
+        A container that exits with a larger non-zero exit code (e.g. 42)
+        should still reach FAILED.
+        """
+        request = ExecutionRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-exit-42",
+                pause_seconds=5,
+                exit_code=42,
+            ),
+        )
+        response = _submit(client, request)
+        _assert_accepted(response)
+
+        offer = response.offers[0]
+        session_uuid = offer.meta.uuid
+
+        client.set_session_phase(
+            session_uuid,
+            SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        session = client.wait_for_phase(
+            session_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=600.0,
+            interval=5.0,
+        )
+        assert session.phase == SimpleExecutionSessionPhase.FAILED, (
+            f"Session with exit code 42 should reach FAILED, "
+            f"got {session.phase}"
+        )
+
+    def test_zero_and_nonzero_independent_outcomes(self, client):
+        """
+        Submit two containers concurrently — one with exit code 0 and one
+        with a non-zero exit code — and verify that each reaches the
+        correct terminal state independently.
+        """
+        success_request = ExecutionRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-success",
+                pause_seconds=5,
+                exit_code=0,
+            ),
+        )
+        failure_request = ExecutionRequest(
+            executable=_make_cantliei_executable(
+                "cantliei-failure",
+                pause_seconds=5,
+                exit_code=1,
+            ),
+        )
+
+        success_response = _submit(client, success_request)
+        failure_response = _submit(client, failure_request)
+        _assert_accepted(success_response)
+        _assert_accepted(failure_response)
+
+        success_uuid = success_response.offers[0].meta.uuid
+        failure_uuid = failure_response.offers[0].meta.uuid
+
+        client.set_session_phase(
+            success_uuid, SimpleExecutionSessionPhase.ACCEPTED,
+        )
+        client.set_session_phase(
+            failure_uuid, SimpleExecutionSessionPhase.ACCEPTED,
+        )
+
+        success_session = client.wait_for_phase(
+            success_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=600.0,
+            interval=5.0,
+        )
+        failure_session = client.wait_for_phase(
+            failure_uuid,
+            target_phases=[
+                SimpleExecutionSessionPhase.COMPLETED,
+                SimpleExecutionSessionPhase.FAILED,
+            ],
+            timeout=600.0,
+            interval=5.0,
+        )
+
+        assert success_session.phase == SimpleExecutionSessionPhase.COMPLETED, (
+            f"Success session (exit code 0) should reach COMPLETED, "
+            f"got {success_session.phase}"
+        )
+        assert failure_session.phase == SimpleExecutionSessionPhase.FAILED, (
+            f"Failure session (exit code 1) should reach FAILED, "
+            f"got {failure_session.phase}"
         )

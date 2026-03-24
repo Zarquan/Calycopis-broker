@@ -73,7 +73,7 @@ implements SessionProcessingRequest
     public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         log.debug(
-            "Pre-processing [UPDATE] for session [{}][{}][{}]",
+            "Pre-processing update request for session [{}][{}][{}]",
             this.session.getUuid(),
             this.session.getClass().getSimpleName(),
             this.session.getPhase()
@@ -97,10 +97,12 @@ implements SessionProcessingRequest
                     count.incrementAndGet();
                     switch (component.getPhase())
                         {
+                        case WAITING:
                         case PREPARING:
                             preparingList.add(component);
                             break;
                         case AVAILABLE:
+                        case RUNNING:
                             availableList.add(component);
                             break;
                         case RELEASING:
@@ -251,7 +253,7 @@ implements SessionProcessingRequest
                     
                 default:
                     log.debug(
-                        "Setting session [{}][{}] phase to [PREPARING]",
+                        "Setting session [{}][{}][{}] phase to [PREPARING]",
                         this.session.getUuid(),
                         this.session.getClass().getSimpleName(),
                         this.session.getPhase()

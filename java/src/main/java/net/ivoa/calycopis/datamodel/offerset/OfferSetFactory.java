@@ -65,6 +65,7 @@ public interface OfferSetFactory
 
     /**
      * Create a new ExecutionSessionEntity based on a direct ExecutionRequest.
+     * This is here rather than in SimpleExecutionSessionEntityFactory because of complications with circular references.
      *
      */
     public SimpleExecutionSessionEntity direct(final IvoaExecutionRequest request);
