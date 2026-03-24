@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.component;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -182,6 +181,23 @@ public abstract class ComponentEntity
             );
         }
 
+    /**
+     * Claim a set of messages by setting the message parent and adding it to our list.
+     * 
+     */
+    public void claimMessages(final List<MessageEntity> messages)
+        {
+        for (MessageEntity message : messages)
+            {
+            message.setParent(
+                this
+                );
+            this.messages.add(
+                message
+                );
+            }
+        }
+    
     @Override
     public boolean equals(Object object)
         {

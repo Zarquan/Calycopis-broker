@@ -36,7 +36,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutionSession;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
@@ -164,22 +163,5 @@ implements OfferSet
                 }
             );
         return bean;
-        }
-
-    /**
-     * Claim a set of messages by setting the message parent and adding it to our list.
-     * 
-     */
-    public void claimMessages(final List<MessageEntity> messages)
-        {
-        for (MessageEntity message : messages)
-            {
-            message.setParent(
-                this
-                );
-            this.messages.add(
-                message
-                );
-            }
         }
     }
