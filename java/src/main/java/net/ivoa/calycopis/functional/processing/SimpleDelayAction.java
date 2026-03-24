@@ -73,7 +73,7 @@ implements ComponentProcessingAction
     public void preProcess(LifecycleComponentEntity component)
         {
         log.debug(
-            "Pre-processing [{}][{}] count [{}]",
+            "Pre-processing [{}][{}]",
             componentUuid,
             componentClass
             );
@@ -90,7 +90,7 @@ implements ComponentProcessingAction
     public void process()
         {
         log.debug(
-            "Processing [{}][{}] count [{}]",
+            "Processing [{}][{}]",
             componentUuid,
             componentClass
             );
@@ -116,7 +116,7 @@ implements ComponentProcessingAction
     public void postProcess(LifecycleComponentEntity component)
         {
         log.debug(
-            "Post-processing [{}][{}] count [{}]",
+            "Post-processing [{}][{}]",
             componentUuid,
             componentClass
             );

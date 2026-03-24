@@ -24,6 +24,8 @@
 package net.ivoa.calycopis.functional.processing;
 
 import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
 
 /**
  * 
@@ -33,5 +35,17 @@ extends FactoryBase
     {
 
     public void delete(final ProcessingRequest request);
+
+    /**
+     * Get the SessionProcessingRequestFactory for this platform.
+     *
+     */
+    public SessionProcessingRequestFactory getSessionProcessingRequestFactory();
+    
+    /**
+     * Get the ComponentProcessingRequestFactory for this platform.
+     *
+     */
+    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory();
     
     }

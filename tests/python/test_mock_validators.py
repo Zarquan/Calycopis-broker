@@ -75,7 +75,7 @@ import pytest
 
 from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
 from calycopis_client.models import (
-    OfferSetRequest,
+    ExecutionRequest,
     OfferSetResponse,
 )
 from calycopis_client.models.docker_container import DockerContainer
@@ -165,7 +165,7 @@ def client() -> ExecutionBrokerClient:
 # Helper functions
 # ---------------------------------------------------------------------------
 
-def _submit(client: ExecutionBrokerClient, request: OfferSetRequest) -> OfferSetResponse:
+def _submit(client: ExecutionBrokerClient, request: ExecutionRequest) -> OfferSetResponse:
     """Submit a request and return the OfferSetResponse."""
     response = client.submit_execution(request, follow_redirect=True)
     assert isinstance(response, OfferSetResponse), (
@@ -240,7 +240,7 @@ class TestDockerContainerValidation:
         A DockerContainer with valid network port configuration
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-valid-network"),
@@ -268,7 +268,7 @@ class TestDockerContainerValidation:
         A DockerContainer with a blacklisted network port path
         ("/badpath") should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-bad-path"),
@@ -296,7 +296,7 @@ class TestDockerContainerValidation:
         A DockerContainer with the other blacklisted port path
         ("/alsobadpath") should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-also-bad-path"),
@@ -324,7 +324,7 @@ class TestDockerContainerValidation:
         A DockerContainer with a blacklisted port number (1234)
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-bad-port-1234"),
@@ -352,7 +352,7 @@ class TestDockerContainerValidation:
         A DockerContainer with the other blacklisted port number (5678)
         should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-bad-port-5678"),
@@ -380,7 +380,7 @@ class TestDockerContainerValidation:
         A DockerContainer requesting privileged execution
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-privileged"),
@@ -399,7 +399,7 @@ class TestDockerContainerValidation:
         A DockerContainer with an unsupported network protocol
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-bad-protocol"),
@@ -427,7 +427,7 @@ class TestDockerContainerValidation:
         A DockerContainer with a negative port number
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=DockerContainer(
                 kind=DOCKER_CONTAINER_KIND,
                 meta=ComponentMetadata(name="docker-negative-port"),
@@ -468,7 +468,7 @@ class TestJupyterNotebookValidation:
         A JupyterNotebook with a valid (non-blacklisted) location
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_jupyter_executable(
                 name="notebook-valid",
                 location="http://example.com/valid-notebook.ipynb",
@@ -481,7 +481,7 @@ class TestJupyterNotebookValidation:
         """
         A JupyterNotebook with a blacklisted location should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_jupyter_executable(
                 name="notebook-blacklisted",
                 location="http://example.com/blacklisted.ipynb",
@@ -495,7 +495,7 @@ class TestJupyterNotebookValidation:
         A JupyterNotebook with no location should be rejected
         (location is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=JupyterNotebook(
                 kind=JUPYTER_NOTEBOOK_KIND,
                 meta=ComponentMetadata(name="notebook-no-location"),
@@ -523,7 +523,7 @@ class TestSimpleComputeResourceValidation:
         A compute resource with cores and memory within limits
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-valid"),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -540,7 +540,7 @@ class TestSimpleComputeResourceValidation:
         A request with no explicit compute resource should be accepted
         (server creates a default).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-default"),
         )
         response = _submit(client, request)
@@ -551,7 +551,7 @@ class TestSimpleComputeResourceValidation:
         A compute resource requesting minimum cores above the limit (16)
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-cores-over"),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -567,7 +567,7 @@ class TestSimpleComputeResourceValidation:
         A compute resource where max cores exceeds the limit but min cores
         is within the limit should still be accepted (max gets capped).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-cores-capped"),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -583,7 +583,7 @@ class TestSimpleComputeResourceValidation:
         A compute resource requesting minimum memory above the limit (16 GiB)
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-memory-over"),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -599,7 +599,7 @@ class TestSimpleComputeResourceValidation:
         A compute resource where max memory exceeds the limit but min memory
         is within the limit should still be accepted (max gets capped).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("compute-memory-capped"),
             compute=SimpleComputeResource(
                 kind=SIMPLE_COMPUTE_KIND,
@@ -627,7 +627,7 @@ class TestSimpleStorageResourceValidation:
         """
         A storage resource with size within the limit should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("storage-valid"),
             storage=[
                 SimpleStorageResource(
@@ -653,7 +653,7 @@ class TestSimpleStorageResourceValidation:
         A storage resource requesting minimum size above the limit (1000)
         should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("storage-size-over"),
             storage=[
                 SimpleStorageResource(
@@ -679,7 +679,7 @@ class TestSimpleStorageResourceValidation:
         A storage resource where max size exceeds the limit but min size
         is within the limit should still be accepted (max gets capped).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("storage-size-capped"),
             storage=[
                 SimpleStorageResource(
@@ -721,7 +721,7 @@ class TestSimpleDataResourceValidation:
         A SimpleDataResource with a valid (non-blacklisted) location
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("simple-data-valid"),
             data=[
                 SimpleDataResource(
@@ -738,7 +738,7 @@ class TestSimpleDataResourceValidation:
         """
         A SimpleDataResource with a blacklisted location should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("simple-data-blacklisted"),
             data=[
                 SimpleDataResource(
@@ -756,7 +756,7 @@ class TestSimpleDataResourceValidation:
         A SimpleDataResource with the other blacklisted location
         should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("simple-data-forbidden"),
             data=[
                 SimpleDataResource(
@@ -774,7 +774,7 @@ class TestSimpleDataResourceValidation:
         A SimpleDataResource with no location should be rejected
         (location is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("simple-data-no-location"),
             data=[
                 SimpleDataResource(
@@ -807,7 +807,7 @@ class TestAmazonS3DataResourceValidation:
         An S3DataResource with valid (non-blacklisted) endpoint
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-valid"),
             data=[
                 S3DataResource(
@@ -827,7 +827,7 @@ class TestAmazonS3DataResourceValidation:
         """
         An S3DataResource with a blacklisted endpoint should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-blacklisted"),
             data=[
                 S3DataResource(
@@ -848,7 +848,7 @@ class TestAmazonS3DataResourceValidation:
         An S3DataResource with the other blacklisted endpoint
         should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-forbidden"),
             data=[
                 S3DataResource(
@@ -869,7 +869,7 @@ class TestAmazonS3DataResourceValidation:
         An S3DataResource with no endpoint should be rejected
         (endpoint is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-no-endpoint"),
             data=[
                 S3DataResource(
@@ -888,7 +888,7 @@ class TestAmazonS3DataResourceValidation:
         An S3DataResource with no template should be rejected
         (template is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-no-template"),
             data=[
                 S3DataResource(
@@ -907,7 +907,7 @@ class TestAmazonS3DataResourceValidation:
         An S3DataResource with no bucket should be rejected
         (bucket is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("s3-data-no-bucket"),
             data=[
                 S3DataResource(
@@ -942,7 +942,7 @@ class TestIvoaDataResourceValidation:
         An IvoaDataResource with a valid (non-blacklisted) ivoid
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-valid"),
             data=[
                 IvoaDataResource(
@@ -962,7 +962,7 @@ class TestIvoaDataResourceValidation:
         """
         An IvoaDataResource with a blacklisted ivoid should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-blacklisted"),
             data=[
                 IvoaDataResource(
@@ -982,7 +982,7 @@ class TestIvoaDataResourceValidation:
         An IvoaDataResource with the other blacklisted ivoid
         should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-forbidden"),
             data=[
                 IvoaDataResource(
@@ -1002,7 +1002,7 @@ class TestIvoaDataResourceValidation:
         An IvoaDataResource with no ivoid should be rejected
         (ivoid is required).
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-no-ivoid"),
             data=[
                 IvoaDataResource(
@@ -1019,7 +1019,7 @@ class TestIvoaDataResourceValidation:
         """
         An IvoaDataResource with no ivoa metadata block should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("ivoa-data-no-block"),
             data=[
                 IvoaDataResource(
@@ -1052,7 +1052,7 @@ class TestSkaoDataResourceValidation:
         A SkaoDataResource with a valid (non-blacklisted) namespace
         should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("skao-data-valid"),
             data=[
                 SkaoDataResource(
@@ -1084,7 +1084,7 @@ class TestSkaoDataResourceValidation:
         """
         A SkaoDataResource with a blacklisted namespace should be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("skao-data-blacklisted"),
             data=[
                 SkaoDataResource(
@@ -1116,7 +1116,7 @@ class TestSkaoDataResourceValidation:
         A SkaoDataResource with the other blacklisted namespace
         should also be rejected.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_docker_executable("skao-data-forbidden"),
             data=[
                 SkaoDataResource(

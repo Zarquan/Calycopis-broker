@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
-import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequest;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaAbstractUpdate;
 import net.ivoa.calycopis.spring.model.IvoaEnumValueUpdate;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
@@ -49,21 +49,23 @@ implements SimpleExecutionSessionEntityUpdateHandler
     {
 
     private final Platform platform;
-
+    private final ProcessingRequestFactory processing; 
+    
     private final SimpleExecutionSessionEntityRepository sessionRepository;
     
     @Autowired
     public SimpleExecutionSessionEntityUpdateHandlerImpl(
         final SimpleExecutionSessionEntityRepository repository,
+        final ProcessingRequestFactory processing,
         final Platform platform
         ){
         super();
         this.sessionRepository = repository;
+        this.processing = processing;
         this.platform = platform;
         }
 
     @Override
-    // TODO return an UpdateResult, with entity, result and messages.
     public Optional<SimpleExecutionSessionEntity> update(final UUID uuid, final IvoaAbstractUpdate update)
         {
         log.debug("update(UUID)");
@@ -94,7 +96,6 @@ implements SimpleExecutionSessionEntityUpdateHandler
             }
         }
 
-    // TODO Pass in an UpdateResult, with entity, result and messages.
     protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaAbstractUpdate update)
         {
         log.debug("update(Entity, Update)");
@@ -118,7 +119,6 @@ implements SimpleExecutionSessionEntityUpdateHandler
         return entity ;
         }
 
-    // TODO Pass in an UpdateResult, with entity, result and messages.
     protected SimpleExecutionSessionEntity update(SimpleExecutionSessionEntity entity , final IvoaEnumValueUpdate update)
         {
         log.debug("update(Entity, EnumValueUpdate)");
@@ -210,10 +210,9 @@ implements SimpleExecutionSessionEntityUpdateHandler
                     }
 
                 log.debug("Creating prepare request for session [{}]", entity.getUuid());
-                SessionProcessingRequest request = platform.getSessionProcessingRequestFactory().createPrepareSessionRequest(
+                processing.getSessionProcessingRequestFactory().createPrepareSessionRequest(
                     entity
                     );
-                log.debug("Created prepare request [{}] for session [{}]", request.getUuid() , entity.getUuid());
 
                 break;
             default:

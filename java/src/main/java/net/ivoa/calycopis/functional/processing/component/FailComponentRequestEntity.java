@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 
 /**
  * 
@@ -59,20 +60,20 @@ implements ComponentProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final Platform platform)
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         // TODO Auto-generated method stub
         return null;
         }
 
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
         {
         // TODO Auto-generated method stub
         }
 
     @Override
-    public void postProcess(Platform platform, ComponentProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, Platform platform, ComponentProcessingAction action)
         {
         // TODO Auto-generated method stub
         }

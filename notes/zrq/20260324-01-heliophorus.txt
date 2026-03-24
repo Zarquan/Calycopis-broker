@@ -1,0 +1,52 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Use Cursor to create some more Heliophorus projects.
+
+    Result:
+
+        Work in progress ...
+
+        List of Heliophorus with images.
+
+            [Heliophorus bakeri](https://species.wikimedia.org/wiki/Heliophorus_bakeri)
+            [Heliophorus brahma](https://species.wikimedia.org/wiki/Heliophorus_brahma)(https://en.wikipedia.org/wiki/Heliophorus_brahma)
+            [Heliophorus delacouri](https://species.wikimedia.org/wiki/Heliophorus_delacouri)
+            [Heliophorus epicles](https://species.wikimedia.org/wiki/Heliophorus_epicles)
+            [Heliophorus ila](https://species.wikimedia.org/wiki/Heliophorus_ila)
+            [Heliophorus indicus](https://species.wikimedia.org/wiki/Heliophorus_indicus)(https://en.wikipedia.org/wiki/Heliophorus_indicus)
+            [Heliophorus kiana](https://species.wikimedia.org/wiki/Heliophorus_kiana)
+            [Heliophorus kohimensis](https://en.wikipedia.org/wiki/Heliophorus_kohimensis)
+            [Heliophorus moorei](https://species.wikimedia.org/wiki/Heliophorus_moorei)
+            [Heliophorus oda](https://species.wikimedia.org/wiki/Heliophorus_oda)
+            [Heliophorus saphir](https://species.wikimedia.org/wiki/Heliophorus_saphir)
+            [Heliophorus smaragdinus](https://species.wikimedia.org/wiki/Heliophorus_smaragdinus)
+            [Heliophorus tamu](https://species.wikimedia.org/wiki/Heliophorus_tamu)(https://en.wikipedia.org/wiki/Heliophorus_tamu)
+
+
+# -----------------------------------------------------
+

@@ -1,0 +1,15 @@
+name: example-013
+executable:
+  type: https://www.purl.org/ivoa.net/EB/schema/types/executable/docker-container-1.0
+  description: >-
+    A simple container that waits for a number of seconds and then exits with a configurable exit code.
+    https://github.com/Zarquan/Heliophorus-cantliei
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  # First parameter: the number of seconds to wait.
+  # Second parameter: the exit code to return (default: 0).
+  command: [10, 0]
+
+

@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.ProcessingService;
 import net.ivoa.calycopis.functional.processing.ProcessingServiceImpl;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
@@ -47,18 +48,13 @@ extends ProcessingServiceImpl
 implements ProcessingService
     {
 
-    private final Platform platform;
-    @Override
-    protected Platform getPlatform()
-        {
-        return this.platform;
-        }
-
     @Autowired
-    public TestProcessingSerivceImpl(final Platform platform)
+    public TestProcessingSerivceImpl(final ProcessingRequestFactory processing, final Platform platform)
         {
-        super();
-        this.platform = platform;
+        super(
+            processing,
+            platform
+            );
         }
 
     @Override

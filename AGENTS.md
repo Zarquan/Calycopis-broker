@@ -397,13 +397,24 @@ The project can be built from the `java` directory using the following Maven com
 ./mvnw clean compile
 ```
 
-The service can be run from the `java` directory using the following Maven command
+The service supports two different platforms:
+* A `mock` platform with simple mock implementations.
+* A `docker` platform that runs containers on the local Docker service.
+
+The service can be run from the `java` directory using the following Maven commands
 ```
-./mvnw clean spring-boot:run
+./mvnw clean spring-boot:run -D calycopis-platform=mock
+```
+or
+```
+./mvnw clean spring-boot:run -D calycopis-platform=docker
 ```
 
-When running the broker with a specific platform implementation, set the Spring profile
-using the `SPRING_PROFILES_ACTIVE` environment variable:
+Alternatively, the platform can be selected using the `SPRING_PROFILES_ACTIVE` environment variable:
+```
+SPRING_PROFILES_ACTIVE=mock ./mvnw spring-boot:run
+```
+or
 ```
 SPRING_PROFILES_ACTIVE=docker ./mvnw spring-boot:run
 ```

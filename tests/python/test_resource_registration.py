@@ -6,7 +6,7 @@ are correctly handled by the two-step validation process:
   Step 1: Register all resources and assign UUIDs.
   Step 2: Validate all resources, resolving cross-references.
 
-The tests submit OfferSetRequests to a running Calycopis broker service
+The tests submit ExecutionRequests to a running Calycopis broker service
 and verify the responses.
 
 Requires:
@@ -23,7 +23,7 @@ import pytest
 
 from calycopis_client.wrappers.execution_client import ExecutionBrokerClient
 from calycopis_client.models import (
-    OfferSetRequest,
+    ExecutionRequest,
     OfferSetResponse,
 )
 from calycopis_client.models.docker_container import DockerContainer
@@ -102,7 +102,7 @@ def _make_executable(name: str = "test-container") -> DockerContainer:
 # Helper to submit and return the OfferSetResponse
 # ---------------------------------------------------------------------------
 
-def _submit(client: ExecutionBrokerClient, request: OfferSetRequest) -> OfferSetResponse:
+def _submit(client: ExecutionBrokerClient, request: ExecutionRequest) -> OfferSetResponse:
     """Submit a request and return the OfferSetResponse."""
     response = client.submit_execution(request, follow_redirect=True)
     assert isinstance(response, OfferSetResponse), (
@@ -124,7 +124,7 @@ class TestBaseline:
         A request with just an executable should succeed.
         The server creates a default compute resource automatically.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("baseline-exec-only"),
         )
         response = _submit(client, request)
@@ -145,7 +145,7 @@ class TestDataWithDefaultStorage:
         A data resource with no storage reference should get default storage
         auto-created by the server.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("data-default-storage"),
             data=[
                 SimpleDataResource(
@@ -176,7 +176,7 @@ class TestDataWithDefaultStorage:
         Multiple data resources with no storage reference should each get
         their own default storage.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("multi-data-default-storage"),
             data=[
                 SimpleDataResource(
@@ -218,7 +218,7 @@ class TestDataReferencingNamedStorage:
         The storage is listed in the request, and the data resource references
         it by name.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("data-refs-storage"),
             storage=[
                 SimpleStorageResource(
@@ -267,7 +267,7 @@ class TestDataReferencingNamedStorage:
         Multiple data resources referencing the same named storage.
         All should resolve to the same storage resource.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("multi-data-same-storage"),
             storage=[
                 SimpleStorageResource(
@@ -312,7 +312,7 @@ class TestDataReferencingNamedStorage:
         A data resource referencing a storage name that doesn't exist
         in the request should fail validation → result=NO.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("data-bad-storage-ref"),
             data=[
                 SimpleDataResource(
@@ -338,7 +338,7 @@ class TestMixedResources:
         Named storage and named data with cross-reference.
         Verifies the full registration + validation pipeline.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("named-storage-data"),
             storage=[
                 SimpleStorageResource(
@@ -374,7 +374,7 @@ class TestMixedResources:
         Two storage resources, each with a data resource pointing to it.
         Verifies that multiple independent cross-references resolve correctly.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("multi-storage-multi-data"),
             storage=[
                 SimpleStorageResource(
@@ -430,7 +430,7 @@ class TestMixedResources:
         One data resource references named storage, another gets default.
         Both should be accepted.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("mixed-data-storage"),
             storage=[
                 SimpleStorageResource(
@@ -474,7 +474,7 @@ class TestUuidAssignment:
         All resources in the response should have UUIDs assigned,
         even if the request didn't specify them.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("uuid-test"),
             storage=[
                 SimpleStorageResource(
@@ -524,7 +524,7 @@ class TestUuidAssignment:
         """
         All resource UUIDs within a single offer should be unique.
         """
-        request = OfferSetRequest(
+        request = ExecutionRequest(
             executable=_make_executable("uuid-unique-test"),
             storage=[
                 SimpleStorageResource(

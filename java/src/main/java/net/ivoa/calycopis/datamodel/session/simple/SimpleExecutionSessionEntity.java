@@ -90,7 +90,7 @@ public class SimpleExecutionSessionEntity
      * Protected constructor
      *
      */
-    protected SimpleExecutionSessionEntity()
+    public SimpleExecutionSessionEntity()
         {
         super();
         }

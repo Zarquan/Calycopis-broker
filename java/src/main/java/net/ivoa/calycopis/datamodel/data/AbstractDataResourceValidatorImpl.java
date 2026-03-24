@@ -74,7 +74,7 @@ implements AbstractDataResourceValidator
             );
         if (duplicate != null)
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:duplicate-resource",
                 "Duplicate data resource found [${requested}][${duplicate}]",
                 Map.of(
@@ -121,7 +121,7 @@ implements AbstractDataResourceValidator
                         }
                     else {
                         log.error("Storage result has null object [{}]", storageResult);
-                        context.getOfferSetEntity().addWarning(
+                        context.addWarning(
                             "urn:storage-required",
                             "Unable to assign storage resource",
                             Map.of(
@@ -134,7 +134,7 @@ implements AbstractDataResourceValidator
                     }
                 else {
                     log.warn("Unexpected storage result state [{}]", storageResult.getEnum());
-                    context.getOfferSetEntity().addWarning(
+                    context.addWarning(
                         "urn:storage-required",
                         "Unable to assign storage resource",
                         Map.of(
@@ -146,7 +146,7 @@ implements AbstractDataResourceValidator
                     }
                 }
             else {
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:resource-not-found",
                     "Unable to find storage resource [${storageref}]",
                     Map.of(
@@ -209,7 +209,7 @@ implements AbstractDataResourceValidator
                 }
             else {
                 log.warn("Storage validation failed");
-                context.getOfferSetEntity().addWarning(
+                context.addWarning(
                     "urn:storage-required",
                     "Unable to assign storage resource"
                     );

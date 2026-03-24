@@ -46,7 +46,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
 import net.ivoa.calycopis.spring.model.IvoaRequestedScheduleBlock;
 import net.ivoa.calycopis.spring.model.IvoaRequestedScheduleItem;
@@ -62,98 +62,79 @@ public class OfferSetRequestParserImpl
     implements OfferSetRequestParser
     {
 
-    private Platform platform ;
+    //private final Platform platform ;
 
     @Autowired
     public OfferSetRequestParserImpl(
-        final Platform platform
+        //final Platform platform
         ){
         super();
-        this.platform = platform;
-        this.platform.initialize();
+        //this.platform = platform;
+        //this.platform.initialize();
         }
 
     @Override
-    public void process(final IvoaOfferSetRequest offersetRequest, final OfferSetEntity offersetEntity)
+    public OfferSetRequestParserContext stageOne(final Platform platform, final IvoaExecutionRequest executionRequest)
         {
         log.debug("process(IvoaOfferSetRequest, OfferSetEntity)");
-        OfferSetRequestParserContext context = new OfferSetRequestParserContextImpl(
-            this,
-            offersetRequest,
-            offersetEntity
+        OfferSetRequestParserContext offersetContext = new OfferSetRequestParserContextImpl(
+            executionRequest
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
+
         //
         // Register all the resources and assign UUIDs.
-        context.registerResources();
-        //
-        // Validate the request.
-        validate(
-            context
-            );
-        //
-        // Process the request.
-        process(
-            context
-            );
-        }
-
-    /**
-     * Validate the request components.
-     * TODO Move this into an OfferSetValidator.
-     *
-     */
-    public OfferSetRequestParserContext validate(final OfferSetRequestParserContext context)
-        {
-        log.debug("validate(OfferSetRequestParserState)");
-        final IvoaOfferSetRequest offersetRequest = context.getOriginalOfferSetRequest();
-        //
-        // Validate the requested resources.
-        log.debug("Validating the requested resources");
+        offersetContext.registerResources();
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested storage resources.
         log.debug("Validating the requested storage resources");
-        if (offersetRequest.getStorage() != null)
+        if (executionRequest.getStorage() != null)
             {
-            for (IvoaAbstractStorageResource resource : offersetRequest.getStorage())
+            for (IvoaAbstractStorageResource resource : executionRequest.getStorage())
                 {
                 platform.getStorageResourceValidators().validate(
                     resource,
-                    context
+                    offersetContext
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
         //
         // Validate the requested data resources.
         log.debug("Validating the requested data resources");
-        if (offersetRequest.getData() != null)
+        if (executionRequest.getData() != null)
             {
-            for (IvoaAbstractDataResource resource : offersetRequest.getData())
+            for (IvoaAbstractDataResource resource : executionRequest.getData())
                 {
                 platform.getDataResourceValidators().validate(
                     resource,
-                    context
+                    offersetContext
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
+
         //
         // Validate the requested volume mounts.
         log.debug("Validating the requested volume mounts");
-        if (offersetRequest.getVolumes() != null)
+        if (executionRequest.getVolumes() != null)
             {
-            for (IvoaAbstractVolumeMount resource : offersetRequest.getVolumes())
+            for (IvoaAbstractVolumeMount resource : executionRequest.getVolumes())
                 {
                 platform.getVolumeMountValidators().validate(
                     resource,
-                    context
+                    offersetContext
                     );
                 }
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested compute resource.
         log.debug("Validating the requested compute resources");
-        IvoaAbstractComputeResource computeResource = offersetRequest.getCompute();
+        IvoaAbstractComputeResource computeResource = executionRequest.getCompute();
         if (computeResource == null)
             {
             computeResource = new IvoaSimpleComputeResource()
@@ -165,45 +146,48 @@ public class OfferSetRequestParserImpl
                     );
             }
 
+        log.debug("Context valid [{}]", offersetContext.valid());
         platform.getComputeResourceValidators().validate(
             computeResource,
-            context
+            offersetContext
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Validate the requested executable.
         log.debug("Validating the requested executable");
-        IvoaAbstractExecutable executableResource = offersetRequest.getExecutable();
+        IvoaAbstractExecutable executableResource = executionRequest.getExecutable();
         if (executableResource != null)
             {
             platform.getExecutableValidators().validate(
                 executableResource,
-                context
+                offersetContext
                 );
             }
         else {
             log.error("Offerset request has no executable");
-            context.getOfferSetEntity().addWarning(
+            offersetContext.addWarning(
                 "urn:executable-required",
                 "Description of the executable is required"
                 );
-            context.valid(false);
+            offersetContext.valid(false);
             }
+        log.debug("Context valid [{}]", offersetContext.valid());
 
         //
         // Calculate the preparation time.
-        context.calculateTotalPrepareTime();
+        offersetContext.calculateTotalPrepareTime();
 
         //
         // Validate the schedule.
         validate(
-            offersetRequest.getSchedule(),
-            context
+            executionRequest.getSchedule(),
+            offersetContext
             );
+        log.debug("Context valid [{}]", offersetContext.valid());
 
-        return context;
+        return offersetContext;
         }
-
 
 //
 // TODO Move this part to a separate schedule validator.
@@ -261,7 +245,7 @@ public class OfferSetRequestParserImpl
                         }
                     catch (Exception ouch)
                         {
-                        context.getOfferSetEntity().addWarning(
+                        context.addWarning(
                             "urn:input-syntax-fail",
                             "Unable to parse duration [${string}][${message}]",
                             Map.of(
@@ -301,7 +285,7 @@ public class OfferSetRequestParserImpl
                     catch (Exception ouch)
                         {
                         log.debug("Exception [{}][{}]", ouch.getMessage(), ouch.getClass());
-                        context.getOfferSetEntity().addWarning(
+                        context.addWarning(
                             "urn:input-syntax-fail",
                             "Unable to parse interval [${string}][${message}]",
                             Map.of(
@@ -340,42 +324,49 @@ public class OfferSetRequestParserImpl
         return success ;
         }
 
-    /**
-     * Build the entities from the validated input.
-     *
-     */
-    public OfferSetRequestParserContext process(final OfferSetRequestParserContext context)
+    
+    @Override
+    public OfferSetEntity stageTwo(final Platform platform, final OfferSetEntity offersetEntity, final OfferSetRequestParserContext offersetContext, int offerCount)
         {
-        log.debug("process(OfferSetRequestParserContext)");
-
+        log.debug("stageTwo(Platform , OfferSetEntity, OfferSetRequestParserContext)");
+        log.debug("Context valid [{}]", offersetContext.valid());
+        
         //
         // Start with NO, and set to YES when we have at least one offer.
-        IvoaOfferSetResponse.ResultEnum resultEnum = IvoaOfferSetResponse.ResultEnum.NO;
-
+        offersetEntity.setResult(
+            IvoaOfferSetResponse.ResultEnum.NO
+            );
+        //
+        // Transfer the validation messages to the entity.
+        offersetEntity.claimMessages(
+            offersetContext.getMessages()
+            );
         //
         // If everything is OK.
-        if (context.valid())
+        log.debug("Context valid [{}]", offersetContext.valid());
+        if (offersetContext.valid())
             {
             //
             // Generate some offers ..
             log.debug("---- ---- ---- ----");
             log.debug("Generating offers ....");
-            log.debug("Execution start [{}]", context.getStartInterval());
-            log.debug("Execution duration [{}]", context.getExecutionDuration());
+            log.debug("Execution start [{}]", offersetContext.getStartInterval());
+            log.debug("Execution duration [{}]", offersetContext.getExecutionDuration());
 
-            log.debug("Min cores [{}]",  context.getTotalMinCores());
-            log.debug("Max cores [{}]",  context.getTotalMaxCores());
-            log.debug("Min memory [{}]", context.getTotalMinMemory());
-            log.debug("Max memory [{}]", context.getTotalMaxMemory());
+            log.debug("Min cores [{}]",  offersetContext.getTotalMinCores());
+            log.debug("Max cores [{}]",  offersetContext.getTotalMaxCores());
+            log.debug("Min memory [{}]", offersetContext.getTotalMinMemory());
+            log.debug("Max memory [{}]", offersetContext.getTotalMaxMemory());
             log.debug("---- ---- ---- ----");
 
             //
             // Generate a list of offers for our criteria.
             List<ComputeResourceOffer> computeOffers =  platform.getComputeResourceOfferFactory().generate(
-                context.getStartInterval(),
-                context.getExecutionDuration(),
-                context.getTotalMinCores(),
-                context.getTotalMinMemory()
+                offersetContext.getStartInterval(),
+                offersetContext.getExecutionDuration(),
+                offersetContext.getTotalMinCores(),
+                offersetContext.getTotalMinMemory(),
+                offerCount
                 );
             //
             // Create an ExecutionSession for each offer.
@@ -387,8 +378,8 @@ public class OfferSetRequestParserImpl
                 // To make this work we need to go down the rabbit hole and change all the things that use SimpleExecutionSessionEntity to use AbstractExecutionSessionEntity.
                 // TODO Later ...
                 SimpleExecutionSessionEntity executionSessionEntity = (SimpleExecutionSessionEntity) platform.getExecutionSessionFactory().create(
-                    context.getOfferSetEntity(),
-                    context,
+                    offersetEntity,
+                    offersetContext,
                     computeOffer
                     );
                 log.debug("ExecutionEntity [{}]", executionSessionEntity);
@@ -396,14 +387,14 @@ public class OfferSetRequestParserImpl
                 //
                 // Build a new ExecutableEntity and add it to our SessionEntity.
                 executionSessionEntity.setExecutable(
-                    context.getExecutableResult().build(
+                    offersetContext.getExecutableResult().build(
                         executionSessionEntity
                         )
                     );
 
                 //
                 // Add our compute resources
-                for (AbstractComputeResourceValidator.Result result : context.getComputeValidatorResults())
+                for (AbstractComputeResourceValidator.Result result : offersetContext.getComputeValidatorResults())
                     {
                     result.build(
                         executionSessionEntity,
@@ -412,7 +403,7 @@ public class OfferSetRequestParserImpl
                     }
                 //
                 // Add our storage resources.
-                for (AbstractStorageResourceValidator.Result result : context.getStorageValidatorResults())
+                for (AbstractStorageResourceValidator.Result result : offersetContext.getStorageValidatorResults())
                     {
                     result.build(
                         executionSessionEntity
@@ -420,7 +411,7 @@ public class OfferSetRequestParserImpl
                     }
                 //
                 // Add our data resources.
-                for (AbstractDataResourceValidator.Result result : context.getDataResourceValidatorResults())
+                for (AbstractDataResourceValidator.Result result : offersetContext.getDataResourceValidatorResults())
                     {
                     result.build(
                         executionSessionEntity
@@ -428,7 +419,7 @@ public class OfferSetRequestParserImpl
                     }
                 //
                 // Add our volume mounts.
-                for (AbstractVolumeMountValidator.Result result : context.getVolumeValidatorResults())
+                for (AbstractVolumeMountValidator.Result result : offersetContext.getVolumeValidatorResults())
                     {
                     result.build(
                         executionSessionEntity
@@ -437,15 +428,12 @@ public class OfferSetRequestParserImpl
 
                 //
                 // Confirm we have at least one result.
-                resultEnum = IvoaOfferSetResponse.ResultEnum.YES;
+                offersetEntity.setResult(
+                    IvoaOfferSetResponse.ResultEnum.YES
+                    );
                 }
             }
-        //
-        // Set the OfferSet result.
-        context.getOfferSetEntity().setResult(
-            resultEnum
-            );
 
-        return context;
+        return offersetEntity;
         }
     }

@@ -36,6 +36,7 @@ import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -68,7 +69,7 @@ implements SessionProcessingRequest
         }
 
     @Override
-    public ProcessingAction preProcess(final Platform platform)
+    public ProcessingAction preProcess(final ProcessingRequestFactory processing, final Platform platform)
         {
         log.debug(
             "Pre-processing [PREPARE] for session [{}][{}]",
@@ -89,6 +90,7 @@ implements SessionProcessingRequest
                     session.getPhase()
                     );
                 return failSession(
+                    processing,
                     platform
                     );
             //
@@ -96,6 +98,7 @@ implements SessionProcessingRequest
             case IvoaSimpleExecutionSessionPhase.ACCEPTED:
             case IvoaSimpleExecutionSessionPhase.WAITING:
                 return beginPreparing(
+                    processing,
                     platform
                     );
             //
@@ -124,7 +127,7 @@ implements SessionProcessingRequest
             }
         }
 
-    protected ProcessingAction beginPreparing(final Platform platform)
+    protected ProcessingAction beginPreparing(final ProcessingRequestFactory processing, final Platform platform)
         {
         log.debug(
             "Begin preparing session [{}][{}]",
@@ -168,7 +171,7 @@ implements SessionProcessingRequest
             this.session.getExecutable().getUuid(),
             this.session.getExecutable().getClass().getSimpleName()
             );
-        platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+        processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
             this.session.getExecutable()
             );
 
@@ -177,7 +180,7 @@ implements SessionProcessingRequest
             this.session.getComputeResource().getUuid(),
             this.session.getComputeResource().getClass().getSimpleName()
             );
-        platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+        processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
             this.session.getComputeResource()
             );
 
@@ -188,7 +191,7 @@ implements SessionProcessingRequest
                 storageResource.getUuid(),
                 storageResource.getClass().getSimpleName()
                 );
-            platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+            processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
                 storageResource
                 );
             }
@@ -200,7 +203,7 @@ implements SessionProcessingRequest
                 dataResource.getUuid(),
                 dataResource.getClass().getSimpleName()
                 );
-            platform.getComponentProcessingRequestFactory().createPrepareComponentRequest(
+            processing.getComponentProcessingRequestFactory().createPrepareComponentRequest(
                 dataResource
                 );
             }
@@ -212,7 +215,7 @@ implements SessionProcessingRequest
     public static final Duration DEFAULT_WAITING_DELAY = Duration.ofSeconds(30);
     
     @Override
-    public void postProcess(final Platform platform, final ProcessingAction action)
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ProcessingAction action)
         {
         log.debug(
             "Post-processing [PREPARE] for session [{}][{}]",

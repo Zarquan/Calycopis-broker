@@ -28,6 +28,8 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
 
 /**
  * 
@@ -64,4 +66,21 @@ implements ProcessingRequestFactory
                 );
             }
         }
+    
+    @Autowired
+    private SessionProcessingRequestFactory sessionProcessingRequestFactory;
+    @Override
+    public SessionProcessingRequestFactory getSessionProcessingRequestFactory()
+        {
+        return this.sessionProcessingRequestFactory;
+        }
+    
+    @Autowired
+    private ComponentProcessingRequestFactory componentProcessingRequestFactory;
+    @Override
+    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory()
+        {
+        return this.componentProcessingRequestFactory;
+        }
+    
     }

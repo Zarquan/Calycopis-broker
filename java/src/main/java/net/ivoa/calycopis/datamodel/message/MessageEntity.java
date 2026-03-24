@@ -58,12 +58,12 @@ public class MessageEntity
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private ComponentEntity parent;
 
-    protected ComponentEntity getParent()
+    public ComponentEntity getParent()
         {
         return this.parent;
         }
 
-    protected void setParent(final ComponentEntity parent)
+    public void setParent(final ComponentEntity parent)
         {
         this.parent = parent;
         }

@@ -207,7 +207,7 @@ public class ComputeResourceOfferFactoryImpl
         }
 
     @Override
-    public List<ComputeResourceOffer> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory)
+    public List<ComputeResourceOffer> generate(Interval requeststart, Duration requestduration, Long requestcores, Long requestmemory, int offerCount)
         {
         log.debug("generate(Interval, Duration, Long, Long");
         log.debug("Interval [{}]", requeststart);
@@ -497,10 +497,18 @@ public class ComputeResourceOfferFactoryImpl
             query = query.replace(":maxmemory", String.valueOf(
                 requestmemory * OFFER_CPU_MEMORY_SCALE
                 ));
-            query = query.replace(":querylimit", String.valueOf(
-                QUERY_ROW_LIMIT
-                ));
-//--
+            if (offerCount > 0)
+                {
+                query = query.replace(":querylimit", String.valueOf(
+                    offerCount
+                    ));
+                }
+            else {
+                query = query.replace(":querylimit", String.valueOf(
+                    QUERY_ROW_LIMIT
+                    ));
+                }
+            //--
         log.debug("Running query ...");
         log.debug(query);
         List<ComputeResourceOffer> list = JdbcClient.create(jdbcTemplate)

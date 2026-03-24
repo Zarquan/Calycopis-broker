@@ -253,7 +253,7 @@ implements AmazonS3DataResourceValidator
 
         if ((endpoint == null) || (endpoint.isEmpty()))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-required-value",
                 "S3 service endpoint required"
                 );
@@ -268,7 +268,7 @@ implements AmazonS3DataResourceValidator
 
         if ((template == null) || (template.isEmpty()))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-required-value",
                 "S3 service template required"
                 );
@@ -277,7 +277,7 @@ implements AmazonS3DataResourceValidator
 
         if ((bucket == null) || (bucket.isEmpty()))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-required-value",
                 "S3 bucket name required"
                 );

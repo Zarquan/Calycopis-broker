@@ -240,7 +240,7 @@ implements SimpleDataResourceValidator
             );
         if ((location == null) || (location.isEmpty()))
             {
-            context.getOfferSetEntity().addWarning(
+            context.addWarning(
                 "urn:missing-required-value",
                 "Data location required"
                 );

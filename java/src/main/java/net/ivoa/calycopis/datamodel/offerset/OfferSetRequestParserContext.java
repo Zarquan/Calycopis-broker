@@ -49,7 +49,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
-import net.ivoa.calycopis.spring.model.IvoaOfferSetRequest;
+import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 
 /**
  *
@@ -58,28 +58,16 @@ public interface OfferSetRequestParserContext
 extends MessageSubject
     {
     /**
-     * Get a reference to the parent parser.
-     *
-     */
-    public OfferSetRequestParser getParser();
-
-    /**
      * Get the original OfferSet request.
      *
      */
-    public IvoaOfferSetRequest getOriginalOfferSetRequest();
+    public IvoaExecutionRequest getOriginalOfferSetRequest();
 
     /**
      * Get the validated OfferSet request.
      *
      */
-    public IvoaOfferSetRequest getValidatedOfferSetRequest();
-
-    /**
-     * Get the OfferSet entity we are creating.
-     *
-     */
-    public OfferSetEntity getOfferSetEntity();
+    public IvoaExecutionRequest getValidatedOfferSetRequest();
 
     /**
      * Flag to indicate that the parser hasn't encountered any errors.
@@ -249,29 +237,6 @@ extends MessageSubject
      */
     public AbstractStorageResourceValidator.Result findStorageValidatorResult(final String key);
 
-    /*
-     * Add a DataValidatorResult and StorageValidatorResult pair.
-    public void addDataStorageResult(final IvoaAbstractDataResource dataResource, final AbstractStorageResourceValidator.Result storageResult);
-     */
-
-    /*
-     * Add a DataValidatorResult and StorageValidatorResult pair.
-    @Deprecated
-    public void addDataStorageResult(final AbstractDataResourceValidator.Result dataResult, final AbstractStorageResourceValidator.Result storageResult);
-     */
-
-    /*
-     * Find a StorageValidator result for a DataValidator result.
-    @Deprecated
-    public AbstractStorageResourceValidator.Result findDataStorageResult(final AbstractDataResourceValidator.Result dataResult);
-     */
-
-    /*
-     * Find a StorageValidator result for a IvoaAbstractDataResource.
-    @Deprecated
-    public AbstractStorageResourceValidator.Result findDataStorageResult(final IvoaAbstractDataResource dataResouce);
-     */
-
     /**
      * List the VolumeValidatorResults.
      *
@@ -416,4 +381,6 @@ extends MessageSubject
      */
     public Long getTotalPrepareTime();
 
+    
+    
     }

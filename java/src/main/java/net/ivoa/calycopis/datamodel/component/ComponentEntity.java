@@ -26,7 +26,6 @@ package net.ivoa.calycopis.datamodel.component;
 import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -159,111 +158,12 @@ public abstract class ComponentEntity
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    private List<MessageEntity> messages = new ArrayList<MessageEntity>();
+    protected List<MessageEntity> messages = new ArrayList<MessageEntity>();
 
     @Override
     public List<MessageEntity> getMessages()
         {
         return messages ;
-        }
-
-    @Override
-    public void addDebug(final String type, final String template)
-        {
-        this.addMessage(
-            LevelEnum.DEBUG,
-            type,
-            template,
-            Collections.emptyMap()
-            );
-        }
-
-    @Override
-    public void addDebug(final String type, final String template, final Map<String, Object> values)
-        {
-        this.addMessage(
-            LevelEnum.DEBUG,
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addInfo(final String type, final String template)
-        {
-        this.addMessage(
-            LevelEnum.INFO,
-            type,
-            template,
-            Collections.emptyMap()
-            );
-        }
-
-    @Override
-    public void addInfo(final String type, final String template, final Map<String, Object> values)
-        {
-        this.addMessage(
-            LevelEnum.INFO,
-            type,
-            template,
-            values
-            );
-        }
-    
-    @Override
-    public void addWarning(final String type, final String template)
-        {
-        this.addMessage(
-            LevelEnum.WARN,
-            type,
-            template,
-            Collections.emptyMap()
-            );
-        }
-
-    @Override
-    public void addWarning(final String type, final String template, final Map<String, Object> values)
-        {
-        this.addMessage(
-            LevelEnum.WARN,
-            type,
-            template,
-            values
-            );
-        }
-
-    @Override
-    public void addError(final String type, final String template)
-        {
-        this.addMessage(
-            LevelEnum.ERROR,
-            type,
-            template,
-            Collections.emptyMap()
-            );
-        }
-
-    @Override
-    public void addError(final String type, final String template, final Map<String, Object> values)
-        {
-        this.addMessage(
-            LevelEnum.ERROR,
-            type,
-            template,
-            values
-            );
-        }
-    
-    @Override
-    public void addMessage(final LevelEnum level, final String type, final String template)
-        {
-        this.addMessage(
-            level,
-            type,
-            template,
-            Collections.emptyMap()
-            );
         }
 
     @Override
@@ -281,6 +181,23 @@ public abstract class ComponentEntity
             );
         }
 
+    /**
+     * Claim a set of messages by setting the message parent and adding it to our list.
+     * 
+     */
+    public void claimMessages(final List<MessageEntity> messages)
+        {
+        for (MessageEntity message : messages)
+            {
+            message.setParent(
+                this
+                );
+            this.messages.add(
+                message
+                );
+            }
+        }
+    
     @Override
     public boolean equals(Object object)
         {

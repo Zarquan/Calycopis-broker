@@ -28,6 +28,7 @@ import java.net.URI;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequest;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 
 /**
  * 
@@ -39,6 +40,6 @@ extends ProcessingRequest
     
     public LifecycleComponent getComponent(final Platform platform);
 
-    public void postProcess(final Platform platform, final ComponentProcessingAction action);
+    public void postProcess(final ProcessingRequestFactory processing, final Platform platform, final ComponentProcessingAction action);
 
     }

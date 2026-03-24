@@ -38,8 +38,6 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBase;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequestFactory;
-import net.ivoa.calycopis.functional.processing.session.SessionProcessingRequestFactory;
 
 /**
  * Platform is basically a factory of factories.
@@ -75,18 +73,6 @@ extends FactoryBase
      */
     public ProcessingRequestFactory getProcessingRequestFactory();
     
-    /**
-     * Get the SessionProcessingRequestFactory for this platform.
-     *
-     */
-    public SessionProcessingRequestFactory getSessionProcessingRequestFactory();
-    
-    /**
-     * Get the ComponentProcessingRequestFactory for this platform.
-     *
-     */
-    public ComponentProcessingRequestFactory getComponentProcessingRequestFactory();
-
     /**
      * Get the ComponentEntityFactory for this platform.
      *
