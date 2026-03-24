@@ -23,10 +23,7 @@
 
 package net.ivoa.calycopis.datamodel.session.simple;
 
-import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
-import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntityFactory;
-import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 
 /**
  * A Factory for execution sessions.
@@ -35,12 +32,6 @@ import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 public interface SimpleExecutionSessionEntityFactory
     extends AbstractExecutionSessionEntityFactory<SimpleExecutionSessionEntity>
     {
-    
-    /**
-     * Create a new ExecutionSessionEntity from a parser context and compute resource offer. 
-     *
-     */
-    public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer);
 
     /**
      * Save an ExecutionSessionEntity.

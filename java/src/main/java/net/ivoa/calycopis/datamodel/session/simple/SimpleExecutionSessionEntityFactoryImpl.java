@@ -35,6 +35,7 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
+import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleExecutionSessionPhase;
 
 /**
@@ -47,20 +48,23 @@ public class SimpleExecutionSessionEntityFactoryImpl
     extends FactoryBaseImpl
     implements SimpleExecutionSessionEntityFactory
     {
-
-    private final SimpleExecutionSessionEntityRepository repository;
+    private final SimpleExecutionSessionEntityRepository sessionEntityRepository;
 
     @Autowired
-    public SimpleExecutionSessionEntityFactoryImpl(final SimpleExecutionSessionEntityRepository repository)
-        {
+    public SimpleExecutionSessionEntityFactoryImpl(
+        final ProcessingRequestFactory processingRequestFactory,            
+        final SimpleExecutionSessionEntityRepository sessionEntityRepository
+        //final OfferSetRequestParser offersetRequestParser,
+        //final OfferSetFactory offerSetFactory
+        ){
         super();
-        this.repository = repository;
+        this.sessionEntityRepository = sessionEntityRepository;
         }
 
     @Override
     public Optional<SimpleExecutionSessionEntity> select(UUID uuid)
         {
-        return this.repository.findById(
+        return this.sessionEntityRepository.findById(
             uuid
             );
         }
@@ -68,7 +72,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
     @Override
     public SimpleExecutionSessionEntity create(final OfferSetEntity parent, final OfferSetRequestParserContext context, final ComputeResourceOffer offer)
         {
-        return this.repository.save(
+        return this.sessionEntityRepository.save(
             new SimpleExecutionSessionEntity(
                 parent,
                 context,
@@ -80,7 +84,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
     @Override
     public List<SimpleExecutionSessionEntity> select(final IvoaSimpleExecutionSessionPhase phase)
         {
-        return repository.findByPhase(
+        return sessionEntityRepository.findByPhase(
             phase
             );
         }
@@ -88,7 +92,7 @@ public class SimpleExecutionSessionEntityFactoryImpl
     @Override
     public SimpleExecutionSessionEntity save(final SimpleExecutionSessionEntity entity)
         {
-        return repository.save(
+        return sessionEntityRepository.save(
             entity
             );
         }
