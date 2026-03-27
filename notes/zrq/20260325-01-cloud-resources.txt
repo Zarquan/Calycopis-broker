@@ -1,0 +1,86 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Notes about resource reservations.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    Google AI
+        Key Overprovisioning Ratios (Nova Compute)
+        CPU (cpu_allocation_ratio): Default is often 16.0 (16 vCPUs per 1 physical core).
+        RAM (ram_allocation_ratio): Commonly 1.5, allowing 50% more RAM allocation than physical, assuming not all VMs use 100% at once.
+
+    StackOverflow
+
+        The available resources are limited by the compute (and storage) hardware,
+        but you can overcommit CPU, RAM and disk, see the docs for more information.
+        For example, the default CPU overallocation ratio is 1:16, so one physical
+        CPU results in 16 virtual CPUs.
+        https://serverfault.com/questions/1120644/openstack-increase-hypervisor-resources
+        https://serverfault.com/a/1120715
+
+    Reddit
+
+        Unless your VMs are routinely using 100% CPU, then you can safely overprovision.
+        A 4:1 or 8:1 overprovisionning is relatively common, you simply need to make sure
+        you aren't maxing the box. As long as you stay under 80% CPU use, then you can
+        keep adding vCPUs and it'll be fine.
+        Working in a lab environment instead of production, where it doesn't really matter
+        if the VMs are a bit sluggish under heavy load, you can easily go up to 32:1.
+        As an example, the default overprovisionning in OpenStack is set to 16:1 for vCPUs
+        and 1.5:1 for RAM.
+        https://www.reddit.com/r/homelab/comments/7houxt/overprovisioning_vcpu/
+
+    OpenStack
+
+        The default initial allocation ratios enabled ram over commit by default with a
+        factor of 1.5. This value was chosen early in nova’s history as the predominant
+        workload was web hosting or other light weight virtualization. Similarly the default
+        initial cpu allocation ratio defaulted to 16. As more demanding workload from telco,
+        enterprise, scientific and governmental users became the norm the initial values
+        we had chosen became less and less correct overtime. These have now been updated
+        to reflect a more reasonable default for the majority of our users. As of this release
+        the initial ram allocation value is 1.0 disabling overcommit by default for new compute
+        nodes and the initial cpu allocation ratio is now 4.0 which is a more reasonable
+        overcommit for non idle workloads.
+        https://docs.openstack.org/releasenotes/nova/2023.1.html
+
+    OpenStack
+
+        To support oversubscription in thin provisioning, a flag max_over_subscription_ratio
+        is introduced into cinder.conf. This is a float representation of the oversubscription
+        ratio when thin provisioning is involved. Default ratio is 20.0, meaning provisioned
+        capacity can be 20 times of the total physical capacity. A ratio of 10.5 means provisioned
+        capacity can be 10.5 times of the total physical capacity. A ratio of 1.0 means provisioned
+        capacity cannot exceed the total physical capacity.
+        https://docs.openstack.org/newton/admin-guide/blockstorage-over-subscription.html
+
+

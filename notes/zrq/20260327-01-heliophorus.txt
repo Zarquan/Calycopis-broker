@@ -1,0 +1,284 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Original aim - Implement storage and data resources.
+
+    Result:
+
+        Spent the time debugging the tests.
+
+    TODO
+
+        test_mock_stress only tests 5 direct requests.
+
+        warning in execution_client.py
+            /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/calycopis_client/wrappers/execution_client.py:206:
+            DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version.
+            Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+            while datetime.utcnow() < deadline:
+
+        We need to add debugging tools
+            An API method to list all of the sessions.
+            The API methods to access the components.
+            List the requests in the queue
+            Query requests in the queue
+
+        Delete expired offers and offersets.
+
+        Release the database connection between pre and post processing.
+        Multiple worker threads handling request processing.
+
+        Failed (non-zero) docker container isn't released.
+            podman container prune
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+            dnf install -y podman
+
+            podman ps
+
+--START--
+CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
+e98f33651073  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              ea94b2eeb026-infra
+e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
+--END--
+
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+--START--
+8fc709dbe83e2c59e9209bdff8ba56aef46b533941792a2dde0e0a69d27eaa24
+--END--
+
+
+# -----------------------------------------------------
+# Pick up from where we left off yesterday ...
+#[root@calycopis-dev]
+
+    curl https://cursor.com/install -fsS | bash
+
+        agent --resume=a78d21c1-7fa4-4dde-8baa-e02fe46bab70
+
+--START--
+....
+....
+--END--
+
+
+# -----------------------------------------------------
+# Start a new terminal and launch a service with the mock platform.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java/
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=mock
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal to run our mock tests.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd /calycopis/Calycopis-broker/github-zrq/tests/python
+
+        ls -1
+
+--START--
+test_docker_direct_execution.py
+test_docker_platform.py
+test_docker_stress.py
+test_mock_direct_execution.py
+test_mock_stress.py
+test_mock_validators.py
+test_resource_registration.py
+--END--
+
+        pip3 install pytest
+
+        pip3 install --edit /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build/
+
+        pytest test_resource_registration.py
+
+--START--
+....
+....
+======= 11 passed in 1.94s =======
+--END--
+
+        pytest test_mock_validators.py
+
+--START--
+....
+....
+======= 38 passed in 4.01s =======
+--END--
+
+
+        pytest test_mock_direct_execution.py
+
+--START--
+....
+....
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======= short test summary info =======
+FAILED test_mock_direct_execution.py::TestDirectExecutionLifecycle::test_direct_execution_completes - TimeoutError: Session 9093b455-ecea-4f54-b676-ea89a4eeca26 did not reach ph...
+======= 1 failed, 9 passed, 122 warnings in 603.79s (0:10:03) =======
+--END--
+
+        #
+        # Reduced the loop time and count.
+        # Increased the main loop rate to every 1s.
+        #
+
+        pytest test_mock_direct_execution.py
+
+--START--
+....
+....
+======= 10 passed, 24 warnings in 113.12s (0:01:53) =======
+--END--
+
+
+        pytest test_mock_stress.py
+
+--START--
+....
+....
+======= 1 passed in 191.69s (0:03:11) =======
+--END--
+
+--START--
+....
+....
+======= 1 passed in 201.45s (0:03:21) =======
+--END--
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Restart the service with the docker platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java/
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=docker
+
+    popd
+
+
+# -----------------------------------------------------
+# Run our docker tests.
+#[root@calycopis-dev]
+
+        pytest test_docker_platform.py
+
+--START--
+....
+....
+======= 18 passed, 101 warnings in 447.12s (0:07:27) =======
+--END--
+
+
+        pytest test_docker_direct_execution.py
+
+--START--
+....
+....
+======= 13 passed, 64 warnings in 263.17s (0:04:23) =======
+--END--
+
+
+        pytest test_docker_stress.py
+
+--START--
+....
+....
+======= 1 passed in 213.99s (0:03:33) =======
+--END--
+
+
