@@ -94,11 +94,9 @@
 
             podman ps
 
---START--
-CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
-e98f33651073  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              ea94b2eeb026-infra
-e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
---END--
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED             STATUS             PORTS       NAMES
+    >   e98f33651073  localhost/podman-pause:5.4.2-1743552000                        About a minute ago  Up About a minute              ea94b2eeb026-infra
+    >   e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        About a minute ago  Up About a minute              calycopis-dev
 
 
 # -----------------------------------------------------
@@ -117,9 +115,7 @@ e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        Abo
         --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
         docker.io/library/postgres:latest
 
---START--
-8fc709dbe83e2c59e9209bdff8ba56aef46b533941792a2dde0e0a69d27eaa24
---END--
+    >   8fc709dbe83e2c59e9209bdff8ba56aef46b533941792a2dde0e0a69d27eaa24
 
 
 # -----------------------------------------------------
@@ -130,10 +126,8 @@ e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        Abo
 
         agent --resume=a78d21c1-7fa4-4dde-8baa-e02fe46bab70
 
---START--
-....
-....
---END--
+    >   ....
+    >   ....
 
 
 # -----------------------------------------------------
@@ -168,15 +162,13 @@ e6166251dd6b  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        Abo
 
         ls -1
 
---START--
-test_docker_direct_execution.py
-test_docker_platform.py
-test_docker_stress.py
-test_mock_direct_execution.py
-test_mock_stress.py
-test_mock_validators.py
-test_resource_registration.py
---END--
+    >   test_docker_direct_execution.py
+    >   test_docker_platform.py
+    >   test_docker_stress.py
+    >   test_mock_direct_execution.py
+    >   test_mock_stress.py
+    >   test_mock_validators.py
+    >   test_resource_registration.py
 
         pip3 install pytest
 
@@ -184,31 +176,25 @@ test_resource_registration.py
 
         pytest test_resource_registration.py
 
---START--
-....
-....
-======= 11 passed in 1.94s =======
---END--
+    >   ....
+    >   ....
+    >   ======= 11 passed in 1.94s =======
 
         pytest test_mock_validators.py
 
---START--
-....
-....
-======= 38 passed in 4.01s =======
---END--
+    >   ....
+    >   ....
+    >   ======= 38 passed in 4.01s =======
 
 
         pytest test_mock_direct_execution.py
 
---START--
-....
-....
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======= short test summary info =======
-FAILED test_mock_direct_execution.py::TestDirectExecutionLifecycle::test_direct_execution_completes - TimeoutError: Session 9093b455-ecea-4f54-b676-ea89a4eeca26 did not reach ph...
-======= 1 failed, 9 passed, 122 warnings in 603.79s (0:10:03) =======
---END--
+    >   ....
+    >   ....
+    >   -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+    >   ======= short test summary info =======
+    >   FAILED test_mock_direct_execution.py::TestDirectExecutionLifecycle::test_direct_execution_completes - TimeoutError: Session 9093b455-ecea-4f54-b676-ea89a4eeca26 did not reach ph...
+    >   ======= 1 failed, 9 passed, 122 warnings in 603.79s (0:10:03) =======
 
         #
         # Reduced the loop time and count.
@@ -217,26 +203,20 @@ FAILED test_mock_direct_execution.py::TestDirectExecutionLifecycle::test_direct_
 
         pytest test_mock_direct_execution.py
 
---START--
-....
-....
-======= 10 passed, 24 warnings in 113.12s (0:01:53) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 10 passed, 24 warnings in 113.12s (0:01:53) =======
 
 
         pytest test_mock_stress.py
 
---START--
-....
-....
-======= 1 passed in 191.69s (0:03:11) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 1 passed in 191.69s (0:03:11) =======
 
---START--
-....
-....
-======= 1 passed in 201.45s (0:03:21) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 1 passed in 201.45s (0:03:21) =======
 
 
 # -----------------------------------------------------
@@ -257,28 +237,22 @@ FAILED test_mock_direct_execution.py::TestDirectExecutionLifecycle::test_direct_
 
         pytest test_docker_platform.py
 
---START--
-....
-....
-======= 18 passed, 101 warnings in 447.12s (0:07:27) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 18 passed, 101 warnings in 447.12s (0:07:27) =======
 
 
         pytest test_docker_direct_execution.py
 
---START--
-....
-....
-======= 13 passed, 64 warnings in 263.17s (0:04:23) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 13 passed, 64 warnings in 263.17s (0:04:23) =======
 
 
         pytest test_docker_stress.py
 
---START--
-....
-....
-======= 1 passed in 213.99s (0:03:33) =======
---END--
+    >   ....
+    >   ....
+    >   ======= 1 passed in 213.99s (0:03:33) =======
 
 
