@@ -58,6 +58,26 @@
  *       "value": 1,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 1,
+ *       "units": "%"
+ *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-03-26T16:30:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -107,6 +127,7 @@ import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
+import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
 
 /**
  * 
@@ -116,12 +137,20 @@ import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 @Profile("mock")
 public class MockPlatformImpl
 extends FactoryBaseImpl
-implements Platform
+implements MockPlatform
     {
 
     public MockPlatformImpl()
         {
         super();
+        }
+
+    @Autowired
+    private MockEntitySettings mockEntitySettings;
+    @Override
+    public MockEntitySettings getMockEntitySettings()
+        {
+        return this.mockEntitySettings;
         }
 
     public void initialize()
@@ -139,7 +168,8 @@ implements Platform
             );
         this.computeResourceValidatorFactory.addValidator(
             new MockSimpleComputeResourceValidatorImpl(
-                this.computeResourceEntityFactory
+                this.computeResourceEntityFactory,
+                this.volumeMountValidatorFactory
                 )
             );
         this.storageResourceValidatorFactory.addValidator(

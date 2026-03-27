@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,20 +18,38 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 15,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
@@ -124,21 +142,6 @@ public abstract class SimpleComputeResourceEntity
 
         this.minofferedmemory = offer.getMemory();
         this.maxofferedmemory = offer.getMemory();
-
-        //
-        // Add our volumes.
-        /*
-        for (IvoaSimpleComputeVolume volume : template.getVolumes())
-            {
-            this.volumes.add(
-                new SimpleComputeVolumeEntity(
-                    this,
-                    volume
-                    )
-                );                
-            }
-         * 
-         */
         }
 
     @Column(name="minrequestedcores")
@@ -205,34 +208,32 @@ public abstract class SimpleComputeResourceEntity
         return this.maxofferedmemory;
         }
 
-    /*
-     * TODO
     @OneToMany(
-        mappedBy = "parent",
+        mappedBy = "computeResource",
         fetch = FetchType.LAZY,
         cascade = CascadeType.ALL,
         orphanRemoval = true
         )
-    protected List<SimpleComputeVolumeEntity> volumes = new ArrayList<SimpleComputeVolumeEntity>();
+    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
+
     @Override
-    public List<SimpleComputeVolume> getVolumes()
+    public List<AbstractVolumeMountEntity> getVolumeMounts()
         {
-        return new ListWrapper<SimpleComputeVolume, SimpleComputeVolumeEntity>(
-            volumes
-            ){
-            public SimpleComputeVolume wrap(final SimpleComputeVolumeEntity inner)
-                {
-                return (SimpleComputeVolume) inner ;
-                }
-            };
+        return volumeMounts;
         }
-     * 
-     */
+
+    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+        {
+        volumeMounts.add(
+            volume
+            );
+        }
 
     @Override
     public IvoaSimpleComputeResource makeBean(final URIBuilder builder)
         {
         return fillBean(
+            builder,
             new IvoaSimpleComputeResource().meta(
                 this.makeMeta(
                     builder
@@ -241,7 +242,7 @@ public abstract class SimpleComputeResourceEntity
             );
         }
 
-    public IvoaSimpleComputeResource fillBean(final IvoaSimpleComputeResource bean)
+    public IvoaSimpleComputeResource fillBean(final URIBuilder uribuilder, final IvoaSimpleComputeResource bean)
         {
         super.fillBean(bean);
         
@@ -254,6 +255,13 @@ public abstract class SimpleComputeResourceEntity
         memorybean.setMin(minofferedcores);
         memorybean.setMax(maxofferedcores);
         bean.setMemory(memorybean);
+
+        for (AbstractVolumeMountEntity volume : this.getVolumeMounts())
+            {
+            bean.addVolumesItem(
+                volume.makeBean(uribuilder)
+                );
+            }
         
         return bean;
         }

@@ -18,6 +18,19 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
+ *
  */
 package net.ivoa.calycopis.datamodel.offerset;
 
@@ -31,8 +44,10 @@ import org.springframework.stereotype.Component;
 import org.threeten.extra.Interval;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResource;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
@@ -44,7 +59,6 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractExecutable;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 import net.ivoa.calycopis.spring.model.IvoaOfferSetResponse;
@@ -117,22 +131,9 @@ public class OfferSetRequestParserImpl
         log.debug("Context valid [{}]", offersetContext.valid());
 
         //
-        // Validate the requested volume mounts.
-        log.debug("Validating the requested volume mounts");
-        if (executionRequest.getVolumes() != null)
-            {
-            for (IvoaAbstractVolumeMount resource : executionRequest.getVolumes())
-                {
-                platform.getVolumeMountValidators().validate(
-                    resource,
-                    offersetContext
-                    );
-                }
-            }
-        log.debug("Context valid [{}]", offersetContext.valid());
-
-        //
         // Validate the requested compute resource.
+        // Volume mounts are now validated as part of compute resource validation,
+        // since they are children of the compute resource in the schema.
         log.debug("Validating the requested compute resources");
         IvoaAbstractComputeResource computeResource = executionRequest.getCompute();
         if (computeResource == null)
@@ -393,10 +394,11 @@ public class OfferSetRequestParserImpl
                     );
 
                 //
-                // Add our compute resources
+                // Add our compute resources.
+                AbstractComputeResourceEntity computeResourceEntity = null;
                 for (AbstractComputeResourceValidator.Result result : offersetContext.getComputeValidatorResults())
                     {
-                    result.build(
+                    computeResourceEntity = result.build(
                         executionSessionEntity,
                         computeOffer
                         );
@@ -418,12 +420,15 @@ public class OfferSetRequestParserImpl
                         );
                     }
                 //
-                // Add our volume mounts.
-                for (AbstractVolumeMountValidator.Result result : offersetContext.getVolumeValidatorResults())
+                // Add our volume mounts to the compute resource.
+                if (computeResourceEntity instanceof SimpleComputeResourceEntity simpleCompute)
                     {
-                    result.build(
-                        executionSessionEntity
-                        );
+                    for (AbstractVolumeMountValidator.Result result : offersetContext.getVolumeValidatorResults())
+                        {
+                        result.build(
+                            simpleCompute
+                            );
+                        }
                     }
 
                 //

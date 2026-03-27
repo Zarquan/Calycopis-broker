@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.compute.simple.mock;
@@ -28,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
@@ -46,9 +59,14 @@ implements MockSimpleComputeResourceValidator
      * Public constructor.
      * 
      */
-    public MockSimpleComputeResourceValidatorImpl(final AbstractComputeResourceEntityFactory entityFactory)
-        {
-        super(entityFactory);
+    public MockSimpleComputeResourceValidatorImpl(
+        final AbstractComputeResourceEntityFactory entityFactory,
+        final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory
+        ){
+        super(
+            entityFactory,
+            volumeMountValidatorFactory
+            );
         }
     
     public static final Long DEFAULT_PREPARE_TIME = 35L;

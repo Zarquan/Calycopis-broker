@@ -35,12 +35,13 @@
 package net.ivoa.calycopis.datamodel.data.amazon.mock;
 
 import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResource;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * 
  */
 public interface MockAmazonS3DataResource
-extends AmazonS3DataResource
+extends AmazonS3DataResource, MockMonitorableComponent
     {
 
     }

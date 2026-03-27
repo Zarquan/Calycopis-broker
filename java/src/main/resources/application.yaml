@@ -80,4 +80,19 @@ spring:
             settings:
                 web-allow-others: true
 
+broker:
+  # Delay and loop count for the MockXyzResourceEntity classes
+  mock-entities:
+    actions:
+      prepare:
+        delay: 5
+      monitor:
+        delay: 5
+        count: 2
+      release:
+        delay: 5
+      cancel:
+        delay: 5
+      fail:
+        delay: 5
 

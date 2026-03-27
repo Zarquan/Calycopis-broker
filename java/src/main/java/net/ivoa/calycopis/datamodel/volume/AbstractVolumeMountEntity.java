@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 30,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -33,8 +45,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -64,31 +76,31 @@ implements AbstractVolumeMount
 
     /**
      * Protected constructor.
-     * Automatically adds this resource to the parent SessionEntity.
+     * Automatically adds this volume mount to the parent ComputeResourceEntity.
      *
      */
     protected AbstractVolumeMountEntity(
-        final AbstractExecutionSessionEntity session,
+        final AbstractComputeResourceEntity computeResource,
         final IvoaComponentMetadata meta
         ){
         super(meta);
-        this.session = session;
-        if (session instanceof SimpleExecutionSessionEntity)
+        this.computeResource = computeResource;
+        if (computeResource instanceof SimpleComputeResourceEntity)
             {
-            ((SimpleExecutionSessionEntity) session).addVolumeMount(
+            ((SimpleComputeResourceEntity) computeResource).addVolumeMount(
                 this
                 );
             }
         }
 
-    @JoinColumn(name = "session", referencedColumnName = "uuid", nullable = false)
+    @JoinColumn(name = "compute_resource", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private AbstractExecutionSessionEntity session;
+    private AbstractComputeResourceEntity computeResource;
 
     @Override
-    public AbstractExecutionSessionEntity getSession()
+    public AbstractComputeResourceEntity getComputeResource()
         {
-        return this.session;
+        return this.computeResource;
         }
 
     public abstract IvoaAbstractVolumeMount makeBean(final URIBuilder uribuilder);

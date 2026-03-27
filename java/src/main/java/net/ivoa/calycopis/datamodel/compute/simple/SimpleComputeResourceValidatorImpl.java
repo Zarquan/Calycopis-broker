@@ -38,6 +38,16 @@
  *       "value": 3,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -51,9 +61,11 @@ import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOffer;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractComputeResource;
+import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
@@ -67,15 +79,19 @@ implements SimpleComputeResourceValidator
     {
 
     private final AbstractComputeResourceEntityFactory entityFactory;
+    protected final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
 
     /**
      * Public constructor.
      * 
      */
-    public SimpleComputeResourceValidatorImpl(final AbstractComputeResourceEntityFactory entityFactory)
-        {
+    public SimpleComputeResourceValidatorImpl(
+        final AbstractComputeResourceEntityFactory entityFactory,
+        final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory
+        ){
         super();
         this.entityFactory = entityFactory;
+        this.volumeMountValidatorFactory = volumeMountValidatorFactory;
         }
     
     @Override
@@ -147,40 +163,17 @@ implements SimpleComputeResourceValidator
             );
         
         //
-        // Process the volume mounts.
-        log.debug("Processing the volume mounts");
+        // Validate the volume mounts nested under this compute resource.
+        log.debug("Validating the volume mounts");
         if (requested.getVolumes() != null)
             {
-            /*
-             * TODO
-            for (IvoaSimpleComputeVolume volumeRequest : requested.getVolumes())
+            for (IvoaAbstractVolumeMount volumeMount : requested.getVolumes())
                 {
-                // Try finding a storage resource.
-                AbstractStorageResourceValidator.Result storage = context.findStorageValidatorResult(volumeRequest.getResource());
-                // If we din't find a storage resource.
-                if (storage == null)
-                    {
-                    // Try finding a data resource.
-                    AbstractDataResourceValidator.Result data = context.findDataValidatorResult(volumeRequest.getResource());
-                    // If we found a data resource.
-                    if (data != null)
-                        {
-                        // Try finding a corresponding storage resource.
-                        storage = null;
-                        }
-                    }
-                
-                if (storage  != null)
-                    {
-                    // Create a volume linking the storage resource to the compute resource.
-                    
-                    }
-                else {
-                    // error unmatched data resource ...
-                    }
+                volumeMountValidatorFactory.validate(
+                    volumeMount,
+                    context
+                    );
                 }
-             * 
-             */
             }
 
         //

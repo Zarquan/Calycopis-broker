@@ -28,6 +28,16 @@
  *       "value": 1,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -35,8 +45,8 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
@@ -59,7 +69,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
          * Build an entity based on a validation result.
          *
          */
-        public AbstractVolumeMountEntity build(final SimpleExecutionSessionEntity session);
+        public AbstractVolumeMountEntity build(final SimpleComputeResourceEntity computeResource);
         }
 
     /**
@@ -103,8 +113,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
             }
 
         @Override
-        // Here because we need to create Results with just a status and no entity
-        public AbstractVolumeMountEntity build(SimpleExecutionSessionEntity session)
+        public AbstractVolumeMountEntity build(SimpleComputeResourceEntity computeResource)
             {
             return null;
             }

@@ -29,12 +29,14 @@ import java.util.List;
 import java.util.UUID;
 
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
+import net.ivoa.calycopis.datamodel.message.MessageSubject;
 
 /**
  * Public interface for a Component
  * 
  */
 public interface Component
+extends MessageSubject
     {
 
     /**

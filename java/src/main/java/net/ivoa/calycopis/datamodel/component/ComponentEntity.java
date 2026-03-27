@@ -43,7 +43,6 @@ import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.message.MessageEntity;
 import net.ivoa.calycopis.datamodel.message.MessageItemBean;
-import net.ivoa.calycopis.datamodel.message.MessageSubject;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
@@ -62,7 +61,7 @@ import net.ivoa.calycopis.util.URIBuilder;
     strategy = InheritanceType.JOINED
     )
 public abstract class ComponentEntity
-    implements Component, MessageSubject
+    implements Component
     {
 
     /**

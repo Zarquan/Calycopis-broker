@@ -39,7 +39,7 @@ import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidator;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableEntity;
@@ -203,7 +203,7 @@ implements DockerSimpleComputeResource
             private IvoaLifecyclePhase nextPhase = IvoaLifecyclePhase.AVAILABLE;
 
             @Override
-            public void preProcess(final LifecycleComponentEntity component)
+            public void preProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Pre-processing component [{}][{}]",
@@ -316,7 +316,7 @@ implements DockerSimpleComputeResource
                 }
 
             @Override
-            public void postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Post processing [{}][{}]",
@@ -464,7 +464,7 @@ implements DockerSimpleComputeResource
             private Integer exitCode;
 
             @Override
-            public void preProcess(final LifecycleComponentEntity component)
+            public void preProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Pre-processing component [{}][{}]",
@@ -539,7 +539,7 @@ implements DockerSimpleComputeResource
                 }
 
             @Override
-            public void postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Post-processing component [{}][{}] next phase [{}] exit code [{}]",
@@ -602,7 +602,7 @@ implements DockerSimpleComputeResource
         return new ComponentProcessingAction()
             {
             @Override
-            public void preProcess(final LifecycleComponentEntity component)
+            public void preProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Releasing Docker compute resource [{}][{}] container [{}]",
@@ -667,7 +667,7 @@ implements DockerSimpleComputeResource
                 }
 
             @Override
-            public void postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Release complete for Docker compute resource [{}][{}], setting phase to COMPLETED",

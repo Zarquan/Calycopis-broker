@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,30 +18,20 @@
  *   </meta:licence>
  * </meta:header>
  *
- * AIMetrics: [
- *     {
- *     "name": "Cursor CLI",
- *     "version": "2026.02.13-41ac335",
- *     "model": "Claude 4.6 Opus (Thinking)",
- *     "contribution": {
- *       "value": 100,
- *       "units": "%"
- *       }
- *     }
- *   ]
  *
  */
 
-package net.ivoa.calycopis.datamodel.storage.simple.mock;
+package net.ivoa.calycopis.functional.processing.mock;
 
-import net.ivoa.calycopis.datamodel.storage.simple.SimpleStorageResource;
-import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 
 /**
+ * Public interface for a monitorable component.
  * 
  */
-public interface MockSimpleStorageResource
-extends SimpleStorageResource, MockMonitorableComponent
+public interface MockMonitorableComponent
+extends LifecycleComponent
     {
-
+    int getLifecycleLoopCount();
+    void setLifecycleLoopCount(int count);
     }

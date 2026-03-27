@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 1,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -97,7 +109,8 @@ implements DockerPlatform
             );
         this.computeResourceValidatorFactory.addValidator(
             new DockerSimpleComputeResourceValidatorImpl(
-                this.computeResourceEntityFactory
+                this.computeResourceEntityFactory,
+                this.volumeMountValidatorFactory
                 )
             );
         this.storageResourceValidatorFactory.addValidator(

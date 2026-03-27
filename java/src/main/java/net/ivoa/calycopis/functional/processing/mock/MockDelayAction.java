@@ -21,12 +21,12 @@
  *
  */
 
-package net.ivoa.calycopis.functional.processing;
+package net.ivoa.calycopis.functional.processing.mock;
 
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
@@ -36,7 +36,7 @@ import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
  * 
  */
 @Slf4j
-public class SimpleDelayAction
+public class MockDelayAction
 implements ComponentProcessingAction
     {
     int loopDelay ;
@@ -50,7 +50,7 @@ implements ComponentProcessingAction
     /**
      * 
      */
-    public SimpleDelayAction(final LifecycleComponentEntity component, int delay)
+    public MockDelayAction(final LifecycleComponent component, int delay)
         {
         this.componentUuid  = component.getUuid();
         this.componentClass = component.getClass().getSimpleName();
@@ -60,7 +60,7 @@ implements ComponentProcessingAction
     /**
      * 
      */
-    public SimpleDelayAction(final LifecycleComponentEntity component, IvoaLifecyclePhase waitPhase, IvoaLifecyclePhase donePhase, int delay)
+    public MockDelayAction(final LifecycleComponent component, IvoaLifecyclePhase waitPhase, IvoaLifecyclePhase donePhase, int delay)
         {
         this.componentUuid  = component.getUuid();
         this.componentClass = component.getClass().getSimpleName();
@@ -70,7 +70,7 @@ implements ComponentProcessingAction
         }
 
     @Override
-    public void preProcess(LifecycleComponentEntity component)
+    public void preProcess(LifecycleComponent component)
         {
         log.debug(
             "Pre-processing [{}][{}]",
@@ -113,7 +113,7 @@ implements ComponentProcessingAction
         }
 
     @Override
-    public void postProcess(LifecycleComponentEntity component)
+    public void postProcess(LifecycleComponent component)
         {
         log.debug(
             "Post-processing [{}][{}]",

@@ -1,12 +1,12 @@
-package net.ivoa.calycopis.functional.processing;
+package net.ivoa.calycopis.functional.processing.mock;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
-public class SimpleReleaseAction extends SimpleDelayAction
+public class MockReleaseAction extends MockDelayAction
     {
 
-    public SimpleReleaseAction(final LifecycleComponentEntity component, int delay)
+    public MockReleaseAction(final LifecycleComponentEntity component, int delay)
         {
         super(
             component,

@@ -23,7 +23,7 @@
 
 package net.ivoa.calycopis.functional.processing.component;
 
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
 
 /**
@@ -37,13 +37,12 @@ extends ProcessingAction
      * Prepare the Component, performed in a Transaction before processing.
      * 
      */
-    public void preProcess(final LifecycleComponentEntity component);
+    public void preProcess(final LifecycleComponent component);
 
     /**
      * Post-process the Component, performed in a Transaction after processing.
      *
      */
-    public void postProcess(final LifecycleComponentEntity component);
-    
+    public void postProcess(final LifecycleComponent component);
 
     }

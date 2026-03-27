@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 15,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -29,8 +41,8 @@ import java.util.List;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
@@ -68,32 +80,30 @@ public class SimpleVolumeMountEntity
         }
 
     /**
-     * Protected constructor with parent and validator result.
+     * Protected constructor with parent compute resource and validator result.
      *
      */
     public SimpleVolumeMountEntity(
-        final AbstractExecutionSessionEntity session,
+        final AbstractComputeResourceEntity computeResource,
         final AbstractVolumeMountValidator.Result result
         ){
         this(
-            session,
+            computeResource,
             result,
             (IvoaSimpleVolumeMount)result.getObject()
             );
         }
     /**
-     * Protected constructor with parent and validator result.
-     * TODO validated can be replaced by Result.getObject()
-     * TODO No need to pass validated.getMeta() separately.
+     * Protected constructor with parent compute resource and validator result.
      *
      */
     public SimpleVolumeMountEntity(
-        final AbstractExecutionSessionEntity session,
+        final AbstractComputeResourceEntity computeResource,
         final AbstractVolumeMountValidator.Result result,
         final IvoaSimpleVolumeMount validated
         ){
         super(
-            session,
+            computeResource,
             validated.getMeta()
             );
         

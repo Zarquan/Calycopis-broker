@@ -59,6 +59,7 @@ import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaExecutionRequest;
 import net.ivoa.calycopis.spring.model.IvoaMessageItem.LevelEnum;
+import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
 
 /**
  *
@@ -187,18 +188,7 @@ extends ValidatorBase
                 }
             }
         //
-        // Assign UUIDs to volume mounts.
-        if (originalRequest.getVolumes() != null)
-            {
-            for (IvoaAbstractVolumeMount resource : originalRequest.getVolumes())
-                {
-                resource.setMeta(
-                    ensureUuid(resource.getMeta())
-                    );
-                }
-            }
-        //
-        // Assign UUID to compute resource.
+        // Assign UUID to compute resource and its nested volume mounts.
         if (originalRequest.getCompute() != null)
             {
             originalRequest.getCompute().setMeta(
@@ -206,6 +196,18 @@ extends ValidatorBase
                     originalRequest.getCompute().getMeta()
                     )
                 );
+            if (originalRequest.getCompute() instanceof IvoaSimpleComputeResource simpleCompute)
+                {
+                if (simpleCompute.getVolumes() != null)
+                    {
+                    for (IvoaAbstractVolumeMount volume : simpleCompute.getVolumes())
+                        {
+                        volume.setMeta(
+                            ensureUuid(volume.getMeta())
+                            );
+                        }
+                    }
+                }
             }
         //
         // Assign UUID to executable.

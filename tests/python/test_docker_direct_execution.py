@@ -28,12 +28,22 @@
 #       "value": 100,
 #       "units": "%"
 #       }
+#     },
+#     {
+#     "timestamp": "2026-03-26T16:00:00",
+#     "name": "Cursor CLI",
+#     "version": "2026.02.13-41ac335",
+#     "model": "Claude 4.6 Opus (Thinking)",
+#     "contribution": {
+#       "value": 5,
+#       "units": "%"
+#       }
 #     }
 #   ]
 #
 
 """
-Integration tests for the direct execution endpoint (POST /sessions).
+Integration tests for the direct execution endpoint on the docker platform.
 
 Direct execution bypasses the offer-set negotiation and creates an
 ExecutionSession starting at the ACCEPTED phase. The session then
@@ -52,8 +62,8 @@ Requires:
   - Network access to ghcr.io to pull the test container image.
 
 Usage:
-  pytest tests/python/test_direct_execution.py -v
-  CALYCOPIS_URL=http://host:port pytest tests/python/test_direct_execution.py -v
+  pytest tests/python/test_docker_direct_execution.py -v
+  CALYCOPIS_URL=http://host:port pytest tests/python/test_docker_direct_execution.py -v
 """
 
 import os
@@ -172,6 +182,15 @@ class TestDirectExecutionBasic:
             f"Expected AbstractExecutionSession, got {type(session)}"
         )
 
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
+        )
+
     def test_direct_execution_session_has_uuid(self, client):
         """
         The returned session should have a UUID in its metadata.
@@ -185,6 +204,15 @@ class TestDirectExecutionBasic:
         session = client.direct_execute(request)
         assert session.meta is not None, "Session should have metadata"
         assert session.meta.uuid is not None, "Session should have a UUID"
+
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
+        )
 
     def test_direct_execution_starts_at_accepted(self, client):
         """
@@ -204,6 +232,15 @@ class TestDirectExecutionBasic:
         ), (
             f"Direct execution session should start at ACCEPTED or "
             f"PREPARING, got {session.phase}"
+        )
+
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
         )
 
     def test_direct_execution_has_executable(self, client):
@@ -227,6 +264,15 @@ class TestDirectExecutionBasic:
         assert session.executable.image.locations is not None
         assert CANTLIEI_IMAGE in session.executable.image.locations
 
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
+        )
+
     def test_direct_execution_has_compute(self, client):
         """
         The returned session should include a default compute resource
@@ -241,6 +287,15 @@ class TestDirectExecutionBasic:
         session = client.direct_execute(request)
         assert session.compute is not None, (
             "Session should include a compute resource"
+        )
+
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
         )
 
     def test_direct_execution_with_explicit_compute(self, client):
@@ -265,6 +320,15 @@ class TestDirectExecutionBasic:
         assert session.compute.cores is not None
         assert session.compute.memory is not None
 
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
+        )
+
     def test_direct_execution_session_retrievable_by_uuid(self, client):
         """
         After direct execution, the session should be retrievable
@@ -285,6 +349,14 @@ class TestDirectExecutionBasic:
             "Fetched session UUID should match"
         )
 
+        cancelled = client.set_session_phase(
+            session.meta.uuid,
+            SimpleExecutionSessionPhase.CANCELLED,
+        )
+        assert cancelled.phase == SimpleExecutionSessionPhase.CANCELLED, (
+            f"Cancelled session should be CANCELLED, "
+            f"got {cancelled.phase}"
+        )
 
 # ===========================================================================
 # Direct execution lifecycle tests

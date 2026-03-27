@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,14 +18,28 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
+import java.util.List;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 
 /**
  * Public interface for a SimpleComputeResource.
@@ -90,10 +104,10 @@ public interface SimpleComputeResource
     public Long getMaxOfferedMemory();
     
     /**
-     * A list of the volume mounts. 
-     * TODO
-    public List<SimpleComputeVolume> getVolumes();
+     * Get the list of volume mounts attached to this compute resource.
+     *
      */
+    public List<AbstractVolumeMountEntity> getVolumeMounts();
 
     }
 
