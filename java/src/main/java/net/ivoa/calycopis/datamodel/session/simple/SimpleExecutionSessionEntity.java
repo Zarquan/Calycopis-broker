@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 3,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -51,7 +63,6 @@ import net.ivoa.calycopis.datamodel.offerset.OfferSetEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.functional.booking.ResourceOffer;
 import net.ivoa.calycopis.spring.model.IvoaAbstractOption;
 import net.ivoa.calycopis.spring.model.IvoaScheduleStartDurationInstant;
@@ -219,27 +230,6 @@ public class SimpleExecutionSessionEntity
         {
         storageresources.add(
             resource
-            );
-        }
-
-    @OneToMany(
-        mappedBy = "session",
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-        )
-    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
-
-    @Override
-    public List<AbstractVolumeMountEntity> getVolumeMounts()
-        {
-        return volumeMounts;
-        }
-
-    public void addVolumeMount(final AbstractVolumeMountEntity volume)
-        {
-        volumeMounts.add(
-            volume
             );
         }
 

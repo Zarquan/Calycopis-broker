@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -26,7 +38,7 @@ package net.ivoa.calycopis.datamodel.volume;
 import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.Component;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 
 /**
  *
@@ -41,9 +53,9 @@ public interface AbstractVolumeMount
     public static final URI WEBAPP_PATH = URI.create("volumes/"); 
 
     /**
-     * Get the parent Session.
+     * Get the parent ComputeResource.
      *
      */
-    public AbstractExecutionSessionEntity getSession();
+    public AbstractComputeResourceEntity getComputeResource();
 
     }

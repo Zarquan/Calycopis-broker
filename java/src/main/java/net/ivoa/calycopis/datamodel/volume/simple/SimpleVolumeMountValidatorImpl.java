@@ -28,6 +28,16 @@
  *       "value": 5,
  *       "units": "%"
  *       }
+ *     },
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
  *     }
  *   ]
  *
@@ -35,8 +45,8 @@
 package net.ivoa.calycopis.datamodel.volume.simple;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
@@ -134,10 +144,10 @@ implements SimpleVolumeMountValidator
                 validated
                 ){
                 @Override
-                public SimpleVolumeMountEntity build(final SimpleExecutionSessionEntity session)
+                public SimpleVolumeMountEntity build(final SimpleComputeResourceEntity computeResource)
                     {
                     return entityFactory.create(
-                        session,
+                        computeResource,
                         this
                         );
                     }

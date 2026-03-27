@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 5,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 package net.ivoa.calycopis.datamodel.compute.simple.docker;
@@ -28,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeCores;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeMemory;
 import net.ivoa.calycopis.spring.model.IvoaSimpleComputeResource;
@@ -46,9 +59,14 @@ implements DockerSimpleComputeResourceValidator
      * Public constructor.
      * 
      */
-    public DockerSimpleComputeResourceValidatorImpl(final AbstractComputeResourceEntityFactory entityFactory)
-        {
-        super(entityFactory);
+    public DockerSimpleComputeResourceValidatorImpl(
+        final AbstractComputeResourceEntityFactory entityFactory,
+        final AbstractVolumeMountValidatorFactory volumeMountValidatorFactory
+        ){
+        super(
+            entityFactory,
+            volumeMountValidatorFactory
+            );
         }
     
     public static final Long DEFAULT_PREPARE_TIME = 35L;

@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2024 University of Manchester.
+ *     Copyright (C) 2026 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,6 +18,18 @@
  *   </meta:licence>
  * </meta:header>
  *
+ * AIMetrics: [
+ *     {
+ *     "timestamp": "2026-03-25T14:45:00",
+ *     "name": "Cursor CLI",
+ *     "version": "2026.02.13-41ac335",
+ *     "model": "Claude 4.6 Opus (Thinking)",
+ *     "contribution": {
+ *       "value": 10,
+ *       "units": "%"
+ *       }
+ *     }
+ *   ]
  *
  */
 
@@ -30,7 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.session.AbstractExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
@@ -64,12 +76,12 @@ public class SimpleVolumeMountEntityFactoryImpl
         }
 
     public SimpleVolumeMountEntity create(
-        final AbstractExecutionSessionEntity session,
+        final AbstractComputeResourceEntity computeResource,
         final AbstractVolumeMountValidator.Result result
         ){
         return this.repository.save(
             new SimpleVolumeMountEntity(
-                session,
+                computeResource,
                 result
                 )
             );
