@@ -458,8 +458,25 @@ into the development environment making them available to be used by the Python 
 pip install  --editable /calycopis/Calycopis-schema/github-zrq/codegen/python/client/build
 ``
 
+#### Platform requirements for Python tests
 
+The Python tests have different platform requirements. Some tests must be run
+against a specific broker platform profile, while others are platform-agnostic.
 
+| Test file | Platform | Notes |
+|-----------|----------|-------|
+| `test_mock_validators.py` | mock only | Tests mock-specific validation rules (blacklists, resource limits) that are hardcoded in the `Mock*ValidatorImpl` classes. These tests would fail on the docker platform because the docker validators have different rules. |
+| `test_docker_platform.py` | docker only | Tests real Docker container execution via the Docker/Podman platform. Requires the `docker` profile, a configured `CONTAINER_HOST`, and network access to pull container images. |
+| `test_resource_registration.py` | either | Tests cross-referencing of resources (data ↔ storage) via the offer-set API. These tests only inspect the `OfferSetResponse` and never accept any offers, so no lifecycle processing is triggered and the tests work on either platform. |
+| `test_mock_direct_execution.py` | mock only | Direct execution tests adapted for the mock platform. Includes basic tests, a single lifecycle completion test, a cancellation test, and an OFFERED-phase-skip test. Excludes exit-code and timed-completion tests because the mock platform does not simulate exit codes or configurable execution durations. |
+| `test_docker_direct_execution.py` | docker only | Direct execution tests for the docker platform using the Heliophorus-cantliei container. Includes the full set of tests: basic, lifecycle (completion and non-zero exit failure), timed completion, cancellation, and offer-set comparison. |
+| `test_mock_stress.py` | mock only | Stress test using direct execution on the mock platform. Uses a low default session count (5) and long timeout (3600s) because the mock platform processes sessions serially with 30-second delays per component per phase. |
+| `test_docker_stress.py` | docker only | Stress test using the offer-set flow on the docker platform with the Heliophorus-cantliei container. Uses a higher default session count (100) with concurrent submission and real container execution. |
 
+When running lifecycle or stress tests on the mock platform, note that the mock
+processing loop processes requests serially with 30-second delays per component
+phase. Sessions created by earlier tests accumulate in the processing queue and
+slow down subsequent tests. For best results, run lifecycle tests with a freshly
+started broker to avoid queue congestion.
 
 
