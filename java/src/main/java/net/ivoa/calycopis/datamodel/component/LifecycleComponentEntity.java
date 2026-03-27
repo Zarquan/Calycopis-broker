@@ -37,9 +37,11 @@ import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.platfom.mock.MockPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.functional.processing.mock.MockDelayAction;
+import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 import net.ivoa.calycopis.spring.model.IvoaLifecycleSchedule;
@@ -385,22 +387,34 @@ implements LifecycleComponent
     @Override
     public ProcessingAction getCancelAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleDelayAction(
+        int delay = 30_000;
+        if (platform instanceof MockPlatform)
+            {
+            MockEntitySettings settings = ((MockPlatform) platform).getMockEntitySettings();
+            delay = settings.getCancelDelayMillis();
+            }
+        return new MockDelayAction(
             this,
             IvoaLifecyclePhase.CANCELLED,
             null,
-            30_000
+            delay
             );
         }
 
     @Override
     public ProcessingAction getFailAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleDelayAction(
+        int delay = 30_000;
+        if (platform instanceof MockPlatform)
+            {
+            MockEntitySettings settings = ((MockPlatform) platform).getMockEntitySettings();
+            delay = settings.getFailDelayMillis();
+            }
+        return new MockDelayAction(
             this,
             IvoaLifecyclePhase.FAILED,
             null,
-            30_000
+            delay
             );
         }
     }
