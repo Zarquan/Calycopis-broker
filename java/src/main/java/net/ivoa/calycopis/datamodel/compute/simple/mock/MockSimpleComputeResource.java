@@ -24,13 +24,14 @@
 package net.ivoa.calycopis.datamodel.compute.simple.mock;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * Public interface for a SimpleComputeResource.
  *
  */
 public interface MockSimpleComputeResource
-    extends AbstractComputeResource
+extends AbstractComputeResource, MockMonitorableComponent
     {
 
     }

@@ -35,12 +35,13 @@
 package net.ivoa.calycopis.datamodel.data.skao.mock;
 
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResource;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * 
  */
 public interface MockSkaoDataResource
-extends SkaoDataResource
+extends SkaoDataResource, MockMonitorableComponent
     {
 
     }

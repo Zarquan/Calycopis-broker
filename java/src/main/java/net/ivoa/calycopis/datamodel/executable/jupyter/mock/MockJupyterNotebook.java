@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.datamodel.executable.jupyter.mock;
 
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebook;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * 
  */
 public interface MockJupyterNotebook
-extends JupyterNotebook
+extends JupyterNotebook, MockMonitorableComponent
     {
 
     }

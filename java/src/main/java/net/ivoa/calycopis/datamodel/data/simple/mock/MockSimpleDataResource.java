@@ -35,12 +35,13 @@
 package net.ivoa.calycopis.datamodel.data.simple.mock;
 
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResource;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * 
  */
 public interface MockSimpleDataResource
-extends SimpleDataResource
+extends SimpleDataResource, MockMonitorableComponent
     {
 
     }

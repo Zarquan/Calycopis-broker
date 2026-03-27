@@ -24,12 +24,13 @@
 package net.ivoa.calycopis.datamodel.executable.docker.mock;
 
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainer;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorableComponent;
 
 /**
  * 
  */
 public interface MockDockerContainer
-extends DockerContainer
+extends DockerContainer, MockMonitorableComponent
     {
 
     }
