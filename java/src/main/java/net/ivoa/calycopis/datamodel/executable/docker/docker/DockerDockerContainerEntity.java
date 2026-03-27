@@ -37,7 +37,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
+import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
 import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.docker.DockerContainerEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
@@ -45,10 +45,10 @@ import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.platfom.docker.DockerClientFactory;
 import net.ivoa.calycopis.functional.platfom.docker.DockerPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.SimpleDelayAction;
-import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.functional.processing.mock.MockDelayAction;
+import net.ivoa.calycopis.functional.processing.mock.MockReleaseAction;
 import net.ivoa.calycopis.spring.model.IvoaLifecyclePhase;
 
 /**
@@ -151,7 +151,7 @@ public class DockerDockerContainerEntity
             private long downloadTimeMillis = 0L;
 
             @Override
-            public void preProcess(final LifecycleComponentEntity component)
+            public void preProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Pre-processing component [{}][{}]",
@@ -324,7 +324,7 @@ public class DockerDockerContainerEntity
                 }
 
             @Override
-            public void postProcess(final LifecycleComponentEntity component)
+            public void postProcess(final LifecycleComponent component)
                 {
                 log.debug(
                     "Post-processing component [{}][{}] next phase [{}]",
@@ -368,7 +368,7 @@ public class DockerDockerContainerEntity
     @Override
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleReleaseAction(
+        return new MockReleaseAction(
             this,
             0
             );
@@ -377,7 +377,7 @@ public class DockerDockerContainerEntity
     @Override
     public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
         {
-        return new SimpleDelayAction(
+        return new MockDelayAction(
             this,
             0
             );
