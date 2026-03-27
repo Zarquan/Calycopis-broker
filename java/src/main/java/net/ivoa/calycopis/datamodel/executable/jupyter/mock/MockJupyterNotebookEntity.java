@@ -32,11 +32,13 @@ import net.ivoa.calycopis.datamodel.executable.AbstractExecutableValidator;
 import net.ivoa.calycopis.datamodel.executable.jupyter.JupyterNotebookEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.platfom.mock.MockPlatform;
 import net.ivoa.calycopis.functional.processing.ProcessingAction;
-import net.ivoa.calycopis.functional.processing.SimpleMonitorAction;
-import net.ivoa.calycopis.functional.processing.SimplePrepareAction;
-import net.ivoa.calycopis.functional.processing.SimpleReleaseAction;
 import net.ivoa.calycopis.functional.processing.component.ComponentProcessingRequest;
+import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
+import net.ivoa.calycopis.functional.processing.mock.MockMonitorAction;
+import net.ivoa.calycopis.functional.processing.mock.MockPrepareAction;
+import net.ivoa.calycopis.functional.processing.mock.MockReleaseAction;
 
 /**
  * 
@@ -53,7 +55,6 @@ public class MockJupyterNotebookEntity
 extends JupyterNotebookEntity
 implements MockJupyterNotebook
     {
-
     public MockJupyterNotebookEntity()
         {
         super();
@@ -72,27 +73,48 @@ implements MockJupyterNotebook
     @Override
     public ProcessingAction getPrepareAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimplePrepareAction(
+        MockEntitySettings settings = ((MockPlatform) platform).getMockEntitySettings();
+        return new MockPrepareAction(
             this,
-            30_000
+            settings.getPrepareDelayMillis()
             );
         }
 
     @Override
     public ProcessingAction getMonitorAction(Platform platform, ComponentProcessingRequest request)
         {
-        return new SimpleMonitorAction(
+        MockEntitySettings settings = ((MockPlatform) platform).getMockEntitySettings();
+        if (this.lifecycleLoopCount < 0)
+            {
+            this.lifecycleLoopCount = settings.getMonitorCount();
+            }
+        return new MockMonitorAction(
             this,
-            30_000
+            settings.getMonitorDelayMillis()
             );
         }
 
     @Override
     public ProcessingAction getReleaseAction(final Platform platform, final ComponentProcessingRequest request)
         {
-        return new SimpleReleaseAction(
+        MockEntitySettings settings = ((MockPlatform) platform).getMockEntitySettings();
+        return new MockReleaseAction(
             this,
-            30_000
+            settings.getReleaseDelayMillis()
             );
+        }
+
+    int lifecycleLoopCount = -1 ;
+    
+    @Override
+    public int getLifecycleLoopCount()
+        {
+        return lifecycleLoopCount ;
+        }
+
+    @Override
+    public void setLifecycleLoopCount(int count)
+        {
+        this.lifecycleLoopCount = count;
         }
     }

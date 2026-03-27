@@ -24,11 +24,18 @@
 package net.ivoa.calycopis.functional.platfom.mock;
 
 import net.ivoa.calycopis.functional.platfom.Platform;
+import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
 
 /**
  * 
  */
 public interface MockPlatform extends Platform
     {
+
+    /**
+     * Get the MockEntitySettings for this platform.
+     *
+     */
+    public MockEntitySettings getMockEntitySettings();
 
     }
