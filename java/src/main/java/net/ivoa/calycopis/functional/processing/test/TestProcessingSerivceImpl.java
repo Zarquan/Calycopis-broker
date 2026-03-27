@@ -67,7 +67,7 @@ implements ProcessingService
         }
 
     @Override
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 1000)
     public void loop()
         {
         super.loop();
