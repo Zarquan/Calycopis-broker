@@ -317,7 +317,6 @@ public abstract class DockerContainerEntity
 
     protected IvoaDockerContainer fillBean(final IvoaDockerContainer bean)
         {
-        log.debug("FillBean [{}][{}][{}]", this.getUuid(), this.getClass().getSimpleName(), bean.getClass().getSimpleName());
         super.fillBean(
             bean
             );
@@ -342,7 +341,6 @@ public abstract class DockerContainerEntity
                 );
             }
 
-        log.debug("DockerContainerEntity - fillBean - image [{}]", this.image);
         if (this.image != null)
             {
             IvoaDockerImageSpec ivoaImage = new IvoaDockerImageSpec();
