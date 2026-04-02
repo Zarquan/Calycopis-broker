@@ -1,7 +1,7 @@
 /*
  * <meta:header>
  *   <meta:licence>
- *     Copyright (C) 2025 University of Manchester.
+ *     Copyright (C) 2024 University of Manchester.
  *
  *     This information is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -20,16 +20,17 @@
  *
  *
  */
+package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
-package net.ivoa.calycopis.datamodel.volume;
+import java.util.UUID;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
+ * A SimpleVolumeMount JpaRepository.
  *
  */
-public interface AbstractVolumeMountValidatorFactory
-extends AbstractVolumeMountValidator, ValidatorFactory<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+public interface MockSimpleVolumeMountEntityRepository
+extends JpaRepository<MockSimpleVolumeMountEntity, UUID>
     {
     }

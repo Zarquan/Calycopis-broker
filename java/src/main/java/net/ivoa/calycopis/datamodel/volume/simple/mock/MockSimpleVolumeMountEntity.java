@@ -33,9 +33,7 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.volume.simple;
-
-import java.net.URI;
+package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -43,46 +41,39 @@ import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
-import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
-import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
-import net.ivoa.calycopis.util.URIBuilder;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A SimpleVolumeMount Entity.
+ * A MockSimpleVolumeMount Entity.
  *
  */
 @Entity
 @Table(
-    name = "simplevolumemounts"
+    name = "mocksimplevolumemounts"
     )
 @DiscriminatorValue(
-    value="uri:simple-volume-mount"
+    value="uri:mock-simple-volume-mount"
     )
-public class SimpleVolumeMountEntity
-    extends AbstractVolumeMountEntity
-    implements SimpleVolumeMount
+public class MockSimpleVolumeMountEntity
+    extends SimpleVolumeMountEntity
+    implements MockSimpleVolumeMount
     {
-    @Override
-    public URI getKind()
-        {
-        return SimpleVolumeMount.TYPE_DISCRIMINATOR;
-        }
 
     /**
      * Protected constructor
      *
      */
-    protected SimpleVolumeMountEntity()
+    protected MockSimpleVolumeMountEntity()
         {
         super();
         }
 
     /**
-     * Protected constructor with data resource and validator result.
+     * Protected constructor with parent compute, data resource and validator result.
      *
      */
-    public SimpleVolumeMountEntity(
+    public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
@@ -90,65 +81,26 @@ public class SimpleVolumeMountEntity
         super(
             computeResource,
             dataResource,
-            result.getObject().getMeta()
+            result
             );
-        //
-        // ....
-        //
         }
 
     /**
-     * Protected constructor with storage resource and validator result.
+     * Protected constructor with parent compute, storage resource and validator result.
      *
      */
-    public SimpleVolumeMountEntity(
+    public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity storageResource,
+        final AbstractStorageResourceEntity    storageResource,
         final SimpleVolumeMountValidator.Result result
         ){
         super(
             computeResource,
             storageResource,
-            result.getObject().getMeta()
-            );
-        //
-        // ....
-        //
-        }
-    
-    
-    private ModeEnum mode;
-    @Override
-    public ModeEnum getMode()
-        {
-        return this.mode;
-        }
-
-    private String path;
-    @Override
-    public String getPath()
-        {
-        return this.path;
-        }
-
-    @Override
-    public IvoaSimpleVolumeMount makeBean(final URIBuilder uribuilder)
-        {
-        return this.fillBean(
-            new IvoaSimpleVolumeMount().meta(
-                this.makeMeta(
-                    uribuilder
-                    )
-                )
+            result
             );
         }
     
-    protected IvoaSimpleVolumeMount fillBean(final IvoaSimpleVolumeMount bean)
-        {
-        super.fillBean(
-            bean
-            );
-        return bean;
-        }
+    
     }
 

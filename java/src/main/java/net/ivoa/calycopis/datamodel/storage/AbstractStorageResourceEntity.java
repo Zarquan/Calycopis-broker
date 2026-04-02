@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.ListWrapper;
@@ -90,7 +91,7 @@ implements AbstractStorageResource
 
         //
         // Start preparing when the session starts preparing.
-        this.prepareDurationSeconds     = result.getPreparationTime();
+        this.prepareDurationSeconds     = result.getPrepareDuration();
         this.prepareStartInstantSeconds = session.getPrepareStartInstantSeconds();
 
         //
@@ -100,9 +101,10 @@ implements AbstractStorageResource
         this.availableStartInstantSeconds  = this.prepareStartInstantSeconds + this.prepareDurationSeconds;
 
         //
-        // Hard coded 10s release duration.
-        // Start releasing 10s after availability ends.
-        this.releaseDurationSeconds = 10L ; 
+        // Start releasing after availability ends.
+        // TODO Start releasing after DATA releasing ends.
+        // TODO Do we need to calculate this, or is it controlled by the lifecycle management?
+        this.releaseDurationSeconds     = result.getReleaseDuration(); 
         this.releaseStartInstantSeconds = this.availableStartInstantSeconds + this.availableDurationSeconds + 10L ;         
 
         }
@@ -134,6 +136,27 @@ implements AbstractStorageResource
         {
         dataresources.add(
             resource
+            );
+        }
+
+    @OneToMany(
+        mappedBy = "storageResource",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
+
+    @Override
+    public List<AbstractVolumeMountEntity> getVolumeMounts()
+        {
+        return volumeMounts;
+        }
+
+    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+        {
+        volumeMounts.add(
+            volume
             );
         }
     

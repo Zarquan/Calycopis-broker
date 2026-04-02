@@ -46,7 +46,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -76,24 +77,45 @@ implements AbstractVolumeMount
 
     /**
      * Protected constructor.
-     * Automatically adds this volume mount to the parent ComputeResourceEntity.
      *
      */
     protected AbstractVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
+        final AbstractDataResourceEntity dataResource,
         final IvoaComponentMetadata meta
         ){
         super(meta);
         this.computeResource = computeResource;
-        if (computeResource instanceof SimpleComputeResourceEntity)
-            {
-            ((SimpleComputeResourceEntity) computeResource).addVolumeMount(
-                this
-                );
-            }
+        computeResource.addVolumeMount(
+            this
+            );
+        this.dataResource = dataResource;
+        this.dataResource.addVolumeMount(
+            this
+            );
         }
 
-    @JoinColumn(name = "compute_resource", referencedColumnName = "uuid", nullable = false)
+    /**
+     * Protected constructor.
+     *
+     */
+    protected AbstractVolumeMountEntity(
+        final AbstractComputeResourceEntity computeResource,
+        final AbstractStorageResourceEntity storageResource,
+        final IvoaComponentMetadata meta
+        ){
+        super(meta);
+        this.computeResource = computeResource;
+        computeResource.addVolumeMount(
+            this
+            );
+        this.storageResource = storageResource;
+        this.storageResource.addVolumeMount(
+            this
+            );
+        }
+    
+    @JoinColumn(name = "computeresource", referencedColumnName = "uuid", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AbstractComputeResourceEntity computeResource;
 
@@ -103,6 +125,50 @@ implements AbstractVolumeMount
         return this.computeResource;
         }
 
+    @JoinColumn(name = "dataresource", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AbstractDataResourceEntity dataResource;
+
+    @Override
+    public AbstractDataResourceEntity getDataResource()
+        {
+        return this.dataResource;
+        }
+
+    // TODO Remove the storage resource.
+    public void setDataResource(final AbstractDataResourceEntity dataResource)
+        {
+        this.dataResource = dataResource;
+        if (this.dataResource != null)
+            {
+            this.dataResource.addVolumeMount(
+                this
+                );
+            }
+        }
+    
+    @JoinColumn(name = "storageresource", referencedColumnName = "uuid", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AbstractStorageResourceEntity storageResource;
+
+    @Override
+    public AbstractStorageResourceEntity getStorageResource()
+        {
+        return this.storageResource;
+        }
+
+    // TODO Remove the data resource.
+    public void setStorageResource(final AbstractStorageResourceEntity storageResource)
+        {
+        this.storageResource = storageResource;
+        if (this.storageResource != null)
+            {
+            this.storageResource.addVolumeMount(
+                this
+                );
+            }
+        }
+    
     public abstract IvoaAbstractVolumeMount makeBean(final URIBuilder uribuilder);
     
     protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)

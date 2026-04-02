@@ -76,7 +76,7 @@ extends Validator<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
      * Simple Bean implementation of a ComputeResourceValidator result.
      * 
      */
-    public static class ResultBean
+    public abstract static class ResultBean
     extends Validator.ResultBean<IvoaAbstractComputeResource, AbstractComputeResourceEntity>
     implements Result
         {

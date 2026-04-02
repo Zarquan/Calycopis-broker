@@ -33,49 +33,77 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.volume.simple;
+package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactoryImpl;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A SimpleVolumeMount Factory.
+ * A MockSimpleVolumeMount Factory implementation.
  *
  */
-public interface SimpleVolumeMountEntityFactory
-    extends FactoryBase
+@Slf4j
+@Component
+public class MockSimpleVolumeMountEntityFactoryImpl
+extends SimpleVolumeMountEntityFactoryImpl
+implements MockSimpleVolumeMountEntityFactory
     {
 
-    /**
-     * Select a SimpleVolumeMount based UUID.
-     *
-     */
-    public Optional<SimpleVolumeMountEntity> select(final UUID uuid);
+    private final MockSimpleVolumeMountEntityRepository repository;
 
-    /**
-     * Create a new SimpleVolumeMountEntity linking a ComputeResource and DataResource.
-     *
-     */
-    public SimpleVolumeMountEntity create(
+    @Autowired
+    public MockSimpleVolumeMountEntityFactoryImpl(
+        final MockSimpleVolumeMountEntityRepository repository
+        ){
+        super();
+        this.repository = repository;
+        }
+
+    public MockSimpleVolumeMountEntity create(
         final AbstractComputeResourceEntity computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
-        );
+        ){
+        return this.repository.save(
+            new MockSimpleVolumeMountEntity(
+                computeResource,
+                dataResource,
+                result
+                )
+            );
+        }
 
-    /**
-     * Create a new SimpleVolumeMountEntity linking a ComputeResource and StorageResource.
-     *
-     */
-    public SimpleVolumeMountEntity create(
+    public MockSimpleVolumeMountEntity create(
         final AbstractComputeResourceEntity computeResource,
         final AbstractStorageResourceEntity storageResource,
         final SimpleVolumeMountValidator.Result result
-        );
-    
+        ){
+        return this.repository.save(
+            new MockSimpleVolumeMountEntity(
+                computeResource,
+                storageResource,
+                result
+                )
+            );
+        }
+
+    @Override
+    public Optional<SimpleVolumeMountEntity> select(UUID uuid)
+        {
+        return Optional.of(
+            this.repository.findById(uuid).get()
+            );
+        }
     }
 

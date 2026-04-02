@@ -24,8 +24,10 @@
 package net.ivoa.calycopis.datamodel.compute;
 
 import java.net.URI;
+import java.util.List;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponent;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 
 /**
  * 
@@ -38,5 +40,11 @@ public interface AbstractComputeResource
      * 
      */
     public static final URI WEBAPP_PATH = URI.create("compute/"); 
+
+    /**
+     * Get the list of volume mounts attached to this resource.
+     *
+     */
+    public List<AbstractVolumeMountEntity> getVolumeMounts();
 
     }

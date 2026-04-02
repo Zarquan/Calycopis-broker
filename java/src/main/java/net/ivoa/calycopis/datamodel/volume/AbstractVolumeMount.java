@@ -39,6 +39,8 @@ import java.net.URI;
 
 import net.ivoa.calycopis.datamodel.component.Component;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 
 /**
  *
@@ -58,4 +60,16 @@ public interface AbstractVolumeMount
      */
     public AbstractComputeResourceEntity getComputeResource();
 
+    /**
+     * Reference to the DataResource mounted in this volume.
+     *
+     */
+    public AbstractDataResource getDataResource();
+    
+    /**
+     * Reference to the StorageResource mounted in this volume.
+     *
+     */
+    public AbstractStorageResource getStorageResource();
+    
     }

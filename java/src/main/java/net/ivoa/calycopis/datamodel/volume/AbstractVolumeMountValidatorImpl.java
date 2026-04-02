@@ -25,7 +25,6 @@ package net.ivoa.calycopis.datamodel.volume;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.functional.validator.AbstractValidatorImpl;
-import net.ivoa.calycopis.spring.model.IvoaAbstractStorageResource;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
 /**
@@ -37,19 +36,9 @@ extends AbstractValidatorImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity
 implements AbstractVolumeMountValidator
     {
 
-    /**
-     * 
-     */
     public AbstractVolumeMountValidatorImpl()
         {
         super();
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 6L;
-
-    @Deprecated
-    protected Long predictPrepareTime(final IvoaAbstractStorageResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
     }

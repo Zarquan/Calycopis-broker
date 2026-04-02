@@ -22,41 +22,27 @@
  */
 package net.ivoa.calycopis.datamodel.volume;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntityFactory;
-import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.ValidatorFactoryImpl;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
 
 /**
- * A factory for compute resource validators.
+ * A factory for volume mount validators.
  *
  */
 @Slf4j
 @Component
 public class AbstractVolumeMountValidatorFactoryImpl
-    extends ValidatorFactoryImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
-    implements AbstractVolumeMountValidatorFactory
+extends ValidatorFactoryImpl<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+implements AbstractVolumeMountValidatorFactory
     {
 
-    /**
-     * Public constructor, creates hard coded list of validators.
-     * TODO Make this configurable.
-     *
-     */
-    @Autowired
-    public AbstractVolumeMountValidatorFactoryImpl(final SimpleVolumeMountEntityFactory simpleVolumeMountEntityFactory)
+    public AbstractVolumeMountValidatorFactoryImpl()
         {
         super();
-        this.validators.add(
-            new SimpleVolumeMountValidatorImpl(
-                simpleVolumeMountEntityFactory
-                )
-            );
         }
 
     @Override
@@ -67,12 +53,8 @@ public class AbstractVolumeMountValidatorFactoryImpl
         unknown(
             context,
             resource.getKind(),
-            context.makeVolumeValidatorResultKey(
-                resource
-                )
+            resource.getClass().getName()
             );
         }
-
-    
     }
 

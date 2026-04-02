@@ -31,5 +31,4 @@ import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 public interface SimpleVolumeMountValidator
 extends AbstractVolumeMountValidator
     {
-
     }

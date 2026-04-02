@@ -36,10 +36,8 @@
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
-import java.util.List;
 
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResource;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 
 /**
  * Public interface for a SimpleComputeResource.
@@ -103,11 +101,5 @@ public interface SimpleComputeResource
      */
     public Long getMaxOfferedMemory();
     
-    /**
-     * Get the list of volume mounts attached to this compute resource.
-     *
-     */
-    public List<AbstractVolumeMountEntity> getVolumeMounts();
-
     }
 

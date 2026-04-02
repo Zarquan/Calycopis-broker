@@ -36,15 +36,10 @@
 package net.ivoa.calycopis.datamodel.compute.simple;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
@@ -206,27 +201,6 @@ public abstract class SimpleComputeResourceEntity
     public Long getMaxOfferedMemory()
         {
         return this.maxofferedmemory;
-        }
-
-    @OneToMany(
-        mappedBy = "computeResource",
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL,
-        orphanRemoval = true
-        )
-    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
-
-    @Override
-    public List<AbstractVolumeMountEntity> getVolumeMounts()
-        {
-        return volumeMounts;
-        }
-
-    public void addVolumeMount(final AbstractVolumeMountEntity volume)
-        {
-        volumeMounts.add(
-            volume
-            );
         }
 
     @Override

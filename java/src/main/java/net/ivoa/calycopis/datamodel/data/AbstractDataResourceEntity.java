@@ -24,19 +24,24 @@
 package net.ivoa.calycopis.datamodel.data;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntity;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResource;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.spring.model.IvoaAbstractDataResource;
 import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -93,7 +98,7 @@ implements AbstractDataResource
 
         //
         // Start preparing when the storage becomes available. 
-        this.prepareDurationSeconds     = result.getPreparationTime();
+        this.prepareDurationSeconds     = result.getPrepareDuration();
         this.prepareStartInstantSeconds = storage.getAvailableStartInstantSeconds();
         
         //
@@ -131,7 +136,28 @@ implements AbstractDataResource
         {
         this.storage = storage;
         }
+    
+    @OneToMany(
+        mappedBy = "dataResource",
+        fetch = FetchType.LAZY,
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+        )
+    List<AbstractVolumeMountEntity> volumeMounts = new ArrayList<AbstractVolumeMountEntity>();
 
+    @Override
+    public List<AbstractVolumeMountEntity> getVolumeMounts()
+        {
+        return volumeMounts;
+        }
+
+    public void addVolumeMount(final AbstractVolumeMountEntity volume)
+        {
+        volumeMounts.add(
+            volume
+            );
+        }
+    
     public abstract IvoaAbstractDataResource makeBean(final URIBuilder builder);
 
     protected IvoaAbstractDataResource fillBean(final IvoaAbstractDataResource bean)

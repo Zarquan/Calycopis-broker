@@ -21,15 +21,14 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.volume;
+package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
-import net.ivoa.calycopis.functional.validator.ValidatorFactory;
-import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 
 /**
  *
  */
-public interface AbstractVolumeMountValidatorFactory
-extends AbstractVolumeMountValidator, ValidatorFactory<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
+public interface MockSimpleVolumeMountValidator
+extends SimpleVolumeMountValidator
     {
     }
