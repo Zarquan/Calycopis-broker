@@ -1,0 +1,70 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Success
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    * Direct execution is working for Mock and Docker platforms.
+    * Python tests are working for Mock and Docker platforms.
+    * Volumes have been moved to child of compute resource.
+
+    * Architecture discussion is stalled.
+    * Alternative :
+    *   Batch and interactive are totally different and need different solutions.
+    *   Booking will result in wasted resources.
+    *   Pull from queue based system is the only solution.
+    *
+    * So far I have been unable to demonstrate the benefits of offer based broker.
+    *
+
+# -----------------------------------------------------
+
+    *
+    * Key points we need to raise in the discussion:
+    * 1. Storage isn't fungible in the way that compute is.
+    *    Storage needs reservations.
+    * 2. Offers provide a mechanism for including costs.
+    *    Transfer costs
+    *    Storage costs
+    *    Carbon costs
+    *    Payment mechanisms
+    *
+    * How do we move the discussion on ?
+    *    Step through the storage use cases, show how EB automatically balances.
+    *    Implement EB with volumes
+    *    Implement EB in front of Slurm
+    *    Implement EB in front of PanDA
+    *
+    *
+
+# -----------------------------------------------------
+
