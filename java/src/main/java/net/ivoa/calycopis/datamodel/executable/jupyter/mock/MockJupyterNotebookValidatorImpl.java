@@ -69,19 +69,43 @@ extends JupyterNotebookValidatorImpl
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 45L;
+    /**
+     * Default prepare duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
 
-    @Override
-    protected Long estimatePrepareTime(IvoaJupyterNotebook validated)
+    /**
+     * Get the prepare duration for a resource.
+     * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaJupyterNotebook validated)
         {
-        return DEFAULT_PREPARE_TIME;
+        Long duration = getPrepareDuration(
+            validated.getSchedule()
+            );
+        if (duration != null)
+            {
+            return duration ;
+            }
+        else {
+            return DEFAULT_PREPARE_ESTIMATE ;
+            }
         }
 
-    public static final Long DEFAULT_RELEASE_TIME = 5L;
+    /**
+     * Default release duration, 0 seconds.
+     * 
+     */
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 0L;
 
-    @Override
-    protected Long estimateReleaseTime(IvoaJupyterNotebook validated)
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected Long getReleaseDuration(final IvoaJupyterNotebook validated)
         {
-        return DEFAULT_RELEASE_TIME;
+        return DEFAULT_RELEASE_ESTIMATE ;
         }
     }

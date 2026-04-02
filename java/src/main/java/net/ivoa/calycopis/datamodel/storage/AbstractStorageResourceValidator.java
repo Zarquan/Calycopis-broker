@@ -94,7 +94,7 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
      * 
      */
     @Slf4j
-    public static class ResultBean
+    public abstract static class ResultBean
     extends Validator.ResultBean<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
     implements Result
         {
@@ -136,21 +136,21 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
             }
 
         @Override
-        public Long getTotalPreparationTime()
+        public Long getTotalPrepareDuration()
             {
             log.debug("AbstractStorageResourceValidator.getTotalPrepareTime() [{}]", this.getIdent());
             
             Long maxDataPrepareTime = 0L;
             for (AbstractDataResourceValidator.Result dataResult : this.getDataResourceResults())
                 {
-                Long dataPrepareTime = dataResult.getPreparationTime();
+                Long dataPrepareTime = dataResult.getPrepareDuration();
                 log.debug("Data prepare time [{}][{}]", dataResult.getIdent(), dataPrepareTime);
                 if ((dataPrepareTime != null) && (dataPrepareTime > maxDataPrepareTime))
                     {
                     maxDataPrepareTime = dataPrepareTime;
                     }
                 }
-            return this.getPreparationTime() + maxDataPrepareTime;
+            return this.getPrepareDuration() + maxDataPrepareTime;
             }
         
         @Override

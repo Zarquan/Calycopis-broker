@@ -182,23 +182,6 @@ implements SkaoDataResourceValidator
             );
 
         //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-        
-        //
         // Everything is good, create our Result.
         if (success)
             {
@@ -219,9 +202,17 @@ implements SkaoDataResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(
+                    return SkaoDataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return SkaoDataResourceValidatorImpl.this.getReleaseDuration(
                         validated
                         );
                     }
@@ -325,13 +316,6 @@ implements SkaoDataResourceValidator
      * 
      */
     protected abstract boolean validateNamespace(final String namespace, final OfferSetRequestParserContext context);
-
-    /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
-     * 
-     */
-    protected abstract Long estimatePrepareTime(final IvoaSkaoDataResource validated);
 
     /*
      * Calculate preparation time based on transfer rates from the database.
@@ -454,4 +438,17 @@ implements SkaoDataResourceValidator
                 );
             }
         }
+    
+    /**
+     * Get the prepare duration for a resource.
+     * 
+     */
+    protected abstract Long getPrepareDuration(final IvoaSkaoDataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaSkaoDataResource validated);
+
     }

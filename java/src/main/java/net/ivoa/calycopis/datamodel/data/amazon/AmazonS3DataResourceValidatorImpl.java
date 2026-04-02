@@ -194,10 +194,21 @@ implements AmazonS3DataResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(validated);
+                    return AmazonS3DataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
                     }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return AmazonS3DataResourceValidatorImpl.this.getReleaseDuration(
+                        validated
+                        );
+                    }
+
                 };
             //
             // Add our Result to our context.
@@ -295,10 +306,17 @@ implements AmazonS3DataResourceValidator
         return success;
         }
 
+
     /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
+     * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaS3DataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaS3DataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaS3DataResource validated);
+    
     }

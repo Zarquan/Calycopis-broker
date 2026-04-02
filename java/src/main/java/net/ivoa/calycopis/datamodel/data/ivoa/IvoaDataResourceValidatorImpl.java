@@ -159,23 +159,6 @@ implements IvoaDataResourceValidator
             validated,
             context
             );
-
-        //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
         
         //
         // Everything is good, create our Result.
@@ -198,9 +181,19 @@ implements IvoaDataResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(validated);
+                    return IvoaDataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return IvoaDataResourceValidatorImpl.this.getReleaseDuration(
+                        validated
+                        );
                     }
                 };
             //
@@ -279,15 +272,21 @@ implements IvoaDataResourceValidator
         }
     
     /**
-     * Apply any platform specific validation rules to the ivoid.
+     * Apply platform specific validation rules to the ivoid.
      * 
      */
     protected abstract boolean validateIvoid(final URI ivoid, final OfferSetRequestParserContext context);
 
     /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
+     * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaIvoaDataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaIvoaDataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaIvoaDataResource validated);
+    
     }

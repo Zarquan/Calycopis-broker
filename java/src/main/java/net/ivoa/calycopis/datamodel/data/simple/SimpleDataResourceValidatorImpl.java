@@ -152,24 +152,6 @@ implements SimpleDataResourceValidator
             );
 
         //
-        // Calculate the preparation time.
-        // TODO Move this to after we have validated everything.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-        
-        //
         // Everything is good, create our Result.
         if (success)
             {
@@ -190,9 +172,19 @@ implements SimpleDataResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(validated);
+                    return SimpleDataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return SimpleDataResourceValidatorImpl.this.getReleaseDuration(
+                        validated
+                        );
                     }
                 };
             //
@@ -262,9 +254,15 @@ implements SimpleDataResourceValidator
         }
 
     /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
+     * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaSimpleDataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaSimpleDataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaSimpleDataResource validated);
+
     }

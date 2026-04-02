@@ -198,9 +198,17 @@ implements SimpleComputeResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(
+                    return SimpleComputeResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return SimpleComputeResourceValidatorImpl.this.getReleaseDuration(
                         validated
                         );
                     }
@@ -221,17 +229,17 @@ implements SimpleComputeResourceValidator
         }
 
     /**
-     * Predict the time to prepare a DockerContainer for execution.
+     * Get the prepare duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaSimpleComputeResource validated);
+    protected abstract Long getPrepareDuration(final IvoaSimpleComputeResource validated);
 
     /**
-     * Predict the time to release a DockerContainer.
+     * Get the release duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimateReleaseTime(final IvoaSimpleComputeResource validated);
+    protected abstract Long getReleaseDuration(final IvoaSimpleComputeResource validated);
     
     }

@@ -158,7 +158,18 @@ extends ValidatorBase
                     new AbstractStorageResourceValidator.ResultBean(
                         Validator.ResultEnum.ACCEPTED,
                         resource
-                        );
+                        ){
+                        @Override
+                        public Long getPrepareDuration()
+                            {
+                            return 0L;
+                            }
+                        @Override
+                        public Long getReleaseDuration()
+                            {
+                            return 0L;
+                            }
+                        };
                 //
                 // Register by name if available.
                 if (name != null)
@@ -838,7 +849,7 @@ extends ValidatorBase
         Long executablePrepareTime = 0L ;
         if (this.executable != null)
             {
-            executablePrepareTime = this.executable.getTotalPreparationTime();
+            executablePrepareTime = this.executable.getTotalPrepareDuration();
             log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
             }
         //
@@ -846,7 +857,7 @@ extends ValidatorBase
         Long maxStoragePrepareTime = 0L ;
         for (AbstractStorageResourceValidator.Result storageResult : this.getStorageValidatorResults())
             {
-            Long storagePrepareTime = storageResult.getTotalPreparationTime();
+            Long storagePrepareTime = storageResult.getTotalPrepareDuration();
             log.debug("Storage prepare time [{}][{}]", storageResult.getIdent(), storagePrepareTime);
             if (storagePrepareTime > maxStoragePrepareTime)
                 {
@@ -859,7 +870,7 @@ extends ValidatorBase
         Long maxComputePrepareTime = 0L ;
         for (AbstractComputeResourceValidator.Result computeResult : this.getComputeValidatorResults())
             {
-            Long computePrepareTime = computeResult.getTotalPreparationTime();
+            Long computePrepareTime = computeResult.getTotalPrepareDuration();
             log.debug("Compute prepare time [{}][{}]", computeResult.getIdent(), computePrepareTime);
             if (computePrepareTime > maxComputePrepareTime)
                 {

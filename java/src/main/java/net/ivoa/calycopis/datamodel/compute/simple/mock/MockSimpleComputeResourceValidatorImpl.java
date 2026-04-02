@@ -69,22 +69,6 @@ implements MockSimpleComputeResourceValidator
             );
         }
     
-    public static final Long DEFAULT_PREPARE_TIME = 35L;
-
-    @Override
-    protected Long estimatePrepareTime(final IvoaSimpleComputeResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
-
-    public static final Long DEFAULT_RELEASE_TIME = 1L;
-
-    @Override
-    protected Long estimateReleaseTime(final IvoaSimpleComputeResource validated)
-        {
-        return DEFAULT_RELEASE_TIME;
-        }
-
     public static final Long MIN_CORES_DEFAULT =  1L ;
     public static final Long MAX_CORES_LIMIT   = 16L ;
 
@@ -229,5 +213,21 @@ implements MockSimpleComputeResourceValidator
         context.addMaxMemory(maxmemory);
        
         return success;
+        }
+
+    public static final Long DEFAULT_PREPARE_TIME = 35L;
+
+    @Override
+    protected Long getPrepareDuration(final IvoaSimpleComputeResource validated)
+        {
+        return DEFAULT_PREPARE_TIME;
+        }
+
+    public static final Long DEFAULT_RELEASE_TIME = 1L;
+
+    @Override
+    protected Long getReleaseDuration(final IvoaSimpleComputeResource validated)
+        {
+        return DEFAULT_RELEASE_TIME;
         }
     }

@@ -63,15 +63,19 @@ public abstract class SimpleStorageResourceValidatorImpl
 extends AbstractStorageResourceValidatorImpl
 implements SimpleStorageResourceValidator
     {
-
+    /**
+     * Factory for creating Entities.
+     *
+     */
     final AbstractStorageResourceEntityFactory entityFactory;
 
     /**
      * Public constructor.
      * 
      */
-    public SimpleStorageResourceValidatorImpl(final AbstractStorageResourceEntityFactory entityFactory)
-        {
+    public SimpleStorageResourceValidatorImpl(
+        final AbstractStorageResourceEntityFactory entityFactory
+        ){
         super();
         this.entityFactory = entityFactory;
         }
@@ -125,23 +129,6 @@ implements SimpleStorageResourceValidator
             );
         
         //
-        // Calculate the preparation time.
-        /*
-         *
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         *
-         */
-        
-        //
         // Everything is good, create our Result.
         if (success)
             {
@@ -152,7 +139,7 @@ implements SimpleStorageResourceValidator
                 validated
                 ){
                 @Override
-                public AbstractStorageResourceEntity build(SimpleExecutionSessionEntity session)
+                public AbstractStorageResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
                     entity = entityFactory.create(
                         session,
@@ -162,9 +149,17 @@ implements SimpleStorageResourceValidator
                     }
 
                 @Override
-                public Long getPreparationTime()    
+                public Long getPrepareDuration()    
                     {
-                    return estimatePrepareTime(
+                    return SimpleStorageResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()    
+                    {
+                    return SimpleStorageResourceValidatorImpl.this.getReleaseDuration(
                         validated
                         );
                     }
@@ -189,17 +184,17 @@ implements SimpleStorageResourceValidator
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaSimpleStorageResource validated);
+    protected abstract Long getPrepareDuration(final IvoaSimpleStorageResource validated);
 
     /**
      * Predict the time to release the resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimateReleaseTime(final IvoaSimpleStorageResource validated);
+    protected abstract Long getReleaseDuration(final IvoaSimpleStorageResource validated);
 
     /**
-     * Validate the requested srorage size.
+     * Validate the requested storage size.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */

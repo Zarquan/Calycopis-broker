@@ -87,16 +87,22 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
         public EntityType getEntity();
 
         /**
-         * Get the preparation time for this resource.
+         * Get the preparation duration for this resource.
          *  
          */
-        public Long getPreparationTime();
+        public Long getPrepareDuration();
 
         /**
-         * Get the total preparation time for this resource.
+         * Get the total preparation duration for this resource.
          *  
          */
-        public Long getTotalPreparationTime();
+        public Long getTotalPrepareDuration();
+
+        /**
+         * Get the release duration for this resource.
+         *  
+         */
+        public Long getReleaseDuration();
         
         }
 
@@ -113,7 +119,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
      * Simple bean implementation of Result.
      *  
      */
-    public static class ResultBean<ObjectType, EntityType extends ComponentEntity>
+    public abstract static class ResultBean<ObjectType, EntityType extends ComponentEntity>
     implements Result<ObjectType, EntityType>
         {
         public ResultBean(final ResultEnum result)
@@ -147,17 +153,17 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
             {
             return this.entity;
             }
-        
-        @Override
-        public Long getPreparationTime()
-            {
-            return 0L;
-            }
 
         @Override
-        public Long getTotalPreparationTime()
+        public abstract Long getPrepareDuration();
+
+        @Override
+        public abstract Long getReleaseDuration();
+
+        @Override
+        public Long getTotalPrepareDuration()
             {
-            return this.getPreparationTime();
+            return getPrepareDuration();
             }
 
         @Override

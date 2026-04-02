@@ -72,19 +72,19 @@ implements MockIvoaDataResourceValidator
             );
         }
 
-    public static final List<URI> IVOID_BLACKLIST = List.of(
-        URI.create("ivo://example.com/blacklisted"),
-        URI.create("ivo://example.com/forbidden")
+    public static final List<URI> EXCLUDED_LOCATIONS = List.of(
+        URI.create("ivo://example.com/excluded"),
+        URI.create("ivo://example.com/excluded")
         );
 
     @Override
     protected boolean validateIvoid(URI ivoid, OfferSetRequestParserContext context)
         {
-        if (IVOID_BLACKLIST.contains(ivoid))
+        if (EXCLUDED_LOCATIONS.contains(ivoid))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "IvoaDataResource - ivoid is blacklisted [${value}]",
+                "IvoaDataResource - ivoid is excluded [${value}]",
                 Map.of(
                     "value",
                     ivoid.toString()
@@ -97,11 +97,43 @@ implements MockIvoaDataResourceValidator
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    /**
+     * Default prepare duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
 
-    @Override
-    protected Long estimatePrepareTime(final IvoaIvoaDataResource validated)
+    /**
+     * Get the prepare duration for a resource.
+     * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaIvoaDataResource validated)
         {
-        return DEFAULT_PREPARE_TIME;
+        Long duration = getPrepareDuration(
+            validated.getSchedule()
+            );
+        if (duration != null)
+            {
+            return duration ;
+            }
+        else {
+            return DEFAULT_PREPARE_ESTIMATE ;
+            }
+        }
+
+    /**
+     * Default release duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 30L;
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected Long getReleaseDuration(final IvoaIvoaDataResource validated)
+        {
+        return DEFAULT_RELEASE_ESTIMATE ;
         }
     }

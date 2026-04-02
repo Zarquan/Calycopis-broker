@@ -175,23 +175,6 @@ implements DockerContainerValidator
             validated,
             context
             );
-
-        //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
         
         //
         // Everything is good, create our Result.
@@ -214,9 +197,16 @@ implements DockerContainerValidator
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(
+                    return DockerContainerValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return DockerContainerValidatorImpl.this.getReleaseDuration(
                         validated
                         );
                     }
@@ -721,17 +711,17 @@ implements DockerContainerValidator
         }
     
     /**
-     * Predict the time to prepare a DockerContainer for execution.
+     * Get the prepare duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaDockerContainer validated);
+    protected abstract Long getPrepareDuration(final IvoaDockerContainer validated);
 
     /**
-     * Predict the time to release a DockerContainer.
+     * Get the release duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimateReleaseTime(final IvoaDockerContainer validated);
+    protected abstract Long getReleaseDuration(final IvoaDockerContainer validated);
 
     }
