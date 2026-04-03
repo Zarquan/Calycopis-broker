@@ -850,7 +850,7 @@ extends ValidatorBase
         if (this.executable != null)
             {
             executablePrepareTime = this.executable.getTotalPrepareDuration();
-            log.debug("Executable prepare time [{}][{}]", this.executable.getIdent(), executablePrepareTime);
+            log.debug("Executable prepare time [{}][{}]", this.executable.getName(), executablePrepareTime);
             }
         //
         // Time needed to create the storage space and stage the data.
@@ -858,7 +858,7 @@ extends ValidatorBase
         for (AbstractStorageResourceValidator.Result storageResult : this.getStorageValidatorResults())
             {
             Long storagePrepareTime = storageResult.getTotalPrepareDuration();
-            log.debug("Storage prepare time [{}][{}]", storageResult.getIdent(), storagePrepareTime);
+            log.debug("Storage prepare time [{}][{}]", storageResult.getName(), storagePrepareTime);
             if (storagePrepareTime > maxStoragePrepareTime)
                 {
                 maxStoragePrepareTime = storagePrepareTime;
@@ -871,7 +871,7 @@ extends ValidatorBase
         for (AbstractComputeResourceValidator.Result computeResult : this.getComputeValidatorResults())
             {
             Long computePrepareTime = computeResult.getTotalPrepareDuration();
-            log.debug("Compute prepare time [{}][{}]", computeResult.getIdent(), computePrepareTime);
+            log.debug("Compute prepare time [{}][{}]", computeResult.getName(), computePrepareTime);
             if (computePrepareTime > maxComputePrepareTime)
                 {
                 maxComputePrepareTime = computePrepareTime;

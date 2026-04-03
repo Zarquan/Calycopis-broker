@@ -36,6 +36,7 @@ package net.ivoa.calycopis.functional.validator;
 
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 
 /**
  * Public interface for a Validator.
@@ -66,7 +67,7 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
          * Get the object identifier.
          * 
          */
-        public String getIdent();
+        public String getName();
 
         /**
          * Get the validation result enum.
@@ -86,6 +87,12 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
          */
         public EntityType getEntity();
 
+        /**
+         * Get the IVOA metadata for this component.
+         * 
+         */
+        public IvoaComponentMetadata getMeta();
+        
         /**
          * Get the preparation duration for this resource.
          *  
@@ -124,13 +131,20 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
         {
         public ResultBean(final ResultEnum result)
             {
-            this(result, null);
+            this(result, null, null);
             }
 
+        @Deprecated
         public ResultBean(final ResultEnum result, final ObjectType object)
+            {
+            this(result, object, null);
+            }
+
+        public ResultBean(final ResultEnum result, final ObjectType object, final IvoaComponentMetadata meta)
             {
             this.result = result;
             this.object = object;
+            this.meta = meta;
             }
 
         private final ResultEnum result;
@@ -154,6 +168,13 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
             return this.entity;
             }
 
+        protected IvoaComponentMetadata meta;
+        @Override
+        public IvoaComponentMetadata getMeta()
+            {
+            return this.meta;
+            }
+        
         @Override
         public abstract Long getPrepareDuration();
 
@@ -167,35 +188,31 @@ public interface Validator<ObjectType, EntityType extends ComponentEntity>
             }
 
         @Override
-        public String getIdent()
+        public String getName()
             {
-            if (this.getEntity() != null)
+            if (this.entity != null)
                 {
-                if (this.getEntity().getUuid() != null)
+                if (this.entity.getName() != null)
                     {
-                    return this.getEntity().getUuid().toString();
+                    return this.entity.getName();
                     }
-                else if (this.getEntity().getName() != null)
+                else if (this.entity.getUuid() != null)
                     {
-                    return this.getEntity().getName();
+                    return this.entity.getUuid().toString();
                     }
                 }
-            /*
-             * 
-            if (this.getObject() != null)
+            else if (this.meta != null)
                 {
-                if (this.getObject().getUuid() != null)
+                if (this.meta.getName() != null)
                     {
-                    return this.getObject().getUuid().toString();
+                    return this.meta.getName();
                     }
-                else if (this.getObject().getName() != null)
+                else if (this.meta.getUuid() != null)
                     {
-                    return this.getObject().getName();
+                    return this.meta.getUuid().toString();
                     }
                 }
-             * 
-             */
-            return "unknown";
+            return null;
             }
         }
     }

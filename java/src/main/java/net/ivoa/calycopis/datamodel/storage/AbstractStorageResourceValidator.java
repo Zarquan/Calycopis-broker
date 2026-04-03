@@ -138,13 +138,13 @@ extends Validator<IvoaAbstractStorageResource, AbstractStorageResourceEntity>
         @Override
         public Long getTotalPrepareDuration()
             {
-            log.debug("AbstractStorageResourceValidator.getTotalPrepareTime() [{}]", this.getIdent());
+            log.debug("AbstractStorageResourceValidator.getTotalPrepareTime() [{}]", this.getName());
             
             Long maxDataPrepareTime = 0L;
             for (AbstractDataResourceValidator.Result dataResult : this.getDataResourceResults())
                 {
                 Long dataPrepareTime = dataResult.getPrepareDuration();
-                log.debug("Data prepare time [{}][{}]", dataResult.getIdent(), dataPrepareTime);
+                log.debug("Data prepare time [{}][{}]", dataResult.getName(), dataPrepareTime);
                 if ((dataPrepareTime != null) && (dataPrepareTime > maxDataPrepareTime))
                     {
                     maxDataPrepareTime = dataPrepareTime;
