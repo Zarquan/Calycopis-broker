@@ -1,0 +1,450 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes (cont).
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal and run some manual tests.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Data linked to volume by name.
+
+        cat > "003-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: data-003
+    location: https://example.org/data/example-data-001.vot
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: data-003
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@003-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "003-002-offerset-response.yaml" \
+        | yq '.'
+
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "4216fbd8-ff2f-4509-8058-94364f3141ba"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/4216fbd8-ff2f-4509-8058-94364f3141ba"
+    >     created: "2026-04-03T12:17:18.328770774Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "1165ef6d-073c-407b-8109-a08ff2a24a85"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/1165ef6d-073c-407b-8109-a08ff2a24a85"
+    >         created: "2026-04-03T12:17:18.423632840Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "91bd90e9-41d5-4c00-bbb5-583167fb5a6e"
+    >           url: "http://127.0.0.1:8082/executables/91bd90e9-41d5-4c00-bbb5-583167fb5a6e"
+    >           created: "2026-04-03T12:17:18.458645403Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT30S"
+    >           available:
+    >             start: "1970-01-01T00:00:30Z/PT0S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "bd862930-0d49-499e-bea0-675db12eaae6"
+    >           url: "http://127.0.0.1:8082/compute/bd862930-0d49-499e-bea0-675db12eaae6"
+    >           created: "2026-04-03T12:17:18.486702851Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-03T12:18:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-03T12:19:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-03T14:19:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "7e5eafcb-1781-4c7d-ad9b-c03380fda38b"
+    >               url: "http://127.0.0.1:8082/volumes/7e5eafcb-1781-4c7d-ad9b-c03380fda38b"
+    >               created: "2026-04-03T12:17:18.535517884Z"
+    >             resource: "482fc5b7-a833-4f86-af7c-9b851aa1a0d6"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "d013fa8c-3a87-4843-acc0-019346374369"
+    >             name: "Storage for [d06853da-5739-49ff-a4e9-2da72c09ccc5]"
+    >             url: "http://127.0.0.1:8082/storage/d013fa8c-3a87-4843-acc0-019346374369"
+    >             created: "2026-04-03T12:17:18.502409857Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:00:30Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:40Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "482fc5b7-a833-4f86-af7c-9b851aa1a0d6"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "482fc5b7-a833-4f86-af7c-9b851aa1a0d6"
+    >             name: "data-003"
+    >             url: "http://127.0.0.1:8082/data/482fc5b7-a833-4f86-af7c-9b851aa1a0d6"
+    >             created: "2026-04-03T12:17:18.520198354Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:30Z"
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:01:00Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:01:00Z"
+    >               duration: "PT10S"
+    >           storage: "d013fa8c-3a87-4843-acc0-019346374369"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-03T12:22:18.328771174Z"
+
+    #
+    # Missing volume path and mode.
+    # .. added default pacth andmode
+    #
+
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "0c560507-c0ff-484d-94b7-c67ccaa29f3f"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/0c560507-c0ff-484d-94b7-c67ccaa29f3f"
+    >     created: "2026-04-03T13:02:36.604457949Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "364ddd79-a12f-4c98-9c3d-3ef1f52c852d"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/364ddd79-a12f-4c98-9c3d-3ef1f52c852d"
+    >         created: "2026-04-03T13:02:36.709133387Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "466e386d-6a75-4d91-b4c7-a9d818c94e3c"
+    >           url: "http://127.0.0.1:8082/executables/466e386d-6a75-4d91-b4c7-a9d818c94e3c"
+    >           created: "2026-04-03T13:02:36.740625331Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT30S"
+    >           available:
+    >             start: "1970-01-01T00:00:30Z/PT0S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "8142f44a-05f4-44dc-a865-fe1e5eb12fb5"
+    >           url: "http://127.0.0.1:8082/compute/8142f44a-05f4-44dc-a865-fe1e5eb12fb5"
+    >           created: "2026-04-03T13:02:36.768443598Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-03T13:04:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-03T13:05:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-03T15:05:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "2326c95a-17e0-4f4e-9e05-b78d16984825"
+    >               url: "http://127.0.0.1:8082/volumes/2326c95a-17e0-4f4e-9e05-b78d16984825"
+    >               created: "2026-04-03T13:02:36.818256181Z"
+    >             path: "/volumes/data-003"
+    >             mode: "READONLY"
+    >             resource: "46b32b94-22bc-4de8-8c96-bcb8dfac4f4c"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "c0309f34-1bc2-4b96-a953-88fe4ae8a44d"
+    >             name: "Storage for [750cdf02-7995-4956-9b48-55b37341f722]"
+    >             url: "http://127.0.0.1:8082/storage/c0309f34-1bc2-4b96-a953-88fe4ae8a44d"
+    >             created: "2026-04-03T13:02:36.783780941Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:00:30Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:40Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "46b32b94-22bc-4de8-8c96-bcb8dfac4f4c"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "46b32b94-22bc-4de8-8c96-bcb8dfac4f4c"
+    >             name: "data-003"
+    >             url: "http://127.0.0.1:8082/data/46b32b94-22bc-4de8-8c96-bcb8dfac4f4c"
+    >             created: "2026-04-03T13:02:36.801632726Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:30Z"
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:01:00Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:01:00Z"
+    >               duration: "PT10S"
+    >           storage: "c0309f34-1bc2-4b96-a953-88fe4ae8a44d"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-03T13:07:36.604458280Z"
+
+
+
+
+        #
+        # Set path and mode.
+
+        cat > "004-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: data-004
+    location: https://example.org/data/example-data-001.vot
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: data-004
+      path: /input-004
+      mode: READWRITE
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@004-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "004-002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "a2ba3092-9086-4d98-8f85-1b552acb929e"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/a2ba3092-9086-4d98-8f85-1b552acb929e"
+    >     created: "2026-04-03T13:06:05.561028949Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "25aa4b3b-62f2-4016-b960-dd57e3cb4758"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/25aa4b3b-62f2-4016-b960-dd57e3cb4758"
+    >         created: "2026-04-03T13:06:05.588367017Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "2e16ac84-0150-46db-a25d-57fcbebb161b"
+    >           url: "http://127.0.0.1:8082/executables/2e16ac84-0150-46db-a25d-57fcbebb161b"
+    >           created: "2026-04-03T13:06:05.601683402Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT30S"
+    >           available:
+    >             start: "1970-01-01T00:00:30Z/PT0S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "e0113dad-4f2b-4e53-8583-3dc86d8216a8"
+    >           url: "http://127.0.0.1:8082/compute/e0113dad-4f2b-4e53-8583-3dc86d8216a8"
+    >           created: "2026-04-03T13:06:05.615360065Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-03T13:07:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-03T13:08:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-03T15:08:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "68dc2f96-8051-4e16-bbab-8584d51eae60"
+    >               url: "http://127.0.0.1:8082/volumes/68dc2f96-8051-4e16-bbab-8584d51eae60"
+    >               created: "2026-04-03T13:06:05.649890873Z"
+    >             path: "/input-004"
+    >             mode: "READWRITE"
+    >             resource: "75d21acf-bd0c-4c05-81ea-a2a55f25976d"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "cfa9e08c-67ec-40ea-a1f7-cd5920be866b"
+    >             name: "Storage for [3376f052-723d-4a69-a931-a1f8fecce6cd]"
+    >             url: "http://127.0.0.1:8082/storage/cfa9e08c-67ec-40ea-a1f7-cd5920be866b"
+    >             created: "2026-04-03T13:06:05.628606345Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:00:30Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:40Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "75d21acf-bd0c-4c05-81ea-a2a55f25976d"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "75d21acf-bd0c-4c05-81ea-a2a55f25976d"
+    >             name: "data-004"
+    >             url: "http://127.0.0.1:8082/data/75d21acf-bd0c-4c05-81ea-a2a55f25976d"
+    >             created: "2026-04-03T13:06:05.638641362Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:30Z"
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:01:00Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:01:00Z"
+    >               duration: "PT10S"
+    >           storage: "cfa9e08c-67ec-40ea-a1f7-cd5920be866b"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-03T13:11:05.561029148Z"
+
