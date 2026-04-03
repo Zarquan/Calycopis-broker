@@ -114,8 +114,8 @@ public class OfferSetFactoryImpl
     	    // tempfix    
 	        // offersetRequest.getName(),
             // offersetRequest.getDescription(),
-    	    "no-name",
-    	    "no-description",
+    	    null,
+    	    null,
     	    Instant.now(),
     	    Instant.now().plusSeconds(
                 DEFAULT_EXPIRY_TIME_SECONDS
