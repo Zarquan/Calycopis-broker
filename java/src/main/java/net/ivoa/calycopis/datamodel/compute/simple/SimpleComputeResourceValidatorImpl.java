@@ -180,43 +180,38 @@ implements SimpleComputeResourceValidator
         // Everything is good, create our Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
-            AbstractComputeResourceValidator.Result result = new AbstractComputeResourceValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated
-                ){
-                @Override
-                public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
-                    {
-                    this.entity = entityFactory.create(
-                        session,
-                        this,
-                        offer
-                        );
-                    return this.entity;
-                    }
-
-                @Override
-                public Long getPrepareDuration()
-                    {
-                    return SimpleComputeResourceValidatorImpl.this.getPrepareDuration(
-                        validated
-                        );
-                    }
-
-                @Override
-                public Long getReleaseDuration()
-                    {
-                    return SimpleComputeResourceValidatorImpl.this.getReleaseDuration(
-                        validated
-                        );
-                    }
-                };
-            //
-            // Add our Result to our context.
             context.addComputeValidatorResult(
-                result
+                new AbstractComputeResourceValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ){
+                    @Override
+                    public AbstractComputeResourceEntity build(final SimpleExecutionSessionEntity session, final ComputeResourceOffer offer)                
+                        {
+                        this.entity = SimpleComputeResourceValidatorImpl.this.entityFactory.create(
+                            session,
+                            this,
+                            offer
+                            );
+                        return this.entity;
+                        }
+    
+                    @Override
+                    public Long getPrepareDuration()
+                        {
+                        return SimpleComputeResourceValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+    
+                    @Override
+                    public Long getReleaseDuration()
+                        {
+                        return SimpleComputeResourceValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
                 );
             return ResultEnum.ACCEPTED;
             }

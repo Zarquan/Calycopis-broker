@@ -177,44 +177,40 @@ implements DockerContainerValidator
             );
         
         //
-        // Everything is good, create our Result.
+        // Everything is good, create a validator Result.
         if (success)
             {
-            log.debug("PASS DockerContainer validated [{}]", validated);
-            //
-            // Create a new validator Result.
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated
-                ) {
-                @Override
-                public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        this
-                        );
-                    }
-
-                @Override
-                public Long getPrepareDuration()
-                    {
-                    return DockerContainerValidatorImpl.this.getPrepareDuration(
-                        validated
-                        );
-                    }
-                @Override
-                public Long getReleaseDuration()
-                    {
-                    return DockerContainerValidatorImpl.this.getReleaseDuration(
-                        validated
-                        );
-                    }
-                };
-            //
-            // Add our Result to our context
             context.setExecutableResult(
-                result
+                new AbstractExecutableValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ) {
+                    @Override
+                    public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
+                        {
+                        this.entity = DockerContainerValidatorImpl.this.entityFactory.create(
+                            session,
+                            this
+                            );
+                        return this.entity;
+                        }
+                    
+                    @Override
+                    public Long getPrepareDuration()
+                        {
+                        return DockerContainerValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+                    
+                    @Override
+                    public Long getReleaseDuration()
+                        {
+                        return DockerContainerValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
                 );
             return ResultEnum.ACCEPTED;
             }

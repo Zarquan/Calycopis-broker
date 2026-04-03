@@ -57,6 +57,7 @@ package net.ivoa.calycopis.datamodel.data.ivoa;
 import java.net.URI;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -161,23 +162,22 @@ implements IvoaDataResourceValidator
             );
         
         //
-        // Everything is good, create our Result.
+        // Everything is good, create a validator Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){
                 @Override
-                public IvoaDataResourceEntity build(final SimpleExecutionSessionEntity session)
+                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return entityFactory.create(
+                    this.entity = IvoaDataResourceValidatorImpl.this.entityFactory.create(
                         session,
                         storage.getEntity(),
                         this
                         );
+                    return this.entity;
                     }
 
                 @Override
@@ -202,7 +202,7 @@ implements IvoaDataResourceValidator
                 dataResult
                 );
             //
-            // Add the DataResource to the StorageResource.
+            // Add our Result to the StorageResource.
             storage.addDataResourceResult(
                 dataResult
                 );

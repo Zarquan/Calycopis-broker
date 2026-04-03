@@ -55,6 +55,7 @@
 package net.ivoa.calycopis.datamodel.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -157,40 +158,22 @@ implements AmazonS3DataResourceValidator
             );
 
         //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-
-        //
         // Everything is good, create our Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){
                 @Override
-                public AmazonS3DataResourceEntity build(final SimpleExecutionSessionEntity session)
+                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return entityFactory.create(
+                    this.entity = AmazonS3DataResourceValidatorImpl.this.entityFactory.create(
                         session,
                         storage.getEntity(),
                         this
                         );
+                    return this.entity;
                     }
 
                 @Override
@@ -208,7 +191,6 @@ implements AmazonS3DataResourceValidator
                         validated
                         );
                     }
-
                 };
             //
             // Add our Result to our context.
@@ -216,7 +198,7 @@ implements AmazonS3DataResourceValidator
                 dataResult
                 );
             //
-            // Add the DataResource to the StorageResource.
+            // Add our Result to the StorageResource.
             storage.addDataResourceResult(
                 dataResult
                 );
