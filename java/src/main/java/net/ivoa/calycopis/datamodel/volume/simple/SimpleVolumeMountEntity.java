@@ -40,6 +40,7 @@ import java.net.URI;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
@@ -52,6 +53,7 @@ import net.ivoa.calycopis.util.URIBuilder;
  * A SimpleVolumeMount Entity.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "simplevolumemounts"
@@ -92,9 +94,9 @@ public class SimpleVolumeMountEntity
             dataResource,
             result.getObject().getMeta()
             );
-        //
-        // ....
-        //
+        this.init(
+            result
+            );
         }
 
     /**
@@ -111,11 +113,35 @@ public class SimpleVolumeMountEntity
             storageResource,
             result.getObject().getMeta()
             );
-        //
-        // ....
-        //
+        this.init(
+            result
+            );
         }
     
+
+    protected void init(final SimpleVolumeMountValidator.Result result)
+        {
+        if (result.getObject() != null)
+            {
+            if (result.getObject() instanceof IvoaSimpleVolumeMount)
+                {
+                IvoaSimpleVolumeMount simple = (IvoaSimpleVolumeMount) result.getObject();
+                this.mode = simple.getMode();
+                this.path = simple.getPath();
+                }
+            else {
+                log.error(
+                    "Unexpected type [{}] for validator result getObject()",
+                    result.getObject().getClass().getSimpleName()
+                    );
+                }
+            }
+        else {
+            log.error(
+                "Null validator result getObject()"
+                );
+            }
+        }
     
     private ModeEnum mode;
     @Override
@@ -148,6 +174,20 @@ public class SimpleVolumeMountEntity
         super.fillBean(
             bean
             );
+        bean.setPath(path);
+        bean.setMode(mode);
+        if (this.getDataResource() != null)
+            {
+            bean.setResource(
+                this.getDataResource().getUuid().toString()
+                );
+            }
+        if (this.getStorageResource() != null)
+            {
+            bean.setResource(
+                this.getStorageResource().getUuid().toString()
+                );
+            }
         return bean;
         }
     }

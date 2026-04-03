@@ -124,9 +124,13 @@ implements AbstractVolumeMount
         {
         return this.computeResource;
         }
+    public void setComputeResource(final AbstractComputeResourceEntity computeResource)
+        {
+        this.computeResource = computeResource;
+        }
 
-    @JoinColumn(name = "dataresource", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "dataresource", referencedColumnName = "uuid", nullable = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private AbstractDataResourceEntity dataResource;
 
     @Override
@@ -134,21 +138,13 @@ implements AbstractVolumeMount
         {
         return this.dataResource;
         }
-
-    // TODO Remove the storage resource.
     public void setDataResource(final AbstractDataResourceEntity dataResource)
         {
         this.dataResource = dataResource;
-        if (this.dataResource != null)
-            {
-            this.dataResource.addVolumeMount(
-                this
-                );
-            }
         }
-    
-    @JoinColumn(name = "storageresource", referencedColumnName = "uuid", nullable = false)
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+
+    @JoinColumn(name = "storageresource", referencedColumnName = "uuid", nullable = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     private AbstractStorageResourceEntity storageResource;
 
     @Override
@@ -156,19 +152,11 @@ implements AbstractVolumeMount
         {
         return this.storageResource;
         }
-
-    // TODO Remove the data resource.
     public void setStorageResource(final AbstractStorageResourceEntity storageResource)
         {
         this.storageResource = storageResource;
-        if (this.storageResource != null)
-            {
-            this.storageResource.addVolumeMount(
-                this
-                );
-            }
         }
-    
+
     public abstract IvoaAbstractVolumeMount makeBean(final URIBuilder uribuilder);
     
     protected IvoaAbstractVolumeMount fillBean(final IvoaAbstractVolumeMount bean)

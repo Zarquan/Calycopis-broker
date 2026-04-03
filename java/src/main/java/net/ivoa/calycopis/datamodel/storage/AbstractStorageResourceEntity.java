@@ -132,10 +132,13 @@ implements AbstractStorageResource
         return dataresources;
         }
 
-    public void addDataResource(final AbstractDataResourceEntity resource)
+    public void addDataResource(final AbstractDataResourceEntity dataResource)
         {
+        dataResource.setStorage(
+            this
+            );
         dataresources.add(
-            resource
+            dataResource
             );
         }
 
@@ -155,6 +158,9 @@ implements AbstractStorageResource
 
     public void addVolumeMount(final AbstractVolumeMountEntity volume)
         {
+        volume.setStorageResource(
+            this
+            );
         volumeMounts.add(
             volume
             );

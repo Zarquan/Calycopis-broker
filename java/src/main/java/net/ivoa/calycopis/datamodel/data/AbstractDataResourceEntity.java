@@ -153,6 +153,9 @@ implements AbstractDataResource
 
     public void addVolumeMount(final AbstractVolumeMountEntity volume)
         {
+        volume.setDataResource(
+            this
+            );
         volumeMounts.add(
             volume
             );

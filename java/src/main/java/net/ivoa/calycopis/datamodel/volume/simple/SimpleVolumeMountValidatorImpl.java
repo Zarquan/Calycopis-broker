@@ -53,10 +53,12 @@ import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
 
 /**
@@ -127,15 +129,17 @@ implements SimpleVolumeMountValidator
                     )
                );
         
-        // TODO Check the path is valid.
-        validated.setPath(
-            requested.getPath()
-            );
-        // TODO Check the mode is valid.
-        validated.setMode(
-            requested.getMode()
-            );
-
+        if (requested.getMode() == null)
+            {
+            validated.setMode(
+                IvoaSimpleVolumeMount.ModeEnum.READONLY
+                );
+            }
+        else {
+            validated.setMode(
+                requested.getMode()
+                );
+            }
         final String targetUuid = requested.getResource() ;
         log.debug(
             "Target resource [{}] for volume [{}]",
@@ -189,8 +193,8 @@ implements SimpleVolumeMountValidator
             {
             log.debug(
                 "Duplicate resource [{}][{}] for volume [{}]",
-                dataResult.getEntity().getUuid(),
-                storageResult.getEntity().getUuid(),
+                dataResult.getName(),
+                storageResult.getName(),
                 validated.getMeta().getUuid()
                 );
             context.addError(
@@ -211,9 +215,22 @@ implements SimpleVolumeMountValidator
             {
             log.debug(
                 "Found data resource [{}] for volume [{}]",
-                dataResult.getEntity().getUuid(),
+                dataResult.getName(),
                 validated.getMeta().getUuid()
                 );
+
+            ResultEnum pathResult = this.setPath(
+                context,
+                requested,
+                validated,
+                dataResult.getMeta()
+                );
+            
+            if (pathResult == ResultEnum.FAILED)
+                {
+                return ResultEnum.FAILED;
+                }
+            
             context.addVolumeValidatorResult(
                 new AbstractVolumeMountValidator.ResultBean(
                     Validator.ResultEnum.ACCEPTED,
@@ -252,7 +269,7 @@ implements SimpleVolumeMountValidator
             {
             log.debug(
                 "Found storage resource [{}] for volume [{}]",
-                storageResult.getEntity().getUuid(),
+                storageResult.getName(),
                 validated.getMeta().getUuid()
                 );
             context.addVolumeValidatorResult(
@@ -261,15 +278,17 @@ implements SimpleVolumeMountValidator
                     validated
                     ){
                     @Override
-                    public SimpleVolumeMountEntity build(
+                    public AbstractVolumeMountEntity build(
                         final AbstractComputeResourceEntity computeResource
                         ){
-                        return volumeMountFactory.create(
+                        this.entity = SimpleVolumeMountValidatorImpl.this.volumeMountFactory.create(
                             computeResource,
                             storageResult.getEntity(),
                             this
                             );
+                        return this.entity ;
                         }
+
                     @Override
                     public Long getPrepareDuration()    
                         {
@@ -277,6 +296,7 @@ implements SimpleVolumeMountValidator
                             validated
                             );
                         }
+
                     @Override
                     public Long getReleaseDuration()    
                         {
@@ -292,6 +312,37 @@ implements SimpleVolumeMountValidator
         context.valid(false);
         return ResultEnum.FAILED;
         
+        }
+
+    public static final String DEFAULT_BASE_PATH = "/volumes";
+    
+    protected ResultEnum setPath(
+        final OfferSetRequestParserContext context,
+        final IvoaSimpleVolumeMount requested,
+        final IvoaSimpleVolumeMount validated,
+        final IvoaComponentMetadata meta
+        ){
+
+        if (requested.getPath() != null)
+            {
+            validated.setPath(
+                requested.getPath()
+                );
+            }
+        else {
+            if (meta.getName() != null)
+                {
+                validated.setPath(
+                    DEFAULT_BASE_PATH + "/" + meta.getName()
+                    );
+                }
+            else {
+                validated.setPath(
+                    DEFAULT_BASE_PATH + "/" + meta.getUuid()
+                    );
+                }
+            }
+        return ResultEnum.ACCEPTED;
         }
     
     /**
@@ -309,4 +360,5 @@ implements SimpleVolumeMountValidator
      * 
      */
     protected abstract Long getReleaseDuration(final IvoaSimpleVolumeMount validated);
+
     }
