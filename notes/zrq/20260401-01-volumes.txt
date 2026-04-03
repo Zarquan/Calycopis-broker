@@ -1,0 +1,911 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes (cont).
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+
+    VolumeMount
+
+    In Docker they are bind mounts of files or directories from the host filesystem.
+
+    In our schema, volume mounts can point to a data resource OR a storage resource.
+
+    In our entities data model, we could either have an abstract interface relationship, multiple targets, or specific types of mount.
+
+        class GenericVolumeMountEntity
+            Moutable -> target
+
+        interface Mountable
+            String getPath()
+
+    OR
+
+        class GenericVolumeMountEntity
+            DataResourceEntity    -> dataTarget
+            StorageResourceEntity -> storageTarget
+
+    OR
+
+        class DataVolumeMountEntity
+            DataResourceEntity -> target
+
+        class StorageVolumeMountEntity
+            StorageResourceEntity -> target
+
+    We also want to share read-only references to a data resource.
+    Does a DataVolumeMountEntity also link to a StorageVolumeMountEntity.
+
+# -----------------------------------------------------
+
+        class AbstractDataVolumeEntity
+            AbstractDataResourceEntity  -> dataResource
+            SimpleComputeResourceEntity -> computeResource
+            String mountPath
+
+        class AbstractStorageVolumeEntity
+            AbstractStorageResourceEntity -> storageResource
+            SimpleComputeResourceEntity   -> computeResource
+            String mountPath
+
+
+        class AbstractDataResourceEntity
+            StorageResourceEntity storageResource
+            String storagePath // path within the storage resource
+
+        class AbstractStorageResourceEntity
+            List<AbstractDataResourceEntity> dataResources
+
+        class MockDataResourceEntity
+
+        class MockStorageResourceEntity
+
+# -----------------------------------------------------
+
+    Are volume mounts global ?
+    We want to create Docker volumes for all the storage resources.
+    We want to download data into some of the storage resources.
+    Volume mount just links a storage resource into our docker container.
+
+    Do we change the volume mounts in the schema as well.
+    Split storage volume mount and data volume mount.
+
+    DataVolume
+    StorageVolume
+    Or do we let the schema point to either ?
+    Work out what the volume mount is pointing to during validation and create the corresponding entity type.
+
+# -----------------------------------------------------
+
+    S3 object mounted as a file
+    S3 bucket mounted as a directory
+    S3DataResource
+    Don't need to have a local storage volume, it can be mounted from the remote.
+    PrepareDuration will be minimal, but bandwidth will be terrible.
+
+    Network resource
+    We can use Fuse drivers to make remote files appear local.
+    PrepareDuration will be minimal, but bandwidth will be terrible.
+    So a service could make an offer that starts now, but stalls as soon as you try to read any data.
+    To mitigate this, the offer would have to quote a very slow access bandwidth.
+    How would we calculate the access bandwidth ?
+
+    GitHub - fangfufu/httpdirfs
+    A filesystem which allows you to mount HTTP directory listings or a single file, with a permanent cache.
+    https://github.com/fangfufu/httpdirfs
+
+    How to Use Podman with FUSE Filesystems
+    https://oneuptime.com/blog/post/2026-03-18-use-podman-fuse-filesystems/view
+
+    Running stateful workloads on Kubernetes with Rook Ceph
+    https://www.donaldsebleung.com/blog/20231226-running-stateful-workloads-on-kubernetes-with-rook-ceph
+
+    Provisioning Ceph storage with cephadm
+    https://www.donaldsebleung.com/blog/20250921-provisioning-ceph-storage-with-cephadm
+
+    Separating the volume container from the execution container makes this configurable.
+    Simple download first.
+
+    In some platforms, we might want to use a network resource to mount something from the (local) filesystem.
+    For example mount a Ceph or S3 object from the ceph storage system.
+    This would be platform specific.
+    eMerlim platform recognises eMerlim data and treats it differently.
+
+# -----------------------------------------------------
+
+    At the moment the schema for a volume can point to lots of different things.
+
+    A single data resource
+    A single storage resource
+
+    Several data resources
+    Several storage resources
+    A mixture of data and storage resources ??
+
+    It can mount these as a single thing, or as a directory containg the things.
+
+    Too vague. Too many combinations.
+    Simple ones first.
+
+    StorageResourceVolume
+    A single storage resource - as a directory.
+        If path does not end with '/', path sets the full directory name.
+        If path ends with '/', path sets the parent directory name.
+        Resource name sets the target directory name.
+        Individual data resources within the storage use resourceName.
+
+    DataResourceVolume
+    A single data resource - as a file.
+        If path does not end with '/', path sets the full file name.
+        If path ends with '/', path sets the parent directory name.
+        Resource name sets the target file name.
+
+    DataCollectionVolume
+    .... later
+
+# -----------------------------------------------------
+
+    As a global thing or as a child of SimpleComputeResource ?
+    Making it a child of SimpleComputeResource means other types of ComputeResource don't have to support volumes.
+    OK for now then.
+
+# -----------------------------------------------------
+
+    In the current schema, AbstractVolumeMount inherits from AbstractComponent, but not LifecycleComponent.
+    So it doesn't have phases and it doesn't have LifecycleSchedule.
+
+    Do we move AbstractVolumeMount into SimpleComputeResource ?
+    AbstractVolumeMount => SimpleComputeVolume
+
+    SimpleComputeResource
+        volumes = List<SimpleComputeVolume>
+
+    SimpleComputeVolume
+        compute = SimpleComputeResource
+
+    SimpleStorageVolume
+    extends SimpleComputeVolume
+    A single storage resource - as a directory.
+        storageResource => AbstractStorageResource
+
+    SimpleDataVolume
+    extends SimpleComputeVolume
+    A single data resource - as a file.
+        dataResource => AbstractDataResource
+
+    Do we point the other way ?
+    Probably not - This point from an abstract class to a concrete class.
+    Making it harder to have other types of volumes later on.
+
+    AbstractStorageResource
+        volumes => List<SimpleStorageVolume>
+
+    AbstractDataResource
+        volumes => List<SimpleDataVolume>
+
+    This would help when releasing.
+    Can't release a DataResource until all of the DataVolume->ComputeResources have been released.
+    Can't release a StorageResource until all of the StorageVolume->ComputeResources have been released.
+
+# -----------------------------------------------------
+
+    If we want data and storage resources to list the volumes they are in,
+    do we need to make AbstractStorageVolume and AbstractDataVolume global ?
+
+    AbstractComputeResource
+        volumes = List<AbstractVolumeMount>
+
+    AbstractVolumeMount
+        compute = AbstractComputeResource
+
+    AbstractStorageVolume
+    extends AbstractVolumeMount
+    A single storage resource - as a directory.
+        storageResource => AbstractStorageResource
+
+    AbstractDataVolume
+    extends AbstractVolumeMount
+    A single data resource - as a file.
+        dataResource => AbstractDataResource
+
+    AbstractStorageResource
+        volumes => List<AbstractStorageVolume>
+
+    AbstractDataResource
+        volumes => List<AbstractDataVolume>
+
+
+    Disadvantage - other types of compute resource have to support volumes.
+    Why not, they will have to have some kind of volume mount.
+
+# -----------------------------------------------------
+
+    The schema doesn't need to follow the entities.
+
+    AbstractComputeResource
+        volumes = AbstractVolumeMountList
+
+    AbstractVolumeMount
+        path
+        mode
+
+    SimpleVolumeMount
+    extends AbstractVolumeMount
+    Mount a single resource
+        path
+        mode
+        resource => uuid/name
+
+# -----------------------------------------------------
+
+datamodel.compute
+    AbstractComputeResource
+        volumes = List<AbstractVolumeMount>
+
+datamodel.volume
+    AbstractVolumeMount
+        compute = AbstractComputeResource
+        // A single storage resource - as a directory.
+        storageResource => AbstractStorageResource
+        // A single data resource - as a file.
+        dataResource => AbstractDataResource
+
+    AbstractStorageResource
+        volumes => List<AbstractVolumeMount>
+
+    AbstractDataResource
+        volumes => List<AbstractVolumeMount>
+
+
+    SimpleStorageVolume
+    extends AbstractStorageVolume
+
+    MockSimpleStorageVolume
+    extends SimpleStorageVolume
+
+
+    AbstractDataVolume
+    extends AbstractVolumeMount
+    A single data resource - as a file.
+        dataResource => AbstractDataResource
+
+    SimpleDataVolume
+    extends AbstractDataVolume
+
+    MockSimpleDataVolume
+    extends SimpleDataVolume
+
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+
+            dnf install -y podman
+
+            podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED         STATUS         PORTS       NAMES
+    >   e45f1e02203b  localhost/podman-pause:5.4.2-1743552000                        43 seconds ago  Up 33 seconds              eab0fcb2a427-infra
+    >   4279d680db28  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        33 seconds ago  Up 33 seconds              calycopis-dev
+
+
+# -----------------------------------------------------
+# Build the schema components.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-schema/github-zrq/
+
+        source bin/buildscripts.sh
+
+        installgenerator
+
+    >   ....
+    >   ....
+
+
+        buildschema
+
+    >   ....
+    >   ....
+    >   Inlining from discriminator mapping: EnumValueUpdate
+    >   Inlining from discriminator mapping: IntegerValueUpdate
+    >   Inlining from discriminator mapping: IntegerDeltaUpdate
+    >   ✅ All references processed and saved.
+
+
+        buildpythonclient
+
+    >   ....
+    >   ....
+    >   adding 'calycopis_client-1.0.4.dist-info/top_level.txt'
+    >   adding 'calycopis_client-1.0.4.dist-info/RECORD'
+    >   removing build/bdist.linux-x86_64/wheel
+    >   Successfully built calycopis_client-1.0.4.tar.gz and calycopis_client-1.0.4-py3-none-any.whl
+
+
+        buildjavaclient
+
+    >   ....
+    >   ....
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  13.512 s
+    >   [INFO] Finished at: 2026-04-01T17:39:07Z
+    >   [INFO] ------------------------------------------------------------------------
+
+
+        buildjavaspring
+
+    >   ....
+    >   ....
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] BUILD SUCCESS
+    >   [INFO] ------------------------------------------------------------------------
+    >   [INFO] Total time:  13.960 s
+    >   [INFO] Finished at: 2026-04-01T17:39:41Z
+    >   [INFO] ------------------------------------------------------------------------
+
+    popd
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update the server code in Eclipse.
+#[user@desktop]
+
+    >   ....
+    >   ....
+
+    #
+    # Not using Cursor to do this because I don't know how to describe what I want.
+    # Needed to hack around myself in order to understand the sitation.
+    #
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# Build and run the service with the mock platform.
+#[root@calycopis-dev]
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=mock
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal and run some manual tests.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd "$(mktemp --directory)"
+
+        #
+        # Container and data ..
+
+        cat > "001-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: example-data-001
+    location: https://example.org/data/example-data-001.vot
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "001-002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "05ab4984-c182-42ab-bac3-b14bf88a575d"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/05ab4984-c182-42ab-bac3-b14bf88a575d"
+    >     created: "2026-04-02T13:55:15.211588363Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "b524284b-a188-4565-9567-8bac759ad3fe"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/b524284b-a188-4565-9567-8bac759ad3fe"
+    >         created: "2026-04-02T13:55:15.314468492Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "a73ef40a-6d0a-44d5-b5bd-3759ee7a08b6"
+    >           url: "http://127.0.0.1:8082/executables/a73ef40a-6d0a-44d5-b5bd-3759ee7a08b6"
+    >           created: "2026-04-02T13:55:15.345908958Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT30S"
+    >           available:
+    >             start: "1970-01-01T00:00:30Z/PT0S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "543d307f-ed64-44aa-b2e6-cbc1f97c2009"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/543d307f-ed64-44aa-b2e6-cbc1f97c2009"
+    >           created: "2026-04-02T13:55:15.371957357Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-02T13:56:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-02T13:57:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-02T15:57:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "8acafb6e-c9a4-48c9-bc90-45ec4c7981b5"
+    >             name: "Storage for [eed8e923-2674-4dac-8658-c1e13fbda7ec]"
+    >             url: "http://127.0.0.1:8082/storage/8acafb6e-c9a4-48c9-bc90-45ec4c7981b5"
+    >             created: "2026-04-02T13:55:15.385355125Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:00:30Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:40Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "830b8bb8-a9d2-4816-9d09-863352884ee0"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "830b8bb8-a9d2-4816-9d09-863352884ee0"
+    >             name: "example-data-001"
+    >             url: "http://127.0.0.1:8082/data/830b8bb8-a9d2-4816-9d09-863352884ee0"
+    >             created: "2026-04-02T13:55:15.400516704Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:30Z"
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:01:00Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:01:00Z"
+    >               duration: "PT10S"
+    >           storage: "8acafb6e-c9a4-48c9-bc90-45ec4c7981b5"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-02T14:00:15.211588726Z"
+
+
+        #
+        # Container, data, compute and volume ..
+
+        cat > "002-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: example-data-001
+    location: https://example.org/data/example-data-001.vot
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: example-data-001
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@002-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-002-offerset-response.yaml" \
+        | yq '.'
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Update the server code in Eclipse.
+#[user@desktop]
+
+    #
+    # Fixing null pointer references.
+    # Side effect broke references from AbstractVolumeMountEntity ro AbstractDataResourceEntity.
+    #
+
+    >   ....
+    >   2026-04-02 16:15:41 DEBUG main CollectionSecondPass doSecondPass() Second pass for collection: net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity.volumeMounts
+    >   2026-04-02 16:15:41 DEBUG main ServiceBinding setService() Overriding existing service binding [org.hibernate.engine.jdbc.connections.spi.ConnectionProvider]
+    >   2026-04-02 16:15:41 ERROR main LocalContainerEntityManagerFactoryBean buildNativeEntityManagerFactory()
+    >       Failed to initialize JPA EntityManagerFactory:
+    >           Collection 'net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity.volumeMounts' is 'mappedBy' a property named 'dataresource'
+    >           which does not exist in the target entity 'net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity'
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Ask Cursor to diagnose the problem.
+#[user@desktop]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    curl https://cursor.com/install -fsS | bash
+
+        agent --resume=a78d21c1-7fa4-4dde-8baa-e02fe46bab70
+
+    ?   Can you help to diagnose the cause of a problem with JPA references linking AbstractDataResourceEntity and AbstractVolumeMountEntity.
+    ?   The Spring application reports the following error when trying to resolve the JPA entities.
+    ?   ```
+    ?   2026-04-02 16:15:41 ERROR main LocalContainerEntityManagerFactoryBean buildNativeEntityManagerFactory()
+    ?       Failed to initialize JPA EntityManagerFactory:
+    ?           Collection 'net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity.volumeMounts' is 'mappedBy' a property named 'dataresource'
+    ?           which does not exist in the target entity 'net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity'
+    ?   ```
+
+    >     ⬢ Read 2 files
+    >       Read .../datamodel/data/AbstractDataResourceEntity.java
+    >       Read ...datamodel/volume/AbstractVolumeMountEntity.java
+    >   
+    >     The problem is a case mismatch. In AbstractDataResourceEntity line 141, the @OneToMany mapping references:
+    >   
+    >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceEntity.java lines 141-141
+    >   
+    >             mappedBy = "dataresource",
+    >   
+    >     But in AbstractVolumeMountEntity line 134, the field is named dataResource (camelCase):
+    >   
+    >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/volume/AbstractVolumeMountEntity.java lines 134-134
+    >   
+    >         private AbstractDataResourceEntity dataResource;
+    >   
+    >     The mappedBy value must match the Java field name exactly, not the database column name. It needs to be "dataResource" (camelCase), not "dataresource".
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ .../datamodel/data/AbstractDataResourceEntity.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @OneToMany(                                                                                                                                                                        │
+    >     │ -         mappedBy = "dataresource",                                                                                                                                                     │
+    >     │ +         mappedBy = "dataResource",                                                                                                                                                     │
+    >     │           fetch = FetchType.LAZY,                                                                                                                                                        │
+    >     │           cascade = CascadeType.ALL,                                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Let me also check if there are similar mappedBy mismatches elsewhere in the codebase.
+    >   
+    >     ⬢ Grepped "mappedBy = "" in ...ithub-zrq/java/src/main/java/net/ivoa/calycopis
+    >       Found 12 matches
+    >   
+    >     There's another one. In AbstractStorageResourceEntity line 146, mappedBy = "storageresource" — but the field in AbstractVolumeMountEntity is storageResource (camelCase, line 148). Let
+    >     me verify and fix.
+    >   
+    >     ⬢ Read ...odel/storage/AbstractStorageResourceEntity.java lines 141-160
+    >   
+    >     Same issue. The field in AbstractVolumeMountEntity is storageResource (camelCase) but mappedBy says "storageresource".
+    >   
+    >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+    >     │ ...odel/storage/AbstractStorageResourceEntity.java +1 -1                                                                                                                                 │
+    >     │                                                                                                                                                                                          │
+    >     │                                                                                                                                                                                          │
+    >     │       @OneToMany(                                                                                                                                                                        │
+    >     │ -         mappedBy = "storageresource",                                                                                                                                                  │
+    >     │ +         mappedBy = "storageResource",                                                                                                                                                  │
+    >     │           fetch = FetchType.LAZY,                                                                                                                                                        │
+    >     │           cascade = CascadeType.ALL,                                                                                                                                                     │
+    >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+    >   
+    >     Let me verify the build still compiles.
+    >   
+    >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -20 14s
+    >       WARNING: A restricted method in java.lang.System has been called
+    >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
+    >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
+    >       … truncated (8 more lines) · ctrl+o to expand
+    >   
+    >     Compiles cleanly. The cause was a case mismatch between mappedBy values and Java field names:
+    >     1. `AbstractDataResourceEntity` -- mappedBy = "dataresource" should be "dataResource" to match the field private AbstractDataResourceEntity dataResource in AbstractVolumeMountEntity
+    >        (line 134).
+    >     2. `AbstractStorageResourceEntity` -- Same issue: mappedBy = "storageresource" should be "storageResource" to match the field private AbstractStorageResourceEntity storageResource in
+    >        AbstractVolumeMountEntity (line 148).
+    >   
+    >     The mappedBy attribute in JPA refers to the Java field name (which is camelCase), not the @JoinColumn database column name (which is lowercase). The @JoinColumn(name = "dataresource")
+    >     on the field is the DB column name and is fine as-is — it's only the mappedBy string that must match the Java field name exactly.
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal and run some manual tests.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd "$(mktemp --directory)"
+
+        cat > "002-001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: example-data-001
+    location: https://example.org/data/example-data-001.vot
+compute:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0
+  volumes:
+    - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0
+      resource: example-data-001
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@002-001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "e1c7f73d-ea40-4571-8297-b46d48c366c2"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/e1c7f73d-ea40-4571-8297-b46d48c366c2"
+    >     created: "2026-04-02T18:42:20.773896010Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "dea01068-9d36-4e7b-be2d-579cc73a47c4"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/dea01068-9d36-4e7b-be2d-579cc73a47c4"
+    >         created: "2026-04-02T18:42:20.888514020Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "00315b71-395f-4d7c-a279-baf41228d56e"
+    >           url: "http://127.0.0.1:8082/executables/00315b71-395f-4d7c-a279-baf41228d56e"
+    >           created: "2026-04-02T18:42:20.927381537Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT30S"
+    >           available:
+    >             start: "1970-01-01T00:00:30Z/PT0S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "d32ee142-0f99-4035-b78e-205b2dd1d7ac"
+    >           url: "http://127.0.0.1:8082/compute/d32ee142-0f99-4035-b78e-205b2dd1d7ac"
+    >           created: "2026-04-02T18:42:20.955480759Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-04-02T18:43:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-04-02T18:44:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-04-02T20:44:05Z"
+    >             duration: "PT10S"
+    >         volumes:
+    >           - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0"
+    >             meta:
+    >               uuid: "969fbcd1-c79e-487b-b4cc-eef7e89e6caf"
+    >               url: "http://127.0.0.1:8082/volumes/969fbcd1-c79e-487b-b4cc-eef7e89e6caf"
+    >               created: "2026-04-02T18:42:21.003909915Z"
+    >             resource: "3e1a8662-ce7a-4b70-9535-46286b8ed7cb"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "c60fd545-3947-4ffe-8019-dce6075afdb4"
+    >             name: "Storage for [eda468ad-ea58-4c8f-8e08-a1c53cc5063b]"
+    >             url: "http://127.0.0.1:8082/storage/c60fd545-3947-4ffe-8019-dce6075afdb4"
+    >             created: "2026-04-02T18:42:20.968458004Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:00:30Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:40Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "3e1a8662-ce7a-4b70-9535-46286b8ed7cb"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "3e1a8662-ce7a-4b70-9535-46286b8ed7cb"
+    >             name: "example-data-001"
+    >             url: "http://127.0.0.1:8082/data/3e1a8662-ce7a-4b70-9535-46286b8ed7cb"
+    >             created: "2026-04-02T18:42:20.984600205Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:30Z"
+    >               duration: "PT30S"
+    >             available:
+    >               start: "1970-01-01T00:01:00Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:01:00Z"
+    >               duration: "PT10S"
+    >           storage: "c60fd545-3947-4ffe-8019-dce6075afdb4"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-04-02T18:47:20.773896397Z"
+
+# -----------------------------------------------------
+
+    ?     /quit
+
+    >     To resume this session: agent --resume=a78d21c1-7fa4-4dde-8baa-e02fe46bab70
+
+
+
+

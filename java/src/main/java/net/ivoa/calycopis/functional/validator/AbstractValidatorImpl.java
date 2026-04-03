@@ -22,8 +22,12 @@
  */
 package net.ivoa.calycopis.functional.validator;
 
+import java.time.Duration;
+
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.component.ComponentEntity;
+import net.ivoa.calycopis.spring.model.IvoaLifecycleSchedule;
+import net.ivoa.calycopis.spring.model.IvoaLifecycleStartDurationInstant;
 
 /**
  * Base class for Validatior implementations.
@@ -35,4 +39,35 @@ public abstract class AbstractValidatorImpl<ObjectType, EntityType extends Compo
 extends ValidatorBase
 implements Validator<ObjectType, EntityType>
     {
+
+    /**
+     * Get the prepare duration from an IvoaLifecycleSchedule.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaLifecycleSchedule schedule)
+        {
+        if (schedule != null)
+            {
+            IvoaLifecycleStartDurationInstant preparing = schedule.getPreparing();
+            if (preparing != null)
+                {
+                try {
+                    Duration duration =  Duration.parse(
+                        preparing.getDuration()
+                        );
+                    return duration.toSeconds();
+                    }
+                catch (Exception ouch)
+                    {
+                    log.warn(
+                        "Exception parsing prepare duration [{}][{}]",
+                        preparing.getDuration(),
+                        ouch.getMessage() 
+                        );
+                    }
+                }
+            }
+        return null;
+        }    
+    
     }

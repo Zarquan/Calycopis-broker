@@ -25,7 +25,7 @@
  *     "version": "2026.02.13-41ac335",
  *     "model": "Claude 4.6 Opus (Thinking)",
  *     "contribution": {
- *       "value": 10,
+ *       "value": 15,
  *       "units": "%"
  *       }
  *     }
@@ -33,49 +33,74 @@
  *
  */
 
-package net.ivoa.calycopis.datamodel.volume.simple;
+package net.ivoa.calycopis.datamodel.volume.simple.mock;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountEntity;
+import net.ivoa.calycopis.datamodel.volume.simple.SimpleVolumeMountValidator;
 
 /**
- * A SimpleVolumeMount Factory.
+ * A MockSimpleVolumeMount Entity.
  *
  */
-public interface SimpleVolumeMountEntityFactory
-    extends FactoryBase
+@Entity
+@Table(
+    name = "mocksimplevolumemounts"
+    )
+@DiscriminatorValue(
+    value="uri:mock-simple-volume-mount"
+    )
+public class MockSimpleVolumeMountEntity
+    extends SimpleVolumeMountEntity
+    implements MockSimpleVolumeMount
     {
 
     /**
-     * Select a SimpleVolumeMount based UUID.
+     * Protected constructor
      *
      */
-    public Optional<SimpleVolumeMountEntity> select(final UUID uuid);
+    protected MockSimpleVolumeMountEntity()
+        {
+        super();
+        }
 
     /**
-     * Create a new SimpleVolumeMountEntity linking a ComputeResource and DataResource.
+     * Protected constructor with parent compute, data resource and validator result.
      *
      */
-    public SimpleVolumeMountEntity create(
+    public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
         final AbstractDataResourceEntity    dataResource,
         final SimpleVolumeMountValidator.Result result
-        );
+        ){
+        super(
+            computeResource,
+            dataResource,
+            result
+            );
+        }
 
     /**
-     * Create a new SimpleVolumeMountEntity linking a ComputeResource and StorageResource.
+     * Protected constructor with parent compute, storage resource and validator result.
      *
      */
-    public SimpleVolumeMountEntity create(
+    public MockSimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
-        final AbstractStorageResourceEntity storageResource,
+        final AbstractStorageResourceEntity    storageResource,
         final SimpleVolumeMountValidator.Result result
-        );
+        ){
+        super(
+            computeResource,
+            storageResource,
+            result
+            );
+        }
+    
     
     }
 

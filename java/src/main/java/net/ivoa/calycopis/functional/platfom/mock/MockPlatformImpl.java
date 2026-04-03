@@ -123,9 +123,10 @@ import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFact
 import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.storage.simple.mock.MockSimpleStorageResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorFactory;
+import net.ivoa.calycopis.datamodel.volume.simple.mock.MockSimpleVolumeMountEntityFactory;
+import net.ivoa.calycopis.datamodel.volume.simple.mock.MockSimpleVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.booking.compute.ComputeResourceOfferFactory;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
-import net.ivoa.calycopis.functional.platfom.Platform;
 import net.ivoa.calycopis.functional.processing.ProcessingRequestFactory;
 import net.ivoa.calycopis.functional.processing.mock.MockEntitySettings;
 
@@ -212,6 +213,13 @@ implements MockPlatform
             new MockSimpleDataResourceValidatorImpl(
                 this.mockSimpleDataResourceEntityFactory,
                 this.storageResourceValidatorFactory
+                )
+            );
+        this.volumeMountValidatorFactory.addValidator(
+            new MockSimpleVolumeMountValidatorImpl(
+                this.volumeMountEntityFactory,
+                this.dataResourceEntityFactory,
+                this.storageResourceEntityFactory
                 )
             );
 
@@ -308,6 +316,9 @@ implements MockPlatform
 
 // Volume
     
+    @Autowired
+    private MockSimpleVolumeMountEntityFactory volumeMountEntityFactory;
+
     @Autowired
     private AbstractVolumeMountValidatorFactory volumeMountValidatorFactory;
     @Override

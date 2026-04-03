@@ -41,12 +41,4 @@ implements AbstractStorageResourceValidator
         super();
         }
 
-
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-
-    @Deprecated
-    protected Long predictPrepareTime(final IvoaAbstractStorageResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
     }

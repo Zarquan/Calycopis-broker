@@ -24,9 +24,7 @@
 package net.ivoa.calycopis.datamodel.volume.simple;
 
 import java.net.URI;
-import java.util.List;
 
-import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 
@@ -43,12 +41,6 @@ public interface SimpleVolumeMount
      */
     public static final URI TYPE_DISCRIMINATOR = URI.create("https://www.purl.org/ivoa.net/EB/schema/v1.0/types/volume/simple-volume-mount-1.0") ;
     
-    /**
-     * Reference to the DataResources mounted in this volume.
-     *
-     */
-    public List<AbstractDataResource> getDataResources();
-
     /**
      * Get the access mode
      * 

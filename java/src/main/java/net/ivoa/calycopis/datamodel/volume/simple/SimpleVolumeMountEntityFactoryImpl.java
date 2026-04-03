@@ -35,15 +35,11 @@
 
 package net.ivoa.calycopis.datamodel.volume.simple;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.net.URI;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
 
 /**
@@ -52,39 +48,19 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  */
 @Slf4j
 @Component
-public class SimpleVolumeMountEntityFactoryImpl
+public abstract class SimpleVolumeMountEntityFactoryImpl
     extends FactoryBaseImpl
     implements SimpleVolumeMountEntityFactory
     {
 
-    private final SimpleVolumeMountEntityRepository repository;
-
-    @Autowired
-    public SimpleVolumeMountEntityFactoryImpl(
-        final SimpleVolumeMountEntityRepository repository
-        ){
+    public SimpleVolumeMountEntityFactoryImpl(){
         super();
-        this.repository = repository;
         }
 
-    @Override
-    public Optional<SimpleVolumeMountEntity> select(UUID uuid)
+    public URI getKind()
         {
-        return this.repository.findById(
-            uuid
-            );
+        return SimpleVolumeMount.TYPE_DISCRIMINATOR;
         }
 
-    public SimpleVolumeMountEntity create(
-        final AbstractComputeResourceEntity computeResource,
-        final AbstractVolumeMountValidator.Result result
-        ){
-        return this.repository.save(
-            new SimpleVolumeMountEntity(
-                computeResource,
-                result
-                )
-            );
-        }
     }
 

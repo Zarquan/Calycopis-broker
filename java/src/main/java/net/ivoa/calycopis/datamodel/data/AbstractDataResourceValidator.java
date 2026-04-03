@@ -76,7 +76,7 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
      * TODO Move this to AbstractDataResourceValidatorImpl, and include a factory method that can be inherited.
      * 
      */
-    public static class ResultBean
+    public static abstract class ResultBean
     extends Validator.ResultBean<IvoaAbstractDataResource, AbstractDataResourceEntity>
     implements Result
         {
@@ -99,7 +99,8 @@ extends Validator<IvoaAbstractDataResource, AbstractDataResourceEntity>
             ){
             super(
                 result,
-                object
+                object,
+                object.getMeta()
                 );
             }
 

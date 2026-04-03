@@ -47,6 +47,7 @@ package net.ivoa.calycopis.datamodel.data.simple.mock;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -56,6 +57,7 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleDataResource;
 /**
  * 
  */
+@Slf4j
 public class MockSimpleDataResourceValidatorImpl
 extends SimpleDataResourceValidatorImpl
 implements MockSimpleDataResourceValidator
@@ -71,19 +73,19 @@ implements MockSimpleDataResourceValidator
             );
         }
 
-    public static final List<String> LOCATION_BLACKLIST = List.of(
-        "http://example.com/blacklisted.dat",
-        "http://example.com/forbidden.dat"
+    public static final List<String> EXCLUDED_LOCATIONS = List.of(
+        "http://example.com/excluded.dat",
+        "http://example.com/excluded.vot"
         );
 
     @Override
     protected boolean validateLocation(String location, OfferSetRequestParserContext context)
         {
-        if (LOCATION_BLACKLIST.contains(location))
+        if (EXCLUDED_LOCATIONS.contains(location))
             {
             context.addWarning(
                 "urn:invalid-value",
-                "SimpleDataResource - location is blacklisted [${value}]",
+                "SimpleDataResource - location is excluded [${value}]",
                 Map.of(
                     "value",
                     location
@@ -96,11 +98,43 @@ implements MockSimpleDataResourceValidator
             }
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
+    /**
+     * Default prepare duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
 
-    @Override
-    protected Long estimatePrepareTime(final IvoaSimpleDataResource validated)
+    /**
+     * Get the prepare duration for a resource.
+     * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaSimpleDataResource validated)
         {
-        return DEFAULT_PREPARE_TIME;
+        Long duration = getPrepareDuration(
+            validated.getSchedule()
+            );
+        if (duration != null)
+            {
+            return duration ;
+            }
+        else {
+            return DEFAULT_PREPARE_ESTIMATE ;
+            }
+        }
+
+    /**
+     * Default release duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 30L;
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected Long getReleaseDuration(final IvoaSimpleDataResource validated)
+        {
+        return DEFAULT_RELEASE_ESTIMATE ;
         }
     }

@@ -175,56 +175,42 @@ implements DockerContainerValidator
             validated,
             context
             );
-
-        //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
         
         //
-        // Everything is good, create our Result.
+        // Everything is good, create a validator Result.
         if (success)
             {
-            log.debug("PASS DockerContainer validated [{}]", validated);
-            //
-            // Create a new validator Result.
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated
-                ) {
-                @Override
-                public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        this
-                        );
-                    }
-
-                @Override
-                public Long getPreparationTime()
-                    {
-                    return estimatePrepareTime(
-                        validated
-                        );
-                    }
-                };
-            //
-            // Add our Result to our context
             context.setExecutableResult(
-                result
+                new AbstractExecutableValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ) {
+                    @Override
+                    public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
+                        {
+                        this.entity = DockerContainerValidatorImpl.this.entityFactory.create(
+                            session,
+                            this
+                            );
+                        return this.entity;
+                        }
+                    
+                    @Override
+                    public Long getPrepareDuration()
+                        {
+                        return DockerContainerValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+                    
+                    @Override
+                    public Long getReleaseDuration()
+                        {
+                        return DockerContainerValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
                 );
             return ResultEnum.ACCEPTED;
             }
@@ -721,17 +707,17 @@ implements DockerContainerValidator
         }
     
     /**
-     * Predict the time to prepare a DockerContainer for execution.
+     * Get the prepare duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaDockerContainer validated);
+    protected abstract Long getPrepareDuration(final IvoaDockerContainer validated);
 
     /**
-     * Predict the time to release a DockerContainer.
+     * Get the release duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimateReleaseTime(final IvoaDockerContainer validated);
+    protected abstract Long getReleaseDuration(final IvoaDockerContainer validated);
 
     }

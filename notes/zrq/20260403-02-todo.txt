@@ -1,0 +1,129 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        List of things todo ..
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    OfferSetFactoryImpl has Autowired Platform
+    OfferSetFactoryImpl has Autowired OfferSetRequestParser
+
+    OfferSetFactoryImpl constructor calls platform.initialize()
+
+    OfferSetFactoryImpl passes Platform to OfferSetRequestParser stageOne
+    OfferSetFactoryImpl passes Platform to OfferSetRequestParser stageTwo
+
+    Why doesn't OfferSetRequestParser have the Autowired Platform ?
+
+# -----------------------------------------------------
+
+    It would be useful for SimpleVolumeMountValidatorImpl to have access to the Platform.
+    In order to load things like default volume path.
+    Or should we get that from the OfferSetRequestParserContext ?
+
+# -----------------------------------------------------
+
+    Mock entities use ((MockPlatform) platform).getMockEntitySettings()
+    to get prepare time and release time from MockEntitySettings
+
+    Better to get these values from the LifecycleComponent itself ?
+    Set the prepare time and release time in the original request and use them to configure the LifecycleComponent.
+
+    Allows the user to set the prepare time and release.
+    Defaults are still loaded from the config as a last resort.
+
+# -----------------------------------------------------
+
+    Add an in-between READY phase.
+
+    - INITIALIZING replace with OFFERED
+
+    - WAITING       any waiting to start preparing
+    - PREPARING     any busy preparing
+   ++ READY         executable prepared, waiting to run - used for asynch queue
+    - AVAILABLE     resource available to use
+    - RUNNING       executable is running
+    - RELEASING     any busy releasing
+
+    - COMPLETED
+    - FAILED
+    - CANCELLED
+
+# -----------------------------------------------------
+
+    Refactor the schedule components
+
+    executable
+        preparing
+            duration only
+        available
+            duration only
+        releasing
+            duration only
+
+    data
+        preparing
+            duration
+        available
+            duration // extend beyond the end of compute ?
+        releasing
+            duration
+
+    storage
+        preparing
+            duration
+        available
+            duration
+        releasing
+            duration // longer than data releasing
+
+    compute
+        preparing
+            duration
+        available
+            startrange // linked to session start range
+            duration
+        releasing
+            duration
+
+    session
+        preparing
+            startrange //
+            duration   // longest resource preparing
+        available
+            startrange // linked to compute start range
+            duration
+        releasing
+            duration
+
+# -----------------------------------------------------
+
+

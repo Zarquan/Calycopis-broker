@@ -1,0 +1,418 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes.
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+# Create new branches to work in.
+#[user@desktop]
+
+    branchname=volumes
+    newbranch=$(date '+%Y%m%d')-zrq-${branchname:?}
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${CALYCOPIS_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+    source "${HOME:?}/calycopis.env"
+    pushd "${TREBULA_CODE}"
+
+        git checkout main
+
+        git checkout -b "${newbranch:?}"
+
+    popd
+
+
+# -----------------------------------------------------
+# Run an instance of our development environment.
+#[user@desktop]
+
+    podman pod create \
+        --replace \
+        --name calycopis-pod
+
+    # WARNING - this exposes the user's Podman socket to the container.
+    # WARNING - exposing the user's Podman socket requires a patch to the SELinux rules.
+    # WARNING - this exposes the user's SSH agent to the container.
+    # WARNING - exposing the user's SSH agent requires a patch to the SELinux rules.
+
+    source "${HOME:?}/calycopis.env"
+    source "${HOME:?}/heliophorus.env"
+    podman run \
+        --rm \
+        --tty \
+        --interactive \
+        --pod  calycopis-pod \
+        --name calycopis-dev \
+        --env "SSH_AUTH_SOCK=/tmp/ssh-sock" \
+        --env "CONTAINER_HOST=unix:///run/podman/podman.sock" \
+        --volume "${HOME}/.m2:/root/.m2:rw,Z" \
+        --volume "${HOME}/.cursor:/root/.cursor:rw,Z" \
+        --volume "${CALYCOPIS_ROOT}:/calycopis:rw,Z" \
+        --volume "${HELIOPHORUS_ROOT}:/heliophorus:rw,Z" \
+        --volume "${SSH_AUTH_SOCK}:/tmp/ssh-sock:rw,Z" \
+        --volume "${XDG_RUNTIME_DIR}/podman/podman.sock:/run/podman/podman.sock:rw,Z" \
+        ghcr.io/ivoa/calycopis/developer-tools:2025.08.12 \
+            bash
+
+
+            dnf install -y podman
+
+            podman ps
+
+    >   CONTAINER ID  IMAGE                                              COMMAND     CREATED        STATUS        PORTS       NAMES
+    >   78a3d155a006  localhost/podman-pause:5.4.2-1743552000                        2 minutes ago  Up 2 minutes              29b3abb51b40-infra
+    >   0a69abc98c98  ghcr.io/ivoa/calycopis/developer-tools:2025.08.12  bash        2 minutes ago  Up 2 minutes              calycopis-dev
+
+
+# -----------------------------------------------------
+# Start our PostgreSQL database.
+#[root@calycopis-dev]
+
+    podman run \
+        --rm \
+        --detach \
+        --replace \
+        --name postgresql \
+        --pod calycopis-pod \
+        --expose 5432 \
+        --env "POSTGRES_DB=calycopis" \
+        --env "POSTGRES_USER=albert" \
+        --env "POSTGRES_PASSWORD=UVai0wie-wa9Eed4g" \
+        docker.io/library/postgres:latest
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal and launch a service with the mock platform.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd /calycopis/Calycopis-broker/github-zrq/java
+
+        ./mvnw clean spring-boot:run -D calycopis-platform=mock
+
+    popd
+
+    >   ....
+    >   ....
+
+
+# -----------------------------------------------------
+# -----------------------------------------------------
+# Start a new terminal and run some manual tests.
+#[root@calycopis-dev]
+
+    podman exec \
+        --tty \
+        --interactive \
+            calycopis-dev \
+                bash
+
+    pushd "$(mktemp --directory)"
+
+        cat > "001-offerset-request.yaml" << EOF
+executable:
+  kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0
+  image:
+    locations:
+      - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+  command: [10, 0]
+data:
+  - kind: https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0
+    meta:
+      name: example-data-001
+    location: https://example.org/data/example-data-001.vot
+EOF
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Content-Type: application/yaml' \
+            --data-binary "@001-offerset-request.yaml" \
+            --header 'Accept: application/yaml' \
+            'http://127.0.0.1:8082/offersets' \
+        | tee "002-offerset-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/offerset/execution-offerset-1.0"
+    >   meta:
+    >     uuid: "d2591d48-a101-4ee0-bf83-5d3301060dce"
+    >     name: "no-name"
+    >     url: "http://127.0.0.1:8082/offersets/d2591d48-a101-4ee0-bf83-5d3301060dce"
+    >     created: "2026-03-31T12:08:30.312481362Z"
+    >   result: "YES"
+    >   offers:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >       meta:
+    >         uuid: "23154189-6f97-48c6-b806-c22fb7367d5a"
+    >         name: "no-name-offer-0"
+    >         url: "http://127.0.0.1:8082/sessions/23154189-6f97-48c6-b806-c22fb7367d5a"
+    >         created: "2026-03-31T12:08:30.414701873Z"
+    >       executable:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >         meta:
+    >           uuid: "9461eb0f-f788-453a-a21d-7404bf210a02"
+    >           url: "http://127.0.0.1:8082/executables/9461eb0f-f788-453a-a21d-7404bf210a02"
+    >           created: "2026-03-31T12:08:30.449259602Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             duration: "PT35S"
+    >           available:
+    >             start: "1970-01-01T00:00:35Z/PT0S"
+    >           releasing:
+    >             duration: "PT1S"
+    >         image:
+    >           locations:
+    >             - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >           digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >           platform:
+    >             architecture: "amd64"
+    >             os: "linux"
+    >         privileged: false
+    >         command:
+    >           - "10"
+    >           - "0"
+    >       compute:
+    >         kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >         meta:
+    >           uuid: "c047ee0b-41ab-453d-80c8-8e4782849a8b"
+    >           name: "Default compute resource"
+    >           url: "http://127.0.0.1:8082/compute/c047ee0b-41ab-453d-80c8-8e4782849a8b"
+    >           created: "2026-03-31T12:08:30.485359558Z"
+    >         phase: "INITIALIZING"
+    >         schedule:
+    >           preparing:
+    >             start: "2026-03-31T12:09:25Z"
+    >             duration: "PT35S"
+    >           available:
+    >             start: "2026-03-31T12:10:00Z/PT0S"
+    >             duration: "PT2H"
+    >           releasing:
+    >             start: "2026-03-31T14:10:05Z"
+    >             duration: "PT10S"
+    >         cores:
+    >           min: 2
+    >           max: 2
+    >         memory:
+    >           min: 2
+    >           max: 2
+    >       storage:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >           meta:
+    >             uuid: "5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >             name: "Storage for [83b42dba-9078-46a2-8423-b6fda8e0b605]"
+    >             url: "http://127.0.0.1:8082/storage/5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >             created: "2026-03-31T12:08:30.497973998Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               duration: "PT5S"
+    >             available:
+    >               start: "1970-01-01T00:00:05Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:15Z"
+    >               duration: "PT10S"
+    >           data:
+    >             - "541f6ad6-790d-4994-ba6f-4395de604160"
+    >       data:
+    >         - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >           meta:
+    >             uuid: "541f6ad6-790d-4994-ba6f-4395de604160"
+    >             name: "example-data-001"
+    >             url: "http://127.0.0.1:8082/data/541f6ad6-790d-4994-ba6f-4395de604160"
+    >             created: "2026-03-31T12:08:30.512956147Z"
+    >           phase: "INITIALIZING"
+    >           schedule:
+    >             preparing:
+    >               start: "1970-01-01T00:00:05Z"
+    >               duration: "PT5S"
+    >             available:
+    >               start: "1970-01-01T00:00:10Z/PT0S"
+    >             releasing:
+    >               start: "1970-01-01T00:00:10Z"
+    >               duration: "PT10S"
+    >           storage: "5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >           location: "https://example.org/data/example-data-001.vot"
+    >       phase: "OFFERED"
+    >       expires: "2026-03-31T12:13:30.312481727Z"
+
+        offerseturl=$(
+            yq '.meta.url' '002-offerset-response.yaml'
+            )
+
+        sessionurl=$(
+            yq '.offers[0].meta.url' '002-offerset-response.yaml'
+            )
+
+        curl \
+            --silent \
+            --show-error \
+            --header 'Accept: application/yaml' \
+            "${sessionurl}" \
+        | tee "003-status-response.yaml" \
+        | yq '.'
+
+    >   kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/session/scheduled-execution-session-1.0"
+    >   meta:
+    >     uuid: "23154189-6f97-48c6-b806-c22fb7367d5a"
+    >     name: "no-name-offer-0"
+    >     url: "http://127.0.0.1:8082/sessions/23154189-6f97-48c6-b806-c22fb7367d5a"
+    >     created: "2026-03-31T12:08:30.414702Z"
+    >   executable:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/executable/docker-container-1.0"
+    >     meta:
+    >       uuid: "9461eb0f-f788-453a-a21d-7404bf210a02"
+    >       url: "http://127.0.0.1:8082/executables/9461eb0f-f788-453a-a21d-7404bf210a02"
+    >       created: "2026-03-31T12:08:30.449260Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         duration: "PT35S"
+    >       available:
+    >         start: "1970-01-01T00:00:35Z/PT0S"
+    >       releasing:
+    >         duration: "PT1S"
+    >     image:
+    >       locations:
+    >         - "ghcr.io/zarquan/heliophorus-cantliei:sha-831ee57"
+    >       digest: "sha256:6e495692cc6f1cae2023f261f433d4691aa70b19416730f8301e45fbb74bc526"
+    >       platform:
+    >         architecture: "amd64"
+    >         os: "linux"
+    >     privileged: false
+    >     command:
+    >       - "10"
+    >       - "0"
+    >   compute:
+    >     kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/compute/simple-compute-resource-1.0"
+    >     meta:
+    >       uuid: "c047ee0b-41ab-453d-80c8-8e4782849a8b"
+    >       name: "Default compute resource"
+    >       url: "http://127.0.0.1:8082/compute/c047ee0b-41ab-453d-80c8-8e4782849a8b"
+    >       created: "2026-03-31T12:08:30.485360Z"
+    >     phase: "INITIALIZING"
+    >     schedule:
+    >       preparing:
+    >         start: "2026-03-31T12:09:25Z"
+    >         duration: "PT35S"
+    >       available:
+    >         start: "2026-03-31T12:10:00Z/PT0S"
+    >         duration: "PT2H"
+    >       releasing:
+    >         start: "2026-03-31T14:10:05Z"
+    >         duration: "PT10S"
+    >     cores:
+    >       min: 2
+    >       max: 2
+    >     memory:
+    >       min: 2
+    >       max: 2
+    >   storage:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/storage/simple-storage-resource-1.0"
+    >       meta:
+    >         uuid: "5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >         name: "Storage for [83b42dba-9078-46a2-8423-b6fda8e0b605]"
+    >         url: "http://127.0.0.1:8082/storage/5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >         created: "2026-03-31T12:08:30.497974Z"
+    >       phase: "INITIALIZING"
+    >       schedule:
+    >         preparing:
+    >           duration: "PT5S"
+    >         available:
+    >           start: "1970-01-01T00:00:05Z/PT0S"
+    >         releasing:
+    >           start: "1970-01-01T00:00:15Z"
+    >           duration: "PT10S"
+    >       data:
+    >         - "541f6ad6-790d-4994-ba6f-4395de604160"
+    >   data:
+    >     - kind: "https://www.purl.org/ivoa.net/EB/schema/v1.0/types/data/simple-data-resource-1.0"
+    >       meta:
+    >         uuid: "541f6ad6-790d-4994-ba6f-4395de604160"
+    >         name: "example-data-001"
+    >         url: "http://127.0.0.1:8082/data/541f6ad6-790d-4994-ba6f-4395de604160"
+    >         created: "2026-03-31T12:08:30.512956Z"
+    >       phase: "INITIALIZING"
+    >       schedule:
+    >         preparing:
+    >           start: "1970-01-01T00:00:05Z"
+    >           duration: "PT5S"
+    >         available:
+    >           start: "1970-01-01T00:00:10Z/PT0S"
+    >         releasing:
+    >           start: "1970-01-01T00:00:10Z"
+    >           duration: "PT10S"
+    >       storage: "5d6e7d16-f2d9-4bb1-9b6b-c1bc016ec95c"
+    >       location: "https://example.org/data/example-data-001.vot"
+    >   phase: "OFFERED"
+    >   expires: "2026-03-31T12:13:30.312482Z"
+
+
+    Things we need to add.
+
+    Pool for the storage to keep track of how much we have allocated.
+    Start with a pool, then allocate blocks from it.
+
+    Set the start times for the storage and data (defaulting to 1970).
+
+    Offer type is scheduled-execution-session-1.0, but it is missing a schedule block.
+
+    AbstractDataResourceEntity
+        calculates schedule working forwards from storage, not backwards from compute
+        need to go through and refactor the scheduling based on the compute offer
+        and estimated transfer time
+
+    Refactoring scheduling will take time.
+    Can we implement Docker volumes first ?
+
+
+
+
+
+
+

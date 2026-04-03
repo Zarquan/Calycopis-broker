@@ -220,7 +220,7 @@ implements DockerDockerContainerValidator
         }
 
     @Override
-    protected Long estimatePrepareTime(final IvoaDockerContainer validated)
+    protected Long getPrepareDuration(final IvoaDockerContainer validated)
         {
         switch(this.imageCacheStatus)
             {
@@ -233,7 +233,7 @@ implements DockerDockerContainerValidator
         }
 
     @Override
-    protected Long estimateReleaseTime(final IvoaDockerContainer validated)
+    protected Long getReleaseDuration(final IvoaDockerContainer validated)
         {
         return DEFAULT_RELEASE_TIME;
         }

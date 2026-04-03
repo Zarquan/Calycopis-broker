@@ -45,7 +45,7 @@
 
 package net.ivoa.calycopis.datamodel.volume;
 
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
@@ -69,7 +69,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
          * Build an entity based on a validation result.
          *
          */
-        public AbstractVolumeMountEntity build(final SimpleComputeResourceEntity computeResource);
+        public AbstractVolumeMountEntity build(final AbstractComputeResourceEntity computeResource);
         }
 
     /**
@@ -85,7 +85,7 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
      * Simple Bean implementation of a VolumeMountValidator result.
      *
      */
-    public static class ResultBean
+    public abstract static class ResultBean
     extends Validator.ResultBean<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
     implements Result
         {
@@ -110,12 +110,6 @@ extends Validator<IvoaAbstractVolumeMount, AbstractVolumeMountEntity>
                 result,
                 object
                 );
-            }
-
-        @Override
-        public AbstractVolumeMountEntity build(SimpleComputeResourceEntity computeResource)
-            {
-            return null;
             }
         }
     }

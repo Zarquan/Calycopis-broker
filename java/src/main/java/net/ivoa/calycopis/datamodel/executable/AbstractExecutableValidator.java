@@ -75,7 +75,7 @@ extends Validator<IvoaAbstractExecutable, AbstractExecutableEntity>
      * Simple Bean implementation of an ExecutableValidator result.
      * 
      */
-    public static class ResultBean
+    public static abstract class ResultBean
     extends Validator.ResultBean<IvoaAbstractExecutable, AbstractExecutableEntity>
     implements Result
         {

@@ -55,6 +55,7 @@
 package net.ivoa.calycopis.datamodel.data.simple;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -152,56 +153,43 @@ implements SimpleDataResourceValidator
             );
 
         //
-        // Calculate the preparation time.
-        // TODO Move this to after we have validated everything.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-        
-        //
-        // Everything is good, create our Result.
+        // Everything is good, create a validator Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){
                 @Override
-                public SimpleDataResourceEntity build(final SimpleExecutionSessionEntity session)
+                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return entityFactory.create(
+                    this.entity = SimpleDataResourceValidatorImpl.this.entityFactory.create(
                         session,
                         storage.getEntity(),
                         this
                         );
+                    return this.entity ;
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(validated);
+                    return SimpleDataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return SimpleDataResourceValidatorImpl.this.getReleaseDuration(
+                        validated
+                        );
                     }
                 };
-            //
-            // Add our Result to our context.
             context.addDataValidatorResult(
                 dataResult
                 );
-            //
-            // Add the DataResource to the StorageResource.
             storage.addDataResourceResult(
                 dataResult
                 );
@@ -262,9 +250,15 @@ implements SimpleDataResourceValidator
         }
 
     /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
+     * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaSimpleDataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaSimpleDataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaSimpleDataResource validated);
+
     }

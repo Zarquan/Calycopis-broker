@@ -125,55 +125,42 @@ implements JupyterNotebookValidator
             validated,
             context
             );
-
-        //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
         
         //
-        // Everything is good, create our Result.
+        // Everything is good, create a validator Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
-            AbstractExecutableValidator.Result result = new AbstractExecutableValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated
-                ){
-                @Override
-                public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
-                    {
-                    return entityFactory.create(
-                        session,
-                        this
-                        );
-                    }
-
-                @Override
-                public Long getPreparationTime()
-                    {
-                    return estimatePrepareTime(
-                        validated
-                        );
-                    }
-                };
-            //
-            // Add our Result to our context
             context.setExecutableResult(
-                result
+                new AbstractExecutableValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ){
+                    @Override
+                    public AbstractExecutableEntity build(final SimpleExecutionSessionEntity session)
+                        {
+                        this.entity = JupyterNotebookValidatorImpl.this.entityFactory.create(
+                            session,
+                            this
+                            );
+                        return this.entity;
+                        }
+    
+                    @Override
+                    public Long getPrepareDuration()
+                        {
+                        return JupyterNotebookValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+    
+                    @Override
+                    public Long getReleaseDuration()
+                        {
+                        return JupyterNotebookValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
                 );
             return ResultEnum.ACCEPTED;
             }
@@ -234,18 +221,18 @@ implements JupyterNotebookValidator
         }
 
     /**
-     * Predict the time to prepare a DockerContainer for execution.
+     * Get the prepare duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaJupyterNotebook validated);
+    protected abstract Long getPrepareDuration(final IvoaJupyterNotebook validated);
 
     /**
-     * Predict the time to release a DockerContainer.
+     * Get the release duration for a resource.
      * This will be platform dependent, so it should be implemented in the platform specific subclasses.
      * 
      */
-    protected abstract Long estimateReleaseTime(final IvoaJupyterNotebook validated);
+    protected abstract Long getReleaseDuration(final IvoaJupyterNotebook validated);
     
     }
 

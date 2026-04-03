@@ -44,13 +44,21 @@
  */
 package net.ivoa.calycopis.datamodel.volume.simple;
 
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
-import net.ivoa.calycopis.datamodel.compute.simple.SimpleComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntityFactory;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
+import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidatorImpl;
 import net.ivoa.calycopis.functional.validator.Validator;
 import net.ivoa.calycopis.spring.model.IvoaAbstractVolumeMount;
+import net.ivoa.calycopis.spring.model.IvoaComponentMetadata;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
 
 /**
@@ -58,25 +66,28 @@ import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
  *
  */
 @Slf4j
-public class SimpleVolumeMountValidatorImpl
+public abstract class SimpleVolumeMountValidatorImpl
 extends AbstractVolumeMountValidatorImpl
 implements SimpleVolumeMountValidator
     {
-    /**
-     * Factory for creating Entities.
-     *
-     */
-    final SimpleVolumeMountEntityFactory entityFactory;
+
+    final SimpleVolumeMountEntityFactory volumeMountFactory;
+    final AbstractDataResourceEntityFactory dataResourceFactory;
+    final AbstractStorageResourceEntityFactory storageResourceFactory;
 
     /**
      * Public constructor.
      *
      */
     public SimpleVolumeMountValidatorImpl(
-        final SimpleVolumeMountEntityFactory entityFactory
+        final SimpleVolumeMountEntityFactory volumeMountFactory,
+        final AbstractDataResourceEntityFactory dataResourceFactory,
+        final AbstractStorageResourceEntityFactory storageResourceFactory
         ){
         super();
-        this.entityFactory = entityFactory ;
+        this.volumeMountFactory = volumeMountFactory ;
+        this.dataResourceFactory = dataResourceFactory ;
+        this.storageResourceFactory = storageResourceFactory ;
         }
 
     @Override
@@ -85,7 +96,7 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaAbstractVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
+        log.debug("Volume [{}][{}]", requested.getMeta(), requested.getClass().getName());
         switch(requested)
             {
             case IvoaSimpleVolumeMount simple:
@@ -107,9 +118,8 @@ implements SimpleVolumeMountValidator
         final OfferSetRequestParserContext context
         ){
         log.debug("validate(IvoaSimpleVolumeMount)");
-        log.debug("Resource [{}][{}]", requested.getMeta(), requested.getClass().getName());
+        log.debug("Volume [{}][{}]", requested.getMeta(), requested.getClass().getName());
 
-        boolean success = true ;
         IvoaSimpleVolumeMount validated = new IvoaSimpleVolumeMount()
            .kind(SimpleVolumeMount.TYPE_DISCRIMINATOR)
            .meta(
@@ -119,58 +129,236 @@ implements SimpleVolumeMountValidator
                     )
                );
         
-        validated.setPath(
-            requested.getPath()
-            );
-        validated.setMode(
-            requested.getMode()
-            );
-        validated.setCardinality(
-            requested.getCardinality()
-            );
-        //
-        // TODO Check the list of data resources.
-        //
-        
-        
-        //
-        // Everything is good, create our Result.
-        if (success)
+        if (requested.getMode() == null)
             {
-            //
-            // Create a new validator Result.
-            AbstractVolumeMountValidator.Result volumeResult = new AbstractVolumeMountValidator.ResultBean(
-                Validator.ResultEnum.ACCEPTED,
-                validated
-                ){
-                @Override
-                public SimpleVolumeMountEntity build(final SimpleComputeResourceEntity computeResource)
-                    {
-                    return entityFactory.create(
-                        computeResource,
-                        this
-                        );
-                    }
+            validated.setMode(
+                IvoaSimpleVolumeMount.ModeEnum.READONLY
+                );
+            }
+        else {
+            validated.setMode(
+                requested.getMode()
+                );
+            }
+        final String targetUuid = requested.getResource() ;
+        log.debug(
+            "Target resource [{}] for volume [{}]",
+            targetUuid,
+            validated.getMeta().getUuid()
+            );
 
-                @Override
-                public Long getPreparationTime()    
-                    {
-                    // TODO This will be platform dependent.
-                    return DEFAULT_PREPARE_TIME;
-                    }
-                };
-            //
-            // Add our Result to our context.
+        if (targetUuid == null)
+            {
+            context.addError(
+                "uri:resource-not-found",
+                "Volume resource is null"
+                );
+            context.valid(
+                false
+                );
+            return ResultEnum.FAILED;
+            }
+        
+        final AbstractDataResourceValidator.Result dataResult = context.findDataValidatorResult(
+                targetUuid 
+                );
+        final AbstractStorageResourceValidator.Result storageResult = context.findStorageValidatorResult(
+                targetUuid
+                );
+        
+        if ((dataResult == null) && (storageResult == null))
+            {
+            log.debug(
+                "Unable to locate resource [{}] for volume [{}]",
+                targetUuid,
+                validated.getMeta().getUuid()
+                );
+            context.addError(
+                "uri:resource-not-found",
+                "Unable to locate resource [{}] for volume [{}]",
+                Map.of(
+                    "resource",
+                    targetUuid,
+                    "volume",
+                    validated.getMeta().getUuid()
+                    )
+                );
+            context.valid(
+                false
+                );
+            return ResultEnum.FAILED;
+            }
+        
+        if ((dataResult != null) && (storageResult != null))
+            {
+            log.debug(
+                "Duplicate resource [{}][{}] for volume [{}]",
+                dataResult.getName(),
+                storageResult.getName(),
+                validated.getMeta().getUuid()
+                );
+            context.addError(
+                "uri:duplicate-resource",
+                "Volume target must be EITHER data resource OR storage resource, not both [{}][{}]",
+                Map.of(
+                    "data",    dataResult.getEntity().getUuid(),
+                    "storage", storageResult.getEntity().getUuid()
+                    )
+                );
+            context.valid(
+                false
+                );
+            return ResultEnum.FAILED;
+            }
+
+        if ((dataResult != null) && (storageResult == null))
+            {
+            log.debug(
+                "Found data resource [{}] for volume [{}]",
+                dataResult.getName(),
+                validated.getMeta().getUuid()
+                );
+
+            ResultEnum pathResult = this.setPath(
+                context,
+                requested,
+                validated,
+                dataResult.getMeta()
+                );
+            
+            if (pathResult == ResultEnum.FAILED)
+                {
+                return ResultEnum.FAILED;
+                }
+            
             context.addVolumeValidatorResult(
-                volumeResult
+                new AbstractVolumeMountValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ){
+                    @Override
+                    public SimpleVolumeMountEntity build(
+                        final AbstractComputeResourceEntity computeResource
+                        ){
+                        return volumeMountFactory.create(
+                            computeResource,
+                            dataResult.getEntity(),
+                            this
+                            );
+                        }
+                    @Override
+                    public Long getPrepareDuration()    
+                        {
+                        return SimpleVolumeMountValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+                    @Override
+                    public Long getReleaseDuration()    
+                        {
+                        return SimpleVolumeMountValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
                 );
             return ResultEnum.ACCEPTED;
             }
-        //
-        // Something wasn't right, fail the validation.
-        else {
-            context.valid(false);
-            return ResultEnum.FAILED;
+
+        if ((dataResult == null) && (storageResult != null))
+            {
+            log.debug(
+                "Found storage resource [{}] for volume [{}]",
+                storageResult.getName(),
+                validated.getMeta().getUuid()
+                );
+            context.addVolumeValidatorResult(
+                new AbstractVolumeMountValidator.ResultBean(
+                    Validator.ResultEnum.ACCEPTED,
+                    validated
+                    ){
+                    @Override
+                    public AbstractVolumeMountEntity build(
+                        final AbstractComputeResourceEntity computeResource
+                        ){
+                        this.entity = SimpleVolumeMountValidatorImpl.this.volumeMountFactory.create(
+                            computeResource,
+                            storageResult.getEntity(),
+                            this
+                            );
+                        return this.entity ;
+                        }
+
+                    @Override
+                    public Long getPrepareDuration()    
+                        {
+                        return SimpleVolumeMountValidatorImpl.this.getPrepareDuration(
+                            validated
+                            );
+                        }
+
+                    @Override
+                    public Long getReleaseDuration()    
+                        {
+                        return SimpleVolumeMountValidatorImpl.this.getReleaseDuration(
+                            validated
+                            );
+                        }
+                    }
+                );
+            return ResultEnum.ACCEPTED;
             }
+        
+        context.valid(false);
+        return ResultEnum.FAILED;
+        
         }
+
+    public static final String DEFAULT_BASE_PATH = "/volumes";
+    
+    protected ResultEnum setPath(
+        final OfferSetRequestParserContext context,
+        final IvoaSimpleVolumeMount requested,
+        final IvoaSimpleVolumeMount validated,
+        final IvoaComponentMetadata meta
+        ){
+
+        if (requested.getPath() != null)
+            {
+            validated.setPath(
+                requested.getPath()
+                );
+            }
+        else {
+            if (meta.getName() != null)
+                {
+                validated.setPath(
+                    DEFAULT_BASE_PATH + "/" + meta.getName()
+                    );
+                }
+            else {
+                validated.setPath(
+                    DEFAULT_BASE_PATH + "/" + meta.getUuid()
+                    );
+                }
+            }
+        return ResultEnum.ACCEPTED;
+        }
+    
+    /**
+     * Predict the time to prepare the volume.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * Note - volumes are not Lifecycle components, so they don't have prepare and release phases. 
+     * 
+     */
+    protected abstract Long getPrepareDuration(final IvoaSimpleVolumeMount validated);
+
+    /**
+     * Predict the time to release the volume.
+     * This will be platform dependent, so it should be implemented in the platform specific subclasses.
+     * Note - volumes are not Lifecycle components, so they don't have prepare and release phases. 
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaSimpleVolumeMount validated);
+
     }

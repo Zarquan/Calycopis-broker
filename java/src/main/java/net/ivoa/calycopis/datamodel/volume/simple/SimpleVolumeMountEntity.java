@@ -36,15 +36,15 @@
 package net.ivoa.calycopis.datamodel.volume.simple;
 
 import java.net.URI;
-import java.util.List;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.compute.AbstractComputeResourceEntity;
-import net.ivoa.calycopis.datamodel.data.AbstractDataResource;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountEntity;
-import net.ivoa.calycopis.datamodel.volume.AbstractVolumeMountValidator;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount;
 import net.ivoa.calycopis.spring.model.IvoaSimpleVolumeMount.ModeEnum;
 import net.ivoa.calycopis.util.URIBuilder;
@@ -53,6 +53,7 @@ import net.ivoa.calycopis.util.URIBuilder;
  * A SimpleVolumeMount Entity.
  *
  */
+@Slf4j
 @Entity
 @Table(
     name = "simplevolumemounts"
@@ -80,36 +81,68 @@ public class SimpleVolumeMountEntity
         }
 
     /**
-     * Protected constructor with parent compute resource and validator result.
+     * Protected constructor with data resource and validator result.
      *
      */
     public SimpleVolumeMountEntity(
         final AbstractComputeResourceEntity computeResource,
-        final AbstractVolumeMountValidator.Result result
-        ){
-        this(
-            computeResource,
-            result,
-            (IvoaSimpleVolumeMount)result.getObject()
-            );
-        }
-    /**
-     * Protected constructor with parent compute resource and validator result.
-     *
-     */
-    public SimpleVolumeMountEntity(
-        final AbstractComputeResourceEntity computeResource,
-        final AbstractVolumeMountValidator.Result result,
-        final IvoaSimpleVolumeMount validated
+        final AbstractDataResourceEntity    dataResource,
+        final SimpleVolumeMountValidator.Result result
         ){
         super(
             computeResource,
-            validated.getMeta()
+            dataResource,
+            result.getObject().getMeta()
             );
-        
-        // TODO Add the fields ...
+        this.init(
+            result
+            );
         }
 
+    /**
+     * Protected constructor with storage resource and validator result.
+     *
+     */
+    public SimpleVolumeMountEntity(
+        final AbstractComputeResourceEntity computeResource,
+        final AbstractStorageResourceEntity storageResource,
+        final SimpleVolumeMountValidator.Result result
+        ){
+        super(
+            computeResource,
+            storageResource,
+            result.getObject().getMeta()
+            );
+        this.init(
+            result
+            );
+        }
+    
+
+    protected void init(final SimpleVolumeMountValidator.Result result)
+        {
+        if (result.getObject() != null)
+            {
+            if (result.getObject() instanceof IvoaSimpleVolumeMount)
+                {
+                IvoaSimpleVolumeMount simple = (IvoaSimpleVolumeMount) result.getObject();
+                this.mode = simple.getMode();
+                this.path = simple.getPath();
+                }
+            else {
+                log.error(
+                    "Unexpected type [{}] for validator result getObject()",
+                    result.getObject().getClass().getSimpleName()
+                    );
+                }
+            }
+        else {
+            log.error(
+                "Null validator result getObject()"
+                );
+            }
+        }
+    
     private ModeEnum mode;
     @Override
     public ModeEnum getMode()
@@ -122,13 +155,6 @@ public class SimpleVolumeMountEntity
     public String getPath()
         {
         return this.path;
-        }
-
-    @Override
-    public List<AbstractDataResource> getDataResources()
-        {
-        // TODO Auto-generated method stub
-        return null;
         }
 
     @Override
@@ -148,6 +174,20 @@ public class SimpleVolumeMountEntity
         super.fillBean(
             bean
             );
+        bean.setPath(path);
+        bean.setMode(mode);
+        if (this.getDataResource() != null)
+            {
+            bean.setResource(
+                this.getDataResource().getUuid().toString()
+                );
+            }
+        if (this.getStorageResource() != null)
+            {
+            bean.setResource(
+                this.getStorageResource().getUuid().toString()
+                );
+            }
         return bean;
         }
     }

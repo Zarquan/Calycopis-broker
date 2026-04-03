@@ -63,7 +63,7 @@ extends LifecycleComponentEntity
 
         //
         // Start preparing when the session starts preparing.
-        this.prepareDurationSeconds     = result.getPreparationTime();
+        this.prepareDurationSeconds     = result.getPrepareDuration();
         this.prepareStartInstantSeconds = session.getPrepareStartInstantSeconds();
 
         //
@@ -75,7 +75,7 @@ extends LifecycleComponentEntity
         //
         // Hard coded 1s release duration.
         // Start releasing as soon as session availability ends.
-        this.releaseDurationSeconds = 1L ; 
+        this.releaseDurationSeconds     = result.getReleaseDuration(); ; 
         this.releaseStartInstantSeconds = session.getReleaseStartInstantSeconds();         
 
         }

@@ -55,22 +55,6 @@ implements MockSimpleStorageResourceValidator
         super(entityFactory);
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 5L;
-
-    @Override
-    protected Long estimatePrepareTime(final IvoaSimpleStorageResource validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
-
-    public static final Long DEFAULT_RELEASE_TIME = 1L;
-
-    @Override
-    protected Long estimateReleaseTime(final IvoaSimpleStorageResource validated)
-        {
-        return DEFAULT_RELEASE_TIME;
-        }
-
     public static final Long MIN_SIZE_DEFAULT =    1L ;
     public static final Long MAX_SIZE_LIMIT   = 1000L ;
 
@@ -140,4 +124,45 @@ implements MockSimpleStorageResourceValidator
 
         return success;
         }
+
+    /**
+     * Default prepare duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
+
+    /**
+     * Get the prepare duration for a resource.
+     * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaSimpleStorageResource validated)
+        {
+        Long duration = getPrepareDuration(
+            validated.getSchedule()
+            );
+        if (duration != null)
+            {
+            return duration ;
+            }
+        else {
+            return DEFAULT_PREPARE_ESTIMATE ;
+            }
+        }
+
+    /**
+     * Default release duration, 10 seconds.
+     * 
+     */
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 10L;
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected Long getReleaseDuration(final IvoaSimpleStorageResource validated)
+        {
+        return DEFAULT_RELEASE_ESTIMATE ;
+        }
+    
     }

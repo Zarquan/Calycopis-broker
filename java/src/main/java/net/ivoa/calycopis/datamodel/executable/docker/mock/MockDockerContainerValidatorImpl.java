@@ -44,22 +44,6 @@ implements MockDockerContainerValidator
         super(entityFactory);
         }
 
-    public static final Long DEFAULT_PREPARE_TIME = 35L;
-
-    @Override
-    protected Long estimatePrepareTime(final IvoaDockerContainer validated)
-        {
-        return DEFAULT_PREPARE_TIME;
-        }
-
-    public static final Long DEFAULT_RELEASE_TIME = 1L;
-
-    @Override
-    protected Long estimateReleaseTime(final IvoaDockerContainer validated)
-        {
-        return DEFAULT_RELEASE_TIME;
-        }
-
     public static final List<String> PORT_PATH_BLACKLIST = List.of(
         "/badpath",
         "/alsobadpath"
@@ -108,5 +92,45 @@ implements MockDockerContainerValidator
         else {
             return true;
             }
+        }
+
+    /**
+     * Default prepare duration, 30 seconds.
+     * 
+     */
+    public static final Long DEFAULT_PREPARE_ESTIMATE = 30L;
+
+    /**
+     * Get the prepare duration for a resource.
+     * Returns DEFAULT_PREPARE_ESTIMATE if the request does not specify a value.
+     * 
+     */
+    protected Long getPrepareDuration(final IvoaDockerContainer validated)
+        {
+        Long duration = getPrepareDuration(
+            validated.getSchedule()
+            );
+        if (duration != null)
+            {
+            return duration ;
+            }
+        else {
+            return DEFAULT_PREPARE_ESTIMATE ;
+            }
+        }
+
+    /**
+     * Default release duration, 0 seconds.
+     * 
+     */
+    public static final Long DEFAULT_RELEASE_ESTIMATE = 0L;
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected Long getReleaseDuration(final IvoaDockerContainer validated)
+        {
+        return DEFAULT_RELEASE_ESTIMATE ;
         }
     }

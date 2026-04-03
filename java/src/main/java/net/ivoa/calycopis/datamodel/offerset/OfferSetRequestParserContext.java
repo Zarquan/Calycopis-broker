@@ -145,7 +145,6 @@ extends MessageSubject
      * Find a DataValidatorResult.
      *
      */
-    @Deprecated
     public AbstractDataResourceValidator.Result findDataValidatorResult(final String key);
 
     /**

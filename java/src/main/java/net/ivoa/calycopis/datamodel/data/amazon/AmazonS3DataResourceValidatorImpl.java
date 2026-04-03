@@ -55,6 +55,7 @@
 package net.ivoa.calycopis.datamodel.data.amazon;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -157,46 +158,38 @@ implements AmazonS3DataResourceValidator
             );
 
         //
-        // Calculate the preparation time.
-        /*
-         * 
-        validated.setSchedule(
-            new IvoaComponentSchedule()
-            );
-        success &= setPrepareDuration(
-            context,
-            validated.getSchedule(),
-            this.predictPrepareTime(
-                validated
-                )
-            );
-         * 
-         */
-
-        //
         // Everything is good, create our Result.
         if (success)
             {
-            //
-            // Create a new validator Result.
             AbstractDataResourceValidator.Result dataResult = new AbstractDataResourceValidator.ResultBean(
                 Validator.ResultEnum.ACCEPTED,
                 validated
                 ){
                 @Override
-                public AmazonS3DataResourceEntity build(final SimpleExecutionSessionEntity session)
+                public AbstractDataResourceEntity build(final SimpleExecutionSessionEntity session)
                     {
-                    return entityFactory.create(
+                    this.entity = AmazonS3DataResourceValidatorImpl.this.entityFactory.create(
                         session,
                         storage.getEntity(),
                         this
                         );
+                    return this.entity;
                     }
 
                 @Override
-                public Long getPreparationTime()
+                public Long getPrepareDuration()
                     {
-                    return estimatePrepareTime(validated);
+                    return AmazonS3DataResourceValidatorImpl.this.getPrepareDuration(
+                        validated
+                        );
+                    }
+
+                @Override
+                public Long getReleaseDuration()
+                    {
+                    return AmazonS3DataResourceValidatorImpl.this.getReleaseDuration(
+                        validated
+                        );
                     }
                 };
             //
@@ -205,7 +198,7 @@ implements AmazonS3DataResourceValidator
                 dataResult
                 );
             //
-            // Add the DataResource to the StorageResource.
+            // Add our Result to the StorageResource.
             storage.addDataResourceResult(
                 dataResult
                 );
@@ -295,10 +288,17 @@ implements AmazonS3DataResourceValidator
         return success;
         }
 
+
     /**
-     * Estimate the preparation time for this data resource.
-     * Subclasses must provide a platform-specific implementation.
+     * Get the prepare duration for a resource.
      * 
      */
-    protected abstract Long estimatePrepareTime(final IvoaS3DataResource validated);
+    protected abstract Long getPrepareDuration(final IvoaS3DataResource validated);
+
+    /**
+     * Get the release duration for a resource.
+     * 
+     */
+    protected abstract Long getReleaseDuration(final IvoaS3DataResource validated);
+    
     }
