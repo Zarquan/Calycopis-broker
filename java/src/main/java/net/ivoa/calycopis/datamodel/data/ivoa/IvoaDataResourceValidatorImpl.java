@@ -146,7 +146,7 @@ implements IvoaDataResourceValidator
             context
             );
 
-        AbstractStorageResourceValidator.Result storage = storageCheck(
+        AbstractStorageResourceValidator.Result storage = linkStorage(
             requested,
             validated,
             context

@@ -88,12 +88,9 @@ implements AmazonS3DataResourceValidator
      * 
      */
     public AmazonS3DataResourceValidatorImpl(
-        final AmazonS3DataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final AmazonS3DataResourceEntityFactory entityFactory
         ){
-        super(
-            storageValidators
-            );
+        super();
         this.entityFactory = entityFactory ;
         }
 
@@ -144,7 +141,7 @@ implements AmazonS3DataResourceValidator
             context
             );
 
-        AbstractStorageResourceValidator.Result storage = storageCheck(
+        AbstractStorageResourceValidator.Result storage = linkStorage(
             requested,
             validated,
             context

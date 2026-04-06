@@ -87,12 +87,9 @@ implements SimpleDataResourceValidator
      * 
      */
     public SimpleDataResourceValidatorImpl(
-        final SimpleDataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final SimpleDataResourceEntityFactory entityFactory
         ){
-        super(
-            storageValidators
-            );
+        super();
         this.entityFactory = entityFactory ;
         }
     
@@ -139,7 +136,7 @@ implements SimpleDataResourceValidator
             context
             );
 
-        AbstractStorageResourceValidator.Result storage = storageCheck(
+        AbstractStorageResourceValidator.Result storage = linkStorage(
             requested,
             validated,
             context
