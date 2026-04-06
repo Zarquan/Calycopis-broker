@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
+import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
@@ -68,20 +70,15 @@ public class MockSimpleDataResourceValidatorImpl
 extends SimpleDataResourceValidatorImpl
 implements MockSimpleDataResourceValidator
     {
-    /**
-     * A factory for StorageResource Validators.
-     *
-     */
-    private final AbstractStorageResourceValidatorFactory storageValidators;
 
     public MockSimpleDataResourceValidatorImpl(
         final SimpleDataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final MockDataStorageLinker storageLinker
         ){
         super(
-            entityFactory
+            entityFactory,
+            storageLinker
             );
-        this.storageValidators = storageValidators ;
         }
 
     public static final List<String> EXCLUDED_LOCATIONS = List.of(
@@ -147,131 +144,5 @@ implements MockSimpleDataResourceValidator
     protected Long getReleaseDuration(final IvoaSimpleDataResource validated)
         {
         return DEFAULT_RELEASE_ESTIMATE ;
-        }
-
-    /*
-     * We are creating a storage resource for a specific data resource.
-     * The type of storage depends on the type of the data resource and the platform.
-     * Specifically, on the Docker platform, the storage resource can be a VolumeMount or a BindMount,
-     * depending on the protocol of the data location file:// or http://.
-     */
-    @Override
-    protected AbstractStorageResourceValidator.Result linkStorage(
-        final IvoaAbstractDataResource requested,
-        final IvoaAbstractDataResource validated,
-        final OfferSetRequestParserContext context
-        ){
-        AbstractStorageResourceValidator.Result storageResult ;
-        
-        if (requested.getStorage() != null)
-            {
-            storageResult = context.findStorageValidatorResult(
-                requested.getStorage()
-                );
-            if (storageResult != null)
-                {
-                if (ResultEnum.ACCEPTED.equals(storageResult.getEnum()))
-                    {
-                    IvoaAbstractStorageResource storageResource = storageResult.getObject(); 
-                    if (null != storageResource)
-                        {
-                        validated.setStorage(
-                            context.makeStorageValidatorResultKey(
-                                storageResource 
-                                )
-                            );
-                        }
-                    else {
-                        log.error("Storage result has null object [{}]", storageResult);
-                        context.addWarning(
-                            "urn:storage-required",
-                            "Unable to assign storage resource",
-                            Map.of(
-                                "storageref",
-                                requested.getStorage()
-                                )
-                            );
-                        }
-                    }
-                else {
-                    log.warn("Unexpected storage result state [{}]", storageResult.getEnum());
-                    context.addWarning(
-                        "urn:storage-required",
-                        "Unable to assign storage resource",
-                        Map.of(
-                            "storageref",
-                            requested.getStorage()
-                            )
-                        );
-                    }
-                }
-            else {
-                context.addWarning(
-                    "urn:resource-not-found",
-                    "Unable to find storage resource [${storageref}]",
-                    Map.of(
-                        "storageref",
-                        requested.getStorage()
-                        )
-                    );
-                }
-            }
-
-        else {
-            // TODO Replace this with the default storage pool for this platform.
-
-            // Create a new StorageResource template.
-            IvoaSimpleStorageResource storageResource = new IvoaSimpleStorageResource()
-                .kind(
-                    SimpleStorageResource.TYPE_DISCRIMINATOR
-                    )                    
-                .meta(
-                    new IvoaComponentMetadata().name(
-                        "Storage for [" + context.makeDataValidatorResultKey(requested) + "]"
-                        )
-                );
-
-            //
-            // Validate the new StorageResource.
-            storageValidators.validate(
-                storageResource,
-                context
-                );
-            // TODO Check the return value ?
-            
-            //
-            // Find the validation result in the context.
-            storageResult = context.findStorageValidatorResult(
-                storageResource
-                );
-
-            //
-            // If the new storage was accepted, add a reference to our data resource.
-            if (storageResult != null)
-                {
-                // TODO This is almost but not quite the same as above.
-                // Needs a refactor to remove duplication.
-                if (null != storageResult.getObject())
-                    {
-                    log.debug("Adding storage reference [{}][{}]", storageResult.getObject().getMeta().getName(),storageResult.getObject().getMeta().getUuid());
-                    validated.setStorage(
-                        context.makeStorageValidatorResultKey(
-                            storageResult.getObject()
-                            )
-                        );
-                    }
-                else {
-                    log.error("Storage result has null object [{}]", storageResult);
-                    }
-                }
-            else {
-                log.warn("Storage validation failed");
-                context.addWarning(
-                    "urn:storage-required",
-                    "Unable to assign storage resource"
-                    );
-                }
-            }
-        return storageResult;
         }
     }

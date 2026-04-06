@@ -104,10 +104,12 @@ import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourc
 import net.ivoa.calycopis.datamodel.compute.simple.mock.MockSimpleComputeResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorFactory;
+import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.amazon.mock.MockAmazonS3DataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.ivoa.mock.MockIvoaDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.simple.mock.MockSimpleDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.skao.mock.MockSkaoDataResourceEntityFactory;
@@ -194,25 +196,25 @@ implements MockPlatform
             new MockSkaoDataResourceValidatorImpl(
                 this.jdbcTemplate,
                 this.mockSkaoDataResourceEntityFactory,
-                this.storageResourceValidatorFactory
+                this.dataStorageLinker
                 )
             );
         this.dataResourceValidatorFactory.addValidator(
             new MockIvoaDataResourceValidatorImpl(
                 this.mockIvoaDataResourceEntityFactory,
-                this.storageResourceValidatorFactory
+                this.dataStorageLinker
                 )
             );
         this.dataResourceValidatorFactory.addValidator(
             new MockAmazonS3DataResourceValidatorImpl(
                 this.mockAmazonS3DataResourceEntityFactory,
-                this.storageResourceValidatorFactory
+                this.dataStorageLinker
                 )
             );
         this.dataResourceValidatorFactory.addValidator(
             new MockSimpleDataResourceValidatorImpl(
                 this.mockSimpleDataResourceEntityFactory,
-                this.storageResourceValidatorFactory
+                this.dataStorageLinker
                 )
             );
         this.volumeMountValidatorFactory.addValidator(
@@ -314,6 +316,14 @@ implements MockPlatform
         return this.storageResourceValidatorFactory;
         }
 
+    @Autowired
+    private MockDataStorageLinker dataStorageLinker;
+    @Override
+    public AbstractDataStorageLinker getDataStorageLinker()
+        {
+        return this.dataStorageLinker;
+        }
+    
 // Volume
     
     @Autowired

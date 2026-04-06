@@ -66,6 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntity;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidatorImpl;
+import net.ivoa.calycopis.datamodel.data.AbstractDataStorageLinker;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidator;
@@ -107,10 +108,10 @@ implements SkaoDataResourceValidator
     public SkaoDataResourceValidatorImpl(
         final JdbcTemplate jdbcTemplate,
         final SkaoDataResourceEntityFactory entityFactory,
-        final AbstractStorageResourceValidatorFactory storageValidators
+        final AbstractDataStorageLinker storageLinker
         ){
         super(
-            storageValidators
+            storageLinker
             );
         this.jdbcTemplate  = jdbcTemplate  ;
         this.entityFactory = entityFactory ;

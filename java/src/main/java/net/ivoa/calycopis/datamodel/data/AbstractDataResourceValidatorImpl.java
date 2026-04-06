@@ -45,11 +45,16 @@ extends AbstractValidatorImpl<IvoaAbstractDataResource, AbstractDataResourceEnti
 implements AbstractDataResourceValidator
     {
 
+    private final AbstractDataStorageLinker storageLinker ;
+    
     /**
      * 
      */
-    public AbstractDataResourceValidatorImpl(){
+    public AbstractDataResourceValidatorImpl(
+        final AbstractDataStorageLinker storageLinker
+        ){
         super();
+        this.storageLinker = storageLinker ;
         }
 
     /**
@@ -85,9 +90,16 @@ implements AbstractDataResourceValidator
      * Find (or create) the corresponding storage resource.
      *  
      */
-    protected abstract AbstractStorageResourceValidator.Result linkStorage(
+    protected AbstractStorageResourceValidator.Result linkStorage(
         final IvoaAbstractDataResource requested,
         final IvoaAbstractDataResource validated,
         final OfferSetRequestParserContext context
-        );
+        ){
+        return this.storageLinker.linkStorage(
+            requested,
+            validated,
+            context
+            );
+        }
     }
+   
