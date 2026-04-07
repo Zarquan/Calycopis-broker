@@ -1,0 +1,189 @@
+#
+# <meta:header>
+#   <meta:licence>
+#     Copyright (c) 2026, Manchester (http://www.manchester.ac.uk/)
+#
+#     This information is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 3 of the License, or
+#     (at your option) any later version.
+#
+#     This information is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this software. If not, see <http://www.gnu.org/licenses/>.
+#   </meta:licence>
+# </meta:header>
+#
+#zrq-notes-indent
+#
+# AIMetrics: []
+#
+
+    Target:
+
+        Implementing volumes (cont.)
+
+    Result:
+
+        Work in progress ...
+
+# -----------------------------------------------------
+
+    IvoaSimpleDataResource
+        uuid: 20
+        mode: readonly/readwrite
+        location: http://...
+        storage: 21
+
+    IvoaSimpleCompResource
+        uuid: 22
+        volumes
+            - uuid: 23
+              path: ...
+              mode: ...
+              resource: data 20
+
+    Validate data
+    IvoaSimpleDataResource
+        location.startsWith("file://")
+        => DockerFileResourceValidator
+
+        location.startsWith("http://")
+        location.startsWith("https://")
+        => DockerHttpResourceValidator
+
+    DockerFileResourceValidator
+    DockerHttpResourceValidator
+
+        validate()
+
+            // DockerHttpResourceValidator
+            // Validate the remote data
+            http head
+                check exists
+                check access
+                get size
+            estimate transfer time
+
+            // DockerFileResourceValidator
+            // Validate the local data
+            check file/path/mode
+
+            // DockerSimpleDataResource
+            // Call platform to get factory to create storage
+            platform.getDataStorageLinker().linkStorage(
+                IvoaAbstractDataResource requested
+                IvoaAbstractDataResource validated
+                ){
+                switch(requested.getClass())
+                    IvoaSimpleDataResource
+                        location.startsWith("http://")
+                        location.startsWith("https://")
+                            => validator/builder for DockerVolumeMountStorage
+
+                        location.startsWith("file://")
+                            => validator/builder for DockerBindMountStorage
+
+
+
+
+    Validate compute
+    DockerSimpleCompute
+
+        foreach volume
+            validate volume
+
+    DockerVolumeMountStorage
+        validate()
+            check space from volume pool
+            later - booking space from the pool
+
+        prepare()
+            create docker-volume
+
+        release()
+            delete docker-volume
+
+    DockerBindMountStorage
+        validate()
+            check path is accessible
+            if endsWith("/")
+                checkDirectory(mode)
+            else
+                checkFile(mode)
+
+        checkFile(mode)
+            if file exists
+                check mode matches
+            else
+                check parent writable
+            if mode = writeable
+                check available space
+
+        checkDirectory(mode)
+            if directory exists
+                check mode
+            else
+                check parent writable
+
+        release()
+            --
+
+
+    DockerHttpDataResource
+    extends DockerRemoteDataResource
+    extends DockerSimpleDataResource
+
+        // DockerRemoteDataResource
+        prepare()
+            Download data into volume
+                Using curl/wget container
+                    from url
+                    to volume/path
+
+        // DockerSimpleDataResource
+        release()
+            --
+
+
+    DockerFileDataResource
+    extends DockerLocalDataResource
+    extends DockerSimpleDataResource
+
+        // DockerLocalDataResource
+        prepare()
+            Create parent directory.
+
+        // DockerSimpleDataResource
+        release()
+            --
+
+
+    DockerSimpleCompute
+
+        prepare()
+            for each volume
+                MountList.add
+                    DockerHttpDataResource.getStorage()
+                        => DockerVolumeMountStorage implements DockerVolumeMount
+                        DockerVolumeMountStorage.getMountIdent()
+                            => docker-volume.getVolumeName()
+                            => "{volume-ident}:{mount-path} ro/rw"
+
+                    DockerFileDataResource.getStorage()
+                        => DockerBindMountStorage implements DockerVolumeMount
+                        DockerBindMountStorage.getMountIdent()
+                            => getHostPath()
+                            => "{host-path}:{mount-path} ro/rw"
+
+
+        release()
+            Stop container
+            Delete container
+
+
+

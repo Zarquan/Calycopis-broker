@@ -25,7 +25,7 @@
 
     Target:
 
-        Success
+        Implementing volumes (cont.)
 
     Result:
 
@@ -436,10 +436,11 @@ EOF
         Estimate transfer time
 
         Create /find storage
-            Call platform to get factory to create storage
-            SimpleStorageFactory.create("http") => DockerVolumeMountStorage
-            "storage for data 20"
-            set storage size
+            // Call platform to get factory to create storage
+            platform.getDataStorageLinker().linkStorage(...)
+                Create/find "storage for data 20"
+                set storage size
+
 
     Validate storage
     DockerSimpleVolumeStorage
@@ -593,96 +594,6 @@ EOF
     Release storage
     DockerBindMountStorage
         --
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    DataResource
-        uuid: 20
-        mode: readonly/readwrite
-        location: file://...
-        storage: 21
-
-    StorageResource
-        uuid: 21
-        desc: storage for data 20
-
-    CompResource
-        uuid: 22
-        volumes
-            - uuid: 23
-              path: ...
-              mode: ...
-              resource: data 20
-
-    Validate data
-        file stat
-            check exists
-            check access
-            get size
-            transfer time = 0
-
-        Create storage
-            "storage for data 20"
-            set storage size
-            Validate storage
-                type = docker mount
-                prepare time = 0
-
-    Validate compute
-        validate volumes
-            mode == READONLY
-            mode == READWRITE
-                check data mode
-            path is valid
-                defaults using data.name
-                defaults using data.uuid
-
-    Prepare storage
-        --
-
-    Prepare data
-        --
-
-    Prepare compute
-        Run container
-            mount+path ro/rw
-
-    Release compute
-        Stop container
-        Delete container
-
-    Release data
-        --
-
-    Release storage
-        --
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

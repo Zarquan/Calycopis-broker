@@ -25,7 +25,7 @@
 
     Target:
 
-        Implementing volumes (cont).
+        Implementing volumes (cont.)
 
     Result:
 
@@ -683,21 +683,21 @@ EOF
     >     ⬢ Read 2 files
     >       Read .../datamodel/data/AbstractDataResourceEntity.java
     >       Read ...datamodel/volume/AbstractVolumeMountEntity.java
-    >   
+    >
     >     The problem is a case mismatch. In AbstractDataResourceEntity line 141, the @OneToMany mapping references:
-    >   
+    >
     >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/data/AbstractDataResourceEntity.java lines 141-141
-    >   
+    >
     >             mappedBy = "dataresource",
-    >   
+    >
     >     But in AbstractVolumeMountEntity line 134, the field is named dataResource (camelCase):
-    >   
+    >
     >      /calycopis/Calycopis-broker/github-zrq/java/src/main/java/net/ivoa/calycopis/datamodel/volume/AbstractVolumeMountEntity.java lines 134-134
-    >   
+    >
     >         private AbstractDataResourceEntity dataResource;
-    >   
+    >
     >     The mappedBy value must match the Java field name exactly, not the database column name. It needs to be "dataResource" (camelCase), not "dataresource".
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ .../datamodel/data/AbstractDataResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -708,19 +708,19 @@ EOF
     >     │           fetch = FetchType.LAZY,                                                                                                                                                        │
     >     │           cascade = CascadeType.ALL,                                                                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Let me also check if there are similar mappedBy mismatches elsewhere in the codebase.
-    >   
+    >
     >     ⬢ Grepped "mappedBy = "" in ...ithub-zrq/java/src/main/java/net/ivoa/calycopis
     >       Found 12 matches
-    >   
+    >
     >     There's another one. In AbstractStorageResourceEntity line 146, mappedBy = "storageresource" — but the field in AbstractVolumeMountEntity is storageResource (camelCase, line 148). Let
     >     me verify and fix.
-    >   
+    >
     >     ⬢ Read ...odel/storage/AbstractStorageResourceEntity.java lines 141-160
-    >   
+    >
     >     Same issue. The field in AbstractVolumeMountEntity is storageResource (camelCase) but mappedBy says "storageresource".
-    >   
+    >
     >     ┌──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
     >     │ ...odel/storage/AbstractStorageResourceEntity.java +1 -1                                                                                                                                 │
     >     │                                                                                                                                                                                          │
@@ -731,21 +731,21 @@ EOF
     >     │           fetch = FetchType.LAZY,                                                                                                                                                        │
     >     │           cascade = CascadeType.ALL,                                                                                                                                                     │
     >     └──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
-    >   
+    >
     >     Let me verify the build still compiles.
-    >   
+    >
     >     $ cd /calycopis/Calycopis-broker/github-zrq/java && ./mvnw clean compile -q 2>&1 | tail -20 14s
     >       WARNING: A restricted method in java.lang.System has been called
     >       WARNING: java.lang.System::load has been called by org.fusesource.jansi.internal.JansiLoader in an unnamed module
     >       (file:/root/.m2/wrapper/dists/apache-maven-3.9.9/3477a4f1/lib/jansi-2.4.1.jar)
     >       … truncated (8 more lines) · ctrl+o to expand
-    >   
+    >
     >     Compiles cleanly. The cause was a case mismatch between mappedBy values and Java field names:
     >     1. `AbstractDataResourceEntity` -- mappedBy = "dataresource" should be "dataResource" to match the field private AbstractDataResourceEntity dataResource in AbstractVolumeMountEntity
     >        (line 134).
     >     2. `AbstractStorageResourceEntity` -- Same issue: mappedBy = "storageresource" should be "storageResource" to match the field private AbstractStorageResourceEntity storageResource in
     >        AbstractVolumeMountEntity (line 148).
-    >   
+    >
     >     The mappedBy attribute in JPA refers to the Java field name (which is camelCase), not the @JoinColumn database column name (which is lowercase). The @JoinColumn(name = "dataresource")
     >     on the field is the DB column name and is fine as-is — it's only the mappedBy string that must match the Java field name exactly.
 
