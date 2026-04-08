@@ -24,6 +24,8 @@
 package net.ivoa.calycopis.datamodel.data;
 
 import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
+import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
+import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
 
 /**
  *
@@ -31,5 +33,15 @@ import net.ivoa.calycopis.datamodel.component.LifecycleComponentEntityFactory;
 public interface AbstractDataResourceEntityFactory
 extends LifecycleComponentEntityFactory<AbstractDataResourceEntity>
     {
+
+    /**
+     * Create a new data resource.
+     *
+     */
+    public AbstractDataResourceEntity create(
+        final SimpleExecutionSessionEntity session,
+        final AbstractStorageResourceEntity storage,
+        final AbstractDataResourceValidator.Result result
+        );
 
     }

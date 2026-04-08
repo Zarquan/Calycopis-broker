@@ -39,7 +39,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ivoa.calycopis.datamodel.data.simple.SimpleDataResource;
@@ -49,8 +48,7 @@ import net.ivoa.calycopis.functional.factory.FactoryBaseImpl;
  *
  */
 @Slf4j
-@Component
-public class AbstractDataResourceEntityFactoryImpl
+public abstract class AbstractDataResourceEntityFactoryImpl
 extends FactoryBaseImpl
 implements AbstractDataResourceEntityFactory
     {

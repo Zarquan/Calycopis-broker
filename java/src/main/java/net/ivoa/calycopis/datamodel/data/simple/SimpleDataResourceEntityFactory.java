@@ -23,27 +23,18 @@
 
 package net.ivoa.calycopis.datamodel.data.simple;
 
-import java.util.Optional;
-import java.util.UUID;
-
+import net.ivoa.calycopis.datamodel.data.AbstractDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.AbstractDataResourceValidator;
 import net.ivoa.calycopis.datamodel.session.simple.SimpleExecutionSessionEntity;
 import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceEntity;
-import net.ivoa.calycopis.functional.factory.FactoryBase;
 
 /**
  * A SimpleDataResource Factory.
  *
  */
 public interface SimpleDataResourceEntityFactory
-    extends FactoryBase
+extends AbstractDataResourceEntityFactory
     {
-
-    /**
-     * Select a SimpleDataResource based on UUID.
-     *
-     */
-    public Optional<SimpleDataResourceEntity> select(final UUID uuid);
 
     /**
      * Create a new SimpleDataResource based on a template.
