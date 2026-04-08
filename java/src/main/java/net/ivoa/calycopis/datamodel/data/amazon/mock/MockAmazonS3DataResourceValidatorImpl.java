@@ -51,7 +51,6 @@ import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceEntityFactor
 import net.ivoa.calycopis.datamodel.data.amazon.AmazonS3DataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaS3DataResource;
 
 /**

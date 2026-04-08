@@ -53,7 +53,6 @@ import net.ivoa.calycopis.datamodel.data.mock.MockDataStorageLinker;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceEntityFactory;
 import net.ivoa.calycopis.datamodel.data.skao.SkaoDataResourceValidatorImpl;
 import net.ivoa.calycopis.datamodel.offerset.OfferSetRequestParserContext;
-import net.ivoa.calycopis.datamodel.storage.AbstractStorageResourceValidatorFactory;
 import net.ivoa.calycopis.spring.model.IvoaSkaoDataResource;
 
 /**
